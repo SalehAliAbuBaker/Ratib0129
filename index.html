@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>Ratib0129 v2.1</title>
+<title>Ratib0129 v2.2</title>
 <meta name="theme-color" content="#0f172a">
 <link rel="manifest" id="dynamic-manifest">
 <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
@@ -32,7 +32,6 @@ header{display:flex; justify-content:space-between; align-items:center; margin-b
 .icon-btn:active { transform: scale(0.9); }
 .header-actions { display:flex; gap:8px; }
 
-/* شريط التنقل بين الصفحات */
 .nav-tabs { display: flex; gap: 8px; margin-bottom: 16px; background: var(--card); padding: 6px; border-radius: 14px; border: 1px solid var(--border); box-shadow: var(--shadow); }
 .nav-tab { flex: 1; padding: 10px 12px; border: none; background: transparent; color: var(--muted); font-family: inherit; font-weight: 700; font-size: 0.85rem; border-radius: 10px; cursor: pointer; transition: all 0.2s; text-align: center; }
 .nav-tab.active { background: var(--accent); color: #fff; box-shadow: 0 2px 8px rgba(59,130,246,0.3); }
@@ -103,16 +102,21 @@ body.privacy-active .icon-btn#privacyBtn { background: var(--accent); color: #ff
 .archive-stats span { display: block; font-size: 0.8rem; color: var(--muted); }
 
 .tx-log-item { background: var(--bg); border: 1px solid var(--border); border-radius: 12px; padding: 14px; margin-bottom: 10px; display: flex; flex-direction: column; gap: 8px; }
-.tx-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); padding-bottom: 8px; }
-.tx-badge { background: var(--accent); color: #fff; font-size: 0.75rem; padding: 3px 10px; border-radius: 20px; font-weight: 800; }
+.tx-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); padding-bottom: 8px; gap:8px; }
+.tx-badge { background: var(--accent); color: #fff; font-size: 0.75rem; padding: 3px 10px; border-radius: 20px; font-weight: 800; white-space:nowrap; }
 .tx-date { font-size: 0.82rem; color: var(--muted); font-weight: 700; }
-.tx-amount { font-weight: 800; font-size: 1.15rem; color: var(--accent); }
+.tx-amount { font-weight: 800; font-size: 1.15rem; color: var(--accent); white-space:nowrap; }
 .tx-dist { display: flex; gap: 6px; flex-wrap: wrap; font-size: 0.8rem; margin-top: 4px; }
 .tx-dist span { background: var(--card); border: 1px solid var(--border); padding: 4px 8px; border-radius: 8px; color: var(--text); font-weight: 600; }
 
+.ledger-summary { background: var(--bg); border: 1px solid var(--border); border-radius: 12px; padding: 12px 14px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items:center; font-weight: 800; font-size: 0.9rem; }
+.ledger-summary .amt { color: var(--accent); font-size: 1.05rem; }
+.month-group-header { background: var(--accent); color:#fff; padding: 8px 14px; border-radius: 10px; font-weight: 800; display: flex; justify-content: space-between; margin: 16px 0 10px; font-size: 0.88rem; }
+.month-group-header:first-child { margin-top: 0; }
+
 .print-header { display:none; text-align:center; margin-bottom: 20px; }
 @media print{ 
-  header, .nav-tabs, .no-print, .btn-row, .banner, .intro-box {display:none!important} 
+  header, .nav-tabs, .no-print, .btn-row, .banner, .intro-box, #ledgerFilterWrap {display:none!important} 
   .print-header { display:block; font-weight: bold; font-size: 1.2rem; margin-bottom: 30px;}
   body { background: #fff; }
   .card { box-shadow: none; border: 1px solid #ccc; }
@@ -126,7 +130,7 @@ body.privacy-active .icon-btn#privacyBtn { background: var(--accent); color: #ff
   <div class="print-header">تقرير الإدارة المالية - <span id="printDate"></span></div>
 
   <header class="no-print">
-    <div class="logo">Ratib0129 v2.1</div>
+    <div class="logo">Ratib0129 v2.2</div>
     <div class="header-actions">
       <button class="icon-btn" id="privacyBtn" title="وضع الخصوصية (إخفاء الأرقام)">👁️</button>
       <button class="icon-btn" id="toolsBtn" title="خيارات إضافية">⚙️</button>
@@ -134,15 +138,14 @@ body.privacy-active .icon-btn#privacyBtn { background: var(--accent); color: #ff
     </div>
   </header>
 
-  <!-- شريط التنقل بين الصفحات -->
   <div class="nav-tabs no-print">
     <button class="nav-tab active" data-target="pageDashboard">📊 لوحة الميزانية</button>
-    <button class="nav-tab" data-target="pageLedger">📋 سجل العمليات والإيرادات المدخلة</button>
+    <button class="nav-tab" data-target="pageLedger">📋 سجل العمليات</button>
   </div>
 
   <div class="intro-box no-print">
     <div class="intro-title">ℹ️ التخطيط الاستراتيجي والمقارنات</div>
-    <p>يمكنك التبديل بين "لوحة الميزانية" وبين "سجل العمليات والإيرادات المدخلة" للاطلاع على تاريخ كل إدخال ومبلغ وتوزيعه بالتفصيل.</p>
+    <p>سجل العمليات يحفظ كل الإيرادات والترحيلات <b>دائماً</b> حتى بعد بدء دورة مالية جديدة. يمكنك التنقل بين الأشهر أو عرض السجل الكامل.</p>
   </div>
 
   <div class="tools-menu no-print" id="toolsMenu">
@@ -156,6 +159,8 @@ body.privacy-active .icon-btn#privacyBtn { background: var(--accent); color: #ff
     <button class="reset-link" id="resetPctsBtn">↺ استعادة البنود الافتراضية</button>
     <hr style="border:0; border-top:1px dashed var(--border); margin:15px 0;">
     <button class="btn btn-ghost" id="exportDataBtn" style="padding:10px; font-size:0.9rem;">📥 تصدير نسخة احتياطية (JSON)</button>
+    <button class="btn btn-ghost" id="exportLedgerCsvBtn" style="padding:10px; font-size:0.9rem; margin-top:8px;">📊 تصدير السجل الكامل (CSV)</button>
+    <button class="btn btn-ghost" id="clearLedgerBtn" style="padding:10px; font-size:0.9rem; margin-top:8px; border-color:var(--danger); color:var(--danger);">🗑️ مسح سجل العمليات نهائياً</button>
   </div>
 
   <div class="banner" id="banner">🔔 لم تقم بإدخال أي إيراد لهذا الشهر بعد!</div>
@@ -204,18 +209,31 @@ body.privacy-active .icon-btn#privacyBtn { background: var(--accent); color: #ff
     </div>
   </div>
 
-  <!-- الصفحة الثانية المستقلة: سجل العمليات والإيرادات المدخلة -->
+  <!-- الصفحة الثانية المستقلة: سجل العمليات (دائم) -->
   <div id="pageLedger" class="hidden">
     <div class="card">
       <h2>
-        <span>📋 سجل العمليات والإيرادات المدخلة</span>
+        <span>📋 سجل العمليات الكامل</span>
         <span id="ledgerCountBadge" style="background:var(--accent); color:#fff; font-size:0.75rem; padding:3px 10px; border-radius:20px;">0 عمليات</span>
       </h2>
       <p style="font-size:0.85rem; color:var(--muted); margin-bottom:14px;">
-        قائمة تفصيلية بجميع عمليات الإدخال التي تمت خلال الشهر الحالي، مع تاريخها وقيمتها وتوزيعها على البنود.
+        سجل دائم لجميع عمليات الإدخال والترحيل، محفوظ ومتاح للاستعراض حتى بعد بدء دورة مالية جديدة.
       </p>
+
+      <div id="ledgerFilterWrap" class="no-print" style="margin-bottom:14px;">
+        <label for="ledgerMonthFilter">🔎 عرض العمليات حسب:</label>
+        <select id="ledgerMonthFilter" style="width:100%;">
+          <option value="all">جميع الأشهر</option>
+        </select>
+      </div>
+
+      <div class="ledger-summary hide-in-privacy" id="ledgerSummary" style="display:none;">
+        <span>الإجمالي المعروض:</span>
+        <span class="amt" id="ledgerTotalTxt">0</span>
+      </div>
+
       <div id="ledgerList" class="hide-in-privacy">
-        <div style="text-align:center; color:var(--muted); font-size:0.95rem; padding: 25px 0;">لا توجد عمليات مسجلة بعد في هذا الشهر.</div>
+        <div style="text-align:center; color:var(--muted); font-size:0.95rem; padding: 25px 0;">لا توجد عمليات مسجلة بعد.</div>
       </div>
     </div>
   </div>
@@ -259,7 +277,8 @@ document.querySelectorAll('.nav-tab').forEach(tab => {
     const target = tab.dataset.target;
     document.getElementById('pageDashboard').classList.toggle('hidden', target !== 'pageDashboard');
     document.getElementById('pageLedger').classList.toggle('hidden', target !== 'pageLedger');
-    renderAllData(); 
+    if(target === 'pageLedger') renderLedgerPage();
+    else renderAllData();
   });
 });
 
@@ -272,10 +291,49 @@ function fmt(amount){
   return formatted + ' ' + sym;
 }
 
-function esc(s){ return String(s ?? '').replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}["m"])); }
+function esc(s){ return String(s ?? '').replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])); }
 function getCats(){ return store.get('cats', DEFAULT_CATS); }
 function monthKey(){ const d = new Date(); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0'); }
-function monthName(key){ const [y,m] = key.split('-'); const ms = ['يناير','فبراير','مارس','أبريل','مايو','يونيو','يوليو','أغسطس','سبتمبر','أكتوبر','نوفمبر','ديسمبر']; return ms[+m-1]+' '+y; }
+function monthName(key){ 
+  if(!key || key === 'غير محدد') return 'غير محدد';
+  const [y,m] = key.split('-'); 
+  const ms = ['يناير','فبراير','مارس','أبريل','مايو','يونيو','يوليو','أغسطس','سبتمبر','أكتوبر','نوفمبر','ديسمبر']; 
+  return (ms[+m-1] || key) + ' ' + y; 
+}
+
+/* =======================
+   السجل الدائم (Ledger)
+   ======================= */
+
+/**
+ * استرجاع السجل الكامل. في حال عدم وجوده، يتم إنشاؤه تلقائياً
+ * من الخطة الحالية (للتوافق مع الإصدارات السابقة).
+ */
+function getLedger(){
+  let ledger = store.get('ledger', null);
+  if(!Array.isArray(ledger)){
+    // محاولة الاسترجاع من الخطة الحالية (Migration)
+    const p = store.get('plan', null);
+    if(p && Array.isArray(p.transactions) && p.transactions.length > 0){
+      ledger = p.transactions.map(t => ({...t, month: p.month}));
+      store.set('ledger', ledger);
+    } else {
+      ledger = [];
+      store.set('ledger', ledger);
+    }
+  }
+  return ledger;
+}
+
+function appendToLedger(tx, month){
+  const ledger = getLedger();
+  ledger.push({...tx, month: month});
+  store.set('ledger', ledger);
+}
+
+/* =======================
+   خطة الشهر الحالي
+   ======================= */
 
 document.getElementById('privacyBtn').addEventListener('click', () => {
   isPrivacyMode = !isPrivacyMode;
@@ -318,6 +376,9 @@ function addTransaction(amount, isRollover = false) {
   let p = getMasterPlan();
   p.transactions.push(tx);
   store.set('plan', p);
+
+  // إضافة دائمة إلى السجل الكامل
+  appendToLedger(tx, p.month);
 }
 
 function getCumulativePlan(txs) {
@@ -401,7 +462,7 @@ function renderIntegratedList(plan, month){
         ${c.id === 'charity' ? `
           <select class="cat-door">
             <option value="">-- حدد باب الصدقة --</option>
-            <option value="أقارب">الأقارب وذوي الرحم</option>
+            <option value="أقارب">الأقارب وذوو الرحم</option>
             <option value="أيتام">كفالة الأيتام</option>
             <option value="مساجد">عمارة المساجد</option>
             <option value="علم">دعم طلاب العلم</option>
@@ -438,45 +499,119 @@ function renderIntegratedList(plan, month){
   updateProgressBar(plan, month);
 }
 
-function renderLedgerPage(txs) {
+/* =======================
+   عرض سجل العمليات الدائم
+   ======================= */
+
+function renderTxItem(t){
+  const distHtml = Object.values(t.distribution || {}).map(d => 
+    `<span><b>${esc(d.name)}:</b> ${fmt(d.amount)} (${d.pct}%)</span>`
+  ).join(' ');
+  return `
+    <div class="tx-log-item">
+      <div class="tx-header">
+        <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+          <span class="tx-badge" style="${t.isRollover ? 'background:var(--ok)' : ''}">${t.isRollover ? 'رصيد مرحّل' : 'إيراد'}</span>
+          <span class="tx-date">📅 ${esc(t.date)}</span>
+        </div>
+        <span class="tx-amount">${fmt(t.amount)}</span>
+      </div>
+      <div style="font-size:0.85rem; color:var(--muted); margin-top:2px;"><b>التوزيع على البنود:</b></div>
+      <div class="tx-dist">${distHtml}</div>
+    </div>`;
+}
+
+function renderLedgerPage(){
+  const ledger = getLedger();
   const container = document.getElementById('ledgerList');
   const countBadge = document.getElementById('ledgerCountBadge');
-  countBadge.textContent = `${txs.length} عمليات`;
+  const filterSel = document.getElementById('ledgerMonthFilter');
+  const summaryEl = document.getElementById('ledgerSummary');
 
-  if(!txs || txs.length === 0) {
-    container.innerHTML = '<div style="text-align:center; color:var(--muted); font-size:0.95rem; padding: 25px 0;">لا توجد عمليات مسجلة بعد في هذا الشهر.</div>';
+  // بناء قائمة الأشهر
+  const monthsSet = new Set();
+  ledger.forEach(t => { if(t.month) monthsSet.add(t.month); });
+  const months = Array.from(monthsSet).sort().reverse();
+
+  // حفظ قيمة الفلتر السابقة
+  const prevFilter = filterSel.value || store.get('ledgerFilter', 'all');
+
+  const optionsHtml = ['<option value="all">جميع الأشهر</option>']
+    .concat(months.map(m => {
+      const cnt = ledger.filter(t => t.month === m).length;
+      return `<option value="${esc(m)}">${monthName(m)} (${cnt} عملية)</option>`;
+    }))
+    .join('');
+  filterSel.innerHTML = optionsHtml;
+
+  // إذا كان الفلتر السابق غير صالح، ارجع لـ all
+  const stillValid = prevFilter === 'all' || months.includes(prevFilter);
+  filterSel.value = stillValid ? prevFilter : 'all';
+  store.set('ledgerFilter', filterSel.value);
+
+  // الإجمالي العام
+  countBadge.textContent = `${ledger.length} عمليات`;
+
+  // التصفية
+  let filtered = filterSel.value === 'all' 
+    ? ledger.slice() 
+    : ledger.filter(t => t.month === filterSel.value);
+
+  // الأحدث أولاً
+  filtered.sort((a,b) => (b.id || 0) - (a.id || 0));
+
+  if(filtered.length === 0){
+    container.innerHTML = '<div style="text-align:center; color:var(--muted); font-size:0.95rem; padding: 25px 0;">لا توجد عمليات مسجلة في هذه الفترة.</div>';
+    summaryEl.style.display = 'none';
     return;
   }
 
-  container.innerHTML = txs.map((t, index) => {
-    const distHtml = Object.values(t.distribution || {}).map(d => 
-      `<span style="display:inline-block; margin:2px 0;"><b>${d.name}:</b> ${fmt(d.amount)} (${d.pct}%)</span>`
-    ).join(' • ');
+  // إجمالي المعروض
+  const total = filtered.reduce((s,t)=> s + (Number(t.amount)||0), 0);
+  summaryEl.style.display = 'flex';
+  document.getElementById('ledgerTotalTxt').textContent = fmt(total);
 
-    return `
-      <div class="tx-log-item">
-        <div class="tx-header">
-          <div style="display:flex; align-items:center; gap:8px;">
-            <span class="tx-badge" style="${t.isRollover ? 'background:var(--ok)' : ''}">${t.isRollover ? 'رصيد مرحّل' : 'إيراد رقم ' + (index + 1)}</span>
-            <span class="tx-date">📅 ${t.date}</span>
-          </div>
-          <span class="tx-amount">${fmt(t.amount)}</span>
+  // عرض الكل مجمّعاً حسب الشهر
+  if(filterSel.value === 'all'){
+    const grouped = {};
+    filtered.forEach(t => {
+      const m = t.month || 'غير محدد';
+      if(!grouped[m]) grouped[m] = [];
+      grouped[m].push(t);
+    });
+    const sortedMonths = Object.keys(grouped).sort().reverse();
+    container.innerHTML = sortedMonths.map(m => {
+      const items = grouped[m];
+      const monthTotal = items.reduce((s,t)=> s + (Number(t.amount)||0), 0);
+      return `
+        <div class="month-group-header">
+          <span>📅 ${monthName(m)}</span>
+          <span>${items.length} عملية • ${fmt(monthTotal)}</span>
         </div>
-        <div style="font-size:0.85rem; color:var(--muted); margin-top:2px;"><b>التوزيع على البنود:</b></div>
-        <div class="tx-dist">${distHtml}</div>
-      </div>
-    `;
-  }).reverse().join('');
+        ${items.map(renderTxItem).join('')}
+      `;
+    }).join('');
+  } else {
+    container.innerHTML = filtered.map(renderTxItem).join('');
+  }
 }
+
+document.getElementById('ledgerMonthFilter').addEventListener('change', (e) => {
+  store.set('ledgerFilter', e.target.value);
+  renderLedgerPage();
+});
+
+/* =======================
+   عرض بيانات الصفحة الرئيسية
+   ======================= */
 
 function renderAllData(){
   const p = getMasterPlan();
   const txs = p.transactions || [];
-  
-  renderLedgerPage(txs);
 
   if(!txs || txs.length === 0) {
     document.getElementById('planArea').classList.add('hidden');
+    checkReminders();
     return;
   }
   
@@ -656,6 +791,7 @@ document.getElementById('distributeBtn').addEventListener('click', () => {
   addTransaction(newIncome, false);
   document.getElementById('income').value = '';
   renderAllData();
+  renderLedgerPage();
 });
 
 document.getElementById('newMonthBtn').addEventListener('click', () => {
@@ -676,7 +812,7 @@ document.getElementById('newMonthBtn').addEventListener('click', () => {
   });
 
   const surplus = totalIncome - totalSpent;
-  let confirmMsg = `انتهت الدورة المالية لشهر ${p.month}.\nإجمالي الإيرادات: ${totalIncome}\nالمنصرف الفعلي: ${totalSpent}\nالفائض (المتبقي): ${surplus}\n\nهل تريد حفظ السجل وترحيل الفائض (${surplus}) ليُضاف كرصيد افتتاحي للدورة القادمة؟`;
+  let confirmMsg = `انتهت الدورة المالية لشهر ${p.month}.\nإجمالي الإيرادات: ${totalIncome}\nالمنصرف الفعلي: ${totalSpent}\nالفائض (المتبقي): ${surplus}\n\nهل تريد حفظ السجل وترحيل الفائض (${surplus}) ليُضاف كرصيد افتتاحي للدورة القادمة؟\n\nملاحظة: سيظل سجل العمليات الكامل محفوظاً في صفحة "سجل العمليات".`;
   
   if(confirm(confirmMsg)){
     const history = store.get('history', []);
@@ -686,6 +822,7 @@ document.getElementById('newMonthBtn').addEventListener('click', () => {
     store.set('history', history);
 
     store.set('rollover_amount', surplus);
+    // نمسح فقط خطة الشهر الحالي، وليس السجل الكامل
     localStorage.removeItem('masar_plan'); 
     location.reload();
   }
@@ -701,6 +838,50 @@ document.getElementById('exportDataBtn').addEventListener('click', () => {
   const data = {}; for(let i=0; i<localStorage.length; i++){ const k = localStorage.key(i); if(k.startsWith('masar_')) data[k] = localStorage.getItem(k); }
   const a = document.createElement('a'); a.download = 'Ratib_backup.json';
   a.href = URL.createObjectURL(new Blob([JSON.stringify(data)], {type:'application/json'})); a.click();
+});
+
+/* تصدير السجل الكامل بصيغة CSV */
+document.getElementById('exportLedgerCsvBtn').addEventListener('click', () => {
+  const ledger = getLedger();
+  if(ledger.length === 0){ alert('لا توجد عمليات لتصديرها.'); return; }
+
+  // بناء الأعمدة
+  const cats = getCats();
+  const header = ['الشهر','التاريخ','النوع','المبلغ','العملة', ...cats.map(c => c.name + ' (%)')];
+  const cur = document.getElementById('currency').value;
+  const rows = ledger.slice().sort((a,b) => (a.id||0) - (b.id||0)).map(t => {
+    const base = [
+      t.month || '',
+      (t.date || '').replace(/,/g,' '),
+      t.isRollover ? 'رصيد مرحّل' : 'إيراد',
+      t.amount,
+      cur
+    ];
+    const dist = cats.map(c => {
+      const d = t.distribution && t.distribution[c.id];
+      return d ? `${d.amount} (${d.pct}%)` : '0';
+    });
+    return [...base, ...dist];
+  });
+
+  // BOM لضمان ظهور العربية في Excel
+  const csv = '\uFEFF' + [header, ...rows]
+    .map(r => r.map(x => `"${String(x).replace(/"/g,'""')}"`).join(','))
+    .join('\r\n');
+
+  const a = document.createElement('a');
+  a.download = `Ratib_Ledger_${monthKey()}.csv`;
+  a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8;' }));
+  a.click();
+});
+
+/* مسح السجل الكامل (بعد تأكيد مزدوج) */
+document.getElementById('clearLedgerBtn').addEventListener('click', () => {
+  if(!confirm('⚠️ تحذير: سيتم مسح سجل العمليات الكامل نهائياً ولا يمكن استرجاعه.\n\nهل أنت متأكد؟')) return;
+  if(!confirm('تأكيد أخير: هل تريد فعلاً مسح السجل بالكامل؟')) return;
+  store.set('ledger', []);
+  alert('تم مسح السجل الكامل.');
+  renderLedgerPage();
 });
 
 document.getElementById('pdfBtn').addEventListener('click', () => {
@@ -729,8 +910,12 @@ document.getElementById('pdfBtn').addEventListener('click', () => {
     document.getElementById('rolloverAmountTxt').textContent = fmt(rollover);
   }
 
+  // تهيئة السجل (Migration من الإصدارات السابقة)
+  getLedger();
+
   renderArchive();
   renderAllData();
+  renderLedgerPage();
   checkReminders();
 })();
 </script>

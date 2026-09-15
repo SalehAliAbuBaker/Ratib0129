@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>Ratib0129 v6.7</title>
+<title>Ratib0129 v6.8</title>
 <meta name="theme-color" content="#0284c7">
 <link rel="manifest" id="dynamic-manifest">
 <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@500;700;800;900&display=swap" rel="stylesheet">
@@ -46,7 +46,7 @@ header{display:flex; justify-content:space-between; align-items:center; margin-b
 .v-btn.active.v-income { background: var(--ok); color: #fff; }
 .v-btn.active.v-entry { background: var(--accent); color: #fff; }
 
-.mode-toggle-switch { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; background: var(--card); padding: 3px; border-radius: 8px; border: 1px solid var(--border); }
+.mode-toggle-switch { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; background: var(--card); padding: 3px; border-radius: 8px; border: 1.5px solid var(--border); }
 .mode-toggle-btn { border: none; background: transparent; font-family: inherit; font-size: 0.78rem; font-weight: 800; color: var(--muted); padding: 4px 8px; border-radius: 6px; cursor: pointer; transition: all 0.15s; }
 .mode-toggle-btn.active { background: var(--accent); color: #fff; }
 
@@ -173,25 +173,50 @@ body.privacy-active .icon-btn#privacyBtn { background: var(--accent); color: #ff
 .hidden{display:none!important}
 .del-btn { background:none; border:none; color:var(--danger); font-size:1.15rem; cursor:pointer; padding:2px; }
 
-/* قالب سند الطباعة الرسمي المستقل */
+/* القالب الافتراضي للسند المستقل (مخفي بالشاشة العادية) */
 .print-voucher-container {
   display: none;
 }
 
-/* تنسيق الطباعة النظامي (يخفي التطبيق ويظهر قالب السند فقط) */
+/* فئات التحكم بنمط الطباعة (سندات مقابل تقارير) */
+body.printing-voucher header, 
+body.printing-voucher .nav-tabs, 
+body.printing-voucher .no-print, 
+body.printing-voucher .btn, 
+body.printing-voucher .icon-btn, 
+body.printing-voucher #reportFilterBox, 
+body.printing-voucher .search-box, 
+body.printing-voucher .searchable-arrow, 
+body.printing-voucher .report-type-switch, 
+body.printing-voucher .print-header-banner, 
+body.printing-voucher .wrap > div:not(#printVoucherContainer) { 
+  display: none !important; 
+}
+
+body.printing-voucher .print-voucher-container {
+  display: block !important;
+  width: 100% !important;
+  padding: 10px !important;
+  font-family: 'Tajawal', sans-serif !important;
+  color: #000 !important;
+  background: #fff !important;
+}
+
+/* تنسيق الطباعة العام للتقارير (عند طباعة التقارير المعتادة) */
 @media print {
-  @page { size: A4 portrait; margin: 12mm; }
-  body { background: #fff !important; color: #000 !important; font-size: 12pt !important; padding: 0 !important; margin: 0 !important; }
-  header, .nav-tabs, .no-print, .btn, .icon-btn, #reportFilterBox, .search-box, .searchable-arrow, .report-type-switch, .print-header-banner, .wrap > div:not(#printVoucherContainer) { display: none !important; }
-  
-  .print-voucher-container {
-    display: block !important;
-    width: 100% !important;
-    padding: 10px !important;
-    font-family: 'Tajawal', sans-serif !important;
-    color: #000 !important;
-    background: #fff !important;
+  body:not(.printing-voucher) { background: #fff !important; color: #000 !important; font-size: 11pt !important; }
+  body:not(.printing-voucher) header, 
+  body:not(.printing-voucher) .nav-tabs, 
+  body:not(.printing-voucher) .no-print, 
+  body:not(.printing-voucher) .btn, 
+  body:not(.printing-voucher) .icon-btn, 
+  body:not(.printing-voucher) #reportFilterBox, 
+  body:not(.printing-voucher) .search-box, 
+  body:not(.printing-voucher) .searchable-arrow, 
+  body:not(.printing-voucher) .report-type-switch { 
+    display: none !important; 
   }
+  body:not(.printing-voucher) .print-header-banner { display: block !important; }
 }
 
 .pv-header { text-align: center; border-bottom: 2px solid #000; padding-bottom: 10px; margin-bottom: 15px; }
@@ -209,10 +234,15 @@ body.privacy-active .icon-btn#privacyBtn { background: var(--accent); color: #ff
 <body>
 
 <div class="wrap" id="mainWrap">
+  <div class="print-header-banner" id="printHeaderBanner">
+    <h1 id="bannerOrgName">مؤسسة خيرية</h1>
+    <p id="bannerOrgDetails">العنوان: - | هاتف: -</p>
+  </div>
+
   <div style="text-align:center; font-weight:900; font-size:1.1rem; margin-bottom:10px;" class="no-print">بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ</div>
 
   <header class="no-print">
-    <div class="logo">Ratib0129 v6.7</div>
+    <div class="logo">Ratib0129 v6.8</div>
     <div class="header-actions">
       <button class="icon-btn" id="privacyBtn" title="وضع الخصوصية">👁️</button>
       <button class="icon-btn" id="themeBtn" title="الوضع الليلي">🌙</button>
@@ -744,7 +774,7 @@ body.privacy-active .icon-btn#privacyBtn { background: var(--accent); color: #ff
     </div>
   </div>
 
-  <!-- قالب سند الطباعة الرسمي المستقل (يظهر عند الطباعة فقط) -->
+  <!-- قالب سند الطباعة الرسمي المستقل -->
   <div class="print-voucher-container" id="printVoucherContainer">
     <div class="pv-header">
       <h1 id="pvOrgName">مؤسسة خيرية</h1>
@@ -854,7 +884,7 @@ function highlightText(text, query) {
   return safeText.replace(regex, '<span class="highlight-match">$1</span>');
 }
 
-/* ================== التفقيط والفواصل الألفية ================== */
+/* ================== التفقيط وفواصل الآلاف ================== */
 function tafqit(num) {
   num = Math.round(Number(num || 0));
   if (num === 0) return 'صفر ريـال فقط لا غير';
@@ -1813,7 +1843,9 @@ document.getElementById('confirmPrintDocBtn').addEventListener('click', () => {
   if (lastPrintedTx) {
     preparePrintVoucherTemplate(lastPrintedTx);
   }
+  document.body.classList.add('printing-voucher');
   window.print();
+  setTimeout(() => document.body.classList.remove('printing-voucher'), 1000);
 });
 
 document.getElementById('skipPrintDocBtn').addEventListener('click', () => {
@@ -2059,7 +2091,9 @@ function openTxModal(item) {
     pBtn.textContent = '🖨️ طباعة المستند';
     pBtn.addEventListener('click', () => {
       preparePrintVoucherTemplate(activeEditingTx);
+      document.body.classList.add('printing-voucher');
       window.print();
+      setTimeout(() => document.body.classList.remove('printing-voucher'), 1000);
     });
     actionRow.insertBefore(pBtn, actionRow.firstChild);
   }
@@ -2588,8 +2622,14 @@ function runAccountStatement() {
   }
 }
 
-document.getElementById('printBudgetReportBtn').addEventListener('click', () => window.print());
-document.getElementById('printStatementBtn').addEventListener('click', () => window.print());
+document.getElementById('printBudgetReportBtn').addEventListener('click', () => {
+  document.body.classList.remove('printing-voucher');
+  window.print();
+});
+document.getElementById('printStatementBtn').addEventListener('click', () => {
+  document.body.classList.remove('printing-voucher');
+  window.print();
+});
 
 document.getElementById('exportPngBtn').addEventListener('click', () => {
   const targetCard = activeReportTab === 'budget' ? document.getElementById('budgetReportCard') : document.getElementById('accountStatementCard');

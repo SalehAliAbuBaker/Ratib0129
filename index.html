@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>Ratib0129 v3.7</title>
+<title>Ratib0129 v3.8</title>
 <meta name="theme-color" content="#0f172a">
 <link rel="manifest" id="dynamic-manifest">
 <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@500;700;800;900&display=swap" rel="stylesheet">
@@ -24,87 +24,92 @@
   --border:#334155; --shadow:0 4px 20px rgba(0,0,0,.4);
 }
 *{box-sizing:border-box; margin:0; padding:0; -webkit-tap-highlight-color:transparent}
+html, body { overflow-x: hidden; width: 100%; }
 body{ font-family:'Tajawal',system-ui,sans-serif; background:var(--bg); color:var(--text); min-height:100vh; transition:background .3s, color .3s; padding-bottom:50px; font-size:16px; }
-.wrap{max-width:580px; margin:0 auto; padding:20px 16px}
-header{display:flex; justify-content:space-between; align-items:center; margin-bottom:16px}
-.logo{font-size:1.55rem; font-weight:900; display:flex; align-items:center; gap:8px; color:var(--accent)}
-.icon-btn{ background:var(--card); border:1.5px solid var(--border); color:var(--text); width:44px; height:44px; border-radius:12px; cursor:pointer; font-size:1.25rem; box-shadow:var(--shadow); display:flex; align-items:center; justify-content:center; transition: transform 0.2s, background 0.2s;}
+.wrap{max-width:520px; margin:0 auto; padding:16px 14px; width:100%;}
+header{display:flex; justify-content:space-between; align-items:center; margin-bottom:14px}
+.logo{font-size:1.45rem; font-weight:900; display:flex; align-items:center; gap:8px; color:var(--accent)}
+.icon-btn{ background:var(--card); border:1.5px solid var(--border); color:var(--text); width:42px; height:42px; border-radius:12px; cursor:pointer; font-size:1.2rem; box-shadow:var(--shadow); display:flex; align-items:center; justify-content:center; transition: transform 0.2s, background 0.2s; flex-shrink:0;}
 .icon-btn:active { transform: scale(0.9); }
 .header-actions { display:flex; gap:8px; }
 
-.nav-tabs { display: flex; gap: 6px; margin-bottom: 18px; background: var(--card); padding: 6px; border-radius: 14px; border: 1.5px solid var(--border); box-shadow: var(--shadow); }
-.nav-tab { flex: 1; padding: 12px 6px; border: none; background: transparent; color: var(--muted); font-family: inherit; font-weight: 800; font-size: 0.95rem; border-radius: 10px; cursor: pointer; transition: all 0.2s; text-align: center; white-space: nowrap; }
+/* شريط تبويبات ثابت وموزع بنظام شبكي محكم يمنع أي انحشار أو خروج للنص */
+.nav-tabs { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-bottom: 18px; background: var(--card); padding: 5px; border-radius: 14px; border: 1.5px solid var(--border); box-shadow: var(--shadow); width: 100%; }
+.nav-tab { border: none; background: transparent; color: var(--muted); font-family: inherit; font-weight: 800; font-size: 0.92rem; border-radius: 10px; cursor: pointer; transition: all 0.2s; text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 8px 4px; gap: 4px; }
+.nav-tab span.tab-icon { font-size: 1.25rem; line-height: 1; }
+.nav-tab span.tab-txt { font-size: 0.85rem; white-space: nowrap; }
 .nav-tab.active { background: var(--accent); color: #fff; box-shadow: 0 2px 8px rgba(59,130,246,0.3); }
 
-.card{ background:var(--card); border:1.5px solid var(--border); border-radius:var(--radius); box-shadow:var(--shadow); padding:22px; margin-bottom:18px; position:relative; }
-h2{font-size:1.25rem; font-weight:900; margin-bottom:16px; display:flex; align-items:center; justify-content:space-between; gap:8px;}
-label{font-size:1rem; color:var(--muted); display:block; margin-bottom:8px; font-weight:700}
-.input-row{display:flex; gap:10px; position: relative; margin-bottom: 12px;}
+.card{ background:var(--card); border:1.5px solid var(--border); border-radius:var(--radius); box-shadow:var(--shadow); padding:18px; margin-bottom:16px; position:relative; width: 100%; }
+h2{font-size:1.15rem; font-weight:900; margin-bottom:14px; display:flex; align-items:center; justify-content:space-between; gap:8px;}
+label{font-size:0.95rem; color:var(--muted); display:block; margin-bottom:6px; font-weight:700}
+.input-row{display:flex; gap:8px; position: relative; margin-bottom: 10px;}
 
 input[type=number], input[type=text], input[type=date]{ flex:1; background:var(--bg); border:1.5px solid var(--border); color:var(--text); border-radius:12px; padding:12px 14px; font-size:1.1rem; font-weight:800; font-family:inherit; outline:none; min-width:0; transition: filter 0.3s;}
 input:focus{border-color:var(--accent)}
-select{ background:var(--bg); border:1.5px solid var(--border); color:var(--text); border-radius:12px; padding:0 12px; font-size:1.05rem; font-weight:800; font-family:inherit; outline:none; height: 52px; }
-.btn{ width:100%; border:none; border-radius:12px; padding:15px; font-size:1.15rem; font-weight:900; font-family:inherit; cursor:pointer; margin-top:12px; transition: transform 0.15s, opacity 0.2s; }
+select{ background:var(--bg); border:1.5px solid var(--border); color:var(--text); border-radius:12px; padding:0 10px; font-size:1rem; font-weight:800; font-family:inherit; outline:none; height: 50px; }
+.btn{ width:100%; border:none; border-radius:12px; padding:14px; font-size:1.1rem; font-weight:900; font-family:inherit; cursor:pointer; margin-top:10px; transition: transform 0.15s, opacity 0.2s; text-align:center;}
 .btn:active{ transform: scale(0.97); }
 .btn-primary{background:var(--accent); color:#fff; box-shadow:0 4px 12px rgba(59,130,246,.3)}
 .btn-ghost{background:var(--bg); color:var(--text); border:1.5px solid var(--border)}
 .btn-success{background:var(--ok); color:#fff; box-shadow:0 4px 12px rgba(16,185,129,.3)}
 .btn-danger{background:var(--danger); color:#fff; box-shadow:0 4px 12px rgba(239,68,68,.3)}
-.chart-box{position:relative; height:300px; margin:12px 0; transition: filter 0.3s;}
+.chart-box{position:relative; height:280px; margin:10px 0; transition: filter 0.3s; width:100%;}
 
 body.privacy-active .hide-in-privacy { filter: blur(6px); user-select: none; opacity: 0.8; pointer-events: none; }
 body.privacy-active .icon-btn#privacyBtn { background: var(--accent); color: #fff; }
 
-.banner{ background:var(--warn); color:#fff; border-radius:12px; padding:14px 18px; font-size:1rem; font-weight:800; margin-bottom:16px; display:none; align-items:center; gap:8px; }
+.banner{ background:var(--warn); color:#fff; border-radius:12px; padding:12px 16px; font-size:0.95rem; font-weight:800; margin-bottom:14px; display:none; align-items:center; gap:8px; }
 .banner.show{display:flex}
-.rollover-badge { background: rgba(16,185,129,0.15); color: var(--ok); padding: 10px 14px; border-radius: 10px; font-size: 1rem; font-weight: 800; margin-bottom: 14px; display: none; text-align: center; border: 1.5px dashed var(--ok);}
+.rollover-badge { background: rgba(16,185,129,0.15); color: var(--ok); padding: 8px 12px; border-radius: 10px; font-size: 0.95rem; font-weight: 800; margin-bottom: 12px; display: none; text-align: center; border: 1.5px dashed var(--ok);}
 
-.cat-card { background: var(--bg); border: 1.5px solid var(--border); border-radius: 14px; margin-bottom: 10px; padding: 12px 16px; transition: all 0.3s; }
+/* بطاقات البنود */
+.cat-card { background: var(--bg); border: 1.5px solid var(--border); border-radius: 14px; margin-bottom: 8px; padding: 12px 14px; transition: all 0.3s; width:100%; }
 .cat-card.muted { opacity: 0.4; border-style: dashed; }
 .cat-card.done { border-color: var(--ok); background: rgba(16,185,129,0.06); }
 .cat-header { display: flex; align-items: center; justify-content: space-between; }
-.cat-info { display: flex; align-items: center; gap: 10px; flex: 1; }
+.cat-info { display: flex; align-items: center; gap: 8px; flex: 1; overflow: hidden;}
 .cat-color { width: 14px; height: 14px; border-radius: 4px; flex-shrink: 0; }
-.cat-name { font-weight: 900; font-size: 1.05rem; color: var(--text); }
-.cat-amount { font-weight: 900; font-size: 1.15rem; }
-.toggle-vis-btn { background:none; border:none; font-size:1.35rem; cursor:pointer; padding:4px 6px; }
+.cat-name { font-weight: 900; font-size: 1rem; color: var(--text); white-space: nowrap; text-overflow: ellipsis; overflow: hidden;}
+.cat-amount { font-weight: 900; font-size: 1.1rem; flex-shrink: 0;}
+.toggle-vis-btn { background:none; border:none; font-size:1.3rem; cursor:pointer; padding:2px 4px; }
 
-.check-row { display: flex; align-items: center; gap: 8px; font-weight: 800; font-size: 1rem; color: var(--text); cursor: pointer; }
+.check-row { display: flex; align-items: center; gap: 8px; font-weight: 800; font-size: 0.95rem; color: var(--text); cursor: pointer; }
 .check-row input { width: 22px; height: 22px; accent-color: var(--ok); cursor: pointer; }
 
-.tx-log-item { background: var(--card); border: 1.5px solid var(--border); border-radius: 14px; padding: 16px; margin-bottom: 14px; display: flex; flex-direction: column; gap: 10px; box-shadow: var(--shadow); cursor: pointer; transition: transform 0.15s, border-color 0.2s; }
+/* بطاقات العمليات في السجل */
+.tx-log-item { background: var(--card); border: 1.5px solid var(--border); border-radius: 14px; padding: 14px; margin-bottom: 12px; display: flex; flex-direction: column; gap: 8px; box-shadow: var(--shadow); cursor: pointer; transition: transform 0.15s, border-color 0.2s; width:100%; }
 .tx-log-item:hover { border-color: var(--accent); transform: translateY(-2px); }
-.tx-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1.5px solid var(--border); padding-bottom: 10px; }
-.tx-badge { background: var(--accent); color: #fff; font-size: 0.85rem; padding: 4px 12px; border-radius: 20px; font-weight: 800; }
-.tx-type-tag { background: rgba(59,130,246,0.12); color: var(--accent); font-size: 0.85rem; padding: 4px 10px; border-radius: 8px; font-weight: 800; }
-.tx-date { font-size: 0.9rem; color: var(--muted); font-weight: 800; }
-.tx-amount { font-weight: 900; font-size: 1.25rem; color: var(--accent); }
-.tx-dist { display: flex; gap: 6px; flex-wrap: wrap; font-size: 0.92rem; margin-top: 6px; }
-.tx-dist span { background: var(--bg); border: 1px solid var(--border); padding: 4px 10px; border-radius: 8px; color: var(--text); font-weight: 700; }
+.tx-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1.5px solid var(--border); padding-bottom: 8px; }
+.tx-badge { background: var(--accent); color: #fff; font-size: 0.8rem; padding: 3px 10px; border-radius: 20px; font-weight: 800; }
+.tx-type-tag { background: rgba(59,130,246,0.12); color: var(--accent); font-size: 0.8rem; padding: 3px 8px; border-radius: 6px; font-weight: 800; }
+.tx-date { font-size: 0.85rem; color: var(--muted); font-weight: 800; }
+.tx-amount { font-weight: 900; font-size: 1.15rem; color: var(--accent); }
+.tx-dist { display: flex; gap: 6px; flex-wrap: wrap; font-size: 0.88rem; margin-top: 4px; }
+.tx-dist span { background: var(--bg); border: 1px solid var(--border); padding: 4px 8px; border-radius: 8px; color: var(--text); font-weight: 700; }
 .tx-progress-bar { background: var(--border); border-radius: 6px; height: 8px; width: 100%; overflow: hidden; margin-top: 4px; }
 .tx-progress-val { background: var(--ok); height: 100%; width: 0%; transition: width 0.3s; }
 
 /* بطاقات ملخص التقرير KPI */
-.kpi-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px; }
-.kpi-card { background: var(--bg); border: 1.5px solid var(--border); border-radius: 12px; padding: 12px; text-align: center; }
-.kpi-title { font-size: 0.85rem; color: var(--muted); font-weight: 700; margin-bottom: 4px; }
-.kpi-value { font-size: 1.2rem; font-weight: 900; color: var(--text); }
+.kpi-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 14px; }
+.kpi-card { background: var(--bg); border: 1.5px solid var(--border); border-radius: 12px; padding: 10px; text-align: center; }
+.kpi-title { font-size: 0.82rem; color: var(--muted); font-weight: 700; margin-bottom: 3px; }
+.kpi-value { font-size: 1.1rem; font-weight: 900; color: var(--text); }
 
 /* جدول تقرير الإنجاز */
-.report-table { width: 100%; border-collapse: collapse; margin-top: 14px; font-size: 0.92rem; }
-.report-table th, .report-table td { padding: 10px 8px; border-bottom: 1px solid var(--border); text-align: right; }
+.report-table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 0.9rem; }
+.report-table th, .report-table td { padding: 8px 6px; border-bottom: 1px solid var(--border); text-align: right; }
 .report-table th { background: var(--bg); color: var(--muted); font-weight: 800; }
-.notes-tag { display: block; font-size: 0.82rem; color: var(--muted); font-weight: 600; margin-top: 3px; }
 
-.modal-overlay { position: fixed; inset: 0; background: rgba(15,23,42,0.65); backdrop-filter: blur(5px); z-index: 1000; display: none; align-items: center; justify-content: center; padding: 14px; animation: fadeIn 0.2s ease-out; }
+.modal-overlay { position: fixed; inset: 0; background: rgba(15,23,42,0.65); backdrop-filter: blur(5px); z-index: 1000; display: none; align-items: center; justify-content: center; padding: 12px; animation: fadeIn 0.2s ease-out; }
 .modal-overlay.show { display: flex; }
-.modal-content { background: var(--card); border: 1.5px solid var(--border); border-radius: var(--radius); width: 100%; max-width: 520px; max-height: 94vh; overflow-y: auto; padding: 22px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); }
-.modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; border-bottom: 1.5px solid var(--border); padding-bottom: 10px; }
+.modal-content { background: var(--card); border: 1.5px solid var(--border); border-radius: var(--radius); width: 100%; max-width: 500px; max-height: 94vh; overflow-y: auto; padding: 18px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); }
+.modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; border-bottom: 1.5px solid var(--border); padding-bottom: 8px; }
 
-.tools-menu { display: none; background: var(--card); border: 1.5px solid var(--border); border-radius: 14px; padding: 18px; margin-bottom: 18px; }
+.tools-menu { display: none; background: var(--card); border: 1.5px solid var(--border); border-radius: 14px; padding: 16px; margin-bottom: 16px; }
 .tools-menu.show { display: block; }
 .hidden{display:none!important}
-.del-btn { background:none; border:none; color:var(--danger); font-size:1.35rem; cursor:pointer; padding:4px; }
+.del-btn { background:none; border:none; color:var(--danger); font-size:1.3rem; cursor:pointer; padding:4px; }
 
 .print-header { display:none; text-align:center; margin-bottom: 20px; }
 @media print{ 
@@ -117,12 +122,12 @@ body.privacy-active .icon-btn#privacyBtn { background: var(--accent); color: #ff
 </head>
 <body>
 <div class="wrap" id="mainWrap">
-  <div style="text-align:center; font-weight:900; font-size:1.25rem; margin-bottom:16px; letter-spacing:0.5px;" class="no-print">بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ</div>
+  <div style="text-align:center; font-weight:900; font-size:1.2rem; margin-bottom:14px; letter-spacing:0.5px;" class="no-print">بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ</div>
   
   <div class="print-header">تقرير الإنجازات المالية التفصيلي - <span id="printDate"></span></div>
 
   <header class="no-print">
-    <div class="logo">Ratib0129 v3.7</div>
+    <div class="logo">Ratib0129 v3.8</div>
     <div class="header-actions">
       <button class="icon-btn" id="privacyBtn" title="وضع الخصوصية (إخفاء الأرقام)">👁️</button>
       <button class="icon-btn" id="toolsBtn" title="خيارات إضافية">⚙️</button>
@@ -130,24 +135,33 @@ body.privacy-active .icon-btn#privacyBtn { background: var(--accent); color: #ff
     </div>
   </header>
 
-  <!-- 3 تبويبات رئيسية واضحة -->
+  <!-- شريط التبويبات المتناسق والمنظم بنظام شبكي محكم -->
   <div class="nav-tabs no-print">
-    <button class="nav-tab active" data-target="pageDashboard">📊 الميزانية</button>
-    <button class="nav-tab" data-target="pageLedger">📋 العمليات والبطاقات</button>
-    <button class="nav-tab" data-target="pageReports">📈 تقارير الإنجاز</button>
+    <button class="nav-tab active" data-target="pageDashboard">
+      <span class="tab-icon">📊</span>
+      <span class="tab-txt">الميزانية</span>
+    </button>
+    <button class="nav-tab" data-target="pageLedger">
+      <span class="tab-icon">📋</span>
+      <span class="tab-txt">العمليات</span>
+    </button>
+    <button class="nav-tab" data-target="pageReports">
+      <span class="tab-icon">📈</span>
+      <span class="tab-txt">التقارير</span>
+    </button>
   </div>
 
   <div class="tools-menu no-print" id="toolsMenu">
     <h2>🛠️ البنود والنسب الافتراضية</h2>
     <div id="pctRows"></div>
-    <div id="pctSum" style="text-align:center; font-weight:900; margin:12px 0; font-size:1.05rem;">المجموع: 100%</div>
+    <div id="pctSum" style="text-align:center; font-weight:900; margin:12px 0; font-size:1rem;">المجموع: 100%</div>
     <div style="display:flex; gap:10px; flex-direction:column;">
-      <button class="btn btn-primary" id="savePctsBtn" style="padding:14px; font-size:1.05rem;">💾 حفظ البنود والنسب</button>
-      <button class="btn btn-ghost" id="addCatBtn" style="padding:12px; font-size:1rem; margin-top:0;">➕ إضافة بند جديد</button>
+      <button class="btn btn-primary" id="savePctsBtn" style="padding:12px; font-size:1rem;">💾 حفظ البنود والنسب</button>
+      <button class="btn btn-ghost" id="addCatBtn" style="padding:10px; font-size:0.95rem; margin-top:0;">➕ إضافة بند جديد</button>
     </div>
-    <button class="btn btn-ghost" id="resetPctsBtn" style="margin-top:10px; color:var(--muted); font-size:0.95rem;">↺ استعادة البنود الافتراضية السبعة</button>
-    <hr style="border:0; border-top:1.5px dashed var(--border); margin:14px 0;">
-    <button class="btn btn-ghost" id="exportDataBtn" style="padding:12px; font-size:1rem;">📥 تصدير نسخة احتياطية (JSON)</button>
+    <button class="btn btn-ghost" id="resetPctsBtn" style="margin-top:10px; color:var(--muted); font-size:0.9rem;">↺ استعادة البنود الافتراضية السبعة</button>
+    <hr style="border:0; border-top:1.5px dashed var(--border); margin:12px 0;">
+    <button class="btn btn-ghost" id="exportDataBtn" style="padding:10px; font-size:0.95rem;">📥 تصدير نسخة احتياطية (JSON)</button>
   </div>
 
   <div class="banner" id="banner">🔔 لم تقم بإدخال أي إيراد لهذا الشهر بعد!</div>
@@ -166,7 +180,7 @@ body.privacy-active .icon-btn#privacyBtn { background: var(--accent); color: #ff
           <option value="تجارة / استثمار">📈 أرباح تجارة</option>
           <option value="إيراد آخر">💵 إيراد آخر</option>
         </select>
-        <select id="currency" style="width: 120px;">
+        <select id="currency" style="width: 110px;">
           <option value="YER" selected>🇾🇪 ر.ي</option>
           <option value="SAR">🇸🇦 ر.س</option>
           <option value="USD">💵 دولار</option>
@@ -188,10 +202,10 @@ body.privacy-active .icon-btn#privacyBtn { background: var(--accent); color: #ff
         <div class="chart-box hide-in-privacy"><canvas id="cumulativePie"></canvas></div>
       </div>
 
-      <div class="btn-row no-print" style="display:flex; gap:10px;">
+      <div class="btn-row no-print" style="display:flex; gap:8px;">
         <button class="btn btn-ghost" id="pdfBtn" style="margin-top:0;">📄 تصدير تقرير PDF</button>
       </div>
-      <button class="btn btn-ghost no-print" id="newMonthBtn" style="border-color:var(--accent); color:var(--accent); margin-top:12px;">🔄 ترحيل الفائض وإقفال الدورة</button>
+      <button class="btn btn-ghost no-print" id="newMonthBtn" style="border-color:var(--accent); color:var(--accent); margin-top:10px;">🔄 ترحيل الفائض وإقفال الدورة</button>
     </div>
   </div>
 
@@ -201,31 +215,31 @@ body.privacy-active .icon-btn#privacyBtn { background: var(--accent); color: #ff
       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
         <h2 style="margin-bottom:0;">
           <span>📋 بطاقات العمليات ومتابعة الإنجاز</span>
-          <span id="ledgerCountBadge" style="background:var(--accent); color:#fff; font-size:0.85rem; padding:4px 12px; border-radius:20px;">0 عمليات</span>
+          <span id="ledgerCountBadge" style="background:var(--accent); color:#fff; font-size:0.8rem; padding:3px 10px; border-radius:20px;">0 عمليات</span>
         </h2>
-        <button class="btn btn-danger" id="clearAllTxsBtn" style="width:auto; margin-top:0; padding:8px 14px; font-size:0.9rem;">
+        <button class="btn btn-danger" id="clearAllTxsBtn" style="width:auto; margin-top:0; padding:6px 12px; font-size:0.85rem;">
           🗑️ تصفير ومسح السجل
         </button>
       </div>
-      <p style="font-size:0.95rem; color:var(--muted); margin-bottom:16px;">
+      <p style="font-size:0.9rem; color:var(--muted); margin-bottom:14px;">
         انقر على أي بطاقة عملية لفتح دائرتها البيانية وسجل إنجازها وصرفها الفعلي وتفاصيلها.
       </p>
       <div id="ledgerList" class="hide-in-privacy">
-        <div style="text-align:center; color:var(--muted); font-size:1.05rem; padding: 30px 0;">لا توجد عمليات مسجلة بعد.</div>
+        <div style="text-align:center; color:var(--muted); font-size:1rem; padding: 25px 0;">لا توجد عمليات مسجلة بعد.</div>
       </div>
     </div>
   </div>
 
-  <!-- 3. نافذة تقارير الإنجازات الديناميكية المستقلة -->
+  <!-- 3. نافذة تقارير الإنجازات -->
   <div id="pageReports" class="hidden">
     <div class="card" id="reportFilterBox">
       <h2>📈 تصفية فترة التقرير</h2>
-      <div style="display:flex; flex-direction:column; gap:10px;">
+      <div style="display:flex; flex-direction:column; gap:8px;">
         <div>
           <label>اختر نوع الفترة:</label>
           <select id="reportFilterType" style="width:100%;">
-            <option value="current">الدورة المالية الحالية (الشهر الحالي)</option>
-            <option value="all">كافة العمليات والدورات المتاحة</option>
+            <option value="current">الدورة الحالية (الشهر الحالي)</option>
+            <option value="all">كافة العمليات المتاحة</option>
             <option value="month">شهر محدد من الأرشيف</option>
             <option value="custom">نطاق زمني مخصص (من - إلى)</option>
           </select>
@@ -247,18 +261,17 @@ body.privacy-active .icon-btn#privacyBtn { background: var(--accent); color: #ff
           </div>
         </div>
 
-        <button class="btn btn-primary" id="generateReportBtn" style="margin-top:4px; padding:12px;">📊 استخراج تقرير الإنجاز</button>
+        <button class="btn btn-primary" id="generateReportBtn" style="margin-top:2px; padding:12px;">📊 استخراج تقرير الإنجاز</button>
       </div>
     </div>
 
     <div class="card" id="reportResultsCard">
       <h2>
-        <span>📋 ملخص الإنجاز للفترة المحددة</span>
+        <span>📋 ملخص الإنجاز للفترة</span>
         <button class="icon-btn no-print" id="printReportBtn" title="طباعة أو تصدير التقرير" style="width:36px; height:36px;">🖨️</button>
       </h2>
-      <div style="font-size:0.9rem; color:var(--muted); font-weight:800; margin-bottom:12px;" id="reportPeriodTitle">الفترة: -</div>
+      <div style="font-size:0.88rem; color:var(--muted); font-weight:800; margin-bottom:10px;" id="reportPeriodTitle">الفترة: -</div>
 
-      <!-- مؤشرات الأداء الإجمالية -->
       <div class="kpi-grid">
         <div class="kpi-card">
           <div class="kpi-title">المخصص المعتمد</div>
@@ -278,10 +291,8 @@ body.privacy-active .icon-btn#privacyBtn { background: var(--accent); color: #ff
         </div>
       </div>
 
-      <!-- الرسم البياني المقارن (المخصص مقابل المنصرف الفعلي لكل بند) -->
-      <div class="chart-box hide-in-privacy" style="height:260px;"><canvas id="reportChart"></canvas></div>
+      <div class="chart-box hide-in-privacy" style="height:250px;"><canvas id="reportChart"></canvas></div>
 
-      <!-- جدول تفصيلي ديناميكي بجميع البنود وتفاصيل الصرف والملاحظات -->
       <div style="overflow-x:auto;">
         <table class="report-table hide-in-privacy">
           <thead>
@@ -290,17 +301,16 @@ body.privacy-active .icon-btn#privacyBtn { background: var(--accent); color: #ff
               <th>المخصص</th>
               <th>المنصرف</th>
               <th>الفائض</th>
-              <th>نسبة الصرف</th>
+              <th>النسبة</th>
             </tr>
           </thead>
           <tbody id="reportBody">
-            <tr><td colspan="5" style="text-align:center; color:var(--muted); padding:20px;">اختر الفترة واضغط استخراج التقرير.</td></tr>
+            <tr><td colspan="5" style="text-align:center; color:var(--muted); padding:16px;">اختر الفترة واضغط استخراج التقرير.</td></tr>
           </tbody>
         </table>
       </div>
 
-      <!-- تفاصيل الملاحظات ومن استلم خلال الفترة -->
-      <div id="reportNotesBox" style="margin-top:16px;"></div>
+      <div id="reportNotesBox" style="margin-top:14px;"></div>
     </div>
   </div>
 
@@ -309,24 +319,24 @@ body.privacy-active .icon-btn#privacyBtn { background: var(--accent); color: #ff
     <div class="modal-content">
       <div class="modal-header">
         <div>
-          <h3 style="font-size:1.25rem; color:var(--accent); font-weight:900;">🔍 تصور تقسيم وتوزيع الدخل</h3>
-          <span id="previewModalSubtitle" style="font-size:0.95rem; color:var(--muted); font-weight:800;"></span>
+          <h3 style="font-size:1.15rem; color:var(--accent); font-weight:900;">🔍 تصور تقسيم وتوزيع الدخل</h3>
+          <span id="previewModalSubtitle" style="font-size:0.9rem; color:var(--muted); font-weight:800;"></span>
         </div>
-        <button class="icon-btn" id="closePreviewModalBtn" style="width:36px; height:36px;">✕</button>
+        <button class="icon-btn" id="closePreviewModalBtn" style="width:34px; height:34px;">✕</button>
       </div>
 
-      <p style="font-size:0.95rem; color:var(--muted); margin-bottom:6px;">
+      <p style="font-size:0.9rem; color:var(--muted); margin-bottom:6px;">
         انقر على شرائح الدائرة أو رمز العين 👁️ لاستبعاد أي بند وتوزيع مبلغه نسبياً:
       </p>
 
       <div class="chart-box"><canvas id="previewPie"></canvas></div>
       <div id="previewCatList"></div>
 
-      <div style="display:flex; gap:10px; margin-top:16px;">
-        <button class="btn btn-success" id="commitTxBtn" style="flex:2; margin-top:0; padding:14px;">
+      <div style="display:flex; gap:8px; margin-top:14px;">
+        <button class="btn btn-success" id="commitTxBtn" style="flex:2; margin-top:0; padding:12px;">
           ✅ اعتماد وترحيل العملية للسجل
         </button>
-        <button class="btn btn-ghost" id="cancelPreviewBtn" style="flex:1; margin-top:0; padding:14px;">
+        <button class="btn btn-ghost" id="cancelPreviewBtn" style="flex:1; margin-top:0; padding:12px;">
           إلغاء
         </button>
       </div>
@@ -338,26 +348,26 @@ body.privacy-active .icon-btn#privacyBtn { background: var(--accent); color: #ff
     <div class="modal-content">
       <div class="modal-header">
         <div>
-          <h3 id="modalTitle" style="font-size:1.25rem; color:var(--accent); font-weight:900;">بطاقة وسجل إنجاز العملية</h3>
-          <span id="modalSubtitle" style="font-size:0.9rem; color:var(--muted); font-weight:700;"></span>
+          <h3 id="modalTitle" style="font-size:1.15rem; color:var(--accent); font-weight:900;">بطاقة وسجل إنجاز العملية</h3>
+          <span id="modalSubtitle" style="font-size:0.85rem; color:var(--muted); font-weight:700;"></span>
         </div>
-        <button class="icon-btn" id="closeModalBtn" style="width:36px; height:36px;">✕</button>
+        <button class="icon-btn" id="closeModalBtn" style="width:34px; height:34px;">✕</button>
       </div>
       
       <div class="chart-box"><canvas id="modalChart"></canvas></div>
 
-      <h4 style="font-size:1.1rem; font-weight:900; color:var(--accent); margin: 14px 0 6px 0; border-top: 1.5px dashed var(--border); padding-top: 12px;">
+      <h4 style="font-size:1.05rem; font-weight:900; color:var(--accent); margin: 12px 0 6px 0; border-top: 1.5px dashed var(--border); padding-top: 10px;">
         ✅ سجل الإنجاز وتأكيد الصرف الفعلي للعملية:
       </h4>
-      <p style="font-size:0.9rem; color:var(--muted); margin-bottom: 10px;">
+      <p style="font-size:0.85rem; color:var(--muted); margin-bottom: 8px;">
         حدد المنصرف الفعلي لكل بند والملاحظات (مثلاً: الصدقة 50 ألف وصُرف 20 ألف لمن):
       </p>
       
       <div id="modalExecutionList"></div>
 
-      <div id="modalActionRow" style="display:flex; gap:10px; margin-top:18px;">
-        <button class="btn btn-primary" id="saveTxExecutionBtn" style="flex:2; margin-top:0; padding:14px;">💾 حفظ الإنجاز والصرف</button>
-        <button class="btn btn-ghost" id="closeModalActionBtn" style="flex:1; margin-top:0; padding:14px;">إغلاق</button>
+      <div id="modalActionRow" style="display:flex; gap:8px; margin-top:14px;">
+        <button class="btn btn-primary" id="saveTxExecutionBtn" style="flex:2; margin-top:0; padding:12px;">💾 حفظ الإنجاز والصرف</button>
+        <button class="btn btn-ghost" id="closeModalActionBtn" style="flex:1; margin-top:0; padding:12px;">إغلاق</button>
       </div>
     </div>
   </div>
@@ -402,7 +412,6 @@ let activeEditingTx = null;
 
 document.getElementById('printDate').textContent = new Date().toLocaleDateString('ar-YE');
 
-// التنقل بين التبويبات الثلاثة
 document.querySelectorAll('.nav-tab').forEach(tab => {
   tab.addEventListener('click', () => {
     document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
@@ -512,7 +521,7 @@ function renderPreviewModalContent() {
       plugins: {
         legend: {
           position: 'bottom',
-          labels: { color: dark ? '#f8fafc' : '#0f172a', font: { family: 'Tajawal', size: 13, weight: 'bold' }, padding: 12 },
+          labels: { color: dark ? '#f8fafc' : '#0f172a', font: { family: 'Tajawal', size: 12, weight: 'bold' }, padding: 10 },
           onClick: (e, legendItem) => {
             const item = activeItems[legendItem.index];
             if (item) {
@@ -523,7 +532,7 @@ function renderPreviewModalContent() {
         },
         datalabels: {
           color: '#fff',
-          font: { family: 'Tajawal', weight: '900', size: 13 },
+          font: { family: 'Tajawal', weight: '900', size: 12 },
           formatter: (val, ctx) => {
             const item = activeItems[ctx.dataIndex];
             return `${val.toLocaleString()}\n(${item.pct}%)`;
@@ -706,9 +715,9 @@ function openTxModal(item) {
     options: {
       cutout: '58%',
       plugins: {
-        legend: { position: 'bottom', labels: { color: dark ? '#f8fafc' : '#0f172a', font: { family: 'Tajawal', size: 12, weight: 'bold' } } },
+        legend: { position: 'bottom', labels: { color: dark ? '#f8fafc' : '#0f172a', font: { family: 'Tajawal', size: 11, weight: 'bold' } } },
         datalabels: {
-          color: '#fff', font: { family: 'Tajawal', weight: '900', size: 12 },
+          color: '#fff', font: { family: 'Tajawal', weight: '900', size: 11 },
           formatter: (v, c) => `${distItems[c.dataIndex].pct}%`
         }
       }
@@ -719,8 +728,8 @@ function openTxModal(item) {
   modalExecutionList.innerHTML = distItems.map(d => {
     const ex = execData[d.id] || { done: false, actualSpent: d.amount, note: '', door: '' };
     return `
-      <div class="cat-card ${ex.done ? 'done' : ''}" style="margin-bottom:12px; padding:14px;">
-        <div class="cat-header" style="margin-bottom:8px;">
+      <div class="cat-card ${ex.done ? 'done' : ''}" style="margin-bottom:10px; padding:12px;">
+        <div class="cat-header" style="margin-bottom:6px;">
           <div class="cat-info">
             <span class="cat-color" style="background:${d.color}"></span>
             <span class="cat-name">${esc(d.name)} <b style="color:var(--accent);">(${d.pct}%)</b></span>
@@ -729,25 +738,25 @@ function openTxModal(item) {
         </div>
 
         ${isClosed ? `
-          <div style="font-size:0.95rem; color:var(--muted); padding-top:6px;">
+          <div style="font-size:0.9rem; color:var(--muted); padding-top:6px;">
             <span>المنصرف الفعلي: <b>${fmt(ex.actualSpent)}</b></span>
             ${ex.note ? ` • <span>ملاحظات: ${esc(ex.note)}</span>` : ''}
           </div>
         ` : `
-          <div style="display:flex; flex-direction:column; gap:10px; padding-top:8px; border-top:1.5px dashed var(--border);">
+          <div style="display:flex; flex-direction:column; gap:8px; padding-top:8px; border-top:1.5px dashed var(--border);">
             <div style="display:flex; justify-content:space-between; align-items:center;">
               <label class="check-row">
                 <input type="checkbox" class="tx-cat-cb" data-id="${d.id}" ${ex.done ? 'checked' : ''}>
                 تم الصرف
               </label>
-              <div style="display:flex; align-items:center; gap:8px;">
-                <span style="font-size:0.95rem; color:var(--muted); font-weight:800;">المنصرف الفعلي:</span>
-                <input type="number" class="tx-actual-input" data-id="${d.id}" value="${ex.actualSpent !== undefined ? ex.actualSpent : d.amount}" style="width:125px; padding:6px 10px; font-size:1.05rem; font-weight:800; text-align:center;">
+              <div style="display:flex; align-items:center; gap:6px;">
+                <span style="font-size:0.88rem; color:var(--muted); font-weight:800;">المنصرف الفعلي:</span>
+                <input type="number" class="tx-actual-input" data-id="${d.id}" value="${ex.actualSpent !== undefined ? ex.actualSpent : d.amount}" style="width:115px; padding:6px 8px; font-size:1rem; font-weight:800; text-align:center;">
               </div>
             </div>
 
             ${d.id === 'charity' ? `
-              <select class="tx-cat-door" data-id="${d.id}" style="height:46px; font-size:0.95rem;">
+              <select class="tx-cat-door" data-id="${d.id}" style="height:44px; font-size:0.92rem;">
                 <option value="">-- حدد باب الصدقة --</option>
                 <option value="أقارب" ${ex.door==='أقارب'?'selected':''}>الأقارب وذوي الرحم</option>
                 <option value="أيتام" ${ex.door==='أيتام'?'selected':''}>كفالة الأيتام</option>
@@ -757,7 +766,7 @@ function openTxModal(item) {
               </select>
             ` : ''}
 
-            <input type="text" class="tx-cat-note hide-in-privacy" data-id="${d.id}" placeholder="تفاصيل وملاحظات الصرف (صُرف لمن؟)..." value="${esc(ex.note)}" style="padding:10px 12px; font-size:1rem;">
+            <input type="text" class="tx-cat-note hide-in-privacy" data-id="${d.id}" placeholder="تفاصيل وملاحظات الصرف (صُرف لمن؟)..." value="${esc(ex.note)}" style="padding:8px 10px; font-size:0.95rem;">
           </div>
         `}
       </div>
@@ -808,7 +817,7 @@ function renderLedgerPage(combinedItems) {
   countBadge.textContent = `${combinedItems.length} عمليات`;
 
   if(!combinedItems || combinedItems.length === 0) {
-    container.innerHTML = '<div style="text-align:center; color:var(--muted); font-size:1.05rem; padding: 30px 0;">لا توجد عمليات مسجلة بعد.</div>';
+    container.innerHTML = '<div style="text-align:center; color:var(--muted); font-size:1rem; padding: 25px 0;">لا توجد عمليات مسجلة بعد.</div>';
     return;
   }
 
@@ -829,35 +838,35 @@ function renderLedgerPage(combinedItems) {
     if (item.isClosingRecord) {
       card.innerHTML = `
         <div class="tx-header">
-          <div style="display:flex; align-items:center; gap:10px;">
-            <span class="tx-badge" style="background:var(--ok);">📦 دورة مرحّلة مغلقة</span>
+          <div style="display:flex; align-items:center; gap:8px;">
+            <span class="tx-badge" style="background:var(--ok);">📦 دورة مرحّلة</span>
             <span class="tx-type-tag">${monthName(item.month)}</span>
             <span class="tx-date">📅 ${item.date}</span>
           </div>
-          <div style="display:flex; align-items:center; gap:10px;">
+          <div style="display:flex; align-items:center; gap:8px;">
             <span class="tx-amount" style="color:var(--ok);">${fmt(item.income)}</span>
             <button class="del-btn single-del-btn" title="حذف هذه الدورة" data-id="${item.id}">🗑️</button>
           </div>
         </div>
-        <div style="font-size:0.95rem; color:var(--muted); margin-top:4px;"><b>توزيع بنود الدورة:</b></div>
+        <div style="font-size:0.9rem; color:var(--muted); margin-top:4px;"><b>توزيع بنود الدورة:</b></div>
         <div class="tx-dist">${distHtml}</div>
       `;
     } else {
       card.innerHTML = `
         <div class="tx-header">
-          <div style="display:flex; align-items:center; gap:10px;">
+          <div style="display:flex; align-items:center; gap:8px;">
             <span class="tx-badge">${'إيراد مسجل'}</span>
             <span class="tx-type-tag">${item.type || 'إيراد'}</span>
             <span class="tx-date">📅 ${item.date}</span>
           </div>
-          <div style="display:flex; align-items:center; gap:10px;">
+          <div style="display:flex; align-items:center; gap:8px;">
             <span class="tx-amount">${fmt(item.amount)}</span>
             <button class="del-btn single-del-btn" title="حذف هذه العملية" data-id="${item.id}">🗑️</button>
           </div>
         </div>
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-top:6px;">
-          <span style="font-size:0.92rem; color:var(--muted); font-weight:800;">نسبة إنجاز الصرف: <b>${progressPct}%</b></span>
-          <span style="font-size:0.9rem; color:var(--accent); font-weight:800;">(انقر لفتح سجل الإنجاز والدائرة 👁️)</span>
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-top:4px;">
+          <span style="font-size:0.85rem; color:var(--muted); font-weight:800;">نسبة الإنجاز: <b>${progressPct}%</b></span>
+          <span style="font-size:0.85rem; color:var(--accent); font-weight:800;">(انقر لفتح السجل والدائرة 👁️)</span>
         </div>
         <div class="tx-progress-bar"><div class="tx-progress-val" style="width:${progressPct}%;"></div></div>
         <div class="tx-dist">${distHtml}</div>
@@ -934,10 +943,10 @@ function renderAllData(){
       plugins: { 
         legend: { 
           position: 'bottom', align: 'start',
-          labels: { color: dark?'#f8fafc':'#0f172a', font: {family:'Tajawal', size:13, weight:'bold'}, padding: 14 }
+          labels: { color: dark?'#f8fafc':'#0f172a', font: {family:'Tajawal', size:12, weight:'bold'}, padding: 12 }
         },
         datalabels: {
-          color: '#ffffff', font: { family: 'Tajawal', weight: '900', size: 12 },
+          color: '#ffffff', font: { family: 'Tajawal', weight: '900', size: 11 },
           formatter: (value) => {
             const pct = monthTotalIncome > 0 ? Math.round((value / monthTotalIncome) * 100) : 0;
             return `${value.toLocaleString()}\n(${pct}%)`;
@@ -948,9 +957,6 @@ function renderAllData(){
   });
 }
 
-// -------------------------------------------------------------
-// محرك تقارير الإنجازات الديناميكية وفلاتر الفترات
-// -------------------------------------------------------------
 function populateReportFilterOptions() {
   const history = store.get('history', []);
   const select = document.getElementById('reportMonthSelect');
@@ -991,13 +997,13 @@ function runReportGeneration() {
 
   if (filterType === 'current') {
     targetTxs = p.transactions || [];
-    periodTitle = `الدورة الحالية لشهر (${monthName(p.month)})`;
+    periodTitle = `الدورة الحالية (${monthName(p.month)})`;
   } else if (filterType === 'all') {
     targetTxs = (p.transactions || []).slice();
     history.forEach(h => {
       if (Array.isArray(h.transactions)) targetTxs = targetTxs.concat(h.transactions);
     });
-    periodTitle = 'جميع العمليات المسجلة عبر كافة الدورات';
+    periodTitle = 'جميع العمليات المسجلة';
   } else if (filterType === 'month') {
     const selectedM = document.getElementById('reportMonthSelect').value;
     if (selectedM === p.month) {
@@ -1023,12 +1029,11 @@ function runReportGeneration() {
       if (end && dStr > end) return false;
       return true;
     });
-    periodTitle = `نطاق زمني مخصص: من (${start || 'البداية'}) إلى (${end || 'الآن'})`;
+    periodTitle = `نطاق: ${start || 'البداية'} إلى ${end || 'الآن'}`;
   }
 
   document.getElementById('reportPeriodTitle').textContent = `الفترة: ${periodTitle}`;
 
-  // تجميع الحسابات لكل بند في الفترة المحددة
   const summary = {};
   cats.forEach(c => {
     summary[c.id] = { id: c.id, name: c.name, color: c.color, allocated: 0, actualSpent: 0, notes: [] };
@@ -1076,14 +1081,13 @@ function runReportGeneration() {
   document.getElementById('kpiSurplus').textContent = fmt(grandSurplus);
   document.getElementById('kpiRate').textContent = grandRate + '%';
 
-  // جدول التقرير
   const tbody = document.getElementById('reportBody');
   tbody.innerHTML = '';
 
   const catRows = Object.values(summary).filter(c => c.allocated > 0 || c.actualSpent > 0);
 
   if (catRows.length === 0) {
-    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; color:var(--muted); padding:20px;">لا توجد عمليات مسجلة في هذه الفترة المحددة.</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; color:var(--muted); padding:16px;">لا توجد عمليات مسجلة في هذه الفترة المحددة.</td></tr>';
   } else {
     catRows.forEach(c => {
       const surplus = c.allocated - c.actualSpent;
@@ -1100,7 +1104,6 @@ function runReportGeneration() {
     });
   }
 
-  // رسم المقارنة البياني (المخصص مقابل الفعلي)
   const ctx = document.getElementById('reportChart');
   const dark = document.documentElement.dataset.theme === 'dark';
   if (reportChart) reportChart.destroy();
@@ -1128,16 +1131,15 @@ function runReportGeneration() {
     }
   });
 
-  // استعراض الملاحظات والأبواب المسجلة في الفترة
   const notesBox = document.getElementById('reportNotesBox');
-  notesBox.innerHTML = '<h4 style="font-size:1rem; font-weight:900; margin-bottom:8px; color:var(--accent);">📝 الملاحظات وأبواب الصرف المسجلة خلال الفترة:</h4>';
+  notesBox.innerHTML = '<h4 style="font-size:0.95rem; font-weight:900; margin-bottom:6px; color:var(--accent);">📝 الملاحظات وأبواب الصرف المسجلة:</h4>';
 
   let hasNotes = false;
   catRows.forEach(c => {
     if (c.notes.length > 0) {
       hasNotes = true;
       const notesHtml = c.notes.map(n => `
-        <div style="background:var(--bg); border:1px solid var(--border); border-radius:8px; padding:6px 10px; margin-bottom:4px; font-size:0.88rem;">
+        <div style="background:var(--bg); border:1px solid var(--border); border-radius:8px; padding:6px 8px; margin-bottom:4px; font-size:0.85rem;">
           ${n.door ? `<span style="background:rgba(16,185,129,0.15); color:var(--ok); padding:2px 6px; border-radius:4px; font-weight:800;">باب: ${esc(n.door)}</span> ` : ''}
           <span>${esc(n.note || 'تم الصرف دون ملاحظة')}</span>
           <span style="font-size:0.75rem; color:var(--muted); float:left;">${esc(n.txType)} (${n.date})</span>
@@ -1145,8 +1147,8 @@ function runReportGeneration() {
       `).join('');
 
       notesBox.innerHTML += `
-        <div style="margin-bottom:10px;">
-          <div style="font-weight:800; font-size:0.95rem; margin-bottom:4px; color:${c.color};">● ${esc(c.name)}:</div>
+        <div style="margin-bottom:8px;">
+          <div style="font-weight:800; font-size:0.9rem; margin-bottom:4px; color:${c.color};">● ${esc(c.name)}:</div>
           ${notesHtml}
         </div>
       `;
@@ -1154,7 +1156,7 @@ function runReportGeneration() {
   });
 
   if (!hasNotes) {
-    notesBox.innerHTML += '<div style="font-size:0.9rem; color:var(--muted);">لا توجد ملاحظات أو أبواب مسجلة في هذه الفترة.</div>';
+    notesBox.innerHTML += '<div style="font-size:0.85rem; color:var(--muted);">لا توجد ملاحظات أو أبواب مسجلة في هذه الفترة.</div>';
   }
 }
 
@@ -1162,15 +1164,14 @@ document.getElementById('printReportBtn').addEventListener('click', () => {
   window.print();
 });
 
-// إعدادات البنود والنسب
 function buildSettings(){
   const box = document.getElementById('pctRows'); box.innerHTML = '';
   draftCats.forEach((c, i) => {
     box.innerHTML += `
       <div style="display:flex; align-items:center; gap:8px; padding:8px 0; border-bottom:1px dashed var(--border);">
         <span class="cat-color" style="background:${c.color}"></span>
-        <input type="text" class="set-name" value="${esc(c.name)}" data-idx="${i}" style="padding:10px 12px; font-size:1.05rem;">
-        <input type="number" class="set-pct" value="${c.pct}" data-idx="${i}" style="width:80px; text-align:center; padding:10px 8px; font-size:1.05rem;">%
+        <input type="text" class="set-name" value="${esc(c.name)}" data-idx="${i}" style="padding:10px 12px; font-size:1rem;">
+        <input type="number" class="set-pct" value="${c.pct}" data-idx="${i}" style="width:75px; text-align:center; padding:10px 6px; font-size:1rem;">%
         <button type="button" class="del-btn" data-idx="${i}">🗑️</button>
       </div>`;
   });
@@ -1201,7 +1202,6 @@ document.getElementById('resetPctsBtn').addEventListener('click', () => {
   } 
 });
 
-// إقفال الدورة المالية وترحيل الفائض
 document.getElementById('newMonthBtn').addEventListener('click', () => {
   const p = getMasterPlan();
   if(!p.transactions || p.transactions.length === 0) return;

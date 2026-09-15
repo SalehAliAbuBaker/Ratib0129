@@ -3,7 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>Ratib0129 v7.2</title>
+<title>Ratib0129 v8.0 — دفتر الميزانية الآمن</title>
+<meta name="description" content="تطبيق عربي لإدارة السندات والميزانية والتقارير المالية">
+<meta name="color-scheme" content="light dark">
 <meta name="theme-color" content="#0284c7">
 <link rel="manifest" id="dynamic-manifest">
 <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@500;700;800;900&display=swap" rel="stylesheet">
@@ -862,10 +864,70 @@ body.printing-voucher .print-voucher-container {
 
 Chart.register(ChartDataLabels);
 
+const APP_STORAGE_PREFIX = 'masar_';
+const APP_SCHEMA_VERSION = 2;
+const KNOWN_CURRENCIES = new Set(['YER', 'SAR', 'USD']);
 const store = {
-  get(k, d){ try{ return JSON.parse(localStorage.getItem('masar_'+k)) ?? d }catch(e){ return d } },
-  set(k, v){ localStorage.setItem('masar_'+k, JSON.stringify(v)) }
+  get(k, d){
+    try {
+      const raw = localStorage.getItem(APP_STORAGE_PREFIX + k);
+      return raw === null ? d : (JSON.parse(raw) ?? d);
+    } catch(e) { return d; }
+  },
+  set(k, v){
+    const encoded = JSON.stringify(v);
+    if (encoded.length > 4_000_000) throw new Error('حجم البيانات أكبر من المساحة المحلية المتاحة');
+    localStorage.setItem(APP_STORAGE_PREFIX + k, encoded);
+  },
+  remove(k){ localStorage.removeItem(APP_STORAGE_PREFIX + k); }
 };
+
+function normalizeTransaction(tx) {
+  if (!tx || typeof tx !== 'object') return null;
+  const amount = Number(tx.amount);
+  const currency = KNOWN_CURRENCIES.has(tx.currency) ? tx.currency : 'YER';
+  return {
+    ...tx,
+    id: tx.id ?? `${Date.now()}_${Math.random().toString(36).slice(2)}`,
+    amount: Number.isFinite(amount) ? amount : 0,
+    currency,
+    isoDate: /^\d{4}-\d{2}-\d{2}$/.test(tx.isoDate || '') ? tx.isoDate : monthKey() + '-01',
+    distribution: tx.distribution && typeof tx.distribution === 'object' ? tx.distribution : {},
+    execution: tx.execution && typeof tx.execution === 'object' ? tx.execution : {}
+  };
+}
+
+function validateTransaction(tx) {
+  const errors = [];
+  if (!Number.isFinite(Number(tx.amount)) || Number(tx.amount) <= 0) errors.push('المبلغ يجب أن يكون أكبر من صفر');
+  if (!tx.debitAccount || !tx.creditAccount) errors.push('يجب تحديد الحساب المدين والدائن');
+  if (tx.debitAccount === tx.creditAccount) errors.push('لا يجوز أن يكون الحساب المدين والدائن واحدًا');
+  if (!KNOWN_CURRENCIES.has(tx.currency)) errors.push('العملة غير مدعومة');
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(tx.isoDate || '')) errors.push('تاريخ السند غير صالح');
+  return errors;
+}
+
+function safeImportBackup(parsed) {
+  if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) throw new Error('بنية النسخة غير صالحة');
+  const allowed = new Set(['masar_plan','masar_history','masar_cats','masar_account_tree','masar_account_ceilings','masar_header_config','masar_currency','masar_theme']);
+  const clean = {};
+  for (const [key, value] of Object.entries(parsed)) {
+    if (!allowed.has(key) || typeof value !== 'string') continue;
+    const decoded = JSON.parse(value);
+    if (key === 'masar_plan') {
+      if (!decoded || typeof decoded !== 'object' || !Array.isArray(decoded.transactions)) throw new Error('خطة العمليات غير صالحة');
+      decoded.transactions = decoded.transactions.map(normalizeTransaction).filter(Boolean);
+    }
+    if (key === 'masar_history' && !Array.isArray(decoded)) throw new Error('سجل الأرشيف غير صالح');
+    clean[key] = JSON.stringify(decoded);
+  }
+  if (!clean.masar_plan && !clean.masar_history) throw new Error('لم يتم العثور على بيانات صالحة');
+  return clean;
+}
+
+function escapeRegExp(value) {
+  return String(value).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
 
 const DEFAULT_CATS = [
   {id:'ess', name:'المصاريف الأساسية', color:'#3b82f6', pct:45},
@@ -902,6 +964,12 @@ let activeReportTab = 'budget';
 let currentLedgerSearchQuery = '';
 let currentStatementSearchQuery = '';
 let lastPrintedTx = null;
+let hasUnsavedChanges = false;
+
+document.addEventListener('keydown', (event) => {
+  if (event.key !== 'Escape') return;
+  document.querySelectorAll('.modal-overlay.show').forEach(modal => modal.classList.remove('show'));
+});
 
 let isVoucherSplitActive = false;
 let voucherSplitMode = 'pct';
@@ -948,7 +1016,7 @@ function highlightText(text, query) {
   if (!query || !query.trim()) return esc(text);
   const safeText = esc(text);
   const safeQuery = esc(query.trim());
-  const regex = new RegExp(`(${safeQuery})`, 'gi');
+  const regex = new RegExp(`(${escapeRegExp(query.trim())})`, 'giu');
   return safeText.replace(regex, '<span class="highlight-match">$1</span>');
 }
 
@@ -1037,14 +1105,19 @@ function getCleanNumber(val) {
 function getMasterPlan() {
   const currentKey = monthKey();
   let p = store.get('plan', null);
-  if(!p || typeof p !== 'object' || p.month !== currentKey) {
+  if (p && typeof p === 'object' && p.month && p.month !== currentKey) {
+    const history = store.get('history', []);
+    if (Array.isArray(p.transactions) && !history.some(h => h.month === p.month)) {
+      history.push({ ...p, archivedAt: new Date().toISOString(), schemaVersion: APP_SCHEMA_VERSION });
+      store.set('history', history);
+    }
     p = { month: currentKey, transactions: [] };
     store.set('plan', p);
   }
-  if(!Array.isArray(p.transactions)) {
-    p.transactions = [];
-    store.set('plan', p);
-  }
+  if(!p || typeof p !== 'object') p = { month: currentKey, transactions: [] };
+  if(!Array.isArray(p.transactions)) p.transactions = [];
+  p.transactions = p.transactions.map(normalizeTransaction).filter(Boolean);
+  store.set('plan', p);
   return p;
 }
 
@@ -1052,7 +1125,7 @@ function getNextVoucherNumber(mode) {
   const p = getMasterPlan();
   const txs = p.transactions || [];
   const sameTypeTxs = txs.filter(t => t.voucherMode === mode);
-  return sameTypeTxs.length + 1;
+  return sameTypeTxs.reduce((max, t) => Math.max(max, Number(t.seqNum) || 0), 0) + 1;
 }
 
 function updateVoucherSeqBadge() {
@@ -1216,9 +1289,9 @@ window.addEventListener('popstate', (e) => {
 });
 
 window.addEventListener('beforeunload', (e) => {
-  if (!allowExit) {
+  if (hasUnsavedChanges && !allowExit) {
     e.preventDefault();
-    e.returnValue = 'هل تريد بالتأكيد الخروج من التطبيق؟';
+    e.returnValue = 'لديك تغييرات غير محفوظة. هل تريد المغادرة؟';
   }
 });
 
@@ -1884,7 +1957,7 @@ document.getElementById('commitVoucherBtn').addEventListener('click', () => {
   }
 
   const tx = {
-    id: Date.now() + Math.random(),
+    id: `${Date.now()}_${Math.random().toString(36).slice(2)}`,
     seqNum: assignedSeqNum,
     timestamp: new Date(dateVal).getTime(),
     isoDate: dateVal,
@@ -1897,12 +1970,21 @@ document.getElementById('commitVoucherBtn').addEventListener('click', () => {
     creditAccount: creditAcc,
     type: typeLabel,
     distribution: finalDist,
-    execution: initialExecution
+    execution: initialExecution,
+    createdAt: new Date().toISOString(),
+    schemaVersion: APP_SCHEMA_VERSION
   };
+
+  const txErrors = validateTransaction(tx);
+  if (txErrors.length) {
+    alert(txErrors.join('\n'));
+    return;
+  }
 
   let p = getMasterPlan();
   p.transactions.push(tx);
   store.set('plan', p);
+  hasUnsavedChanges = false;
 
   lastPrintedTx = tx;
   preparePrintVoucherTemplate(tx);
@@ -2137,10 +2219,22 @@ document.getElementById('saveTxExecutionBtn').addEventListener('click', () => {
     return;
   }
 
+  const editErrors = validateTransaction({ ...tx, amount: newAmount, debitAccount: newDebit, creditAccount: newCredit, currency: newCur, isoDate: newDate || tx.isoDate });
+  if (editErrors.length) {
+    alert(editErrors.join('\n'));
+    return;
+  }
+
+  const oldAmount = Number(tx.amount || 0);
   tx.amount = newAmount;
   tx.debitAccount = newDebit;
   tx.creditAccount = newCredit;
   tx.currency = newCur;
+  if (oldAmount !== newAmount && Object.keys(tx.distribution || {}).length) {
+    const excluded = new Set(Object.values(tx.distribution).filter(d => d.excluded).map(d => d.id));
+    tx.distribution = calculateDistribution(newAmount, excluded);
+    tx.execution = Object.fromEntries(Object.values(tx.distribution).filter(d => !d.excluded).map(d => [d.id, { done: true, actualSpent: d.amount, note: newNote }]));
+  }
   if (newDate) {
     tx.isoDate = newDate;
     tx.date = newDate;
@@ -2410,6 +2504,18 @@ function runBudgetReport() {
   cats.forEach(c => {
     summary[c.id] = { id: c.id, name: c.name, color: c.color, allocated: 0, actualSpent: 0, notes: [] };
   });
+
+  const currencies = [...new Set(targetTxs.map(t => t.currency || 'YER'))];
+  if (currencies.length > 1) {
+    document.getElementById('reportNotesBox').innerHTML = `<div class="card" style="border-color:var(--warn); color:var(--warn);">⚠️ الفترة تحتوي أكثر من عملة (${currencies.join('، ')}). تم إيقاف الجمع العام؛ اختر عملة واحدة أو راجع الحركات منفصلة.</div>`;
+    document.getElementById('kpiAllocated').textContent = '-';
+    document.getElementById('kpiSpent').textContent = '-';
+    document.getElementById('kpiSurplus').textContent = '-';
+    document.getElementById('kpiRate').textContent = '-';
+    document.getElementById('reportBody').innerHTML = '<tr><td colspan="5" style="text-align:center;padding:16px;">لا يمكن جمع عملات مختلفة في تقرير واحد.</td></tr>';
+    if (reportChart) { reportChart.destroy(); reportChart = null; }
+    return;
+  }
 
   let grandAllocated = 0;
   let grandSpent = 0;
@@ -2780,6 +2886,11 @@ function renderChartOfAccounts() {
       const idx = parseInt(e.currentTarget.dataset.idx);
       const tree = getAccountTree();
       const subName = tree[parent][idx];
+      const used = getMasterPlan().transactions.some(t => t.debitAccount === subName || t.creditAccount === subName);
+      if (used) {
+        alert('لا يمكن حذف حساب مرتبط بحركات مالية. عطّله أو أنشئ حسابًا بديلًا بدلًا من حذف السجل.');
+        return;
+      }
       if (confirm(`هل تريد حذف الحساب (${subName})؟`)) {
         tree[parent].splice(idx, 1);
         saveAccountTree(tree);
@@ -2880,6 +2991,7 @@ document.getElementById('savePctsBtn').addEventListener('click', () => {
     return;
   }
   store.set('cats', draftCats);
+  hasUnsavedChanges = false;
   alert('تم حفظ بنود الميزانية بنجاح!');
   initVoucherCategoryStates(0);
   renderAllData();
@@ -2887,14 +2999,14 @@ document.getElementById('savePctsBtn').addEventListener('click', () => {
 
 document.getElementById('resetPctsBtn').addEventListener('click', () => {
   if (confirm('استعادة البنود الافتراضية؟')) {
-    localStorage.removeItem('masar_cats');
+    store.remove('cats');
     initSettingsPage();
   }
 });
 
 document.getElementById('clearAllTxsBtn').addEventListener('click', () => {
   if (confirm('تصفير ومسح كافة العمليات المسجلة للبدء من جديد؟')) {
-    localStorage.removeItem('masar_plan');
+    store.remove('plan');
     location.reload();
   }
 });
@@ -2919,10 +3031,17 @@ document.getElementById('importFileInput').addEventListener('change', (e) => {
   reader.onload = (ev) => {
     try {
       const parsed = JSON.parse(ev.target.result);
-      Object.keys(parsed).forEach(k => { if (k.startsWith('masar_')) localStorage.setItem(k, parsed[k]); });
-      alert('تم استيراد النسخة الاحتياطية بنجاح!');
+      const clean = safeImportBackup(parsed);
+      const backup = {};
+      for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        if (key && key.startsWith(APP_STORAGE_PREFIX)) backup[key] = localStorage.getItem(key);
+      }
+      store.set('pre_import_backup', backup);
+      Object.entries(clean).forEach(([key, value]) => localStorage.setItem(key, value));
+      alert('تم التحقق من النسخة واستيرادها بنجاح. أُنشئت نسخة تلقائية قبل الاستيراد.');
       location.reload();
-    } catch(err) { alert('الملف غير صالح'); }
+    } catch(err) { alert(`تعذر استيراد النسخة: ${err.message || 'الملف غير صالح'}`); }
   };
   reader.readAsText(file);
 });
@@ -2948,5 +3067,6 @@ document.getElementById('privacyBtn').addEventListener('click', () => {
   pushAppHistoryState();
 })();
 </script>
+<!-- Ratib0129 v8.0: validated storage, safe imports, currency guards, monotonic voucher numbering -->
 </body>
 </html>

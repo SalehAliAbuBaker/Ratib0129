@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>Ratib0129 v5.9</title>
+<title>Ratib0129 v6.0</title>
 <meta name="theme-color" content="#0284c7">
 <link rel="manifest" id="dynamic-manifest">
 <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@500;700;800;900&display=swap" rel="stylesheet">
@@ -161,7 +161,7 @@ body.privacy-active .icon-btn#privacyBtn { background: var(--accent); color: #ff
   <div style="text-align:center; font-weight:900; font-size:1.1rem; margin-bottom:10px;" class="no-print">بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ</div>
 
   <header class="no-print">
-    <div class="logo">Ratib0129 v5.9</div>
+    <div class="logo">Ratib0129 v6.0</div>
     <div class="header-actions">
       <button class="icon-btn" id="privacyBtn" title="وضع الخصوصية">👁️</button>
       <button class="icon-btn" id="themeBtn" title="الوضع الليلي">🌙</button>
@@ -502,7 +502,7 @@ body.privacy-active .icon-btn#privacyBtn { background: var(--accent); color: #ff
     </div>
   </div>
 
-  <!-- 5. الإعدادات والتحكم في الأسقف -->
+  <!-- 5. الإعدادات والتحكم بالبنود والأسقف -->
   <div id="pageSettings" class="hidden">
     <div class="card">
       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
@@ -513,6 +513,7 @@ body.privacy-active .icon-btn#privacyBtn { background: var(--accent); color: #ff
       <div id="chartOfAccountsView" style="font-size:0.88rem;"></div>
     </div>
 
+    <!-- بطاقة إدارة بنود الميزانية -->
     <div class="card">
       <h2>
         <span>🛠️ إدارة بنود الميزانية والنسب</span>
@@ -631,7 +632,7 @@ body.privacy-active .icon-btn#privacyBtn { background: var(--accent); color: #ff
     </div>
   </div>
 
-  <!-- نافذة مخصصة لتأكيد الخروج من التطبيق في كروم وأندرويد -->
+  <!-- نافذة مخصصة لتأكيد الخروج -->
   <div class="modal-overlay" id="exitConfirmModal">
     <div class="modal-content" style="max-width: 360px; text-align: center;">
       <div style="font-size: 2.2rem; margin-bottom: 8px;">🚪</div>
@@ -751,11 +752,10 @@ function updateVoucherSeqBadge() {
   document.getElementById('voucherSeqNumBadge').textContent = `رقم: ${nextNum}`;
 }
 
-/* ================== تأكيد الخروج والتاريخ الصارم لكروم وأندرويد ================== */
+/* ================== إدارة التنقل ================== */
 const TABS_ORDER = ['pageDashboard', 'pageExpenses', 'pageLedger', 'pageReports', 'pageSettings'];
 let allowExit = false;
 
-// تثبيت حلقة حماية السجل فور التشغيل
 function pushAppHistoryState() {
   window.history.pushState({ page: 'ratib_app_entry' }, '');
 }
@@ -791,7 +791,6 @@ document.querySelectorAll('.nav-tab').forEach(tab => {
   tab.addEventListener('click', () => navigateToTab(tab.dataset.target, true));
 });
 
-// التنقل بمؤشر ولمس الإبهام
 let touchStartX = 0;
 let touchStartY = 0;
 
@@ -814,7 +813,6 @@ document.addEventListener('touchend', (e) => {
   }
 }, { passive: true });
 
-// نافذة تأكيد الخروج الصارمة لكروم
 function showExitModal() {
   document.getElementById('exitConfirmModal').classList.add('show');
 }
@@ -857,12 +855,10 @@ window.addEventListener('popstate', (e) => {
     return;
   }
 
-  // عند الوصول للواجهة الأولى والضغط على رجوع: افتح نافذة تأكيد الخروج
   showExitModal();
   pushAppHistoryState();
 });
 
-// حماية المتصفح من الإغلاق المباشر للتبويب
 window.addEventListener('beforeunload', (e) => {
   if (!allowExit) {
     e.preventDefault();
@@ -870,7 +866,7 @@ window.addEventListener('beforeunload', (e) => {
   }
 });
 
-/* ================== فحص الأسقف المالية والتحذير ================== */
+/* ================== فحص الأسقف المالية ================== */
 function getCurrentAccountBalance(accName) {
   const p = getMasterPlan();
   const txs = p.transactions || [];
@@ -2337,23 +2333,56 @@ function renderChartOfAccounts() {
   });
 }
 
-function initSettingsPage() {
-  draftCats = JSON.parse(JSON.stringify(getCats()));
+/* ================== إدارة بنود الميزانية (إصلاح الإضافة والحذف) ================== */
+function renderCategoryRows() {
   const box = document.getElementById('pctRows');
   box.innerHTML = '';
+
   draftCats.forEach((c, i) => {
-    box.innerHTML += `
-      <div style="display:flex; align-items:center; gap:8px; padding:6px 0; border-bottom:1px dashed var(--border);">
-        <input type="text" value="${esc(c.name)}" oninput="draftCats[${i}].name=this.value" style="padding:8px 10px;">
-        <input type="number" value="${c.pct}" oninput="draftCats[${i}].pct=parseFloat(this.value)||0; updatePctSum();" style="width:70px; text-align:center;">%
-      </div>`;
+    const row = document.createElement('div');
+    row.style.cssText = 'display:flex; align-items:center; gap:8px; padding:6px 0; border-bottom:1px dashed var(--border);';
+
+    row.innerHTML = `
+      <span class="cat-color" style="background:${c.color || '#3b82f6'}; width:14px; height:14px; border-radius:3px;"></span>
+      <input type="text" class="cat-name-input" data-idx="${i}" value="${esc(c.name)}" style="flex:1; padding:8px 10px;">
+      <input type="number" class="cat-pct-input" data-idx="${i}" value="${c.pct}" style="width:65px; text-align:center;">
+      <span style="font-weight:800; font-size:0.9rem;">%</span>
+      <button type="button" class="del-btn remove-cat-btn" data-idx="${i}" title="حذف هذا البند">🗑️</button>
+    `;
+
+    row.querySelector('.cat-name-input').addEventListener('input', (e) => {
+      draftCats[i].name = e.target.value;
+    });
+
+    row.querySelector('.cat-pct-input').addEventListener('input', (e) => {
+      draftCats[i].pct = parseFloat(e.target.value) || 0;
+      updatePctSum();
+    });
+
+    row.querySelector('.remove-cat-btn').addEventListener('click', () => {
+      if (draftCats.length <= 1) {
+        alert('يجب الإبقاء على بند واحد على الأقل في الميزانية');
+        return;
+      }
+      draftCats.splice(i, 1);
+      renderCategoryRows();
+      updatePctSum();
+    });
+
+    box.appendChild(row);
   });
+
   updatePctSum();
+}
+
+function initSettingsPage() {
+  draftCats = JSON.parse(JSON.stringify(getCats()));
+  renderCategoryRows();
   renderChartOfAccounts();
 }
 
 function updatePctSum() {
-  const sum = draftCats.reduce((s, c) => s + (c.pct || 0), 0);
+  const sum = draftCats.reduce((s, c) => s + (Number(c.pct) || 0), 0);
   const el = document.getElementById('pctSum');
   el.textContent = 'المجموع: ' + sum + '%';
   el.style.color = sum === 100 ? 'var(--ok)' : 'var(--danger)';
@@ -2361,15 +2390,23 @@ function updatePctSum() {
 
 document.getElementById('addCatBtn').addEventListener('click', () => {
   const color = PALETTE[draftCats.length % PALETTE.length];
-  draftCats.push({id: 'c_' + Date.now(), name: 'بند جديد', color: color, pct: 0});
-  initSettingsPage();
+  draftCats.push({
+    id: 'c_' + Date.now() + '_' + Math.floor(Math.random()*1000),
+    name: 'بند جديد ' + (draftCats.length + 1),
+    color: color,
+    pct: 0
+  });
+  renderCategoryRows();
 });
 
 document.getElementById('savePctsBtn').addEventListener('click', () => {
-  const sum = draftCats.reduce((s, c) => s + (c.pct || 0), 0);
-  if (sum !== 100) { alert('المجموع يجب أن يساوي 100%'); return; }
+  const sum = draftCats.reduce((s, c) => s + (Number(c.pct) || 0), 0);
+  if (sum !== 100) {
+    alert('مجموع النسب المئوية يجب أن يساوي 100% تماماً (المجموع الحالي: ' + sum + '%)');
+    return;
+  }
   store.set('cats', draftCats);
-  alert('تم حفظ البنود بنجاح!');
+  alert('تم حفظ بنود الميزانية بنجاح!');
   initVoucherCategoryStates(0);
   renderAllData();
 });
@@ -2433,8 +2470,6 @@ document.getElementById('privacyBtn').addEventListener('click', () => {
   setupSearchableSelects();
   updateSearchableData();
   renderAllData();
-  
-  // تهيئة حلقة حماية السجل لمنع خروج كروم المباشر
   pushAppHistoryState();
 })();
 </script>

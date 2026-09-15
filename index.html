@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>Ratib0129 v6.8</title>
+<title>Ratib0129 v7.2</title>
 <meta name="theme-color" content="#0284c7">
 <link rel="manifest" id="dynamic-manifest">
 <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@500;700;800;900&display=swap" rel="stylesheet">
@@ -134,8 +134,9 @@ body.privacy-active .icon-btn#privacyBtn { background: var(--accent); color: #ff
 .kpi-value { font-size: 1rem; font-weight: 900; color: var(--text); }
 
 .report-table { width: 100%; border-collapse: collapse; margin-top: 4px; font-size: 0.82rem; }
-.report-table th, .report-table td { padding: 5px 4px; border-bottom: 1px solid var(--border); text-align: right; }
-.report-table th { background: var(--bg); color: var(--muted); font-weight: 800; }
+.report-table th, .report-table td { padding: 5px 4px; border-bottom: 1px solid var(--border); text-align: right; cursor: pointer; }
+.report-table th { background: var(--bg); color: var(--muted); font-weight: 800; cursor: default; }
+.report-table tr:hover td { background: rgba(2,132,199,0.06); }
 
 .highlight-match { background: #fef08a; color: #854d0e; padding: 1px 4px; border-radius: 4px; font-weight: 900; }
 
@@ -173,12 +174,22 @@ body.privacy-active .icon-btn#privacyBtn { background: var(--accent); color: #ff
 .hidden{display:none!important}
 .del-btn { background:none; border:none; color:var(--danger); font-size:1.15rem; cursor:pointer; padding:2px; }
 
-/* القالب الافتراضي للسند المستقل (مخفي بالشاشة العادية) */
+/* ترويسة التقارير والكشوفات المطبوعة والظاهرة */
+.print-header-banner {
+  display: none;
+  text-align: center;
+  border-bottom: 2px solid var(--accent);
+  padding-bottom: 8px;
+  margin-bottom: 12px;
+}
+.print-header-banner h1 { font-size: 1.25rem; font-weight: 900; color: var(--text); }
+.print-header-banner p { font-size: 0.85rem; color: var(--muted); margin-top: 2px; }
+
+/* قالب سند الطباعة الرسمي المستقل */
 .print-voucher-container {
   display: none;
 }
 
-/* فئات التحكم بنمط الطباعة (سندات مقابل تقارير) */
 body.printing-voucher header, 
 body.printing-voucher .nav-tabs, 
 body.printing-voucher .no-print, 
@@ -202,7 +213,6 @@ body.printing-voucher .print-voucher-container {
   background: #fff !important;
 }
 
-/* تنسيق الطباعة العام للتقارير (عند طباعة التقارير المعتادة) */
 @media print {
   body:not(.printing-voucher) { background: #fff !important; color: #000 !important; font-size: 11pt !important; }
   body:not(.printing-voucher) header, 
@@ -216,7 +226,9 @@ body.printing-voucher .print-voucher-container {
   body:not(.printing-voucher) .report-type-switch { 
     display: none !important; 
   }
-  body:not(.printing-voucher) .print-header-banner { display: block !important; }
+  body:not(.printing-voucher) .print-header-banner { 
+    display: block !important; 
+  }
 }
 
 .pv-header { text-align: center; border-bottom: 2px solid #000; padding-bottom: 10px; margin-bottom: 15px; }
@@ -242,7 +254,7 @@ body.printing-voucher .print-voucher-container {
   <div style="text-align:center; font-weight:900; font-size:1.1rem; margin-bottom:10px;" class="no-print">بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ</div>
 
   <header class="no-print">
-    <div class="logo">Ratib0129 v6.8</div>
+    <div class="logo">Ratib0129 v7.2</div>
     <div class="header-actions">
       <button class="icon-btn" id="privacyBtn" title="وضع الخصوصية">👁️</button>
       <button class="icon-btn" id="themeBtn" title="الوضع الليلي">🌙</button>
@@ -677,25 +689,67 @@ body.printing-voucher .print-voucher-container {
     </div>
   </div>
 
-  <!-- نافذة تعديل بطاقة العملية -->
+  <!-- نافذة تعديل بيانات السند الأساسية (كامل السند) -->
   <div class="modal-overlay" id="txModal">
     <div class="modal-content">
       <div class="modal-header">
         <div>
-          <h3 id="modalTitle" style="font-size:1.1rem; color:var(--accent); font-weight:900;">تعديل العملية</h3>
+          <h3 id="modalTitle" style="font-size:1.1rem; color:var(--accent); font-weight:900;">تعديل السند الأساسي</h3>
           <span id="modalSubtitle" style="font-size:0.8rem; color:var(--muted); font-weight:700;"></span>
         </div>
         <button class="icon-btn" id="closeModalBtn" style="width:34px; height:34px;">✕</button>
       </div>
-      <div class="chart-box" id="modalChartBox"><canvas id="modalChart"></canvas></div>
-      <h4 style="font-size:0.95rem; font-weight:900; color:var(--accent); margin: 8px 0 6px 0; border-top: 1.5px dashed var(--border); padding-top: 8px;">
-        ✅ تفاصيل وبيان المنصرف الفعلي:
-      </h4>
-      <div id="modalExecutionList"></div>
-      <div id="modalActionRow" style="display:flex; gap:8px; margin-top:12px;">
-        <button class="btn btn-primary" id="saveTxExecutionBtn" style="flex:2; margin-top:0;">💾 حفظ التعديلات</button>
-        <button class="btn btn-ghost" id="closeModalActionBtn" style="flex:1; margin-top:0;">إلغاء</button>
+
+      <div class="form-group">
+        <label>الحساب المدين (عليه):</label>
+        <div class="searchable-select-wrap" id="wrapEditDebitAcc">
+          <input type="text" class="searchable-input" id="inpEditDebitAcc" placeholder="اختر الحساب المدين..." autocomplete="off">
+          <span class="searchable-arrow">▼</span>
+          <div class="searchable-dropdown" id="dropEditDebitAcc"></div>
+        </div>
+        <input type="hidden" id="valEditDebitAcc">
       </div>
+
+      <div class="form-group">
+        <label>الحساب الدائن (له):</label>
+        <div class="searchable-select-wrap" id="wrapEditCreditAcc">
+          <input type="text" class="searchable-input" id="inpEditCreditAcc" placeholder="اختر الحساب الدائن..." autocomplete="off">
+          <span class="searchable-arrow">▼</span>
+          <div class="searchable-dropdown" id="dropEditCreditAcc"></div>
+        </div>
+        <input type="hidden" id="valEditCreditAcc">
+      </div>
+
+      <div style="display: flex; gap: 8px; margin-bottom: 4px;">
+        <div style="flex: 1.3;">
+          <label>إجمالي مبلغ السند:</label>
+          <input type="text" id="editVoucherAmount" class="number-formatted" placeholder="المبلغ" inputmode="decimal">
+        </div>
+        <div style="flex: 0.9;">
+          <label>العملة:</label>
+          <select id="editVoucherCurrency">
+            <option value="YER">🇾🇪 ر.ي</option>
+            <option value="SAR">🇸🇦 ر.س</option>
+            <option value="USD">💵 دولار</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>تاريخ السند:</label>
+        <input type="date" id="editVoucherDate">
+      </div>
+
+      <div class="form-group" style="margin-bottom: 12px;">
+        <label>البيان / ملاحظات السند:</label>
+        <input type="text" id="editVoucherNote" placeholder="اكتب البيان...">
+      </div>
+
+      <div style="display:flex; gap:8px; margin-top:12px;">
+        <button class="btn btn-success" id="modalPrintDocBtn" style="flex:1; margin-top:0;">🖨️ طباعة</button>
+        <button class="btn btn-primary" id="saveTxExecutionBtn" style="flex:2; margin-top:0;">💾 حفظ التعديلات</button>
+      </div>
+      <button class="btn btn-ghost" id="closeModalActionBtn" style="margin-top:6px;">إغلاق</button>
     </div>
   </div>
 
@@ -853,6 +907,8 @@ let isVoucherSplitActive = false;
 let voucherSplitMode = 'pct';
 let voucherCatStates = {};
 
+let selEditDebitAcc, selEditCreditAcc;
+
 function getCats(){ return store.get('cats', DEFAULT_CATS); }
 function getAccountTree(){ return store.get('account_tree', DEFAULT_ACCOUNT_TREE); }
 function saveAccountTree(tree){ store.set('account_tree', tree); }
@@ -861,7 +917,19 @@ function getAccountCeilings(){ return store.get('account_ceilings', {}); }
 function saveAccountCeilings(ceilings){ store.set('account_ceilings', ceilings); }
 
 function getHeaderConfig(){ return store.get('header_config', { name: 'مؤسسة خيرية', details: 'العنوان: حضرموت - تريم | هاتف: 700000000', show: false }); }
-function saveHeaderConfig(cfg){ store.set('header_config', cfg); }
+function saveHeaderConfig(cfg){ store.set('header_config', cfg); applyHeaderConfig(); }
+
+function applyHeaderConfig() {
+  const cfg = getHeaderConfig();
+  const banner = document.getElementById('printHeaderBanner');
+  document.getElementById('bannerOrgName').textContent = cfg.name || 'مؤسسة خيرية';
+  document.getElementById('bannerOrgDetails').textContent = cfg.details || '';
+  if (cfg.show) {
+    banner.style.display = 'block';
+  } else {
+    banner.style.display = 'none';
+  }
+}
 
 function monthKey(){ const d = new Date(); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0'); }
 function monthName(key){ const [y,m] = key.split('-'); const ms = ['يناير','فبراير','مارس','أبريل','مايو','يونيو','يوليو','أغسطس','سبتمبر','أكتوبر','نوفمبر','ديسمبر']; return ms[+m-1]+' '+y; }
@@ -1347,6 +1415,22 @@ function setupSearchableSelects() {
     isGrouped: true,
     onSelect: () => runAccountStatement()
   });
+
+  selEditDebitAcc = new SearchableSelect({
+    wrapId: 'wrapEditDebitAcc',
+    inputId: 'inpEditDebitAcc',
+    dropId: 'dropEditDebitAcc',
+    hiddenId: 'valEditDebitAcc',
+    isGrouped: true
+  });
+
+  selEditCreditAcc = new SearchableSelect({
+    wrapId: 'wrapEditCreditAcc',
+    inputId: 'inpEditCreditAcc',
+    dropId: 'dropEditCreditAcc',
+    hiddenId: 'valEditCreditAcc',
+    isGrouped: true
+  });
 }
 
 function updateSearchableData() {
@@ -1360,6 +1444,8 @@ function updateSearchableData() {
 
   selDebitAcc.setItems(accountItems);
   selCreditAcc.setItems(accountItems);
+  if (selEditDebitAcc) selEditDebitAcc.setItems(accountItems);
+  if (selEditCreditAcc) selEditCreditAcc.setItems(accountItems);
 
   const reportAccountItems = [
     { id: 'ALL', text: '📋 ملخص كافة الحسابات والصناديق (تجميعي)', group: 'عرض عام' },
@@ -2013,90 +2099,20 @@ function openTxModal(item) {
   preparePrintVoucherTemplate(item);
   
   const modal = document.getElementById('txModal');
-  const modalTitle = document.getElementById('modalTitle');
   const modalSubtitle = document.getElementById('modalSubtitle');
-  const modalExecutionList = document.getElementById('modalExecutionList');
-  const chartBox = document.getElementById('modalChartBox');
+  
+  modalSubtitle.textContent = `📅 تاريخ السند: ${item.date} | رقم السند: #${item.seqNum || '-'}`;
 
-  const isExpense = !!item.isExpense;
-  modalTitle.textContent = `${item.type} - ${fmt(item.amount, item.currency)}`;
-  modalSubtitle.textContent = `📅 ${item.date} | المدين: ${item.debitAccount || '-'} | الدائن: ${item.creditAccount || '-'}`;
+  selEditDebitAcc.setValue(item.debitAccount, item.debitAccount);
+  selEditCreditAcc.setValue(item.creditAccount, item.creditAccount);
+  document.getElementById('editVoucherAmount').value = Number(item.amount || 0).toLocaleString('en-US');
+  document.getElementById('editVoucherCurrency').value = item.currency || 'YER';
+  document.getElementById('editVoucherDate').value = item.isoDate || item.date || new Date().toISOString().split('T')[0];
+  
+  const noteStr = Object.values(item.execution || {})[0]?.note || '';
+  document.getElementById('editVoucherNote').value = noteStr;
+
   modal.classList.add('show');
-
-  const distItems = Object.values(item.distribution || {}).filter(d => !d.excluded && d.amount > 0);
-  if (isExpense || distItems.length === 0) {
-    chartBox.style.display = 'none';
-  } else {
-    chartBox.style.display = 'block';
-    const ctx = document.getElementById('modalChart');
-    const dark = document.documentElement.dataset.theme === 'dark';
-    if (modalChart) modalChart.destroy();
-
-    modalChart = new Chart(ctx, {
-      type: 'doughnut',
-      data: {
-        labels: distItems.map(d => `${d.name} (${d.pct || 0}%)`),
-        datasets: [{
-          data: distItems.map(d => d.amount),
-          backgroundColor: distItems.map(d => d.color || '#3b82f6'),
-          borderWidth: 2,
-          borderColor: dark ? '#1e293b' : '#ffffff'
-        }]
-      },
-      options: {
-        cutout: '58%',
-        plugins: {
-          legend: { position: 'bottom', labels: { color: dark ? '#f8fafc' : '#0f172a', font: { family: 'Tajawal', size: 11, weight: 'bold' } } },
-          datalabels: { color: '#fff', font: { family: 'Tajawal', weight: '900', size: 11 }, formatter: (v, c) => `${distItems[c.dataIndex].pct || 0}%` }
-        }
-      }
-    });
-  }
-
-  const execData = item.execution || {};
-  if (distItems.length > 0) {
-    modalExecutionList.innerHTML = distItems.map(d => {
-      const ex = execData[d.id] || { done: false, actualSpent: d.amount, note: '' };
-      return `
-        <div class="cat-card" style="margin-bottom:8px; padding:10px;">
-          <div class="cat-header" style="margin-bottom:6px;">
-            <div class="cat-info">
-              <span class="cat-color" style="background:${d.color}"></span>
-              <span class="cat-name">${esc(d.name)}</span>
-            </div>
-            <span class="cat-amount hide-in-privacy">${fmt(isExpense ? ex.actualSpent : d.amount, item.currency)}</span>
-          </div>
-
-          <div style="display:flex; flex-direction:column; gap:6px; padding-top:6px; border-top:1px dashed var(--border);">
-            <div style="display:flex; justify-content:space-between; align-items:center;">
-              <span style="font-size:0.85rem; color:var(--muted); font-weight:800;">المنصرف الفعلي:</span>
-              <input type="number" class="tx-actual-input" data-id="${d.id}" value="${ex.actualSpent !== undefined ? ex.actualSpent : d.amount}" style="width:115px; padding:5px 8px; text-align:center;">
-            </div>
-            <input type="text" class="tx-cat-note hide-in-privacy" data-id="${d.id}" placeholder="البيان والملاحظات..." value="${esc(ex.note)}" style="padding:6px 8px; font-size:0.9rem;">
-          </div>
-        </div>
-      `;
-    }).join('');
-  } else {
-    modalExecutionList.innerHTML = '<div style="text-align:center; color:var(--muted); padding:10px;">هذا السند غير مرتبط ببنود ميزانية (حركة نقدية مباشرة).</div>';
-  }
-
-  if (!document.getElementById('modalPrintDocBtn')) {
-    const actionRow = document.getElementById('modalActionRow');
-    const pBtn = document.createElement('button');
-    pBtn.type = 'button';
-    pBtn.id = 'modalPrintDocBtn';
-    pBtn.className = 'btn btn-success';
-    pBtn.style.cssText = 'flex:1; margin-top:0; padding:12px;';
-    pBtn.textContent = '🖨️ طباعة المستند';
-    pBtn.addEventListener('click', () => {
-      preparePrintVoucherTemplate(activeEditingTx);
-      document.body.classList.add('printing-voucher');
-      window.print();
-      setTimeout(() => document.body.classList.remove('printing-voucher'), 1000);
-    });
-    actionRow.insertBefore(pBtn, actionRow.firstChild);
-  }
 }
 
 document.getElementById('saveTxExecutionBtn').addEventListener('click', () => {
@@ -2105,28 +2121,51 @@ document.getElementById('saveTxExecutionBtn').addEventListener('click', () => {
   const tx = p.transactions.find(t => t.id == activeEditingTx.id);
   if (!tx) return;
 
-  if (!tx.execution) tx.execution = {};
-  let totalNewSpent = 0;
-  document.querySelectorAll('.tx-actual-input').forEach(inp => {
-    const cid = inp.dataset.id;
-    const noteInp = document.querySelector(`.tx-cat-note[data-id="${cid}"]`);
-    const val = parseFloat(inp.value) || 0;
-    tx.execution[cid] = {
-      done: true,
-      actualSpent: val,
-      note: noteInp ? noteInp.value : ''
-    };
-    totalNewSpent += val;
-  });
+  const newAmount = getCleanNumber(document.getElementById('editVoucherAmount').value);
+  const newDebit = selEditDebitAcc.getValue();
+  const newCredit = selEditCreditAcc.getValue();
+  const newDate = document.getElementById('editVoucherDate').value;
+  const newNote = document.getElementById('editVoucherNote').value.trim();
+  const newCur = document.getElementById('editVoucherCurrency').value;
 
-  if (tx.isExpense && totalNewSpent > 0 && Object.keys(tx.distribution || {}).length > 0) {
-    tx.amount = totalNewSpent;
+  if (!newAmount || newAmount <= 0) {
+    alert('يرجى إدخال مبلغ صحيح');
+    return;
+  }
+  if (!newDebit || !newCredit) {
+    alert('يرجى اختيار الحساب المدين والحساب الدائن');
+    return;
+  }
+
+  tx.amount = newAmount;
+  tx.debitAccount = newDebit;
+  tx.creditAccount = newCredit;
+  tx.currency = newCur;
+  if (newDate) {
+    tx.isoDate = newDate;
+    tx.date = newDate;
+  }
+
+  if (!tx.execution) tx.execution = {};
+  const firstKey = Object.keys(tx.execution)[0] || Object.keys(tx.distribution || {})[0];
+  if (firstKey) {
+    if (!tx.execution[firstKey]) tx.execution[firstKey] = {};
+    tx.execution[firstKey].note = newNote;
+    tx.execution[firstKey].actualSpent = newAmount;
   }
 
   store.set('plan', p);
   document.getElementById('txModal').classList.remove('show');
-  alert('تم حفظ التعديلات بنجاح!');
+  alert('تم تعديل وحفظ السند بنجاح!');
   renderAllData();
+});
+
+document.getElementById('modalPrintDocBtn').addEventListener('click', () => {
+  if (!activeEditingTx) return;
+  preparePrintVoucherTemplate(activeEditingTx);
+  document.body.classList.add('printing-voucher');
+  window.print();
+  setTimeout(() => document.body.classList.remove('printing-voucher'), 1000);
 });
 
 document.getElementById('closeModalBtn').addEventListener('click', () => {
@@ -2600,18 +2639,23 @@ function runAccountStatement() {
         const otherAccount = isDebit ? (t.creditAccount || 'طرف آخر') : (t.debitAccount || 'طرف آخر');
         const noteStr = t.execution?.[Object.keys(t.execution)[0]]?.note || t.type;
 
-        tbody.innerHTML += `
-          <tr>
-            <td style="font-size:0.8rem; color:var(--muted);">${t.date}</td>
-            <td><span class="tx-num-tag">#${t.seqNum || '-'}</span></td>
-            <td>
-              <div><b>${highlightText(t.type, currentStatementSearchQuery)}</b></div>
-              <div style="font-size:0.75rem; color:var(--muted);">${highlightText(noteStr, currentStatementSearchQuery)} • (الطرف: ${highlightText(otherAccount, currentStatementSearchQuery)})</div>
-            </td>
-            <td style="color:var(--danger); font-weight:800;">${debitAmt > 0 ? fmt(debitAmt, t.currency) : '-'}</td>
-            <td style="color:var(--ok); font-weight:800;">${creditAmt > 0 ? fmt(creditAmt, t.currency) : '-'}</td>
-          </tr>
+        const tr = document.createElement('tr');
+        tr.style.cursor = 'pointer';
+        tr.title = 'اضغط لفتح وتعديل السند';
+        tr.innerHTML = `
+          <td style="font-size:0.8rem; color:var(--muted);">${t.date}</td>
+          <td><span class="tx-num-tag">#${t.seqNum || '-'}</span></td>
+          <td>
+            <div><b>${highlightText(t.type, currentStatementSearchQuery)}</b></div>
+            <div style="font-size:0.75rem; color:var(--muted);">${highlightText(noteStr, currentStatementSearchQuery)} • (الطرف: ${highlightText(otherAccount, currentStatementSearchQuery)})</div>
+          </td>
+          <td style="color:var(--danger); font-weight:800;">${debitAmt > 0 ? fmt(debitAmt, t.currency) : '-'}</td>
+          <td style="color:var(--ok); font-weight:800;">${creditAmt > 0 ? fmt(creditAmt, t.currency) : '-'}</td>
         `;
+        tr.addEventListener('click', () => {
+          openTxModal(t);
+        });
+        tbody.appendChild(tr);
       });
     }
 

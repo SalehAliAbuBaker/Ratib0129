@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>Ratib0129 v3.8</title>
+<title>Ratib0129 v3.9</title>
 <meta name="theme-color" content="#0f172a">
 <link rel="manifest" id="dynamic-manifest">
 <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@500;700;800;900&display=swap" rel="stylesheet">
@@ -33,7 +33,6 @@ header{display:flex; justify-content:space-between; align-items:center; margin-b
 .icon-btn:active { transform: scale(0.9); }
 .header-actions { display:flex; gap:8px; }
 
-/* شريط تبويبات ثابت وموزع بنظام شبكي محكم يمنع أي انحشار أو خروج للنص */
 .nav-tabs { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-bottom: 18px; background: var(--card); padding: 5px; border-radius: 14px; border: 1.5px solid var(--border); box-shadow: var(--shadow); width: 100%; }
 .nav-tab { border: none; background: transparent; color: var(--muted); font-family: inherit; font-weight: 800; font-size: 0.92rem; border-radius: 10px; cursor: pointer; transition: all 0.2s; text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 8px 4px; gap: 4px; }
 .nav-tab span.tab-icon { font-size: 1.25rem; line-height: 1; }
@@ -45,7 +44,7 @@ h2{font-size:1.15rem; font-weight:900; margin-bottom:14px; display:flex; align-i
 label{font-size:0.95rem; color:var(--muted); display:block; margin-bottom:6px; font-weight:700}
 .input-row{display:flex; gap:8px; position: relative; margin-bottom: 10px;}
 
-input[type=number], input[type=text], input[type=date]{ flex:1; background:var(--bg); border:1.5px solid var(--border); color:var(--text); border-radius:12px; padding:12px 14px; font-size:1.1rem; font-weight:800; font-family:inherit; outline:none; min-width:0; transition: filter 0.3s;}
+input[type=number], input[type=text], input[type=password], input[type=date]{ flex:1; background:var(--bg); border:1.5px solid var(--border); color:var(--text); border-radius:12px; padding:12px 14px; font-size:1.1rem; font-weight:800; font-family:inherit; outline:none; min-width:0; transition: filter 0.3s;}
 input:focus{border-color:var(--accent)}
 select{ background:var(--bg); border:1.5px solid var(--border); color:var(--text); border-radius:12px; padding:0 10px; font-size:1rem; font-weight:800; font-family:inherit; outline:none; height: 50px; }
 .btn{ width:100%; border:none; border-radius:12px; padding:14px; font-size:1.1rem; font-weight:900; font-family:inherit; cursor:pointer; margin-top:10px; transition: transform 0.15s, opacity 0.2s; text-align:center;}
@@ -63,7 +62,6 @@ body.privacy-active .icon-btn#privacyBtn { background: var(--accent); color: #ff
 .banner.show{display:flex}
 .rollover-badge { background: rgba(16,185,129,0.15); color: var(--ok); padding: 8px 12px; border-radius: 10px; font-size: 0.95rem; font-weight: 800; margin-bottom: 12px; display: none; text-align: center; border: 1.5px dashed var(--ok);}
 
-/* بطاقات البنود */
 .cat-card { background: var(--bg); border: 1.5px solid var(--border); border-radius: 14px; margin-bottom: 8px; padding: 12px 14px; transition: all 0.3s; width:100%; }
 .cat-card.muted { opacity: 0.4; border-style: dashed; }
 .cat-card.done { border-color: var(--ok); background: rgba(16,185,129,0.06); }
@@ -77,7 +75,6 @@ body.privacy-active .icon-btn#privacyBtn { background: var(--accent); color: #ff
 .check-row { display: flex; align-items: center; gap: 8px; font-weight: 800; font-size: 0.95rem; color: var(--text); cursor: pointer; }
 .check-row input { width: 22px; height: 22px; accent-color: var(--ok); cursor: pointer; }
 
-/* بطاقات العمليات في السجل */
 .tx-log-item { background: var(--card); border: 1.5px solid var(--border); border-radius: 14px; padding: 14px; margin-bottom: 12px; display: flex; flex-direction: column; gap: 8px; box-shadow: var(--shadow); cursor: pointer; transition: transform 0.15s, border-color 0.2s; width:100%; }
 .tx-log-item:hover { border-color: var(--accent); transform: translateY(-2px); }
 .tx-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1.5px solid var(--border); padding-bottom: 8px; }
@@ -90,18 +87,16 @@ body.privacy-active .icon-btn#privacyBtn { background: var(--accent); color: #ff
 .tx-progress-bar { background: var(--border); border-radius: 6px; height: 8px; width: 100%; overflow: hidden; margin-top: 4px; }
 .tx-progress-val { background: var(--ok); height: 100%; width: 0%; transition: width 0.3s; }
 
-/* بطاقات ملخص التقرير KPI */
 .kpi-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 14px; }
 .kpi-card { background: var(--bg); border: 1.5px solid var(--border); border-radius: 12px; padding: 10px; text-align: center; }
 .kpi-title { font-size: 0.82rem; color: var(--muted); font-weight: 700; margin-bottom: 3px; }
 .kpi-value { font-size: 1.1rem; font-weight: 900; color: var(--text); }
 
-/* جدول تقرير الإنجاز */
 .report-table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 0.9rem; }
 .report-table th, .report-table td { padding: 8px 6px; border-bottom: 1px solid var(--border); text-align: right; }
 .report-table th { background: var(--bg); color: var(--muted); font-weight: 800; }
 
-.modal-overlay { position: fixed; inset: 0; background: rgba(15,23,42,0.65); backdrop-filter: blur(5px); z-index: 1000; display: none; align-items: center; justify-content: center; padding: 12px; animation: fadeIn 0.2s ease-out; }
+.modal-overlay { position: fixed; inset: 0; background: rgba(15,23,42,0.65); backdrop-filter: blur(5px); z-index: 1000; display: none; align-items: center; justify-content: center; padding: 12px; }
 .modal-overlay.show { display: flex; }
 .modal-content { background: var(--card); border: 1.5px solid var(--border); border-radius: var(--radius); width: 100%; max-width: 500px; max-height: 94vh; overflow-y: auto; padding: 18px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); }
 .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; border-bottom: 1.5px solid var(--border); padding-bottom: 8px; }
@@ -111,9 +106,24 @@ body.privacy-active .icon-btn#privacyBtn { background: var(--accent); color: #ff
 .hidden{display:none!important}
 .del-btn { background:none; border:none; color:var(--danger); font-size:1.3rem; cursor:pointer; padding:4px; }
 
+/* شاشة تسجيل الدخول المقفلة */
+#authOverlay {
+  position: fixed; inset: 0; background: var(--bg); z-index: 99999;
+  display: flex; align-items: center; justify-content: center; padding: 20px;
+}
+.auth-box {
+  background: var(--card); border: 1.5px solid var(--border); border-radius: var(--radius);
+  padding: 26px 20px; width: 100%; max-width: 400px; box-shadow: var(--shadow); text-align: center;
+}
+.pass-wrapper { position: relative; width: 100%; display: flex; align-items: center; }
+.pass-toggle-btn {
+  position: absolute; left: 10px; background: none; border: none; cursor: pointer;
+  font-size: 1.15rem; color: var(--muted);
+}
+
 .print-header { display:none; text-align:center; margin-bottom: 20px; }
 @media print{ 
-  header, .nav-tabs, .no-print, .btn-row, .banner, .modal-overlay, #reportFilterBox {display:none!important} 
+  header, .nav-tabs, .no-print, .btn-row, .banner, .modal-overlay, #reportFilterBox, #authOverlay {display:none!important} 
   .print-header { display:block; font-weight: bold; font-size: 1.3rem; margin-bottom: 30px;}
   body { background: #fff; font-size: 13pt; }
   .card { box-shadow: none; border: 1px solid #ccc; }
@@ -121,21 +131,48 @@ body.privacy-active .icon-btn#privacyBtn { background: var(--accent); color: #ff
 </style>
 </head>
 <body>
+
+<!-- شاشة القفل وتسجيل الدخول -->
+<div id="authOverlay" class="hidden">
+  <div class="auth-box">
+    <div style="font-size: 2.8rem; margin-bottom: 10px;">🔐</div>
+    <h2 style="justify-content: center; margin-bottom: 6px;">تسجيل الدخول للتطبيق</h2>
+    <p style="font-size: 0.9rem; color: var(--muted); margin-bottom: 18px;">التطبيق محمي بكلمة مرور، يرجى إدخال بيانات الدخول للمتابعة</p>
+    
+    <div style="text-align: right; margin-bottom: 12px;">
+      <label for="loginUser">اسم المستخدم:</label>
+      <input type="text" id="loginUser" placeholder="اسم المستخدم" style="width:100%;">
+    </div>
+
+    <div style="text-align: right; margin-bottom: 16px;">
+      <label for="loginPass">كلمة المرور:</label>
+      <div class="pass-wrapper">
+        <input type="password" id="loginPass" placeholder="كلمة المرور" style="width:100%; padding-left: 42px;">
+        <button type="button" class="pass-toggle-btn" id="toggleLoginPass">👁️</button>
+      </div>
+    </div>
+
+    <div id="loginError" style="color: var(--danger); font-size: 0.88rem; font-weight: 800; margin-bottom: 10px; display: none;">اسم المستخدم أو كلمة المرور غير صحيحة!</div>
+
+    <button class="btn btn-primary" id="submitLoginBtn" style="margin-top: 0;">دخول 🔓</button>
+  </div>
+</div>
+
 <div class="wrap" id="mainWrap">
   <div style="text-align:center; font-weight:900; font-size:1.2rem; margin-bottom:14px; letter-spacing:0.5px;" class="no-print">بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ</div>
   
   <div class="print-header">تقرير الإنجازات المالية التفصيلي - <span id="printDate"></span></div>
 
   <header class="no-print">
-    <div class="logo">Ratib0129 v3.8</div>
+    <div class="logo">Ratib0129 v3.9</div>
     <div class="header-actions">
       <button class="icon-btn" id="privacyBtn" title="وضع الخصوصية (إخفاء الأرقام)">👁️</button>
-      <button class="icon-btn" id="toolsBtn" title="خيارات إضافية">⚙️</button>
+      <button class="icon-btn" id="toolsBtn" title="الإعدادات والأمان">⚙️</button>
       <button class="icon-btn" id="themeBtn" title="الوضع الليلي">🌙</button>
     </div>
   </header>
 
-  <!-- شريط التبويبات المتناسق والمنظم بنظام شبكي محكم -->
+  <!-- شريط التبويبات -->
   <div class="nav-tabs no-print">
     <button class="nav-tab active" data-target="pageDashboard">
       <span class="tab-icon">📊</span>
@@ -151,7 +188,37 @@ body.privacy-active .icon-btn#privacyBtn { background: var(--accent); color: #ff
     </button>
   </div>
 
+  <!-- قائمة الإعدادات الموسعة شاملة الأمان وكلمة المرور -->
   <div class="tools-menu no-print" id="toolsMenu">
+    
+    <!-- قسم الأمان والحماية -->
+    <div style="background: var(--bg); border: 1.5px solid var(--border); border-radius: 12px; padding: 14px; margin-bottom: 18px;">
+      <h3 style="font-size: 1.05rem; font-weight: 900; color: var(--accent); margin-bottom: 10px; display: flex; align-items: center; gap: 6px;">
+        🔒 أمان التطبيق وكلمة المرور
+      </h3>
+      
+      <label class="check-row" style="margin-bottom: 12px;">
+        <input type="checkbox" id="authEnabledCb">
+        <span>تفعيل قفل التطبيق بكلمة مرور</span>
+      </label>
+
+      <div id="authFieldsBox" class="hidden">
+        <div style="margin-bottom: 10px;">
+          <label>اسم المستخدم:</label>
+          <input type="text" id="settingsUsername" placeholder="مثلاً: admin" style="width:100%; padding:10px 12px; font-size:1rem;">
+        </div>
+        <div style="margin-bottom: 10px;">
+          <label>كلمة المرور الجديدة:</label>
+          <div class="pass-wrapper">
+            <input type="password" id="settingsPassword" placeholder="أدخل كلمة المرور" style="width:100%; padding:10px 12px; padding-left: 40px; font-size:1rem;">
+            <button type="button" class="pass-toggle-btn" id="toggleSettingsPass">👁️</button>
+          </div>
+        </div>
+        <button class="btn btn-primary" id="saveAuthBtn" style="padding: 10px; font-size: 0.95rem;">💾 حفظ إعدادات الأمان</button>
+      </div>
+      <button class="btn btn-ghost hidden" id="manualLogoutBtn" style="margin-top: 8px; color: var(--danger); border-color: var(--danger); font-size: 0.9rem; padding: 8px;">🚪 قفل التطبيق وتسجيل الخروج</button>
+    </div>
+
     <h2>🛠️ البنود والنسب الافتراضية</h2>
     <div id="pctRows"></div>
     <div id="pctSum" style="text-align:center; font-weight:900; margin:12px 0; font-size:1rem;">المجموع: 100%</div>
@@ -411,6 +478,87 @@ let previewExcludedIds = new Set();
 let activeEditingTx = null;
 
 document.getElementById('printDate').textContent = new Date().toLocaleDateString('ar-YE');
+
+/* ================== منطق الأمان وقفل الحساب ================== */
+function checkAuthStatus() {
+  const authConfig = store.get('auth_config', { enabled: false, user: 'admin', pass: '1234' });
+  const isUnlocked = sessionStorage.getItem('masar_unlocked') === 'true';
+
+  if (authConfig.enabled && !isUnlocked) {
+    document.getElementById('authOverlay').classList.remove('hidden');
+    document.getElementById('loginUser').value = '';
+    document.getElementById('loginPass').value = '';
+    document.getElementById('loginError').style.display = 'none';
+  } else {
+    document.getElementById('authOverlay').classList.add('hidden');
+  }
+
+  // تحديث زر الخروج في الإعدادات
+  document.getElementById('manualLogoutBtn').classList.toggle('hidden', !authConfig.enabled);
+}
+
+document.getElementById('submitLoginBtn').addEventListener('click', () => {
+  const enteredUser = document.getElementById('loginUser').value.trim();
+  const enteredPass = document.getElementById('loginPass').value;
+  const authConfig = store.get('auth_config', { enabled: false, user: 'admin', pass: '1234' });
+
+  if (enteredUser === authConfig.user && enteredPass === authConfig.pass) {
+    sessionStorage.setItem('masar_unlocked', 'true');
+    document.getElementById('authOverlay').classList.add('hidden');
+  } else {
+    document.getElementById('loginError').style.display = 'block';
+  }
+});
+
+// إمكانية تسجيل الدخول بالضغط على زر Enter
+document.getElementById('loginPass').addEventListener('keypress', (e) => {
+  if (e.key === 'Enter') document.getElementById('submitLoginBtn').click();
+});
+
+// إظهار/إخفاء كلمة المرور في شاشة الدخول
+document.getElementById('toggleLoginPass').addEventListener('click', () => {
+  const pInput = document.getElementById('loginPass');
+  pInput.type = pInput.type === 'password' ? 'text' : 'password';
+});
+
+// إظهار/إخفاء كلمة المرور في شاشة الإعدادات
+document.getElementById('toggleSettingsPass').addEventListener('click', () => {
+  const pInput = document.getElementById('settingsPassword');
+  pInput.type = pInput.type === 'password' ? 'text' : 'password';
+});
+
+// تفعيل/إلغاء حقول الأمان في شاشة الإعدادات
+document.getElementById('authEnabledCb').addEventListener('change', (e) => {
+  document.getElementById('authFieldsBox').classList.toggle('hidden', !e.target.checked);
+});
+
+// حفظ إعدادات الأمان
+document.getElementById('saveAuthBtn').addEventListener('click', () => {
+  const enabled = document.getElementById('authEnabledCb').checked;
+  const user = document.getElementById('settingsUsername').value.trim();
+  const pass = document.getElementById('settingsPassword').value;
+
+  if (enabled && (!user || !pass)) {
+    alert('يرجى كتابة اسم المستخدم وكلمة المرور');
+    return;
+  }
+
+  store.set('auth_config', { enabled, user, pass });
+  if (enabled) {
+    sessionStorage.setItem('masar_unlocked', 'true');
+  }
+  alert('تم حفظ إعدادات الأمان بنجاح!');
+  checkAuthStatus();
+});
+
+// زر تسجيل الخروج اليدوي
+document.getElementById('manualLogoutBtn').addEventListener('click', () => {
+  sessionStorage.removeItem('masar_unlocked');
+  document.getElementById('toolsMenu').classList.remove('show');
+  checkAuthStatus();
+});
+
+/* ========================================================== */
 
 document.querySelectorAll('.nav-tab').forEach(tab => {
   tab.addEventListener('click', () => {
@@ -1165,6 +1313,14 @@ document.getElementById('printReportBtn').addEventListener('click', () => {
 });
 
 function buildSettings(){
+  // تحميل إعدادات الحماية الحالية
+  const authConfig = store.get('auth_config', { enabled: false, user: 'admin', pass: '1234' });
+  const cb = document.getElementById('authEnabledCb');
+  cb.checked = authConfig.enabled;
+  document.getElementById('authFieldsBox').classList.toggle('hidden', !authConfig.enabled);
+  document.getElementById('settingsUsername').value = authConfig.user || '';
+  document.getElementById('settingsPassword').value = authConfig.pass || '';
+
   const box = document.getElementById('pctRows'); box.innerHTML = '';
   draftCats.forEach((c, i) => {
     box.innerHTML += `
@@ -1298,6 +1454,7 @@ document.getElementById('pdfBtn').addEventListener('click', () => {
     document.getElementById('rolloverAmountTxt').textContent = fmt(rollover);
   }
 
+  checkAuthStatus();
   renderAllData();
 })();
 </script>

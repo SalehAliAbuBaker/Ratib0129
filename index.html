@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>Ratib0129 v6.2</title>
+<title>Ratib0129 v6.3</title>
 <meta name="theme-color" content="#0284c7">
 <link rel="manifest" id="dynamic-manifest">
 <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@500;700;800;900&display=swap" rel="stylesheet">
@@ -133,8 +133,8 @@ body.privacy-active .icon-btn#privacyBtn { background: var(--accent); color: #ff
 .kpi-title { font-size: 0.78rem; color: var(--muted); font-weight: 700; margin-bottom: 2px; }
 .kpi-value { font-size: 1rem; font-weight: 900; color: var(--text); }
 
-.report-table { width: 100%; border-collapse: collapse; margin-top: 6px; font-size: 0.85rem; }
-.report-table th, .report-table td { padding: 8px 6px; border-bottom: 1px solid var(--border); text-align: right; }
+.report-table { width: 100%; border-collapse: collapse; margin-top: 4px; font-size: 0.82rem; }
+.report-table th, .report-table td { padding: 5px 4px; border-bottom: 1px solid var(--border); text-align: right; }
 .report-table th { background: var(--bg); color: var(--muted); font-weight: 800; }
 
 .highlight-match { background: #fef08a; color: #854d0e; padding: 1px 4px; border-radius: 4px; font-weight: 900; }
@@ -147,11 +147,19 @@ body.privacy-active .icon-btn#privacyBtn { background: var(--accent); color: #ff
 .hidden{display:none!important}
 .del-btn { background:none; border:none; color:var(--danger); font-size:1.15rem; cursor:pointer; padding:2px; }
 
+/* إعدادات الطباعة المكثفة لاستيعاب أكبر قدر ممكن من السطر دون فراغات ضخمة */
 @media print {
-  body { background: #fff; color: #000; }
-  header, .nav-tabs, .no-print, .btn, .icon-btn, #reportFilterBox, .search-box, .searchable-arrow { display: none !important; }
-  .card { box-shadow: none; border: 1px solid #ccc; }
-  .report-table th { background: #f1f5f9; color: #000; }
+  @page { size: A4 portrait; margin: 10mm; }
+  body { background: #fff; color: #000; font-size: 12pt; padding: 0; margin: 0; }
+  header, .nav-tabs, .no-print, .btn, .icon-btn, #reportFilterBox, .search-box, .searchable-arrow, .report-type-switch { display: none !important; }
+  .wrap { max-width: 100% !important; padding: 0 !important; margin: 0 !important; }
+  .card { box-shadow: none !important; border: none !important; padding: 2px !important; margin-bottom: 5px !important; background: transparent !important; }
+  .report-table { font-size: 11pt !important; width: 100% !important; border-collapse: collapse !important; }
+  .report-table th, .report-table td { padding: 4px 6px !important; border: 1px solid #94a3b8 !important; }
+  .report-table th { background: #e2e8f0 !important; color: #000 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .kpi-grid { display: flex !important; gap: 5px !important; margin-bottom: 8px !important; }
+  .kpi-card { border: 1px solid #94a3b8 !important; background: #f8fafc !important; padding: 4px !important; flex: 1 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .chart-box { display: none !important; }
 }
 </style>
 </head>
@@ -161,7 +169,7 @@ body.privacy-active .icon-btn#privacyBtn { background: var(--accent); color: #ff
   <div style="text-align:center; font-weight:900; font-size:1.1rem; margin-bottom:10px;" class="no-print">بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ</div>
 
   <header class="no-print">
-    <div class="logo">Ratib0129 v6.2</div>
+    <div class="logo">Ratib0129 v6.3</div>
     <div class="header-actions">
       <button class="icon-btn" id="privacyBtn" title="وضع الخصوصية">👁️</button>
       <button class="icon-btn" id="themeBtn" title="الوضع الليلي">🌙</button>
@@ -304,8 +312,9 @@ body.privacy-active .icon-btn#privacyBtn { background: var(--accent); color: #ff
           </div>
         </div>
 
-        <div style="display: flex; justify-content: flex-end; margin-bottom: 6px;">
-          <button type="button" class="btn btn-ghost" id="autoDistributeVoucherBtn" style="width: auto; margin-top: 0; padding: 3px 8px; font-size: 0.75rem;">توزيع بنسب الميزانية 🔄</button>
+        <div style="display: flex; justify-content: flex-end; gap: 6px; margin-bottom: 6px;">
+          <button type="button" class="btn btn-ghost" id="zeroVoucherAmountsBtn" style="width: auto; margin-top: 0; padding: 3px 8px; font-size: 0.75rem;">تصفير 🗑️</button>
+          <button type="button" class="btn btn-ghost" id="autoDistributeVoucherBtn" style="width: auto; margin-top: 0; padding: 3px 8px; font-size: 0.75rem;">توزيع نسبي 🔄</button>
         </div>
 
         <div id="voucherCatsList"></div>
@@ -652,6 +661,19 @@ body.privacy-active .icon-btn#privacyBtn { background: var(--accent); color: #ff
     </div>
   </div>
 
+  <!-- نافذة السؤال عن طباعة المستند بعد الحفظ -->
+  <div class="modal-overlay" id="printPromptModal">
+    <div class="modal-content" style="max-width: 360px; text-align: center;">
+      <div style="font-size: 2.2rem; margin-bottom: 8px;">🖨️</div>
+      <h3 style="font-size: 1.15rem; font-weight: 900; margin-bottom: 6px; color: var(--text);">تم اعتماد وحفظ السند بنجاح</h3>
+      <p style="font-size: 0.9rem; color: var(--muted); margin-bottom: 16px;">هل تريد طباعة هذا المستند أو تصديره الآن؟</p>
+      <div style="display: flex; gap: 8px;">
+        <button class="btn btn-success" id="confirmPrintDocBtn" style="flex: 1; margin-top: 0;">طباعة المستند</button>
+        <button class="btn btn-ghost" id="skipPrintDocBtn" style="flex: 1; margin-top: 0;">تخطي</button>
+      </div>
+    </div>
+  </div>
+
 </div>
 
 <script>
@@ -852,10 +874,12 @@ window.addEventListener('popstate', (e) => {
   const pM = document.getElementById('previewModal');
   const tM = document.getElementById('txModal');
   const aM = document.getElementById('addAccountModal');
+  const prM = document.getElementById('printPromptModal');
 
   if (pM.classList.contains('show')) { closePreviewModal(false); pushAppHistoryState(); return; }
   if (tM.classList.contains('show')) { tM.classList.remove('show'); pushAppHistoryState(); return; }
   if (aM.classList.contains('show')) { aM.classList.remove('show'); pushAppHistoryState(); return; }
+  if (prM.classList.contains('show')) { prM.classList.remove('show'); pushAppHistoryState(); return; }
 
   if (currentActiveTab !== 'pageDashboard') {
     navigateToTab('pageDashboard', false);
@@ -1382,6 +1406,14 @@ document.getElementById('autoDistributeVoucherBtn').addEventListener('click', ()
   recalcAmountsFromPcts(totalAmount);
 });
 
+document.getElementById('zeroVoucherAmountsBtn').addEventListener('click', () => {
+  Object.keys(voucherCatStates).forEach(cid => {
+    voucherCatStates[cid].amount = 0;
+    voucherCatStates[cid].pct = 0;
+  });
+  renderVoucherCategoriesList();
+});
+
 function initVoucherForm() {
   updateSearchableData();
   document.getElementById('voucherDateInput').value = new Date().toISOString().split('T')[0];
@@ -1443,6 +1475,7 @@ document.querySelectorAll('.v-btn').forEach(btn => {
   btn.addEventListener('click', () => setVoucherMode(btn.dataset.type));
 });
 
+// حفظ السند مع إظهار نافذة سؤاله عن الطباعة
 document.getElementById('commitVoucherBtn').addEventListener('click', () => {
   const totalAmount = parseFloat(document.getElementById('voucherAmountInput').value);
   const debitAcc = selDebitAcc.getValue();
@@ -1536,9 +1569,21 @@ document.getElementById('commitVoucherBtn').addEventListener('click', () => {
   voucherSplitContainer.classList.add('hidden');
   initVoucherCategoryStates(0);
 
-  alert(`تم اعتماد ${typeLabel} بنجاح!`);
   updateVoucherSeqBadge();
   renderAllData();
+
+  // إظهار نافذة سؤاله عن طباعة المستند
+  document.getElementById('printPromptModal').classList.add('show');
+  pushAppHistoryState();
+});
+
+document.getElementById('confirmPrintDocBtn').addEventListener('click', () => {
+  document.getElementById('printPromptModal').classList.remove('show');
+  window.print();
+});
+
+document.getElementById('skipPrintDocBtn').addEventListener('click', () => {
+  document.getElementById('printPromptModal').classList.remove('show');
 });
 
 /* ================== الميزانية ================== */

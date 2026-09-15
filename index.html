@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>Ratib0129 v3.9</title>
+<title>Ratib0129 v4.1</title>
 <meta name="theme-color" content="#0f172a">
 <link rel="manifest" id="dynamic-manifest">
 <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@500;700;800;900&display=swap" rel="stylesheet">
@@ -26,17 +26,17 @@
 *{box-sizing:border-box; margin:0; padding:0; -webkit-tap-highlight-color:transparent}
 html, body { overflow-x: hidden; width: 100%; }
 body{ font-family:'Tajawal',system-ui,sans-serif; background:var(--bg); color:var(--text); min-height:100vh; transition:background .3s, color .3s; padding-bottom:50px; font-size:16px; }
-.wrap{max-width:520px; margin:0 auto; padding:16px 14px; width:100%;}
+.wrap{max-width:540px; margin:0 auto; padding:16px 14px; width:100%;}
 header{display:flex; justify-content:space-between; align-items:center; margin-bottom:14px}
 .logo{font-size:1.45rem; font-weight:900; display:flex; align-items:center; gap:8px; color:var(--accent)}
 .icon-btn{ background:var(--card); border:1.5px solid var(--border); color:var(--text); width:42px; height:42px; border-radius:12px; cursor:pointer; font-size:1.2rem; box-shadow:var(--shadow); display:flex; align-items:center; justify-content:center; transition: transform 0.2s, background 0.2s; flex-shrink:0;}
 .icon-btn:active { transform: scale(0.9); }
 .header-actions { display:flex; gap:8px; }
 
-.nav-tabs { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-bottom: 18px; background: var(--card); padding: 5px; border-radius: 14px; border: 1.5px solid var(--border); box-shadow: var(--shadow); width: 100%; }
-.nav-tab { border: none; background: transparent; color: var(--muted); font-family: inherit; font-weight: 800; font-size: 0.92rem; border-radius: 10px; cursor: pointer; transition: all 0.2s; text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 8px 4px; gap: 4px; }
-.nav-tab span.tab-icon { font-size: 1.25rem; line-height: 1; }
-.nav-tab span.tab-txt { font-size: 0.85rem; white-space: nowrap; }
+.nav-tabs { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; margin-bottom: 18px; background: var(--card); padding: 5px; border-radius: 14px; border: 1.5px solid var(--border); box-shadow: var(--shadow); width: 100%; }
+.nav-tab { border: none; background: transparent; color: var(--muted); font-family: inherit; font-weight: 800; font-size: 0.88rem; border-radius: 10px; cursor: pointer; transition: all 0.2s; text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 8px 2px; gap: 4px; }
+.nav-tab span.tab-icon { font-size: 1.2rem; line-height: 1; }
+.nav-tab span.tab-txt { font-size: 0.82rem; white-space: nowrap; }
 .nav-tab.active { background: var(--accent); color: #fff; box-shadow: 0 2px 8px rgba(59,130,246,0.3); }
 
 .card{ background:var(--card); border:1.5px solid var(--border); border-radius:var(--radius); box-shadow:var(--shadow); padding:18px; margin-bottom:16px; position:relative; width: 100%; }
@@ -44,10 +44,10 @@ h2{font-size:1.15rem; font-weight:900; margin-bottom:14px; display:flex; align-i
 label{font-size:0.95rem; color:var(--muted); display:block; margin-bottom:6px; font-weight:700}
 .input-row{display:flex; gap:8px; position: relative; margin-bottom: 10px;}
 
-input[type=number], input[type=text], input[type=password], input[type=date]{ flex:1; background:var(--bg); border:1.5px solid var(--border); color:var(--text); border-radius:12px; padding:12px 14px; font-size:1.1rem; font-weight:800; font-family:inherit; outline:none; min-width:0; transition: filter 0.3s;}
+input[type=number], input[type=text], input[type=password], input[type=email], input[type=date]{ flex:1; background:var(--bg); border:1.5px solid var(--border); color:var(--text); border-radius:12px; padding:12px 14px; font-size:1.05rem; font-weight:800; font-family:inherit; outline:none; min-width:0; transition: filter 0.3s;}
 input:focus{border-color:var(--accent)}
 select{ background:var(--bg); border:1.5px solid var(--border); color:var(--text); border-radius:12px; padding:0 10px; font-size:1rem; font-weight:800; font-family:inherit; outline:none; height: 50px; }
-.btn{ width:100%; border:none; border-radius:12px; padding:14px; font-size:1.1rem; font-weight:900; font-family:inherit; cursor:pointer; margin-top:10px; transition: transform 0.15s, opacity 0.2s; text-align:center;}
+.btn{ width:100%; border:none; border-radius:12px; padding:14px; font-size:1.05rem; font-weight:900; font-family:inherit; cursor:pointer; margin-top:10px; transition: transform 0.15s, opacity 0.2s; text-align:center;}
 .btn:active{ transform: scale(0.97); }
 .btn-primary{background:var(--accent); color:#fff; box-shadow:0 4px 12px rgba(59,130,246,.3)}
 .btn-ghost{background:var(--bg); color:var(--text); border:1.5px solid var(--border)}
@@ -101,12 +101,9 @@ body.privacy-active .icon-btn#privacyBtn { background: var(--accent); color: #ff
 .modal-content { background: var(--card); border: 1.5px solid var(--border); border-radius: var(--radius); width: 100%; max-width: 500px; max-height: 94vh; overflow-y: auto; padding: 18px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); }
 .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; border-bottom: 1.5px solid var(--border); padding-bottom: 8px; }
 
-.tools-menu { display: none; background: var(--card); border: 1.5px solid var(--border); border-radius: 14px; padding: 16px; margin-bottom: 16px; }
-.tools-menu.show { display: block; }
 .hidden{display:none!important}
 .del-btn { background:none; border:none; color:var(--danger); font-size:1.3rem; cursor:pointer; padding:4px; }
 
-/* شاشة تسجيل الدخول المقفلة */
 #authOverlay {
   position: fixed; inset: 0; background: var(--bg); z-index: 99999;
   display: flex; align-items: center; justify-content: center; padding: 20px;
@@ -120,6 +117,13 @@ body.privacy-active .icon-btn#privacyBtn { background: var(--accent); color: #ff
   position: absolute; left: 10px; background: none; border: none; cursor: pointer;
   font-size: 1.15rem; color: var(--muted);
 }
+
+.backup-indicator {
+  display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px;
+  border-radius: 8px; font-size: 0.88rem; font-weight: 800; margin-bottom: 12px;
+}
+.backup-indicator.clean { background: rgba(16,185,129,0.15); color: var(--ok); }
+.backup-indicator.dirty { background: rgba(245,158,11,0.15); color: var(--warn); }
 
 .print-header { display:none; text-align:center; margin-bottom: 20px; }
 @media print{ 
@@ -137,7 +141,7 @@ body.privacy-active .icon-btn#privacyBtn { background: var(--accent); color: #ff
   <div class="auth-box">
     <div style="font-size: 2.8rem; margin-bottom: 10px;">🔐</div>
     <h2 style="justify-content: center; margin-bottom: 6px;">تسجيل الدخول للتطبيق</h2>
-    <p style="font-size: 0.9rem; color: var(--muted); margin-bottom: 18px;">التطبيق محمي بكلمة مرور، يرجى إدخال بيانات الدخول للمتابعة</p>
+    <p style="font-size: 0.9rem; color: var(--muted); margin-bottom: 18px;">التطبيق محمي بكلمة مرور، يرجى كتابة البيانات للمتابعة</p>
     
     <div style="text-align: right; margin-bottom: 12px;">
       <label for="loginUser">اسم المستخدم:</label>
@@ -164,15 +168,14 @@ body.privacy-active .icon-btn#privacyBtn { background: var(--accent); color: #ff
   <div class="print-header">تقرير الإنجازات المالية التفصيلي - <span id="printDate"></span></div>
 
   <header class="no-print">
-    <div class="logo">Ratib0129 v3.9</div>
+    <div class="logo">Ratib0129 v4.1</div>
     <div class="header-actions">
       <button class="icon-btn" id="privacyBtn" title="وضع الخصوصية (إخفاء الأرقام)">👁️</button>
-      <button class="icon-btn" id="toolsBtn" title="الإعدادات والأمان">⚙️</button>
       <button class="icon-btn" id="themeBtn" title="الوضع الليلي">🌙</button>
     </div>
   </header>
 
-  <!-- شريط التبويبات -->
+  <!-- شريط التبويبات الرئيسي -->
   <div class="nav-tabs no-print">
     <button class="nav-tab active" data-target="pageDashboard">
       <span class="tab-icon">📊</span>
@@ -186,49 +189,10 @@ body.privacy-active .icon-btn#privacyBtn { background: var(--accent); color: #ff
       <span class="tab-icon">📈</span>
       <span class="tab-txt">التقارير</span>
     </button>
-  </div>
-
-  <!-- قائمة الإعدادات الموسعة شاملة الأمان وكلمة المرور -->
-  <div class="tools-menu no-print" id="toolsMenu">
-    
-    <!-- قسم الأمان والحماية -->
-    <div style="background: var(--bg); border: 1.5px solid var(--border); border-radius: 12px; padding: 14px; margin-bottom: 18px;">
-      <h3 style="font-size: 1.05rem; font-weight: 900; color: var(--accent); margin-bottom: 10px; display: flex; align-items: center; gap: 6px;">
-        🔒 أمان التطبيق وكلمة المرور
-      </h3>
-      
-      <label class="check-row" style="margin-bottom: 12px;">
-        <input type="checkbox" id="authEnabledCb">
-        <span>تفعيل قفل التطبيق بكلمة مرور</span>
-      </label>
-
-      <div id="authFieldsBox" class="hidden">
-        <div style="margin-bottom: 10px;">
-          <label>اسم المستخدم:</label>
-          <input type="text" id="settingsUsername" placeholder="مثلاً: admin" style="width:100%; padding:10px 12px; font-size:1rem;">
-        </div>
-        <div style="margin-bottom: 10px;">
-          <label>كلمة المرور الجديدة:</label>
-          <div class="pass-wrapper">
-            <input type="password" id="settingsPassword" placeholder="أدخل كلمة المرور" style="width:100%; padding:10px 12px; padding-left: 40px; font-size:1rem;">
-            <button type="button" class="pass-toggle-btn" id="toggleSettingsPass">👁️</button>
-          </div>
-        </div>
-        <button class="btn btn-primary" id="saveAuthBtn" style="padding: 10px; font-size: 0.95rem;">💾 حفظ إعدادات الأمان</button>
-      </div>
-      <button class="btn btn-ghost hidden" id="manualLogoutBtn" style="margin-top: 8px; color: var(--danger); border-color: var(--danger); font-size: 0.9rem; padding: 8px;">🚪 قفل التطبيق وتسجيل الخروج</button>
-    </div>
-
-    <h2>🛠️ البنود والنسب الافتراضية</h2>
-    <div id="pctRows"></div>
-    <div id="pctSum" style="text-align:center; font-weight:900; margin:12px 0; font-size:1rem;">المجموع: 100%</div>
-    <div style="display:flex; gap:10px; flex-direction:column;">
-      <button class="btn btn-primary" id="savePctsBtn" style="padding:12px; font-size:1rem;">💾 حفظ البنود والنسب</button>
-      <button class="btn btn-ghost" id="addCatBtn" style="padding:10px; font-size:0.95rem; margin-top:0;">➕ إضافة بند جديد</button>
-    </div>
-    <button class="btn btn-ghost" id="resetPctsBtn" style="margin-top:10px; color:var(--muted); font-size:0.9rem;">↺ استعادة البنود الافتراضية السبعة</button>
-    <hr style="border:0; border-top:1.5px dashed var(--border); margin:12px 0;">
-    <button class="btn btn-ghost" id="exportDataBtn" style="padding:10px; font-size:0.95rem;">📥 تصدير نسخة احتياطية (JSON)</button>
+    <button class="nav-tab" data-target="pageSettings">
+      <span class="tab-icon">⚙️</span>
+      <span class="tab-txt">الإعدادات</span>
+    </button>
   </div>
 
   <div class="banner" id="banner">🔔 لم تقم بإدخال أي إيراد لهذا الشهر بعد!</div>
@@ -381,6 +345,89 @@ body.privacy-active .icon-btn#privacyBtn { background: var(--accent); color: #ff
     </div>
   </div>
 
+  <!-- 4. واجهة الإعدادات المستقلة -->
+  <div id="pageSettings" class="hidden">
+    
+    <!-- قسم إدارة وتعديل البنود -->
+    <div class="card">
+      <h2>
+        <span>🛠️ إدارة البنود والنسب</span>
+        <button class="btn btn-ghost" id="addCatBtn" style="width:auto; margin-top:0; padding:6px 12px; font-size:0.85rem;">➕ إضافة بند</button>
+      </h2>
+      <p style="font-size:0.88rem; color:var(--muted); margin-bottom:12px;">
+        يمكنك تعديل أسماء البنود ونسبها المئوية، مع التأكد من أن المجموع يساوي 100%.
+      </p>
+      <div id="pctRows"></div>
+      <div id="pctSum" style="text-align:center; font-weight:900; margin:14px 0; font-size:1.05rem;">المجموع: 100%</div>
+      
+      <div style="display:flex; gap:8px;">
+        <button class="btn btn-primary" id="savePctsBtn" style="margin-top:0; flex:2;">💾 حفظ البنود والنسب</button>
+        <button class="btn btn-ghost" id="resetPctsBtn" style="margin-top:0; flex:1; font-size:0.9rem;">↺ الافتراضي</button>
+      </div>
+    </div>
+
+    <!-- قسم الأمان وكلمة المرور -->
+    <div class="card">
+      <h2>🔒 أمان التطبيق وكلمة المرور</h2>
+      <label class="check-row" style="margin-bottom: 12px;">
+        <input type="checkbox" id="authEnabledCb">
+        <span>تفعيل قفل التطبيق بكلمة مرور</span>
+      </label>
+
+      <div id="authFieldsBox" class="hidden">
+        <div style="margin-bottom: 10px;">
+          <label>اسم المستخدم:</label>
+          <input type="text" id="settingsUsername" placeholder="مثلاً: admin" style="width:100%;">
+        </div>
+        <div style="margin-bottom: 10px;">
+          <label>كلمة المرور:</label>
+          <div class="pass-wrapper">
+            <input type="password" id="settingsPassword" placeholder="أدخل كلمة المرور" style="width:100%; padding-left: 40px;">
+            <button type="button" class="pass-toggle-btn" id="toggleSettingsPass">👁️</button>
+          </div>
+        </div>
+        <button class="btn btn-primary" id="saveAuthBtn">💾 حفظ إعدادات الدخول</button>
+      </div>
+      <button class="btn btn-ghost hidden" id="manualLogoutBtn" style="margin-top: 10px; color: var(--danger); border-color: var(--danger); font-size: 0.92rem;">🚪 قفل التطبيق وتسجيل الخروج</button>
+    </div>
+
+    <!-- قسم النسخ الاحتياطي وتحديد مسار التنزيل والرفع -->
+    <div class="card">
+      <h2>📁 النسخ الاحتياطي وإدارة الملفات</h2>
+      <div id="backupStatusBadge" class="backup-indicator clean">✅ النسخة الاحتياطية مطابقة، لا توجد تعديلات جديدة</div>
+      
+      <div style="margin-bottom: 12px;">
+        <label>بريد Gmail المعتمد لاستلام النسخ:</label>
+        <input type="email" id="backupEmailInput" placeholder="example@gmail.com" style="width:100%;">
+      </div>
+
+      <div style="display: flex; gap: 8px;">
+        <button class="btn btn-primary" id="saveEmailBtn" style="margin-top:0; flex:1;">💾 حفظ الإيميل</button>
+        <button class="btn btn-success" id="sendEmailBackupBtn" style="margin-top:0; flex:1.5;">📤 إرسال نسخة للـ Gmail</button>
+      </div>
+
+      <hr style="border:0; border-top:1.5px dashed var(--border); margin:16px 0;">
+
+      <!-- إدارة حفظ ورفع الملفات مع تحديد المسار -->
+      <h3 style="font-size: 1rem; font-weight: 800; margin-bottom: 8px; color: var(--accent);">💾 التصدير والاستيراد من مسار مخصص:</h3>
+      <p style="font-size: 0.85rem; color: var(--muted); margin-bottom: 10px;">
+        يمكنك تحديد المجلد الذي ترغب في حفظ الملف فيه أو اختيار ملف من جهازك لرفع واستعادة بياناتك:
+      </p>
+      
+      <div style="display: flex; flex-direction: column; gap: 8px;">
+        <button class="btn btn-ghost" id="exportCustomPathBtn" style="margin-top:0; font-size:0.95rem; border-color: var(--accent); color: var(--accent);">
+          📥 حفظ نسخة احتياطية (تحديد مسار الحفظ)
+        </button>
+        
+        <input type="file" id="importFileInput" accept=".json" style="display:none;">
+        <button class="btn btn-ghost" id="importCustomPathBtn" style="margin-top:0; font-size:0.95rem;">
+          📤 استعادة نسخة احتياطية من ملف (JSON)
+        </button>
+      </div>
+    </div>
+
+  </div>
+
   <!-- نافذة المعاينة المبدئية قبل الاعتماد -->
   <div class="modal-overlay" id="previewModal">
     <div class="modal-content">
@@ -393,7 +440,7 @@ body.privacy-active .icon-btn#privacyBtn { background: var(--accent); color: #ff
       </div>
 
       <p style="font-size:0.9rem; color:var(--muted); margin-bottom:6px;">
-        انقر على شرائح الدائرة أو رمز العين 👁️ لاستبعاد أي بند وتوزيع مبلغه نسبياً:
+        انقر على شرائح الدائرة أو رمز العين 👁️ لاستبعاد أي بند وتوزيع مبلغه نسبياً[span_0](start_span)[span_0](end_span):
       </p>
 
       <div class="chart-box"><canvas id="previewPie"></canvas></div>
@@ -427,7 +474,7 @@ body.privacy-active .icon-btn#privacyBtn { background: var(--accent); color: #ff
         ✅ سجل الإنجاز وتأكيد الصرف الفعلي للعملية:
       </h4>
       <p style="font-size:0.85rem; color:var(--muted); margin-bottom: 8px;">
-        حدد المنصرف الفعلي لكل بند والملاحظات (مثلاً: الصدقة 50 ألف وصُرف 20 ألف لمن):
+        حدد المنصرف الفعلي لكل بند والملاحظات:
       </p>
       
       <div id="modalExecutionList"></div>
@@ -479,7 +526,147 @@ let activeEditingTx = null;
 
 document.getElementById('printDate').textContent = new Date().toLocaleDateString('ar-YE');
 
-/* ================== منطق الأمان وقفل الحساب ================== */
+/* ================== تتبع التعديلات والنسخ الاحتياطي للـ Gmail ================== */
+function markDataAsDirty() {
+  store.set('has_pending_backup', true);
+  updateBackupStatusUI();
+}
+
+function markDataAsClean() {
+  store.set('has_pending_backup', false);
+  updateBackupStatusUI();
+}
+
+function updateBackupStatusUI() {
+  const badge = document.getElementById('backupStatusBadge');
+  const hasChanges = store.get('has_pending_backup', false);
+  if (hasChanges) {
+    badge.className = 'backup-indicator dirty';
+    badge.textContent = '⚠️ هناك تعديلات وعمليات جديدة لم يتم إرسالها للبريد';
+  } else {
+    badge.className = 'backup-indicator clean';
+    badge.textContent = '✅ النسخة الاحتياطية مطابقة، لا توجد تعديلات جديدة';
+  }
+}
+
+document.getElementById('saveEmailBtn').addEventListener('click', () => {
+  const email = document.getElementById('backupEmailInput').value.trim();
+  if (!email || !email.includes('@')) {
+    alert('يرجى كتابة بريد إلكتروني صحيح');
+    return;
+  }
+  store.set('backup_email', email);
+  alert('تم حفظ البريد الإلكتروني بنجاح!');
+});
+
+document.getElementById('sendEmailBackupBtn').addEventListener('click', () => {
+  const email = store.get('backup_email', '').trim();
+  if (!email) {
+    alert('يرجى حفظ بريد Gmail أولاً في الخانة المخصصة.');
+    return;
+  }
+
+  const hasChanges = store.get('has_pending_backup', false);
+  if (!hasChanges) {
+    if (!confirm('لا توجد أي تعديلات أو عمليات جديدة منذ آخر نسخ. هل تريد إرسال نسخة بريد على أية حال؟')) {
+      return;
+    }
+  }
+
+  const allData = {};
+  for (let i = 0; i < localStorage.length; i++) {
+    const k = localStorage.key(i);
+    if (k.startsWith('masar_')) allData[k] = localStorage.getItem(k);
+  }
+
+  const jsonStr = JSON.stringify(allData, null, 2);
+  const subject = encodeURIComponent(`نسخة احتياطية لتطبيق راتب Ratib0129 - ${new Date().toLocaleDateString('ar-YE')}`);
+  const body = encodeURIComponent(
+    `السلام عليكم ورحمة الله،\n\nمرفق نص النسخة الاحتياطية لبيانات التطبيق حتى تاريخ ${new Date().toLocaleString('ar-YE')}:\n\n` +
+    `---\n${jsonStr}\n---`
+  );
+
+  const gmailUrl = `https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(email)}&su=${subject}&body=${body}`;
+  window.open(gmailUrl, '_blank');
+
+  markDataAsClean();
+});
+
+/* ================== تحديد مسار الحفظ والرفع المخصص ================== */
+document.getElementById('exportCustomPathBtn').addEventListener('click', async () => {
+  const data = {};
+  for (let i = 0; i < localStorage.length; i++) {
+    const k = localStorage.key(i);
+    if (k.startsWith('masar_')) data[k] = localStorage.getItem(k);
+  }
+  const jsonContent = JSON.stringify(data, null, 2);
+  const defaultFileName = `Ratib_backup_${monthKey()}.json`;
+
+  // التحقق مما إذا كان المتصفح يدعم اختيار مسار ومجلد الحفظ
+  if ('showSaveFilePicker' in window) {
+    try {
+      const handle = await window.showSaveFilePicker({
+        suggestedName: defaultFileName,
+        types: [{
+          description: 'ملف بيانات JSON',
+          accept: { 'application/json': ['.json'] },
+        }],
+      });
+      const writable = await handle.createWritable();
+      await writable.write(jsonContent);
+      await writable.close();
+      alert('تم حفظ النسخة الاحتياطية في المسار المحدد بنجاح!');
+      markDataAsClean();
+      return;
+    } catch (err) {
+      if (err.name === 'AbortError') return; // قام المستخدم بإلغاء النافذة
+    }
+  }
+
+  // التنزيل التلقائي إذا لم تكن الواجهة مدعومة
+  const blob = new Blob([jsonContent], { type: 'application/json' });
+  const a = document.createElement('a');
+  a.download = defaultFileName;
+  a.href = URL.createObjectURL(blob);
+  a.click();
+  markDataAsClean();
+});
+
+document.getElementById('importCustomPathBtn').addEventListener('click', () => {
+  document.getElementById('importFileInput').click();
+});
+
+document.getElementById('importFileInput').addEventListener('change', (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+
+  const reader = new FileReader();
+  reader.onload = (event) => {
+    try {
+      const parsed = JSON.parse(event.target.result);
+      if (typeof parsed !== 'object') throw new Error('صيغة غير صالحة');
+      
+      if (!confirm('هل تريد بالتأكيد استعادة البيانات من هذا الملف؟ سيتم استبدال البيانات الحالية بالبيانات المستوردة.')) {
+        return;
+      }
+
+      Object.keys(parsed).forEach(k => {
+        if (k.startsWith('masar_')) {
+          localStorage.setItem(k, parsed[k]);
+        }
+      });
+
+      alert('تمت استعادة البيانات بنجاح!');
+      markDataAsClean();
+      location.reload();
+    } catch (err) {
+      alert('فشل استيراد الملف، تأكد من اختيار ملف نسخة احتياطية صحيح بصيغة JSON.');
+    }
+  };
+  reader.readAsText(file);
+});
+
+/* ================== أمان وقفل التطبيق ================== */
 function checkAuthStatus() {
   const authConfig = store.get('auth_config', { enabled: false, user: 'admin', pass: '1234' });
   const isUnlocked = sessionStorage.getItem('masar_unlocked') === 'true';
@@ -493,7 +680,6 @@ function checkAuthStatus() {
     document.getElementById('authOverlay').classList.add('hidden');
   }
 
-  // تحديث زر الخروج في الإعدادات
   document.getElementById('manualLogoutBtn').classList.toggle('hidden', !authConfig.enabled);
 }
 
@@ -510,29 +696,24 @@ document.getElementById('submitLoginBtn').addEventListener('click', () => {
   }
 });
 
-// إمكانية تسجيل الدخول بالضغط على زر Enter
 document.getElementById('loginPass').addEventListener('keypress', (e) => {
   if (e.key === 'Enter') document.getElementById('submitLoginBtn').click();
 });
 
-// إظهار/إخفاء كلمة المرور في شاشة الدخول
 document.getElementById('toggleLoginPass').addEventListener('click', () => {
   const pInput = document.getElementById('loginPass');
   pInput.type = pInput.type === 'password' ? 'text' : 'password';
 });
 
-// إظهار/إخفاء كلمة المرور في شاشة الإعدادات
 document.getElementById('toggleSettingsPass').addEventListener('click', () => {
   const pInput = document.getElementById('settingsPassword');
   pInput.type = pInput.type === 'password' ? 'text' : 'password';
 });
 
-// تفعيل/إلغاء حقول الأمان في شاشة الإعدادات
 document.getElementById('authEnabledCb').addEventListener('change', (e) => {
   document.getElementById('authFieldsBox').classList.toggle('hidden', !e.target.checked);
 });
 
-// حفظ إعدادات الأمان
 document.getElementById('saveAuthBtn').addEventListener('click', () => {
   const enabled = document.getElementById('authEnabledCb').checked;
   const user = document.getElementById('settingsUsername').value.trim();
@@ -544,34 +725,33 @@ document.getElementById('saveAuthBtn').addEventListener('click', () => {
   }
 
   store.set('auth_config', { enabled, user, pass });
-  if (enabled) {
-    sessionStorage.setItem('masar_unlocked', 'true');
-  }
+  if (enabled) sessionStorage.setItem('masar_unlocked', 'true');
   alert('تم حفظ إعدادات الأمان بنجاح!');
   checkAuthStatus();
 });
 
-// زر تسجيل الخروج اليدوي
 document.getElementById('manualLogoutBtn').addEventListener('click', () => {
   sessionStorage.removeItem('masar_unlocked');
-  document.getElementById('toolsMenu').classList.remove('show');
   checkAuthStatus();
 });
 
-/* ========================================================== */
-
+/* ================== التنقل بين التبويبات ================== */
 document.querySelectorAll('.nav-tab').forEach(tab => {
   tab.addEventListener('click', () => {
     document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
     tab.classList.add('active');
     const target = tab.dataset.target;
+    
     document.getElementById('pageDashboard').classList.toggle('hidden', target !== 'pageDashboard');
     document.getElementById('pageLedger').classList.toggle('hidden', target !== 'pageLedger');
     document.getElementById('pageReports').classList.toggle('hidden', target !== 'pageReports');
+    document.getElementById('pageSettings').classList.toggle('hidden', target !== 'pageSettings');
     
     if (target === 'pageReports') {
       populateReportFilterOptions();
       runReportGeneration();
+    } else if (target === 'pageSettings') {
+      initSettingsPage();
     } else {
       renderAllData(); 
     }
@@ -799,6 +979,7 @@ document.getElementById('commitTxBtn').addEventListener('click', () => {
   document.getElementById('income').value = '';
   closePreviewModal();
 
+  markDataAsDirty();
   alert('تم اعتماد العملية وترحيلها بنجاح إلى سجل العمليات!');
   renderAllData();
 });
@@ -808,6 +989,7 @@ document.getElementById('clearAllTxsBtn').addEventListener('click', () => {
     localStorage.removeItem('masar_plan');
     localStorage.removeItem('masar_history');
     localStorage.removeItem('masar_rollover_amount');
+    markDataAsDirty();
     location.reload();
   }
 });
@@ -826,6 +1008,7 @@ function deleteSingleTransaction(itemId) {
     store.set('history', history);
   }
 
+  markDataAsDirty();
   renderAllData();
 }
 
@@ -951,6 +1134,7 @@ document.getElementById('saveTxExecutionBtn').addEventListener('click', () => {
   });
 
   store.set('plan', p);
+  markDataAsDirty();
   document.getElementById('txModal').classList.remove('show');
   alert('تم حفظ سجل إنجاز وتأكيد الصرف لهذه العملية بنجاح!');
   renderAllData();
@@ -1312,16 +1496,24 @@ document.getElementById('printReportBtn').addEventListener('click', () => {
   window.print();
 });
 
-function buildSettings(){
-  // تحميل إعدادات الحماية الحالية
+/* ================== تهيئة واجهة الإعدادات المستقلة ================== */
+function initSettingsPage() {
+  draftCats = JSON.parse(JSON.stringify(getCats()));
+  buildSettingsCats();
+
   const authConfig = store.get('auth_config', { enabled: false, user: 'admin', pass: '1234' });
-  const cb = document.getElementById('authEnabledCb');
-  cb.checked = authConfig.enabled;
+  document.getElementById('authEnabledCb').checked = authConfig.enabled;
   document.getElementById('authFieldsBox').classList.toggle('hidden', !authConfig.enabled);
   document.getElementById('settingsUsername').value = authConfig.user || '';
   document.getElementById('settingsPassword').value = authConfig.pass || '';
 
-  const box = document.getElementById('pctRows'); box.innerHTML = '';
+  document.getElementById('backupEmailInput').value = store.get('backup_email', '');
+  updateBackupStatusUI();
+}
+
+function buildSettingsCats(){
+  const box = document.getElementById('pctRows'); 
+  box.innerHTML = '';
   draftCats.forEach((c, i) => {
     box.innerHTML += `
       <div style="display:flex; align-items:center; gap:8px; padding:8px 0; border-bottom:1px dashed var(--border);">
@@ -1336,25 +1528,40 @@ function buildSettings(){
   document.querySelectorAll('.del-btn').forEach(btn => btn.addEventListener('click', e => {
     const idx = parseInt(e.currentTarget.dataset.idx);
     if(draftCats.length <= 1) { alert('يجب الإبقاء على بند واحد على الأقل'); return; }
-    if(confirm('حذف هذا البند؟')) { draftCats.splice(idx, 1); buildSettings(); updatePctSum(); }
+    if(confirm('حذف هذا البند؟')) { draftCats.splice(idx, 1); buildSettingsCats(); updatePctSum(); }
   }));
   updatePctSum();
 }
-function updatePctSum() { let sum = 0; draftCats.forEach(c => sum += (c.pct || 0)); document.getElementById('pctSum').textContent = 'المجموع: ' + sum + '%'; document.getElementById('pctSum').style.color = sum === 100 ? 'var(--ok)' : 'var(--danger)'; }
 
-document.getElementById('toolsBtn').addEventListener('click', () => { document.getElementById('toolsMenu').classList.toggle('show'); draftCats = JSON.parse(JSON.stringify(getCats())); buildSettings(); });
-document.getElementById('addCatBtn').addEventListener('click', () => { const color = PALETTE[draftCats.length % PALETTE.length]; draftCats.push({id: 'c_' + Date.now(), name: 'بند جديد', color: color, pct: 0}); buildSettings(); });
+function updatePctSum() { 
+  let sum = 0; 
+  draftCats.forEach(c => sum += (c.pct || 0)); 
+  document.getElementById('pctSum').textContent = 'المجموع: ' + sum + '%'; 
+  document.getElementById('pctSum').style.color = sum === 100 ? 'var(--ok)' : 'var(--danger)'; 
+}
+
+document.getElementById('addCatBtn').addEventListener('click', () => { 
+  const color = PALETTE[draftCats.length % PALETTE.length]; 
+  draftCats.push({id: 'c_' + Date.now(), name: 'بند جديد', color: color, pct: 0}); 
+  buildSettingsCats(); 
+});
+
 document.getElementById('savePctsBtn').addEventListener('click', () => {
-  let sum = 0; draftCats.forEach(c => sum += (c.pct || 0));
+  let sum = 0; 
+  draftCats.forEach(c => sum += (c.pct || 0));
   if(sum !== 100){ alert('مجموع النسب يجب أن يكون 100%'); return; }
-  store.set('cats', draftCats); alert('تم حفظ البنود والنسب'); document.getElementById('toolsMenu').classList.remove('show');
+  store.set('cats', draftCats); 
+  markDataAsDirty();
+  alert('تم حفظ البنود والنسب بنجاح!'); 
   renderAllData();
 });
+
 document.getElementById('resetPctsBtn').addEventListener('click', () => { 
   if(confirm('العودة للبنود الافتراضية السبعة؟')) { 
     localStorage.removeItem('masar_cats'); 
     draftCats = JSON.parse(JSON.stringify(DEFAULT_CATS)); 
-    buildSettings(); 
+    buildSettingsCats(); 
+    markDataAsDirty();
   } 
 });
 
@@ -1407,6 +1614,7 @@ document.getElementById('newMonthBtn').addEventListener('click', () => {
     store.set('history', history);
     store.set('rollover_amount', surplus);
     localStorage.removeItem('masar_plan'); 
+    markDataAsDirty();
     location.reload();
   }
 });
@@ -1415,12 +1623,6 @@ document.getElementById('themeBtn').addEventListener('click', () => {
   const t = document.documentElement.dataset.theme==='dark' ? 'light' : 'dark';
   document.documentElement.dataset.theme = t; store.set('theme', t);
   renderAllData();
-});
-
-document.getElementById('exportDataBtn').addEventListener('click', () => {
-  const data = {}; for(let i=0; i<localStorage.length; i++){ const k = localStorage.key(i); if(k.startsWith('masar_')) data[k] = localStorage.getItem(k); }
-  const a = document.createElement('a'); a.download = 'Ratib_backup.json';
-  a.href = URL.createObjectURL(new Blob([JSON.stringify(data)], {type:'application/json'})); a.click();
 });
 
 document.getElementById('pdfBtn').addEventListener('click', () => {

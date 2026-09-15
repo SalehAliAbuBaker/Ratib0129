@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>Ratib0129 v4.2</title>
+<title>Ratib0129 v4.3</title>
 <meta name="theme-color" content="#0f172a">
 <link rel="manifest" id="dynamic-manifest">
 <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@500;700;800;900&display=swap" rel="stylesheet">
@@ -136,13 +136,17 @@ body.privacy-active .icon-btn#privacyBtn { background: var(--accent); color: #ff
 </head>
 <body>
 
-<!-- شاشة القفل وتسجيل الدخول -->
+<!-- شاشة القفل ودخول البصمة أو كلمة المرور -->
 <div id="authOverlay" class="hidden">
   <div class="auth-box">
     <div style="font-size: 2.8rem; margin-bottom: 10px;">🔐</div>
     <h2 style="justify-content: center; margin-bottom: 6px;">تسجيل الدخول للتطبيق</h2>
-    <p style="font-size: 0.9rem; color: var(--muted); margin-bottom: 18px;">التطبيق محمي بكلمة مرور، يرجى كتابة البيانات للمتابعة</p>
+    <p style="font-size: 0.9rem; color: var(--muted); margin-bottom: 18px;">يمكنك الدخول بالبصمة الحيوية أو كلمة المرور</p>
     
+    <button class="btn btn-primary hidden" id="biometricLoginBtn" style="margin-top: 0; margin-bottom: 14px; background: #0284c7;">
+      دخول بالبصمة 👆
+    </button>
+
     <div style="text-align: right; margin-bottom: 12px;">
       <label for="loginUser">اسم المستخدم:</label>
       <input type="text" id="loginUser" placeholder="اسم المستخدم" style="width:100%;">
@@ -156,9 +160,9 @@ body.privacy-active .icon-btn#privacyBtn { background: var(--accent); color: #ff
       </div>
     </div>
 
-    <div id="loginError" style="color: var(--danger); font-size: 0.88rem; font-weight: 800; margin-bottom: 10px; display: none;">اسم المستخدم أو كلمة المرور غير صحيحة!</div>
+    <div id="loginError" style="color: var(--danger); font-size: 0.88rem; font-weight: 800; margin-bottom: 10px; display: none;">بيانات الدخول غير صحيحة!</div>
 
-    <button class="btn btn-primary" id="submitLoginBtn" style="margin-top: 0;">دخول 🔓</button>
+    <button class="btn btn-ghost" id="submitLoginBtn" style="margin-top: 0; border-color: var(--accent); color: var(--accent);">دخول بكلمة المرور 🔓</button>
   </div>
 </div>
 
@@ -168,7 +172,7 @@ body.privacy-active .icon-btn#privacyBtn { background: var(--accent); color: #ff
   <div class="print-header">تقرير الإنجازات المالية التفصيلي - <span id="printDate"></span></div>
 
   <header class="no-print">
-    <div class="logo">Ratib0129 v4.2</div>
+    <div class="logo">Ratib0129 v4.3</div>
     <div class="header-actions">
       <button class="icon-btn" id="privacyBtn" title="وضع الخصوصية (إخفاء الأرقام)">👁️</button>
       <button class="icon-btn" id="themeBtn" title="الوضع الليلي">🌙</button>
@@ -197,8 +201,10 @@ body.privacy-active .icon-btn#privacyBtn { background: var(--accent); color: #ff
 
   <div class="banner" id="banner">🔔 لم تقم بإدخال أي إيراد لهذا الشهر بعد!</div>
 
-  <!-- 1. لوحة الميزانية -->
+  <!-- 1. لوحة الميزانية والمصروفات اليومية -->
   <div id="pageDashboard">
+    
+    <!-- قسم إدراج الدخل والتخطيط -->
     <div class="card no-print">
       <h2>💰 إدراج دخل ومعاينة التوزيع</h2>
       <div class="rollover-badge" id="rolloverBadge">✨ رصيد مرحّل بانتظار الإضافة: <span id="rolloverAmountTxt">0</span></div>
@@ -223,6 +229,30 @@ body.privacy-active .icon-btn#privacyBtn { background: var(--accent); color: #ff
       </div>
 
       <button class="btn btn-primary" id="openPreviewModalBtn">عرض التصور وتوزيع المبلغ</button>
+    </div>
+
+    <!-- قسم تسجيل المصروفات اليومية المباشرة (خارج التخطيط) -->
+    <div class="card no-print" style="border-right: 5px solid var(--danger);">
+      <h2>
+        <span>💸 تسجيل مصروف يومي مباشر</span>
+        <span style="font-size:0.8rem; background:rgba(239,68,68,0.15); color:var(--danger); padding:2px 8px; border-radius:6px;">صرف فوري</span>
+      </h2>
+      <p style="font-size: 0.85rem; color: var(--muted); margin-bottom: 10px;">
+        سجل أي صرف يومي طارئ أو مباشر ليتم ترحيله وخصمه تلقائياً من البند المحدد.
+      </p>
+
+      <div class="input-row">
+        <select id="dailyExpenseCat" style="flex: 1;"></select>
+        <input type="number" id="dailyExpenseAmount" class="hide-in-privacy" placeholder="المبلغ المصروف" style="width: 140px;" inputmode="decimal" min="0">
+      </div>
+
+      <div class="input-row">
+        <input type="text" id="dailyExpenseNote" placeholder="بيان الصرف (مثال: مشتريات بقالة، غداء، بترول)..." style="width: 100%;">
+      </div>
+
+      <button class="btn btn-danger" id="commitDailyExpenseBtn" style="margin-top: 4px; padding: 12px;">
+        ✍️ ترحيل المصروف اليومي للسجل
+      </button>
     </div>
 
     <div id="planArea" class="hidden">
@@ -253,7 +283,7 @@ body.privacy-active .icon-btn#privacyBtn { background: var(--accent); color: #ff
         </button>
       </div>
       <p style="font-size:0.9rem; color:var(--muted); margin-bottom:14px;">
-        انقر على أي بطاقة عملية لفتح دائرتها البيانية وسجل إنجازها وصرفها الفعلي وتفاصيلها.
+        انقر على أي بطاقة عملية لفتح تفاصيلها أو تعديل المنصرف الفعلي وملاحظاته.
       </p>
       <div id="ledgerList" class="hide-in-privacy">
         <div style="text-align:center; color:var(--muted); font-size:1rem; padding: 25px 0;">لا توجد عمليات مسجلة بعد.</div>
@@ -365,11 +395,12 @@ body.privacy-active .icon-btn#privacyBtn { background: var(--accent); color: #ff
       </div>
     </div>
 
+    <!-- قسم الأمان وكلمة المرور والبصمة -->
     <div class="card">
-      <h2>🔒 أمان التطبيق وكلمة المرور</h2>
+      <h2>🔒 أمان التطبيق وكلمة المرور والبصمة</h2>
       <label class="check-row" style="margin-bottom: 12px;">
         <input type="checkbox" id="authEnabledCb">
-        <span>تفعيل قفل التطبيق بكلمة مرور</span>
+        <span>تفعيل قفل التطبيق</span>
       </label>
 
       <div id="authFieldsBox" class="hidden">
@@ -385,6 +416,19 @@ body.privacy-active .icon-btn#privacyBtn { background: var(--accent); color: #ff
           </div>
         </div>
         <button class="btn btn-primary" id="saveAuthBtn">💾 حفظ إعدادات الدخول</button>
+
+        <hr style="border:0; border-top:1.5px dashed var(--border); margin:14px 0;">
+
+        <!-- خيار تسجيل البصمة الحيوية -->
+        <div style="display: flex; flex-direction: column; gap: 6px;">
+          <label>تسجيل وتفعيل بصمة الجهاز:</label>
+          <button class="btn btn-ghost" id="registerBiometricBtn" style="border-color: #0284c7; color: #0284c7; margin-top: 0;">
+            👆 ربط وتفعيل البصمة على هذا الجهاز
+          </button>
+          <div id="biometricRegisteredTxt" style="font-size: 0.85rem; color: var(--ok); font-weight: 800; display: none;">
+            ✅ البصمة الحيوية مفعلة ومربوطة بنجاح
+          </div>
+        </div>
       </div>
       <button class="btn btn-ghost hidden" id="manualLogoutBtn" style="margin-top: 10px; color: var(--danger); border-color: var(--danger); font-size: 0.92rem;">🚪 قفل التطبيق وتسجيل الخروج</button>
     </div>
@@ -464,19 +508,16 @@ body.privacy-active .icon-btn#privacyBtn { background: var(--accent); color: #ff
         <button class="icon-btn" id="closeModalBtn" style="width:34px; height:34px;">✕</button>
       </div>
       
-      <div class="chart-box"><canvas id="modalChart"></canvas></div>
+      <div class="chart-box" id="modalChartBox"><canvas id="modalChart"></canvas></div>
 
       <h4 style="font-size:1.05rem; font-weight:900; color:var(--accent); margin: 12px 0 6px 0; border-top: 1.5px dashed var(--border); padding-top: 10px;">
-        ✅ سجل الإنجاز وتأكيد الصرف الفعلي للعملية:
+        ✅ تفاصيل وبيان الصرف الفعلي:
       </h4>
-      <p style="font-size:0.85rem; color:var(--muted); margin-bottom: 8px;">
-        حدد المنصرف الفعلي لكل بند والملاحظات:
-      </p>
       
       <div id="modalExecutionList"></div>
 
       <div id="modalActionRow" style="display:flex; gap:8px; margin-top:14px;">
-        <button class="btn btn-primary" id="saveTxExecutionBtn" style="flex:2; margin-top:0; padding:12px;">💾 حفظ الإنجاز والصرف</button>
+        <button class="btn btn-primary" id="saveTxExecutionBtn" style="flex:2; margin-top:0; padding:12px;">💾 حفظ التعديل</button>
         <button class="btn btn-ghost" id="closeModalActionBtn" style="flex:1; margin-top:0; padding:12px;">إغلاق</button>
       </div>
     </div>
@@ -522,7 +563,7 @@ let activeEditingTx = null;
 
 document.getElementById('printDate').textContent = new Date().toLocaleDateString('ar-YE');
 
-/* ================== إدارة الرجوع والتمرير والتنقل الذكي (Back Navigation) ================== */
+/* ================== إدارة الرجوع والتمرير الذكي ================== */
 let currentActiveTab = 'pageDashboard';
 
 function navigateToTab(target, pushToHistory = true) {
@@ -553,9 +594,7 @@ function navigateToTab(target, pushToHistory = true) {
   }
 }
 
-// اعتراض زر الرجوع والتمرير في الهاتف
 window.addEventListener('popstate', (e) => {
-  // 1. إذا كانت هناك نافذة منبثقة مفتوحة، أغلقها أولاً
   const previewModal = document.getElementById('previewModal');
   const txModal = document.getElementById('txModal');
 
@@ -569,25 +608,21 @@ window.addEventListener('popstate', (e) => {
     return;
   }
 
-  // 2. إذا كان المستخدم في تبويب غير الميزانية، عُد إلى الميزانية
   if (currentActiveTab !== 'pageDashboard') {
     navigateToTab('pageDashboard', false);
     return;
   }
 
-  // 3. إذا كان في الشاشة الرئيسية وأراد الخروج، اطلب التأكيد
   if (confirm('هل تريد بالفعل الخروج من التطبيق؟')) {
     history.back();
   } else {
-    // إعادة تثبيت الحالة لمنع الخروج المفاجئ
     history.pushState({ type: 'tab', tab: 'pageDashboard' }, '');
   }
 });
 
-// تثبيت نقطة بداية للسجل
 history.replaceState({ type: 'tab', tab: 'pageDashboard' }, '');
 
-/* ================== تتبع التعديلات والنسخ الاحتياطي للـ Gmail ================== */
+/* ================== تتبع التعديلات والنسخ الاحتياطي ================== */
 function markDataAsDirty() {
   store.set('has_pending_backup', true);
   updateBackupStatusUI();
@@ -653,7 +688,7 @@ document.getElementById('sendEmailBackupBtn').addEventListener('click', () => {
   markDataAsClean();
 });
 
-/* ================== تحديد مسار الحفظ والرفع المخصص ================== */
+/* ================== حفظ واستيراد الملفات ================== */
 document.getElementById('exportCustomPathBtn').addEventListener('click', async () => {
   const data = {};
   for (let i = 0; i < localStorage.length; i++) {
@@ -725,9 +760,9 @@ document.getElementById('importFileInput').addEventListener('change', (e) => {
   reader.readAsText(file);
 });
 
-/* ================== أمان وقفل التطبيق ================== */
+/* ================== أمان وقفل التطبيق بالبصمة أو كلمة المرور ================== */
 function checkAuthStatus() {
-  const authConfig = store.get('auth_config', { enabled: false, user: 'admin', pass: '1234' });
+  const authConfig = store.get('auth_config', { enabled: false, user: 'admin', pass: '1234', biometric: false });
   const isUnlocked = sessionStorage.getItem('masar_unlocked') === 'true';
 
   if (authConfig.enabled && !isUnlocked) {
@@ -735,6 +770,13 @@ function checkAuthStatus() {
     document.getElementById('loginUser').value = '';
     document.getElementById('loginPass').value = '';
     document.getElementById('loginError').style.display = 'none';
+
+    // إظهار زر البصمة إذا كانت مفعلة ومدعومة في الجهاز
+    if (authConfig.biometric && window.PublicKeyCredential) {
+      document.getElementById('biometricLoginBtn').classList.remove('hidden');
+    } else {
+      document.getElementById('biometricLoginBtn').classList.add('hidden');
+    }
   } else {
     document.getElementById('authOverlay').classList.add('hidden');
   }
@@ -742,10 +784,11 @@ function checkAuthStatus() {
   document.getElementById('manualLogoutBtn').classList.toggle('hidden', !authConfig.enabled);
 }
 
+// تسجيل الدخول بكلمة المرور
 document.getElementById('submitLoginBtn').addEventListener('click', () => {
   const enteredUser = document.getElementById('loginUser').value.trim();
   const enteredPass = document.getElementById('loginPass').value;
-  const authConfig = store.get('auth_config', { enabled: false, user: 'admin', pass: '1234' });
+  const authConfig = store.get('auth_config', { enabled: false, user: 'admin', pass: '1234', biometric: false });
 
   if (enteredUser === authConfig.user && enteredPass === authConfig.pass) {
     sessionStorage.setItem('masar_unlocked', 'true');
@@ -757,6 +800,67 @@ document.getElementById('submitLoginBtn').addEventListener('click', () => {
 
 document.getElementById('loginPass').addEventListener('keypress', (e) => {
   if (e.key === 'Enter') document.getElementById('submitLoginBtn').click();
+});
+
+// تفعيل والدخول بالبصمة الحيوية عبر WebAuthn
+document.getElementById('registerBiometricBtn').addEventListener('click', async () => {
+  if (!window.PublicKeyCredential) {
+    alert('عذراً، هذا المتصفح أو الجهاز لا يدعم مستشعر البصمة الحيوية.');
+    return;
+  }
+  try {
+    const challenge = new Uint8Array(32);
+    window.crypto.getRandomValues(challenge);
+    const userId = new Uint8Array(16);
+    window.crypto.getRandomValues(userId);
+
+    const credential = await navigator.credentials.create({
+      publicKey: {
+        challenge: challenge,
+        rp: { name: "Ratib0129 App" },
+        user: {
+          id: userId,
+          name: store.get('auth_config', {}).user || "admin",
+          displayName: "صاحب التطبيق"
+        },
+        pubKeyCredParams: [{ alg: -7, type: "public-key" }, { alg: -257, type: "public-key" }],
+        authenticatorSelection: { authenticatorAttachment: "platform", userVerification: "required" },
+        timeout: 60000
+      }
+    });
+
+    if (credential) {
+      const cfg = store.get('auth_config', { enabled: true, user: 'admin', pass: '1234' });
+      cfg.biometric = true;
+      store.set('auth_config', cfg);
+      document.getElementById('biometricRegisteredTxt').style.display = 'block';
+      alert('تم ربط بصمة الجهاز بنجاح! يمكنك الآن الدخول بالبصمة مباشرة.');
+    }
+  } catch (err) {
+    alert('لم يتم استكمال تفعيل البصمة: ' + (err.message || 'تم الإلغاء'));
+  }
+});
+
+document.getElementById('biometricLoginBtn').addEventListener('click', async () => {
+  try {
+    const challenge = new Uint8Array(32);
+    window.crypto.getRandomValues(challenge);
+
+    const assertion = await navigator.credentials.get({
+      publicKey: {
+        challenge: challenge,
+        userVerification: "required",
+        timeout: 60000
+      }
+    });
+
+    if (assertion) {
+      sessionStorage.setItem('masar_unlocked', 'true');
+      document.getElementById('authOverlay').classList.add('hidden');
+    }
+  } catch (err) {
+    alert('فشل التحقق من البصمة، يمكنك الدخول بكلمة المرور.');
+  }
 });
 
 document.getElementById('toggleLoginPass').addEventListener('click', () => {
@@ -777,19 +881,19 @@ document.getElementById('saveAuthBtn').addEventListener('click', () => {
   const enabled = document.getElementById('authEnabledCb').checked;
   const user = document.getElementById('settingsUsername').value.trim();
   const pass = document.getElementById('settingsPassword').value;
+  const oldCfg = store.get('auth_config', {});
 
   if (enabled && (!user || !pass)) {
     alert('يرجى كتابة اسم المستخدم وكلمة المرور');
     return;
   }
 
-  store.set('auth_config', { enabled, user, pass });
+  store.set('auth_config', { enabled, user, pass, biometric: !!oldCfg.biometric });
   if (enabled) sessionStorage.setItem('masar_unlocked', 'true');
   alert('تم حفظ إعدادات الأمان بنجاح!');
   checkAuthStatus();
 });
 
-// تأكيد صريح قبل تسجيل الخروج والقفل
 document.getElementById('manualLogoutBtn').addEventListener('click', () => {
   if (confirm('هل تريد بالفعل تسجيل الخروج وقفل التطبيق الآن؟')) {
     sessionStorage.removeItem('masar_unlocked');
@@ -836,6 +940,67 @@ function getMasterPlan() {
   }
   return p;
 }
+
+function populateDailyExpenseCats() {
+  const cats = getCats();
+  const select = document.getElementById('dailyExpenseCat');
+  select.innerHTML = '';
+  cats.forEach(c => {
+    const opt = document.createElement('option');
+    opt.value = c.id;
+    opt.textContent = c.name;
+    select.appendChild(opt);
+  });
+}
+
+/* ================== تسجيل المصروف اليومي المباشر ================== */
+document.getElementById('commitDailyExpenseBtn').addEventListener('click', () => {
+  const amount = parseFloat(document.getElementById('dailyExpenseAmount').value);
+  const catId = document.getElementById('dailyExpenseCat').value;
+  const note = document.getElementById('dailyExpenseNote').value.trim();
+
+  if (!amount || amount <= 0) {
+    alert('يرجى كتابة مبلغ صالح للمصروف اليومي');
+    return;
+  }
+
+  const cats = getCats();
+  const cat = cats.find(c => c.id === catId);
+  const catName = cat ? cat.name : 'مصروف';
+
+  const now = new Date();
+  const tx = {
+    id: Date.now() + Math.random(),
+    timestamp: now.getTime(),
+    isoDate: now.toISOString().split('T')[0],
+    date: now.toLocaleDateString('ar-YE', { year:'numeric', month:'short', day:'numeric', hour:'2-digit', minute:'2-digit' }),
+    amount: amount,
+    isDailyExpense: true,
+    type: `مصروف يومي (${catName})`,
+    distribution: {
+      [catId]: { id: catId, name: catName, amount: 0, pct: 0, color: cat ? cat.color : '#ef4444' }
+    },
+    execution: {
+      [catId]: {
+        done: true,
+        actualSpent: amount,
+        note: note || 'مصروف يومي مباشر',
+        door: ''
+      }
+    }
+  };
+
+  let p = getMasterPlan();
+  p.transactions.push(tx);
+  store.set('plan', p);
+
+  document.getElementById('dailyExpenseAmount').value = '';
+  document.getElementById('dailyExpenseNote').value = '';
+
+  markDataAsDirty();
+  alert(`تم ترحيل المصروف اليومي (${fmt(amount)}) بنجاح إلى السجل!`);
+  renderAllData();
+});
 
 function calculateDistribution(amount, excludedSet) {
   const allCats = getCats();
@@ -1069,54 +1234,64 @@ function openTxModal(item) {
   const modalSubtitle = document.getElementById('modalSubtitle');
   const modalExecutionList = document.getElementById('modalExecutionList');
   const saveBtn = document.getElementById('saveTxExecutionBtn');
+  const chartBox = document.getElementById('modalChartBox');
 
   const isClosed = !!item.isClosingRecord;
-  modalTitle.textContent = isClosed ? `دورة مرحّلة مغلقة: ${monthName(item.month)}` : `بطاقة: ${item.type} - ${fmt(item.amount)}`;
+  const isDaily = !!item.isDailyExpense;
+
+  modalTitle.textContent = isClosed ? `دورة مرحّلة مغلقة: ${monthName(item.month)}` : (isDaily ? `مصروف يومي: ${fmt(item.amount)}` : `بطاقة: ${item.type} - ${fmt(item.amount)}`);
   modalSubtitle.textContent = `📅 التاريخ: ${item.date}`;
   saveBtn.style.display = isClosed ? 'none' : 'block';
   modal.classList.add('show');
   history.pushState({ type: 'modal', modal: 'txModal' }, '');
 
-  const distItems = Object.values(item.distribution || {}).filter(d => !d.excluded && d.amount > 0);
+  // إخفاء رسم الدائرة في المصروفات اليومية المفردة
+  if (isDaily) {
+    chartBox.style.display = 'none';
+  } else {
+    chartBox.style.display = 'block';
+    const distItems = Object.values(item.distribution || {}).filter(d => !d.excluded && d.amount > 0);
+    const ctx = document.getElementById('modalChart');
+    const dark = document.documentElement.dataset.theme === 'dark';
+    if (modalChart) modalChart.destroy();
 
-  const ctx = document.getElementById('modalChart');
-  const dark = document.documentElement.dataset.theme === 'dark';
-  if (modalChart) modalChart.destroy();
-
-  modalChart = new Chart(ctx, {
-    type: 'doughnut',
-    data: {
-      labels: distItems.map(d => `${d.name} (${d.pct}%)`),
-      datasets: [{
-        data: distItems.map(d => d.amount),
-        backgroundColor: distItems.map(d => d.color || '#3b82f6'),
-        borderWidth: 2,
-        borderColor: dark ? '#1e293b' : '#ffffff'
-      }]
-    },
-    options: {
-      cutout: '58%',
-      plugins: {
-        legend: { position: 'bottom', labels: { color: dark ? '#f8fafc' : '#0f172a', font: { family: 'Tajawal', size: 11, weight: 'bold' } } },
-        datalabels: {
-          color: '#fff', font: { family: 'Tajawal', weight: '900', size: 11 },
-          formatter: (v, c) => `${distItems[c.dataIndex].pct}%`
+    modalChart = new Chart(ctx, {
+      type: 'doughnut',
+      data: {
+        labels: distItems.map(d => `${d.name} (${d.pct}%)`),
+        datasets: [{
+          data: distItems.map(d => d.amount),
+          backgroundColor: distItems.map(d => d.color || '#3b82f6'),
+          borderWidth: 2,
+          borderColor: dark ? '#1e293b' : '#ffffff'
+        }]
+      },
+      options: {
+        cutout: '58%',
+        plugins: {
+          legend: { position: 'bottom', labels: { color: dark ? '#f8fafc' : '#0f172a', font: { family: 'Tajawal', size: 11, weight: 'bold' } } },
+          datalabels: {
+            color: '#fff', font: { family: 'Tajawal', weight: '900', size: 11 },
+            formatter: (v, c) => `${distItems[c.dataIndex].pct}%`
+          }
         }
       }
-    }
-  });
+    });
+  }
 
   const execData = item.execution || {};
-  modalExecutionList.innerHTML = distItems.map(d => {
+  const distEntries = Object.values(item.distribution || {});
+
+  modalExecutionList.innerHTML = distEntries.map(d => {
     const ex = execData[d.id] || { done: false, actualSpent: d.amount, note: '', door: '' };
     return `
       <div class="cat-card ${ex.done ? 'done' : ''}" style="margin-bottom:10px; padding:12px;">
         <div class="cat-header" style="margin-bottom:6px;">
           <div class="cat-info">
             <span class="cat-color" style="background:${d.color}"></span>
-            <span class="cat-name">${esc(d.name)} <b style="color:var(--accent);">(${d.pct}%)</b></span>
+            <span class="cat-name">${esc(d.name)}</span>
           </div>
-          <span class="cat-amount hide-in-privacy">${fmt(d.amount)}</span>
+          <span class="cat-amount hide-in-privacy">${fmt(isDaily ? ex.actualSpent : d.amount)}</span>
         </div>
 
         ${isClosed ? `
@@ -1137,18 +1312,7 @@ function openTxModal(item) {
               </div>
             </div>
 
-            ${d.id === 'charity' ? `
-              <select class="tx-cat-door" data-id="${d.id}" style="height:44px; font-size:0.92rem;">
-                <option value="">-- حدد باب الصدقة --</option>
-                <option value="أقارب" ${ex.door==='أقارب'?'selected':''}>الأقارب وذوي الرحم</option>
-                <option value="أيتام" ${ex.door==='أيتام'?'selected':''}>كفالة الأيتام</option>
-                <option value="مساجد" ${ex.door==='مساجد'?'selected':''}>عمارة المساجد</option>
-                <option value="علم" ${ex.door==='علم'?'selected':''}>دعم طلاب العلم</option>
-                <option value="أخرى" ${ex.door==='أخرى'?'selected':''}>أخرى</option>
-              </select>
-            ` : ''}
-
-            <input type="text" class="tx-cat-note hide-in-privacy" data-id="${d.id}" placeholder="تفاصيل وملاحظات الصرف (صُرف لمن؟)..." value="${esc(ex.note)}" style="padding:8px 10px; font-size:0.95rem;">
+            <input type="text" class="tx-cat-note hide-in-privacy" data-id="${d.id}" placeholder="بيان وتفاصيل الصرف..." value="${esc(ex.note)}" style="padding:8px 10px; font-size:0.95rem;">
           </div>
         `}
       </div>
@@ -1170,25 +1334,22 @@ document.getElementById('saveTxExecutionBtn').addEventListener('click', () => {
     const isDone = cb.checked;
     const spentInput = document.querySelector(`.tx-actual-input[data-id="${cid}"]`);
     const noteInput = document.querySelector(`.tx-cat-note[data-id="${cid}"]`);
-    const doorInput = document.querySelector(`.tx-cat-door[data-id="${cid}"]`);
 
-    const spentVal = spentInput ? (parseFloat(spentInput.value) || 0) : tx.distribution[cid].amount;
+    const spentVal = spentInput ? (parseFloat(spentInput.value) || 0) : (tx.distribution[cid] ? tx.distribution[cid].amount : tx.amount);
 
     tx.execution[cid] = {
       done: isDone,
       actualSpent: spentVal,
       note: noteInput ? noteInput.value : '',
-      door: doorInput ? doorInput.value : ''
+      door: ''
     };
-
-    if (cid === 'charity' && isDone) confetti({ particleCount: 120, spread: 70, origin: { y: 0.6 } });
   });
 
   store.set('plan', p);
   markDataAsDirty();
   document.getElementById('txModal').classList.remove('show');
   if (history.state?.type === 'modal') history.back();
-  alert('تم حفظ سجل إنجاز وتأكيد الصرف لهذه العملية بنجاح!');
+  alert('تم حفظ التعديل بنجاح!');
   renderAllData();
 });
 
@@ -1216,14 +1377,10 @@ function renderLedgerPage(combinedItems) {
     const card = document.createElement('div');
     card.className = 'tx-log-item';
     if (item.isClosingRecord) card.style.borderRight = '5px solid var(--ok)';
+    if (item.isDailyExpense) card.style.borderRight = '5px solid var(--danger)';
 
-    const distItems = Object.values(item.distribution || {}).filter(d => !d.excluded && d.amount > 0);
-    const distHtml = distItems.map(d => `<span style="display:inline-block; margin:2px 0;"><b>${d.name}:</b> ${fmt(d.amount)} (${d.pct}%)</span>`).join(' • ');
-
-    let doneCount = 0;
-    const exec = item.execution || {};
-    distItems.forEach(d => { if (exec[d.id] && exec[d.id].done) doneCount++; });
-    const progressPct = distItems.length > 0 ? Math.round((doneCount / distItems.length) * 100) : 0;
+    const distItems = Object.values(item.distribution || {}).filter(d => !d.excluded);
+    const distHtml = distItems.map(d => `<span style="display:inline-block; margin:2px 0;"><b>${d.name}:</b> ${fmt(d.amount > 0 ? d.amount : item.amount)}</span>`).join(' • ');
 
     if (item.isClosingRecord) {
       card.innerHTML = `
@@ -1238,14 +1395,35 @@ function renderLedgerPage(combinedItems) {
             <button class="del-btn single-del-btn" title="حذف هذه الدورة" data-id="${item.id}">🗑️</button>
           </div>
         </div>
-        <div style="font-size:0.9rem; color:var(--muted); margin-top:4px;"><b>توزيع بنود الدورة:</b></div>
         <div class="tx-dist">${distHtml}</div>
       `;
-    } else {
+    } else if (item.isDailyExpense) {
+      const exec = item.execution || {};
+      const firstExec = Object.values(exec)[0] || {};
       card.innerHTML = `
         <div class="tx-header">
           <div style="display:flex; align-items:center; gap:8px;">
-            <span class="tx-badge">${'إيراد مسجل'}</span>
+            <span class="tx-badge" style="background:var(--danger);">💸 مصروف يومي</span>
+            <span class="tx-type-tag">${item.type}</span>
+            <span class="tx-date">📅 ${item.date}</span>
+          </div>
+          <div style="display:flex; align-items:center; gap:8px;">
+            <span class="tx-amount" style="color:var(--danger);">${fmt(item.amount)}</span>
+            <button class="del-btn single-del-btn" title="حذف هذا المصروف" data-id="${item.id}">🗑️</button>
+          </div>
+        </div>
+        <div style="font-size:0.88rem; color:var(--muted); font-weight:700;">البيان: ${esc(firstExec.note || 'صرف مباشر')}</div>
+      `;
+    } else {
+      let doneCount = 0;
+      const exec = item.execution || {};
+      distItems.forEach(d => { if (exec[d.id] && exec[d.id].done) doneCount++; });
+      const progressPct = distItems.length > 0 ? Math.round((doneCount / distItems.length) * 100) : 0;
+
+      card.innerHTML = `
+        <div class="tx-header">
+          <div style="display:flex; align-items:center; gap:8px;">
+            <span class="tx-badge">إيراد وتوزيع</span>
             <span class="tx-type-tag">${item.type || 'إيراد'}</span>
             <span class="tx-date">📅 ${item.date}</span>
           </div>
@@ -1256,7 +1434,7 @@ function renderLedgerPage(combinedItems) {
         </div>
         <div style="display:flex; justify-content:space-between; align-items:center; margin-top:4px;">
           <span style="font-size:0.85rem; color:var(--muted); font-weight:800;">نسبة الإنجاز: <b>${progressPct}%</b></span>
-          <span style="font-size:0.85rem; color:var(--accent); font-weight:800;">(انقر لفتح السجل والدائرة 👁️)</span>
+          <span style="font-size:0.85rem; color:var(--accent); font-weight:800;">(انقر للتفاصيل 👁️)</span>
         </div>
         <div class="tx-progress-bar"><div class="tx-progress-val" style="width:${progressPct}%;"></div></div>
         <div class="tx-dist">${distHtml}</div>
@@ -1284,8 +1462,9 @@ function renderAllData(){
   historyData.forEach(h => { if (h.closingRecord) combinedItems.push(h.closingRecord); });
   combinedItems = combinedItems.concat(p.transactions || []);
   renderLedgerPage(combinedItems);
+  populateDailyExpenseCats();
 
-  const txs = p.transactions || [];
+  const txs = (p.transactions || []).filter(t => !t.isDailyExpense);
   if(!txs || txs.length === 0) {
     document.getElementById('planArea').classList.add('hidden');
     document.getElementById('banner').classList.add('show');
@@ -1437,7 +1616,7 @@ function runReportGeneration() {
     const exec = t.execution || {};
 
     Object.keys(dist).forEach(cid => {
-      if (!dist[cid].excluded && summary[cid]) {
+      if (summary[cid]) {
         const alloc = dist[cid].amount || 0;
         summary[cid].allocated += alloc;
         grandAllocated += alloc;
@@ -1445,19 +1624,17 @@ function runReportGeneration() {
         const ex = exec[cid];
         let spent = alloc;
         let note = '';
-        let door = '';
 
         if (ex) {
           spent = (ex.actualSpent !== undefined) ? Number(ex.actualSpent) : alloc;
           note = ex.note || '';
-          door = ex.door || '';
         }
 
         summary[cid].actualSpent += spent;
         grandSpent += spent;
 
-        if (note || door) {
-          summary[cid].notes.push({ note, door, txType: t.type, date: t.date });
+        if (note) {
+          summary[cid].notes.push({ note, txType: t.type, date: t.date });
         }
       }
     });
@@ -1522,7 +1699,7 @@ function runReportGeneration() {
   });
 
   const notesBox = document.getElementById('reportNotesBox');
-  notesBox.innerHTML = '<h4 style="font-size:0.95rem; font-weight:900; margin-bottom:6px; color:var(--accent);">📝 الملاحظات وأبواب الصرف المسجلة:</h4>';
+  notesBox.innerHTML = '<h4 style="font-size:0.95rem; font-weight:900; margin-bottom:6px; color:var(--accent);">📝 الملاحظات وتفاصيل الصرف:</h4>';
 
   let hasNotes = false;
   catRows.forEach(c => {
@@ -1530,8 +1707,7 @@ function runReportGeneration() {
       hasNotes = true;
       const notesHtml = c.notes.map(n => `
         <div style="background:var(--bg); border:1px solid var(--border); border-radius:8px; padding:6px 8px; margin-bottom:4px; font-size:0.85rem;">
-          ${n.door ? `<span style="background:rgba(16,185,129,0.15); color:var(--ok); padding:2px 6px; border-radius:4px; font-weight:800;">باب: ${esc(n.door)}</span> ` : ''}
-          <span>${esc(n.note || 'تم الصرف دون ملاحظة')}</span>
+          <span>${esc(n.note)}</span>
           <span style="font-size:0.75rem; color:var(--muted); float:left;">${esc(n.txType)} (${n.date})</span>
         </div>
       `).join('');
@@ -1546,7 +1722,7 @@ function runReportGeneration() {
   });
 
   if (!hasNotes) {
-    notesBox.innerHTML += '<div style="font-size:0.85rem; color:var(--muted);">لا توجد ملاحظات أو أبواب مسجلة في هذه الفترة.</div>';
+    notesBox.innerHTML += '<div style="font-size:0.85rem; color:var(--muted);">لا توجد ملاحظات مسجلة في هذه الفترة.</div>';
   }
 }
 
@@ -1554,16 +1730,17 @@ document.getElementById('printReportBtn').addEventListener('click', () => {
   window.print();
 });
 
-/* ================== تهيئة واجهة الإعدادات المستقلة ================== */
+/* ================== تهيئة واجهة الإعدادات ================== */
 function initSettingsPage() {
   draftCats = JSON.parse(JSON.stringify(getCats()));
   buildSettingsCats();
 
-  const authConfig = store.get('auth_config', { enabled: false, user: 'admin', pass: '1234' });
+  const authConfig = store.get('auth_config', { enabled: false, user: 'admin', pass: '1234', biometric: false });
   document.getElementById('authEnabledCb').checked = authConfig.enabled;
   document.getElementById('authFieldsBox').classList.toggle('hidden', !authConfig.enabled);
   document.getElementById('settingsUsername').value = authConfig.user || '';
   document.getElementById('settingsPassword').value = authConfig.pass || '';
+  document.getElementById('biometricRegisteredTxt').style.display = authConfig.biometric ? 'block' : 'none';
 
   document.getElementById('backupEmailInput').value = store.get('backup_email', '');
   updateBackupStatusUI();
@@ -1634,11 +1811,11 @@ document.getElementById('newMonthBtn').addEventListener('click', () => {
   getCats().forEach(c => summaryMap[c.id] = { name: c.name, amount: 0 });
 
   p.transactions.forEach(t => {
-    totalIncome += t.amount;
+    if (!t.isDailyExpense) totalIncome += t.amount;
     const exec = t.execution || {};
     Object.keys(t.distribution || {}).forEach(cid => {
       const item = t.distribution[cid];
-      if (summaryMap[cid]) summaryMap[cid].amount += item.amount;
+      if (summaryMap[cid]) summaryMap[cid].amount += (item.amount || 0);
       if (exec[cid] && exec[cid].done) {
         totalSpent += (exec[cid].actualSpent !== undefined ? parseFloat(exec[cid].actualSpent) : item.amount);
       }

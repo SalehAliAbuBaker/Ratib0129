@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>Ratib0129 v5.3</title>
+<title>Ratib0129 v5.5</title>
 <meta name="theme-color" content="#0284c7">
 <link rel="manifest" id="dynamic-manifest">
 <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@500;700;800;900&display=swap" rel="stylesheet">
@@ -53,13 +53,103 @@ header{display:flex; justify-content:space-between; align-items:center; margin-b
 .card{ background:var(--card); border:1.5px solid var(--border); border-radius:var(--radius); box-shadow:var(--shadow); padding:14px; margin-bottom:14px; position:relative; width: 100%; }
 h2{font-size:1.05rem; font-weight:900; margin-bottom:12px; display:flex; align-items:center; justify-content:space-between; gap:8px;}
 label{font-size:0.88rem; color:var(--muted); display:block; margin-bottom:4px; font-weight:700}
-.form-group{margin-bottom: 10px; width: 100%;}
+.form-group{margin-bottom: 10px; width: 100%; position: relative;}
 
-input[type=number], input[type=text], input[type=password], input[type=date]{ width: 100%; background:var(--bg); border:1.5px solid var(--border); color:var(--text); border-radius:10px; padding:9px 12px; font-size:0.95rem; font-weight:800; font-family:inherit; outline:none; }
+input[type=number], input[type=text], input[type=password], input[type=date], input[type=search]{ width: 100%; background:var(--bg); border:1.5px solid var(--border); color:var(--text); border-radius:10px; padding:9px 12px; font-size:0.95rem; font-weight:800; font-family:inherit; outline:none; }
 input:focus{border-color:var(--accent)}
 select{ width: 100%; background:var(--bg); border:1.5px solid var(--border); color:var(--text); border-radius:10px; padding:0 10px; font-size:0.92rem; font-weight:800; font-family:inherit; outline:none; height: 44px; }
 optgroup { font-weight: 900; color: var(--accent); background: var(--card); }
 option { color: var(--text); font-weight: 700; }
+
+/* أنماط القوائم القابلة للبحث الديناميكي */
+.searchable-select-wrap {
+  position: relative;
+  width: 100%;
+}
+.searchable-input {
+  width: 100%;
+  background: var(--bg);
+  border: 1.5px solid var(--border);
+  color: var(--text);
+  border-radius: 10px;
+  padding: 9px 32px 9px 12px;
+  font-size: 0.95rem;
+  font-weight: 800;
+  font-family: inherit;
+  outline: none;
+  cursor: pointer;
+}
+.searchable-input:focus {
+  border-color: var(--accent);
+}
+.searchable-arrow {
+  position: absolute;
+  left: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--muted);
+  font-size: 0.8rem;
+  pointer-events: none;
+}
+.searchable-dropdown {
+  position: absolute;
+  top: calc(100% + 4px);
+  right: 0;
+  left: 0;
+  background: var(--card);
+  border: 1.5px solid var(--border);
+  border-radius: 10px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+  max-height: 220px;
+  overflow-y: auto;
+  z-index: 1050;
+  display: none;
+}
+.searchable-dropdown.open {
+  display: block;
+}
+.searchable-item {
+  padding: 8px 12px;
+  cursor: pointer;
+  font-weight: 700;
+  font-size: 0.9rem;
+  transition: background 0.15s;
+  border-bottom: 1px solid var(--border);
+}
+.searchable-item:last-child {
+  border-bottom: none;
+}
+.searchable-item:hover, .searchable-item.active {
+  background: rgba(2,132,199,0.12);
+  color: var(--accent);
+}
+.searchable-group-label {
+  padding: 6px 10px;
+  font-size: 0.78rem;
+  font-weight: 900;
+  color: var(--accent);
+  background: var(--bg);
+  border-bottom: 1px solid var(--border);
+}
+
+.search-box {
+  position: relative;
+  display: flex;
+  align-items: center;
+  margin-bottom: 12px;
+}
+.search-box input {
+  padding-right: 36px;
+  background: var(--card);
+  border-color: var(--accent);
+}
+.search-icon {
+  position: absolute;
+  right: 10px;
+  font-size: 1.1rem;
+  color: var(--muted);
+  pointer-events: none;
+}
 
 .btn{ width:100%; border:none; border-radius:10px; padding:11px; font-size:0.95rem; font-weight:900; font-family:inherit; cursor:pointer; margin-top:8px; transition: transform 0.15s, opacity 0.2s; text-align:center;}
 .btn:active{ transform: scale(0.97); }
@@ -97,6 +187,9 @@ body.privacy-active .icon-btn#privacyBtn { background: var(--accent); color: #ff
 .tx-acc-row { display: flex; justify-content: space-between; color: var(--muted); }
 .tx-acc-row b { color: var(--text); }
 
+.tx-dist { display: flex; gap: 4px; flex-wrap: wrap; font-size: 0.8rem; }
+.tx-dist span { background: var(--bg); border: 1px solid var(--border); padding: 3px 6px; border-radius: 6px; font-weight: 700; }
+
 .kpi-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-bottom: 12px; }
 .kpi-card { background: var(--bg); border: 1.5px solid var(--border); border-radius: 10px; padding: 10px; text-align: center; }
 .kpi-title { font-size: 0.78rem; color: var(--muted); font-weight: 700; margin-bottom: 2px; }
@@ -105,6 +198,14 @@ body.privacy-active .icon-btn#privacyBtn { background: var(--accent); color: #ff
 .report-table { width: 100%; border-collapse: collapse; margin-top: 6px; font-size: 0.85rem; }
 .report-table th, .report-table td { padding: 8px 6px; border-bottom: 1px solid var(--border); text-align: right; }
 .report-table th { background: var(--bg); color: var(--muted); font-weight: 800; }
+
+.highlight-match {
+  background: #fef08a;
+  color: #854d0e;
+  padding: 1px 4px;
+  border-radius: 4px;
+  font-weight: 900;
+}
 
 .modal-overlay { position: fixed; inset: 0; background: rgba(15,23,42,0.65); backdrop-filter: blur(4px); z-index: 1000; display: none; align-items: center; justify-content: center; padding: 12px; }
 .modal-overlay.show { display: flex; }
@@ -116,7 +217,7 @@ body.privacy-active .icon-btn#privacyBtn { background: var(--accent); color: #ff
 
 @media print {
   body { background: #fff; color: #000; }
-  header, .nav-tabs, .no-print, .btn, .icon-btn, #reportFilterBox { display: none !important; }
+  header, .nav-tabs, .no-print, .btn, .icon-btn, #reportFilterBox, .search-box, .searchable-arrow { display: none !important; }
   .card { box-shadow: none; border: 1px solid #ccc; }
   .report-table th { background: #f1f5f9; color: #000; }
 }
@@ -128,7 +229,7 @@ body.privacy-active .icon-btn#privacyBtn { background: var(--accent); color: #ff
   <div style="text-align:center; font-weight:900; font-size:1.1rem; margin-bottom:10px;" class="no-print">بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ</div>
 
   <header class="no-print">
-    <div class="logo">Ratib0129 v5.3</div>
+    <div class="logo">Ratib0129 v5.5</div>
     <div class="header-actions">
       <button class="icon-btn" id="privacyBtn" title="وضع الخصوصية">👁️</button>
       <button class="icon-btn" id="themeBtn" title="الوضع الليلي">🌙</button>
@@ -195,7 +296,7 @@ body.privacy-active .icon-btn#privacyBtn { background: var(--accent); color: #ff
     </div>
   </div>
 
-  <!-- 2. واجهة الحركة النقدية مع الحسابات الرئيسية والفرعية -->
+  <!-- 2. واجهة الحركة النقدية مع قوائم الاختيار والبحث المباشر -->
   <div id="pageExpenses" class="hidden">
     <div class="card" id="cashFlowCard">
       <h2>
@@ -212,25 +313,43 @@ body.privacy-active .icon-btn#privacyBtn { background: var(--accent); color: #ff
         <button class="v-btn v-entry" data-type="entry">3. سند قيد</button>
       </div>
 
+      <!-- بند الميزانية (قائمة بحث ديناميكية) -->
       <div class="form-group">
         <label id="lblPrimaryCat">بند الميزانية المخصوم منه (أساسي):</label>
-        <select id="voucherCatSelect"></select>
+        <div class="searchable-select-wrap" id="wrapVoucherCat">
+          <input type="text" class="searchable-input" id="inpVoucherCat" placeholder="ابحث أو اختر بند الميزانية..." autocomplete="off">
+          <span class="searchable-arrow">▼</span>
+          <div class="searchable-dropdown" id="dropVoucherCat"></div>
+        </div>
+        <input type="hidden" id="voucherCatId">
       </div>
 
+      <!-- الحساب المدين (قائمة بحث ديناميكية) -->
       <div class="form-group">
         <label id="lblDebitAcc">الحساب المدين (عليه):</label>
         <div style="display: flex; gap: 6px;">
-          <select id="voucherDebitAccount" style="flex: 1;"></select>
-          <button class="icon-btn" id="addNewDebitAccBtn" title="إضافة حساب فرعي جديد" style="width: 44px; height: 44px; border-radius: 8px;">➕</button>
+          <div class="searchable-select-wrap" id="wrapDebitAcc" style="flex: 1;">
+            <input type="text" class="searchable-input" id="inpDebitAcc" placeholder="ابحث أو اختر الحساب المدين..." autocomplete="off">
+            <span class="searchable-arrow">▼</span>
+            <div class="searchable-dropdown" id="dropDebitAcc"></div>
+          </div>
+          <button class="icon-btn" id="addNewDebitAccBtn" title="إضافة حساب فرعي أو رئيسي" style="width: 44px; height: 44px; border-radius: 8px;">➕</button>
         </div>
+        <input type="hidden" id="valDebitAcc">
       </div>
 
+      <!-- الحساب الدائن (قائمة بحث ديناميكية) -->
       <div class="form-group">
         <label id="lblCreditAcc">الحساب الدائن (له):</label>
         <div style="display: flex; gap: 6px;">
-          <select id="voucherCreditAccount" style="flex: 1;"></select>
-          <button class="icon-btn" id="addNewCreditAccBtn" title="إضافة حساب فرعي جديد" style="width: 44px; height: 44px; border-radius: 8px;">➕</button>
+          <div class="searchable-select-wrap" id="wrapCreditAcc" style="flex: 1;">
+            <input type="text" class="searchable-input" id="inpCreditAcc" placeholder="ابحث أو اختر الحساب الدائن..." autocomplete="off">
+            <span class="searchable-arrow">▼</span>
+            <div class="searchable-dropdown" id="dropCreditAcc"></div>
+          </div>
+          <button class="icon-btn" id="addNewCreditAccBtn" title="إضافة حساب فرعي أو رئيسي" style="width: 44px; height: 44px; border-radius: 8px;">➕</button>
         </div>
+        <input type="hidden" id="valCreditAcc">
       </div>
 
       <div style="display: flex; gap: 8px; margin-bottom: 10px;">
@@ -264,10 +383,10 @@ body.privacy-active .icon-btn#privacyBtn { background: var(--accent); color: #ff
     </div>
   </div>
 
-  <!-- 3. سجل العمليات -->
+  <!-- 3. سجل العمليات مع محرك البحث الفوري -->
   <div id="pageLedger" class="hidden">
     <div class="card">
-      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
         <h2 style="margin-bottom:0;">
           <span>📋 بطاقات العمليات المستقلة</span>
           <span id="ledgerCountBadge" style="background:var(--accent); color:#fff; font-size:0.78rem; padding:2px 8px; border-radius:20px;">0 عمليات</span>
@@ -276,11 +395,17 @@ body.privacy-active .icon-btn#privacyBtn { background: var(--accent); color: #ff
           🗑️ تصفير
         </button>
       </div>
+
+      <div class="search-box">
+        <span class="search-icon">🔍</span>
+        <input type="search" id="ledgerSearchInput" placeholder="بحث فوري (اكتب اسم عميل، صندوق، بيان، أو رقم سند)...">
+      </div>
+
       <div id="ledgerList" class="hide-in-privacy"></div>
     </div>
   </div>
 
-  <!-- 4. التقارير الديناميكية (ميزانية + كشف حسابات رئيسية وفرعية) -->
+  <!-- 4. التقارير الديناميكية (ميزانية + كشف حسابات مع البحث) -->
   <div id="pageReports" class="hidden">
     <div class="report-type-switch no-print">
       <button class="rpt-btn active" id="btnRptBudget">📊 تقرير الميزانية والبنود</button>
@@ -290,9 +415,16 @@ body.privacy-active .icon-btn#privacyBtn { background: var(--accent); color: #ff
     <div class="card" id="reportFilterBox">
       <h2>📈 تصفية فترة التقرير</h2>
       <div style="display:flex; flex-direction:column; gap:8px;">
+        
+        <!-- حقل اختيار الحساب المخصص مع البحث اللحظي -->
         <div id="filterAccountSelectBox" class="hidden">
           <label>اختر الحساب المطلوب (رئيسي أو فرعي):</label>
-          <select id="reportAccountSelect"></select>
+          <div class="searchable-select-wrap" id="wrapReportAccount">
+            <input type="text" class="searchable-input" id="inpReportAccount" placeholder="ابحث أو اختر الحساب..." autocomplete="off">
+            <span class="searchable-arrow">▼</span>
+            <div class="searchable-dropdown" id="dropReportAccount"></div>
+          </div>
+          <input type="hidden" id="valReportAccount" value="ALL">
         </div>
 
         <div>
@@ -377,7 +509,12 @@ body.privacy-active .icon-btn#privacyBtn { background: var(--accent); color: #ff
         <span id="statementHeaderTitle">📑 كشف حساب</span>
         <button class="icon-btn no-print" id="printStatementBtn" title="طباعة كشف الحساب" style="width:36px; height:36px;">🖨️</button>
       </h2>
-      <div style="font-size:0.85rem; color:var(--muted); font-weight:800; margin-bottom:10px;" id="statementPeriodTitle">الفترة: -</div>
+      <div style="font-size:0.85rem; color:var(--muted); font-weight:800; margin-bottom:8px;" id="statementPeriodTitle">الفترة: -</div>
+
+      <div class="search-box">
+        <span class="search-icon">🔍</span>
+        <input type="search" id="statementSearchInput" placeholder="بحث داخل كشف الحساب (بالبيان، الطرف، أو السند)...">
+      </div>
 
       <div class="kpi-grid">
         <div class="kpi-card">
@@ -429,11 +566,11 @@ body.privacy-active .icon-btn#privacyBtn { background: var(--accent); color: #ff
   <!-- 5. الإعدادات وشجرة الحسابات -->
   <div id="pageSettings" class="hidden">
     <div class="card">
-      <h2>
-        <span>🏛️ دليل وشجرة الحسابات</span>
-        <button class="btn btn-ghost" id="openAddAccountDialogBtn" style="width:auto; margin-top:0; padding:5px 10px; font-size:0.82rem;">➕ إضافة حساب فرعي</button>
-      </h2>
-      <p style="font-size:0.85rem; color:var(--muted); margin-bottom:10px;">الحسابات الأساسية والفرعية المسجلة بالنظام:</p>
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+        <h2 style="margin-bottom:0;">🏛️ دليل وشجرة الحسابات</h2>
+        <button class="btn btn-ghost" id="openAddAccountDialogBtn" style="width:auto; margin-top:0; padding:5px 10px; font-size:0.82rem;">➕ إضافة حساب</button>
+      </div>
+      <p style="font-size:0.85rem; color:var(--muted); margin-bottom:10px;">يمكنك إضافة مجموعات رئيسية جديدة أو حسابات فرعية:</p>
       <div id="chartOfAccountsView" style="font-size:0.88rem;"></div>
     </div>
 
@@ -506,26 +643,42 @@ body.privacy-active .icon-btn#privacyBtn { background: var(--accent); color: #ff
     </div>
   </div>
 
-  <!-- نافذة منبثقة لإضافة حساب فرعي تحت حساب أساسي -->
+  <!-- نافذة إضافة حساب رئيسي أو فرعي -->
   <div class="modal-overlay" id="addAccountModal">
     <div class="modal-content">
       <div class="modal-header">
-        <h3 style="font-size:1.1rem; color:var(--accent); font-weight:900;">➕ إضافة حساب فرعي جديد</h3>
+        <h3 style="font-size:1.1rem; color:var(--accent); font-weight:900;">➕ إدارة وإضافة الحسابات</h3>
         <button class="icon-btn" id="closeAddAccountModalBtn" style="width:34px; height:34px;">✕</button>
       </div>
-      <div class="form-group">
-        <label>الحساب الأساسي (المجموعة الرئيسية):</label>
-        <select id="newAccountParentSelect">
-          <option value="الصناديق والبنوك">🏛️ الصناديق والبنوك</option>
-          <option value="العملاء والمدينون">👤 العملاء والمدينون</option>
-          <option value="الموردون والدائنون">🏢 الموردون والدائنون</option>
-        </select>
+
+      <div style="display:flex; gap:6px; margin-bottom:12px;">
+        <button class="rpt-btn active" id="tabAddSubAcc">إضافة حساب فرعي</button>
+        <button class="rpt-btn" id="tabAddParentAcc">إضافة حساب رئيسي جديد</button>
       </div>
-      <div class="form-group">
-        <label>اسم الحساب الفرعي الجديد:</label>
-        <input type="text" id="newAccountSubNameInput" placeholder="مثلاً: بنك الكريمي، أحمد باحريش...">
+
+      <div id="boxAddSubAcc">
+        <div class="form-group">
+          <label>الحساب الأساسي (المجموعة الرئيسية):</label>
+          <select id="newAccountParentSelect"></select>
+        </div>
+        <div class="form-group">
+          <label>اسم الحساب الفرعي الجديد:</label>
+          <input type="text" id="newAccountSubNameInput" placeholder="مثلاً: بنك الكريمي، أحمد باحريش...">
+        </div>
+        <button class="btn btn-primary" id="saveNewAccountTreeBtn" style="margin-top: 8px;">💾 حفظ الحساب الفرعي</button>
       </div>
-      <button class="btn btn-primary" id="saveNewAccountTreeBtn" style="margin-top: 10px;">💾 حفظ الحساب</button>
+
+      <div id="boxAddParentAcc" class="hidden">
+        <div class="form-group">
+          <label>اسم الحساب الأساسي الجديد (تصنيف رئيسي):</label>
+          <input type="text" id="newParentCategoryInput" placeholder="مثلاً: الأصول الثابتة، مشاريع تنموية...">
+        </div>
+        <div class="form-group">
+          <label>اسم أول حساب فرعي داخله (اختياري):</label>
+          <input type="text" id="initialSubAccInput" placeholder="مثلاً: سيارة المؤسسة، مشروع أ...">
+        </div>
+        <button class="btn btn-success" id="saveNewParentCategoryBtn" style="margin-top: 8px;">💾 إنشاء الحساب الرئيسي</button>
+      </div>
     </div>
   </div>
 
@@ -554,7 +707,6 @@ const DEFAULT_CATS = [
   {id:'fuel', name:'بترول', color:'#f97316', pct:5}
 ];
 
-// دليل الحسابات الشجري الافتراضي
 const DEFAULT_ACCOUNT_TREE = {
   "الصناديق والبنوك": ["الصندوق الرئيسي", "حساب بنكي / كاش", "عهدة يد"],
   "العملاء والمدينون": ["صالح الخطيب", "عميل عام"],
@@ -577,12 +729,12 @@ let currentActiveTab = 'pageDashboard';
 let currentVoucherMode = 'spend';
 let activeReportTab = 'budget';
 
+let currentLedgerSearchQuery = '';
+let currentStatementSearchQuery = '';
+
 function getCats(){ return store.get('cats', DEFAULT_CATS); }
 function getAccountTree(){ return store.get('account_tree', DEFAULT_ACCOUNT_TREE); }
-
-function saveAccountTree(tree){
-  store.set('account_tree', tree);
-}
+function saveAccountTree(tree){ store.set('account_tree', tree); }
 
 function monthKey(){ const d = new Date(); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0'); }
 function monthName(key){ const [y,m] = key.split('-'); const ms = ['يناير','فبراير','مارس','أبريل','مايو','يونيو','يوليو','أغسطس','سبتمبر','أكتوبر','نوفمبر','ديسمبر']; return ms[+m-1]+' '+y; }
@@ -596,6 +748,14 @@ function fmt(amount, explicitCur = null){
 }
 
 function esc(s){ return String(s ?? '').replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m])); }
+
+function highlightText(text, query) {
+  if (!query || !query.trim()) return esc(text);
+  const safeText = esc(text);
+  const safeQuery = esc(query.trim());
+  const regex = new RegExp(`(${safeQuery})`, 'gi');
+  return safeText.replace(regex, '<span class="highlight-match">$1</span>');
+}
 
 function getMasterPlan() {
   const currentKey = monthKey();
@@ -672,49 +832,240 @@ window.addEventListener('popstate', () => {
 });
 history.replaceState({ type: 'tab', tab: 'pageDashboard' }, '');
 
-// تعبئة القوائم المنسدلة بتقسيم شجري (حساب رئيسي ومجموعات optgroup)
-function populateAccountsDropdowns(selectedDebit = '', selectedCredit = '') {
-  const tree = getAccountTree();
-  const debitSelect = document.getElementById('voucherDebitAccount');
-  const creditSelect = document.getElementById('voucherCreditAccount');
+/* ================== محرك القوائم الذكية القابلة للبحث الديناميكي ================== */
+class SearchableSelect {
+  constructor({ wrapId, inputId, dropId, hiddenId, isGrouped = false, onSelect = null }) {
+    this.wrap = document.getElementById(wrapId);
+    this.input = document.getElementById(inputId);
+    this.drop = document.getElementById(dropId);
+    this.hidden = document.getElementById(hiddenId);
+    this.isGrouped = isGrouped;
+    this.onSelect = onSelect;
+    this.items = []; // Array of { id, text, group }
 
-  debitSelect.innerHTML = '';
-  creditSelect.innerHTML = '';
+    this.initEvents();
+  }
 
-  Object.keys(tree).forEach(parentName => {
-    const groupD = document.createElement('optgroup');
-    groupD.label = `📁 ${parentName}`;
-    const groupC = document.createElement('optgroup');
-    groupC.label = `📁 ${parentName}`;
+  setItems(items) {
+    this.items = items;
+    this.renderDropdown('');
+  }
 
-    tree[parentName].forEach(subAcc => {
-      const opt1 = document.createElement('option');
-      opt1.value = subAcc;
-      opt1.textContent = subAcc;
-      if (subAcc === selectedDebit) opt1.selected = true;
-      groupD.appendChild(opt1);
+  setValue(val, textVal = '') {
+    this.hidden.value = val;
+    if (textVal) {
+      this.input.value = textVal;
+    } else {
+      const match = this.items.find(i => i.id === val);
+      this.input.value = match ? match.text : val;
+    }
+  }
 
-      const opt2 = document.createElement('option');
-      opt2.value = subAcc;
-      opt2.textContent = subAcc;
-      if (subAcc === selectedCredit) opt2.selected = true;
-      groupC.appendChild(opt2);
+  getValue() {
+    return this.hidden.value;
+  }
+
+  getText() {
+    return this.input.value;
+  }
+
+  initEvents() {
+    this.input.addEventListener('focus', () => {
+      this.renderDropdown(this.input.value.trim());
+      this.open();
     });
 
-    debitSelect.appendChild(groupD);
-    creditSelect.appendChild(groupC);
+    this.input.addEventListener('input', () => {
+      this.renderDropdown(this.input.value.trim());
+      this.open();
+    });
+
+    this.input.addEventListener('click', (e) => {
+      e.stopPropagation();
+      this.renderDropdown(this.input.value.trim());
+      this.open();
+    });
+
+    document.addEventListener('click', (e) => {
+      if (!this.wrap.contains(e.target)) {
+        this.close();
+      }
+    });
+  }
+
+  open() {
+    document.querySelectorAll('.searchable-dropdown').forEach(d => {
+      if (d !== this.drop) d.classList.remove('open');
+    });
+    this.drop.classList.add('open');
+  }
+
+  close() {
+    this.drop.classList.remove('open');
+  }
+
+  renderDropdown(query = '') {
+    this.drop.innerHTML = '';
+    const q = query.toLowerCase();
+
+    if (this.isGrouped) {
+      const groups = {};
+      this.items.forEach(item => {
+        if (!q || item.text.toLowerCase().includes(q) || (item.group && item.group.toLowerCase().includes(q))) {
+          const g = item.group || 'أخرى';
+          if (!groups[g]) groups[g] = [];
+          groups[g].push(item);
+        }
+      });
+
+      const groupKeys = Object.keys(groups);
+      if (groupKeys.length === 0) {
+        this.drop.innerHTML = '<div style="padding:10px; color:var(--muted); font-size:0.85rem; text-align:center;">لا توجد نتائج مطابقة</div>';
+        return;
+      }
+
+      groupKeys.forEach(g => {
+        const gHeader = document.createElement('div');
+        gHeader.className = 'searchable-group-label';
+        gHeader.textContent = `📁 ${g}`;
+        this.drop.appendChild(gHeader);
+
+        groups[g].forEach(item => {
+          const el = document.createElement('div');
+          el.className = 'searchable-item';
+          el.innerHTML = highlightText(item.text, q);
+          el.addEventListener('click', () => {
+            this.setValue(item.id, item.text);
+            this.close();
+            if (this.onSelect) this.onSelect(item);
+          });
+          this.drop.appendChild(el);
+        });
+      });
+    } else {
+      const filtered = this.items.filter(item => !q || item.text.toLowerCase().includes(q));
+      if (filtered.length === 0) {
+        this.drop.innerHTML = '<div style="padding:10px; color:var(--muted); font-size:0.85rem; text-align:center;">لا توجد نتائج مطابقة</div>';
+        return;
+      }
+
+      filtered.forEach(item => {
+        const el = document.createElement('div');
+        el.className = 'searchable-item';
+        el.innerHTML = highlightText(item.text, q);
+        el.addEventListener('click', () => {
+          this.setValue(item.id, item.text);
+          this.close();
+          if (this.onSelect) this.onSelect(item);
+        });
+        this.drop.appendChild(el);
+      });
+    }
+  }
+}
+
+// إنشاء متحكمات القوائم الديناميكية
+let selVoucherCat, selDebitAcc, selCreditAcc, selReportAccount;
+
+function setupSearchableSelects() {
+  selVoucherCat = new SearchableSelect({
+    wrapId: 'wrapVoucherCat',
+    inputId: 'inpVoucherCat',
+    dropId: 'dropVoucherCat',
+    hiddenId: 'voucherCatId'
+  });
+
+  selDebitAcc = new SearchableSelect({
+    wrapId: 'wrapDebitAcc',
+    inputId: 'inpDebitAcc',
+    dropId: 'dropDebitAcc',
+    hiddenId: 'valDebitAcc',
+    isGrouped: true
+  });
+
+  selCreditAcc = new SearchableSelect({
+    wrapId: 'wrapCreditAcc',
+    inputId: 'inpCreditAcc',
+    dropId: 'dropCreditAcc',
+    hiddenId: 'valCreditAcc',
+    isGrouped: true
+  });
+
+  selReportAccount = new SearchableSelect({
+    wrapId: 'wrapReportAccount',
+    inputId: 'inpReportAccount',
+    dropId: 'dropReportAccount',
+    hiddenId: 'valReportAccount',
+    isGrouped: true,
+    onSelect: () => runAccountStatement()
+  });
+}
+
+function updateSearchableData() {
+  const cats = getCats();
+  const catItems = cats.map(c => ({ id: c.id, text: c.name }));
+  selVoucherCat.setItems(catItems);
+  if (!selVoucherCat.getValue() && catItems.length > 0) {
+    selVoucherCat.setValue(catItems[0].id, catItems[0].text);
+  }
+
+  const tree = getAccountTree();
+  const accountItems = [];
+  Object.keys(tree).forEach(parentName => {
+    tree[parentName].forEach(sub => {
+      accountItems.push({ id: sub, text: sub, group: parentName });
+    });
+  });
+
+  selDebitAcc.setItems(accountItems);
+  selCreditAcc.setItems(accountItems);
+
+  // إعداد قائمة التقرير المدمجة
+  const reportAccountItems = [
+    { id: 'ALL', text: '📋 ملخص كافة الحسابات والصناديق (تجميعي)', group: 'عرض عام' },
+    ...accountItems
+  ];
+  selReportAccount.setItems(reportAccountItems);
+  if (!selReportAccount.getValue()) {
+    selReportAccount.setValue('ALL', '📋 ملخص كافة الحسابات والصناديق (تجميعي)');
+  }
+}
+
+function updateParentAccountSelect() {
+  const tree = getAccountTree();
+  const sel = document.getElementById('newAccountParentSelect');
+  sel.innerHTML = '';
+  Object.keys(tree).forEach(p => {
+    const opt = document.createElement('option');
+    opt.value = p;
+    opt.textContent = `📁 ${p}`;
+    sel.appendChild(opt);
   });
 }
 
 function openAddAccountModal(preSelectParent = '') {
-  const modal = document.getElementById('addAccountModal');
+  updateParentAccountSelect();
   if (preSelectParent) {
     document.getElementById('newAccountParentSelect').value = preSelectParent;
   }
   document.getElementById('newAccountSubNameInput').value = '';
-  modal.classList.add('show');
+  document.getElementById('newParentCategoryInput').value = '';
+  document.getElementById('initialSubAccInput').value = '';
+
+  setAccountModalSubTab('sub');
+  document.getElementById('addAccountModal').classList.add('show');
   history.pushState({ type: 'modal', modal: 'addAccountModal' }, '');
 }
+
+function setAccountModalSubTab(tab) {
+  document.getElementById('tabAddSubAcc').classList.toggle('active', tab === 'sub');
+  document.getElementById('tabAddParentAcc').classList.toggle('active', tab === 'parent');
+  document.getElementById('boxAddSubAcc').classList.toggle('hidden', tab !== 'sub');
+  document.getElementById('boxAddParentAcc').classList.toggle('hidden', tab !== 'parent');
+}
+
+document.getElementById('tabAddSubAcc').addEventListener('click', () => setAccountModalSubTab('sub'));
+document.getElementById('tabAddParentAcc').addEventListener('click', () => setAccountModalSubTab('parent'));
 
 document.getElementById('addNewDebitAccBtn').addEventListener('click', () => openAddAccountModal('العملاء والمدينون'));
 document.getElementById('addNewCreditAccBtn').addEventListener('click', () => openAddAccountModal('الصناديق والبنوك'));
@@ -744,22 +1095,41 @@ document.getElementById('saveNewAccountTreeBtn').addEventListener('click', () =>
   document.getElementById('addAccountModal').classList.remove('show');
   if (history.state?.type === 'modal') history.back();
 
-  populateAccountsDropdowns(subName, document.getElementById('voucherCreditAccount').value);
+  updateSearchableData();
+  selDebitAcc.setValue(subName, subName);
   if (currentActiveTab === 'pageSettings') renderChartOfAccounts();
-  if (currentActiveTab === 'pageReports') populateReportAccountSelect();
   alert(`تمت إضافة (${subName}) تحت حساب (${parentName}) بنجاح!`);
 });
 
+document.getElementById('saveNewParentCategoryBtn').addEventListener('click', () => {
+  const parentName = document.getElementById('newParentCategoryInput').value.trim();
+  const subName = document.getElementById('initialSubAccInput').value.trim();
+
+  if (!parentName) {
+    alert('يرجى كتابة اسم الحساب الأساسي (المجموعة)');
+    return;
+  }
+
+  const tree = getAccountTree();
+  if (!tree[parentName]) {
+    tree[parentName] = subName ? [subName] : [];
+    saveAccountTree(tree);
+  } else if (subName && !tree[parentName].includes(subName)) {
+    tree[parentName].push(subName);
+    saveAccountTree(tree);
+  }
+
+  document.getElementById('addAccountModal').classList.remove('show');
+  if (history.state?.type === 'modal') history.back();
+
+  updateSearchableData();
+  if (subName) selDebitAcc.setValue(subName, subName);
+  if (currentActiveTab === 'pageSettings') renderChartOfAccounts();
+  alert(`تم إنشاء الحساب الأساسي (${parentName}) بنجاح!`);
+});
+
 function initVoucherForm() {
-  const cats = getCats();
-  const select = document.getElementById('voucherCatSelect');
-  select.innerHTML = '';
-  cats.forEach(c => {
-    const opt = document.createElement('option');
-    opt.value = c.id;
-    opt.textContent = c.name;
-    select.appendChild(opt);
-  });
+  updateSearchableData();
   document.getElementById('voucherDateInput').value = new Date().toISOString().split('T')[0];
   document.getElementById('voucherCurrencySelect').value = document.getElementById('currency').value;
   setVoucherMode('spend');
@@ -786,7 +1156,8 @@ function setVoucherMode(mode) {
     btn.className = 'btn btn-danger';
     btn.textContent = '💾 اعتماد وحفظ سند الصرف';
     lblPrimary.textContent = 'بند الميزانية المخصوم منه (أساسي):';
-    populateAccountsDropdowns('صالح الخطيب', 'الصندوق الرئيسي');
+    selDebitAcc.setValue('صالح الخطيب', 'صالح الخطيب');
+    selCreditAcc.setValue('الصندوق الرئيسي', 'الصندوق الرئيسي');
   } else if (mode === 'income') {
     card.style.borderRight = '5px solid var(--ok)';
     title.textContent = '📥 تسجيل سند إيراد';
@@ -796,7 +1167,8 @@ function setVoucherMode(mode) {
     btn.className = 'btn btn-success';
     btn.textContent = '💾 اعتماد وحفظ سند الإيراد';
     lblPrimary.textContent = 'بند الميزانية المغذى به (أساسي):';
-    populateAccountsDropdowns('الصندوق الرئيسي', 'صالح الخطيب');
+    selDebitAcc.setValue('الصندوق الرئيسي', 'الصندوق الرئيسي');
+    selCreditAcc.setValue('صالح الخطيب', 'صالح الخطيب');
   } else if (mode === 'entry') {
     card.style.borderRight = '5px solid var(--accent)';
     title.textContent = '⚖️ تسجيل سند قيد وتسوية';
@@ -806,7 +1178,8 @@ function setVoucherMode(mode) {
     btn.className = 'btn btn-primary';
     btn.textContent = '💾 اعتماد وحفظ سند القيد';
     lblPrimary.textContent = 'بند الميزانية المرتبط بالقيد (أساسي):';
-    populateAccountsDropdowns('صالح الخطيب', 'حساب بنكي / كاش');
+    selDebitAcc.setValue('صالح الخطيب', 'صالح الخطيب');
+    selCreditAcc.setValue('حساب بنكي / كاش', 'حساب بنكي / كاش');
   }
 }
 
@@ -816,9 +1189,9 @@ document.querySelectorAll('.v-btn').forEach(btn => {
 
 document.getElementById('commitVoucherBtn').addEventListener('click', () => {
   const amount = parseFloat(document.getElementById('voucherAmountInput').value);
-  const catId = document.getElementById('voucherCatSelect').value;
-  const debitAcc = document.getElementById('voucherDebitAccount').value;
-  const creditAcc = document.getElementById('voucherCreditAccount').value;
+  const catId = selVoucherCat.getValue();
+  const debitAcc = selDebitAcc.getValue();
+  const creditAcc = selCreditAcc.getValue();
   const voucherCur = document.getElementById('voucherCurrencySelect').value;
   const note = document.getElementById('voucherNoteInput').value.trim();
   const dateVal = document.getElementById('voucherDateInput').value || new Date().toISOString().split('T')[0];
@@ -827,10 +1200,18 @@ document.getElementById('commitVoucherBtn').addEventListener('click', () => {
     alert('يرجى إدخال مبلغ صالح للسند');
     return;
   }
+  if (!catId) {
+    alert('يرجى اختيار بند الميزانية');
+    return;
+  }
+  if (!debitAcc || !creditAcc) {
+    alert('يرجى اختيار الحساب المدين والحساب الدائن');
+    return;
+  }
 
   const cats = getCats();
   const cat = cats.find(c => c.id === catId);
-  const catName = cat ? cat.name : 'بند';
+  const catName = cat ? cat.name : selVoucherCat.getText();
 
   const assignedSeqNum = getNextVoucherNumber(currentVoucherMode);
 
@@ -941,10 +1322,7 @@ function renderPreviewModalContent() {
       cutout: '58%',
       plugins: {
         legend: { position: 'bottom', labels: { color: dark ? '#f8fafc' : '#0f172a', font: { family: 'Tajawal', size: 11, weight: 'bold' } } },
-        datalabels: {
-          color: '#fff', font: { family: 'Tajawal', weight: '900', size: 11 },
-          formatter: (val, ctx) => `${dist[activeItems[ctx.dataIndex].id].pct}%`
-        }
+        datalabels: { color: '#fff', font: { family: 'Tajawal', weight: '900', size: 11 }, formatter: (val, ctx) => `${dist[activeItems[ctx.dataIndex].id].pct}%` }
       }
     }
   });
@@ -1150,15 +1528,37 @@ document.getElementById('closeModalActionBtn').addEventListener('click', () => {
   if (history.state?.type === 'modal') history.back();
 });
 
+document.getElementById('ledgerSearchInput').addEventListener('input', (e) => {
+  currentLedgerSearchQuery = e.target.value.trim().toLowerCase();
+  renderAllData();
+});
+
 function renderAllData(){
   const p = getMasterPlan();
-  const txs = p.transactions || [];
+  const allTxs = p.transactions || [];
   const container = document.getElementById('ledgerList');
-  document.getElementById('ledgerCountBadge').textContent = `${txs.length} عمليات`;
+
+  let txs = allTxs;
+  if (currentLedgerSearchQuery) {
+    txs = allTxs.filter(t => {
+      const q = currentLedgerSearchQuery;
+      const matchDebit = (t.debitAccount || '').toLowerCase().includes(q);
+      const matchCredit = (t.creditAccount || '').toLowerCase().includes(q);
+      const matchType = (t.type || '').toLowerCase().includes(q);
+      const matchDate = (t.date || '').toLowerCase().includes(q);
+      const matchSeq = String(t.seqNum || '').toLowerCase().includes(q);
+      const matchNote = Object.values(t.execution || {}).some(e => (e.note || '').toLowerCase().includes(q));
+      return matchDebit || matchCredit || matchType || matchDate || matchSeq || matchNote;
+    });
+  }
+
+  document.getElementById('ledgerCountBadge').textContent = `${txs.length} من ${allTxs.length}`;
 
   if(txs.length === 0) {
-    container.innerHTML = '<div style="text-align:center; color:var(--muted); font-size:0.95rem; padding: 25px 0;">لا توجد عمليات مسجلة بعد.</div>';
-    document.getElementById('planArea').classList.add('hidden');
+    container.innerHTML = currentLedgerSearchQuery ? 
+      '<div style="text-align:center; color:var(--muted); font-size:0.95rem; padding: 25px 0;">لا توجد أي نتائج مطابقة للبحث.</div>' :
+      '<div style="text-align:center; color:var(--muted); font-size:0.95rem; padding: 25px 0;">لا توجد عمليات مسجلة بعد.</div>';
+    if (!currentLedgerSearchQuery) document.getElementById('planArea').classList.add('hidden');
     return;
   }
 
@@ -1181,7 +1581,7 @@ function renderAllData(){
             <span class="tx-badge" style="${item.isExpense ? 'background:var(--danger)' : (item.voucherMode==='income'?'background:var(--ok)':'')}">
               ${item.voucherMode === 'spend' ? 'سند صرف' : (item.voucherMode === 'income' ? 'سند إيراد' : (item.voucherMode === 'entry' ? 'سند قيد' : 'ميزانية'))}
             </span>
-            <span class="tx-type-tag">${item.type}</span>
+            <span class="tx-type-tag">${highlightText(item.type, currentLedgerSearchQuery)}</span>
           </div>
           <div class="tx-date-line">📅 ${item.date}</div>
         </div>
@@ -1197,13 +1597,13 @@ function renderAllData(){
       <div class="tx-account-details">
         <div class="tx-acc-row">
           <span>المدين (عليه):</span>
-          <b>${esc(item.debitAccount || '-')}</b>
+          <b>${highlightText(item.debitAccount || '-', currentLedgerSearchQuery)}</b>
         </div>
         <div class="tx-acc-row">
           <span>الدائن (له):</span>
-          <b>${esc(item.creditAccount || '-')}</b>
+          <b>${highlightText(item.creditAccount || '-', currentLedgerSearchQuery)}</b>
         </div>
-        ${noteText ? `<div style="margin-top:2px; font-weight:700; color:var(--text);">البيان: ${esc(noteText)}</div>` : ''}
+        ${noteText ? `<div style="margin-top:2px; font-weight:700; color:var(--text);">البيان: ${highlightText(noteText, currentLedgerSearchQuery)}</div>` : ''}
       </div>
 
       <div class="tx-dist">${distHtml}</div>
@@ -1221,7 +1621,7 @@ function renderAllData(){
     container.appendChild(card);
   });
 
-  const incomeTxs = txs.filter(t => !t.isExpense);
+  const incomeTxs = allTxs.filter(t => !t.isExpense);
   if (incomeTxs.length > 0) {
     document.getElementById('planArea').classList.remove('hidden');
     document.getElementById('monthTitle').textContent = p.month;
@@ -1255,7 +1655,7 @@ function renderAllData(){
 
 function initReportsTab() {
   populateReportFilterOptions();
-  populateReportAccountSelect();
+  updateSearchableData();
   toggleReportView(activeReportTab);
 }
 
@@ -1272,24 +1672,6 @@ function toggleReportView(mode) {
   document.getElementById('filterAccountSelectBox').classList.toggle('hidden', mode !== 'accounts');
 
   runActiveReport();
-}
-
-function populateReportAccountSelect() {
-  const tree = getAccountTree();
-  const select = document.getElementById('reportAccountSelect');
-  select.innerHTML = '<option value="ALL">📋 ملخص كافة الحسابات والصناديق (تجميعي)</option>';
-
-  Object.keys(tree).forEach(parentName => {
-    const group = document.createElement('optgroup');
-    group.label = `📁 ${parentName}`;
-    tree[parentName].forEach(subAcc => {
-      const opt = document.createElement('option');
-      opt.value = subAcc;
-      opt.textContent = `👤 ${subAcc}`;
-      group.appendChild(opt);
-    });
-    select.appendChild(group);
-  });
 }
 
 function populateReportFilterOptions() {
@@ -1495,9 +1877,14 @@ function runBudgetReport() {
   }
 }
 
+document.getElementById('statementSearchInput').addEventListener('input', (e) => {
+  currentStatementSearchQuery = e.target.value.trim().toLowerCase();
+  runAccountStatement();
+});
+
 function runAccountStatement() {
   const { targetTxs, periodTitle } = getFilteredTransactions();
-  const selectedAcc = document.getElementById('reportAccountSelect').value;
+  const selectedAcc = selReportAccount.getValue() || 'ALL';
   document.getElementById('statementPeriodTitle').textContent = `الفترة: ${periodTitle}`;
 
   const isAll = (selectedAcc === 'ALL');
@@ -1541,20 +1928,27 @@ function runAccountStatement() {
     allBody.innerHTML = '';
 
     Object.keys(tree).forEach(parentName => {
-      allBody.innerHTML += `<tr style="background:var(--bg);"><td colspan="4"><b>📁 ${parentName}</b></td></tr>`;
-      tree[parentName].forEach(subAcc => {
-        const row = map[subAcc] || { debit: 0, credit: 0 };
-        const bal = row.credit - row.debit;
-        const statusText = bal > 0 ? '<b style="color:var(--ok);">له</b>' : (bal < 0 ? '<b style="color:var(--danger);">عليه</b>' : 'متزن');
-        allBody.innerHTML += `
-          <tr>
-            <td style="padding-right:18px;">👤 ${esc(subAcc)}</td>
-            <td style="color:var(--danger); font-weight:800;">${fmt(row.debit)}</td>
-            <td style="color:var(--ok); font-weight:800;">${fmt(row.credit)}</td>
-            <td style="font-weight:900;">${fmt(Math.abs(bal))} ${statusText}</td>
-          </tr>
-        `;
+      const subItems = tree[parentName].filter(subAcc => {
+        if (!currentStatementSearchQuery) return true;
+        return subAcc.toLowerCase().includes(currentStatementSearchQuery) || parentName.toLowerCase().includes(currentStatementSearchQuery);
       });
+
+      if (subItems.length > 0) {
+        allBody.innerHTML += `<tr style="background:var(--bg);"><td colspan="4"><b>📁 ${highlightText(parentName, currentStatementSearchQuery)}</b></td></tr>`;
+        subItems.forEach(subAcc => {
+          const row = map[subAcc] || { debit: 0, credit: 0 };
+          const bal = row.credit - row.debit;
+          const statusText = bal > 0 ? '<b style="color:var(--ok);">له</b>' : (bal < 0 ? '<b style="color:var(--danger);">عليه</b>' : 'متزن');
+          allBody.innerHTML += `
+            <tr>
+              <td style="padding-right:18px;">👤 ${highlightText(subAcc, currentStatementSearchQuery)}</td>
+              <td style="color:var(--danger); font-weight:800;">${fmt(row.debit)}</td>
+              <td style="color:var(--ok); font-weight:800;">${fmt(row.credit)}</td>
+              <td style="font-weight:900;">${fmt(Math.abs(bal))} ${statusText}</td>
+            </tr>
+          `;
+        });
+      }
     });
 
   } else {
@@ -1563,10 +1957,22 @@ function runAccountStatement() {
     const tbody = document.getElementById('statementBody');
     tbody.innerHTML = '';
 
-    const matchingTxs = targetTxs.filter(t => t.debitAccount === selectedAcc || t.creditAccount === selectedAcc);
+    let matchingTxs = targetTxs.filter(t => t.debitAccount === selectedAcc || t.creditAccount === selectedAcc);
+
+    if (currentStatementSearchQuery) {
+      const q = currentStatementSearchQuery;
+      matchingTxs = matchingTxs.filter(t => {
+        const note = (t.execution?.[Object.keys(t.execution)[0]]?.note || '').toLowerCase();
+        const type = (t.type || '').toLowerCase();
+        const seq = String(t.seqNum || '').toLowerCase();
+        const debit = (t.debitAccount || '').toLowerCase();
+        const credit = (t.creditAccount || '').toLowerCase();
+        return note.includes(q) || type.includes(q) || seq.includes(q) || debit.includes(q) || credit.includes(q);
+      });
+    }
 
     if (matchingTxs.length === 0) {
-      tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:var(--muted); padding:16px;">لا توجد حركات مسجلة للحساب (${esc(selectedAcc)}) في هذه الفترة.</td></tr>`;
+      tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:var(--muted); padding:16px;">لا توجد حركات مطابقة للبحث للحساب (${esc(selectedAcc)}).</td></tr>`;
     } else {
       matchingTxs.forEach(t => {
         const amt = Number(t.amount || 0);
@@ -1580,14 +1986,15 @@ function runAccountStatement() {
         totalCredit += creditAmt;
 
         const otherAccount = isDebit ? (t.creditAccount || 'طرف آخر') : (t.debitAccount || 'طرف آخر');
+        const noteStr = t.execution?.[Object.keys(t.execution)[0]]?.note || t.type;
 
         tbody.innerHTML += `
           <tr>
             <td style="font-size:0.8rem; color:var(--muted);">${t.date}</td>
             <td><span class="tx-num-tag">#${t.seqNum || '-'}</span></td>
             <td>
-              <div><b>${esc(t.type)}</b></div>
-              <div style="font-size:0.75rem; color:var(--muted);">${esc(t.execution?.[Object.keys(t.execution)[0]]?.note || t.type)} • (الطرف: ${esc(otherAccount)})</div>
+              <div><b>${highlightText(t.type, currentStatementSearchQuery)}</b></div>
+              <div style="font-size:0.75rem; color:var(--muted);">${highlightText(noteStr, currentStatementSearchQuery)} • (الطرف: ${highlightText(otherAccount, currentStatementSearchQuery)})</div>
             </td>
             <td style="color:var(--danger); font-weight:800;">${debitAmt > 0 ? fmt(debitAmt, t.currency) : '-'}</td>
             <td style="color:var(--ok); font-weight:800;">${creditAmt > 0 ? fmt(creditAmt, t.currency) : '-'}</td>
@@ -1627,10 +2034,11 @@ function renderChartOfAccounts() {
     `).join('');
 
     box.innerHTML = `
-      <div style="font-weight:900; color:var(--accent); margin-bottom:4px; border-bottom:1px dashed var(--border); padding-bottom:3px;">
-        📁 ${parentName} (${tree[parentName].length})
+      <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px dashed var(--border); padding-bottom:4px; margin-bottom:4px;">
+        <span style="font-weight:900; color:var(--accent);">📁 ${parentName} (${tree[parentName].length})</span>
+        <button class="del-btn delete-parent-account-btn" data-parent="${parentName}" title="حذف المجموعة الرئيسية كاملة">❌</button>
       </div>
-      <div style="padding-right:8px;">${subListHtml}</div>
+      <div style="padding-right:8px;">${subListHtml || '<span style="color:var(--muted); font-size:0.8rem;">لا توجد حسابات فرعية بعد</span>'}</div>
     `;
 
     container.appendChild(box);
@@ -1645,7 +2053,21 @@ function renderChartOfAccounts() {
         tree[parent].splice(idx, 1);
         saveAccountTree(tree);
         renderChartOfAccounts();
-        populateAccountsDropdowns();
+        updateSearchableData();
+      }
+    });
+  });
+
+  document.querySelectorAll('.delete-parent-account-btn').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      const parent = e.currentTarget.dataset.parent;
+      const tree = getAccountTree();
+      if (confirm(`هل تريد حذف المجموعة الرئيسية (${parent}) وجميع حساباتها الفرعية؟`)) {
+        delete tree[parent];
+        saveAccountTree(tree);
+        renderChartOfAccounts();
+        updateSearchableData();
+        updateParentAccountSelect();
       }
     });
   });
@@ -1684,6 +2106,7 @@ document.getElementById('savePctsBtn').addEventListener('click', () => {
   if (sum !== 100) { alert('المجموع يجب أن يساوي 100%'); return; }
   store.set('cats', draftCats);
   alert('تم حفظ البنود بنجاح!');
+  updateSearchableData();
   renderAllData();
 });
 
@@ -1743,6 +2166,8 @@ document.getElementById('privacyBtn').addEventListener('click', () => {
 (function init(){
   document.documentElement.dataset.theme = store.get('theme', 'light');
   document.getElementById('currency').value = store.get('currency', 'YER');
+  setupSearchableSelects();
+  updateSearchableData();
   renderAllData();
 })();
 </script>

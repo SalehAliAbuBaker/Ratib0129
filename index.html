@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>Ratib0129 v4.1</title>
+<title>Ratib0129 v4.2</title>
 <meta name="theme-color" content="#0f172a">
 <link rel="manifest" id="dynamic-manifest">
 <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@500;700;800;900&display=swap" rel="stylesheet">
@@ -168,7 +168,7 @@ body.privacy-active .icon-btn#privacyBtn { background: var(--accent); color: #ff
   <div class="print-header">تقرير الإنجازات المالية التفصيلي - <span id="printDate"></span></div>
 
   <header class="no-print">
-    <div class="logo">Ratib0129 v4.1</div>
+    <div class="logo">Ratib0129 v4.2</div>
     <div class="header-actions">
       <button class="icon-btn" id="privacyBtn" title="وضع الخصوصية (إخفاء الأرقام)">👁️</button>
       <button class="icon-btn" id="themeBtn" title="الوضع الليلي">🌙</button>
@@ -348,7 +348,6 @@ body.privacy-active .icon-btn#privacyBtn { background: var(--accent); color: #ff
   <!-- 4. واجهة الإعدادات المستقلة -->
   <div id="pageSettings" class="hidden">
     
-    <!-- قسم إدارة وتعديل البنود -->
     <div class="card">
       <h2>
         <span>🛠️ إدارة البنود والنسب</span>
@@ -366,7 +365,6 @@ body.privacy-active .icon-btn#privacyBtn { background: var(--accent); color: #ff
       </div>
     </div>
 
-    <!-- قسم الأمان وكلمة المرور -->
     <div class="card">
       <h2>🔒 أمان التطبيق وكلمة المرور</h2>
       <label class="check-row" style="margin-bottom: 12px;">
@@ -391,7 +389,6 @@ body.privacy-active .icon-btn#privacyBtn { background: var(--accent); color: #ff
       <button class="btn btn-ghost hidden" id="manualLogoutBtn" style="margin-top: 10px; color: var(--danger); border-color: var(--danger); font-size: 0.92rem;">🚪 قفل التطبيق وتسجيل الخروج</button>
     </div>
 
-    <!-- قسم النسخ الاحتياطي وتحديد مسار التنزيل والرفع -->
     <div class="card">
       <h2>📁 النسخ الاحتياطي وإدارة الملفات</h2>
       <div id="backupStatusBadge" class="backup-indicator clean">✅ النسخة الاحتياطية مطابقة، لا توجد تعديلات جديدة</div>
@@ -408,7 +405,6 @@ body.privacy-active .icon-btn#privacyBtn { background: var(--accent); color: #ff
 
       <hr style="border:0; border-top:1.5px dashed var(--border); margin:16px 0;">
 
-      <!-- إدارة حفظ ورفع الملفات مع تحديد المسار -->
       <h3 style="font-size: 1rem; font-weight: 800; margin-bottom: 8px; color: var(--accent);">💾 التصدير والاستيراد من مسار مخصص:</h3>
       <p style="font-size: 0.85rem; color: var(--muted); margin-bottom: 10px;">
         يمكنك تحديد المجلد الذي ترغب في حفظ الملف فيه أو اختيار ملف من جهازك لرفع واستعادة بياناتك:
@@ -440,7 +436,7 @@ body.privacy-active .icon-btn#privacyBtn { background: var(--accent); color: #ff
       </div>
 
       <p style="font-size:0.9rem; color:var(--muted); margin-bottom:6px;">
-        انقر على شرائح الدائرة أو رمز العين 👁️ لاستبعاد أي بند وتوزيع مبلغه نسبياً[span_0](start_span)[span_0](end_span):
+        انقر على شرائح الدائرة أو رمز العين 👁️ لاستبعاد أي بند وتوزيع مبلغه نسبياً:
       </p>
 
       <div class="chart-box"><canvas id="previewPie"></canvas></div>
@@ -526,6 +522,71 @@ let activeEditingTx = null;
 
 document.getElementById('printDate').textContent = new Date().toLocaleDateString('ar-YE');
 
+/* ================== إدارة الرجوع والتمرير والتنقل الذكي (Back Navigation) ================== */
+let currentActiveTab = 'pageDashboard';
+
+function navigateToTab(target, pushToHistory = true) {
+  if (currentActiveTab === target) return;
+
+  document.querySelectorAll('.nav-tab').forEach(t => {
+    t.classList.toggle('active', t.dataset.target === target);
+  });
+
+  document.getElementById('pageDashboard').classList.toggle('hidden', target !== 'pageDashboard');
+  document.getElementById('pageLedger').classList.toggle('hidden', target !== 'pageLedger');
+  document.getElementById('pageReports').classList.toggle('hidden', target !== 'pageReports');
+  document.getElementById('pageSettings').classList.toggle('hidden', target !== 'pageSettings');
+
+  currentActiveTab = target;
+
+  if (target === 'pageReports') {
+    populateReportFilterOptions();
+    runReportGeneration();
+  } else if (target === 'pageSettings') {
+    initSettingsPage();
+  } else {
+    renderAllData();
+  }
+
+  if (pushToHistory) {
+    history.pushState({ type: 'tab', tab: target }, '');
+  }
+}
+
+// اعتراض زر الرجوع والتمرير في الهاتف
+window.addEventListener('popstate', (e) => {
+  // 1. إذا كانت هناك نافذة منبثقة مفتوحة، أغلقها أولاً
+  const previewModal = document.getElementById('previewModal');
+  const txModal = document.getElementById('txModal');
+
+  if (previewModal.classList.contains('show')) {
+    closePreviewModal(false);
+    return;
+  }
+
+  if (txModal.classList.contains('show')) {
+    txModal.classList.remove('show');
+    return;
+  }
+
+  // 2. إذا كان المستخدم في تبويب غير الميزانية، عُد إلى الميزانية
+  if (currentActiveTab !== 'pageDashboard') {
+    navigateToTab('pageDashboard', false);
+    return;
+  }
+
+  // 3. إذا كان في الشاشة الرئيسية وأراد الخروج، اطلب التأكيد
+  if (confirm('هل تريد بالفعل الخروج من التطبيق؟')) {
+    history.back();
+  } else {
+    // إعادة تثبيت الحالة لمنع الخروج المفاجئ
+    history.pushState({ type: 'tab', tab: 'pageDashboard' }, '');
+  }
+});
+
+// تثبيت نقطة بداية للسجل
+history.replaceState({ type: 'tab', tab: 'pageDashboard' }, '');
+
 /* ================== تتبع التعديلات والنسخ الاحتياطي للـ Gmail ================== */
 function markDataAsDirty() {
   store.set('has_pending_backup', true);
@@ -602,7 +663,6 @@ document.getElementById('exportCustomPathBtn').addEventListener('click', async (
   const jsonContent = JSON.stringify(data, null, 2);
   const defaultFileName = `Ratib_backup_${monthKey()}.json`;
 
-  // التحقق مما إذا كان المتصفح يدعم اختيار مسار ومجلد الحفظ
   if ('showSaveFilePicker' in window) {
     try {
       const handle = await window.showSaveFilePicker({
@@ -619,11 +679,10 @@ document.getElementById('exportCustomPathBtn').addEventListener('click', async (
       markDataAsClean();
       return;
     } catch (err) {
-      if (err.name === 'AbortError') return; // قام المستخدم بإلغاء النافذة
+      if (err.name === 'AbortError') return;
     }
   }
 
-  // التنزيل التلقائي إذا لم تكن الواجهة مدعومة
   const blob = new Blob([jsonContent], { type: 'application/json' });
   const a = document.createElement('a');
   a.download = defaultFileName;
@@ -730,31 +789,18 @@ document.getElementById('saveAuthBtn').addEventListener('click', () => {
   checkAuthStatus();
 });
 
+// تأكيد صريح قبل تسجيل الخروج والقفل
 document.getElementById('manualLogoutBtn').addEventListener('click', () => {
-  sessionStorage.removeItem('masar_unlocked');
-  checkAuthStatus();
+  if (confirm('هل تريد بالفعل تسجيل الخروج وقفل التطبيق الآن؟')) {
+    sessionStorage.removeItem('masar_unlocked');
+    checkAuthStatus();
+  }
 });
 
 /* ================== التنقل بين التبويبات ================== */
 document.querySelectorAll('.nav-tab').forEach(tab => {
   tab.addEventListener('click', () => {
-    document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
-    tab.classList.add('active');
-    const target = tab.dataset.target;
-    
-    document.getElementById('pageDashboard').classList.toggle('hidden', target !== 'pageDashboard');
-    document.getElementById('pageLedger').classList.toggle('hidden', target !== 'pageLedger');
-    document.getElementById('pageReports').classList.toggle('hidden', target !== 'pageReports');
-    document.getElementById('pageSettings').classList.toggle('hidden', target !== 'pageSettings');
-    
-    if (target === 'pageReports') {
-      populateReportFilterOptions();
-      runReportGeneration();
-    } else if (target === 'pageSettings') {
-      initSettingsPage();
-    } else {
-      renderAllData(); 
-    }
+    navigateToTab(tab.dataset.target, true);
   });
 });
 
@@ -925,16 +971,20 @@ document.getElementById('openPreviewModalBtn').addEventListener('click', () => {
 
   previewExcludedIds.clear();
   document.getElementById('previewModal').classList.add('show');
+  history.pushState({ type: 'modal', modal: 'previewModal' }, '');
   renderPreviewModalContent();
 });
 
-function closePreviewModal() {
+function closePreviewModal(shouldPopHistory = true) {
   document.getElementById('previewModal').classList.remove('show');
   pendingAmount = 0;
   previewExcludedIds.clear();
+  if (shouldPopHistory && history.state?.type === 'modal') {
+    history.back();
+  }
 }
-document.getElementById('closePreviewModalBtn').addEventListener('click', closePreviewModal);
-document.getElementById('cancelPreviewBtn').addEventListener('click', closePreviewModal);
+document.getElementById('closePreviewModalBtn').addEventListener('click', () => closePreviewModal(true));
+document.getElementById('cancelPreviewBtn').addEventListener('click', () => closePreviewModal(true));
 
 document.getElementById('commitTxBtn').addEventListener('click', () => {
   if (pendingAmount <= 0) return;
@@ -977,7 +1027,7 @@ document.getElementById('commitTxBtn').addEventListener('click', () => {
   store.set('plan', p);
 
   document.getElementById('income').value = '';
-  closePreviewModal();
+  closePreviewModal(true);
 
   markDataAsDirty();
   alert('تم اعتماد العملية وترحيلها بنجاح إلى سجل العمليات!');
@@ -1003,9 +1053,9 @@ function deleteSingleTransaction(itemId) {
     p.transactions.splice(txIdx, 1);
     store.set('plan', p);
   } else {
-    let history = store.get('history', []);
-    history = history.filter(h => !(h.closingRecord && h.closingRecord.id == itemId));
-    store.set('history', history);
+    let historyData = store.get('history', []);
+    historyData = historyData.filter(h => !(h.closingRecord && h.closingRecord.id == itemId));
+    store.set('history', historyData);
   }
 
   markDataAsDirty();
@@ -1025,6 +1075,7 @@ function openTxModal(item) {
   modalSubtitle.textContent = `📅 التاريخ: ${item.date}`;
   saveBtn.style.display = isClosed ? 'none' : 'block';
   modal.classList.add('show');
+  history.pushState({ type: 'modal', modal: 'txModal' }, '');
 
   const distItems = Object.values(item.distribution || {}).filter(d => !d.excluded && d.amount > 0);
 
@@ -1136,12 +1187,19 @@ document.getElementById('saveTxExecutionBtn').addEventListener('click', () => {
   store.set('plan', p);
   markDataAsDirty();
   document.getElementById('txModal').classList.remove('show');
+  if (history.state?.type === 'modal') history.back();
   alert('تم حفظ سجل إنجاز وتأكيد الصرف لهذه العملية بنجاح!');
   renderAllData();
 });
 
-document.getElementById('closeModalBtn').addEventListener('click', () => document.getElementById('txModal').classList.remove('show'));
-document.getElementById('closeModalActionBtn').addEventListener('click', () => document.getElementById('txModal').classList.remove('show'));
+document.getElementById('closeModalBtn').addEventListener('click', () => {
+  document.getElementById('txModal').classList.remove('show');
+  if (history.state?.type === 'modal') history.back();
+});
+document.getElementById('closeModalActionBtn').addEventListener('click', () => {
+  document.getElementById('txModal').classList.remove('show');
+  if (history.state?.type === 'modal') history.back();
+});
 
 function renderLedgerPage(combinedItems) {
   const container = document.getElementById('ledgerList');
@@ -1220,10 +1278,10 @@ function renderLedgerPage(combinedItems) {
 
 function renderAllData(){
   const p = getMasterPlan();
-  const history = store.get('history', []);
+  const historyData = store.get('history', []);
   
   let combinedItems = [];
-  history.forEach(h => { if (h.closingRecord) combinedItems.push(h.closingRecord); });
+  historyData.forEach(h => { if (h.closingRecord) combinedItems.push(h.closingRecord); });
   combinedItems = combinedItems.concat(p.transactions || []);
   renderLedgerPage(combinedItems);
 
@@ -1290,7 +1348,7 @@ function renderAllData(){
 }
 
 function populateReportFilterOptions() {
-  const history = store.get('history', []);
+  const historyData = store.get('history', []);
   const select = document.getElementById('reportMonthSelect');
   select.innerHTML = '';
 
@@ -1300,7 +1358,7 @@ function populateReportFilterOptions() {
   optCurrent.textContent = monthName(currentM) + ' (الدورة الحالية)';
   select.appendChild(optCurrent);
 
-  history.forEach(h => {
+  historyData.forEach(h => {
     if (h.month && h.month !== currentM) {
       const opt = document.createElement('option');
       opt.value = h.month;
@@ -1321,7 +1379,7 @@ document.getElementById('generateReportBtn').addEventListener('click', runReport
 function runReportGeneration() {
   const filterType = document.getElementById('reportFilterType').value;
   const p = getMasterPlan();
-  const history = store.get('history', []);
+  const historyData = store.get('history', []);
   const cats = getCats();
 
   let targetTxs = [];
@@ -1332,7 +1390,7 @@ function runReportGeneration() {
     periodTitle = `الدورة الحالية (${monthName(p.month)})`;
   } else if (filterType === 'all') {
     targetTxs = (p.transactions || []).slice();
-    history.forEach(h => {
+    historyData.forEach(h => {
       if (Array.isArray(h.transactions)) targetTxs = targetTxs.concat(h.transactions);
     });
     periodTitle = 'جميع العمليات المسجلة';
@@ -1341,7 +1399,7 @@ function runReportGeneration() {
     if (selectedM === p.month) {
       targetTxs = p.transactions || [];
     } else {
-      const foundH = history.find(h => h.month === selectedM);
+      const foundH = historyData.find(h => h.month === selectedM);
       targetTxs = foundH && Array.isArray(foundH.transactions) ? foundH.transactions : [];
     }
     periodTitle = `شهر: ${monthName(selectedM)}`;
@@ -1350,7 +1408,7 @@ function runReportGeneration() {
     const end = document.getElementById('reportEndDate').value;
 
     let pool = (p.transactions || []).slice();
-    history.forEach(h => {
+    historyData.forEach(h => {
       if (Array.isArray(h.transactions)) pool = pool.concat(h.transactions);
     });
 
@@ -1598,7 +1656,7 @@ document.getElementById('newMonthBtn').addEventListener('click', () => {
   let confirmMsg = `إقفال الدورة المالية لشهر ${p.month}؟\nإجمالي الإيرادات: ${fmt(totalIncome)}\nالمنصرف الفعلي المحقق: ${fmt(totalSpent)}\nالفائض المتبقي: ${fmt(surplus)}\n\nهل تريد ترحيل الفائض وبدء دورة جديدة؟`;
   
   if(confirm(confirmMsg)){
-    const history = store.get('history', []);
+    const historyData = store.get('history', []);
     const closingRecord = {
       id: 'closing_' + p.month,
       isClosingRecord: true,
@@ -1610,8 +1668,8 @@ document.getElementById('newMonthBtn').addEventListener('click', () => {
       distribution: finalDist
     };
 
-    history.push({ month: p.month, income: totalIncome, spent: totalSpent, surplus: surplus, closingRecord: closingRecord, transactions: p.transactions });
-    store.set('history', history);
+    historyData.push({ month: p.month, income: totalIncome, spent: totalSpent, surplus: surplus, closingRecord: closingRecord, transactions: p.transactions });
+    store.set('history', historyData);
     store.set('rollover_amount', surplus);
     localStorage.removeItem('masar_plan'); 
     markDataAsDirty();

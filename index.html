@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>Ratib0129 v6.3</title>
+<title>Ratib0129 v6.5</title>
 <meta name="theme-color" content="#0284c7">
 <link rel="manifest" id="dynamic-manifest">
 <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@500;700;800;900&display=swap" rel="stylesheet">
@@ -46,7 +46,7 @@ header{display:flex; justify-content:space-between; align-items:center; margin-b
 .v-btn.active.v-income { background: var(--ok); color: #fff; }
 .v-btn.active.v-entry { background: var(--accent); color: #fff; }
 
-.mode-toggle-switch { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; background: var(--card); padding: 3px; border-radius: 8px; border: 1px solid var(--border); }
+.mode-toggle-switch { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; background: var(--card); padding: 3px; border-radius: 8px; border: 1.5px solid var(--border); }
 .mode-toggle-btn { border: none; background: transparent; font-family: inherit; font-size: 0.78rem; font-weight: 800; color: var(--muted); padding: 4px 8px; border-radius: 6px; cursor: pointer; transition: all 0.15s; }
 .mode-toggle-btn.active { background: var(--accent); color: #fff; }
 
@@ -139,6 +139,37 @@ body.privacy-active .icon-btn#privacyBtn { background: var(--accent); color: #ff
 
 .highlight-match { background: #fef08a; color: #854d0e; padding: 1px 4px; border-radius: 4px; font-weight: 900; }
 
+/* عناصر نظام الطي والفتح (Accordion) لشجرة الحسابات في الإعدادات */
+.acc-accordion-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: var(--bg);
+  border: 1.5px solid var(--border);
+  border-radius: 10px;
+  padding: 10px 12px;
+  margin-bottom: 6px;
+  cursor: pointer;
+  font-weight: 900;
+  color: var(--accent);
+  transition: background 0.2s;
+}
+.acc-accordion-header:hover {
+  background: rgba(2,132,199,0.08);
+}
+.acc-accordion-body {
+  background: var(--card);
+  border: 1.5px dashed var(--border);
+  border-radius: 0 0 10px 10px;
+  padding: 8px 12px;
+  margin-top: -6px;
+  margin-bottom: 10px;
+  display: none;
+}
+.acc-accordion-body.open {
+  display: block;
+}
+
 .modal-overlay { position: fixed; inset: 0; background: rgba(15,23,42,0.65); backdrop-filter: blur(4px); z-index: 2000; display: none; align-items: center; justify-content: center; padding: 12px; }
 .modal-overlay.show { display: flex; }
 .modal-content { background: var(--card); border: 1.5px solid var(--border); border-radius: var(--radius); width: 100%; max-width: 480px; max-height: 92vh; overflow-y: auto; padding: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); }
@@ -147,18 +178,28 @@ body.privacy-active .icon-btn#privacyBtn { background: var(--accent); color: #ff
 .hidden{display:none!important}
 .del-btn { background:none; border:none; color:var(--danger); font-size:1.15rem; cursor:pointer; padding:2px; }
 
-/* إعدادات الطباعة المكثفة لاستيعاب أكبر قدر ممكن من السطر دون فراغات ضخمة */
+.print-header-banner {
+  display: none;
+  text-align: center;
+  border-bottom: 2px solid var(--accent);
+  padding-bottom: 8px;
+  margin-bottom: 12px;
+}
+.print-header-banner h1 { font-size: 1.25rem; font-weight: 900; color: var(--text); }
+.print-header-banner p { font-size: 0.85rem; color: var(--muted); margin-top: 2px; }
+
 @media print {
-  @page { size: A4 portrait; margin: 10mm; }
-  body { background: #fff; color: #000; font-size: 12pt; padding: 0; margin: 0; }
+  @page { size: A4 portrait; margin: 8mm; }
+  body { background: #fff; color: #000; font-size: 11pt; padding: 0; margin: 0; }
   header, .nav-tabs, .no-print, .btn, .icon-btn, #reportFilterBox, .search-box, .searchable-arrow, .report-type-switch { display: none !important; }
+  .print-header-banner { display: block !important; }
   .wrap { max-width: 100% !important; padding: 0 !important; margin: 0 !important; }
-  .card { box-shadow: none !important; border: none !important; padding: 2px !important; margin-bottom: 5px !important; background: transparent !important; }
-  .report-table { font-size: 11pt !important; width: 100% !important; border-collapse: collapse !important; }
-  .report-table th, .report-table td { padding: 4px 6px !important; border: 1px solid #94a3b8 !important; }
-  .report-table th { background: #e2e8f0 !important; color: #000 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-  .kpi-grid { display: flex !important; gap: 5px !important; margin-bottom: 8px !important; }
-  .kpi-card { border: 1px solid #94a3b8 !important; background: #f8fafc !important; padding: 4px !important; flex: 1 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .card { box-shadow: none !important; border: none !important; padding: 2px !important; margin-bottom: 4px !important; background: transparent !important; }
+  .report-table { font-size: 10pt !important; width: 100% !important; border-collapse: collapse !important; }
+  .report-table th, .report-table td { padding: 3px 5px !important; border: 1px solid #64748b !important; }
+  .report-table th { background: #cbd5e1 !important; color: #000 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .kpi-grid { display: flex !important; gap: 4px !important; margin-bottom: 6px !important; }
+  .kpi-card { border: 1px solid #64748b !important; background: #f1f5f9 !important; padding: 3px !important; flex: 1 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
   .chart-box { display: none !important; }
 }
 </style>
@@ -166,10 +207,15 @@ body.privacy-active .icon-btn#privacyBtn { background: var(--accent); color: #ff
 <body>
 
 <div class="wrap" id="mainWrap">
+  <div class="print-header-banner" id="printHeaderBanner">
+    <h1 id="bannerOrgName">مؤسسة خيرية</h1>
+    <p id="bannerOrgDetails">العنوان: - | هاتف: -</p>
+  </div>
+
   <div style="text-align:center; font-weight:900; font-size:1.1rem; margin-bottom:10px;" class="no-print">بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ</div>
 
   <header class="no-print">
-    <div class="logo">Ratib0129 v6.3</div>
+    <div class="logo">Ratib0129 v6.5</div>
     <div class="header-actions">
       <button class="icon-btn" id="privacyBtn" title="وضع الخصوصية">👁️</button>
       <button class="icon-btn" id="themeBtn" title="الوضع الليلي">🌙</button>
@@ -219,7 +265,7 @@ body.privacy-active .icon-btn#privacyBtn { background: var(--accent); color: #ff
       </div>
 
       <div class="form-group">
-        <input type="number" id="income" class="hide-in-privacy" inputmode="decimal" min="0" placeholder="المبلغ المُدخل">
+        <input type="text" id="income" class="hide-in-privacy number-formatted" inputmode="decimal" placeholder="المبلغ المُدخل">
       </div>
 
       <button class="btn btn-primary" id="openPreviewModalBtn">عرض التصور وتوزيع المبلغ</button>
@@ -279,10 +325,10 @@ body.privacy-active .icon-btn#privacyBtn { background: var(--accent); color: #ff
         <input type="hidden" id="valCreditAcc">
       </div>
 
-      <div style="display: flex; gap: 8px; margin-bottom: 10px;">
+      <div style="display: flex; gap: 8px; margin-bottom: 4px;">
         <div style="flex: 1.3;">
           <label>إجمالي مبلغ السند:</label>
-          <input type="number" id="voucherAmountInput" class="hide-in-privacy" placeholder="أدخل إجمالي المبلغ" inputmode="decimal" min="0">
+          <input type="text" id="voucherAmountInput" class="hide-in-privacy number-formatted" placeholder="أدخل إجمالي المبلغ" inputmode="decimal">
         </div>
         <div style="flex: 0.9;">
           <label>العملة:</label>
@@ -292,6 +338,10 @@ body.privacy-active .icon-btn#privacyBtn { background: var(--accent); color: #ff
             <option value="USD">💵 دولار</option>
           </select>
         </div>
+      </div>
+
+      <div id="tafqitDisplayBox" style="font-size:0.8rem; font-weight:800; color:var(--accent); background:var(--bg); padding:6px 10px; border-radius:8px; margin-bottom:10px; border:1px solid var(--border);">
+        ✍️ التفقيط: <span id="tafqitText">صفر</span>
       </div>
 
       <div style="background: var(--bg); border: 1.5px solid var(--border); border-radius: 10px; padding: 10px; margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between;">
@@ -368,6 +418,11 @@ body.privacy-active .icon-btn#privacyBtn { background: var(--accent); color: #ff
     <div class="report-type-switch no-print">
       <button class="rpt-btn active" id="btnRptBudget">📊 تقرير الميزانية والبنود</button>
       <button class="rpt-btn" id="btnRptAccounts">👤 كشف الحسابات والعملاء</button>
+    </div>
+
+    <div class="no-print" style="display: flex; gap: 6px; margin-bottom: 10px;">
+      <button class="btn btn-ghost" id="exportPngBtn" style="flex:1; margin-top:0; border-color:var(--accent); color:var(--accent); font-size:0.85rem;">📸 تصدير كصورة (PNG)</button>
+      <button class="btn btn-ghost" id="exportPdfBtn" style="flex:1; margin-top:0; border-color:var(--ok); color:var(--ok); font-size:0.85rem;">📄 تصدير كـ PDF</button>
     </div>
 
     <div class="card" id="reportFilterBox">
@@ -503,7 +558,7 @@ body.privacy-active .icon-btn#privacyBtn { background: var(--accent); color: #ff
       </div>
 
       <div id="allAccountsSummaryBox" class="hidden" style="overflow-x:auto; margin-top: 10px;">
-        <h3 style="font-size:0.95rem; font-weight:900; color:var(--accent); margin-bottom:8px;">📊 ملخص أرصدة الحسابات حسب التصنيف الأساسي:</h3>
+        <h3 style="font-size:0.95rem; font-weight:900; color:var(--accent); margin-bottom:8px;">📊 ملخص أرصدة الحسابات (بحسب التصنيف الرئيسي):</h3>
         <table class="report-table hide-in-privacy">
           <thead>
             <tr>
@@ -519,14 +574,32 @@ body.privacy-active .icon-btn#privacyBtn { background: var(--accent); color: #ff
     </div>
   </div>
 
-  <!-- 5. الإعدادات -->
+  <!-- 5. الإعدادات وشجرة الحسابات بنظام الطي والفتح (Accordion) -->
   <div id="pageSettings" class="hidden">
+    <div class="card">
+      <h2>🏷️ إعدادات ترويسة الكشوفات والصور</h2>
+      <p style="font-size:0.82rem; color:var(--muted); margin-bottom:8px;">أدخل بيانات الجهة أو صاحب الحساب لتظهر في رأس التقارير المطبوعة:</p>
+      <div class="form-group">
+        <label>اسم الجهة / المؤسسة:</label>
+        <input type="text" id="settingOrgName" placeholder="مثلاً: مؤسسة خيرية، أو اسمك الشخصي...">
+      </div>
+      <div class="form-group">
+        <label>العنوان والتفاصيل وأرقام التواصل:</label>
+        <input type="text" id="settingOrgDetails" placeholder="مثلاً: حضرموت - تريم | هاتف: 711111111">
+      </div>
+      <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
+        <input type="checkbox" id="settingShowHeader" style="width: 18px; height: 18px; cursor: pointer;">
+        <label for="settingShowHeader" style="margin-bottom: 0; cursor: pointer; font-weight: 800;">إظهار هذه الترويسة في التقارير والطباعة</label>
+      </div>
+      <button class="btn btn-primary" id="saveHeaderSettingsBtn" style="margin-top: 4px;">💾 حفظ إعدادات الترويسة</button>
+    </div>
+
     <div class="card">
       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
         <h2 style="margin-bottom:0;">🏛️ دليل وشجرة الحسابات والأسقف</h2>
         <button class="btn btn-ghost" id="openAddAccountDialogBtn" style="width:auto; margin-top:0; padding:5px 10px; font-size:0.82rem;">➕ إضافة حساب</button>
       </div>
-      <p style="font-size:0.85rem; color:var(--muted); margin-bottom:10px;">يمكنك تعيين سقف مالي (موجب أو سالب) لكل حساب للتنبيه عند تجاوزه:</p>
+      <p style="font-size:0.85rem; color:var(--muted); margin-bottom:10px;">انقر على التصنيف الرئيسي لفتحه أو طيه للتعديل:</p>
       <div id="chartOfAccountsView" style="font-size:0.88rem;"></div>
     </div>
 
@@ -661,7 +734,7 @@ body.privacy-active .icon-btn#privacyBtn { background: var(--accent); color: #ff
     </div>
   </div>
 
-  <!-- نافذة السؤال عن طباعة المستند بعد الحفظ -->
+  <!-- نافذة سؤال الطباعة بعد الحفظ -->
   <div class="modal-overlay" id="printPromptModal">
     <div class="modal-content" style="max-width: 360px; text-align: center;">
       <div style="font-size: 2.2rem; margin-bottom: 8px;">🖨️</div>
@@ -735,6 +808,21 @@ function saveAccountTree(tree){ store.set('account_tree', tree); }
 function getAccountCeilings(){ return store.get('account_ceilings', {}); }
 function saveAccountCeilings(ceilings){ store.set('account_ceilings', ceilings); }
 
+function getHeaderConfig(){ return store.get('header_config', { name: 'مؤسسة خيرية', details: 'العنوان: حضرموت - تريم | هاتف: 700000000', show: false }); }
+function saveHeaderConfig(cfg){ store.set('header_config', cfg); applyHeaderConfig(); }
+
+function applyHeaderConfig() {
+  const cfg = getHeaderConfig();
+  const banner = document.getElementById('printHeaderBanner');
+  document.getElementById('bannerOrgName').textContent = cfg.name || 'مؤسسة خيرية';
+  document.getElementById('bannerOrgDetails').textContent = cfg.details || '';
+  if (cfg.show) {
+    banner.style.display = 'block';
+  } else {
+    banner.style.display = 'none';
+  }
+}
+
 function monthKey(){ const d = new Date(); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0'); }
 function monthName(key){ const [y,m] = key.split('-'); const ms = ['يناير','فبراير','مارس','أبريل','مايو','يونيو','يوليو','أغسطس','سبتمبر','أكتوبر','نوفمبر','ديسمبر']; return ms[+m-1]+' '+y; }
 
@@ -754,6 +842,88 @@ function highlightText(text, query) {
   const safeQuery = esc(query.trim());
   const regex = new RegExp(`(${safeQuery})`, 'gi');
   return safeText.replace(regex, '<span class="highlight-match">$1</span>');
+}
+
+/* ================== محرك التفقيط الرقمي ================== */
+function tafqit(num) {
+  num = Math.round(Number(num || 0));
+  if (num === 0) return 'صفر ريـال فقط لا غير';
+
+  const units = ['', 'واحد', 'اثنان', 'ثلاثة', 'أربعة', 'خسة', 'ستة', 'سبعة', 'ثمانية', 'تسعة'];
+  const teens = ['عشرة', 'أحد عشر', 'اثنا عشر', 'ثلاثة عشر', 'أربعة عشر', 'خمسة عشر', 'ستة عشر', 'سبعة عشر', 'ثمانية عشر', 'تسعة عشر'];
+  const tens = ['', '', 'عشرون', 'ثلاثون', 'أربعون', 'خمسون', 'ستون', 'سبعون', 'ثمانون', 'تسعون'];
+  const hundreds = ['', 'مائة', 'مائتان', 'ثلاثمائة', 'أربعمائة', 'خمسمائة', 'ستمائة', 'سبعمائة', 'ثمانمائة', 'تسعمائة'];
+
+  function convertGroup(n) {
+    let str = '';
+    let h = Math.floor(n / 100);
+    let t = Math.floor((n % 100) / 10);
+    let u = n % 10;
+
+    if (h > 0) {
+      if (h === 2) str += 'مائتان';
+      else str += hundreds[h];
+    }
+
+    let remainder = n % 100;
+    if (remainder > 0) {
+      if (str !== '') str += ' و';
+      if (remainder < 10) str += units[remainder];
+      else if (remainder >= 10 && remainder < 20) str += teens[remainder - 10];
+      else {
+        str += units[u];
+        if (t > 0) {
+          if (str !== '') str += ' و';
+          str += tens[t];
+        }
+      }
+    }
+    return str;
+  }
+
+  let mill = Math.floor(num / 1000000);
+  let thou = Math.floor((num % 1000000) / 1000);
+  let rem = num % 1000;
+
+  let res = [];
+  if (mill > 0) {
+    if (mill === 1) res.push('مليون');
+    else if (mill === 2) res.push('مليونان');
+    else res.push(convertGroup(mill) + ' ملايين');
+  }
+
+  if (thou > 0) {
+    if (res.length > 0) res.push('و');
+    if (thou === 1) res.push('ألف');
+    else if (thou === 2) res.push('ألفان');
+    else if (thou > 2 && thou <= 10) res.push(convertGroup(thou) + ' آلاف');
+    else res.push(convertGroup(thou) + ' ألفاً');
+  }
+
+  if (rem > 0) {
+    if (res.length > 0) res.push('و');
+    res.push(convertGroup(rem));
+  }
+
+  return res.join(' ') + ' ريـال فقط لا غير';
+}
+
+function setupFormattedNumberInputs() {
+  document.querySelectorAll('.number-formatted').forEach(input => {
+    input.addEventListener('input', (e) => {
+      let raw = e.target.value.replace(/,/g, '');
+      if (!isNaN(raw) && raw !== '') {
+        let parts = raw.split('.');
+        parts[0] = Number(parts[0]).toLocaleString('en-US');
+        e.target.value = parts.join('.');
+      }
+    });
+  });
+}
+
+function getCleanNumber(val) {
+  if (!val) return 0;
+  return parseFloat(String(val).replace(/,/g, '')) || 0;
 }
 
 function getMasterPlan() {
@@ -782,7 +952,7 @@ function updateVoucherSeqBadge() {
   document.getElementById('voucherSeqNumBadge').textContent = `رقم: ${nextNum}`;
 }
 
-/* ================== إدارة التنقل ================== */
+/* ================== التنقل وحماية الخروج ================== */
 const TABS_ORDER = ['pageDashboard', 'pageExpenses', 'pageLedger', 'pageReports', 'pageSettings'];
 let allowExit = false;
 
@@ -898,7 +1068,7 @@ window.addEventListener('beforeunload', (e) => {
   }
 });
 
-/* ================== فحص الأسقف المالية ================== */
+/* ================== الفحص المالي ================== */
 function getCurrentAccountBalance(accName) {
   const p = getMasterPlan();
   const txs = p.transactions || [];
@@ -1225,7 +1395,7 @@ toggleSplitBoxBtn.addEventListener('click', () => {
     toggleSplitBoxBtn.style.background = 'var(--accent)';
     toggleSplitBoxBtn.style.color = '#fff';
     voucherSplitContainer.classList.remove('hidden');
-    const totalAmount = parseFloat(document.getElementById('voucherAmountInput').value) || 0;
+    const totalAmount = getCleanNumber(document.getElementById('voucherAmountInput').value);
     initVoucherCategoryStates(totalAmount);
   } else {
     toggleSplitBoxBtn.textContent = 'معطل ✖';
@@ -1287,7 +1457,7 @@ function renderVoucherCategoriesList() {
   const cats = getCats();
   const container = document.getElementById('voucherCatsList');
   container.innerHTML = '';
-  const totalAmount = parseFloat(document.getElementById('voucherAmountInput').value) || 0;
+  const totalAmount = getCleanNumber(document.getElementById('voucherAmountInput').value);
 
   cats.forEach(c => {
     const st = voucherCatStates[c.id] || { enabled: true, amount: 0, pct: c.pct || 0 };
@@ -1341,14 +1511,14 @@ function renderVoucherCategoriesList() {
       row.querySelector('.voucher-cat-pct-input').addEventListener('input', (e) => {
         const cid = e.currentTarget.dataset.id;
         voucherCatStates[cid].pct = parseFloat(e.target.value) || 0;
-        const curTot = parseFloat(document.getElementById('voucherAmountInput').value) || 0;
+        const curTot = getCleanNumber(document.getElementById('voucherAmountInput').value);
         recalcAmountsFromPcts(curTot);
       });
     } else {
       row.querySelector('.voucher-cat-amt-input').addEventListener('input', (e) => {
         const cid = e.currentTarget.dataset.id;
         voucherCatStates[cid].amount = parseFloat(e.target.value) || 0;
-        const curTot = parseFloat(document.getElementById('voucherAmountInput').value) || 0;
+        const curTot = getCleanNumber(document.getElementById('voucherAmountInput').value);
         if (curTot > 0) {
           voucherCatStates[cid].pct = Math.round((voucherCatStates[cid].amount / curTot) * 100);
         }
@@ -1363,7 +1533,7 @@ function renderVoucherCategoriesList() {
 }
 
 function updateVoucherSummaryNumbers() {
-  const totalAmount = parseFloat(document.getElementById('voucherAmountInput').value) || 0;
+  const totalAmount = getCleanNumber(document.getElementById('voucherAmountInput').value);
   let totalAllocated = 0;
   let totalPcts = 0;
 
@@ -1384,7 +1554,9 @@ function updateVoucherSummaryNumbers() {
 }
 
 document.getElementById('voucherAmountInput').addEventListener('input', (e) => {
-  const val = parseFloat(e.target.value) || 0;
+  const val = getCleanNumber(e.target.value);
+  document.getElementById('tafqitText').textContent = tafqit(val);
+
   if (isVoucherSplitActive) {
     if (voucherSplitMode === 'pct') {
       recalcAmountsFromPcts(val);
@@ -1402,7 +1574,7 @@ document.getElementById('autoDistributeVoucherBtn').addEventListener('click', ()
       voucherCatStates[c.id].enabled = true;
     }
   });
-  const totalAmount = parseFloat(document.getElementById('voucherAmountInput').value) || 0;
+  const totalAmount = getCleanNumber(document.getElementById('voucherAmountInput').value);
   recalcAmountsFromPcts(totalAmount);
 });
 
@@ -1424,6 +1596,7 @@ function initVoucherForm() {
   toggleSplitBoxBtn.style.color = 'var(--text)';
   voucherSplitContainer.classList.add('hidden');
   initVoucherCategoryStates(0);
+  document.getElementById('tafqitText').textContent = 'صفر';
   setVoucherMode('spend');
 }
 
@@ -1475,9 +1648,8 @@ document.querySelectorAll('.v-btn').forEach(btn => {
   btn.addEventListener('click', () => setVoucherMode(btn.dataset.type));
 });
 
-// حفظ السند مع إظهار نافذة سؤاله عن الطباعة
 document.getElementById('commitVoucherBtn').addEventListener('click', () => {
-  const totalAmount = parseFloat(document.getElementById('voucherAmountInput').value);
+  const totalAmount = getCleanNumber(document.getElementById('voucherAmountInput').value);
   const debitAcc = selDebitAcc.getValue();
   const creditAcc = selCreditAcc.getValue();
   const voucherCur = document.getElementById('voucherCurrencySelect').value;
@@ -1562,6 +1734,7 @@ document.getElementById('commitVoucherBtn').addEventListener('click', () => {
 
   document.getElementById('voucherAmountInput').value = '';
   document.getElementById('voucherNoteInput').value = '';
+  document.getElementById('tafqitText').textContent = 'صفر';
   isVoucherSplitActive = false;
   toggleSplitBoxBtn.textContent = 'معطل ✖';
   toggleSplitBoxBtn.style.background = 'var(--card)';
@@ -1572,7 +1745,6 @@ document.getElementById('commitVoucherBtn').addEventListener('click', () => {
   updateVoucherSeqBadge();
   renderAllData();
 
-  // إظهار نافذة سؤاله عن طباعة المستند
   document.getElementById('printPromptModal').classList.add('show');
   pushAppHistoryState();
 });
@@ -1673,7 +1845,7 @@ function renderPreviewModalContent() {
 }
 
 document.getElementById('openPreviewModalBtn').addEventListener('click', () => {
-  const val = parseFloat(document.getElementById('income').value);
+  const val = getCleanNumber(document.getElementById('income').value);
   if (!val || val <= 0) return;
 
   pendingAmount = val;
@@ -2207,6 +2379,7 @@ document.getElementById('statementSearchInput').addEventListener('input', (e) =>
   runAccountStatement();
 });
 
+/* --- كشف الحسابات (شجرة مطوية Accordion وتصنيف رئيسي وفرعي) --- */
 function runAccountStatement() {
   const { targetTxs, periodTitle } = getFilteredTransactions();
   const selectedAcc = selReportAccount.getValue() || 'ALL';
@@ -2259,14 +2432,15 @@ function runAccountStatement() {
       });
 
       if (subItems.length > 0) {
-        allBody.innerHTML += `<tr style="background:var(--bg);"><td colspan="4"><b>📁 ${highlightText(parentName, currentStatementSearchQuery)}</b></td></tr>`;
+        allBody.innerHTML += `<tr style="background:var(--bg); border-top: 2px solid var(--accent);"><td colspan="4"><b>📁 التصنيف الرئيسي: ${highlightText(parentName, currentStatementSearchQuery)}</b></td></tr>`;
+        
         subItems.forEach(subAcc => {
           const row = map[subAcc] || { debit: 0, credit: 0 };
           const bal = row.credit - row.debit;
           const statusText = bal > 0 ? '<b style="color:var(--ok);">له</b>' : (bal < 0 ? '<b style="color:var(--danger);">عليه</b>' : 'متزن');
           allBody.innerHTML += `
             <tr>
-              <td style="padding-right:18px;">👤 ${highlightText(subAcc, currentStatementSearchQuery)}</td>
+              <td style="padding-right:24px;">↳ 👤 ${highlightText(subAcc, currentStatementSearchQuery)}</td>
               <td style="color:var(--danger); font-weight:800;">${fmt(row.debit)}</td>
               <td style="color:var(--ok); font-weight:800;">${fmt(row.credit)}</td>
               <td style="font-weight:900;">${fmt(Math.abs(bal))} ${statusText}</td>
@@ -2338,6 +2512,59 @@ function runAccountStatement() {
 document.getElementById('printBudgetReportBtn').addEventListener('click', () => window.print());
 document.getElementById('printStatementBtn').addEventListener('click', () => window.print());
 
+document.getElementById('exportPngBtn').addEventListener('click', () => {
+  const targetCard = activeReportTab === 'budget' ? document.getElementById('budgetReportCard') : document.getElementById('accountStatementCard');
+  html2canvas(targetCard, { scale: 2, useCORS: true }).then(canvas => {
+    const link = document.createElement('a');
+    link.download = `Ratib_Report_${monthKey()}.png`;
+    link.href = canvas.toDataURL('image/png');
+    link.click();
+  });
+});
+
+document.getElementById('exportPdfBtn').addEventListener('click', () => {
+  const targetCard = activeReportTab === 'budget' ? document.getElementById('budgetReportCard') : document.getElementById('accountStatementCard');
+  html2canvas(targetCard, { scale: 2, useCORS: true }).then(canvas => {
+    const imgData = canvas.toDataURL('image/png');
+    const pdf = new jspdf.jsPDF('p', 'mm', 'a4');
+    const imgWidth = 190;
+    const pageHeight = 295;
+    const imgHeight = (canvas.height * imgWidth) / canvas.width;
+    let heightLeft = imgHeight;
+    let position = 10;
+
+    pdf.addImage(imgData, 'PNG', 10, position, imgWidth, imgHeight);
+    heightLeft -= pageHeight;
+
+    while (heightLeft >= 0) {
+      position = heightLeft - imgHeight;
+      pdf.addPage();
+      pdf.addImage(imgData, 'PNG', 10, position, imgWidth, imgHeight);
+      heightLeft -= pageHeight;
+    }
+    pdf.save(`Ratib_Report_${monthKey()}.pdf`);
+  });
+});
+
+document.getElementById('saveHeaderSettingsBtn').addEventListener('click', () => {
+  const cfg = {
+    name: document.getElementById('settingOrgName').value.trim(),
+    details: document.getElementById('settingOrgDetails').value.trim(),
+    show: document.getElementById('settingShowHeader').checked
+  };
+  saveHeaderConfig(cfg);
+  alert('تم حفظ إعدادات الترويسة بنجاح!');
+});
+
+function loadHeaderSettingsUI() {
+  const cfg = getHeaderConfig();
+  document.getElementById('settingOrgName').value = cfg.name || '';
+  document.getElementById('settingOrgDetails').value = cfg.details || '';
+  document.getElementById('settingShowHeader').checked = !!cfg.show;
+  applyHeaderConfig();
+}
+
+/* --- شجرة الحسابات بنظام الطي والفتح (Accordion) في الإعدادات --- */
 function renderChartOfAccounts() {
   const tree = getAccountTree();
   const ceilings = getAccountCeilings();
@@ -2345,12 +2572,18 @@ function renderChartOfAccounts() {
   container.innerHTML = '';
 
   Object.keys(tree).forEach(parentName => {
-    const box = document.createElement('div');
-    box.style.background = 'var(--bg)';
-    box.style.border = '1px solid var(--border)';
-    box.style.borderRadius = '8px';
-    box.style.padding = '8px 10px';
-    box.style.marginBottom = '8px';
+    const header = document.createElement('div');
+    header.className = 'acc-accordion-header';
+    header.innerHTML = `
+      <span>📁 ${parentName} (${tree[parentName].length})</span>
+      <div style="display:flex; align-items:center; gap:8px;">
+        <span style="font-size:0.8rem; color:var(--muted);">اضغط للفتح 🔽</span>
+        <button class="del-btn delete-parent-account-btn" data-parent="${parentName}" title="حذف المجموعة الرئيسية كاملة">❌</button>
+      </div>
+    `;
+
+    const body = document.createElement('div');
+    body.className = 'acc-accordion-body';
 
     const subListHtml = tree[parentName].map((sub, i) => {
       const ceil = ceilings[sub] || {};
@@ -2359,9 +2592,9 @@ function renderChartOfAccounts() {
       const ceilBadge = (maxTxt || minTxt) ? `<span style="font-size:0.75rem; color:var(--warn); font-weight:800;">[${[maxTxt, minTxt].filter(Boolean).join(' | ')}]</span>` : '';
 
       return `
-        <div style="display:flex; justify-content:space-between; align-items:center; padding:3px 0;">
+        <div style="display:flex; justify-content:space-between; align-items:center; padding:5px 0; border-bottom:1px dashed var(--border);">
           <div style="display:flex; align-items:center; gap:6px;">
-            <span>• ${esc(sub)}</span>
+            <span>↳ 👤 ${esc(sub)}</span>
             ${ceilBadge}
           </div>
           <button class="del-btn delete-sub-account-btn" data-parent="${parentName}" data-idx="${i}" title="حذف الحساب">🗑️</button>
@@ -2369,15 +2602,15 @@ function renderChartOfAccounts() {
       `;
     }).join('');
 
-    box.innerHTML = `
-      <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px dashed var(--border); padding-bottom:4px; margin-bottom:4px;">
-        <span style="font-weight:900; color:var(--accent);">📁 ${parentName} (${tree[parentName].length})</span>
-        <button class="del-btn delete-parent-account-btn" data-parent="${parentName}" title="حذف المجموعة الرئيسية كاملة">❌</button>
-      </div>
-      <div style="padding-right:8px;">${subListHtml || '<span style="color:var(--muted); font-size:0.8rem;">لا توجد حسابات فرعية بعد</span>'}</div>
-    `;
+    body.innerHTML = subListHtml || '<div style="color:var(--muted); font-size:0.82rem; padding:4px 0;">لا توجد حسابات فرعية بعد</div>';
 
-    container.appendChild(box);
+    header.addEventListener('click', (e) => {
+      if (e.target.closest('.delete-parent-account-btn')) return;
+      body.classList.toggle('open');
+    });
+
+    container.appendChild(header);
+    container.appendChild(body);
   });
 
   document.querySelectorAll('.delete-sub-account-btn').forEach(btn => {
@@ -2458,6 +2691,7 @@ function initSettingsPage() {
   draftCats = JSON.parse(JSON.stringify(getCats()));
   renderCategoryRows();
   renderChartOfAccounts();
+  loadHeaderSettingsUI();
 }
 
 function updatePctSum() {
@@ -2548,7 +2782,9 @@ document.getElementById('privacyBtn').addEventListener('click', () => {
   document.getElementById('currency').value = store.get('currency', 'YER');
   setupSearchableSelects();
   updateSearchableData();
+  setupFormattedNumberInputs();
   renderAllData();
+  applyHeaderConfig();
   pushAppHistoryState();
 })();
 </script>

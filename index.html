@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>Ratib0129 v6.0</title>
+<title>Ratib0129 v6.2</title>
 <meta name="theme-color" content="#0284c7">
 <link rel="manifest" id="dynamic-manifest">
 <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@500;700;800;900&display=swap" rel="stylesheet">
@@ -161,7 +161,7 @@ body.privacy-active .icon-btn#privacyBtn { background: var(--accent); color: #ff
   <div style="text-align:center; font-weight:900; font-size:1.1rem; margin-bottom:10px;" class="no-print">بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ</div>
 
   <header class="no-print">
-    <div class="logo">Ratib0129 v6.0</div>
+    <div class="logo">Ratib0129 v6.2</div>
     <div class="header-actions">
       <button class="icon-btn" id="privacyBtn" title="وضع الخصوصية">👁️</button>
       <button class="icon-btn" id="themeBtn" title="الوضع الليلي">🌙</button>
@@ -286,9 +286,17 @@ body.privacy-active .icon-btn#privacyBtn { background: var(--accent); color: #ff
         </div>
       </div>
 
-      <div class="voucher-split-box" id="voucherSplitContainer">
+      <div style="background: var(--bg); border: 1.5px solid var(--border); border-radius: 10px; padding: 10px; margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between;">
+        <div>
+          <div style="font-weight: 900; font-size: 0.9rem;">توزيع السند على بنود الميزانية</div>
+          <div style="font-size: 0.78rem; color: var(--muted);">اختياري: تفعيل لتصنيف السند ضمن بنود الميزانية</div>
+        </div>
+        <button type="button" class="btn btn-ghost" id="toggleSplitBoxBtn" style="width: auto; margin-top: 0; padding: 6px 12px; font-size: 0.82rem; background: var(--card);">معطل ✖</button>
+      </div>
+
+      <div class="voucher-split-box hidden" id="voucherSplitContainer">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-          <span style="font-weight: 900; font-size: 0.88rem; color: var(--accent);">📌 نمط توزيع بنود السند:</span>
+          <span style="font-weight: 900; font-size: 0.88rem; color: var(--accent);">📌 نمط التوزيع:</span>
           
           <div class="mode-toggle-switch">
             <button type="button" class="mode-toggle-btn active" id="btnModePct">نسبة (%)</button>
@@ -502,7 +510,7 @@ body.privacy-active .icon-btn#privacyBtn { background: var(--accent); color: #ff
     </div>
   </div>
 
-  <!-- 5. الإعدادات والتحكم بالبنود والأسقف -->
+  <!-- 5. الإعدادات -->
   <div id="pageSettings" class="hidden">
     <div class="card">
       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
@@ -513,7 +521,6 @@ body.privacy-active .icon-btn#privacyBtn { background: var(--accent); color: #ff
       <div id="chartOfAccountsView" style="font-size:0.88rem;"></div>
     </div>
 
-    <!-- بطاقة إدارة بنود الميزانية -->
     <div class="card">
       <h2>
         <span>🛠️ إدارة بنود الميزانية والنسب</span>
@@ -632,7 +639,7 @@ body.privacy-active .icon-btn#privacyBtn { background: var(--accent); color: #ff
     </div>
   </div>
 
-  <!-- نافذة مخصصة لتأكيد الخروج -->
+  <!-- نافذة تأكيد الخروج -->
   <div class="modal-overlay" id="exitConfirmModal">
     <div class="modal-content" style="max-width: 360px; text-align: center;">
       <div style="font-size: 2.2rem; margin-bottom: 8px;">🚪</div>
@@ -695,6 +702,7 @@ let activeReportTab = 'budget';
 let currentLedgerSearchQuery = '';
 let currentStatementSearchQuery = '';
 
+let isVoucherSplitActive = false;
 let voucherSplitMode = 'pct';
 let voucherCatStates = {};
 
@@ -1182,7 +1190,27 @@ document.getElementById('saveNewParentCategoryBtn').addEventListener('click', ()
   alert(`تم إنشاء الحساب الأساسي (${parentName}) بنجاح!`);
 });
 
-/* ================== التوزيع بالنسب المئوية أو المبالغ بالسندات ================== */
+/* ================== التوزيع الاختياري للببنود بالسندات ================== */
+const toggleSplitBoxBtn = document.getElementById('toggleSplitBoxBtn');
+const voucherSplitContainer = document.getElementById('voucherSplitContainer');
+
+toggleSplitBoxBtn.addEventListener('click', () => {
+  isVoucherSplitActive = !isVoucherSplitActive;
+  if (isVoucherSplitActive) {
+    toggleSplitBoxBtn.textContent = 'مفعل ✔';
+    toggleSplitBoxBtn.style.background = 'var(--accent)';
+    toggleSplitBoxBtn.style.color = '#fff';
+    voucherSplitContainer.classList.remove('hidden');
+    const totalAmount = parseFloat(document.getElementById('voucherAmountInput').value) || 0;
+    initVoucherCategoryStates(totalAmount);
+  } else {
+    toggleSplitBoxBtn.textContent = 'معطل ✖';
+    toggleSplitBoxBtn.style.background = 'var(--card)';
+    toggleSplitBoxBtn.style.color = 'var(--text)';
+    voucherSplitContainer.classList.add('hidden');
+  }
+});
+
 document.getElementById('btnModePct').addEventListener('click', () => setVoucherSplitMode('pct'));
 document.getElementById('btnModeAmt').addEventListener('click', () => setVoucherSplitMode('amt'));
 
@@ -1231,6 +1259,7 @@ function recalcAmountsFromPcts(totalAmount) {
 }
 
 function renderVoucherCategoriesList() {
+  if (!isVoucherSplitActive) return;
   const cats = getCats();
   const container = document.getElementById('voucherCatsList');
   container.innerHTML = '';
@@ -1332,10 +1361,12 @@ function updateVoucherSummaryNumbers() {
 
 document.getElementById('voucherAmountInput').addEventListener('input', (e) => {
   const val = parseFloat(e.target.value) || 0;
-  if (voucherSplitMode === 'pct') {
-    recalcAmountsFromPcts(val);
-  } else {
-    updateVoucherSummaryNumbers();
+  if (isVoucherSplitActive) {
+    if (voucherSplitMode === 'pct') {
+      recalcAmountsFromPcts(val);
+    } else {
+      updateVoucherSummaryNumbers();
+    }
   }
 });
 
@@ -1355,6 +1386,11 @@ function initVoucherForm() {
   updateSearchableData();
   document.getElementById('voucherDateInput').value = new Date().toISOString().split('T')[0];
   document.getElementById('voucherCurrencySelect').value = document.getElementById('currency').value;
+  isVoucherSplitActive = false;
+  toggleSplitBoxBtn.textContent = 'معطل ✖';
+  toggleSplitBoxBtn.style.background = 'var(--card)';
+  toggleSplitBoxBtn.style.color = 'var(--text)';
+  voucherSplitContainer.classList.add('hidden');
   initVoucherCategoryStates(0);
   setVoucherMode('spend');
 }
@@ -1373,7 +1409,7 @@ function setVoucherMode(mode) {
   if (mode === 'spend') {
     card.style.borderRight = '5px solid var(--danger)';
     title.textContent = '💸 تسجيل سند صرف';
-    badge.textContent = 'صرف وخصم من البنود';
+    badge.textContent = 'صرف وخصم نقدي';
     badge.style.color = 'var(--danger)';
     badge.style.background = 'rgba(239,68,68,0.15)';
     btn.className = 'btn btn-danger';
@@ -1383,7 +1419,7 @@ function setVoucherMode(mode) {
   } else if (mode === 'income') {
     card.style.borderRight = '5px solid var(--ok)';
     title.textContent = '📥 تسجيل سند إيراد';
-    badge.textContent = 'قبض وتغذية للبنود';
+    badge.textContent = 'قبض وتغذية نقدية';
     badge.style.color = 'var(--ok)';
     badge.style.background = 'rgba(16,185,129,0.15)';
     btn.className = 'btn btn-success';
@@ -1433,37 +1469,26 @@ document.getElementById('commitVoucherBtn').addEventListener('click', () => {
   const cats = getCats();
   const finalDist = {};
   const initialExecution = {};
-  let totalAllocated = 0;
 
-  cats.forEach(c => {
-    const st = voucherCatStates[c.id];
-    if (st && st.enabled && st.amount > 0) {
-      finalDist[c.id] = {
-        id: c.id,
-        name: c.name,
-        amount: st.amount,
-        pct: st.pct,
-        color: c.color,
-        excluded: false
-      };
-      initialExecution[c.id] = {
-        done: true,
-        actualSpent: (currentVoucherMode === 'income' ? 0 : st.amount),
-        note: note || ''
-      };
-      totalAllocated += Number(st.amount);
-    }
-  });
-
-  if (totalAllocated <= 0) {
-    alert('يرجى تحديد مبالغ أو نسب البنود الموزعة بالسند');
-    return;
-  }
-
-  if (totalAllocated !== totalAmount) {
-    if (!confirm(`مجموع الموزع على البنود (${totalAllocated.toLocaleString()}) يختلف عن إجمالي السند (${totalAmount.toLocaleString()}). هل تريد الاعتماد بهذا الفارق؟`)) {
-      return;
-    }
+  if (isVoucherSplitActive) {
+    cats.forEach(c => {
+      const st = voucherCatStates[c.id];
+      if (st && st.enabled && st.amount > 0) {
+        finalDist[c.id] = {
+          id: c.id,
+          name: c.name,
+          amount: st.amount,
+          pct: st.pct,
+          color: c.color,
+          excluded: false
+        };
+        initialExecution[c.id] = {
+          done: true,
+          actualSpent: (currentVoucherMode === 'income' ? 0 : st.amount),
+          note: note || ''
+        };
+      }
+    });
   }
 
   const assignedSeqNum = getNextVoucherNumber(currentVoucherMode);
@@ -1504,6 +1529,11 @@ document.getElementById('commitVoucherBtn').addEventListener('click', () => {
 
   document.getElementById('voucherAmountInput').value = '';
   document.getElementById('voucherNoteInput').value = '';
+  isVoucherSplitActive = false;
+  toggleSplitBoxBtn.textContent = 'معطل ✖';
+  toggleSplitBoxBtn.style.background = 'var(--card)';
+  toggleSplitBoxBtn.style.color = 'var(--text)';
+  voucherSplitContainer.classList.add('hidden');
   initVoucherCategoryStates(0);
 
   alert(`تم اعتماد ${typeLabel} بنجاح!`);
@@ -1511,7 +1541,7 @@ document.getElementById('commitVoucherBtn').addEventListener('click', () => {
   renderAllData();
 });
 
-/* ================== لوحة الميزانية ================== */
+/* ================== الميزانية ================== */
 function calculateDistribution(amount, excludedSet) {
   const allCats = getCats();
   const activeCats = allCats.filter(c => !excludedSet.has(c.id));
@@ -1679,11 +1709,11 @@ function openTxModal(item) {
   modalSubtitle.textContent = `📅 ${item.date} | المدين: ${item.debitAccount || '-'} | الدائن: ${item.creditAccount || '-'}`;
   modal.classList.add('show');
 
-  if (isExpense) {
+  const distItems = Object.values(item.distribution || {}).filter(d => !d.excluded && d.amount > 0);
+  if (isExpense || distItems.length === 0) {
     chartBox.style.display = 'none';
   } else {
     chartBox.style.display = 'block';
-    const distItems = Object.values(item.distribution || {}).filter(d => !d.excluded && d.amount > 0);
     const ctx = document.getElementById('modalChart');
     const dark = document.documentElement.dataset.theme === 'dark';
     if (modalChart) modalChart.destroy();
@@ -1691,7 +1721,7 @@ function openTxModal(item) {
     modalChart = new Chart(ctx, {
       type: 'doughnut',
       data: {
-        labels: distItems.map(d => `${d.name} (${d.pct}%)`),
+        labels: distItems.map(d => `${d.name} (${d.pct || 0}%)`),
         datasets: [{
           data: distItems.map(d => d.amount),
           backgroundColor: distItems.map(d => d.color || '#3b82f6'),
@@ -1703,37 +1733,39 @@ function openTxModal(item) {
         cutout: '58%',
         plugins: {
           legend: { position: 'bottom', labels: { color: dark ? '#f8fafc' : '#0f172a', font: { family: 'Tajawal', size: 11, weight: 'bold' } } },
-          datalabels: { color: '#fff', font: { family: 'Tajawal', weight: '900', size: 11 }, formatter: (v, c) => `${distItems[c.dataIndex].pct}%` }
+          datalabels: { color: '#fff', font: { family: 'Tajawal', weight: '900', size: 11 }, formatter: (v, c) => `${distItems[c.dataIndex].pct || 0}%` }
         }
       }
     });
   }
 
   const execData = item.execution || {};
-  const distEntries = Object.values(item.distribution || {});
-
-  modalExecutionList.innerHTML = distEntries.map(d => {
-    const ex = execData[d.id] || { done: false, actualSpent: d.amount, note: '' };
-    return `
-      <div class="cat-card" style="margin-bottom:8px; padding:10px;">
-        <div class="cat-header" style="margin-bottom:6px;">
-          <div class="cat-info">
-            <span class="cat-color" style="background:${d.color}"></span>
-            <span class="cat-name">${esc(d.name)}</span>
+  if (distItems.length > 0) {
+    modalExecutionList.innerHTML = distItems.map(d => {
+      const ex = execData[d.id] || { done: false, actualSpent: d.amount, note: '' };
+      return `
+        <div class="cat-card" style="margin-bottom:8px; padding:10px;">
+          <div class="cat-header" style="margin-bottom:6px;">
+            <div class="cat-info">
+              <span class="cat-color" style="background:${d.color}"></span>
+              <span class="cat-name">${esc(d.name)}</span>
+            </div>
+            <span class="cat-amount hide-in-privacy">${fmt(isExpense ? ex.actualSpent : d.amount, item.currency)}</span>
           </div>
-          <span class="cat-amount hide-in-privacy">${fmt(isExpense ? ex.actualSpent : d.amount, item.currency)}</span>
-        </div>
 
-        <div style="display:flex; flex-direction:column; gap:6px; padding-top:6px; border-top:1px dashed var(--border);">
-          <div style="display:flex; justify-content:space-between; align-items:center;">
-            <span style="font-size:0.85rem; color:var(--muted); font-weight:800;">المنصرف الفعلي:</span>
-            <input type="number" class="tx-actual-input" data-id="${d.id}" value="${ex.actualSpent !== undefined ? ex.actualSpent : d.amount}" style="width:115px; padding:5px 8px; text-align:center;">
+          <div style="display:flex; flex-direction:column; gap:6px; padding-top:6px; border-top:1px dashed var(--border);">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <span style="font-size:0.85rem; color:var(--muted); font-weight:800;">المنصرف الفعلي:</span>
+              <input type="number" class="tx-actual-input" data-id="${d.id}" value="${ex.actualSpent !== undefined ? ex.actualSpent : d.amount}" style="width:115px; padding:5px 8px; text-align:center;">
+            </div>
+            <input type="text" class="tx-cat-note hide-in-privacy" data-id="${d.id}" placeholder="البيان والملاحظات..." value="${esc(ex.note)}" style="padding:6px 8px; font-size:0.9rem;">
           </div>
-          <input type="text" class="tx-cat-note hide-in-privacy" data-id="${d.id}" placeholder="البيان والملاحظات..." value="${esc(ex.note)}" style="padding:6px 8px; font-size:0.9rem;">
         </div>
-      </div>
-    `;
-  }).join('');
+      `;
+    }).join('');
+  } else {
+    modalExecutionList.innerHTML = '<div style="text-align:center; color:var(--muted); padding:10px;">هذا السند غير مرتبط ببنود ميزانية (حركة نقدية مباشرة).</div>';
+  }
 }
 
 document.getElementById('saveTxExecutionBtn').addEventListener('click', () => {
@@ -1756,7 +1788,7 @@ document.getElementById('saveTxExecutionBtn').addEventListener('click', () => {
     totalNewSpent += val;
   });
 
-  if (tx.isExpense && totalNewSpent > 0) {
+  if (tx.isExpense && totalNewSpent > 0 && Object.keys(tx.distribution || {}).length > 0) {
     tx.amount = totalNewSpent;
   }
 
@@ -1815,7 +1847,10 @@ function renderAllData(){
     if (item.voucherMode === 'income') card.style.borderRight = '5px solid var(--ok)';
 
     const distItems = Object.values(item.distribution || {}).filter(d => !d.excluded);
-    const distHtml = distItems.map(d => `<span style="display:inline-block; margin:2px 0;"><b>${d.name}:</b> ${fmt(d.amount > 0 ? d.amount : item.amount, item.currency)}</span>`).join(' • ');
+    const distHtml = distItems.length > 0 ? 
+      distItems.map(d => `<span style="display:inline-block; margin:2px 0;"><b>${d.name}:</b> ${fmt(d.amount, item.currency)}</span>`).join(' • ') :
+      '<span style="color:var(--muted);">حركة نقدية مباشرة (بدون توزيع ميزانية)</span>';
+
     const noteText = item.execution?.[Object.keys(item.execution || {})[0]]?.note || '';
 
     card.innerHTML = `
@@ -2333,7 +2368,6 @@ function renderChartOfAccounts() {
   });
 }
 
-/* ================== إدارة بنود الميزانية (إصلاح الإضافة والحذف) ================== */
 function renderCategoryRows() {
   const box = document.getElementById('pctRows');
   box.innerHTML = '';

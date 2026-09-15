@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>Ratib0129 v6.5</title>
+<title>Ratib0129 v6.7</title>
 <meta name="theme-color" content="#0284c7">
 <link rel="manifest" id="dynamic-manifest">
 <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@500;700;800;900&display=swap" rel="stylesheet">
@@ -46,7 +46,7 @@ header{display:flex; justify-content:space-between; align-items:center; margin-b
 .v-btn.active.v-income { background: var(--ok); color: #fff; }
 .v-btn.active.v-entry { background: var(--accent); color: #fff; }
 
-.mode-toggle-switch { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; background: var(--card); padding: 3px; border-radius: 8px; border: 1.5px solid var(--border); }
+.mode-toggle-switch { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; background: var(--card); padding: 3px; border-radius: 8px; border: 1px solid var(--border); }
 .mode-toggle-btn { border: none; background: transparent; font-family: inherit; font-size: 0.78rem; font-weight: 800; color: var(--muted); padding: 4px 8px; border-radius: 6px; cursor: pointer; transition: all 0.15s; }
 .mode-toggle-btn.active { background: var(--accent); color: #fff; }
 
@@ -139,7 +139,6 @@ body.privacy-active .icon-btn#privacyBtn { background: var(--accent); color: #ff
 
 .highlight-match { background: #fef08a; color: #854d0e; padding: 1px 4px; border-radius: 4px; font-weight: 900; }
 
-/* عناصر نظام الطي والفتح (Accordion) لشجرة الحسابات في الإعدادات */
 .acc-accordion-header {
   display: flex;
   justify-content: space-between;
@@ -154,9 +153,7 @@ body.privacy-active .icon-btn#privacyBtn { background: var(--accent); color: #ff
   color: var(--accent);
   transition: background 0.2s;
 }
-.acc-accordion-header:hover {
-  background: rgba(2,132,199,0.08);
-}
+.acc-accordion-header:hover { background: rgba(2,132,199,0.08); }
 .acc-accordion-body {
   background: var(--card);
   border: 1.5px dashed var(--border);
@@ -166,9 +163,7 @@ body.privacy-active .icon-btn#privacyBtn { background: var(--accent); color: #ff
   margin-bottom: 10px;
   display: none;
 }
-.acc-accordion-body.open {
-  display: block;
-}
+.acc-accordion-body.open { display: block; }
 
 .modal-overlay { position: fixed; inset: 0; background: rgba(15,23,42,0.65); backdrop-filter: blur(4px); z-index: 2000; display: none; align-items: center; justify-content: center; padding: 12px; }
 .modal-overlay.show { display: flex; }
@@ -215,7 +210,7 @@ body.privacy-active .icon-btn#privacyBtn { background: var(--accent); color: #ff
   <div style="text-align:center; font-weight:900; font-size:1.1rem; margin-bottom:10px;" class="no-print">بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ</div>
 
   <header class="no-print">
-    <div class="logo">Ratib0129 v6.5</div>
+    <div class="logo">Ratib0129 v6.7</div>
     <div class="header-actions">
       <button class="icon-btn" id="privacyBtn" title="وضع الخصوصية">👁️</button>
       <button class="icon-btn" id="themeBtn" title="الوضع الليلي">🌙</button>
@@ -257,7 +252,7 @@ body.privacy-active .icon-btn#privacyBtn { background: var(--accent); color: #ff
           <option value="تجارة / استثمار">📈 أرباح تجارة</option>
           <option value="إيراد آخر">💵 إيراد آخر</option>
         </select>
-        <select id="currency" style="flex: 0.9;">
+        <select id="currency" style="width: 110px;">
           <option value="YER" selected>🇾🇪 ر.ي</option>
           <option value="SAR">🇸🇦 ر.س</option>
           <option value="USD">💵 دولار</option>
@@ -330,7 +325,7 @@ body.privacy-active .icon-btn#privacyBtn { background: var(--accent); color: #ff
           <label>إجمالي مبلغ السند:</label>
           <input type="text" id="voucherAmountInput" class="hide-in-privacy number-formatted" placeholder="أدخل إجمالي المبلغ" inputmode="decimal">
         </div>
-        <div style="flex: 0.9;">
+        <div style="width: 110px;">
           <label>العملة:</label>
           <select id="voucherCurrencySelect">
             <option value="YER" selected>🇾🇪 ر.ي</option>
@@ -574,7 +569,7 @@ body.privacy-active .icon-btn#privacyBtn { background: var(--accent); color: #ff
     </div>
   </div>
 
-  <!-- 5. الإعدادات وشجرة الحسابات بنظام الطي والفتح (Accordion) -->
+  <!-- 5. الإعدادات -->
   <div id="pageSettings" class="hidden">
     <div class="card">
       <h2>🏷️ إعدادات ترويسة الكشوفات والصور</h2>
@@ -1554,6 +1549,13 @@ function updateVoucherSummaryNumbers() {
 }
 
 document.getElementById('voucherAmountInput').addEventListener('input', (e) => {
+  let raw = e.target.value.replace(/,/g, '');
+  if (!isNaN(raw) && raw !== '') {
+    let parts = raw.split('.');
+    parts[0] = Number(parts[0]).toLocaleString('en-US');
+    e.target.value = parts.join('.');
+  }
+
   const val = getCleanNumber(e.target.value);
   document.getElementById('tafqitText').textContent = tafqit(val);
 
@@ -2379,7 +2381,6 @@ document.getElementById('statementSearchInput').addEventListener('input', (e) =>
   runAccountStatement();
 });
 
-/* --- كشف الحسابات (شجرة مطوية Accordion وتصنيف رئيسي وفرعي) --- */
 function runAccountStatement() {
   const { targetTxs, periodTitle } = getFilteredTransactions();
   const selectedAcc = selReportAccount.getValue() || 'ALL';
@@ -2512,19 +2513,35 @@ function runAccountStatement() {
 document.getElementById('printBudgetReportBtn').addEventListener('click', () => window.print());
 document.getElementById('printStatementBtn').addEventListener('click', () => window.print());
 
+/* تصدير كصورة PNG مضبوط تماماً مع حيز الطباعة */
 document.getElementById('exportPngBtn').addEventListener('click', () => {
   const targetCard = activeReportTab === 'budget' ? document.getElementById('budgetReportCard') : document.getElementById('accountStatementCard');
-  html2canvas(targetCard, { scale: 2, useCORS: true }).then(canvas => {
+  
+  const banner = document.getElementById('printHeaderBanner');
+  const wasBannerShown = banner.style.display === 'block';
+  const cfg = getHeaderConfig();
+  if (cfg.show) banner.style.display = 'block';
+
+  html2canvas(targetCard, { 
+    scale: 2, 
+    useCORS: true, 
+    backgroundColor: document.documentElement.dataset.theme === 'dark' ? '#1e293b' : '#ffffff',
+    windowWidth: 720 
+  }).then(canvas => {
+    if (!wasBannerShown && !cfg.show) banner.style.display = 'none';
+
     const link = document.createElement('a');
     link.download = `Ratib_Report_${monthKey()}.png`;
     link.href = canvas.toDataURL('image/png');
     link.click();
+  }).catch(err => {
+    alert('حدث خطأ أثناء تصدير الصورة.');
   });
 });
 
 document.getElementById('exportPdfBtn').addEventListener('click', () => {
   const targetCard = activeReportTab === 'budget' ? document.getElementById('budgetReportCard') : document.getElementById('accountStatementCard');
-  html2canvas(targetCard, { scale: 2, useCORS: true }).then(canvas => {
+  html2canvas(targetCard, { scale: 2, useCORS: true, windowWidth: 720 }).then(canvas => {
     const imgData = canvas.toDataURL('image/png');
     const pdf = new jspdf.jsPDF('p', 'mm', 'a4');
     const imgWidth = 190;
@@ -2564,7 +2581,6 @@ function loadHeaderSettingsUI() {
   applyHeaderConfig();
 }
 
-/* --- شجرة الحسابات بنظام الطي والفتح (Accordion) في الإعدادات --- */
 function renderChartOfAccounts() {
   const tree = getAccountTree();
   const ceilings = getAccountCeilings();

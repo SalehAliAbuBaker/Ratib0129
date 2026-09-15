@@ -7,7 +7,9 @@
 <meta name="description" content="تطبيق عربي لإدارة السندات والميزانية والتقارير المالية">
 <meta name="color-scheme" content="light dark">
 <meta name="theme-color" content="#0284c7">
-<link rel="manifest" id="dynamic-manifest">
+<link rel="manifest" href="manifest.json" id="dynamic-manifest">
+<link rel="icon" type="image/png" sizes="192x192" href="ratib-icon-192.png">
+<link rel="apple-touch-icon" sizes="192x192" href="ratib-icon-192.png">
 <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@500;700;800;900&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0/dist/chartjs-plugin-datalabels.min.js"></script>
@@ -897,7 +899,23 @@ body{user-select:text}.btn,.icon-btn,.nav-tab,.v-btn,.rpt-btn,.toggle-vis-btn,.d
 
 <script>
 (function setupPWA() {
-  const manifestData = { name: "Ratib0129", short_name: "Ratib0129", display: "standalone", start_url: location.href, background_color: "#f8fafc", theme_color: "#0284c7" };
+  const manifestData = {
+    name: "Ratib0129 Pro",
+    short_name: "Ratib",
+    description: "تطبيق عربي لإدارة السندات والميزانية والتقارير المالية",
+    lang: "ar",
+    dir: "rtl",
+    display: "standalone",
+    orientation: "portrait",
+    start_url: location.href,
+    scope: location.href.substring(0, location.href.lastIndexOf('/') + 1),
+    background_color: "#f8fafc",
+    theme_color: "#0284c7",
+    icons: [
+      { src: "ratib-icon-192.png", sizes: "192x192", type: "image/png", purpose: "any maskable" },
+      { src: "ratib-icon-512.png", sizes: "512x512", type: "image/png", purpose: "any maskable" }
+    ]
+  };
   document.getElementById('dynamic-manifest').href = URL.createObjectURL(new Blob([JSON.stringify(manifestData)], { type: 'application/json' }));
 })();
 

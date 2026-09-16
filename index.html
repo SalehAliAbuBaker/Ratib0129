@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>Ratib0129 v10.14 — دفتر الميزانية الآمن</title>
+<title>Ratib0129 v10.19 — دفتر الميزانية الآمن</title>
 <meta name="description" content="تطبيق عربي لإدارة السندات والميزانية والتقارير المالية">
 <meta name="color-scheme" content="light dark">
 <meta name="theme-color" content="#0284c7">
@@ -39,49 +39,7 @@ header{display:flex; justify-content:space-between; align-items:center; margin-b
 .header-actions { display:flex; gap:10px; }
 
 .nav-tabs { display: none; }
-
-.mobile-bottom-nav {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 10px;
-  width: 100%;
-  padding: 6px;
-  background: transparent;
-  margin-bottom: 16px;
-  z-index: 10;
-}
-.mobile-bottom-nav.hidden-nav { display: none !important; }
-.mobile-bottom-nav button {
-  border: 2.5px solid var(--border);
-  background: var(--card);
-  color: var(--text);
-  font-family: inherit;
-  font-weight: 900;
-  font-size: 1.2rem;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  border-radius: 16px;
-  padding: 18px 8px;
-  cursor: pointer;
-  box-shadow: var(--shadow);
-  transition: all 0.2s;
-}
-.mobile-bottom-nav button:nth-child(1) { grid-column: span 2; }
-.mobile-bottom-nav button:nth-child(2),
-.mobile-bottom-nav button:nth-child(3) { grid-column: span 1; }
-.mobile-bottom-nav button:nth-child(4),
-.mobile-bottom-nav button:nth-child(5) { grid-column: span 1; }
-
-.mobile-bottom-nav button.active {
-  background: var(--accent);
-  color: #fff;
-  border-color: var(--accent);
-  box-shadow: 0 8px 22px rgba(2,132,199,0.38);
-}
-.mobile-bottom-nav .mobile-nav-icon { font-size: 2.4rem; line-height: 1; }
+.mobile-bottom-nav { display: none !important; }
 
 .back-to-menu-btn {
   display: flex;
@@ -101,6 +59,40 @@ header{display:flex; justify-content:space-between; align-items:center; margin-b
   width: 100%;
 }
 .back-to-menu-btn.hidden { display: none !important; }
+
+/* 6 أزرار رئيسية متساوية ومنظمة في الواجهة الأساسية */
+.main-menu-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  margin-bottom: 14px;
+}
+.main-menu-btn {
+  background: var(--card);
+  border: 2.5px solid var(--border);
+  color: var(--text);
+  border-radius: var(--radius);
+  padding: 18px 10px;
+  font-family: inherit;
+  font-weight: 900;
+  font-size: 1.1rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  cursor: pointer;
+  box-shadow: var(--shadow);
+  transition: transform 0.15s, border-color 0.2s;
+}
+.main-menu-btn:active { transform: scale(0.96); }
+.main-menu-btn:hover { border-color: var(--accent); color: var(--accent); }
+.main-menu-btn.budget-btn {
+  background: linear-gradient(135deg, rgba(2,132,199,0.1), rgba(16,185,129,0.1));
+  border-color: var(--accent);
+  color: var(--accent);
+}
+.main-menu-icon { font-size: 2.2rem; line-height: 1; }
 
 .mode-toggle-switch { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; background: var(--card); padding: 4px; border-radius: 10px; border: 2px solid var(--border); }
 .mode-toggle-btn { border: none; background: transparent; font-family: inherit; font-size: 1rem; font-weight: 900; color: var(--muted); padding: 8px; border-radius: 8px; cursor: pointer; }
@@ -253,22 +245,8 @@ body.privacy-active .icon-btn#privacyBtn { background: var(--accent); color: #ff
 .print-header-banner p { font-size: 1rem; color: var(--muted); margin-top: 4px; font-weight: 900; }
 
 .print-statement-container { display: none; }
+body.printing-statement header, body.printing-statement .nav-tabs, body.printing-statement .no-print, body.printing-statement .btn, body.printing-statement .icon-btn, body.printing-statement #reportFilterBox, body.printing-statement .search-box, body.printing-statement .searchable-arrow, body.printing-statement .report-type-switch, body.printing-statement .print-header-banner, body.printing-statement .wrap > div:not(#printStatementContainer) { display: none !important; }
 
-body.printing-statement header, 
-body.printing-statement .nav-tabs, 
-body.printing-statement .no-print, 
-body.printing-statement .btn, 
-body.printing-statement .icon-btn, 
-body.printing-statement #reportFilterBox, 
-body.printing-statement .search-box, 
-body.printing-statement .searchable-arrow, 
-body.printing-statement .report-type-switch, 
-body.printing-statement .print-header-banner, 
-body.printing-statement .wrap > div:not(#printStatementContainer) { 
-  display: none !important; 
-}
-
-/* طباعة كشف الحساب بمقاس A4 حقيقي متسق ومدمج الإجماليات */
 body.printing-statement .print-statement-container {
   display: block !important;
   width: 100% !important;
@@ -391,7 +369,7 @@ html{scroll-behavior:smooth}body{padding-bottom:16px}
   </div>
 
   <header class="no-print">
-    <div class="logo">Ratib0129 v10.14</div>
+    <div class="logo">Ratib0129 v10.19</div>
     <div class="header-actions">
       <button class="icon-btn" id="globalSearchBtn" title="البحث العام (Ctrl+K)" aria-label="البحث العام">⌕</button>
       <button class="icon-btn" id="privacyBtn" title="وضع الخصوصية">👁️</button>
@@ -399,22 +377,43 @@ html{scroll-behavior:smooth}body{padding-bottom:16px}
     </div>
   </header>
 
-  <button class="back-to-menu-btn hidden no-print" id="backToMenuBtn" onclick="navigateToTab('', true)">
+  <button class="back-to-menu-btn hidden no-print" id="backToMenuBtn" onclick="navigateToTab('pageDashboard', true)">
     <span>⬅️ العودة للقوائم الرئيسية</span>
   </button>
-
-  <nav class="mobile-bottom-nav no-print" id="mobileBottomNav" aria-label="التنقل الرئيسي">
-    <button data-target="pageDashboard"><span class="mobile-nav-icon">📊</span><span>الرئيسية</span></button>
-    <button data-target="pageExpenses"><span class="mobile-nav-icon">💸</span><span>إضافة</span></button>
-    <button data-target="pageLedger"><span class="mobile-nav-icon">📋</span><span>السجل</span></button>
-    <button data-target="pageReports"><span class="mobile-nav-icon">📈</span><span>التقارير</span></button>
-    <button data-target="pageSettings"><span class="mobile-nav-icon">⚙️</span><span>إعدادات</span></button>
-  </nav>
 
   <div class="install-banner" id="installBanner"><span>ثبّت راتب على جوالك للوصول السريع والعمل كأنه تطبيق.</span><button id="installAppBtn">تثبيت</button></div>
   <div class="quick-summary mobile-only" id="mobileQuickSummary"><div><small>المتاح</small><b id="mobileAvailable">0</b></div><div><small>المصروف</small><b id="mobileSpent">0</b></div><div><small>الادخار</small><b id="mobileSaving">0%</b></div></div>
   
-  <div id="pageDashboard" class="hidden">
+  <div id="pageDashboard" class="">
+    <!-- 6 أزرار رئيسية متساوية ومنظمة في الواجهة الأساسية -->
+    <div class="main-menu-grid no-print">
+      <button class="main-menu-btn" onclick="navigateToTab('pageDashboard', true)">
+        <span class="main-menu-icon">📊</span>
+        <span>الرئيسية</span>
+      </button>
+      <button class="main-menu-btn" onclick="navigateToTab('pageExpenses', true)">
+        <span class="main-menu-icon">💸</span>
+        <span>إضافة</span>
+      </button>
+      <button class="main-menu-btn" onclick="navigateToTab('pageLedger', true)">
+        <span class="main-menu-icon">📋</span>
+        <span>السجل</span>
+      </button>
+      <button class="main-menu-btn" onclick="navigateToTab('pageReports', true); toggleReportView('accounts');">
+        <span class="main-menu-icon">📈</span>
+        <span>التقارير</span>
+      </button>
+      <button class="main-menu-btn" onclick="navigateToTab('pageSettings', true)">
+        <span class="main-menu-icon">⚙️</span>
+        <span>الإعدادات</span>
+      </button>
+      <button class="main-menu-btn budget-btn" onclick="navigateToTab('pageReports', true); toggleReportView('budget');">
+        <span class="main-menu-icon">📊</span>
+        <span>إدارة الميزانية</span>
+      </button>
+    </div>
+
+    <!-- لوحة القيادة في الرئيسية -->
     <div class="card no-print" id="proDashboardCard">
       <h2><span>⚡ لوحة القيادة</span><span id="lastSavedLabel" style="font-size:.85rem;color:var(--muted);font-weight:900">جاهز</span></h2>
       <div class="pro-kpi-grid">
@@ -426,9 +425,12 @@ html{scroll-behavior:smooth}body{padding-bottom:16px}
       <div id="proAlertsBox" style="font-size:1.05rem;font-weight:900;color:var(--muted)"></div>
     </div>
 
-    <!-- بطاقة التذكيرات والمهام المعدلة والقابلة للتعديل مع مستويات الأهمية -->
+    <!-- بطاقة التذكيرات والمهام مع الرسم البياني الدائري (Doughnut) -->
     <div class="card no-print">
       <h2><span>🔔 التذكيرات والمهام</span><button class="btn btn-ghost" id="openAddReminderModalBtn" style="width:auto; margin-top:0; padding:4px 10px; font-size:0.95rem;">➕ إضافة تذكير</button></h2>
+      
+      <div class="chart-box" style="height: 200px; margin-bottom: 10px;"><canvas id="remindersChart"></canvas></div>
+
       <div id="remindersListContainer" style="font-size: 1.05rem; margin-top: 8px;">
         <div style="text-align: center; color: var(--muted); padding: 10px; font-weight: 900;">لا توجد تذكيرات نشطة حالياً</div>
       </div>
@@ -473,7 +475,6 @@ html{scroll-behavior:smooth}body{padding-bottom:16px}
         <input type="hidden" id="valDebitAcc">
       </div>
 
-      <!-- زر لتبديل الحسابات (عكس المدين والدائن بضغطة زر) -->
       <div style="text-align: center; margin: -6px 0 6px 0;">
         <button type="button" class="btn btn-ghost" id="swapAccountsBtn" style="width: auto; display: inline-flex; align-items: center; gap: 6px; padding: 6px 14px; font-size: 0.95rem; border-color: var(--accent); color: var(--accent);">🔄 تبديل الحسابات (عكس المدين والدائن)</button>
       </div>
@@ -566,7 +567,6 @@ html{scroll-behavior:smooth}body{padding-bottom:16px}
         </h2>
         <div style="display:flex;gap:6px;align-items:center">
           <button class="btn btn-ghost" id="exportCsvBtn" style="width:auto;margin-top:0;padding:6px 10px;font-size:0.95rem">CSV</button>
-          <!-- زر التصفير المحمي بتأكيد إضافي منعاً للضغط غير المقصود -->
           <button class="btn btn-danger" id="clearAllTxsBtn" style="width:auto; margin-top:0; padding:6px 10px; font-size:0.95rem;">
             🗑️ تصفير
           </button>
@@ -638,7 +638,7 @@ html{scroll-behavior:smooth}body{padding-bottom:16px}
 
     <div class="card" id="budgetReportCard">
       <h2>
-        <span>📋 ملخص الميزانية والمنصرف (التحليل)</span>
+        <span>📋 تقارير الميزانية والبنود</span>
         <button class="icon-btn no-print" id="printBudgetReportBtn" title="طباعة مباشرة" style="width:42px; height:42px;">🖨️</button>
       </h2>
       <div style="font-size:1.05rem; color:var(--muted); font-weight:900; margin-bottom:10px;" id="reportPeriodTitle">الفترة: -</div>
@@ -668,10 +668,10 @@ html{scroll-behavior:smooth}body{padding-bottom:16px}
         <table class="report-table hide-in-privacy">
           <thead>
             <tr>
-              <th>البند</th>
+              <th>البند (انقر للتفاصيل)</th>
               <th>المخصص</th>
               <th>المنصرف</th>
-              <th>الفائض</th>
+              <th>الفائض/المتبقي</th>
               <th>النسبة</th>
             </tr>
           </thead>
@@ -683,7 +683,7 @@ html{scroll-behavior:smooth}body{padding-bottom:16px}
 
     <div class="card hidden" id="accountStatementCard">
       <h2>
-        <span id="statementHeaderTitle">📑 كشف حساب</span>
+        <span id="statementHeaderTitle">📑 كشف حساب العملاء والصناديق</span>
         <button class="icon-btn no-print" id="printStatementBtn" title="طباعة مباشرة" style="width:42px; height:42px;">🖨️</button>
       </h2>
       <div style="font-size:1.05rem; color:var(--muted); font-weight:900; margin-bottom:8px;" id="statementPeriodTitle">الفترة: -</div>
@@ -814,7 +814,16 @@ html{scroll-behavior:smooth}body{padding-bottom:16px}
     </div>
   </div>
 
-  <!-- نافذة إضافة / تعديل التذكير مع مستويات الأهمية الأربعة -->
+  <div class="modal-overlay" id="categoryTransactionsModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 id="categoryModalTitle" style="font-size:1.25rem; color:var(--accent); font-weight:900;">تفاصيل عمليات البند</h3>
+        <button class="icon-btn" id="closeCategoryModalBtn" style="width:40px; height:40px;">✕</button>
+      </div>
+      <div id="categoryTransactionsList" style="max-height: 60vh; overflow-y: auto;"></div>
+    </div>
+  </div>
+
   <div class="modal-overlay" id="reminderModal">
     <div class="modal-content">
       <div class="modal-header">
@@ -894,7 +903,6 @@ html{scroll-behavior:smooth}body{padding-bottom:16px}
         <input type="hidden" id="valEditDebitAcc">
       </div>
 
-      <!-- زر تبديل الحسابات داخل نافذة التعديل أيضاً -->
       <div style="text-align: center; margin: -6px 0 6px 0;">
         <button type="button" class="btn btn-ghost" id="swapEditAccountsBtn" style="width: auto; display: inline-flex; align-items: center; gap: 6px; padding: 6px 14px; font-size: 0.95rem; border-color: var(--accent); color: var(--accent);">🔄 تبديل الحسابات (عكس المدين والدائن)</button>
       </div>
@@ -1032,7 +1040,6 @@ html{scroll-behavior:smooth}body{padding-bottom:16px}
   </div>
   <div id="toastStack" class="toast-stack" aria-live="polite"></div>
 
-  <!-- قالب طباعة كشف الحساب -->
   <div class="print-statement-container" id="printStatementContainer">
     <div class="ps-header">
       <h1 id="psOrgName">مؤسسة خيرية</h1>
@@ -1290,7 +1297,7 @@ let isPrivacyMode = false;
 let pendingAmount = 0, pendingType = '';
 let previewExcludedIds = new Set();
 let activeEditingTx = null;
-let currentActiveTab = ''; 
+let currentActiveTab = 'pageDashboard'; 
 let currentVoucherMode = 'spend';
 let activeReportTab = 'budget';
 let currentLedgerSearchQuery = '', currentStatementSearchQuery = '';
@@ -1320,6 +1327,8 @@ function effectiveTransactions(txs=getAllTransactions()) { return txs.filter(t =
 function getReminders() { return store.get('reminders', []); }
 function saveReminders(r) { store.set('reminders', r); }
 
+let remindersChartInstance = null;
+
 function updateProDashboard() {
   const txs = effectiveTransactions();
   const income = txs.filter(t => !t.isExpense && t.voucherMode !== 'spend').reduce((n,t)=>n+Number(t.amount||0),0);
@@ -1333,9 +1342,40 @@ function updateProDashboard() {
   Object.keys(ceilings).forEach(acc=>{const bal=getCurrentAccountBalance(acc);const c=ceilings[acc]||{};if(c.max!=null&&bal>Number(c.max))alerts.push(`⚠️ ${acc}: تجاوز السقف الأعلى`);if(c.min!=null&&bal<Number(c.min))alerts.push(`⚠️ ${acc}: تجاوز السقف الأدنى`)});
   const box=document.getElementById('proAlertsBox'); if(box)box.innerHTML=alerts.length?alerts.map(esc).join('<br>'):'✅ لا توجد تنبيهات رقابية حالية';
   renderRemindersList();
+  renderRemindersChart();
 }
 
-// عرض وإدارة التذكيرات والمهام مع دعم 4 مستويات للأهمية وتعديلها
+function renderRemindersChart() {
+  const list = getReminders();
+  const counts = { 'عادية': 0, 'مهمة': 0, 'عاجلة': 0, 'حرجة جداً': 0 };
+  list.forEach(r => { const p = r.priority || 'عادية'; if (counts[p] !== undefined) counts[p]++; else counts['عادية']++; });
+
+  const ctx = document.getElementById('remindersChart');
+  if (!ctx) return;
+  if (remindersChartInstance) remindersChartInstance.destroy();
+
+  remindersChartInstance = new Chart(ctx, {
+    type: 'doughnut',
+    data: {
+      labels: ['عادية', 'مهمة', 'عاجلة', 'حرجة جداً'],
+      datasets: [{
+        label: 'توزيع المهام',
+        data: [counts['عادية'], counts['مهمة'], counts['عاجلة'], counts['حرجة جداً']],
+        backgroundColor: ['#10b981', '#f59e0b', '#f97316', '#ef4444'],
+        borderWidth: 2
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { position: 'bottom', labels: { font: { family: 'Tajawal', weight: '900', size: 12 } } },
+        datalabels: { color: '#fff', font: { weight: '900', size: 11 } }
+      }
+    }
+  });
+}
+
 function renderRemindersList() {
   const list = getReminders(), container = document.getElementById('remindersListContainer');
   if (!container) return;
@@ -1360,7 +1400,7 @@ function renderRemindersList() {
     `;
     item.querySelector('.edit-reminder-btn').addEventListener('click', () => openReminderModal(idx));
     item.querySelector('.del-reminder-btn').addEventListener('click', () => {
-      list.splice(idx, 1); saveReminders(list); renderRemindersList(); showToast('تم حذف التذكير', 'warn');
+      list.splice(idx, 1); saveReminders(list); renderRemindersList(); renderRemindersChart(); showToast('تم حذف التذكير', 'warn');
     });
     container.appendChild(item);
   });
@@ -1407,6 +1447,7 @@ document.getElementById('saveNewReminderBtn')?.addEventListener('click', () => {
   saveReminders(list);
   document.getElementById('reminderModal').classList.remove('show');
   renderRemindersList();
+  renderRemindersChart();
 });
 
 function openGlobalSearch() { lastFocusedElement=document.activeElement; document.getElementById('globalSearchModal').classList.add('show'); const input=document.getElementById('globalSearchInput'); input.value=''; input.focus(); renderGlobalSearch(''); }
@@ -1552,7 +1593,6 @@ function updateVoucherSeqBadge() {
   document.getElementById('voucherSeqNumBadge').textContent = `رقم: ${getNextVoucherNumber(currentVoucherMode)}`;
 }
 
-// دمج الإجماليات وتلوين الرصيد (أخضر للدائن، أحمر للمدين)
 function preparePrintStatementTemplate(accountName, targetTxs) {
   const cfg = getHeaderConfig();
   document.getElementById('psOrgName').textContent = (cfg.show && cfg.name) ? cfg.name : '';
@@ -1644,20 +1684,17 @@ let allowExit = false;
 function pushAppHistoryState() { window.history.pushState({ page: 'ratib_app_entry' }, ''); }
 
 function navigateToTab(target, pushToHistory = true) {
-  const navContainer = document.getElementById('mobileBottomNav'), backBtn = document.getElementById('backToMenuBtn');
-  document.querySelectorAll('.mobile-bottom-nav button').forEach(b => b.classList.remove('active'));
+  const backBtn = document.getElementById('backToMenuBtn');
   ['pageDashboard', 'pageExpenses', 'pageLedger', 'pageReports', 'pageSettings'].forEach(id => document.getElementById(id).classList.add('hidden'));
 
-  if (!target) {
-    currentActiveTab = '';
-    navContainer.classList.remove('hidden-nav'); 
+  if (!target || target === 'pageDashboard') {
+    currentActiveTab = 'pageDashboard';
     backBtn.classList.add('hidden'); 
+    document.getElementById('pageDashboard').classList.remove('hidden');
+    updateProDashboard();
     return;
   }
-  navContainer.classList.add('hidden-nav');
   backBtn.classList.remove('hidden');
-  const activeBtn = document.querySelector(`.mobile-bottom-nav button[data-target="${target}"]`);
-  if (activeBtn) activeBtn.classList.add('active');
   document.getElementById(target).classList.remove('hidden');
   currentActiveTab = target;
 
@@ -1669,16 +1706,12 @@ function navigateToTab(target, pushToHistory = true) {
   if (pushToHistory) window.history.pushState({ page: 'tab', tab: target }, '');
 }
 
-document.querySelectorAll('.mobile-bottom-nav button').forEach(tab => {
-  tab.addEventListener('click', () => navigateToTab(tab.dataset.target, true));
-});
-
 let touchStartX = 0, touchStartY = 0;
 document.addEventListener('touchstart', (e) => { touchStartX = e.changedTouches[0].screenX; touchStartY = e.changedTouches[0].screenY; }, { passive: true });
 document.addEventListener('touchend', (e) => {
   const diffX = e.changedTouches[0].screenX - touchStartX, diffY = e.changedTouches[0].screenY - touchStartY;
   if (Math.abs(diffX) > Math.abs(diffY) && Math.abs(diffX) > 60) {
-    const idx = TABS_ORDER.indexOf(currentActiveTab);
+    const idx = TABS_ORDER.indexOf(currentActiveTab || 'pageDashboard');
     if (diffX > 0 && idx > 0) navigateToTab(TABS_ORDER[idx - 1], true);
     else if (diffX < 0 && idx < TABS_ORDER.length - 1) navigateToTab(TABS_ORDER[idx + 1], true);
   }
@@ -1698,7 +1731,8 @@ window.addEventListener('popstate', (e) => {
   if (document.getElementById('addAccountModal').classList.contains('show')) { document.getElementById('addAccountModal').classList.remove('show'); pushAppHistoryState(); return; }
   if (document.getElementById('editAccountModal').classList.contains('show')) { document.getElementById('editAccountModal').classList.remove('show'); pushAppHistoryState(); return; }
   if (document.getElementById('printPromptModal').classList.contains('show')) { document.getElementById('printPromptModal').classList.remove('show'); pushAppHistoryState(); return; }
-  if (currentActiveTab) { navigateToTab('', false); pushAppHistoryState(); return; }
+  if (document.getElementById('categoryTransactionsModal').classList.contains('show')) { document.getElementById('categoryTransactionsModal').classList.remove('show'); pushAppHistoryState(); return; }
+  if (currentActiveTab && currentActiveTab !== 'pageDashboard') { navigateToTab('pageDashboard', false); pushAppHistoryState(); return; }
   showExitModal(); pushAppHistoryState();
 });
 
@@ -2028,7 +2062,6 @@ function selectVoucherTypeDirect(mode) {
   }
 }
 
-// زر تبديل الحسابات (عكس المدين والدائن) في صفحة الإدخال
 document.getElementById('swapAccountsBtn').addEventListener('click', () => {
   const dVal = selDebitAcc.getValue(), dText = document.getElementById('inpDebitAcc').value;
   const cVal = selCreditAcc.getValue(), cText = document.getElementById('inpCreditAcc').value;
@@ -2037,7 +2070,6 @@ document.getElementById('swapAccountsBtn').addEventListener('click', () => {
   showToast('تم تبديل الحسابات بنجاح', 'success');
 });
 
-// زر تبديل الحسابات داخل نافذة التعديل
 document.getElementById('swapEditAccountsBtn').addEventListener('click', () => {
   const dVal = selEditDebitAcc.getValue(), dText = document.getElementById('inpEditDebitAcc').value;
   const cVal = selEditCreditAcc.getValue(), cText = document.getElementById('inpEditCreditAcc').value;
@@ -2107,7 +2139,6 @@ function deleteSingleTransaction(itemId) {
   showToast('تم إلغاء السند بنجاح', 'warn'); updateVoucherSeqBadge(); renderAllData(); updateProDashboard();
 }
 
-// حماية زر التصفير العام في السجل بتأكيد مزدوج
 document.getElementById('clearAllTxsBtn').addEventListener('click', () => {
   const firstCheck = confirm('⚠️ تحذير خطير: أنت على وشك تصفير ومسح كافة العمليات والسندات المسجلة نهائياً!\n\nهل أنت متأكد تماماً من رغبتك في المتابعة؟');
   if (!firstCheck) return;
@@ -2279,7 +2310,6 @@ function renderAllData() {
       </div>
       <div class="tx-dist">${distHtml}</div>
     `;
-    // النقر على البطاقة يفتح شاشة التعديل مباشرة
     card.addEventListener('click', (e) => { 
       if (e.target.closest('.single-del-btn')) { e.stopPropagation(); deleteSingleTransaction(item.id); return; } 
       openTxModal(item); 
@@ -2339,20 +2369,23 @@ function getFilteredTransactions() {
 
 function runActiveReport() { if (activeReportTab === 'budget') runBudgetReport(); else runAccountStatement(); }
 
+let cachedBudgetSummary = {};
+
 function runBudgetReport() {
   const { targetTxs, periodTitle } = getFilteredTransactions(), cats = getCats();
   document.getElementById('reportPeriodTitle').textContent = `الفترة: ${periodTitle}`;
-  const summary = {}; cats.forEach(c => summary[c.id] = { id: c.id, name: c.name, color: c.color, allocated: 0, actualSpent: 0, notes: [] });
+  cachedBudgetSummary = {}; 
+  cats.forEach(c => cachedBudgetSummary[c.id] = { id: c.id, name: c.name, color: c.color, allocated: 0, actualSpent: 0, transactions: [] });
 
   let grandAllocated = 0, grandSpent = 0;
   targetTxs.forEach(t => {
     const dist = t.distribution || {}, exec = t.execution || {};
     Object.keys(dist).forEach(cid => {
-      if (summary[cid]) {
-        const alloc = Number(dist[cid].amount || 0); summary[cid].allocated += alloc; grandAllocated += alloc;
+      if (cachedBudgetSummary[cid]) {
+        const alloc = Number(dist[cid].amount || 0); cachedBudgetSummary[cid].allocated += alloc; grandAllocated += alloc;
         const spent = exec[cid]?.actualSpent !== undefined ? Number(exec[cid].actualSpent) : (t.isExpense ? Number(t.amount || 0) : alloc);
-        summary[cid].actualSpent += spent; grandSpent += spent;
-        if (exec[cid]?.note) summary[cid].notes.push({ note: exec[cid].note, txType: t.type, date: t.date });
+        cachedBudgetSummary[cid].actualSpent += spent; grandSpent += spent;
+        cachedBudgetSummary[cid].transactions.push({ ...t, assignedAmount: alloc });
       }
     });
   });
@@ -2364,23 +2397,77 @@ function runBudgetReport() {
   document.getElementById('kpiRate').textContent = grandRate + '%';
 
   const tbody = document.getElementById('reportBody'); tbody.innerHTML = '';
-  const catRows = Object.values(summary).filter(c => c.allocated > 0 || c.actualSpent > 0);
+  const catRows = Object.values(cachedBudgetSummary).filter(c => c.allocated > 0 || c.actualSpent > 0);
   if (catRows.length === 0) { tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding:14px;">لا توجد بيانات ميزانية</td></tr>'; }
   else {
     catRows.forEach(c => {
       const surplus = c.allocated - c.actualSpent, rate = c.allocated > 0 ? Math.round((c.actualSpent / c.allocated) * 100) : 0;
-      tbody.innerHTML += `<tr><td><b style="color:${c.color};">●</b> <b>${esc(c.name)}</b></td><td>${fmt(c.allocated)}</td><td style="color:var(--danger);">${fmt(c.actualSpent)}</td><td style="color:${surplus >= 0 ? 'var(--ok)' : 'var(--danger)'};">${fmt(surplus)}</td><td><b>${rate}%</b></td></tr>`;
+      const tr = document.createElement('tr');
+      tr.title = 'انقر لاستعراض عمليات هذا البند بالتفصيل';
+      tr.innerHTML = `<td><b style="color:${c.color};">●</b> <b>${esc(c.name)}</b> 🔍</td><td>${fmt(c.allocated)}</td><td style="color:var(--danger);">${fmt(c.actualSpent)}</td><td style="color:${surplus >= 0 ? 'var(--ok)' : 'var(--danger)'};">${fmt(surplus)}</td><td><b>${rate}%</b></td>`;
+      tr.addEventListener('click', () => openCategoryTransactionsModal(c));
+      tbody.appendChild(tr);
     });
   }
 
-  const ctx = document.getElementById('reportChart'), dark = document.documentElement.dataset.theme === 'dark';
-  if (reportChart) reportChart.destroy();
-  reportChart = new Chart(ctx, {
-    type: 'bar',
-    data: { labels: catRows.map(c => c.name), datasets: [{ label: 'المخصص', data: catRows.map(c => c.allocated), backgroundColor: '#0284c7' }, { label: 'المنصرف', data: catRows.map(c => c.actualSpent), backgroundColor: '#ef4444' }] },
-    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { labels: { font: { family: 'Tajawal', weight: '900', size: 12 } } }, datalabels: { display: false } } }
+  const ctx = document.getElementById('reportChart');
+  if (window.reportChart) window.reportChart.destroy();
+  window.reportChart = new Chart(ctx, {
+    type: 'doughnut',
+    data: {
+      labels: catRows.map(c => c.name),
+      datasets: [{
+        label: 'المخصص',
+        data: catRows.map(c => c.allocated),
+        backgroundColor: catRows.map(c => c.color || '#0284c7'),
+        borderWidth: 2
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { position: 'bottom', labels: { font: { family: 'Tajawal', weight: '900', size: 12 } } },
+        datalabels: { color: '#fff', font: { weight: '900', size: 11 } }
+      }
+    }
   });
 }
+
+function openCategoryTransactionsModal(catObj) {
+  document.getElementById('categoryModalTitle').textContent = `📁 تفاصيل عمليات بند: ${catObj.name}`;
+  const listContainer = document.getElementById('categoryTransactionsList');
+  listContainer.innerHTML = '';
+
+  if (!catObj.transactions || catObj.transactions.length === 0) {
+    listContainer.innerHTML = '<div style="text-align:center; color:var(--muted); padding:16px; font-weight:900;">لا توجد سندات أو عمليات مرتبطة بهذا البند.</div>';
+  } else {
+    catObj.transactions.forEach(t => {
+      const item = document.createElement('div');
+      item.style.cssText = 'background:var(--bg); border:2px solid var(--border); border-radius:10px; padding:12px; margin-bottom:8px; font-weight:900;';
+      const noteStr = t.execution?.[Object.keys(t.execution)[0]]?.note || t.type;
+      item.innerHTML = `
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <span><b>#${t.seqNum || '-'}</b> • ${esc(t.type)}</span>
+          <span style="color:var(--accent);">${fmt(t.assignedAmount, t.currency)}</span>
+        </div>
+        <div style="font-size:0.95rem; color:var(--muted); margin-top:4px;">📅 ${t.date} | البيان: ${esc(noteStr)}</div>
+        <div style="font-size:0.9rem; color:var(--muted); margin-top:2px;">الطرف المدين: ${esc(t.debitAccount)} ← الدائن: ${esc(t.creditAccount)}</div>
+      `;
+      item.addEventListener('click', () => {
+        document.getElementById('categoryTransactionsModal').classList.remove('show');
+        openTxModal(t);
+      });
+      listContainer.appendChild(item);
+    });
+  }
+  document.getElementById('categoryTransactionsModal').classList.add('show');
+  pushAppHistoryState();
+}
+
+document.getElementById('closeCategoryModalBtn').addEventListener('click', () => {
+  document.getElementById('categoryTransactionsModal').classList.remove('show');
+});
 
 document.getElementById('statementSearchInput').addEventListener('input', (e) => { currentStatementSearchQuery = e.target.value.trim().toLowerCase(); runAccountStatement(); });
 
@@ -2560,9 +2647,6 @@ document.getElementById('installAppBtn')?.addEventListener('click', async () => 
   document.getElementById('installBanner')?.classList.remove('show');
 });
 
-function syncMobileNav(target) { document.querySelectorAll('#mobileBottomNav button').forEach(b => b.classList.toggle('active', b.dataset.target === target)); }
-const origNav = navigateToTab; navigateToTab = function(t, p = true) { origNav(t, p); syncMobileNav(t); };
-
 function updateMobileSummary() {
   const txs = getAllTransactions().filter(t => t.currency === (document.getElementById('currency')?.value || 'YER') && t.status !== 'reversed');
   const inc = txs.filter(t => !t.isExpense && t.voucherMode !== 'spend').reduce((n,t)=>n+Number(t.amount||0),0);
@@ -2576,7 +2660,7 @@ const origRender = renderAllData; renderAllData = function() { origRender(); upd
 (function init() {
   document.documentElement.dataset.theme = store.get('theme', 'light');
   setupSearchableSelects(); updateSearchableData(); setupFormattedNumberInputs();
-  navigateToTab('', false); updateProDashboard(); checkAppLockOnStartup(); pushAppHistoryState();
+  navigateToTab('pageDashboard', false); updateProDashboard(); checkAppLockOnStartup(); pushAppHistoryState();
 })();
 </script>
 </body>

@@ -30,7 +30,6 @@
 }
 *{box-sizing:border-box; margin:0; padding:0; -webkit-tap-highlight-color:transparent}
 html, body { overflow-x: hidden; width: 100%; height: 100%; }
-/* تكبير حجم الخط الأساسي ليكون مريحاً ومناسباً لكافة المستخدمين */
 body{ font-family:'Tajawal',system-ui,sans-serif; background:var(--bg); color:var(--text); min-height:100vh; transition:background .3s, color .3s; padding-bottom:50px; font-size:18px; user-select: none; }
 .wrap{max-width:560px; margin:0 auto; padding:16px 14px; width:100%; min-height: 100vh;}
 header{display:flex; justify-content:space-between; align-items:center; margin-bottom:14px}
@@ -39,7 +38,6 @@ header{display:flex; justify-content:space-between; align-items:center; margin-b
 .icon-btn:active { transform: scale(0.9); }
 .header-actions { display:flex; gap:10px; }
 
-/* تصميم القوائم الرئيسية (كبيرة وواضحة جداً ومريحة للعين) */
 .nav-tabs { display: none; }
 .mobile-bottom-nav {
   display: grid;
@@ -59,7 +57,7 @@ header{display:flex; justify-content:space-between; align-items:center; margin-b
   color: var(--text);
   font-family: inherit;
   font-weight: 900;
-  font-size: 1.15rem; /* تكبير خط العناوين الرئيسية */
+  font-size: 1.15rem;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -80,9 +78,8 @@ header{display:flex; justify-content:space-between; align-items:center; margin-b
   border-color: var(--accent);
   box-shadow: 0 8px 20px rgba(2,132,199,0.35);
 }
-.mobile-bottom-nav .mobile-nav-icon { font-size: 2.8rem; line-height: 1; } /* أيقونات كبيرة جداً وبارزة */
+.mobile-bottom-nav .mobile-nav-icon { font-size: 2.8rem; line-height: 1; }
 
-/* زر الرجوع للقوائم الرئيسية بكبر مريح */
 .back-to-menu-btn {
   display: flex;
   align-items: center;
@@ -195,10 +192,10 @@ body.privacy-active .icon-btn#privacyBtn { background: var(--accent); color: #ff
 .kpi-title { font-size: 0.9rem; color: var(--muted); font-weight: 800; margin-bottom: 4px; }
 .kpi-value { font-size: 1.2rem; font-weight: 900; color: var(--text); }
 
-.report-table { width: 100%; border-collapse: collapse; margin-top: 6px; font-size: 0.95rem; }
-.report-table th, .report-table td { padding: 10px 8px; border-bottom: 1.5px solid var(--border); text-align: right; cursor: pointer; }
-.report-table th { background: var(--bg); color: var(--muted); font-weight: 900; cursor: default; }
-.report-table tr:hover td { background: rgba(2,132,199,0.06); }
+.report-table { width: 100%; border-collapse: collapse; margin-top: 8px; font-size: 1.05rem; }
+.report-table th, .report-table td { padding: 14px 10px; border-bottom: 2px solid var(--border); text-align: right; cursor: pointer; font-weight: 800; }
+.report-table th { background: var(--bg); color: var(--text); font-weight: 900; font-size: 1.1rem; border-bottom: 3px solid var(--accent); cursor: default; }
+.report-table tr:hover td { background: rgba(2,132,199,0.08); }
 
 .highlight-match { background: #fef08a; color: #854d0e; padding: 2px 6px; border-radius: 4px; font-weight: 900; }
 
@@ -209,11 +206,11 @@ body.privacy-active .icon-btn#privacyBtn { background: var(--accent); color: #ff
   background: var(--bg);
   border: 2px solid var(--border);
   border-radius: 12px;
-  padding: 12px 14px;
-  margin-bottom: 8px;
+  padding: 14px 16px;
+  margin-bottom: 10px;
   cursor: pointer;
   font-weight: 900;
-  font-size: 1.05rem;
+  font-size: 1.15rem;
   color: var(--accent);
   transition: background 0.2s;
 }
@@ -222,11 +219,11 @@ body.privacy-active .icon-btn#privacyBtn { background: var(--accent); color: #ff
   background: var(--card);
   border: 2px dashed var(--border);
   border-radius: 0 0 12px 12px;
-  padding: 10px 14px;
-  margin-top: -8px;
-  margin-bottom: 12px;
+  padding: 12px 16px;
+  margin-top: -10px;
+  margin-bottom: 14px;
   display: none;
-  font-size: 1rem;
+  font-size: 1.05rem;
 }
 .acc-accordion-body.open { display: block; }
 
@@ -650,7 +647,7 @@ html{scroll-behavior:smooth}body{padding-bottom:18px}
     <div class="card" id="budgetReportCard">
       <h2>
         <span>📋 ملخص الميزانية والمنصرف</span>
-        <button class="icon-btn no-print" id="printBudgetReportBtn" title="طباعة" style="width:40px; height:40px;">🖨️</button>
+        <button class="icon-btn no-print" id="printBudgetReportBtn" title="طباعة مباشرة" style="width:40px; height:40px;">🖨️</button>
       </h2>
       <div style="font-size:0.95rem; color:var(--muted); font-weight:800; margin-bottom:12px;" id="reportPeriodTitle">الفترة: -</div>
 
@@ -696,7 +693,7 @@ html{scroll-behavior:smooth}body{padding-bottom:18px}
     <div class="card hidden" id="accountStatementCard">
       <h2>
         <span id="statementHeaderTitle">📑 كشف حساب</span>
-        <button class="icon-btn no-print" id="printStatementBtn" title="طباعة كشف الحساب" style="width:40px; height:40px;">🖨️</button>
+        <button class="icon-btn no-print" id="printStatementBtn" title="طباعة مباشرة" style="width:40px; height:40px;">🖨️</button>
       </h2>
       <div style="font-size:0.95rem; color:var(--muted); font-weight:800; margin-bottom:10px;" id="statementPeriodTitle">الفترة: -</div>
 
@@ -827,6 +824,32 @@ html{scroll-behavior:smooth}body{padding-bottom:18px}
     </div>
   </div>
 
+  <!-- نافذة تعديل اسم الحساب أو بياناته -->
+  <div class="modal-overlay" id="editAccountModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 style="font-size:1.2rem; color:var(--accent); font-weight:900;">✏️ تعديل اسم الحساب أو السقف</h3>
+        <button class="icon-btn" id="closeEditAccountModalBtn" style="width:38px; height:38px;">✕</button>
+      </div>
+      <input type="hidden" id="editAccountOldName">
+      <div class="form-group">
+        <label>اسم الحساب الجديد:</label>
+        <input type="text" id="editAccountNameInput" placeholder="أدخل الاسم الجديد...">
+      </div>
+      <div style="display:flex; gap:10px;">
+        <div class="form-group" style="flex:1;">
+          <label>السقف الأعلى:</label>
+          <input type="number" id="editAccountMaxCeil">
+        </div>
+        <div class="form-group" style="flex:1;">
+          <label>السقف الأدنى:</label>
+          <input type="number" id="editAccountMinCeil">
+        </div>
+      </div>
+      <button class="btn btn-primary" id="saveEditedAccountBtn" style="margin-top: 10px;">💾 حفظ التعديلات</button>
+    </div>
+  </div>
+
   <!-- نافذة المعاينة للميزانية -->
   <div class="modal-overlay" id="previewModal">
     <div class="modal-content">
@@ -903,7 +926,7 @@ html{scroll-behavior:smooth}body{padding-bottom:18px}
       </div>
 
       <div style="display:flex; gap:10px; margin-top:14px;">
-        <button class="btn btn-success" id="modalPrintDocBtn" style="flex:1; margin-top:0;">🖨️ طباعة</button>
+        <button class="btn btn-success" id="modalPrintDocBtn" style="flex:1; margin-top:0;">🖨️ طباعة المستند</button>
         <button class="btn btn-primary" id="saveTxExecutionBtn" style="flex:2; margin-top:0;">💾 حفظ التعديلات</button>
       </div>
       <button class="btn btn-ghost" id="closeModalActionBtn" style="margin-top:8px;">إغلاق</button>
@@ -977,7 +1000,7 @@ html{scroll-behavior:smooth}body{padding-bottom:18px}
     <div class="modal-content" style="max-width: 380px; text-align: center;">
       <div style="font-size: 2.5rem; margin-bottom: 10px;">🖨️</div>
       <h3 style="font-size: 1.3rem; font-weight: 900; margin-bottom: 8px; color: var(--text);">تم اعتماد وحفظ السند بنجاح</h3>
-      <p style="font-size: 1rem; color: var(--muted); margin-bottom: 18px;">هل تريد طباعة هذا المستند أو تصديره الآن؟</p>
+      <p style="font-size: 1rem; color: var(--muted); margin-bottom: 18px;">هل تريد طباعة هذا المستند الآن؟</p>
       <div style="display: flex; gap: 10px;">
         <button class="btn btn-success" id="confirmPrintDocBtn" style="flex: 1; margin-top: 0;">طباعة المستند</button>
         <button class="btn btn-ghost" id="skipPrintDocBtn" style="flex: 1; margin-top: 0;">تخطي</button>
@@ -1360,6 +1383,14 @@ function fmt(amount, explicitCur = null){
   return formatted + ' ' + sym;
 }
 
+function fmtShort(amount, explicitCur = null) {
+  const num = Number(amount || 0);
+  const formatted = num.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+  const cur = explicitCur || document.getElementById('currency').value;
+  const sym = {YER:'ر.ي', SAR:'ر.س', USD:'$'}[cur] || cur;
+  return formatted + ' ' + sym;
+}
+
 function esc(s){ return String(s ?? '').replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m])); }
 
 function highlightText(text, query) {
@@ -1549,12 +1580,11 @@ function navigateToTab(target, pushToHistory = true) {
 
   if (!target) {
     currentActiveTab = '';
-    navContainer.classList.remove('hidden-nav'); // إظهار القوائم الرئيسية فقط
-    backBtn.classList.add('hidden'); // إخفاء زر العودة
+    navContainer.classList.remove('hidden-nav'); 
+    backBtn.classList.add('hidden'); 
     return;
   }
 
-  // إخفاء القوائم الرئيسية وإظهار القسم المطلوب مع زر العودة
   navContainer.classList.add('hidden-nav');
   backBtn.classList.remove('hidden');
 
@@ -1642,10 +1672,12 @@ window.addEventListener('popstate', (e) => {
   const tM = document.getElementById('txModal');
   const aM = document.getElementById('addAccountModal');
   const prM = document.getElementById('printPromptModal');
+  const editAccM = document.getElementById('editAccountModal');
 
   if (pM.classList.contains('show')) { closePreviewModal(false); pushAppHistoryState(); return; }
   if (tM.classList.contains('show')) { tM.classList.remove('show'); pushAppHistoryState(); return; }
   if (aM.classList.contains('show')) { aM.classList.remove('show'); pushAppHistoryState(); return; }
+  if (editAccM.classList.contains('show')) { editAccM.classList.remove('show'); pushAppHistoryState(); return; }
   if (prM.classList.contains('show')) { prM.classList.remove('show'); pushAppHistoryState(); return; }
 
   if (currentActiveTab) {
@@ -1665,7 +1697,7 @@ window.addEventListener('beforeunload', (e) => {
   }
 });
 
-/* ================== فحص الأسقف المالية ================== */
+/* ================== فحص وتعديل الأسقف والحسابات ================== */
 function getCurrentAccountBalance(accName) {
   const p = getMasterPlan();
   const txs = p.transactions || [];
@@ -1705,6 +1737,82 @@ function checkCeilingWarning(debitAcc, creditAcc, newAmt) {
 
   return warnings;
 }
+
+/* ================== نافذة تعديل الحساب (الاسم والسقف) ================== */
+function openEditAccountModal(parentGroup, subAccName) {
+  const ceilings = getAccountCeilings();
+  const ceil = ceilings[subAccName] || { max: '', min: '' };
+
+  document.getElementById('editAccountOldName').value = subAccName;
+  document.getElementById('editAccountNameInput').value = subAccName;
+  document.getElementById('editAccountMaxCeil').value = ceil.max ?? '';
+  document.getElementById('editAccountMinCeil').value = ceil.min ?? '';
+  
+  document.getElementById('editAccountModal').classList.add('show');
+}
+
+document.getElementById('closeEditAccountModalBtn').addEventListener('click', () => {
+  document.getElementById('editAccountModal').classList.remove('show');
+});
+
+document.getElementById('saveEditedAccountBtn').addEventListener('click', () => {
+  const oldName = document.getElementById('editAccountOldName').value;
+  const newName = document.getElementById('editAccountNameInput').value.trim();
+  const newMax = document.getElementById('editAccountMaxCeil').value;
+  const newMin = document.getElementById('editAccountMinCeil').value;
+
+  if (!newName) {
+    alert('يرجى إدخال اسم الحساب');
+    return;
+  }
+
+  const tree = getAccountTree();
+  let foundGroup = null;
+  let foundIdx = -1;
+
+  Object.keys(tree).forEach(g => {
+    const idx = tree[g].indexOf(oldName);
+    if (idx !== -1) {
+      foundGroup = g;
+      foundIdx = idx;
+    }
+  });
+
+  if (foundGroup !== null && foundIdx !== -1) {
+    if (oldName !== newName && tree[foundGroup].includes(newName)) {
+      alert('هذا الاسم موجود مسبقاً ضمن هذا التصنيف');
+      return;
+    }
+    tree[foundGroup][foundIdx] = newName;
+    saveAccountTree(tree);
+
+    const ceilings = getAccountCeilings();
+    if (oldName !== newName) {
+      ceilings[newName] = ceilings[oldName] || {};
+      delete ceilings[oldName];
+    }
+    ceilings[newName] = {
+      max: newMax !== '' ? Number(newMax) : null,
+      min: newMin !== '' ? Number(newMin) : null
+    };
+    saveAccountCeilings(ceilings);
+
+    if (oldName !== newName) {
+      let p = getMasterPlan();
+      let modified = false;
+      p.transactions.forEach(t => {
+        if (t.debitAccount === oldName) { t.debitAccount = newName; modified = true; }
+        if (t.creditAccount === oldName) { t.creditAccount = newName; modified = true; }
+      });
+      if (modified) store.set('plan', p);
+    }
+
+    document.getElementById('editAccountModal').classList.remove('show');
+    updateSearchableData();
+    renderChartOfAccounts();
+    alert('تم تعديل اسم الحساب والبيانات بنجاح!');
+  }
+});
 
 /* ================== القوائم الذكية ================== */
 class SearchableSelect {
@@ -3086,7 +3194,7 @@ function runAccountStatement() {
           const statusText = bal > 0 ? '<b style="color:var(--ok);">له</b>' : (bal < 0 ? '<b style="color:var(--danger);">عليه</b>' : 'متزن');
           allBody.innerHTML += `
             <tr>
-              <td style="padding-right:24px;">↳ 👤 ${highlightText(subAcc, currentStatementSearchQuery)}</td>
+              <td style="padding-right:24px;">↳ <span class="clickable-account-link" data-account="${esc(subAcc)}" style="color:var(--accent); cursor:pointer; text-decoration:underline;">👤 ${highlightText(subAcc, currentStatementSearchQuery)}</span></td>
               <td style="color:var(--danger); font-weight:800;">${fmt(row.debit)}</td>
               <td style="color:var(--ok); font-weight:800;">${fmt(row.credit)}</td>
               <td style="font-weight:900;">${fmt(Math.abs(bal))} ${statusText}</td>
@@ -3094,6 +3202,16 @@ function runAccountStatement() {
           `;
         });
       }
+    });
+
+    allBody.querySelectorAll('.clickable-account-link').forEach(link => {
+      link.addEventListener('click', (e) => {
+        const accName = e.currentTarget.dataset.account;
+        navigateToTab('pageReports', true);
+        toggleReportView('accounts');
+        selReportAccount.setValue(accName, accName);
+        runAccountStatement();
+      });
     });
 
   } else {
@@ -3252,7 +3370,10 @@ function renderChartOfAccounts() {
             <span>↳ 👤 ${esc(sub)}</span>
             ${ceilBadge}
           </div>
-          <button class="del-btn delete-sub-account-btn" data-parent="${parentName}" data-idx="${i}" title="حذف الحساب">🗑️</button>
+          <div style="display:flex; gap:6px;">
+            <button class="del-btn edit-sub-account-btn" data-parent="${parentName}" data-name="${sub}" title="تعديل اسم أو سقف الحساب" style="color:var(--accent);">✏️</button>
+            <button class="del-btn delete-sub-account-btn" data-parent="${parentName}" data-idx="${i}" title="حذف الحساب">🗑️</button>
+          </div>
         </div>
       `;
     }).join('');
@@ -3268,8 +3389,18 @@ function renderChartOfAccounts() {
     container.appendChild(body);
   });
 
+  document.querySelectorAll('.edit-sub-account-btn').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const parent = e.currentTarget.dataset.parent;
+      const subName = e.currentTarget.dataset.name;
+      openEditAccountModal(parent, subName);
+    });
+  });
+
   document.querySelectorAll('.delete-sub-account-btn').forEach(btn => {
     btn.addEventListener('click', (e) => {
+      e.stopPropagation();
       const parent = e.currentTarget.dataset.parent;
       const idx = parseInt(e.currentTarget.dataset.idx);
       const tree = getAccountTree();
@@ -3293,6 +3424,7 @@ function renderChartOfAccounts() {
 
   document.querySelectorAll('.delete-parent-account-btn').forEach(btn => {
     btn.addEventListener('click', (e) => {
+      e.stopPropagation();
       const parent = e.currentTarget.dataset.parent;
       const tree = getAccountTree();
       if (confirm(`هل تريد حذف المجموعة الرئيسية (${parent}) وجميع حساباتها الفرعية؟`)) {
@@ -3466,9 +3598,10 @@ function updateMobileSummary() {
   const txs = getAllTransactions().filter(t => t.currency === (document.getElementById('currency')?.value || 'YER') && t.status !== 'reversed');
   const income = txs.filter(t => !t.isExpense && t.voucherMode !== 'spend').reduce((n,t)=>n+Number(t.amount||0),0);
   const spent = txs.filter(t => t.isExpense || t.voucherMode === 'spend').reduce((n,t)=>n+Number(t.amount||0),0);
-  const fmtShort = n => n >= 1000000 ? (n/1000000).toFixed(1)+'م' : n >= 1000 ? Math.round(n/1000)+'ك' : String(n);
   const set=(id,v)=>{const el=document.getElementById(id);if(el)el.textContent=v};
-  set('mobileAvailable',fmtShort(income-spent));set('mobileSpent',fmtShort(spent));set('mobileSaving',(income?Math.max(0,Math.round((income-spent)/income*100)):0)+'%');
+  set('mobileAvailable', fmtShort(income - spent));
+  set('mobileSpent', fmtShort(spent));
+  set('mobileSaving', (income ? Math.max(0, Math.round((income - spent) / income * 100)) : 0) + '%');
 }
 const originalRenderAllData = renderAllData;
 renderAllData = function(){ originalRenderAllData(); updateMobileSummary(); };
@@ -3479,7 +3612,6 @@ renderAllData = function(){ originalRenderAllData(); updateMobileSummary(); };
   setupSearchableSelects();
   updateSearchableData();
   setupFormattedNumberInputs();
-  // إخفاء كافة النوافذ عند البدء لتظهر الترويسة والبسملة واسم التطبيق والقوائم الرئيسية فقط
   navigateToTab('', false);
   updateProDashboard();
   checkAppLockOnStartup();

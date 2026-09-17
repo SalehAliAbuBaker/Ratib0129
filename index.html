@@ -116,13 +116,15 @@ option { color: var(--text); font-weight: 800; }
 .searchable-select-wrap { position: relative; width: 100%; }
 .searchable-input { width: 100%; background: var(--bg); border: 2px solid var(--border); color: var(--text); border-radius: 10px; padding: 12px 38px 12px 14px; font-size: 1.1rem; font-weight: 900; font-family: inherit; outline: none; cursor: pointer; }
 .searchable-input:focus { border-color: var(--accent); }
+.account-search-bar .searchable-input.has-selection{border-color:var(--ok);background:rgba(16,185,129,.08);padding-left:42px}.search-clear-btn{position:absolute;left:38px;top:50%;transform:translateY(-50%);z-index:2;border:0;background:var(--danger);color:#fff;width:24px;height:24px;border-radius:50%;font:900 1rem/1 Tajawal;cursor:pointer}.account-search-bar .searchable-arrow{left:12px;right:auto}
+
 .searchable-arrow { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--muted); font-size: 1rem; pointer-events: none; }
-.searchable-dropdown { position: absolute; top: calc(100% + 6px); right: 0; left: 0; background: var(--card); border: 2px solid var(--border); border-radius: 10px; box-shadow: 0 10px 25px rgba(0,0,0,0.15); max-height: 220px; overflow-y: auto; z-index: 1050; display: none; }
+.searchable-dropdown { position: absolute; top: calc(100% + 6px); right: 0; left: 0; background: var(--card); border: 2px solid var(--border); border-radius: 10px; box-shadow: 0 10px 25px rgba(0,0,0,0.15); max-height: 220px; overflow-y: auto; z-index: 5000; display: none; }
 .searchable-dropdown.open { display: block; }
 .searchable-item { padding: 12px 14px; cursor: pointer; font-weight: 900; font-size: 1.1rem; border-bottom: 1.5px solid var(--border); }
 .searchable-item:last-child { border-bottom: none; }
 .searchable-item:hover, .searchable-item.active { background: rgba(2,132,199,0.12); color: var(--accent); }
-.searchable-group-label { padding: 8px 12px; font-size: 1rem; font-weight: 900; color: var(--accent); background: var(--bg); border-bottom: 1.5px solid var(--border); }
+.search-results-count{padding:8px 12px;color:var(--accent);background:var(--bg);font-size:.9rem;font-weight:900;border-bottom:2px solid var(--accent);position:sticky;top:0;z-index:1}.searchable-group-label { padding: 8px 12px; font-size: 1rem; font-weight: 900; color: var(--accent); background: var(--bg); border-bottom: 1.5px solid var(--border); }
 
 .search-box { position: relative; display: flex; align-items: center; margin-bottom: 12px; }
 .search-box input { padding-right: 44px; background: var(--card); border-color: var(--accent); }
@@ -152,7 +154,7 @@ body.privacy-active .icon-btn#privacyBtn { background: var(--accent); color: #ff
 .voucher-cat-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 10px 0; border-bottom: 1.5px solid var(--border); }
 .voucher-cat-row:last-child { border-bottom: none; }
 .voucher-cat-row.disabled { opacity: 0.35; }
-.voucher-cat-name { display: flex; align-items: center; gap: 8px; font-weight: 900; font-size: 1.05rem; flex: 1; }
+.cat-help-btn{border:0;background:none;color:var(--text);font:900 1.02rem Tajawal;cursor:pointer;text-align:right}.cat-help-btn small{color:var(--accent);font-size:.85rem}.voucher-cat-name { display: flex; align-items: center; gap: 8px; font-weight: 900; font-size: 1.05rem; flex: 1; }
 .voucher-cat-input-wrap { display: flex; align-items: center; gap: 6px; }
 .voucher-cat-amt-input { width: 110px !important; text-align: center; padding: 8px !important; font-size: 1.05rem !important; }
 .voucher-cat-pct-input { width: 70px !important; text-align: center; padding: 8px 4px !important; font-size: 1.05rem !important; }
@@ -270,6 +272,7 @@ body.printing-statement .print-statement-container {
 .ps-table th { background: #e2e8f0; font-weight: 900; color: #000; -webkit-print-color-adjust: exact; print-color-adjust: exact; font-size: 9.5pt; }
 .ps-table td.desc-col { text-align: right; }
 
+.ps-summary-title{text-align:center;font-weight:900;margin-bottom:3px;color:#000}.ps-summary-table{width:100%;border-collapse:collapse;font-size:9.5pt;margin:2px 0 5px}.ps-summary-table th,.ps-summary-table td{border:1px solid #000;padding:4px;text-align:center;font-weight:900;color:#000}.ps-summary-table th{background:#e2e8f0;-webkit-print-color-adjust:exact;print-color-adjust:exact}.ps-summary-table td{background:#fff}
 .ps-footer-totals {
   border: 1px solid #000;
   border-top: none;
@@ -324,6 +327,29 @@ body{user-select:text}.btn,.icon-btn,.nav-tab,.v-card-btn,.rpt-btn,.toggle-vis-b
 .toast.success{border-right-color:var(--ok)}.toast.error{border-right-color:var(--danger)}.toast.warn{border-right-color:var(--warn)}
 @keyframes toastIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
 .pro-kpi-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-bottom:14px}.pro-kpi{background:var(--bg);border:2px solid var(--border);border-radius:12px;padding:14px;text-align:center}.pro-kpi small{display:block;color:var(--muted);font-weight:900;font-size:0.95rem}.pro-kpi strong{display:block;margin-top:4px;font-size:1.3rem}
+.main-menu-btn.home-btn{border-color:var(--accent);background:linear-gradient(135deg,rgba(2,132,199,.16),rgba(14,165,233,.04));color:var(--accent)}
+.open-tasks-cta{width:100%;border:2px solid var(--accent);background:linear-gradient(100deg,rgba(2,132,199,.16),rgba(16,185,129,.10));color:var(--text);border-radius:14px;padding:11px 14px;display:flex;align-items:center;gap:9px;text-align:right;font-family:inherit;cursor:pointer;box-shadow:0 6px 16px rgba(2,132,199,.12);transition:transform .2s,box-shadow .2s}.open-tasks-cta:hover{transform:translateY(-2px);box-shadow:0 10px 22px rgba(2,132,199,.2)}.open-tasks-cta span{font-size:1.65rem}.open-tasks-cta b{font-size:1.02rem}.open-tasks-cta small{color:var(--muted);font-weight:900;font-size:.8rem;flex:1}.open-tasks-cta i{font-size:1.8rem;color:var(--accent);font-style:normal}
+.dashboard-shortcuts{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:14px;padding-top:12px;border-top:2px dashed var(--border)}
+.round-action{border:2px solid var(--border);background:var(--card);color:var(--text);border-radius:50%;aspect-ratio:1/1;min-height:76px;padding:8px 4px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font-family:inherit;font-weight:900;cursor:pointer;transition:transform .2s,border-color .2s,box-shadow .2s}
+.round-action:hover{transform:translateY(-3px) rotate(4deg);border-color:var(--accent);box-shadow:0 8px 18px rgba(2,132,199,.18)}.round-action span{font-size:1.45rem;color:var(--accent)}.round-action small{font-size:.72rem;line-height:1.1}
+.carousel-shell{position:relative;overflow:hidden;border:2px solid var(--border);border-radius:16px;background:linear-gradient(145deg,var(--card),var(--bg));padding:12px;margin:10px 0 14px;box-shadow:var(--shadow)}
+.carousel-track{display:flex;direction:ltr;transition:transform .45s var(--ease-out);will-change:transform}
+.carousel-slide{direction:rtl;min-width:100%;padding:4px 2px}.carousel-slide[aria-hidden="true"]{visibility:hidden}
+.carousel-title{display:flex;align-items:center;justify-content:space-between;gap:8px;color:var(--accent);font-size:1.05rem;font-weight:900;margin-bottom:8px}
+.carousel-controls{display:flex;align-items:center;justify-content:center;gap:10px;margin-top:8px}.carousel-arrow{border:2px solid var(--border);background:var(--card);color:var(--accent);width:38px;height:38px;border-radius:50%;font:900 1.2rem 'Tajawal',sans-serif;cursor:pointer;transition:transform .2s,border-color .2s}.carousel-arrow:hover{transform:scale(1.08);border-color:var(--accent)}
+.carousel-dots{display:flex;gap:6px;align-items:center;justify-content:center}.carousel-dot{width:9px;height:9px;border:0;border-radius:50%;background:var(--border);padding:0;cursor:pointer}.carousel-dot.active{background:var(--accent);transform:scale(1.3)}
+.task-carousel-card{min-height:245px;display:flex;flex-direction:column;justify-content:center}.task-carousel-card .interactive-orbit{margin:0 auto 4px}.budget-carousel{margin-top:0}.budget-carousel .carousel-slide{min-height:142px;display:flex;flex-direction:column;justify-content:center}.budget-insights{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin:10px 0 14px}.budget-insight{background:var(--bg);border:2px solid var(--border);border-radius:14px;padding:12px;cursor:pointer;transition:transform .2s,border-color .2s,box-shadow .2s}.budget-insight:hover{transform:translateY(-3px);border-color:var(--accent);box-shadow:0 8px 18px rgba(2,132,199,.16)}.budget-insight-head{display:flex;justify-content:space-between;gap:8px;align-items:center;font-weight:900}.budget-insight-head small{color:var(--muted);font-size:.8rem}.budget-meter{height:11px;background:var(--border);border-radius:20px;overflow:hidden;margin-top:10px}.budget-meter span{display:block;height:100%;border-radius:20px;transition:width .6s ease}.budget-insight-foot{display:flex;justify-content:space-between;margin-top:7px;font-size:.86rem;font-weight:900;color:var(--muted)}.statement-total-row th,.statement-total-row td{background:rgba(2,132,199,.12);border-top:3px solid var(--accent)!important;font-weight:900}.statement-balance-row th,.statement-balance-row td{background:rgba(16,185,129,.1);font-weight:900;border-bottom:3px double var(--accent)!important}.statement-total-row th:not(:first-child),.statement-total-row td{color:var(--text)}
+.budget-shortcut-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.budget-shortcut{border:2px solid var(--border);background:var(--card);border-radius:14px;min-height:88px;padding:8px 4px;color:var(--text);font:900 .88rem 'Tajawal',sans-serif;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;transition:transform .2s,border-color .2s,box-shadow .2s}.budget-shortcut strong{font-size:1.7rem;color:var(--accent)}.budget-shortcut:hover{transform:translateY(-3px);border-color:var(--accent);box-shadow:0 7px 16px rgba(2,132,199,.16)}
+@media(max-width:480px){.budget-shortcut-grid{gap:6px}.budget-shortcut{font-size:.76rem}.budget-shortcut strong{font-size:1.4rem}}
+.interactive-orbit{position:relative;width:min(100%,310px);height:190px;margin:4px auto 10px;border-radius:50%;background:radial-gradient(circle at center,rgba(2,132,199,.14) 0 22%,transparent 23% 42%,rgba(2,132,199,.08) 43% 44%,transparent 45%);display:flex;align-items:center;justify-content:center}
+.interactive-orbit:before{content:"";position:absolute;width:150px;height:150px;border:2px dashed color-mix(in srgb,var(--accent) 45%,transparent);border-radius:50%;animation:orbitPulse 4s ease-in-out infinite}
+.orbit-center{position:relative;z-index:2;width:84px;height:84px;border-radius:50%;background:var(--accent);color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;box-shadow:0 8px 20px rgba(2,132,199,.3)}.orbit-center strong{font-size:1.35rem;line-height:1}.orbit-center small{font-size:.67rem;font-weight:900;margin-top:4px}
+.orbit-node{position:absolute;z-index:3;border:2px solid var(--border);border-radius:50%;width:62px;height:62px;background:var(--card);color:var(--text);font:900 .72rem 'Tajawal',sans-serif;cursor:pointer;box-shadow:var(--shadow);transition:transform .2s,border-color .2s,color .2s}.orbit-node:hover{transform:scale(1.1);border-color:var(--accent);color:var(--accent)}
+.reminders-orbit .orbit-normal{top:4px;right:28px;color:#10b981}.reminders-orbit .orbit-important{bottom:5px;right:28px;color:#f59e0b}.reminders-orbit .orbit-urgent{bottom:5px;left:28px;color:#f97316}.reminders-orbit .orbit-critical{top:4px;left:28px;color:#ef4444}
+.budget-orbit{height:160px;margin-bottom:14px}.budget-orbit .orbit-budget{top:2px;right:38px;color:var(--accent)}.budget-orbit .orbit-accounts{bottom:2px;left:38px;color:#8b5cf6}.budget-orbit .orbit-refresh{bottom:2px;right:38px;color:#10b981}
+@keyframes orbitPulse{0%,100%{transform:scale(.96);opacity:.65}50%{transform:scale(1.04);opacity:1}}
+@media(max-width:480px){.dashboard-shortcuts{gap:6px}.round-action{min-height:68px}.round-action small{font-size:.64rem}.interactive-orbit{width:100%;height:178px}}
+
 .global-search-results{max-height:55vh;overflow:auto}.global-result{padding:14px;border-bottom:2px solid var(--border);cursor:pointer;font-size:1.1rem}.global-result:hover{background:rgba(2,132,199,.08)}
 .status-chip{font-size:0.9rem;padding:4px 10px;border-radius:16px;font-weight:900;background:rgba(16,185,129,.14);color:var(--ok)}.status-chip.reversed{background:rgba(239,68,68,.14);color:var(--danger)}.status-chip.draft{background:rgba(245,158,11,.16);color:var(--warn)}
 
@@ -385,10 +411,10 @@ html{scroll-behavior:smooth}body{padding-bottom:16px}
   <div class="quick-summary mobile-only" id="mobileQuickSummary"><div><small>المتاح</small><b id="mobileAvailable">0</b></div><div><small>المصروف</small><b id="mobileSpent">0</b></div><div><small>الادخار</small><b id="mobileSaving">0%</b></div></div>
   
   <div id="pageDashboard" class="">
-    <!-- 6 أزرار رئيسية متساوية ومنظمة في الواجهة الأساسية -->
-    <div class="main-menu-grid no-print">
-      <button class="main-menu-btn" onclick="navigateToTab('pageDashboard', true)">
-        <span class="main-menu-icon">📊</span>
+    <!-- الواجهة الأمامية المختصرة: ستة أقسام أساسية فقط -->
+    <div class="main-menu-grid no-print" aria-label="الأقسام الرئيسية">
+      <button class="main-menu-btn home-btn" onclick="openDashboardHome(true)">
+        <span class="main-menu-icon">🏠</span>
         <span>الرئيسية</span>
       </button>
       <button class="main-menu-btn" onclick="navigateToTab('pageExpenses', true)">
@@ -399,40 +425,71 @@ html{scroll-behavior:smooth}body{padding-bottom:16px}
         <span class="main-menu-icon">📋</span>
         <span>السجل</span>
       </button>
-      <button class="main-menu-btn" onclick="navigateToTab('pageReports', true); toggleReportView('accounts');">
+      <button class="main-menu-btn" onclick="navigateToTab('pageReports', true)">
         <span class="main-menu-icon">📈</span>
         <span>التقارير</span>
+      </button>
+      <button class="main-menu-btn budget-btn" onclick="navigateToTab('pageBudget', true)">
+        <span class="main-menu-icon">📊</span>
+        <span>الميزانية</span>
       </button>
       <button class="main-menu-btn" onclick="navigateToTab('pageSettings', true)">
         <span class="main-menu-icon">⚙️</span>
         <span>الإعدادات</span>
       </button>
-      <button class="main-menu-btn budget-btn" onclick="navigateToTab('pageReports', true); toggleReportView('budget');">
-        <span class="main-menu-icon">📊</span>
-        <span>إدارة الميزانية</span>
+    </div>
+
+    <!-- محتوى الرئيسية الداخلي: لا يظهر إلا بعد الضغط على أيقونة الرئيسية -->
+    <div id="dashboardHomeContent" class="hidden">
+      <button class="back-to-menu-btn no-print" id="closeDashboardHomeBtn" onclick="closeDashboardHome(true)">
+        <span>⬅️ العودة إلى الأيقونات الرئيسية</span>
       </button>
-    </div>
 
-    <!-- لوحة القيادة في الرئيسية -->
-    <div class="card no-print" id="proDashboardCard">
-      <h2><span>⚡ لوحة القيادة</span><span id="lastSavedLabel" style="font-size:.85rem;color:var(--muted);font-weight:900">جاهز</span></h2>
-      <div class="pro-kpi-grid">
-        <div class="pro-kpi"><small>إجمالي الدخل</small><strong id="proIncomeKpi">0</strong></div>
-        <div class="pro-kpi"><small>إجمالي المصروف</small><strong id="proExpenseKpi">0</strong></div>
-        <div class="pro-kpi"><small>صافي التدفق</small><strong id="proNetKpi">0</strong></div>
-        <div class="pro-kpi"><small>سندات غير مكتملة</small><strong id="proPendingKpi">0</strong></div>
-      </div>
-      <div id="proAlertsBox" style="font-size:1.05rem;font-weight:900;color:var(--muted)"></div>
-    </div>
-
-    <!-- بطاقة التذكيرات والمهام مع الرسم البياني الدائري (Doughnut) -->
-    <div class="card no-print">
-      <h2><span>🔔 التذكيرات والمهام</span><button class="btn btn-ghost" id="openAddReminderModalBtn" style="width:auto; margin-top:0; padding:4px 10px; font-size:0.95rem;">➕ إضافة تذكير</button></h2>
-      
-      <div class="chart-box" style="height: 200px; margin-bottom: 10px;"><canvas id="remindersChart"></canvas></div>
-
-      <div id="remindersListContainer" style="font-size: 1.05rem; margin-top: 8px;">
-        <div style="text-align: center; color: var(--muted); padding: 10px; font-weight: 900;">لا توجد تذكيرات نشطة حالياً</div>
+      <div class="carousel-shell dashboard-carousel" id="dashboardCarousel" aria-label="لوحة القيادة والمهام">
+        <div class="carousel-track">
+          <section class="carousel-slide" id="pageDashboardKpi" aria-label="لوحة القيادة">
+            <div class="card no-print" id="proDashboardCard">
+              <h2><span>⚡ لوحة القيادة</span><span id="lastSavedLabel" style="font-size:.85rem;color:var(--muted);font-weight:900">جاهز</span></h2>
+              <div class="pro-kpi-grid">
+                <div class="pro-kpi"><small>إجمالي الدخل</small><strong id="proIncomeKpi">0</strong></div>
+                <div class="pro-kpi"><small>إجمالي المصروف</small><strong id="proExpenseKpi">0</strong></div>
+                <div class="pro-kpi"><small>صافي التدفق</small><strong id="proNetKpi">0</strong></div>
+                <div class="pro-kpi"><small>سندات غير مكتملة</small><strong id="proPendingKpi">0</strong></div>
+              </div>
+              <div id="proAlertsBox" style="font-size:1.05rem;font-weight:900;color:var(--muted)"></div>
+              <button class="open-tasks-cta" type="button" onclick="goCarousel('dashboardCarousel',1)">
+                <span>🔔</span><b>عرض المهام والتذكيرات</b><small>افتح المخطط الدائري وتوزيع الأولويات</small><i>‹</i>
+              </button>
+              <div class="dashboard-shortcuts" aria-label="اختصارات الرئيسية">
+                <button class="round-action" onclick="navigateToTab('pageExpenses', true)" title="إضافة سند"><span>＋</span><small>إضافة سند</small></button>
+                <button class="round-action" onclick="openReminderModal(-1)" title="مهمة جديدة"><span>✓</span><small>مهمة جديدة</small></button>
+                <button class="round-action" onclick="navigateToTab('pageReports', true); toggleReportView('accounts')" title="كشف الحساب"><span>⌁</span><small>كشف الحساب</small></button>
+                <button class="round-action" onclick="navigateToTab('pageReports', true); toggleReportView('budget')" title="تحليل الميزانية"><span>◉</span><small>تحليل الميزانية</small></button>
+              </div>
+            </div>
+          </section>
+          <section class="carousel-slide task-carousel-card" id="pageReminders" aria-label="المهام والتذكيرات">
+            <div class="card no-print">
+              <h2><span>🔔 التذكيرات والمهام</span><button class="btn btn-ghost" id="openAddReminderModalBtn" style="width:auto; margin-top:0; padding:4px 10px; font-size:0.95rem;">➕ إضافة تذكير</button></h2>
+              <div class="interactive-orbit reminders-orbit" aria-label="ملخص دائري للمهام والتذكيرات">
+                <div class="orbit-center"><strong id="remindersTotalCount">0</strong><small>إجمالي المهام</small></div>
+                <button class="orbit-node orbit-normal" onclick="filterRemindersByPriority('عادية')">عادية</button>
+                <button class="orbit-node orbit-important" onclick="filterRemindersByPriority('مهمة')">مهمة</button>
+                <button class="orbit-node orbit-urgent" onclick="filterRemindersByPriority('عاجلة')">عاجلة</button>
+                <button class="orbit-node orbit-critical" onclick="filterRemindersByPriority('حرجة جداً')">حرجة</button>
+              </div>
+              <div class="chart-box" style="height: 160px; margin-bottom: 8px;"><canvas id="remindersChart"></canvas></div>
+              <div id="remindersListContainer" style="font-size: 1.05rem; margin-top: 8px;">
+                <div style="text-align: center; color: var(--muted); padding: 10px; font-weight: 900;">لا توجد تذكيرات نشطة حالياً</div>
+              </div>
+            </div>
+          </section>
+        </div>
+        <div class="carousel-controls" aria-label="التنقل بين لوحة القيادة والمهام">
+          <button class="carousel-arrow" type="button" onclick="moveCarousel('dashboardCarousel',-1)" aria-label="السابق">‹</button>
+          <div class="carousel-dots"><button class="carousel-dot active" type="button" onclick="goCarousel('dashboardCarousel',0)" aria-label="لوحة القيادة"></button><button class="carousel-dot" type="button" onclick="goCarousel('dashboardCarousel',1)" aria-label="المهام والتذكيرات"></button></div>
+          <button class="carousel-arrow" type="button" onclick="moveCarousel('dashboardCarousel',1)" aria-label="التالي">›</button>
+        </div>
       </div>
     </div>
   </div>
@@ -520,6 +577,7 @@ html{scroll-behavior:smooth}body{padding-bottom:16px}
       </div>
 
       <div class="voucher-split-box hidden" id="voucherSplitContainer">
+        <div style="background:rgba(2,132,199,.10);border:1px solid var(--accent);border-radius:8px;padding:8px;margin-bottom:10px;font-weight:900;color:var(--accent);">⚖️ لا يُحفظ السند إلا إذا تساوى توزيع البنود مع مبلغ السند. الافتراضي عند عدم الاختيار: «عام».</div>
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
           <span style="font-weight: 900; font-size: 1.1rem; color: var(--accent);">📌 نمط التوزيع:</span>
           
@@ -582,10 +640,35 @@ html{scroll-behavior:smooth}body{padding-bottom:16px}
     </div>
   </div>
 
+  <div id="pageBudget" class="hidden">
+    <div class="card no-print" style="border-right:6px solid var(--accent);">
+      <h2><span>📊 تحليل الميزانية وبنودها</span><small style="font-size:.85rem;color:var(--muted);">قسم الميزانية</small></h2>
+      <p style="font-weight:900;color:var(--muted);margin-bottom:0;">يعرض هذا القسم المخصصات والمنصرف والفائض ونسبة الصرف لكل بند. كشف الحساب موجود في قسم التقارير.</p>
+    </div>
+    <div id="budgetToolsHost"></div>
+    <div id="budgetReportHost"></div>
+  </div>
+
   <div id="pageReports" class="hidden">
-    <div class="report-type-switch no-print">
-      <button class="rpt-btn active" id="btnRptBudget">📊 تقارير الميزانية والبنود</button>
-      <button class="rpt-btn" id="btnRptAccounts">👤 كشف الحسابات والعملاء</button>
+    <div class="card no-print" style="border-right:6px solid #8b5cf6;">
+      <h2><span>📈 التقارير وكشف الحساب</span><small style="font-size:.85rem;color:var(--muted);">قسم التقارير</small></h2>
+      <p style="font-weight:900;color:var(--muted);margin-bottom:0;">يمكنك من هنا عرض كشف الحساب وطباعته، وإضافة تقارير أخرى مستقبلًا ضمن هذا القسم.</p>
+    </div>
+    <div class="report-type-switch no-print hidden">
+      <button class="rpt-btn active" id="btnRptBudget">📊 تحليل الميزانية</button>
+      <button class="rpt-btn" id="btnRptAccounts">👤 كشف الحسابات</button>
+    </div>
+    <div class="carousel-shell budget-carousel no-print" id="budgetCarousel" aria-label="التنقل التفاعلي للميزانية والتقارير">
+      <div class="carousel-track">
+        <section class="carousel-slide" aria-label="تحليل الميزانية فقط">
+          <div class="carousel-title"><span>📊 تحليل الميزانية</span><small>هذا القسم مخصص للميزانية فقط</small></div>
+          <div class="budget-shortcut-grid">
+            <button class="budget-shortcut" onclick="toggleReportView('budget'); runActiveReport()"><strong>◉</strong><span>تحليل الميزانية</span></button>
+            <button class="budget-shortcut" onclick="runActiveReport()"><strong>↻</strong><span>تحديث التحليل</span></button>
+            <button class="budget-shortcut" onclick="document.getElementById('generateReportBtn').click()"><strong>▣</strong><span>استخراج التقرير</span></button>
+          </div>
+        </section>
+      </div>
     </div>
 
     <div class="no-print" style="display: flex; gap: 8px; margin-bottom: 10px;">
@@ -598,8 +681,9 @@ html{scroll-behavior:smooth}body{padding-bottom:16px}
       <div style="display:flex; flex-direction:column; gap:8px;">
         <div id="filterAccountSelectBox" class="hidden">
           <label>اختر الحساب المطلوب (رئيسي أو فرعي):</label>
-          <div class="searchable-select-wrap" id="wrapReportAccount">
-            <input type="text" class="searchable-input" id="inpReportAccount" placeholder="ابحث أو اختر الحساب..." autocomplete="off">
+          <div class="searchable-select-wrap account-search-bar" id="wrapReportAccount">
+            <input type="text" class="searchable-input" id="inpReportAccount" placeholder="اكتب اسم الحساب هنا للبحث..." autocomplete="off" aria-label="شريط البحث عن الحساب">
+            <button type="button" class="search-clear-btn hidden" id="clearReportAccountBtn" title="مسح الحساب المختار" aria-label="مسح الحساب المختار">×</button>
             <span class="searchable-arrow">▼</span>
             <div class="searchable-dropdown" id="dropReportAccount"></div>
           </div>
@@ -663,6 +747,7 @@ html{scroll-behavior:smooth}body{padding-bottom:16px}
       </div>
 
       <div class="chart-box hide-in-privacy"><canvas id="reportChart"></canvas></div>
+      <div id="budgetInsights" class="budget-insights" aria-label="بطاقات تفاعلية لبنود الميزانية"></div>
 
       <div style="overflow-x:auto;">
         <table class="report-table hide-in-privacy">
@@ -720,6 +805,17 @@ html{scroll-behavior:smooth}body{padding-bottom:16px}
             </tr>
           </thead>
           <tbody id="statementBody"></tbody>
+          <tfoot>
+            <tr class="statement-total-row">
+              <th colspan="3">الإجماليات</th>
+              <th id="statementTotalDebit">0</th>
+              <th id="statementTotalCredit">0</th>
+            </tr>
+            <tr class="statement-balance-row">
+              <th colspan="3">المتبقي / الرصيد الصافي</th>
+              <th colspan="2" id="statementTotalBalance">0</th>
+            </tr>
+          </tfoot>
         </table>
       </div>
 
@@ -735,6 +831,14 @@ html{scroll-behavior:smooth}body{padding-bottom:16px}
             </tr>
           </thead>
           <tbody id="allAccountsBody"></tbody>
+          <tfoot>
+            <tr class="statement-total-row">
+              <th>الإجماليات</th>
+              <th id="allTotalDebit">0</th>
+              <th id="allTotalCredit">0</th>
+              <th id="allTotalBalance">0</th>
+            </tr>
+          </tfoot>
         </table>
       </div>
     </div>
@@ -789,8 +893,9 @@ html{scroll-behavior:smooth}body{padding-bottom:16px}
     <div class="card">
       <h2>
         <span>🛠️ إدارة بنود الميزانية والنسب</span>
-        <button class="btn btn-ghost" id="addCatBtn" style="width:auto; margin-top:0; padding:6px 12px; font-size:0.95rem;">➕ إضافة بند</button>
+        <button class="btn btn-ghost" id="addCatBtn" style="width:auto; margin-top:0; padding:6px 12px; font-size:0.95rem;">➕ إضافة بند اختياري</button>
       </h2>
+      <p style="color:var(--muted);font-weight:900;margin-bottom:10px;">البنود الأساسية التسعة ثابتة، ويمكن إضافة بندين اختياريين فقط. الحد الأقصى: 11 بندًا.</p>
       <div id="pctRows"></div>
       <div id="pctSum" style="text-align:center; font-weight:900; margin:14px 0; font-size:1.2rem;">المجموع: 100%</div>
       
@@ -1055,8 +1160,8 @@ html{scroll-behavior:smooth}body{padding-bottom:16px}
             <th style="width:12%;">الرقم</th>
             <th style="width:13%;">المستند</th>
             <th style="width:25%;">التفاصيل</th>
-            <th style="width:12%;">عليكم</th>
-            <th style="width:12%;">لكم</th>
+            <th style="width:12%;">مدين (عليكم)</th>
+            <th style="width:12%;">دائن (لكم)</th>
             <th style="width:12%;">الرصيد</th>
           </tr>
         </thead>
@@ -1064,10 +1169,14 @@ html{scroll-behavior:smooth}body{padding-bottom:16px}
       </table>
       
       <div class="ps-footer-totals">
-        <div style="display:flex; justify-content:space-between;"><span>إجمالي العمليات:</span> <span>لكم: <b id="psTotLakam" style="color:#10b981;">0</b> | عليكم: <b id="psTotAlaykom" style="color:#ef4444;">0</b></span></div>
-        <div style="border-top: 1px dashed #94a3b8; padding-top: 2px;">الرصيد الإجمالي - <span id="psNetBalType">لكم</span>: <b id="psNetBal" style="font-size: 10pt;">0</b></div>
+        <div class="ps-summary-title">ملخص كشف الحساب</div>
+        <table class="ps-summary-table">
+          <thead><tr><th>المدين (عليكم)</th><th>الدائن (لكم)</th><th>المتبقي / الرصيد</th></tr></thead>
+          <tbody><tr><td id="psTotAlaykom" style="color:#ef4444;">0</td><td id="psTotLakam" style="color:#10b981;">0</td><td id="psNetBal" style="color:#0284c7;">0</td></tr></tbody>
+        </table>
+        <div id="psNetBalType" style="font-weight:900;">الرصيد لصالح الدائن</div>
         <div id="psTafqitText" style="font-size: 9pt; color: #000; font-weight: 900;">-</div>
-        <div style="font-size: 8pt; color: #000; font-weight: 900;">يرجى مراجعة الكشف خلال 14 يوما من تاريخه والتواصل عند وجود أي استفسار .</div>
+        <div style="font-size: 8pt; color: #000; font-weight: 900;">يرجى مراجعة الكشف خلال 14 يوما من تاريخه والتواصل عند وجود أي استفسار.</div>
       </div>
     </div>
   </div>
@@ -1124,6 +1233,8 @@ Chart.register(ChartDataLabels);
 const APP_STORAGE_PREFIX = 'masar_';
 const APP_SCHEMA_VERSION = 2;
 const KNOWN_CURRENCIES = new Set(['YER', 'SAR', 'USD']);
+// إصلاح: عنصر #currency غير موجود في HTML، لذلك نستخدم دالة موحدة بقيمة افتراضية YER
+function getGlobalCurrency(){ const el = document.getElementById('currency'); return (el && el.value) || 'YER'; }
 const store = {
   get(k, d){
     try {
@@ -1134,7 +1245,8 @@ const store = {
   set(k, v){
     const encoded = JSON.stringify(v);
     if (encoded.length > 4_000_000) throw new Error('حجم البيانات أكبر من المساحة المحلية المتاحة');
-    localStorage.setItem(APP_STORAGE_PREFIX + k, encoded);
+    try { localStorage.setItem(APP_STORAGE_PREFIX + k, encoded); }
+    catch(err){ if (typeof showToast === 'function') showToast('تعذر الحفظ محلياً: مساحة التخزين ممتلئة', 'error'); throw err; }
   },
   remove(k){ localStorage.removeItem(APP_STORAGE_PREFIX + k); }
 };
@@ -1152,7 +1264,10 @@ function checkAppLockOnStartup() {
       if (bioBtn) bioBtn.style.display = 'block';
     }
     const pinInput = document.getElementById('pinInput');
-    if (pinInput) pinInput.focus();
+    if (pinInput) {
+      pinInput.focus();
+      pinInput.onkeydown = (e) => { if (e.key === 'Enter') verifyPinLock(); };
+    }
   }
 }
 
@@ -1174,14 +1289,15 @@ async function authenticateBiometric() {
   try {
     if (!window.PublicKeyCredential) { alert('متصفحك أو جهازك لا يدعم المصادقة البيومترية (البصمة)'); return; }
     const publicKey = {
-      challenge: new Uint8Array(32),
+      challenge: crypto.getRandomValues(new Uint8Array(32)),
       rp: { name: "تطبيق راتب المالي الآمن" },
-      user: { id: new Uint8Array(16), name: "user@ratib", displayName: "المستخدم" },
+      user: { id: crypto.getRandomValues(new Uint8Array(16)), name: "user@ratib", displayName: "المستخدم" },
       pubKeyCredParams: [{ alg: -7, type: "public-key" }],
       timeout: 60000,
       authenticatorSelection: { authenticatorAttachment: "platform", userVerification: "required" }
     };
-    await navigator.credentials.get({ publicKey: { challenge: new Uint8Array(32) } }).catch(() => { return navigator.credentials.create({ publicKey }); });
+    // إصلاح: استدعاء get() بتحدي عشوائي يفشل دائماً؛ نستخدم create() مباشرة
+    await navigator.credentials.create({ publicKey });
     unlockAppScreen();
     showToast('تم التحقق بنجاح عبر البصمة', 'success');
   } catch (err) { alert('فشل التحقق بالبصمة، يرجى إدخال الرقم السري يدويًا.'); }
@@ -1274,15 +1390,17 @@ function safeImportBackup(parsed) {
 
 function escapeRegExp(value) { return String(value).replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); }
 
+const MAX_BUDGET_CATS = 11;
 const DEFAULT_CATS = [
-  {id:'center', name:'المركز', color:'#0ea5e9', pct:15},
-  {id:'ess', name:'المصاريف الأساسية', color:'#3b82f6', pct:35},
-  {id:'debt', name:'الديون (أو الترفيه)', color:'#f59e0b', pct:10},
-  {id:'charity', name:'الصدقة', color:'#10b981', pct:5},
-  {id:'short', name:'خطط قصيرة المدى', color:'#8b5cf6', pct:10},
-  {id:'invest', name:'الاستثمار', color:'#ef4444', pct:15},
-  {id:'trial', name:'للتجربة', color:'#06b6d4', pct:5},
-  {id:'fuel', name:'بترول', color:'#f97316', pct:5}
+  {id:'charity_gifts', name:'الصدقة والهبات', description:'الصدقات، الهبات، المساعدات، وأوجه العطاء الاختيارية.', color:'#10b981', pct:10},
+  {id:'food_home', name:'الغذاء والاحتياجات المنزلية', description:'الطعام، الشراب، المياه، الغاز، المنظفات، والاحتياجات المنزلية البسيطة.', color:'#f59e0b', pct:18},
+  {id:'housing_services', name:'السكن والخدمات', description:'الإيجار، الكهرباء، المياه، والصيانة الضرورية.', color:'#0ea5e9', pct:18},
+  {id:'health_treatment', name:'الصحة والعلاج', description:'الكشف، الأدوية، التحاليل والعلاجات الضرورية.', color:'#ef4444', pct:12},
+  {id:'transport', name:'المواصلات والتنقل', description:'المواصلات العامة، الوقود، وصيانة وسيلة النقل الأساسية.', color:'#8b5cf6', pct:10},
+  {id:'education_comms', name:'التعليم والاتصالات', description:'الدراسة، الكتب والقرطاسية، الهاتف والإنترنت.', color:'#3b82f6', pct:10},
+  {id:'clothing_emergency', name:'الملابس والطوارئ والاحتياجات الاجتماعية', description:'الملابس والأحذية، المناسبات الضرورية، والمصروفات الطارئة.', color:'#ec4899', pct:7},
+  {id:'center', name:'المركز', description:'المبلغ المركزي أو الاحتياطي الذي لم يُخصص لبند تفصيلي بعد.', color:'#10b981', pct:10},
+  {id:'general', name:'عام', description:'البند الافتراضي لأي سند لا يحتاج إلى تصنيف تفصيلي.', color:'#64748b', pct:5}
 ];
 
 const DEFAULT_ACCOUNT_TREE = {
@@ -1334,7 +1452,7 @@ function updateProDashboard() {
   const income = txs.filter(t => !t.isExpense && t.voucherMode !== 'spend').reduce((n,t)=>n+Number(t.amount||0),0);
   const expense = txs.filter(t => t.isExpense || t.voucherMode === 'spend').reduce((n,t)=>n+Number(t.amount||0),0);
   const pending = txs.filter(t => t.status === 'draft' || t.status === 'pending').length;
-  const cur = document.getElementById('currency')?.value || 'YER';
+  const cur = getGlobalCurrency();
   const set=(id,v)=>{const el=document.getElementById(id);if(el)el.textContent=fmt(v,cur)};
   set('proIncomeKpi',income); set('proExpenseKpi',expense); set('proNetKpi',income-expense);
   const p=document.getElementById('proPendingKpi'); if(p)p.textContent=String(pending);
@@ -1347,6 +1465,7 @@ function updateProDashboard() {
 
 function renderRemindersChart() {
   const list = getReminders();
+  const totalEl = document.getElementById('remindersTotalCount'); if (totalEl) totalEl.textContent = String(list.length);
   const counts = { 'عادية': 0, 'مهمة': 0, 'عاجلة': 0, 'حرجة جداً': 0 };
   list.forEach(r => { const p = r.priority || 'عادية'; if (counts[p] !== undefined) counts[p]++; else counts['عادية']++; });
 
@@ -1362,18 +1481,49 @@ function renderRemindersChart() {
         label: 'توزيع المهام',
         data: [counts['عادية'], counts['مهمة'], counts['عاجلة'], counts['حرجة جداً']],
         backgroundColor: ['#10b981', '#f59e0b', '#f97316', '#ef4444'],
-        borderWidth: 2
+        borderWidth: 2,
+        hoverOffset: 12,
+        spacing: 3
       }]
     },
     options: {
       responsive: true,
       maintainAspectRatio: false,
+      cutout: '68%',
+      animation: { animateRotate: true, animateScale: true, duration: 1100, easing: 'easeOutQuart' },
+      hover: { mode: 'nearest', intersect: true },
+      onHover: (event, elements) => { event.native.target.style.cursor = elements.length ? 'pointer' : 'default'; },
       plugins: {
-        legend: { position: 'bottom', labels: { font: { family: 'Tajawal', weight: '900', size: 12 } } },
-        datalabels: { color: '#fff', font: { weight: '900', size: 11 } }
+        legend: { position: 'bottom', labels: { font: { family: 'Tajawal', weight: '900', size: 12 }, usePointStyle: true, padding: 12 } },
+        datalabels: { color: '#fff', font: { weight: '900', size: 11 } },
+        centerText: { total: list.length }
       }
-    }
+    },
+    plugins: [{
+      id: 'centerText',
+      afterDraw(chart, args, opts) {
+        const {ctx, chartArea} = chart; if (!chartArea) return;
+        const x=(chartArea.left+chartArea.right)/2, y=(chartArea.top+chartArea.bottom)/2;
+        ctx.save(); ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.fillStyle=getComputedStyle(document.documentElement).getPropertyValue('--text').trim() || '#0f172a';
+        ctx.font='900 24px Tajawal'; ctx.fillText(String(opts.total || 0),x,y-7);
+        ctx.font='900 11px Tajawal'; ctx.fillStyle='#64748b'; ctx.fillText('مهمة',x,y+14); ctx.restore();
+      }
+    }]
   });
+}
+
+function filterRemindersByPriority(priority) {
+  const container = document.getElementById('remindersListContainer');
+  const list = getReminders();
+  const filtered = list.filter(r => (r.priority || 'عادية') === priority);
+  if (!container) return;
+  if (!filtered.length) { container.innerHTML = `<div style="text-align:center;color:var(--muted);padding:10px;font-weight:900;">لا توجد مهام من نوع «${esc(priority)}»</div>`; return; }
+  const backup = store.get('_remindersFilterBackup', null);
+  store.set('_remindersFilterBackup', list);
+  // Render the same interactive list using a temporary view, then restore storage.
+  store.set('reminders', filtered); renderRemindersList(); store.set('reminders', backup || list);
+  const clear = document.createElement('button'); clear.className = 'btn btn-ghost'; clear.style.cssText = 'margin:4px 0 8px;font-size:.9rem;padding:8px'; clear.textContent = 'عرض كل المهام'; clear.onclick = () => { renderRemindersList(); };
+  container.prepend(clear);
 }
 
 function renderRemindersList() {
@@ -1454,7 +1604,7 @@ function openGlobalSearch() { lastFocusedElement=document.activeElement; documen
 function closeGlobalSearch() { document.getElementById('globalSearchModal').classList.remove('show'); if(lastFocusedElement?.focus)lastFocusedElement.focus(); }
 function renderGlobalSearch(q) {
   const box=document.getElementById('globalSearchResults'); if(!box)return; const query=q.trim().toLowerCase();
-  const txs=getAllTransactions().slice().reverse().filter(t=>{if(!query)return true;return [t.seqNum,t.type,t.date,t.isoDate,t.debitAccount,t.creditAccount,t.amount,t.currency,...Object.values(t.execution||{}).map(x=>x.note)].join(' ').toLowerCase().includes(query)}).slice(0,80);
+  const txs=getAllTransactions().slice().reverse().filter(t=>{if(!query)return true;return [t.seqNum,t.type,t.date,t.isoDate,t.debitAccount,t.creditAccount,t.amount,t.currency,...Object.values(t.execution||{}).map(x => (x && x.note) || '')].join(' ').toLowerCase().includes(query)}).slice(0,80);
   box.innerHTML=txs.length?txs.map(t=>`<div class="global-result" data-id="${esc(t.id)}"><b>${esc(t.type||'عملية')}</b> <span class="status-chip ${t.status==='reversed'?'reversed':''}">${t.status==='reversed'?'ملغى':'مرحّل'}</span><br><small>${esc(t.date||t.isoDate||'-')} • ${esc(t.debitAccount||'-')} ← ${esc(t.creditAccount||'-')} • ${esc(fmt(t.amount,t.currency))}</small></div>`).join(''):'<div style="padding:16px;text-align:center;color:var(--muted)">لا توجد نتائج</div>';
   box.querySelectorAll('.global-result').forEach(el=>el.addEventListener('click',()=>{const t=getAllTransactions().find(x=>String(x.id)===el.dataset.id);if(t){closeGlobalSearch();openTxModal(t);}}));
 }
@@ -1471,10 +1621,19 @@ document.addEventListener('keydown', (event) => {
   document.querySelectorAll('.modal-overlay.show').forEach(modal => modal.classList.remove('show'));
 });
 
-let isVoucherSplitActive = false, voucherSplitMode = 'pct', voucherCatStates = {};
+let isVoucherSplitActive = true, voucherSplitMode = 'pct', voucherCatStates = {};
 let selEditDebitAcc, selEditCreditAcc;
 
-function getCats(){ return store.get('cats', DEFAULT_CATS); }
+function getCats(){
+  const stored = store.get('cats', null);
+  if (!Array.isArray(stored) || !stored.length) return DEFAULT_CATS.map(c => ({...c}));
+  const coreIds = new Set(DEFAULT_CATS.map(c => c.id));
+  const legacyIds = new Set(['ess','debt','charity','short','invest','trial','fuel']);
+  const custom = stored.filter(c => c && c.id && !coreIds.has(c.id) && !legacyIds.has(c.id)).slice(0, 2).map(c => ({...c, description: c.description || 'بند إضافي يحدده المستخدم.'}));
+  const normalized = [...DEFAULT_CATS.map(c => ({...c})), ...custom].slice(0, MAX_BUDGET_CATS);
+  if (JSON.stringify(stored) !== JSON.stringify(normalized)) store.set('cats', normalized);
+  return normalized;
+}
 function getAccountTree(){ return store.get('account_tree', DEFAULT_ACCOUNT_TREE); }
 function saveAccountTree(tree){ store.set('account_tree', tree); }
 function getAccountCeilings(){ return store.get('account_ceilings', {}); }
@@ -1497,7 +1656,7 @@ function monthName(key){ const [y,m] = key.split('-'); const ms = ['يناير',
 function fmt(amount, explicitCur = null){
   const num = Number(amount || 0);
   const formatted = num.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: (num % 1 === 0) ? 0 : 2 });
-  const cur = explicitCur || document.getElementById('currency')?.value || 'YER';
+  const cur = explicitCur || getGlobalCurrency();
   const sym = {YER:'ر.ي', SAR:'ر.س', USD:'$'}[cur] || cur;
   return formatted + ' ' + sym;
 }
@@ -1505,7 +1664,7 @@ function fmt(amount, explicitCur = null){
 function fmtShort(amount, explicitCur = null) {
   const num = Number(amount || 0);
   const formatted = num.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
-  const cur = explicitCur || document.getElementById('currency')?.value || 'YER';
+  const cur = explicitCur || getGlobalCurrency();
   const sym = {YER:'ر.ي', SAR:'ر.س', USD:'$'}[cur] || cur;
   return formatted + ' ' + sym;
 }
@@ -1678,20 +1837,90 @@ function preparePrintVoucherTemplate(tx) {
   }
 }
 
-const TABS_ORDER = ['pageDashboard', 'pageExpenses', 'pageLedger', 'pageReports', 'pageSettings'];
+const TABS_ORDER = ['pageDashboard', 'pageExpenses', 'pageLedger', 'pageReports', 'pageBudget', 'pageSettings'];
 let allowExit = false;
 
 function pushAppHistoryState() { window.history.pushState({ page: 'ratib_app_entry' }, ''); }
 
+const carouselState = {};
+function updateCarousel(el, index) {
+  if (!el) return;
+  const slides = el.querySelectorAll('.carousel-slide');
+  const total = slides.length;
+  if (!total) return;
+  const safe = ((index % total) + total) % total;
+  carouselState[el.id] = safe;
+  const track = el.querySelector('.carousel-track');
+  if (track) track.style.transform = `translateX(-${safe * 100}%)`;
+  slides.forEach((slide, i) => slide.setAttribute('aria-hidden', i === safe ? 'false' : 'true'));
+  el.querySelectorAll('.carousel-dot').forEach((dot, i) => dot.classList.toggle('active', i === safe));
+}
+function goCarousel(id, index) { updateCarousel(document.getElementById(id), index); }
+function moveCarousel(id, delta) { const el = document.getElementById(id); updateCarousel(el, (carouselState[id] || 0) + delta); }
+function initCarousels() { goCarousel('dashboardCarousel', 0); goCarousel('budgetCarousel', 0); }
+
+function openDashboardHome(pushToHistory = true) {
+  const home = document.getElementById('dashboardHomeContent');
+  const menu = document.querySelector('#pageDashboard > .main-menu-grid');
+  if (!home || !menu) return;
+  menu.classList.add('hidden');
+  home.classList.remove('hidden');
+  currentActiveTab = 'pageDashboard';
+  updateProDashboard();
+  renderRemindersList();
+  requestAnimationFrame(() => { renderRemindersChart(); goCarousel('dashboardCarousel', carouselState.dashboardCarousel || 0); });
+  if (pushToHistory) window.history.pushState({ page: 'dashboard_home' }, '');
+}
+
+function closeDashboardHome(pushToHistory = true) {
+  const home = document.getElementById('dashboardHomeContent');
+  const menu = document.querySelector('#pageDashboard > .main-menu-grid');
+  if (!home || !menu) return;
+  home.classList.add('hidden');
+  menu.classList.remove('hidden');
+  currentActiveTab = 'pageDashboard';
+  if (pushToHistory) window.history.pushState({ page: 'dashboard_menu' }, '');
+}
+
+function setupReportSections(target = 'pageReports') {
+  const filter = document.getElementById('reportFilterBox');
+  const exportButton = document.getElementById('exportPngBtn');
+  const exports = exportButton ? exportButton.parentElement : null;
+  const budget = document.getElementById('budgetReportCard');
+  const carousel = document.getElementById('budgetCarousel');
+  const toolsHost = document.getElementById('budgetToolsHost');
+  const reportHost = document.getElementById('budgetReportHost');
+  const reportsPage = document.getElementById('pageReports');
+  if (!filter || !budget || !toolsHost || !reportHost || !reportsPage) return;
+  if (target === 'pageBudget') {
+    toolsHost.appendChild(filter);
+    if (exports) toolsHost.appendChild(exports);
+    if (carousel) reportHost.appendChild(carousel);
+    reportHost.appendChild(budget);
+    toggleReportView('budget');
+  } else {
+    reportsPage.appendChild(filter);
+    if (exports) reportsPage.appendChild(exports);
+    if (carousel) carousel.classList.add('hidden');
+    budget.classList.add('hidden');
+    const account = document.getElementById('accountStatementCard');
+    if (account) reportsPage.appendChild(account);
+    toggleReportView('accounts');
+  }
+}
+
 function navigateToTab(target, pushToHistory = true) {
   const backBtn = document.getElementById('backToMenuBtn');
-  ['pageDashboard', 'pageExpenses', 'pageLedger', 'pageReports', 'pageSettings'].forEach(id => document.getElementById(id).classList.add('hidden'));
+  TABS_ORDER.forEach(id => document.getElementById(id).classList.add('hidden'));
 
   if (!target || target === 'pageDashboard') {
     currentActiveTab = 'pageDashboard';
-    backBtn.classList.add('hidden'); 
+    backBtn.classList.add('hidden');
     document.getElementById('pageDashboard').classList.remove('hidden');
+    closeDashboardHome(false);
     updateProDashboard();
+    renderRemindersList();
+    renderRemindersChart();
     return;
   }
   backBtn.classList.remove('hidden');
@@ -1699,9 +1928,10 @@ function navigateToTab(target, pushToHistory = true) {
   currentActiveTab = target;
 
   if (target === 'pageExpenses') initVoucherSelectorView();
-  else if (target === 'pageReports') initReportsTab();
+  else if (target === 'pageReports') { setupReportSections('pageReports'); initReportsTab(); }
+  else if (target === 'pageBudget') { setupReportSections('pageBudget'); initReportsTab(); }
   else if (target === 'pageSettings') initSettingsPage();
-  else if (target === 'pageDashboard') updateProDashboard();
+  else if (target === 'pageDashboard') { updateProDashboard(); renderRemindersList(); renderRemindersChart(); }
 
   if (pushToHistory) window.history.pushState({ page: 'tab', tab: target }, '');
 }
@@ -1725,7 +1955,11 @@ document.getElementById('confirmExitAppBtn').addEventListener('click', () => { a
 
 window.addEventListener('popstate', (e) => {
   if (allowExit) return;
+  // إصلاح أمني: منع تجاوز شاشة القفل عبر زر الرجوع في المتصفح
+  const lockScr = document.getElementById('lockScreen');
+  if (lockScr && lockScr.style.display === 'flex') { pushAppHistoryState(); return; }
   if (document.getElementById('exitConfirmModal').classList.contains('show')) { hideExitModal(); pushAppHistoryState(); return; }
+  if (currentActiveTab === 'pageDashboard' && !document.getElementById('dashboardHomeContent').classList.contains('hidden')) { closeDashboardHome(false); pushAppHistoryState(); return; }
   if (document.getElementById('reminderModal').classList.contains('show')) { document.getElementById('reminderModal').classList.remove('show'); pushAppHistoryState(); return; }
   if (document.getElementById('txModal').classList.contains('show')) { document.getElementById('txModal').classList.remove('show'); pushAppHistoryState(); return; }
   if (document.getElementById('addAccountModal').classList.contains('show')) { document.getElementById('addAccountModal').classList.remove('show'); pushAppHistoryState(); return; }
@@ -1802,43 +2036,77 @@ class SearchableSelect {
     this.isGrouped = isGrouped;
     this.onSelect = onSelect;
     this.items = [];
+    this.activeIndex = 0;
+    this.visibleItems = [];
     this.initEvents();
   }
   setItems(items) { this.items = items; this.renderDropdown(''); }
   setValue(val, textVal = '') {
     this.hidden.value = val;
     this.input.value = textVal || (this.items.find(i => i.id === val)?.text || val);
+    this.input.classList.toggle('has-selection', Boolean(val && val !== 'ALL'));
+    const clearBtn = this.wrap.querySelector('.search-clear-btn');
+    if (clearBtn) clearBtn.classList.toggle('hidden', !(val && val !== 'ALL'));
   }
   getValue() { return this.hidden.value; }
+  choose(item) {
+    if (!item) return;
+    this.setValue(item.id, item.text);
+    this.close();
+    if (this.onSelect) this.onSelect(item);
+  }
   initEvents() {
-    ['focus', 'input', 'click'].forEach(ev => {
-      this.input.addEventListener(ev, (e) => { e.stopPropagation(); this.renderDropdown(this.input.value.trim()); this.open(); });
+    this.input.addEventListener('focus', (e) => { e.stopPropagation(); this.renderDropdown(this.input.value.trim()); this.open(); });
+    this.input.addEventListener('click', (e) => { e.stopPropagation(); this.renderDropdown(this.input.value.trim()); this.open(); });
+    this.input.addEventListener('input', (e) => {
+      e.stopPropagation();
+      const query = this.input.value.trim();
+      this.hidden.value = '';
+      this.input.classList.remove('has-selection');
+      const clearBtn = this.wrap.querySelector('.search-clear-btn'); if (clearBtn) clearBtn.classList.add('hidden');
+      const matches = this.renderDropdown(query);
+      this.open();
+      // Keep even a single matching account visible so it can be clicked or confirmed with Enter.
+      if (query && matches.length === 1) { this.activeIndex = 0; this.paintActiveItem(); }
+    });
+    this.input.addEventListener('keydown', (e) => {
+      if (!this.drop.classList.contains('open') || !this.visibleItems.length) return;
+      if (e.key === 'ArrowDown') { e.preventDefault(); this.activeIndex = Math.min(this.activeIndex + 1, this.visibleItems.length - 1); this.paintActiveItem(); }
+      else if (e.key === 'ArrowUp') { e.preventDefault(); this.activeIndex = Math.max(this.activeIndex - 1, 0); this.paintActiveItem(); }
+      else if (e.key === 'Enter') { e.preventDefault(); this.choose(this.visibleItems[this.activeIndex]); }
+      else if (e.key === 'Escape') this.close();
     });
     document.addEventListener('click', (e) => { if (!this.wrap.contains(e.target)) this.close(); });
   }
   open() { document.querySelectorAll('.searchable-dropdown').forEach(d => { if (d !== this.drop) d.classList.remove('open'); }); this.drop.classList.add('open'); }
   close() { this.drop.classList.remove('open'); }
+  paintActiveItem() {
+    const rows = this.drop.querySelectorAll('.searchable-item');
+    rows.forEach((el, i) => { el.classList.toggle('active', i === this.activeIndex); if (i === this.activeIndex) el.scrollIntoView({ block: 'nearest' }); });
+  }
   renderDropdown(query = '') {
     this.drop.innerHTML = '';
     const q = query.toLowerCase();
+    const matches = this.items.filter(item => !q || item.text.toLowerCase().includes(q) || (item.group && item.group.toLowerCase().includes(q)));
+    this.visibleItems = matches;
+    this.activeIndex = 0;
+    if (!matches.length) { this.drop.innerHTML = '<div style="padding:10px; color:var(--muted); text-align:center;">لا توجد نتائج</div>'; return matches; }
+    const resultHeader = document.createElement('div'); resultHeader.className = 'search-results-count'; resultHeader.textContent = `نتائج البحث: ${matches.length}`; this.drop.appendChild(resultHeader);
     const groups = {};
-    this.items.forEach(item => {
-      if (!q || item.text.toLowerCase().includes(q) || (item.group && item.group.toLowerCase().includes(q))) {
-        const g = item.group || 'أخرى';
-        if (!groups[g]) groups[g] = [];
-        groups[g].push(item);
-      }
-    });
-    if (Object.keys(groups).length === 0) { this.drop.innerHTML = '<div style="padding:10px; color:var(--muted); text-align:center;">لا توجد نتائج</div>'; return; }
+    matches.forEach(item => { const g = item.group || 'أخرى'; if (!groups[g]) groups[g] = []; groups[g].push(item); });
+    let flatIndex = 0;
     Object.keys(groups).forEach(g => {
       const gHeader = document.createElement('div'); gHeader.className = 'searchable-group-label'; gHeader.textContent = `📁 ${g}`;
       this.drop.appendChild(gHeader);
       groups[g].forEach(item => {
-        const el = document.createElement('div'); el.className = 'searchable-item'; el.innerHTML = highlightText(item.text, q);
-        el.addEventListener('click', () => { this.setValue(item.id, item.text); this.close(); if (this.onSelect) this.onSelect(item); });
+        const el = document.createElement('div'); el.className = `searchable-item ${flatIndex === 0 ? 'active' : ''}`; el.innerHTML = highlightText(item.text, q);
+        const itemIndex = flatIndex++;
+        el.addEventListener('mouseenter', () => { this.activeIndex = itemIndex; this.paintActiveItem(); });
+        el.addEventListener('click', () => this.choose(item));
         this.drop.appendChild(el);
       });
     });
+    return matches;
   }
 }
 
@@ -1847,6 +2115,7 @@ function setupSearchableSelects() {
   selDebitAcc = new SearchableSelect({ wrapId: 'wrapDebitAcc', inputId: 'inpDebitAcc', dropId: 'dropDebitAcc', hiddenId: 'valDebitAcc', isGrouped: true });
   selCreditAcc = new SearchableSelect({ wrapId: 'wrapCreditAcc', inputId: 'inpCreditAcc', dropId: 'dropCreditAcc', hiddenId: 'valCreditAcc', isGrouped: true });
   selReportAccount = new SearchableSelect({ wrapId: 'wrapReportAccount', inputId: 'inpReportAccount', dropId: 'dropReportAccount', hiddenId: 'valReportAccount', isGrouped: true, onSelect: () => runAccountStatement() });
+  document.getElementById('clearReportAccountBtn')?.addEventListener('click', (e) => { e.stopPropagation(); selReportAccount.setValue('ALL', ''); selReportAccount.close(); runAccountStatement(); });
   selEditDebitAcc = new SearchableSelect({ wrapId: 'wrapEditDebitAcc', inputId: 'inpEditDebitAcc', dropId: 'dropEditDebitAcc', hiddenId: 'valEditDebitAcc', isGrouped: true });
   selEditCreditAcc = new SearchableSelect({ wrapId: 'wrapEditCreditAcc', inputId: 'inpEditCreditAcc', dropId: 'dropEditCreditAcc', hiddenId: 'valEditCreditAcc', isGrouped: true });
 }
@@ -1857,8 +2126,13 @@ function updateSearchableData() {
   selDebitAcc.setItems(accountItems); selCreditAcc.setItems(accountItems);
   if (selEditDebitAcc) selEditDebitAcc.setItems(accountItems);
   if (selEditCreditAcc) selEditCreditAcc.setItems(accountItems);
+  const prevReportSel = selReportAccount.getValue();
   selReportAccount.setItems([{ id: 'ALL', text: '📋 ملخص كافة الحسابات والصناديق (تجميعي)', group: 'عرض عام' }, ...accountItems]);
-  if (!selReportAccount.getValue()) selReportAccount.setValue('ALL', '📋 ملخص كافة الحسابات والصناديق (تجميعي)');
+  if (prevReportSel && (prevReportSel === 'ALL' || accountItems.some(i => i.id === prevReportSel))) {
+    selReportAccount.setValue(prevReportSel, prevReportSel === 'ALL' ? '📋 ملخص كافة الحسابات والصناديق (تجميعي)' : prevReportSel);
+  } else {
+    selReportAccount.setValue('ALL', '📋 ملخص كافة الحسابات والصناديق (تجميعي)');
+  }
 }
 
 function updateParentAccountSelect() {
@@ -1939,7 +2213,7 @@ function setVoucherSplitMode(mode) {
 
 function initVoucherCategoryStates(amount = 0) {
   const cats = getCats(); voucherCatStates = {};
-  cats.forEach(c => voucherCatStates[c.id] = { enabled: true, amount: 0, pct: c.pct || 0 });
+  cats.forEach(c => voucherCatStates[c.id] = { enabled: c.id === 'general', amount: 0, pct: c.id === 'general' ? 100 : 0 });
   if (amount > 0) recalcAmountsFromPcts(amount); else renderVoucherCategoriesList();
 }
 
@@ -1951,7 +2225,9 @@ function recalcAmountsFromPcts(totalAmount) {
     if (!voucherCatStates[c.id]?.enabled || activeWeight === 0) { voucherCatStates[c.id].amount = 0; }
     else {
       const ratio = voucherCatStates[c.id].pct / activeWeight, catAmt = Math.round(totalAmount * ratio);
-      voucherCatStates[c.id].amount = catAmt; allocated += catAmt;
+      voucherCatStates[c.id].amount = catAmt;
+      voucherCatStates[c.id].pct = ratio * 100;
+      allocated += catAmt;
     }
   });
   const diff = totalAmount - allocated;
@@ -1969,10 +2245,11 @@ function renderVoucherCategoriesList() {
     const st = voucherCatStates[c.id] || { enabled: true, amount: 0, pct: c.pct || 0 };
     const row = document.createElement('div'); row.className = `voucher-cat-row ${st.enabled ? '' : 'disabled'}`;
     let inputHtml = voucherSplitMode === 'pct' ? 
-      `<div class="voucher-cat-input-wrap"><input type="number" class="voucher-cat-pct-input hide-in-privacy" data-id="${c.id}" value="${st.pct}" ${st.enabled ? '' : 'disabled'}><span style="font-weight:900;">%</span><span style="color:var(--muted); font-weight:900; min-width:60px; text-align:left;">(${Number(st.amount || 0).toLocaleString()})</span></div>` :
+      `<div class="voucher-cat-input-wrap"><input type="number" class="voucher-cat-pct-input hide-in-privacy" data-id="${c.id}" value="${st.pct}" ${st.enabled ? '' : 'disabled'}><span style="font-weight:900;">%</span><span style="color:var(--muted); font-weight:900; min-width:60px; text-align:left;">(${Number(st.amount || 0).toLocaleString()} • ${Number(st.pct || 0).toFixed(2)}%)</span></div>` :
       `<div class="voucher-cat-input-wrap"><input type="number" class="voucher-cat-amt-input hide-in-privacy" data-id="${c.id}" value="${st.amount || 0}" ${st.enabled ? '' : 'disabled'}><span style="color:var(--muted); font-weight:900; min-width:35px; text-align:left;">(${st.pct || 0}%)</span></div>`;
 
-    row.innerHTML = `<div class="voucher-cat-name"><button type="button" class="toggle-vis-btn toggle-v-cat" data-id="${c.id}">${st.enabled ? '👁️' : '🔄'}</button><span class="cat-color" style="background:${c.color}"></span><span>${esc(c.name)}</span></div>${inputHtml}`;
+    row.innerHTML = `<div class="voucher-cat-name" title="${esc(c.description || 'اضغط لعرض شرح البند')}"><button type="button" class="toggle-vis-btn toggle-v-cat" data-id="${c.id}">${st.enabled ? '👁️' : '🔄'}</button><span class="cat-color" style="background:${c.color}"></span><button type="button" class="cat-help-btn" data-id="${c.id}">${esc(c.name)} <small>ⓘ</small></button></div>${inputHtml}`;
+    row.querySelector('.cat-help-btn').addEventListener('click', () => showToast(c.description || 'بند الميزانية المحدد', 'success'));
     row.querySelector('.toggle-v-cat').addEventListener('click', () => {
       st.enabled = !st.enabled; st.amount = st.enabled ? st.amount : 0; st.pct = st.enabled ? (c.pct || 10) : 0;
       if (voucherSplitMode === 'pct') recalcAmountsFromPcts(totalAmount); else renderVoucherCategoriesList();
@@ -1997,7 +2274,7 @@ function updateVoucherSummaryNumbers() {
   Object.values(voucherCatStates).forEach(st => { if (st.enabled) { totalAllocated += Number(st.amount || 0); totalPcts += Number(st.pct || 0); } });
   const remaining = totalAmount - totalAllocated;
   document.getElementById('voucherAllocatedSum').textContent = totalAllocated.toLocaleString();
-  document.getElementById('voucherAllocatedPctSum').textContent = `${totalPcts}%`;
+  document.getElementById('voucherAllocatedPctSum').textContent = `${Number(totalPcts).toFixed(2)}%`;
   const remEl = document.getElementById('voucherRemainingSum');
   remEl.textContent = remaining.toLocaleString();
   remEl.style.color = remaining === 0 ? 'var(--ok)' : (remaining > 0 ? 'var(--warn)' : 'var(--danger)');
@@ -2036,12 +2313,12 @@ function selectVoucherTypeDirect(mode) {
   const card = document.getElementById('cashFlowCard'), title = document.getElementById('voucherHeaderTitle'), btn = document.getElementById('commitVoucherBtn');
   updateVoucherSeqBadge();
   document.getElementById('voucherDateInput').value = new Date().toISOString().split('T')[0];
-  document.getElementById('voucherCurrencySelect').value = document.getElementById('currency')?.value || 'YER';
-  isVoucherSplitActive = false;
-  document.getElementById('toggleSplitBoxBtn').textContent = 'معطل ✖'; 
-  document.getElementById('toggleSplitBoxBtn').style.background = 'var(--card)'; 
-  document.getElementById('toggleSplitBoxBtn').style.color = 'var(--text)';
-  voucherSplitContainer.classList.add('hidden'); 
+  document.getElementById('voucherCurrencySelect').value = getGlobalCurrency();
+  isVoucherSplitActive = true;
+  document.getElementById('toggleSplitBoxBtn').textContent = 'مفعل ✔';
+  document.getElementById('toggleSplitBoxBtn').style.background = 'var(--accent)';
+  document.getElementById('toggleSplitBoxBtn').style.color = '#fff';
+  voucherSplitContainer.classList.remove('hidden');
   initVoucherCategoryStates(0);
   document.getElementById('tafqitText').textContent = 'صفر';
   document.getElementById('voucherAmountInput').value = '';
@@ -2089,18 +2366,24 @@ document.getElementById('commitVoucherBtn').addEventListener('click', () => {
   if (debitAcc === creditAcc) { alert('خطأ في الاتزان المحاسبي: الحساب المدين والدائن متطابقان!'); return; }
 
   const finalDist = {}, initialExecution = {};
-  if (isVoucherSplitActive) {
-    let totalAllocated = 0;
-    getCats().forEach(c => {
-      const st = voucherCatStates[c.id];
-      if (st && st.enabled && st.amount > 0) {
-        totalAllocated += Number(st.amount);
-        finalDist[c.id] = { id: c.id, name: c.name, amount: st.amount, pct: st.pct, color: c.color, excluded: false };
-        initialExecution[c.id] = { done: true, actualSpent: currentVoucherMode === 'income' ? 0 : st.amount, note: note || '' };
-      }
-    });
-    if (totalAllocated !== totalAmount) { alert(`خطأ في اتزان توزيع الميزانية! المجموع (${totalAllocated.toLocaleString()}) لا يساوي إجمالي السند (${totalAmount.toLocaleString()}).`); return; }
+  let totalAllocated = 0;
+  getCats().forEach(c => {
+    const st = voucherCatStates[c.id];
+    if (isVoucherSplitActive && st && st.enabled && st.amount > 0) {
+      totalAllocated += Number(st.amount);
+      finalDist[c.id] = { id: c.id, name: c.name, amount: st.amount, pct: totalAmount > 0 ? (Number(st.amount) / totalAmount) * 100 : 0, color: c.color, excluded: false };
+      initialExecution[c.id] = { done: true, actualSpent: currentVoucherMode === 'income' ? 0 : st.amount, note: note || '' };
+    }
+  });
+  if (totalAllocated === 0) {
+    const general = getCats().find(c => c.id === 'general') || getCats().find(c => c.id === 'center');
+    if (!general) { alert('لا يمكن حفظ السند قبل إنشاء بند عام أو المركز.'); return; }
+    totalAllocated = totalAmount;
+    finalDist[general.id] = { id: general.id, name: general.name, amount: totalAmount, pct: 100, color: general.color, excluded: false };
+    initialExecution[general.id] = { done: true, actualSpent: currentVoucherMode === 'income' ? 0 : totalAmount, note: note || '' };
+    showToast(`تم تصنيف السند تلقائيًا تحت «${general.name}»`, 'success');
   }
+  if (Math.abs(totalAllocated - totalAmount) > 0.001) { alert(`لا يمكن ترحيل السند: مجموع توزيع الميزانية (${totalAllocated.toLocaleString()}) لا يساوي إجمالي السند (${totalAmount.toLocaleString()}).`); return; }
 
   const warnings = checkCeilingWarning(debitAcc, creditAcc, totalAmount);
   if (warnings.length > 0 && !confirm(warnings.join('\n\n') + '\n\nهل ترغب بالاستمرار وتجاوز السقف؟')) return;
@@ -2167,10 +2450,58 @@ function openTxModal(item) {
   const cats = getCats(), existingDist = item.distribution || {};
   cats.forEach(c => {
     const d = existingDist[c.id];
-    editVoucherCatStates[c.id] = { enabled: d ? !d.excluded : false, amount: d ? Number(d.amount || 0) : 0, pct: d ? Number(d.pct || 0) : (c.pct || 0) };
+    const savedAmount = d ? Number(d.amount || 0) : 0;
+    editVoucherCatStates[c.id] = { enabled: Boolean(d && !d.excluded && savedAmount > 0), amount: savedAmount, pct: item.amount > 0 ? (savedAmount / Number(item.amount)) * 100 : 0 };
   });
+  // Older vouchers without distribution are opened as a new, valid voucher under عام.
+  if (!Object.values(editVoucherCatStates).some(st => st.enabled && st.amount > 0)) {
+    const fallback = cats.find(c => c.id === 'general') || cats.find(c => c.id === 'center');
+    if (fallback) editVoucherCatStates[fallback.id] = { enabled: true, amount: Number(item.amount || 0), pct: 100 };
+  }
   renderEditVoucherCategoriesList();
   document.getElementById('txModal').classList.add('show');
+}
+
+function normalizeEditDistribution(totalAmount, changedId = null) {
+  const cats = getCats(), total = Number(totalAmount || 0);
+  const selected = cats.filter(c => editVoucherCatStates[c.id]?.enabled);
+  if (!selected.length) return;
+  if (changedId && selected.some(c => c.id === changedId)) {
+    const changed = editVoucherCatStates[changedId];
+    changed.amount = Math.max(0, Number(changed.amount || 0));
+    const others = selected.filter(c => c.id !== changedId);
+    const remaining = Math.max(0, total - changed.amount);
+    const oldOthersTotal = others.reduce((sum, c) => sum + Number(editVoucherCatStates[c.id].amount || 0), 0);
+    let assigned = 0;
+    others.forEach((c, index) => {
+      const st = editVoucherCatStates[c.id];
+      const share = oldOthersTotal > 0 ? Number(st.amount || 0) / oldOthersTotal : 1 / Math.max(1, others.length);
+      st.amount = index === others.length - 1 ? remaining - assigned : Math.round(remaining * share);
+      assigned += st.amount;
+    });
+  } else {
+    const oldTotal = selected.reduce((sum, c) => sum + Number(editVoucherCatStates[c.id].amount || 0), 0);
+    let assigned = 0;
+    selected.forEach((c, index) => {
+      const st = editVoucherCatStates[c.id];
+      const share = oldTotal > 0 ? Number(st.amount || 0) / oldTotal : 1 / selected.length;
+      st.amount = index === selected.length - 1 ? total - assigned : Math.round(total * share);
+      assigned += st.amount;
+    });
+  }
+  selected.forEach(c => { editVoucherCatStates[c.id].pct = total > 0 ? (Number(editVoucherCatStates[c.id].amount || 0) / total) * 100 : 0; });
+}
+
+function refreshEditCategoryAmounts() {
+  const container = document.getElementById('editVoucherCatsList'); if (!container) return;
+  container.querySelectorAll('.voucher-cat-row').forEach(row => {
+    const input = row.querySelector('.edit-cat-amt-input');
+    const id = input?.dataset.id; const st = editVoucherCatStates[id];
+    if (!st) return;
+    if (document.activeElement !== input) input.value = st.amount;
+    const pct = row.querySelector('.edit-cat-pct-label'); if (pct) pct.textContent = `${Number(st.pct || 0).toFixed(2)}%`;
+  });
+  updateEditVoucherRemaining();
 }
 
 function renderEditVoucherCategoriesList() {
@@ -2187,11 +2518,11 @@ function renderEditVoucherCategoriesList() {
       </div>
       <div style="display:flex; align-items:center; gap:6px;">
         <input type="number" class="edit-cat-amt-input hide-in-privacy" data-id="${c.id}" value="${st.amount}" ${st.enabled ? '' : 'disabled'} style="width:100px; text-align:center; padding:8px; font-size:1.05rem;">
-        <span style="font-size:0.9rem; color:var(--muted); font-weight:900;">${st.pct}%</span>
+        <span class="edit-cat-pct-label" style="font-size:0.9rem; color:var(--muted); font-weight:900;">${Number(st.pct || 0).toFixed(2)}%</span>
       </div>
     `;
-    row.querySelector('.toggle-edit-cat').addEventListener('click', () => { st.enabled = !st.enabled; renderEditVoucherCategoriesList(); });
-    row.querySelector('.edit-cat-amt-input').addEventListener('input', (e) => { st.amount = parseFloat(e.target.value) || 0; updateEditVoucherRemaining(); });
+    row.querySelector('.toggle-edit-cat').addEventListener('click', () => { st.enabled = !st.enabled; if (!st.enabled) st.amount = 0; else if (!st.amount) st.amount = 0; normalizeEditDistribution(getCleanNumber(document.getElementById('editVoucherAmount').value)); renderEditVoucherCategoriesList(); });
+    row.querySelector('.edit-cat-amt-input').addEventListener('input', (e) => { st.amount = parseFloat(e.target.value) || 0; normalizeEditDistribution(getCleanNumber(document.getElementById('editVoucherAmount').value), c.id); refreshEditCategoryAmounts(); });
     container.appendChild(row);
   });
   updateEditVoucherRemaining();
@@ -2207,7 +2538,7 @@ function updateEditVoucherRemaining() {
   }
 }
 
-document.getElementById('editVoucherAmount').addEventListener('input', renderEditVoucherCategoriesList);
+document.getElementById('editVoucherAmount').addEventListener('input', () => { normalizeEditDistribution(getCleanNumber(document.getElementById('editVoucherAmount').value)); refreshEditCategoryAmounts(); });
 
 document.getElementById('saveTxExecutionBtn').addEventListener('click', () => {
   if (!activeEditingTx) return;
@@ -2226,12 +2557,21 @@ document.getElementById('saveTxExecutionBtn').addEventListener('click', () => {
     const st = editVoucherCatStates[c.id];
     if (st && st.enabled && st.amount > 0) {
       totalAllocated += Number(st.amount);
-      finalDist[c.id] = { id: c.id, name: c.name, amount: st.amount, pct: st.pct, color: c.color, excluded: false };
+      finalDist[c.id] = { id: c.id, name: c.name, amount: st.amount, pct: newAmount > 0 ? (Number(st.amount) / newAmount) * 100 : 0, color: c.color, excluded: false };
       initialExecution[c.id] = { done: true, actualSpent: tx.voucherMode === 'income' ? 0 : st.amount, note: newNote || '' };
     }
   });
 
-  if (totalAllocated !== newAmount) { alert(`خطأ في اتزان التوزيع! المجموع (${totalAllocated.toLocaleString()}) لا يساوي إجمالي السند (${newAmount.toLocaleString()}).`); return; }
+  if (totalAllocated === 0) {
+    const hadPreviousAllocation = activeEditingTx && activeEditingTx.distribution && Object.values(activeEditingTx.distribution).some(d => Number(d.amount || 0) > 0);
+    if (hadPreviousAllocation) { alert('لم يتم حفظ التعديل: يجب إبقاء مبلغ واحد على الأقل في بند ميزانية، ثم إعادة توزيع كامل المبلغ.'); return; }
+    const general = getCats().find(c => c.id === 'general') || getCats().find(c => c.id === 'center');
+    if (!general) { alert('لا يمكن حفظ التعديل قبل وجود بند عام أو المركز.'); return; }
+    totalAllocated = newAmount;
+    finalDist[general.id] = { id: general.id, name: general.name, amount: newAmount, pct: 100, color: general.color, excluded: false };
+    initialExecution[general.id] = { done: true, actualSpent: tx.voucherMode === 'income' ? 0 : newAmount, note: newNote || '' };
+  }
+  if (Math.abs(totalAllocated - newAmount) > 0.001) { alert(`لا يمكن حفظ التعديل: مجموع توزيع الميزانية (${totalAllocated.toLocaleString()}) لا يساوي إجمالي السند (${newAmount.toLocaleString()}).`); return; }
 
   tx.amount = newAmount; tx.debitAccount = newDebit; tx.creditAccount = newCredit; tx.currency = newCur;
   tx.distribution = finalDist; tx.execution = initialExecution;
@@ -2319,7 +2659,7 @@ function renderAllData() {
   updateProDashboard();
 }
 
-function initReportsTab() { populateReportFilterOptions(); updateSearchableData(); toggleReportView(activeReportTab); }
+function initReportsTab() { populateReportFilterOptions(); updateSearchableData(); toggleReportView(document.getElementById('pageBudget').classList.contains('hidden') ? 'accounts' : 'budget'); }
 document.getElementById('btnRptBudget').addEventListener('click', () => toggleReportView('budget'));
 document.getElementById('btnRptAccounts').addEventListener('click', () => toggleReportView('accounts'));
 
@@ -2330,6 +2670,8 @@ function toggleReportView(mode) {
   document.getElementById('budgetReportCard').classList.toggle('hidden', mode !== 'budget');
   document.getElementById('accountStatementCard').classList.toggle('hidden', mode !== 'accounts');
   document.getElementById('filterAccountSelectBox').classList.toggle('hidden', mode !== 'accounts');
+  const budgetCarousel = document.getElementById('budgetCarousel');
+  if (budgetCarousel) budgetCarousel.classList.toggle('hidden', mode !== 'budget' || document.getElementById('pageBudget')?.classList.contains('hidden'));
   runActiveReport();
 }
 
@@ -2371,6 +2713,18 @@ function runActiveReport() { if (activeReportTab === 'budget') runBudgetReport()
 
 let cachedBudgetSummary = {};
 
+function renderBudgetInsights(rows) {
+  const box=document.getElementById('budgetInsights'); if(!box) return;
+  box.innerHTML='';
+  if(!rows.length){ box.innerHTML='<div style="grid-column:1/-1;text-align:center;color:var(--muted);font-weight:900;padding:12px;">ستظهر هنا بطاقات البنود عند وجود بيانات</div>'; return; }
+  rows.slice().sort((a,b)=>((b.allocated-b.actualSpent)-(a.allocated-a.actualSpent))).forEach(c=>{
+    const surplus=c.allocated-c.actualSpent, pct=c.allocated>0?Math.min(100,Math.round(c.actualSpent/c.allocated*100)):0;
+    const color=surplus<0?'var(--danger)':(pct>=80?'var(--warn)':'var(--ok)');
+    const card=document.createElement('button'); card.type='button'; card.className='budget-insight'; card.innerHTML=`<div class="budget-insight-head"><span><b style="color:${c.color||'var(--accent)'}">●</b> ${esc(c.name)}</span><small>${pct}% مستخدم</small></div><div class="budget-meter"><span style="width:${pct}%;background:${color}"></span></div><div class="budget-insight-foot"><span>منصرف: ${fmt(c.actualSpent)}</span><span style="color:${color}">${surplus>=0?'متبقي: ':'تجاوز: '}${fmt(Math.abs(surplus))}</span></div>`;
+    card.addEventListener('click',()=>openCategoryTransactionsModal(c)); box.appendChild(card);
+  });
+}
+
 function runBudgetReport() {
   const { targetTxs, periodTitle } = getFilteredTransactions(), cats = getCats();
   document.getElementById('reportPeriodTitle').textContent = `الفترة: ${periodTitle}`;
@@ -2398,6 +2752,7 @@ function runBudgetReport() {
 
   const tbody = document.getElementById('reportBody'); tbody.innerHTML = '';
   const catRows = Object.values(cachedBudgetSummary).filter(c => c.allocated > 0 || c.actualSpent > 0);
+  renderBudgetInsights(catRows);
   if (catRows.length === 0) { tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding:14px;">لا توجد بيانات ميزانية</td></tr>'; }
   else {
     catRows.forEach(c => {
@@ -2490,7 +2845,10 @@ function runAccountStatement() {
     });
     document.getElementById('kpiAccountDebit').textContent = fmt(totD);
     document.getElementById('kpiAccountCredit').textContent = fmt(totC);
+    document.getElementById('allTotalDebit').textContent = fmt(totD);
+    document.getElementById('allTotalCredit').textContent = fmt(totC);
     const netB = totC - totD; document.getElementById('kpiAccountBalance').textContent = `${fmt(Math.abs(netB))} (${netB >= 0 ? 'دائن' : 'مدين'})`;
+    document.getElementById('allTotalBalance').textContent = `${fmt(Math.abs(netB))} (${netB >= 0 ? 'دائن' : 'مدين'})`;
 
     const allBody = document.getElementById('allAccountsBody'); allBody.innerHTML = '';
     Object.keys(tree).forEach(p => {
@@ -2529,6 +2887,9 @@ function runAccountStatement() {
     document.getElementById('kpiAccountDebit').textContent = fmt(totD);
     document.getElementById('kpiAccountCredit').textContent = fmt(totC);
     document.getElementById('kpiAccountBalance').textContent = `${fmt(Math.abs(netB))} (${netB >= 0 ? 'دائن' : 'مدين'})`;
+    document.getElementById('statementTotalDebit').textContent = fmt(totD);
+    document.getElementById('statementTotalCredit').textContent = fmt(totC);
+    document.getElementById('statementTotalBalance').textContent = `${fmt(Math.abs(netB))} (${netB >= 0 ? 'دائن' : 'مدين'})`;
   }
 }
 
@@ -2587,10 +2948,11 @@ function renderCategoryRows() {
   const box = document.getElementById('pctRows'); box.innerHTML = '';
   draftCats.forEach((c, i) => {
     const row = document.createElement('div'); row.style.cssText = 'display:flex; align-items:center; gap:8px; padding:8px 0; border-bottom:1px dashed var(--border);';
-    row.innerHTML = `<span class="cat-color" style="background:${c.color}; width:16px; height:16px; border-radius:4px;"></span><input type="text" value="${esc(c.name)}" data-idx="${i}" class="c-name" style="flex:1; padding:8px;"><input type="number" value="${c.pct}" data-idx="${i}" class="c-pct" style="width:70px; text-align:center; padding:8px;"><span style="font-weight:900;">%</span><button class="del-btn c-del" data-idx="${i}">🗑️</button>`;
+    const isCore = DEFAULT_CATS.some(base => base.id === c.id);
+    row.innerHTML = `<span class="cat-color" style="background:${c.color}; width:16px; height:16px; border-radius:4px;"></span><input type="text" value="${esc(c.name)}" data-idx="${i}" class="c-name" ${isCore ? 'readonly title="بند أساسي ثابت"' : ''} style="flex:1; padding:8px;${isCore ? 'background:var(--bg);color:var(--muted);' : ''}"><input type="number" value="${c.pct}" data-idx="${i}" class="c-pct" style="width:70px; text-align:center; padding:8px;"><span style="font-weight:900;">%</span><button class="del-btn c-del" data-idx="${i}">🗑️</button>`;
     row.querySelector('.c-name').addEventListener('input', (e) => draftCats[i].name = e.target.value);
     row.querySelector('.c-pct').addEventListener('input', (e) => { draftCats[i].pct = parseFloat(e.target.value) || 0; updatePctSum(); });
-    row.querySelector('.c-del').addEventListener('click', () => { if (draftCats.length <= 1) { alert('يجب الإبقاء على بند واحد'); return; } draftCats.splice(i, 1); renderCategoryRows(); updatePctSum(); });
+    row.querySelector('.c-del').addEventListener('click', () => { if (DEFAULT_CATS.some(base => base.id === draftCats[i].id)) { alert('البنود الأساسية التسعة لا تُحذف، ويمكن تعديل نسبتها فقط.'); return; } if (draftCats.length <= 1) { alert('يجب الإبقاء على بند واحد'); return; } draftCats.splice(i, 1); renderCategoryRows(); updatePctSum(); });
     box.appendChild(row);
   });
   updatePctSum();
@@ -2602,7 +2964,8 @@ function updatePctSum() {
 }
 
 document.getElementById('addCatBtn').addEventListener('click', () => {
-  draftCats.push({ id: 'c_' + Date.now(), name: 'بند جديد', color: PALETTE[draftCats.length % PALETTE.length], pct: 0 });
+  if (draftCats.length >= MAX_BUDGET_CATS) { alert('لا يمكن إضافة أكثر من 11 بندًا للميزانية: 9 أساسية وبندان اختياريان.'); return; }
+  draftCats.push({ id: 'c_' + Date.now(), name: 'بند اختياري', description: 'بند إضافي يحدده المستخدم.', color: PALETTE[draftCats.length % PALETTE.length], pct: 0 });
   renderCategoryRows();
 });
 document.getElementById('savePctsBtn').addEventListener('click', () => {
@@ -2648,7 +3011,7 @@ document.getElementById('installAppBtn')?.addEventListener('click', async () => 
 });
 
 function updateMobileSummary() {
-  const txs = getAllTransactions().filter(t => t.currency === (document.getElementById('currency')?.value || 'YER') && t.status !== 'reversed');
+  const txs = getAllTransactions().filter(t => t.currency === getGlobalCurrency() && t.status !== 'reversed');
   const inc = txs.filter(t => !t.isExpense && t.voucherMode !== 'spend').reduce((n,t)=>n+Number(t.amount||0),0);
   const sp = txs.filter(t => t.isExpense || t.voucherMode === 'spend').reduce((n,t)=>n+Number(t.amount||0),0);
   document.getElementById('mobileAvailable').textContent = fmtShort(inc - sp);
@@ -2660,7 +3023,7 @@ const origRender = renderAllData; renderAllData = function() { origRender(); upd
 (function init() {
   document.documentElement.dataset.theme = store.get('theme', 'light');
   setupSearchableSelects(); updateSearchableData(); setupFormattedNumberInputs();
-  navigateToTab('pageDashboard', false); updateProDashboard(); checkAppLockOnStartup(); pushAppHistoryState();
+  setupReportSections('pageReports'); navigateToTab('pageDashboard', false); initCarousels(); updateProDashboard(); renderAllData(); checkAppLockOnStartup(); pushAppHistoryState();
 })();
 </script>
 </body>

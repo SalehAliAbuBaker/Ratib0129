@@ -658,8 +658,8 @@ html{scroll-behavior:smooth}body{padding-bottom:16px}
 
 <div id="pageAccountsTree" class="hidden">
   <div class="card" style="border-right: 6px solid var(--accent);">
-    <h2><span>🌳 شجرة الحسابات الفعلية</span></h2>
-    <p style="font-size:1.05rem; color:var(--muted); font-weight:900; margin-bottom:10px;">استعراض شجرة الحسابات الفعلية مع تفاصيل المدين، الدائن، والرصيد الصافي والإجماليات لكل تصنيف:</p>
+    <h2><span>🌳 شجرة الحسابات (للعرض فقط)</span></h2>
+    <p style="font-size:1.05rem; color:var(--muted); font-weight:900; margin-bottom:10px;">استعراض شجرة الحسابات الفعلية وتفاصيل أرصدتها (لإدارة وإضافة الحسابات يرجى الذهاب إلى قسم الإعدادات):</p>
     <div id="liveAccountsTreeView" style="font-size:1.05rem;"></div>
   </div>
 </div>
@@ -936,12 +936,12 @@ html{scroll-behavior:smooth}body{padding-bottom:16px}
 
   <div class="card settings-accordion-card" onclick="toggleSettingsCard(this)">
     <div class="settings-accordion-header">
-      <span>🏛️ دليل وشجرة الحسابات والأسقف</span>
+      <span>🏛️ دليل وشجرة الحسابات والأسقف (إدارة وإضافة)</span>
       <span class="accordion-arrow">▼</span>
     </div>
     <div class="settings-accordion-body" onclick="event.stopPropagation()">
       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
-        <p style="font-size:1.05rem; color:var(--muted); font-weight:900; margin-bottom:0;">انقر على التصنيف الرئيسي لفتحه أو طيه للتعديل أو نقل التبعية:</p>
+        <p style="font-size:1.05rem; color:var(--muted); font-weight:900; margin-bottom:0;">إدارة الحسابات، التعديل، والأسقف:</p>
         <button class="btn btn-ghost" id="openAddAccountDialogBtn" style="width:auto; margin-top:0; padding:6px 12px; font-size:0.95rem;">➕ إضافة حساب</button>
       </div>
       <div id="chartOfAccountsView" style="font-size:1.05rem;"></div>
@@ -1192,6 +1192,19 @@ html{scroll-behavior:smooth}body{padding-bottom:16px}
           <input type="text" id="newParentCategoryInput" placeholder="مثلاً: الأصول الثابتة، فروع إضافية...">
         </div>
         <button class="btn btn-success" id="saveNewParentCategoryBtn" style="margin-top: 8px;">💾 إنشاء الحساب الرئيسي</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- نافذة خيار تعديل المستند أو العملية عند الضغط المطول -->
+  <div class="modal-overlay" id="longPressConfirmModal">
+    <div class="modal-content" style="max-width: 360px; text-align: center;">
+      <div style="font-size: 2.5rem; margin-bottom: 8px;">✏️</div>
+      <h3 style="font-size: 1.35rem; font-weight: 900; margin-bottom: 6px; color: var(--text);">خيارات المستند</h3>
+      <p id="longPressConfirmText" style="font-size: 1.05rem; color: var(--muted); font-weight: 900; margin-bottom: 16px;">هل تريد تعديل هذا المستند؟</p>
+      <div style="display: flex; gap: 8px;">
+        <button class="btn btn-primary" id="confirmEditDocBtn" style="flex: 1; margin-top: 0;">نعم، تعديل</button>
+        <button class="btn btn-ghost" id="cancelEditDocBtn" style="flex: 1; margin-top: 0;">إلغاء</button>
       </div>
     </div>
   </div>
@@ -1490,6 +1503,15 @@ document.addEventListener('DOMContentLoaded', () => {
     saveDefaultAccountsConfig({ incomeDebit, spendCredit });
     showToast('تم حفظ الحسابات الافتراضية بنجاح ✅', 'success');
   });
+
+  document.getElementById('printStatementBtn')?.addEventListener('click', () => {
+    const selectedAccount = selReportAccount ? selReportAccount.getValue() : 'ALL';
+    const { targetTxs } = getFilteredTransactions();
+    preparePrintStatementTemplate(selectedAccount, targetTxs);
+    document.body.classList.add('printing-statement');
+    window.print();
+    setTimeout(() => document.body.classList.remove('printing-statement'), 1000);
+  });
 });
 
 function normalizeTransaction(tx) {
@@ -1573,7 +1595,6 @@ const DEFAULT_ACCOUNT_TREE = {
 };
 
 const PALETTE = ['#0ea5e9','#3b82f6','#f59e0b','#10b981','#8b5cf6','#ef4444','#06b6d4','#f97316','#84cc16','#64748b','#ec4899'];
-let draftCats = [];
 let isPrivacyMode = false;
 let pendingAmount = 0, pendingType = '';
 let previewExcludedIds = new Set();
@@ -1584,6 +1605,7 @@ let activeReportTab = 'budget';
 let currentLedgerSearchQuery = '', currentStatementSearchQuery = '';
 let lastPrintedTx = null;
 let hasUnsavedChanges = false, lastFocusedElement = null, ledgerRenderTimer = null;
+let pendingLongPressTx = null;
 
 function showToast(message, type='info', timeout=3200) {
   const stack = document.getElementById('toastStack'); if (!stack) return;
@@ -1620,7 +1642,7 @@ function updateProDashboard() {
   set('proIncomeKpi',income); set('proExpenseKpi',expense); set('proNetKpi',income-expense);
   const p=document.getElementById('proPendingKpi'); if(p)p.textContent=String(pending);
   const alerts=[]; const ceilings=getAccountCeilings();
-  Object.keys(ceilings).forEach(acc=>{const bal=getCurrentAccountBalance(acc);const c=ceilings[acc]||{};if(c.max!=null&&bal>Number(c.max))alerts.push(`⚠️ ${acc}: تجاوز السقف الأعلى`);if(c.min!=null&&bal<Number(c.min))alerts.push(`⚠️ ${acc}: تجاوز السقف الأدنى`)});
+  Object.keys(ceilings).forEach(acc=>{const bal=getCurrentAccountBalance(acc).balance;const c=ceilings[acc]||{};if(c.max!=null&&bal>Number(c.max))alerts.push(`⚠️ ${acc}: تجاوز السقف الأعلى`);if(c.min!=null&&bal<Number(c.min))alerts.push(`⚠️ ${acc}: تجاوز السقف الأدنى`)});
   const box=document.getElementById('proAlertsBox'); if(box)box.innerHTML=alerts.length?alerts.map(esc).join('<br>'):'✅ لا توجد تنبيهات رقابية حالية';
   renderRemindersList();
   renderRemindersChart();
@@ -1808,6 +1830,65 @@ function getCats(){
   if (JSON.stringify(stored) !== JSON.stringify(normalized)) store.set('cats', normalized);
   return normalized;
 }
+
+let draftCats = [];
+function renderCategoryRows() {
+  const container = document.getElementById('pctRows'); if (!container) return; container.innerHTML = '';
+  draftCats.forEach((c, idx) => {
+    const row = document.createElement('div'); row.className = 'cat-card';
+    row.innerHTML = `
+      <div class="cat-header">
+        <div class="cat-info">
+          <span class="cat-color" style="background:${c.color}"></span>
+          <span class="cat-name">${esc(c.name)}</span>
+        </div>
+        <div style="display:flex; align-items:center; gap:6px;">
+          <input type="number" class="cat-amount hide-in-privacy" data-idx="${idx}" value="${c.pct}" min="0" max="100" style="width:75px; text-align:center; padding:6px; font-weight:900;">
+          <span style="font-weight:900;">%</span>
+        </div>
+      </div>
+      <div style="font-size:0.9rem; color:var(--muted); font-weight:900; margin-top:6px;">${esc(c.description || '')}</div>
+    `;
+    row.querySelector('input').addEventListener('input', (e) => {
+      draftCats[idx].pct = parseFloat(e.target.value) || 0;
+      updatePctSumDisplay();
+    });
+    container.appendChild(row);
+  });
+  updatePctSumDisplay();
+}
+
+function updatePctSumDisplay() {
+  const sum = draftCats.reduce((acc, c) => acc + Number(c.pct || 0), 0);
+  const sumEl = document.getElementById('pctSum');
+  if (sumEl) {
+    sumEl.textContent = `المجموع: ${sum}%`;
+    sumEl.style.color = sum === 100 ? 'var(--ok)' : 'var(--danger)';
+  }
+}
+
+document.getElementById('savePctsBtn')?.addEventListener('click', () => {
+  const sum = draftCats.reduce((acc, c) => acc + Number(c.pct || 0), 0);
+  if (sum !== 100) { alert(`مجموع النسب يجب أن يساوي 100% تماماً. المجموع الحالي: ${sum}%`); return; }
+  store.set('cats', draftCats);
+  showToast('تم حفظ بنود الميزانية ونسبها بنجاح ✅', 'success');
+});
+
+document.getElementById('resetPctsBtn')?.addEventListener('click', () => {
+  draftCats = DEFAULT_CATS.map(c => ({...c}));
+  renderCategoryRows();
+  showToast('تمت استعادة البنود والنسب الافتراضية', 'warn');
+});
+
+document.getElementById('addCatBtn')?.addEventListener('click', () => {
+  if (draftCats.length >= MAX_BUDGET_CATS) { alert('عذراً، الحد الأقصى لبنود الميزانية هو 12 بنداً.'); return; }
+  const name = prompt('أدخل اسم البند الإضافي الجديد:');
+  if (!name || !name.trim()) return;
+  const desc = prompt('أدخل وصفاً مبسطاً للبند:') || 'بند إضافي مخصص.';
+  const color = PALETTE[draftCats.length % PALETTE.length];
+  draftCats.push({ id: `custom_${Date.now()}`, name: name.trim(), description: desc.trim(), color, pct: 0 });
+  renderCategoryRows();
+});
 
 function getAccountTree(){
   const stored = store.get('account_tree', DEFAULT_ACCOUNT_TREE);
@@ -2167,6 +2248,7 @@ window.addEventListener('popstate', (e) => {
   if (currentActiveTab === 'pageDashboard' && !document.getElementById('dashboardHomeContent').classList.contains('hidden')) { closeDashboardHome(false); pushAppHistoryState(); return; }
   if (document.getElementById('reminderModal').classList.contains('show')) { document.getElementById('reminderModal').classList.remove('show'); pushAppHistoryState(); return; }
   if (document.getElementById('txModal').classList.contains('show')) { document.getElementById('txModal').classList.remove('show'); pushAppHistoryState(); return; }
+  if (document.getElementById('longPressConfirmModal').classList.contains('show')) { document.getElementById('longPressConfirmModal').classList.remove('show'); pushAppHistoryState(); return; }
   if (document.getElementById('addAccountModal').classList.contains('show')) { document.getElementById('addAccountModal').classList.remove('show'); pushAppHistoryState(); return; }
   if (document.getElementById('editAccountModal').classList.contains('show')) { document.getElementById('editAccountModal').classList.remove('show'); pushAppHistoryState(); return; }
   if (document.getElementById('accountMoveModal').classList.contains('show')) { document.getElementById('accountMoveModal').classList.remove('show'); pushAppHistoryState(); return; }
@@ -2205,7 +2287,6 @@ function initLiveAccountsTreePage() {
 
     const body = document.createElement('div');
     body.className = 'acc-accordion-body';
-    let bodyHtml = '';
 
     let mainTotDebit = 0, mainTotCredit = 0;
 
@@ -2214,49 +2295,186 @@ function initLiveAccountsTreePage() {
       mainTotDebit += res.debit;
       mainTotCredit += res.credit;
       const balColor = res.balance >= 0 ? 'var(--ok)' : 'var(--danger)';
-      return `
-        <div style="display:flex; justify-content:space-between; align-items:center; padding:10px 0; border-bottom:1px dashed var(--border); font-size:1.05rem;">
-          <span>↳ 👤 ${esc(subName)}</span>
-          <div style="display:flex; gap:12px; font-size:0.95rem;">
-            <span style="color:var(--danger)">مدين: ${res.debit.toLocaleString()}</span>
-            <span style="color:var(--ok)">دائن: ${res.credit.toLocaleString()}</span>
-            <span style="color:${balColor}; font-weight:900;">الرصيد: ${res.balance.toLocaleString()}</span>
-          </div>
+      
+      const subRow = document.createElement('div');
+      subRow.style.cssText = 'display:flex; justify-content:space-between; align-items:center; padding:10px 0; border-bottom:1px dashed var(--border); font-size:1.05rem; cursor:pointer;';
+      subRow.innerHTML = `
+        <span>↳ 👤 ${esc(subName)}</span>
+        <div style="display:flex; gap:12px; font-size:0.95rem;">
+          <span style="color:var(--danger)">مدين: ${res.debit.toLocaleString()}</span>
+          <span style="color:var(--ok)">دائن: ${res.credit.toLocaleString()}</span>
+          <span style="color:${balColor}; font-weight:900;">الرصيد: ${res.balance.toLocaleString()}</span>
         </div>
       `;
+      subRow.addEventListener('click', () => {
+        navigateToTab('pageReports', true);
+        toggleReportView('accounts');
+        selReportAccount.setValue(subName, subName);
+        runAccountStatement();
+      });
+      return subRow;
     }
 
+    const subContainer = document.createElement('div');
     if (node.accounts && node.accounts.length) {
-      node.accounts.forEach(sub => { bodyHtml += getSubDetails(sub); });
+      node.accounts.forEach(sub => { subContainer.appendChild(getSubDetails(sub)); });
     }
 
     if (node.subGroups) {
       Object.keys(node.subGroups).forEach(subP => {
-        bodyHtml += `<div style="background:rgba(2,132,199,0.08); padding:8px; border-radius:8px; margin:8px 0 6px; font-weight:900;">📂 ${esc(subP)}</div>`;
-        (node.subGroups[subP] || []).forEach(sub => { bodyHtml += getSubDetails(sub); });
+        const groupTitle = document.createElement('div');
+        groupTitle.style.cssText = 'background:rgba(2,132,199,0.08); padding:8px; border-radius:8px; margin:8px 0 6px; font-weight:900;';
+        groupTitle.textContent = `📂 ${subP}`;
+        subContainer.appendChild(groupTitle);
+        (node.subGroups[subP] || []).forEach(sub => { subContainer.appendChild(getSubDetails(sub)); });
       });
     }
 
-    if (!bodyHtml) bodyHtml = '<div style="color:var(--muted);">لا توجد حسابات فرعية</div>';
-    
     const mainBalance = mainTotCredit - mainTotDebit;
     const mainBalColor = mainBalance >= 0 ? 'var(--ok)' : 'var(--danger)';
-    body.innerHTML = `
-      <div style="background:var(--bg); padding:10px; border-radius:8px; margin-bottom:10px; font-weight:900; display:flex; justify-content:space-between;">
-        <span>📊 إجماليات التصنيف:</span>
-        <div style="display:flex; gap:12px; font-size:0.95rem;">
-          <span style="color:var(--danger)">مدين: ${mainTotDebit.toLocaleString()}</span>
-          <span style="color:var(--ok)">دائن: ${mainTotCredit.toLocaleString()}</span>
-          <span style="color:${mainBalColor}">الصافي: ${mainBalance.toLocaleString()}</span>
-        </div>
+    
+    const summaryDiv = document.createElement('div');
+    summaryDiv.style.cssText = 'background:var(--bg); padding:10px; border-radius:8px; margin-bottom:10px; font-weight:900; display:flex; justify-content:space-between;';
+    summaryDiv.innerHTML = `
+      <span>📊 إجماليات التصنيف:</span>
+      <div style="display:flex; gap:12px; font-size:0.95rem;">
+        <span style="color:var(--danger)">مدين: ${mainTotDebit.toLocaleString()}</span>
+        <span style="color:var(--ok)">دائن: ${mainTotCredit.toLocaleString()}</span>
+        <span style="color:${mainBalColor}">الصافي: ${mainBalance.toLocaleString()}</span>
       </div>
-      ${bodyHtml}
     `;
+
+    body.appendChild(summaryDiv);
+    body.appendChild(subContainer);
 
     header.addEventListener('click', () => { body.classList.toggle('open'); });
     container.appendChild(header);
     container.appendChild(body);
   });
+}
+
+function renderChartOfAccounts() {
+  const tree = getAccountTree(), ceilings = getAccountCeilings(), container = document.getElementById('chartOfAccountsView');
+  if (!container) return; container.innerHTML = '';
+
+  Object.keys(tree).forEach(mainP => {
+    const node = tree[mainP];
+    const header = document.createElement('div');
+    header.className = 'acc-accordion-header';
+    header.innerHTML = `
+      <span>📁 ${esc(mainP)}</span>
+      <div style="display:flex; gap:6px;">
+        <button class="btn btn-ghost" style="width:auto; margin-top:0; padding:2px 8px; font-size:0.85rem;" onclick="event.stopPropagation(); openAddAccountModal('${esc(mainP)}')">➕ فرعي</button>
+      </div>
+    `;
+
+    const body = document.createElement('div');
+    body.className = 'acc-accordion-body';
+
+    function buildSubAccountRow(subName) {
+      const c = ceilings[subName] || { max: null, min: null };
+      const subRow = document.createElement('div');
+      subRow.style.cssText = 'display:flex; justify-content:space-between; align-items:center; padding:10px 0; border-bottom:1px dashed var(--border); font-size:1.05rem;';
+      subRow.innerHTML = `
+        <div>
+          <b>↳ 👤 ${esc(subName)}</b>
+          <div style="font-size:0.85rem; color:var(--muted); font-weight:900;">الأسقف: الأعلى (${c.max !== null ? c.max.toLocaleString() : 'غير محدود'}) | الأدنى (${c.min !== null ? c.min.toLocaleString() : 'غير محدود'})</div>
+        </div>
+        <div style="display:flex; gap:6px;">
+          <button class="btn btn-ghost" style="width:auto; margin-top:0; padding:4px 8px; font-size:0.85rem;" onclick="openEditAccountModal('${esc(subName)}')">✏️ تعديل</button>
+          <button class="del-btn" onclick="deleteAccountFromTree('${esc(mainP)}', '${esc(subName)}')">🗑️</button>
+        </div>
+      `;
+      return subRow;
+    }
+
+    if (node.accounts && node.accounts.length) {
+      node.accounts.forEach(sub => { body.appendChild(buildSubAccountRow(sub)); });
+    }
+
+    if (node.subGroups) {
+      Object.keys(node.subGroups).forEach(subP => {
+        const groupWrap = document.createElement('div');
+        groupWrap.style.cssText = 'margin:8px 0; background:var(--bg); border:1px solid var(--border); border-radius:8px; padding:8px;';
+        groupWrap.innerHTML = `
+          <div style="display:flex; justify-content:space-between; align-items:center; font-weight:900; color:var(--accent); margin-bottom:6px;">
+            <span>📂 مجموعة فرعية: ${esc(subP)}</span>
+            <button class="btn btn-ghost" style="width:auto; margin-top:0; padding:2px 6px; font-size:0.8rem;" onclick="openAddAccountModal('${esc(mainP)} > ${esc(subP)}')">➕ إضافة تحتها</button>
+          </div>
+        `;
+        (node.subGroups[subP] || []).forEach(sub => { groupWrap.appendChild(buildSubAccountRow(sub)); });
+        body.appendChild(groupWrap);
+      });
+    }
+
+    header.addEventListener('click', () => { body.classList.toggle('open'); });
+    container.appendChild(header);
+    container.appendChild(body);
+  });
+}
+
+function openEditAccountModal(accName) {
+  const ceilings = getAccountCeilings(), c = ceilings[accName] || { max: null, min: null };
+  document.getElementById('editAccountOldName').value = accName;
+  document.getElementById('editAccountNameInput').value = accName;
+  document.getElementById('editAccountMaxCeil').value = c.max !== null ? c.max : '';
+  document.getElementById('editAccountMinCeil').value = c.min !== null ? c.min : '';
+  document.getElementById('editAccountModal').classList.add('show');
+}
+
+document.getElementById('closeEditAccountModalBtn')?.addEventListener('click', () => document.getElementById('editAccountModal').classList.remove('show'));
+
+document.getElementById('saveEditedAccountBtn')?.addEventListener('click', () => {
+  const oldName = document.getElementById('editAccountOldName').value;
+  const newName = document.getElementById('editAccountNameInput').value.trim();
+  const maxC = document.getElementById('editAccountMaxCeil').value;
+  const minC = document.getElementById('editAccountMinCeil').value;
+  if (!newName) { alert('يرجى إدخال اسم الحساب'); return; }
+
+  const tree = getAccountTree();
+  let found = false;
+  Object.keys(tree).forEach(mainP => {
+    const node = tree[mainP];
+    const idx = node.accounts.indexOf(oldName);
+    if (idx !== -1) { node.accounts[idx] = newName; found = true; }
+    if (node.subGroups) {
+      Object.keys(node.subGroups).forEach(subP => {
+        const subIdx = node.subGroups[subP].indexOf(oldName);
+        if (subIdx !== -1) { node.subGroups[subP][subIdx] = newName; found = true; }
+      });
+    }
+  });
+
+  if (found) saveAccountTree(tree);
+
+  const ceilings = getAccountCeilings();
+  if (oldName !== newName && ceilings[oldName]) { ceilings[newName] = ceilings[oldName]; delete ceilings[oldName]; }
+  ceilings[newName] = { max: maxC !== '' ? Number(maxC) : null, min: minC !== '' ? Number(minC) : null };
+  saveAccountCeilings(ceilings);
+
+  document.getElementById('editAccountModal').classList.remove('show');
+  updateSearchableData();
+  renderChartOfAccounts();
+  initLiveAccountsTreePage();
+  showToast('تم تعديل الحساب بنجاح ✅', 'success');
+});
+
+function deleteAccountFromTree(mainP, subName) {
+  if (!confirm(`هل أنت متأكد من حذف الحساب "${subName}"؟`)) return;
+  const tree = getAccountTree();
+  if (tree[mainP]) {
+    tree[mainP].accounts = tree[mainP].accounts.filter(a => a !== subName);
+    if (tree[mainP].subGroups) {
+      Object.keys(tree[mainP].subGroups).forEach(subP => {
+        tree[mainP].subGroups[subP] = tree[mainP].subGroups[subP].filter(a => a !== subName);
+      });
+    }
+  }
+  saveAccountTree(tree);
+  updateSearchableData();
+  renderChartOfAccounts();
+  initLiveAccountsTreePage();
+  showToast('تم حذف الحساب بنجاح', 'warn');
 }
 
 class SearchableSelect {
@@ -2457,8 +2675,9 @@ document.getElementById('saveNewAccountTreeBtn').addEventListener('click', () =>
   ceilings[subName] = { max: maxC !== '' ? Number(maxC) : null, min: minC !== '' ? Number(minC) : null };
   saveAccountCeilings(ceilings);
   document.getElementById('addAccountModal').classList.remove('show');
-  updateSearchableData(); selDebitAcc.setValue(subName, subName);
-  if (currentActiveTab === 'pageSettings') renderChartOfAccounts();
+  updateSearchableData(); 
+  renderChartOfAccounts();
+  initLiveAccountsTreePage();
   alert('تمت إضافة الحساب بنجاح!');
 });
 
@@ -2482,7 +2701,8 @@ document.getElementById('saveNewParentCategoryBtn').addEventListener('click', ()
   saveAccountTree(tree);
   document.getElementById('addAccountModal').classList.remove('show');
   updateSearchableData();
-  if (currentActiveTab === 'pageSettings') renderChartOfAccounts();
+  renderChartOfAccounts();
+  initLiveAccountsTreePage();
   alert('تم إنشاء الحساب الرئيسي بنجاح!');
 });
 
@@ -2705,13 +2925,13 @@ document.getElementById('commitVoucherBtn').addEventListener('click', () => {
   document.getElementById('printPromptModal').classList.add('show'); pushAppHistoryState();
 });
 
-document.getElementById('confirmPrintDocBtn').addEventListener('click', () => {
+document.getElementById('confirmPrintDocBtn')?.addEventListener('click', () => {
   document.getElementById('printPromptModal').classList.remove('show');
   if (lastPrintedTx) preparePrintVoucherTemplate(lastPrintedTx);
   document.body.classList.add('printing-voucher'); window.print();
   setTimeout(() => document.body.classList.remove('printing-voucher'), 1000);
 });
-document.getElementById('skipPrintDocBtn').addEventListener('click', () => document.getElementById('printPromptModal').classList.remove('show'));
+document.getElementById('skipPrintDocBtn')?.addEventListener('click', () => document.getElementById('printPromptModal').classList.remove('show'));
 
 function deleteSingleTransaction(itemId) {
   const p = getMasterPlan(), tx = p.transactions.find(t => String(t.id) === String(itemId)); if (!tx) return;
@@ -2721,7 +2941,7 @@ function deleteSingleTransaction(itemId) {
   showToast('تم إلغاء السند بنجاح', 'warn'); updateVoucherSeqBadge(); renderAllData(); updateProDashboard();
 }
 
-document.getElementById('clearAllTxsBtn').addEventListener('click', () => {
+document.getElementById('clearAllTxsBtn')?.addEventListener('click', () => {
   const firstCheck = confirm('⚠️ تحذير خطير: أنت على وشك تصفير ومسح كافة العمليات والسندات المسجلة نهائياً!\n\nهل أنت متأكد تماماً من رغبتك في المتابعة؟');
   if (!firstCheck) return;
   const secondCheck = prompt('لإتمام عملية التصفير وتأكيد الحذف، يرجى كتابة كلمة (تأكيد) في الخانة أدناه:');
@@ -2849,36 +3069,36 @@ function updateEditVoucherSummaryNumbers() {
   document.getElementById('editVoucherSplitContainer').classList.toggle('balanced', remaining === 0 && totalAmount > 0);
 }
 
-document.getElementById('editBtnModePct').addEventListener('click', () => {
+document.getElementById('editBtnModePct')?.addEventListener('click', () => {
   editVoucherSplitMode = 'pct';
   document.getElementById('editBtnModePct').classList.add('active');
   document.getElementById('editBtnModeAmt').classList.remove('active');
   renderEditVoucherCategoriesList();
 });
-document.getElementById('editBtnModeAmt').addEventListener('click', () => {
+document.getElementById('editBtnModeAmt')?.addEventListener('click', () => {
   editVoucherSplitMode = 'amt';
   document.getElementById('editBtnModeAmt').classList.add('active');
   document.getElementById('editBtnModePct').classList.remove('active');
   renderEditVoucherCategoriesList();
 });
 
-document.getElementById('editAutoDistributeVoucherBtn').addEventListener('click', () => {
+document.getElementById('editAutoDistributeVoucherBtn')?.addEventListener('click', () => {
   getCats().forEach(c => { if (editVoucherCatStates[c.id]) { editVoucherCatStates[c.id].pct = c.pct || 0; editVoucherCatStates[c.id].enabled = true; } });
   recalcEditAmountsFromPcts(getCleanNumber(document.getElementById('editVoucherAmount').value));
 });
 
-document.getElementById('editZeroVoucherAmountsBtn').addEventListener('click', () => {
+document.getElementById('editZeroVoucherAmountsBtn')?.addEventListener('click', () => {
   Object.values(editVoucherCatStates).forEach(st => { st.amount = 0; st.pct = 0; });
   renderEditVoucherCategoriesList();
 });
 
-document.getElementById('editVoucherAmount').addEventListener('input', (e) => {
+document.getElementById('editVoucherAmount')?.addEventListener('input', (e) => {
   const val = getCleanNumber(e.target.value);
   if (editVoucherSplitMode === 'pct') recalcEditAmountsFromPcts(val);
   else updateEditVoucherSummaryNumbers();
 });
 
-document.getElementById('saveTxExecutionBtn').addEventListener('click', () => {
+document.getElementById('saveTxExecutionBtn')?.addEventListener('click', () => {
   if (!activeEditingTx) return;
   const before = structuredClone(activeEditingTx), p = getMasterPlan(), tx = p.transactions.find(t => t.id == activeEditingTx.id); if (!tx) return;
   const newAmount = getCleanNumber(document.getElementById('editVoucherAmount').value);
@@ -2919,27 +3139,40 @@ document.getElementById('saveTxExecutionBtn').addEventListener('click', () => {
   showToast('تم تعديل السند بنجاح', 'success'); renderAllData(); updateProDashboard();
 });
 
-document.getElementById('modalPrintDocBtn').addEventListener('click', () => {
+document.getElementById('modalPrintDocBtn')?.addEventListener('click', () => {
   if (!activeEditingTx) return;
   preparePrintVoucherTemplate(activeEditingTx);
   document.body.classList.add('printing-voucher'); window.print();
   setTimeout(() => document.body.classList.remove('printing-voucher'), 1000);
 });
 
-document.getElementById('closeModalBtn').addEventListener('click', () => document.getElementById('txModal').classList.remove('show'));
-document.getElementById('closeModalActionBtn').addEventListener('click', () => document.getElementById('txModal').classList.remove('show'));
+document.getElementById('closeModalBtn')?.addEventListener('click', () => document.getElementById('txModal').classList.remove('show'));
+document.getElementById('closeModalActionBtn')?.addEventListener('click', () => document.getElementById('txModal').classList.remove('show'));
 
-document.getElementById('ledgerSearchInput').addEventListener('input', (e) => {
+document.getElementById('confirmEditDocBtn')?.addEventListener('click', () => {
+  document.getElementById('longPressConfirmModal').classList.remove('show');
+  if (pendingLongPressTx) {
+    openTxModal(pendingLongPressTx);
+    pendingLongPressTx = null;
+  }
+});
+document.getElementById('cancelEditDocBtn')?.addEventListener('click', () => {
+  document.getElementById('longPressConfirmModal').classList.remove('show');
+  pendingLongPressTx = null;
+});
+
+document.getElementById('ledgerSearchInput')?.addEventListener('input', (e) => {
   currentLedgerSearchQuery = e.target.value.trim().toLowerCase();
   clearTimeout(ledgerRenderTimer); ledgerRenderTimer = setTimeout(renderAllData, 120);
 });
-document.getElementById('exportCsvBtn').addEventListener('click', exportTransactionsCsv);
-document.getElementById('globalSearchBtn').addEventListener('click', openGlobalSearch);
-document.getElementById('closeGlobalSearchBtn').addEventListener('click', closeGlobalSearch);
-document.getElementById('globalSearchInput').addEventListener('input', (e) => renderGlobalSearch(e.target.value));
+document.getElementById('exportCsvBtn')?.addEventListener('click', exportTransactionsCsv);
+document.getElementById('globalSearchBtn')?.addEventListener('click', openGlobalSearch);
+document.getElementById('closeGlobalSearchBtn')?.addEventListener('click', closeGlobalSearch);
+document.getElementById('globalSearchInput')?.addEventListener('input', (e) => renderGlobalSearch(e.target.value));
 
 function renderAllData() {
   const p = getMasterPlan(), allTxs = p.transactions || [], container = document.getElementById('ledgerList');
+  if (!container) return;
   let txs = allTxs;
   if (currentLedgerSearchQuery) {
     const q = currentLedgerSearchQuery;
@@ -2986,46 +3219,71 @@ function renderAllData() {
       </div>
       <div class="tx-dist">${distHtml}</div>
     `;
+
+    let pressTimer = null;
+    const startLongPress = (e) => {
+      if (e.target.closest('.single-del-btn')) return;
+      pressTimer = setTimeout(() => {
+        pendingLongPressTx = item;
+        document.getElementById('longPressConfirmText').textContent = `هل تريد تعديل هذا المستند؟ (${item.type || 'سند'})`;
+        document.getElementById('longPressConfirmModal').classList.add('show');
+        pushAppHistoryState();
+      }, 600);
+    };
+    const cancelLongPress = () => { if (pressTimer) clearTimeout(pressTimer); };
+
+    card.addEventListener('mousedown', startLongPress);
+    card.addEventListener('touchstart', startLongPress, { passive: true });
+    card.addEventListener('mouseup', cancelLongPress);
+    card.addEventListener('mouseleave', cancelLongPress);
+    card.addEventListener('touchend', cancelLongPress);
+    card.addEventListener('touchmove', cancelLongPress);
+
     card.addEventListener('click', (e) => { 
-      if (e.target.closest('.single-del-btn')) { e.stopPropagation(); deleteSingleTransaction(item.id); return; } 
-      openTxModal(item); 
+      if (e.target.closest('.single-del-btn')) { 
+        e.stopPropagation(); 
+        deleteSingleTransaction(item.id); 
+      } 
     });
+
     container.appendChild(card);
   });
   updateProDashboard();
 }
 
-function initReportsTab() { populateReportFilterOptions(); updateSearchableData(); toggleReportView(document.getElementById('pageBudget').classList.contains('hidden') ? 'accounts' : 'budget'); }
-document.getElementById('btnRptBudget').addEventListener('click', () => toggleReportView('budget'));
-document.getElementById('btnRptAccounts').addEventListener('click', () => toggleReportView('accounts'));
+function initReportsTab() { populateReportFilterOptions(); updateSearchableData(); toggleReportView('accounts'); }
+document.getElementById('btnRptBudget')?.addEventListener('click', () => toggleReportView('budget'));
+document.getElementById('btnRptAccounts')?.addEventListener('click', () => toggleReportView('accounts'));
 
 function toggleReportView(mode) {
   activeReportTab = mode;
-  document.getElementById('btnRptBudget').classList.toggle('active', mode === 'budget');
-  document.getElementById('btnRptAccounts').classList.toggle('active', mode === 'accounts');
-  document.getElementById('budgetReportCard').classList.toggle('hidden', mode !== 'budget');
-  document.getElementById('accountStatementCard').classList.toggle('hidden', mode !== 'accounts');
-  document.getElementById('filterAccountSelectBox').classList.toggle('hidden', mode !== 'accounts');
+  document.getElementById('btnRptBudget')?.classList.toggle('active', mode === 'budget');
+  document.getElementById('btnRptAccounts')?.classList.toggle('active', mode === 'accounts');
+  document.getElementById('budgetReportCard')?.classList.toggle('hidden', mode !== 'budget');
+  document.getElementById('accountStatementCard')?.classList.toggle('hidden', mode !== 'accounts');
+  document.getElementById('filterAccountSelectBox')?.classList.toggle('hidden', mode !== 'accounts');
   const budgetCarousel = document.getElementById('budgetCarousel');
   if (budgetCarousel) budgetCarousel.classList.toggle('hidden', mode !== 'budget' || document.getElementById('pageBudget')?.classList.contains('hidden'));
   runActiveReport();
 }
 
 function populateReportFilterOptions() {
-  const historyData = store.get('history', []), select = document.getElementById('reportMonthSelect'); select.innerHTML = '';
+  const historyData = store.get('history', []), select = document.getElementById('reportMonthSelect'); 
+  if (!select) return;
+  select.innerHTML = '';
   const currentM = monthKey();
   const opt = document.createElement('option'); opt.value = currentM; opt.textContent = monthName(currentM) + ' (الدورة الحالية)'; select.appendChild(opt);
   historyData.forEach(h => { if (h.month && h.month !== currentM) { const o = document.createElement('option'); o.value = h.month; o.textContent = monthName(h.month); select.appendChild(o); } });
 }
 
-document.getElementById('reportFilterType').addEventListener('change', (e) => {
-  document.getElementById('filterMonthSelectBox').classList.toggle('hidden', e.target.value !== 'month');
-  document.getElementById('filterCustomDateBox').classList.toggle('hidden', e.target.value !== 'custom');
+document.getElementById('reportFilterType')?.addEventListener('change', (e) => {
+  document.getElementById('filterMonthSelectBox')?.classList.toggle('hidden', e.target.value !== 'month');
+  document.getElementById('filterCustomDateBox')?.classList.toggle('hidden', e.target.value !== 'custom');
 });
-document.getElementById('generateReportBtn').addEventListener('click', runActiveReport);
+document.getElementById('generateReportBtn')?.addEventListener('click', runActiveReport);
 
 function getFilteredTransactions() {
-  const fType = document.getElementById('reportFilterType').value, p = getMasterPlan(), historyData = store.get('history', []);
+  const fType = document.getElementById('reportFilterType')?.value || 'all', p = getMasterPlan(), historyData = store.get('history', []);
   let targetTxs = [], periodTitle = '';
   if (fType === 'current') { targetTxs = p.transactions || []; periodTitle = `الدورة الحالية (${monthName(p.month)})`; }
   else if (fType === 'all') {
@@ -3033,11 +3291,11 @@ function getFilteredTransactions() {
     historyData.forEach(h => { if (Array.isArray(h.transactions)) targetTxs = targetTxs.concat(h.transactions); });
     periodTitle = 'كافة العمليات المسجلة';
   } else if (fType === 'month') {
-    const selM = document.getElementById('reportMonthSelect').value;
+    const selM = document.getElementById('reportMonthSelect')?.value;
     targetTxs = (selM === p.month) ? (p.transactions || []) : (historyData.find(h => h.month === selM)?.transactions || []);
     periodTitle = `شهر: ${monthName(selM)}`;
   } else {
-    const start = document.getElementById('reportStartDate').value, end = document.getElementById('reportEndDate').value;
+    const start = document.getElementById('reportStartDate')?.value, end = document.getElementById('reportEndDate')?.value;
     let pool = (p.transactions || []).slice(); historyData.forEach(h => { if (Array.isArray(h.transactions)) pool = pool.concat(h.transactions); });
     targetTxs = pool.filter(t => (!start || (t.isoDate || '') >= start) && (!end || (t.isoDate || '') <= end));
     periodTitle = `نطاق زمني`;
@@ -3046,6 +3304,178 @@ function getFilteredTransactions() {
 }
 
 function runActiveReport() { if (activeReportTab === 'budget') runBudgetReport(); else runAccountStatement(); }
+
+document.getElementById('statementSearchInput')?.addEventListener('input', (e) => {
+  currentStatementSearchQuery = e.target.value.trim().toLowerCase();
+  runAccountStatement();
+});
+
+function runAccountStatement() {
+  const { targetTxs, periodTitle } = getFilteredTransactions();
+  const selectedAccount = selReportAccount ? selReportAccount.getValue() : 'ALL';
+  const periodTitleEl = document.getElementById('statementPeriodTitle');
+  if (periodTitleEl) periodTitleEl.textContent = `الفترة: ${periodTitle}`;
+
+  const isAll = (!selectedAccount || selectedAccount === 'ALL');
+  document.getElementById('singleAccountTableBox')?.classList.toggle('hidden', isAll);
+  document.getElementById('allAccountsSummaryBox')?.classList.toggle('hidden', !isAll);
+
+  if (isAll) {
+    runAllAccountsSummaryReport(targetTxs);
+    preparePrintStatementTemplate('ALL', targetTxs);
+    return;
+  }
+
+  const headerTitle = document.getElementById('statementHeaderTitle');
+  if (headerTitle) headerTitle.textContent = `📑 كشف حساب: ${selectedAccount}`;
+  
+  let totalDebit = 0, totalCredit = 0, runningBalance = 0;
+  const tbody = document.getElementById('statementBody');
+  if (!tbody) return;
+  tbody.innerHTML = '';
+
+  let matchingTxs = targetTxs.filter(t => t.status !== 'reversed' && t.status !== 'deleted' && (t.debitAccount === selectedAccount || t.creditAccount === selectedAccount));
+
+  if (currentStatementSearchQuery) {
+    const q = currentStatementSearchQuery;
+    matchingTxs = matchingTxs.filter(t => {
+      const noteStr = t.execution?.[Object.keys(t.execution || {})[0]]?.note || t.type || '';
+      const otherAcc = t.debitAccount === selectedAccount ? t.creditAccount : t.debitAccount;
+      return [t.seqNum, t.date, noteStr, otherAcc, t.amount].join(' ').toLowerCase().includes(q);
+    });
+  }
+
+  if (matchingTxs.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; padding:16px; color:var(--muted);">لا توجد حركات مطابقة لهذا الحساب</td></tr>`;
+  } else {
+    matchingTxs.forEach(t => {
+      const amt = Number(t.amount || 0);
+      const isDebit = t.debitAccount === selectedAccount;
+      const isCredit = t.creditAccount === selectedAccount;
+
+      const debitAmt = isDebit ? amt : 0;
+      const creditAmt = isCredit ? amt : 0;
+
+      totalDebit += debitAmt;
+      totalCredit += creditAmt;
+      runningBalance += (creditAmt - debitAmt);
+
+      const otherAccount = isDebit ? (t.creditAccount || 'طرف آخر') : (t.debitAccount || 'طرف آخر');
+      const noteStr = t.execution?.[Object.keys(t.execution)[0]]?.note || t.type;
+      const docType = t.voucherMode === 'spend' ? 'سند صرف' : (t.voucherMode === 'income' ? 'سند إيراد' : 'قيد يومي');
+      const balanceColor = runningBalance >= 0 ? 'var(--ok)' : 'var(--danger)';
+
+      const row = document.createElement('tr');
+      row.style.cursor = 'pointer';
+      row.title = 'اضغط مطولاً لتعديل هذا المستند';
+      row.innerHTML = `
+        <td>${t.isoDate || t.date}</td>
+        <td><b>#${t.seqNum || '-'}</b> (${docType})</td>
+        <td>${esc(noteStr)}<br><small style="color:var(--muted); font-weight:900;">(الطرف المقابل: ${esc(otherAccount)})</small></td>
+        <td style="color:var(--danger);">${debitAmt > 0 ? debitAmt.toLocaleString() : ''}</td>
+        <td style="color:var(--ok);">${creditAmt > 0 ? creditAmt.toLocaleString() : ''}</td>
+      `;
+
+      let rowTimer = null;
+      const startRowLongPress = () => {
+        rowTimer = setTimeout(() => {
+          pendingLongPressTx = t;
+          document.getElementById('longPressConfirmText').textContent = `هل تريد تعديل هذا المستند؟ (${t.type || 'سند'})`;
+          document.getElementById('longPressConfirmModal').classList.add('show');
+          pushAppHistoryState();
+        }, 600);
+      };
+      const cancelRowLongPress = () => { if (rowTimer) clearTimeout(rowTimer); };
+
+      row.addEventListener('mousedown', startRowLongPress);
+      row.addEventListener('touchstart', startRowLongPress, { passive: true });
+      row.addEventListener('mouseup', cancelRowLongPress);
+      row.addEventListener('mouseleave', cancelRowLongPress);
+      row.addEventListener('touchend', cancelRowLongPress);
+      row.addEventListener('touchmove', cancelRowLongPress);
+
+      tbody.appendChild(row);
+    });
+  }
+
+  const kpiDeb = document.getElementById('kpiAccountDebit'); if (kpiDeb) kpiDeb.textContent = totalDebit.toLocaleString();
+  const kpiCred = document.getElementById('kpiAccountCredit'); if (kpiCred) kpiCred.textContent = totalCredit.toLocaleString();
+  const totDeb = document.getElementById('statementTotalDebit'); if (totDeb) totDeb.textContent = totalDebit.toLocaleString();
+  const totCred = document.getElementById('statementTotalCredit'); if (totCred) totCred.textContent = totalCredit.toLocaleString();
+
+  const netBalance = totalCredit - totalDebit;
+  const netEl = document.getElementById('kpiAccountBalance');
+  if (netEl) {
+    netEl.textContent = `${Math.abs(netBalance).toLocaleString()} (${netBalance >= 0 ? 'دائن / لكم' : 'مدين / عليكم'})`;
+    netEl.style.color = netBalance >= 0 ? 'var(--ok)' : 'var(--danger)';
+  }
+  
+  const totBalEl = document.getElementById('statementTotalBalance');
+  if (totBalEl) {
+    totBalEl.textContent = `${Math.abs(netBalance).toLocaleString()} (${netBalance >= 0 ? 'دائن / لكم' : 'مدين / عليكم'})`;
+    totBalEl.style.color = netBalance >= 0 ? 'var(--ok)' : 'var(--danger)';
+  }
+
+  preparePrintStatementTemplate(selectedAccount, targetTxs);
+}
+
+function runAllAccountsSummaryReport(targetTxs) {
+  const tree = getAccountTree();
+  const summaryMap = {};
+
+  Object.keys(tree).forEach(mainP => {
+    const node = tree[mainP];
+    if (node.accounts) {
+      node.accounts.forEach(sub => summaryMap[sub] = { name: sub, group: mainP, debit: 0, credit: 0 });
+    }
+    if (node.subGroups) {
+      Object.keys(node.subGroups).forEach(subP => {
+        node.subGroups[subP].forEach(sub => summaryMap[sub] = { name: sub, group: `${mainP} > ${subP}`, debit: 0, credit: 0 });
+      });
+    }
+  });
+
+  targetTxs.forEach(t => {
+    if (t.status === 'reversed' || t.status === 'deleted') return;
+    const amt = Number(t.amount || 0);
+    if (t.debitAccount && summaryMap[t.debitAccount]) summaryMap[t.debitAccount].debit += amt;
+    if (t.creditAccount && summaryMap[t.creditAccount]) summaryMap[t.creditAccount].credit += amt;
+  });
+
+  const tbody = document.getElementById('allAccountsBody');
+  if (!tbody) return;
+  tbody.innerHTML = '';
+  let gDebit = 0, gCredit = 0;
+
+  Object.values(summaryMap).forEach(acc => {
+    gDebit += acc.debit; gCredit += acc.credit;
+    const bal = acc.credit - acc.debit;
+    const balColor = bal >= 0 ? 'var(--ok)' : 'var(--danger)';
+    if (acc.debit > 0 || acc.credit > 0) {
+      const tr = document.createElement('tr');
+      tr.style.cursor = 'pointer';
+      tr.title = 'انقر لعرض كشف حساب تفصيلي لهذا الحساب';
+      tr.innerHTML = `
+        <td><b>${esc(acc.name)}</b> <small style="color:var(--muted)">(${esc(acc.group)})</small></td>
+        <td style="color:var(--danger)">${acc.debit.toLocaleString()}</td>
+        <td style="color:var(--ok)">${acc.credit.toLocaleString()}</td>
+        <td style="color:${balColor}; font-weight:900;">${bal.toLocaleString()}</td>
+      `;
+      tr.addEventListener('click', () => {
+        toggleReportView('accounts');
+        selReportAccount.setValue(acc.name, acc.name);
+        runAccountStatement();
+      });
+      tbody.appendChild(tr);
+    }
+  });
+
+  const allDeb = document.getElementById('allTotalDebit'); if (allDeb) allDeb.textContent = gDebit.toLocaleString();
+  const allCred = document.getElementById('allTotalCredit'); if (allCred) allCred.textContent = gCredit.toLocaleString();
+  const gNet = gCredit - gDebit;
+  const allBal = document.getElementById('allTotalBalance'); 
+  if (allBal) allBal.textContent = `${gNet.toLocaleString()} (${gNet >= 0 ? 'صافي دائن' : 'صافي مدين'})`;
+}
 
 let cachedBudgetSummary = {};
 
@@ -3079,7 +3509,8 @@ function renderBudgetInsights(rows) {
 
 function runBudgetReport() {
   const { targetTxs, periodTitle } = getFilteredTransactions(), cats = getCats();
-  document.getElementById('reportPeriodTitle').textContent = `الفترة: ${periodTitle}`;
+  const periodTitleEl = document.getElementById('reportPeriodTitle');
+  if (periodTitleEl) periodTitleEl.textContent = `الفترة: ${periodTitle}`;
   cachedBudgetSummary = {}; 
   cats.forEach(c => cachedBudgetSummary[c.id] = { id: c.id, name: c.name, color: c.color, allocated: 0, actualSpent: 0, transactions: [] });
 
@@ -3097,12 +3528,14 @@ function runBudgetReport() {
   });
 
   const grandSurplus = grandAllocated - grandSpent, grandRate = grandAllocated > 0 ? Math.round((grandSpent / grandAllocated) * 100) : 0;
-  document.getElementById('kpiAllocated').textContent = fmt(grandAllocated);
-  document.getElementById('kpiSpent').textContent = fmt(grandSpent);
-  document.getElementById('kpiSurplus').textContent = fmt(grandSurplus);
-  document.getElementById('kpiRate').textContent = grandRate + '%';
+  const kpiAlloc = document.getElementById('kpiAllocated'); if (kpiAlloc) kpiAlloc.textContent = fmt(grandAllocated);
+  const kpiSp = document.getElementById('kpiSpent'); if (kpiSp) kpiSp.textContent = fmt(grandSpent);
+  const kpiSurp = document.getElementById('kpiSurplus'); if (kpiSurp) kpiSurp.textContent = fmt(grandSurplus);
+  const kpiR = document.getElementById('kpiRate'); if (kpiR) kpiR.textContent = grandRate + '%';
 
-  const tbody = document.getElementById('reportBody'); tbody.innerHTML = '';
+  const tbody = document.getElementById('reportBody'); 
+  if (!tbody) return;
+  tbody.innerHTML = '';
   const catRows = Object.values(cachedBudgetSummary).filter(c => c.allocated > 0 || c.actualSpent > 0);
   renderBudgetInsights(catRows);
   if (catRows.length === 0) { tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding:14px;">لا توجد بيانات ميزانية</td></tr>'; }
@@ -3118,6 +3551,7 @@ function runBudgetReport() {
   }
 
   const ctx = document.getElementById('reportChart');
+  if (!ctx) return;
   if (window.reportChart) window.reportChart.destroy();
   window.reportChart = new Chart(ctx, {
     type: 'doughnut',
@@ -3161,10 +3595,26 @@ function openCategoryTransactionsModal(catObj) {
         <div style="font-size:0.95rem; color:var(--muted); margin-top:4px;">📅 ${t.date} | البيان: ${esc(noteStr)}</div>
         <div style="font-size:0.9rem; color:var(--muted); margin-top:2px;">الطرف المدين: ${esc(t.debitAccount)} ← الدائن: ${esc(t.creditAccount)}</div>
       `;
-      item.addEventListener('click', () => {
-        document.getElementById('categoryTransactionsModal').classList.remove('show');
-        openTxModal(t);
-      });
+
+      let modTimer = null;
+      const startModLongPress = () => {
+        modTimer = setTimeout(() => {
+          document.getElementById('categoryTransactionsModal').classList.remove('show');
+          pendingLongPressTx = t;
+          document.getElementById('longPressConfirmText').textContent = `هل تريد تعديل هذا المستند؟ (${t.type || 'سند'})`;
+          document.getElementById('longPressConfirmModal').classList.add('show');
+          pushAppHistoryState();
+        }, 600);
+      };
+      const cancelModLongPress = () => { if (modTimer) clearTimeout(modTimer); };
+
+      item.addEventListener('mousedown', startModLongPress);
+      item.addEventListener('touchstart', startModLongPress, { passive: true });
+      item.addEventListener('mouseup', cancelModLongPress);
+      item.addEventListener('mouseleave', cancelModLongPress);
+      item.addEventListener('touchend', cancelModLongPress);
+      item.addEventListener('touchmove', cancelModLongPress);
+
       listContainer.appendChild(item);
     });
   }
@@ -3172,14 +3622,26 @@ function openCategoryTransactionsModal(catObj) {
   pushAppHistoryState();
 }
 
-document.getElementById('closeCategoryModalBtn').addEventListener('click', () => {
+document.getElementById('closeCategoryModalBtn')?.addEventListener('click', () => {
   document.getElementById('categoryTransactionsModal').classList.remove('show');
 });
 
 (function init() {
   document.documentElement.dataset.theme = store.get('theme', 'light');
-  setupSearchableSelects(); updateSearchableData(); setupFormattedNumberInputs();
-  setupReportSections('pageReports'); navigateToTab('pageDashboard', false); initCarousels(); updateProDashboard(); renderAllData(); checkAppLockOnStartup(); pushAppHistoryState();
+  setupSearchableSelects(); 
+  updateSearchableData(); 
+  setupFormattedNumberInputs();
+  setupReportSections('pageReports'); 
+  navigateToTab('pageDashboard', false); 
+  initCarousels(); 
+  updateProDashboard(); 
+  renderAllData(); 
+  draftCats = JSON.parse(JSON.stringify(getCats()));
+  renderCategoryRows();
+  renderChartOfAccounts();
+  initLiveAccountsTreePage();
+  checkAppLockOnStartup(); 
+  pushAppHistoryState();
 })();
 </script>
 </body>

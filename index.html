@@ -222,15 +222,10 @@ body.privacy-active .icon-btn#privacyBtn { background: var(--accent); color: #ff
 }
 .acc-accordion-body.open { display: block; }
 
-.acc-accordion-header button,
-.acc-accordion-body button {
-  transition: transform 0.15s, opacity 0.15s;
-}
-.acc-accordion-header button:hover,
-.acc-accordion-body button:hover {
-  transform: scale(1.25);
-  opacity: 1;
-}
+.settings-accordion-card { cursor: pointer; border-right: 6px solid var(--accent); transition: border-color 0.2s; }
+.settings-accordion-header { display: flex; justify-content: space-between; align-items: center; font-size: 1.25rem; font-weight: 900; color: var(--text); }
+.settings-accordion-body { margin-top: 14px; padding-top: 12px; border-top: 2px solid var(--border); display: none; }
+.settings-accordion-body.open { display: block; }
 
 .modal-overlay { position: fixed; inset: 0; background: rgba(15,23,42,0.65); backdrop-filter: blur(4px); z-index: 2000; display: none; align-items: center; justify-content: center; padding: 12px; }
 .modal-overlay.show { display: flex; }
@@ -853,78 +848,131 @@ html{scroll-behavior:smooth}body{padding-bottom:16px}
 </div>
 
 <div id="pageSettings" class="hidden">
-  <div class="card" style="border-right: 6px solid var(--accent);">
-    <h2>🔒 إعدادات الأمان وقفل الحماية</h2>
-    <p style="font-size:1.05rem; color:var(--muted); font-weight:900; margin-bottom:10px;">قم بتأمين بياناتك المالية برقم سري أو بصمة الإصبع عند فتح التطبيق:</p>
-    
-    <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px;">
-      <input type="checkbox" id="settingSecurityEnabled" style="width: 22px; height: 22px; cursor: pointer;">
-      <label for="settingSecurityEnabled" style="margin-bottom: 0; cursor: pointer; font-weight: 900; color: var(--accent); font-size: 1.1rem;">تفعيل قفل الحماية عند فتح التطبيق</label>
+  
+  <div class="card settings-accordion-card" onclick="toggleSettingsCard(this)">
+    <div class="settings-accordion-header">
+      <span>🔒 إعدادات الأمان وقفل الحماية</span>
+      <span class="accordion-arrow">▼</span>
     </div>
-
-    <div class="form-group">
-      <label>تغيير أو تعيين الرقم السري (PIN):</label>
-      <div style="display: flex; gap: 8px;">
-        <input type="password" id="settingNewPinInput" maxlength="8" placeholder="أدخل الرقم السري الجديد" style="text-align: right;">
-        <button class="btn btn-primary" id="savePinSettingsBtn" style="width: auto; margin-top: 0; padding: 0 16px;">حفظ الرمز</button>
+    <div class="settings-accordion-body" onclick="event.stopPropagation()">
+      <p style="font-size:1.05rem; color:var(--muted); font-weight:900; margin-bottom:10px;">قم بتأمين بياناتك المالية برقم سري أو بصمة الإصبع عند فتح التطبيق:</p>
+      <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px;">
+        <input type="checkbox" id="settingSecurityEnabled" style="width: 22px; height: 22px; cursor: pointer;">
+        <label for="settingSecurityEnabled" style="margin-bottom: 0; cursor: pointer; font-weight: 900; color: var(--accent); font-size: 1.1rem;">تفعيل قفل الحماية عند فتح التطبيق</label>
+      </div>
+      <div class="form-group">
+        <label>تغيير أو تعيين الرقم السري (PIN):</label>
+        <div style="display: flex; gap: 8px;">
+          <input type="password" id="settingNewPinInput" maxlength="8" placeholder="أدخل الرقم السري الجديد" style="text-align: right;">
+          <button class="btn btn-primary" id="savePinSettingsBtn" style="width: auto; margin-top: 0; padding: 0 16px;">حفظ الرمز</button>
+        </div>
       </div>
     </div>
   </div>
 
-  <div class="card">
-    <h2>🏷️ إعدادات ترويسة الكشوفات والصور</h2>
-    <p style="font-size:1.05rem; color:var(--muted); font-weight:900; margin-bottom:8px;">أدخل بيانات الجهة أو صاحب الحساب لتظهر في رأس التقارير المطبوعة:</p>
-    <div class="form-group">
-      <label>اسم الجهة / المؤسسة:</label>
-      <input type="text" id="settingOrgName" placeholder="مثلاً: مؤسسة خيرية، أو اسمك الشخصي...">
+  <div class="card settings-accordion-card" onclick="toggleSettingsCard(this)">
+    <div class="settings-accordion-header">
+      <span>🏷️ إعدادات ترويسة الكشوفات والصور</span>
+      <span class="accordion-arrow">▼</span>
     </div>
-    <div class="form-group">
-      <label>العنوان والتفاصيل وأرقام التواصل:</label>
-      <input type="text" id="settingOrgDetails" placeholder="مثلاً: حضرموت - تريم | هاتف: 711111111">
+    <div class="settings-accordion-body" onclick="event.stopPropagation()">
+      <p style="font-size:1.05rem; color:var(--muted); font-weight:900; margin-bottom:8px;">أدخل بيانات الجهة أو صاحب الحساب لتظهر في رأس التقارير المطبوعة:</p>
+      <div class="form-group">
+        <label>اسم الجهة / المؤسسة:</label>
+        <input type="text" id="settingOrgName" placeholder="مثلاً: مؤسسة خيرية، أو اسمك الشخصي...">
+      </div>
+      <div class="form-group">
+        <label>العنوان والتفاصيل وأرقام التواصل:</label>
+        <input type="text" id="settingOrgDetails" placeholder="مثلاً: حضرموت - تريم | هاتف: 711111111">
+      </div>
+      <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
+        <input type="checkbox" id="settingShowHeader" style="width: 22px; height: 22px; cursor: pointer;">
+        <label for="settingShowHeader" style="margin-bottom: 0; cursor: pointer; font-weight: 900; font-size: 1.1rem;">إظهار هذه الترويسة في التقارير والطباعة</label>
+      </div>
+      <button class="btn btn-primary" id="saveHeaderSettingsBtn" style="margin-top: 4px;">💾 حفظ إعدادات الترويسة</button>
     </div>
-    <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
-      <input type="checkbox" id="settingShowHeader" style="width: 22px; height: 22px; cursor: pointer;">
-      <label for="settingShowHeader" style="margin-bottom: 0; cursor: pointer; font-weight: 900; font-size: 1.1rem;">إظهار هذه الترويسة في التقارير والطباعة</label>
-    </div>
-    <button class="btn btn-primary" id="saveHeaderSettingsBtn" style="margin-top: 4px;">💾 حفظ إعدادات الترويسة</button>
   </div>
 
-  <div class="card">
-    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
-      <h2 style="margin-bottom:0;">🏛️ دليل وشجرة الحسابات والأسقف</h2>
-      <button class="btn btn-ghost" id="openAddAccountDialogBtn" style="width:auto; margin-top:0; padding:6px 12px; font-size:0.95rem;">➕ إضافة حساب</button>
+  <div class="card settings-accordion-card" onclick="toggleSettingsCard(this)">
+    <div class="settings-accordion-header">
+      <span>⚙️ إعدادات الحسابات الافتراضية للسندات</span>
+      <span class="accordion-arrow">▼</span>
     </div>
-    <p style="font-size:1.05rem; color:var(--muted); font-weight:900; margin-bottom:10px;">انقر على التصنيف الرئيسي لفتحه أو طيه للتعديل أو نقل التبعية:</p>
-    <div id="chartOfAccountsView" style="font-size:1.05rem;"></div>
+    <div class="settings-accordion-body" onclick="event.stopPropagation()">
+      <p style="font-size:1.05rem; color:var(--muted); font-weight:900; margin-bottom:8px;">حدد الحسابات الافتراضية التي تظهر تلقائياً عند فتح السندات (قابلة للتبديل والتعديل بأي وقت):</p>
+      <div class="form-group">
+        <label>الحساب الافتراضي المدين (لسند الإيراد):</label>
+        <div class="searchable-select-wrap" id="wrapDefaultIncomeDebit">
+          <input type="text" class="searchable-input" id="inpDefaultIncomeDebit" placeholder="اختر الحساب الافتراضي للإيراد..." autocomplete="off">
+          <span class="searchable-arrow">▼</span>
+          <div class="searchable-dropdown" id="dropDefaultIncomeDebit"></div>
+        </div>
+        <input type="hidden" id="valDefaultIncomeDebit">
+      </div>
+      <div class="form-group">
+        <label>الحساب الافتراضي الدائن (لسند الصرف):</label>
+        <div class="searchable-select-wrap" id="wrapDefaultSpendCredit">
+          <input type="text" class="searchable-input" id="inpDefaultSpendCredit" placeholder="اختر الحساب الافتراضي للصرف..." autocomplete="off">
+          <span class="searchable-arrow">▼</span>
+          <div class="searchable-dropdown" id="dropDefaultSpendCredit"></div>
+        </div>
+        <input type="hidden" id="valDefaultSpendCredit">
+      </div>
+      <button class="btn btn-primary" id="saveDefaultAccountsBtn" style="margin-top: 4px;">💾 حفظ الحسابات الافتراضية</button>
+    </div>
   </div>
 
-  <div class="card">
-    <h2>
+  <div class="card settings-accordion-card" onclick="toggleSettingsCard(this)">
+    <div class="settings-accordion-header">
+      <span>🏛️ دليل وشجرة الحسابات والأسقف</span>
+      <span class="accordion-arrow">▼</span>
+    </div>
+    <div class="settings-accordion-body" onclick="event.stopPropagation()">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+        <p style="font-size:1.05rem; color:var(--muted); font-weight:900; margin-bottom:0;">انقر على التصنيف الرئيسي لفتحه أو طيه للتعديل أو نقل التبعية:</p>
+        <button class="btn btn-ghost" id="openAddAccountDialogBtn" style="width:auto; margin-top:0; padding:6px 12px; font-size:0.95rem;">➕ إضافة حساب</button>
+      </div>
+      <div id="chartOfAccountsView" style="font-size:1.05rem;"></div>
+    </div>
+  </div>
+
+  <div class="card settings-accordion-card" onclick="toggleSettingsCard(this)">
+    <div class="settings-accordion-header">
       <span>🛠️ إدارة بنود الميزانية والنسب</span>
-      <button class="btn btn-ghost" id="addCatBtn" style="width:auto; margin-top:0; padding:6px 12px; font-size:0.95rem;">➕ إضافة بند اختياري</button>
-    </h2>
-    <p style="color:var(--muted);font-weight:900;margin-bottom:10px;">البنود الأساسية العشرة ثابتة، ويمكن إضافة بندين اختياريين عند الحاجة (الحد الأقصى للإجمالي: 12 بندًا).</p>
-    <div id="pctRows"></div>
-    <div id="pctSum" style="text-align:center; font-weight:900; margin:14px 0; font-size:1.2rem;">المجموع: 100%</div>
-    
-    <div style="display:flex; gap:8px;">
-      <button class="btn btn-primary" id="savePctsBtn" style="margin-top:0; flex:2;">💾 حفظ البنود</button>
-      <button class="btn btn-ghost" id="resetPctsBtn" style="margin-top:0; flex:1; font-size:1.05rem;">↺ الافتراضي</button>
+      <span class="accordion-arrow">▼</span>
+    </div>
+    <div class="settings-accordion-body" onclick="event.stopPropagation()">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+        <p style="color:var(--muted);font-weight:900;margin-bottom:0;">البنود الأساسية العشرة ثابتة، ويمكن إضافة بندين اختياريين عند الحاجة.</p>
+        <button class="btn btn-ghost" id="addCatBtn" style="width:auto; margin-top:0; padding:6px 12px; font-size:0.95rem;">➕ إضافة بند اختياري</button>
+      </div>
+      <div id="pctRows"></div>
+      <div id="pctSum" style="text-align:center; font-weight:900; margin:14px 0; font-size:1.2rem;">المجموع: 100%</div>
+      <div style="display:flex; gap:8px;">
+        <button class="btn btn-primary" id="savePctsBtn" style="margin-top:0; flex:2;">💾 حفظ البنود</button>
+        <button class="btn btn-ghost" id="resetPctsBtn" style="margin-top:0; flex:1; font-size:1.05rem;">↺ الافتراضي</button>
+      </div>
     </div>
   </div>
 
-  <div class="card">
-    <h2>📁 النسخ الاحتياطي</h2>
-    <div style="display: flex; flex-direction: column; gap: 8px;">
-      <button class="btn btn-ghost" id="exportDataBtn" style="margin-top:0; border-color: var(--accent); color: var(--accent); font-size: 1.1rem;">
-        📥 تصدير نسخة احتياطية (JSON)
-      </button>
-      <input type="file" id="importFileInput" accept=".json" style="display:none;">
-      <button class="btn btn-ghost" id="importDataBtn" style="margin-top:0; font-size: 1.1rem;">
-        📤 استيراد نسخة احتياطية (JSON)
-      </button>
+  <div class="card settings-accordion-card" onclick="toggleSettingsCard(this)">
+    <div class="settings-accordion-header">
+      <span>📁 النسخ الاحتياطي</span>
+      <span class="accordion-arrow">▼</span>
+    </div>
+    <div class="settings-accordion-body" onclick="event.stopPropagation()">
+      <div style="display: flex; flex-direction: column; gap: 8px;">
+        <button class="btn btn-ghost" id="exportDataBtn" style="margin-top:0; border-color: var(--accent); color: var(--accent); font-size: 1.1rem;">
+          📥 تصدير نسخة احتياطية (JSON)
+        </button>
+        <input type="file" id="importFileInput" accept=".json" style="display:none;">
+        <button class="btn btn-ghost" id="importDataBtn" style="margin-top:0; font-size: 1.1rem;">
+          📤 استيراد نسخة احتياطية (JSON)
+        </button>
+      </div>
     </div>
   </div>
+
 </div>
 
   <div class="modal-overlay" id="categoryTransactionsModal">
@@ -1312,6 +1360,14 @@ const store = {
 function getSecurityConfig() { return store.get('security_config', { enabled: false, pin: '1234' }); }
 function saveSecurityConfig(cfg) { store.set('security_config', cfg); }
 
+function getDefaultAccountsConfig() {
+  return store.get('default_accounts', {
+    incomeDebit: 'الصندوق الرئيسي',
+    spendCredit: 'الصندوق الرئيسي'
+  });
+}
+function saveDefaultAccountsConfig(cfg) { store.set('default_accounts', cfg); }
+
 function checkAppLockOnStartup() {
   const cfg = getSecurityConfig();
   if (cfg.enabled) {
@@ -1360,12 +1416,20 @@ async function authenticateBiometric() {
   } catch (err) { alert('فشل التحقق بالبصمة، يرجى إدخال الرقم السري يدويًا.'); }
 }
 
+function toggleSettingsCard(cardEl) {
+  const body = cardEl.querySelector('.settings-accordion-body');
+  const isOpen = body.classList.contains('open');
+  body.classList.toggle('open', !isOpen);
+  cardEl.style.borderColor = !isOpen ? 'var(--ok)' : 'var(--accent)';
+}
+
 function initSettingsPage() {
   draftCats = JSON.parse(JSON.stringify(getCats()));
   renderCategoryRows();
   renderChartOfAccounts();
   loadHeaderSettingsUI();
   initSecuritySettingsUI();
+  initDefaultAccountsUI();
 }
 
 function initSecuritySettingsUI() {
@@ -1374,6 +1438,12 @@ function initSecuritySettingsUI() {
   if (chk) chk.checked = !!cfg.enabled;
   const pinInp = document.getElementById('settingNewPinInput');
   if (pinInp) pinInp.value = '';
+}
+
+function initDefaultAccountsUI() {
+  const defs = getDefaultAccountsConfig();
+  if (selDefaultIncomeDebit) selDefaultIncomeDebit.setValue(defs.incomeDebit, defs.incomeDebit);
+  if (selDefaultSpendCredit) selDefaultSpendCredit.setValue(defs.spendCredit, defs.spendCredit);
 }
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -1400,6 +1470,14 @@ document.addEventListener('DOMContentLoaded', () => {
       alert('تم حفظ وتحديث الرقم السري بنجاح وأصبح القفل مفعلًا!');
     });
   }
+
+  document.getElementById('saveDefaultAccountsBtn')?.addEventListener('click', () => {
+    const incomeDebit = selDefaultIncomeDebit.getValue();
+    const spendCredit = selDefaultSpendCredit.getValue();
+    if (!incomeDebit || !spendCredit) { alert('يرجى اختيار الحسابات الافتراضية بشكل صحيح'); return; }
+    saveDefaultAccountsConfig({ incomeDebit, spendCredit });
+    showToast('تم حفظ الحسابات الافتراضية بنجاح ✅', 'success');
+  });
 });
 
 function normalizeTransaction(tx) {
@@ -1429,7 +1507,7 @@ function validateTransaction(tx) {
 
 function safeImportBackup(parsed) {
   if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) throw new Error('بنية النسخة غير صالحة');
-  const allowed = new Set(['masar_plan','masar_history','masar_cats','masar_account_tree','masar_account_ceilings','masar_header_config','masar_currency','masar_theme','masar_security_config','masar_reminders']);
+  const allowed = new Set(['masar_plan','masar_history','masar_cats','masar_account_tree','masar_account_ceilings','masar_header_config','masar_currency','masar_theme','masar_security_config','masar_reminders','masar_default_accounts']);
   const clean = {};
   for (const [key, value] of Object.entries(parsed)) {
     if (!allowed.has(key) || typeof value !== 'string') continue;
@@ -2242,6 +2320,7 @@ class SearchableSelect {
 }
 
 let selDebitAcc, selCreditAcc, selReportAccount;
+let selDefaultIncomeDebit, selDefaultSpendCredit;
 function setupSearchableSelects() {
   selDebitAcc = new SearchableSelect({ wrapId: 'wrapDebitAcc', inputId: 'inpDebitAcc', dropId: 'dropDebitAcc', hiddenId: 'valDebitAcc', isGrouped: true });
   selCreditAcc = new SearchableSelect({ wrapId: 'wrapCreditAcc', inputId: 'inpCreditAcc', dropId: 'dropCreditAcc', hiddenId: 'valCreditAcc', isGrouped: true });
@@ -2249,6 +2328,9 @@ function setupSearchableSelects() {
   document.getElementById('clearReportAccountBtn')?.addEventListener('click', (e) => { e.stopPropagation(); selReportAccount.setValue('ALL', ''); selReportAccount.close(); runAccountStatement(); });
   selEditDebitAcc = new SearchableSelect({ wrapId: 'wrapEditDebitAcc', inputId: 'inpEditDebitAcc', dropId: 'dropEditDebitAcc', hiddenId: 'valEditDebitAcc', isGrouped: true });
   selEditCreditAcc = new SearchableSelect({ wrapId: 'wrapEditCreditAcc', inputId: 'inpEditCreditAcc', dropId: 'dropEditCreditAcc', hiddenId: 'valEditCreditAcc', isGrouped: true });
+
+  selDefaultIncomeDebit = new SearchableSelect({ wrapId: 'wrapDefaultIncomeDebit', inputId: 'inpDefaultIncomeDebit', dropId: 'dropDefaultIncomeDebit', hiddenId: 'valDefaultIncomeDebit', isGrouped: true });
+  selDefaultSpendCredit = new SearchableSelect({ wrapId: 'wrapDefaultSpendCredit', inputId: 'inpDefaultSpendCredit', dropId: 'dropDefaultSpendCredit', hiddenId: 'valDefaultSpendCredit', isGrouped: true });
 }
 
 function updateSearchableData() {
@@ -2267,6 +2349,13 @@ function updateSearchableData() {
   selDebitAcc.setItems(accountItems); selCreditAcc.setItems(accountItems);
   if (selEditDebitAcc) selEditDebitAcc.setItems(accountItems);
   if (selEditCreditAcc) selEditCreditAcc.setItems(accountItems);
+
+  if (selDefaultIncomeDebit) selDefaultIncomeDebit.setItems(accountItems);
+  if (selDefaultSpendCredit) selDefaultSpendCredit.setItems(accountItems);
+  const defAccs = getDefaultAccountsConfig();
+  if (selDefaultIncomeDebit) selDefaultIncomeDebit.setValue(defAccs.incomeDebit, defAccs.incomeDebit);
+  if (selDefaultSpendCredit) selDefaultSpendCredit.setValue(defAccs.spendCredit, defAccs.spendCredit);
+
   const prevReportSel = selReportAccount.getValue();
   selReportAccount.setItems([{ id: 'ALL', text: '📋 ملخص كافة الحسابات والصناديق (تجميعي)', group: 'عرض عام' }, ...accountItems]);
   if (prevReportSel && (prevReportSel === 'ALL' || accountItems.some(i => i.id === prevReportSel))) {
@@ -2508,14 +2597,18 @@ function selectVoucherTypeDirect(mode) {
   document.getElementById('voucherAmountInput').value = '';
   document.getElementById('voucherNoteInput').value = '';
 
+  const defAccs = getDefaultAccountsConfig();
+
   if (mode === 'spend') {
     card.style.borderRight = '6px solid var(--danger)'; title.textContent = '💸 تسجيل سند صرف';
     btn.className = 'btn btn-danger'; btn.textContent = '💾 اعتماد وحفظ سند الصرف';
-    selDebitAcc.setValue('صالح الخطيب', 'صالح الخطيب'); selCreditAcc.setValue('الصندوق الرئيسي', 'الصندوق الرئيسي');
+    selDebitAcc.setValue('صالح الخطيب', 'صالح الخطيب'); 
+    selCreditAcc.setValue(defAccs.spendCredit, defAccs.spendCredit);
   } else if (mode === 'income') {
     card.style.borderRight = '6px solid var(--ok)'; title.textContent = '📥 تسجيل سند إيراد';
     btn.className = 'btn btn-success'; btn.textContent = '💾 اعتماد وحفظ سند الإيراد';
-    selDebitAcc.setValue('الصندوق الرئيسي', 'الصندوق الرئيسي'); selCreditAcc.setValue('صالح الخطيب', 'صالح الخطيب');
+    selDebitAcc.setValue(defAccs.incomeDebit, defAccs.incomeDebit); 
+    selCreditAcc.setValue('صالح الخطيب', 'صالح الخطيب');
   } else {
     card.style.borderRight = '6px solid var(--accent)'; title.textContent = '⚖️ تسجيل سند قيد وتسوية';
     btn.className = 'btn btn-primary'; btn.textContent = '💾 اعتماد وحفظ سند القيد';

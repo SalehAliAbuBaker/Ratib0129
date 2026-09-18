@@ -1196,15 +1196,41 @@ html{scroll-behavior:smooth}body{padding-bottom:16px}
     </div>
   </div>
 
-  <!-- نافذة خيار تعديل المستند أو العملية عند النقر المباشر -->
+  <!-- نافذة عرض تفاصيل المستند أو العملية بالمطابقة التامة للصورة -->
   <div class="modal-overlay" id="longPressConfirmModal">
-    <div class="modal-content" style="max-width: 360px; text-align: center;">
-      <div style="font-size: 2.5rem; margin-bottom: 8px;">✏️</div>
-      <h3 style="font-size: 1.35rem; font-weight: 900; margin-bottom: 6px; color: var(--text);">خيارات المستند</h3>
-      <p id="longPressConfirmText" style="font-size: 1.05rem; color: var(--muted); font-weight: 900; margin-bottom: 16px;">هل تريد تعديل هذا المستند؟</p>
-      <div style="display: flex; gap: 8px;">
-        <button class="btn btn-primary" id="confirmEditDocBtn" style="flex: 1; margin-top: 0;">نعم، تعديل</button>
-        <button class="btn btn-ghost" id="cancelEditDocBtn" style="flex: 1; margin-top: 0;">إلغاء</button>
+    <div class="modal-content" style="max-width: 380px; text-align: right; padding: 20px;">
+      
+      <h3 id="longPressModalTitle" style="font-size: 1.25rem; font-weight: 900; margin-bottom: 14px; color: var(--text); text-align: center; border-bottom: 2px solid var(--border); padding-bottom: 8px;">اسم الحساب</h3>
+      
+      <div style="background: var(--card); display: flex; flex-direction: column; gap: 8px; margin-bottom: 16px; font-size: 1.05rem; font-weight: 900;">
+        <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); padding-bottom: 6px;">
+          <span style="color: var(--muted);">المبلغ :-</span>
+          <div style="display: flex; align-items: center; gap: 6px;">
+            <span id="lpModalArrow" style="color: var(--ok);">▲</span>
+            <b id="lpModalAmount" style="color: var(--text);">0</b>
+          </div>
+        </div>
+        <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); padding-bottom: 6px;">
+          <span style="color: var(--muted);">العملة</span>
+          <b id="lpModalCurrency" style="color: var(--text);">ريال يمني</b>
+        </div>
+        <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); padding-bottom: 6px;">
+          <span style="color: var(--muted);">التاريخ :-</span>
+          <b id="lpModalDate" style="color: var(--text);">-</b>
+        </div>
+        <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); padding-bottom: 6px;">
+          <span style="color: var(--muted);">الوقت</span>
+          <b id="lpModalTime" style="color: var(--text);">-</b>
+        </div>
+        <div style="padding-top: 4px;">
+          <span style="color: var(--muted); display: block; margin-bottom: 4px;">التفاصيل :-</span>
+          <div id="lpModalNote" style="color: var(--text); font-weight: 800; background: var(--bg); padding: 8px; border-radius: 8px; border: 1px solid var(--border); word-break: break-word; min-height: 40px;">-</div>
+        </div>
+      </div>
+
+      <div style="display: flex; gap: 10px; justify-content: center; font-size: 1.1rem;">
+        <button class="btn btn-ghost" id="confirmEditDocBtn" style="flex: 1; margin-top: 0; border: 2px solid var(--border); font-weight: 900;">تعديل</button>
+        <button class="btn btn-ghost" id="cancelEditDocBtn" style="flex: 1; margin-top: 0; border: 2px solid var(--border); font-weight: 900;">موافق</button>
       </div>
     </div>
   </div>
@@ -3220,22 +3246,42 @@ function renderAllData() {
       <div class="tx-dist">${distHtml}</div>
     `;
 
-    // تم تعديل النقر في السجل ليفتح خيارات المستند مباشرة بالنقر العادي
     card.addEventListener('click', (e) => { 
       if (e.target.closest('.single-del-btn')) { 
         e.stopPropagation(); 
         deleteSingleTransaction(item.id); 
         return;
       }
-      pendingLongPressTx = item;
-      document.getElementById('longPressConfirmText').textContent = `هل تريد تعديل هذا المستند؟ (${item.type || 'سند'})`;
-      document.getElementById('longPressConfirmModal').classList.add('show');
-      pushAppHistoryState();
+      openDocumentDetailsModal(item);
     });
 
     container.appendChild(card);
   });
   updateProDashboard();
+}
+
+function openDocumentDetailsModal(item) {
+  pendingLongPressTx = item;
+  
+  const titleEl = document.getElementById('longPressModalTitle');
+  if (titleEl) titleEl.textContent = item.debitAccount || 'تفاصيل المستند';
+
+  document.getElementById('lpModalAmount').textContent = Number(item.amount || 0).toLocaleString();
+  document.getElementById('lpModalCurrency').textContent = item.currency === 'SAR' ? 'ريال سعودي' : (item.currency === 'USD' ? 'دولار أمريكي' : 'ريال يمني');
+  document.getElementById('lpModalDate').textContent = item.date || item.isoDate || '-';
+  
+  let timeStr = '10:01';
+  if (item.updatedAt) {
+    const d = new Date(item.updatedAt);
+    timeStr = d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  }
+  document.getElementById('lpModalTime').textContent = timeStr;
+
+  const noteStr = (item.execution && Object.values(item.execution)[0]?.note) || item.type || 'لا توجد تفاصيل';
+  document.getElementById('lpModalNote').textContent = noteStr;
+
+  document.getElementById('longPressConfirmModal').classList.add('show');
+  pushAppHistoryState();
 }
 
 function initReportsTab() { populateReportFilterOptions(); updateSearchableData(); toggleReportView('accounts'); }
@@ -3354,7 +3400,7 @@ function runAccountStatement() {
 
       const row = document.createElement('tr');
       row.style.cursor = 'pointer';
-      row.title = 'انقر لعرض خيارات المستند وتعديله';
+      row.title = 'انقر لعرض تفاصيل السند';
       row.innerHTML = `
         <td>${t.isoDate || t.date}</td>
         <td><b>#${t.seqNum || '-'}</b> (${docType})</td>
@@ -3363,12 +3409,8 @@ function runAccountStatement() {
         <td style="color:var(--ok);">${creditAmt > 0 ? creditAmt.toLocaleString() : ''}</td>
       `;
 
-      // تم تعديل النقر في كشف الحساب ليفتح خيارات المستند مباشرة بالنقر العادي
       row.addEventListener('click', () => {
-        pendingLongPressTx = t;
-        document.getElementById('longPressConfirmText').textContent = `هل تريد تعديل هذا المستند؟ (${t.type || 'سند'})`;
-        document.getElementById('longPressConfirmModal').classList.add('show');
-        pushAppHistoryState();
+        openDocumentDetailsModal(t);
       });
 
       tbody.appendChild(row);
@@ -3573,13 +3615,9 @@ function openCategoryTransactionsModal(catObj) {
         <div style="font-size:0.9rem; color:var(--muted); margin-top:2px;">الطرف المدين: ${esc(t.debitAccount)} ← الدائن: ${esc(t.creditAccount)}</div>
       `;
 
-      // والنقر هنا أيضاً يفتح خيارات المستند مباشرة
       item.addEventListener('click', () => {
         document.getElementById('categoryTransactionsModal').classList.remove('show');
-        pendingLongPressTx = t;
-        document.getElementById('longPressConfirmText').textContent = `هل تريد تعديل هذا المستند؟ (${t.type || 'سند'})`;
-        document.getElementById('longPressConfirmModal').classList.add('show');
-        pushAppHistoryState();
+        openDocumentDetailsModal(t);
       });
 
       listContainer.appendChild(item);

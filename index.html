@@ -417,7 +417,7 @@ html{scroll-behavior:smooth}body{padding-bottom:16px}
   <div class="quick-summary mobile-only" id="mobileQuickSummary"><div><small>المتاح</small><b id="mobileAvailable">0</b></div><div><small>المصروف</small><b id="mobileSpent">0</b></div><div><small>الادخار</small><b id="mobileSaving">0%</b></div></div>
   
   <div id="pageDashboard" class="">
-    <div class="main-menu-grid no-print" aria-label="الأقسام الرئيسية">
+    <div class="main-menu-grid no-print" aria-label="الأقسام الرئيسية" style="grid-template-columns: repeat(2, 1fr);">
       <button class="main-menu-btn home-btn" onclick="openDashboardHome(true)">
         <span class="main-menu-icon">🏠</span>
         <span>الرئيسية</span>
@@ -438,7 +438,11 @@ html{scroll-behavior:smooth}body{padding-bottom:16px}
         <span class="main-menu-icon">📊</span>
         <span>الميزانية</span>
       </button>
-      <button class="main-menu-btn" onclick="navigateToTab('pageSettings', true)">
+      <button class="main-menu-btn" onclick="navigateToTab('pageAccountsTree', true)">
+        <span class="main-menu-icon">🌳</span>
+        <span>شجرة الحسابات</span>
+      </button>
+      <button class="main-menu-btn" onclick="navigateToTab('pageSettings', true)" style="grid-column: span 2;">
         <span class="main-menu-icon">⚙️</span>
         <span>الإعدادات</span>
       </button>
@@ -650,6 +654,14 @@ html{scroll-behavior:smooth}body{padding-bottom:16px}
   </div>
   <div id="budgetToolsHost"></div>
   <div id="budgetReportHost"></div>
+</div>
+
+<div id="pageAccountsTree" class="hidden">
+  <div class="card" style="border-right: 6px solid var(--accent);">
+    <h2><span>🌳 شجرة الحسابات الفعلية</span></h2>
+    <p style="font-size:1.05rem; color:var(--muted); font-weight:900; margin-bottom:10px;">استعراض شجرة الحسابات الفعلية مع تفاصيل المدين، الدائن، والرصيد الصافي والإجماليات لكل تصنيف:</p>
+    <div id="liveAccountsTreeView" style="font-size:1.05rem;"></div>
+  </div>
 </div>
 
 <div id="pageReports" class="hidden">
@@ -1525,7 +1537,7 @@ function safeImportBackup(parsed) {
 
 function escapeRegExp(value) { return String(value).replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); }
 
-const MAX_BUDGET_CATS = 12; // 10 بنود أساسية + بندين اختياريين كحد أقصى
+const MAX_BUDGET_CATS = 12; 
 const DEFAULT_CATS = [
   {id:'charity_gifts', name:'الصدقة والهبات', description:'الصدقات، الهبات، المساعدات، وأوجه العطاء الاختيارية.', color:'#10b981', pct:9},
   {id:'food_home', name:'الغذاء والاحتياجات المنزلية', description:'الطعام، الشراب، المياه، الغاز، المنظفات، والاحتياجات المنزلية البسيطة.', color:'#f59e0b', pct:15},
@@ -2022,7 +2034,7 @@ function preparePrintVoucherTemplate(tx) {
   }
 }
 
-const TABS_ORDER = ['pageDashboard', 'pageExpenses', 'pageLedger', 'pageReports', 'pageBudget', 'pageSettings'];
+const TABS_ORDER = ['pageDashboard', 'pageExpenses', 'pageLedger', 'pageReports', 'pageBudget', 'pageAccountsTree', 'pageSettings'];
 let allowExit = false;
 
 function pushAppHistoryState() { window.history.pushState({ page: 'ratib_app_entry' }, ''); }
@@ -2115,6 +2127,7 @@ function navigateToTab(target, pushToHistory = true) {
   if (target === 'pageExpenses') initVoucherSelectorView();
   else if (target === 'pageReports') { setupReportSections('pageReports'); initReportsTab(); }
   else if (target === 'pageBudget') { setupReportSections('pageBudget'); initReportsTab(); }
+  else if (target === 'pageAccountsTree') initLiveAccountsTreePage();
   else if (target === 'pageSettings') initSettingsPage();
   else if (target === 'pageDashboard') { updateProDashboard(); renderRemindersList(); renderRemindersChart(); }
 
@@ -2171,71 +2184,80 @@ window.addEventListener('beforeunload', (e) => {
 function getCurrentAccountBalance(accName) {
   let debit = 0, credit = 0;
   (getMasterPlan().transactions || []).forEach(t => {
+    if (t.status === 'reversed' || t.status === 'deleted') return;
     const amt = Number(t.amount || 0);
     if (t.debitAccount === accName) debit += amt;
     if (t.creditAccount === accName) credit += amt;
   });
-  return credit - debit;
+  return { debit, credit, balance: credit - debit };
 }
 
-function checkCeilingWarning(debitAcc, creditAcc, newAmt) {
-  const ceilings = getAccountCeilings(), warnings = [];
-  if (ceilings[debitAcc]) {
-    const postBal = getCurrentAccountBalance(debitAcc) - newAmt;
-    if (ceilings[debitAcc].min != null && postBal < Number(ceilings[debitAcc].min)) warnings.push(`⚠️ الحساب المدين (${debitAcc}) يتجاوز الحد الأدنى.`);
-  }
-  if (ceilings[creditAcc]) {
-    const postBal = getCurrentAccountBalance(creditAcc) + newAmt;
-    if (ceilings[creditAcc].max != null && postBal > Number(ceilings[creditAcc].max)) warnings.push(`⚠️ الحساب الدائن (${creditAcc}) يتجاوز الحد الأعلى.`);
-  }
-  return warnings;
-}
-
-function openEditAccountModal(parentGroup, subAccName) {
-  const ceil = getAccountCeilings()[subAccName] || { max: '', min: '' };
-  document.getElementById('editAccountOldName').value = subAccName;
-  document.getElementById('editAccountNameInput').value = subAccName;
-  document.getElementById('editAccountMaxCeil').value = ceil.max ?? '';
-  document.getElementById('editAccountMinCeil').value = ceil.min ?? '';
-  document.getElementById('editAccountModal').classList.add('show');
-}
-
-document.getElementById('closeEditAccountModalBtn').addEventListener('click', () => document.getElementById('editAccountModal').classList.remove('show'));
-document.getElementById('saveEditedAccountBtn').addEventListener('click', () => {
-  const oldName = document.getElementById('editAccountOldName').value, newName = document.getElementById('editAccountNameInput').value.trim();
-  const newMax = document.getElementById('editAccountMaxCeil').value, newMin = document.getElementById('editAccountMinCeil').value;
-  if (!newName) { alert('يرجى إدخال اسم الحساب'); return; }
+function initLiveAccountsTreePage() {
   const tree = getAccountTree();
-  let foundPath = null;
+  const container = document.getElementById('liveAccountsTreeView');
+  container.innerHTML = '';
+
   Object.keys(tree).forEach(mainP => {
     const node = tree[mainP];
-    if (node.accounts && node.accounts.includes(oldName)) foundPath = { type: 'dir', mainP };
+    const header = document.createElement('div');
+    header.className = 'acc-accordion-header';
+    header.innerHTML = `<span>📁 التصنيف الرئيسي: ${esc(mainP)}</span>`;
+
+    const body = document.createElement('div');
+    body.className = 'acc-accordion-body';
+    let bodyHtml = '';
+
+    let mainTotDebit = 0, mainTotCredit = 0;
+
+    function getSubDetails(subName) {
+      const res = getCurrentAccountBalance(subName);
+      mainTotDebit += res.debit;
+      mainTotCredit += res.credit;
+      const balColor = res.balance >= 0 ? 'var(--ok)' : 'var(--danger)';
+      return `
+        <div style="display:flex; justify-content:space-between; align-items:center; padding:10px 0; border-bottom:1px dashed var(--border); font-size:1.05rem;">
+          <span>↳ 👤 ${esc(subName)}</span>
+          <div style="display:flex; gap:12px; font-size:0.95rem;">
+            <span style="color:var(--danger)">مدين: ${res.debit.toLocaleString()}</span>
+            <span style="color:var(--ok)">دائن: ${res.credit.toLocaleString()}</span>
+            <span style="color:${balColor}; font-weight:900;">الرصيد: ${res.balance.toLocaleString()}</span>
+          </div>
+        </div>
+      `;
+    }
+
+    if (node.accounts && node.accounts.length) {
+      node.accounts.forEach(sub => { bodyHtml += getSubDetails(sub); });
+    }
+
     if (node.subGroups) {
       Object.keys(node.subGroups).forEach(subP => {
-        if (node.subGroups[subP].includes(oldName)) foundPath = { type: 'sub', mainP, subP };
+        bodyHtml += `<div style="background:rgba(2,132,199,0.08); padding:8px; border-radius:8px; margin:8px 0 6px; font-weight:900;">📂 ${esc(subP)}</div>`;
+        (node.subGroups[subP] || []).forEach(sub => { bodyHtml += getSubDetails(sub); });
       });
     }
+
+    if (!bodyHtml) bodyHtml = '<div style="color:var(--muted);">لا توجد حسابات فرعية</div>';
+    
+    const mainBalance = mainTotCredit - mainTotDebit;
+    const mainBalColor = mainBalance >= 0 ? 'var(--ok)' : 'var(--danger)';
+    body.innerHTML = `
+      <div style="background:var(--bg); padding:10px; border-radius:8px; margin-bottom:10px; font-weight:900; display:flex; justify-content:space-between;">
+        <span>📊 إجماليات التصنيف:</span>
+        <div style="display:flex; gap:12px; font-size:0.95rem;">
+          <span style="color:var(--danger)">مدين: ${mainTotDebit.toLocaleString()}</span>
+          <span style="color:var(--ok)">دائن: ${mainTotCredit.toLocaleString()}</span>
+          <span style="color:${mainBalColor}">الصافي: ${mainBalance.toLocaleString()}</span>
+        </div>
+      </div>
+      ${bodyHtml}
+    `;
+
+    header.addEventListener('click', () => { body.classList.toggle('open'); });
+    container.appendChild(header);
+    container.appendChild(body);
   });
-
-  if (foundPath) {
-    const ceilings = getAccountCeilings();
-    if (oldName !== newName) { ceilings[newName] = ceilings[oldName] || {}; delete ceilings[oldName]; }
-    ceilings[newName] = { max: newMax !== '' ? Number(newMax) : null, min: newMin !== '' ? Number(newMin) : null };
-    saveAccountCeilings(ceilings);
-
-    if (foundPath.type === 'dir') {
-      const idx = tree[foundPath.mainP].accounts.indexOf(oldName);
-      tree[foundPath.mainP].accounts[idx] = newName;
-    } else {
-      const idx = tree[foundPath.mainP].subGroups[foundPath.subP].indexOf(oldName);
-      tree[foundPath.mainP].subGroups[foundPath.subP][idx] = newName;
-    }
-    saveAccountTree(tree);
-    document.getElementById('editAccountModal').classList.remove('show');
-    updateSearchableData(); renderChartOfAccounts();
-    alert('تم التعديل بنجاح!');
-  }
-});
+}
 
 class SearchableSelect {
   constructor({ wrapId, inputId, dropId, hiddenId, isGrouped = false, onSelect = null }) {
@@ -3153,477 +3175,6 @@ function openCategoryTransactionsModal(catObj) {
 document.getElementById('closeCategoryModalBtn').addEventListener('click', () => {
   document.getElementById('categoryTransactionsModal').classList.remove('show');
 });
-
-let moveAccountCtx = null;
-
-function getMoveTargets() {
-  const tree = getAccountTree();
-  const targets = [];
-  Object.keys(tree).forEach(mainP => {
-    targets.push({ value: `M::${mainP}`, label: `📁 مباشرة تحت: ${mainP}`, type: 'main', main: mainP });
-    if (tree[mainP].subGroups) {
-      Object.keys(tree[mainP].subGroups).forEach(subP => {
-        targets.push({ value: `S::${mainP}::${subP}`, label: `📂 ${mainP} › ${subP}`, type: 'sub', main: mainP, sub: subP });
-      });
-    }
-  });
-  return targets;
-}
-
-function openAccountMoveModal(ctx) {
-  moveAccountCtx = { ...ctx, mode: 'move' };
-
-  const loc = ctx.sub ? `${ctx.main} › ${ctx.sub}` : ctx.main;
-  document.getElementById('moveAccountInfo').innerHTML = `
-    <div style="font-size:0.9rem; color:var(--muted);">العنصر المحدد:</div>
-    <div style="font-size:1.2rem; color:var(--accent);">${esc(ctx.name)}</div>
-    <div style="font-size:0.9rem; color:var(--muted); margin-top:4px;">الموقع الحالي: <b style="color:var(--text);">${esc(loc)}</b></div>
-  `;
-
-  const btnMove = document.getElementById('btnModeMove');
-  const btnPromote = document.getElementById('btnModePromote');
-  const btnDemote = document.getElementById('btnModeDemote');
-
-  if (ctx.kind === 'main') {
-    btnMove.classList.add('hidden');
-    btnPromote.classList.add('hidden');
-    btnDemote.classList.remove('hidden');
-    setMoveMode('demote');
-  } else {
-    btnMove.classList.remove('hidden');
-    btnPromote.classList.remove('hidden');
-    btnDemote.classList.add('hidden');
-    setMoveMode('move');
-  }
-
-  document.getElementById('accountMoveModal').classList.add('show');
-}
-
-function setMoveMode(mode) {
-  if (!moveAccountCtx) return;
-  moveAccountCtx.mode = mode;
-  document.getElementById('btnModeMove').classList.toggle('active', mode === 'move');
-  document.getElementById('btnModePromote').classList.toggle('active', mode === 'promote');
-  document.getElementById('btnModeDemote').classList.toggle('active', mode === 'demote');
-
-  const targetGroup = document.getElementById('moveTargetGroup');
-  const promoteMsg = document.getElementById('promoteMessage');
-
-  if (mode === 'promote') {
-    targetGroup.classList.add('hidden');
-    promoteMsg.classList.remove('hidden');
-  } else {
-    targetGroup.classList.remove('hidden');
-    promoteMsg.classList.add('hidden');
-    populateMoveTargetOptions();
-  }
-}
-
-function populateMoveTargetOptions() {
-  const ctx = moveAccountCtx;
-  if (!ctx) return;
-  const targets = getMoveTargets();
-  const sel = document.getElementById('moveTargetSelect');
-  sel.innerHTML = '<option value="">— اختر الموقع الجديد —</option>';
-
-  targets.forEach(t => {
-    if (ctx.kind === 'account' && t.type === 'main' && t.main === ctx.main && !ctx.sub) return;
-    if (ctx.kind === 'account' && t.type === 'sub' && t.main === ctx.main && t.sub === ctx.sub) return;
-    if (ctx.kind === 'subgroup' && t.type === 'sub' && t.main === ctx.main && t.sub === ctx.name) return;
-    if (ctx.kind === 'main' && t.type === 'main' && t.main === ctx.name) return;
-
-    const opt = document.createElement('option');
-    opt.value = t.value;
-    opt.textContent = t.label;
-    sel.appendChild(opt);
-  });
-
-  const optNew = document.createElement('option');
-  optNew.value = '__NEW__';
-  optNew.textContent = '➕ إنشاء تصنيف فرعي جديد هنا...';
-  sel.appendChild(optNew);
-}
-
-function removeFromTree(tree, ctx) {
-  if (ctx.kind === 'subgroup') {
-    if (tree[ctx.main]?.subGroups?.[ctx.name]) {
-      delete tree[ctx.main].subGroups[ctx.name];
-    }
-    return;
-  }
-  if (ctx.sub) {
-    const arr = tree[ctx.main]?.subGroups?.[ctx.sub];
-    if (arr) {
-      const i = arr.indexOf(ctx.name);
-      if (i > -1) arr.splice(i, 1);
-    }
-  } else {
-    const arr = tree[ctx.main]?.accounts;
-    if (arr) {
-      const i = arr.indexOf(ctx.name);
-      if (i > -1) arr.splice(i, 1);
-    }
-  }
-}
-
-function executeAccountMove() {
-  const ctx = moveAccountCtx;
-  if (!ctx) return;
-  const tree = getAccountTree();
-
-  try {
-    if (ctx.mode === 'promote') {
-      if (tree[ctx.name]) { alert('يوجد تصنيف رئيسي بنفس الاسم!'); return; }
-      removeFromTree(tree, ctx);
-      tree[ctx.name] = { subGroups: {}, accounts: [] };
-      showToast(`تم ترقية "${ctx.name}" إلى تصنيف رئيسي مستقل ✅`, 'success');
-    }
-    else if (ctx.mode === 'demote') {
-      const target = document.getElementById('moveTargetSelect').value;
-      if (!target || target === '__NEW__') { alert('اختر الموقع الجديد للتنزيل'); return; }
-
-      const mainNode = tree[ctx.name];
-      const flatChildren = [
-        ...(mainNode.accounts || []),
-        ...Object.values(mainNode.subGroups || {}).flat()
-      ];
-
-      let targetMain, targetSub = null;
-      if (target.startsWith('M::')) {
-        targetMain = target.substring(3);
-      } else if (target.startsWith('S::')) {
-        const parts = target.split('::');
-        targetMain = parts[1]; targetSub = parts[2];
-      }
-      if (targetMain === ctx.name) { alert('لا يمكن النقل لنفس المكان'); return; }
-
-      if (targetSub) {
-        if (!tree[targetMain].subGroups[targetSub]) tree[targetMain].subGroups[targetSub] = [];
-        tree[targetMain].subGroups[targetSub].push(ctx.name);
-      } else {
-        tree[targetMain].accounts.push(ctx.name);
-      }
-      if (flatChildren.length) {
-        tree[targetMain].subGroups[`${ctx.name} (فروع سابقة)`] = flatChildren;
-      }
-      delete tree[ctx.name];
-      showToast(`تم تنزيل "${ctx.name}" كحساب فرعي ✅`, 'success');
-    }
-    else {
-      const target = document.getElementById('moveTargetSelect').value;
-      if (!target) { alert('اختر الموقع الجديد'); return; }
-
-      let tMain, tSub = null;
-      if (target === '__NEW__') {
-        const newName = prompt('اسم التصنيف الفرعي الجديد:');
-        if (!newName || !newName.trim()) return;
-        tMain = ctx.main;
-        tSub = newName.trim();
-        if (!tree[tMain].subGroups[tSub]) tree[tMain].subGroups[tSub] = [];
-      } else if (target.startsWith('M::')) {
-        tMain = target.substring(3);
-      } else if (target.startsWith('S::')) {
-        const parts = target.split('::');
-        tMain = parts[1]; tSub = parts[2];
-      }
-
-      if (ctx.kind === 'subgroup') {
-        const content = tree[ctx.main].subGroups[ctx.name] || [];
-        delete tree[ctx.main].subGroups[ctx.name];
-        if (tSub) {
-          if (!tree[tMain].subGroups[tSub]) tree[tMain].subGroups[tSub] = [];
-          tree[tMain].subGroups[tSub].push(...content);
-        } else {
-          if (!tree[tMain].subGroups[ctx.name]) tree[tMain].subGroups[ctx.name] = [];
-          tree[tMain].subGroups[ctx.name].push(...content);
-        }
-      } else {
-        removeFromTree(tree, ctx);
-        if (tSub) {
-          if (!tree[tMain].subGroups[tSub]) tree[tMain].subGroups[tSub] = [];
-          tree[tMain].subGroups[tSub].push(ctx.name);
-        } else {
-          tree[tMain].accounts.push(ctx.name);
-        }
-      }
-      showToast('تم نقل الحساب بنجاح ✅', 'success');
-    }
-
-    saveAccountTree(tree);
-    updateSearchableData();
-    renderChartOfAccounts();
-    document.getElementById('accountMoveModal').classList.remove('show');
-  } catch (e) {
-    alert('حدث خطأ: ' + e.message);
-  }
-}
-
-function renderChartOfAccounts() {
-  const tree = getAccountTree();
-  const container = document.getElementById('chartOfAccountsView');
-  container.innerHTML = '';
-
-  Object.keys(tree).forEach(mainP => {
-    const node = tree[mainP];
-    const header = document.createElement('div');
-    header.className = 'acc-accordion-header';
-    header.innerHTML = `
-      <span>📁 التصنيف الرئيسي: ${esc(mainP)}</span>
-      <div style="display:flex; gap:6px;">
-        <button class="del-btn act-edit-parent" data-parent="${esc(mainP)}" style="color:var(--accent);" title="تعديل الاسم">✏️</button>
-        <button class="del-btn act-move-parent" data-parent="${esc(mainP)}" style="color:var(--warn);" title="تنزيل/نقل التبعية">⬇️</button>
-        <button class="del-btn act-del-parent" data-parent="${esc(mainP)}" title="حذف">❌</button>
-      </div>`;
-
-    const body = document.createElement('div');
-    body.className = 'acc-accordion-body';
-    let bodyHtml = '';
-
-    if (node.accounts && node.accounts.length) {
-      bodyHtml += node.accounts.map((sub, i) => `
-        <div style="display:flex; justify-content:space-between; align-items:center; padding:8px 0; border-bottom:1px dashed var(--border);">
-          <span>↳ 👤 ${esc(sub)}</span>
-          <div style="display:flex; gap:4px;">
-            <button class="del-btn act-promote" data-name="${esc(sub)}" data-main="${esc(mainP)}" data-sub="" style="color:var(--ok);" title="ترقية لتصبح رئيسيًا">⬆️</button>
-            <button class="del-btn act-move" data-name="${esc(sub)}" data-main="${esc(mainP)}" data-sub="" style="color:var(--warn);" title="نقل لموقع آخر">🔀</button>
-            <button class="del-btn act-edit" data-name="${esc(sub)}" data-main="${esc(mainP)}" data-sub="" style="color:var(--accent);" title="تعديل">✏️</button>
-            <button class="del-btn act-del-sub" data-main="${esc(mainP)}" data-sub="" data-idx="${i}" title="حذف">🗑️</button>
-          </div>
-        </div>
-      `).join('');
-    }
-
-    if (node.subGroups) {
-      Object.keys(node.subGroups).forEach(subP => {
-        bodyHtml += `
-          <div style="background:rgba(2,132,199,0.08); padding:8px; border-radius:8px; margin:8px 0 6px; font-weight:900; display:flex; justify-content:space-between; align-items:center;">
-            <span>📂 ${esc(subP)}</span>
-            <div style="display:flex; gap:4px;">
-              <button class="del-btn act-promote-sg" data-sg="${esc(subP)}" data-main="${esc(mainP)}" style="color:var(--ok);" title="ترقية المجموعة لتصبح رئيسيًا">⬆️</button>
-              <button class="del-btn act-move-sg" data-sg="${esc(subP)}" data-main="${esc(mainP)}" style="color:var(--warn);" title="نقل المجموعة">🔀</button>
-              <button class="del-btn act-edit-sg" data-main="${esc(mainP)}" data-sg="${esc(subP)}" style="color:var(--accent);" title="تعديل الاسم">✏️</button>
-              <button class="del-btn act-del-sg" data-main="${esc(mainP)}" data-sg="${esc(subP)}" title="حذف المجموعة">❌</button>
-            </div>
-          </div>`;
-        (node.subGroups[subP] || []).forEach((sub, i) => {
-          bodyHtml += `
-            <div style="display:flex; justify-content:space-between; align-items:center; padding:8px 0 8px 20px; border-bottom:1px dashed var(--border);">
-              <span>↳↳ 👤 ${esc(sub)}</span>
-              <div style="display:flex; gap:4px;">
-                <button class="del-btn act-promote" data-name="${esc(sub)}" data-main="${esc(mainP)}" data-sub="${esc(subP)}" style="color:var(--ok);" title="ترقية لرئيسي">⬆️</button>
-                <button class="del-btn act-move" data-name="${esc(sub)}" data-main="${esc(mainP)}" data-sub="${esc(subP)}" style="color:var(--warn);" title="نقل">🔀</button>
-                <button class="del-btn act-edit" data-name="${esc(sub)}" data-main="${esc(mainP)}" data-sub="${esc(subP)}" style="color:var(--accent);" title="تعديل">✏️</button>
-                <button class="del-btn act-del-sub" data-main="${esc(mainP)}" data-sub="${esc(subP)}" data-idx="${i}" title="حذف">🗑️</button>
-              </div>
-            </div>`;
-        });
-      });
-    }
-
-    if (!bodyHtml) bodyHtml = '<div style="color:var(--muted);">لا توجد حسابات فرعية</div>';
-    body.innerHTML = bodyHtml;
-
-    header.addEventListener('click', (e) => { if (e.target.closest('button')) return; body.classList.toggle('open'); });
-    container.appendChild(header);
-    container.appendChild(body);
-  });
-
-  attachChartOfAccountsListeners(container);
-}
-
-function attachChartOfAccountsListeners(container) {
-  container.querySelectorAll('.act-edit-parent').forEach(b => b.addEventListener('click', (e) => {
-    e.stopPropagation();
-    const oldName = e.currentTarget.dataset.parent;
-    const newName = prompt('الاسم الجديد للتصنيف الرئيسي:', oldName);
-    if (!newName || !newName.trim() || newName.trim() === oldName) return;
-    const trimmed = newName.trim();
-    const tree = getAccountTree();
-    if (tree[trimmed]) { alert('الاسم مستخدم مسبقًا!'); return; }
-    const newTree = {};
-    Object.keys(tree).forEach(k => { newTree[k === oldName ? trimmed : k] = tree[k]; });
-    saveAccountTree(newTree); updateSearchableData(); renderChartOfAccounts();
-    showToast('تم تعديل الاسم بنجاح ✅', 'success');
-  }));
-
-  container.querySelectorAll('.act-move-parent').forEach(b => b.addEventListener('click', (e) => {
-    e.stopPropagation();
-    const name = e.currentTarget.dataset.parent;
-    openAccountMoveModal({ name, main: name, sub: '', kind: 'main' });
-  }));
-
-  container.querySelectorAll('.act-del-parent').forEach(b => b.addEventListener('click', (e) => {
-    e.stopPropagation();
-    const p = e.currentTarget.dataset.parent;
-    if (!confirm(`حذف التصنيف الرئيسي "${p}" مع كل فروعه؟`)) return;
-    const tree = getAccountTree();
-    delete tree[p];
-    saveAccountTree(tree); renderChartOfAccounts(); updateSearchableData();
-    showToast('تم الحذف', 'warn');
-  }));
-
-  container.querySelectorAll('.act-promote').forEach(b => b.addEventListener('click', (e) => {
-    e.stopPropagation();
-    const name = e.currentTarget.dataset.name;
-    const main = e.currentTarget.dataset.main;
-    const sub = e.currentTarget.dataset.sub;
-    openAccountMoveModal({ name, main, sub, kind: 'account' });
-  }));
-
-  container.querySelectorAll('.act-move').forEach(b => b.addEventListener('click', (e) => {
-    e.stopPropagation();
-    const name = e.currentTarget.dataset.name;
-    const main = e.currentTarget.dataset.main;
-    const sub = e.currentTarget.dataset.sub;
-    openAccountMoveModal({ name, main, sub, kind: 'account' });
-  }));
-
-  container.querySelectorAll('.act-edit').forEach(b => b.addEventListener('click', (e) => {
-    e.stopPropagation();
-    const name = e.currentTarget.dataset.name;
-    const main = e.currentTarget.dataset.main;
-    const sub = e.currentTarget.dataset.sub;
-    openEditAccountModal(sub ? `${main} > ${sub}` : main, name);
-  }));
-
-  container.querySelectorAll('.act-del-sub').forEach(b => b.addEventListener('click', (e) => {
-    e.stopPropagation();
-    const main = e.currentTarget.dataset.main;
-    const sub = e.currentTarget.dataset.sub;
-    const idx = Number(e.currentTarget.dataset.idx);
-    const tree = getAccountTree();
-    const arr = sub ? tree[main].subGroups[sub] : tree[main].accounts;
-    const accName = arr[idx];
-    if (!confirm(`حذف الحساب "${accName}"؟`)) return;
-    arr.splice(idx, 1);
-    saveAccountTree(tree); renderChartOfAccounts(); updateSearchableData();
-    showToast('تم حذف الحساب', 'warn');
-  }));
-
-  container.querySelectorAll('.act-promote-sg').forEach(b => b.addEventListener('click', (e) => {
-    e.stopPropagation();
-    const name = e.currentTarget.dataset.sg;
-    const main = e.currentTarget.dataset.main;
-    openAccountMoveModal({ name, main, sub: '', kind: 'subgroup' });
-  }));
-
-  container.querySelectorAll('.act-move-sg').forEach(b => b.addEventListener('click', (e) => {
-    e.stopPropagation();
-    const name = e.currentTarget.dataset.sg;
-    const main = e.currentTarget.dataset.main;
-    openAccountMoveModal({ name, main, sub: '', kind: 'subgroup' });
-  }));
-
-  container.querySelectorAll('.act-edit-sg').forEach(b => b.addEventListener('click', (e) => {
-    e.stopPropagation();
-    const main = e.currentTarget.dataset.main;
-    const oldSub = e.currentTarget.dataset.sg;
-    const newSub = prompt('الاسم الجديد للتصنيف الفرعي:', oldSub);
-    if (!newSub || !newSub.trim() || newSub.trim() === oldSub) return;
-    const tree = getAccountTree();
-    const trimmed = newSub.trim();
-    if (tree[main].subGroups[trimmed]) { alert('الاسم مستخدم!'); return; }
-    tree[main].subGroups[trimmed] = tree[main].subGroups[oldSub];
-    delete tree[main].subGroups[oldSub];
-    saveAccountTree(tree); renderChartOfAccounts(); updateSearchableData();
-    showToast('تم التعديل بنجاح ✅', 'success');
-  }));
-
-  container.querySelectorAll('.act-del-sg').forEach(b => b.addEventListener('click', (e) => {
-    e.stopPropagation();
-    const main = e.currentTarget.dataset.main;
-    const sub = e.currentTarget.dataset.sg;
-    if (!confirm(`حذف التصنيف الفرعي "${sub}" وكل حساباته؟`)) return;
-    const tree = getAccountTree();
-    delete tree[main].subGroups[sub];
-    saveAccountTree(tree); renderChartOfAccounts(); updateSearchableData();
-    showToast('تم الحذف', 'warn');
-  }));
-}
-
-document.getElementById('closeMoveAccountModalBtn')?.addEventListener('click', () => {
-  document.getElementById('accountMoveModal').classList.remove('show');
-});
-document.getElementById('btnModeMove')?.addEventListener('click', () => setMoveMode('move'));
-document.getElementById('btnModePromote')?.addEventListener('click', () => setMoveMode('promote'));
-document.getElementById('btnModeDemote')?.addEventListener('click', () => setMoveMode('demote'));
-document.getElementById('executeAccountMoveBtn')?.addEventListener('click', executeAccountMove);
-
-function renderCategoryRows() {
-  const box = document.getElementById('pctRows'); box.innerHTML = '';
-  draftCats.forEach((c, i) => {
-    const row = document.createElement('div'); row.style.cssText = 'display:flex; align-items:center; gap:8px; padding:8px 0; border-bottom:1px dashed var(--border);';
-    const isCore = DEFAULT_CATS.some(base => base.id === c.id);
-    row.innerHTML = `<span class="cat-color" style="background:${c.color}; width:16px; height:16px; border-radius:4px;"></span><input type="text" value="${esc(c.name)}" data-idx="${i}" class="c-name" ${isCore ? 'readonly title="بند أساسي ثابت"' : ''} style="flex:1; padding:8px;${isCore ? 'background:var(--bg);color:var(--muted);' : ''}"><input type="number" value="${c.pct}" data-idx="${i}" class="c-pct" style="width:70px; text-align:center; padding:8px;"><span style="font-weight:900;">%</span><button class="del-btn c-del" data-idx="${i}">🗑️</button>`;
-    row.querySelector('.c-name').addEventListener('input', (e) => draftCats[i].name = e.target.value);
-    row.querySelector('.c-pct').addEventListener('input', (e) => { draftCats[i].pct = parseFloat(e.target.value) || 0; updatePctSum(); });
-    row.querySelector('.c-del').addEventListener('click', () => { if (DEFAULT_CATS.some(base => base.id === draftCats[i].id)) { alert('البنود الأساسية العشرة لا تُحذف، ويمكن تعديل نسبتها فقط.'); return; } if (draftCats.length <= 1) { alert('يجب الإبقاء على بند واحد'); return; } draftCats.splice(i, 1); renderCategoryRows(); updatePctSum(); });
-    box.appendChild(row);
-  });
-  updatePctSum();
-}
-
-function updatePctSum() {
-  const sum = draftCats.reduce((s, c) => s + (Number(c.pct) || 0), 0), el = document.getElementById('pctSum');
-  el.textContent = `المجموع: ${sum}%`; el.style.color = sum === 100 ? 'var(--ok)' : 'var(--danger)';
-}
-
-document.getElementById('addCatBtn').addEventListener('click', () => {
-  if (draftCats.length >= MAX_BUDGET_CATS) { alert('لا يمكن إضافة أكثر من 12 بندًا للميزانية: 10 أساسية وبندان اختياريان.'); return; }
-  draftCats.push({ id: 'c_' + Date.now(), name: 'بند اختياري', description: 'بند إضافي يحدده المستخدم.', color: PALETTE[draftCats.length % PALETTE.length], pct: 0 });
-  renderCategoryRows();
-});
-document.getElementById('savePctsBtn').addEventListener('click', () => {
-  const sum = draftCats.reduce((s, c) => s + (Number(c.pct) || 0), 0);
-  if (sum !== 100) { alert(`المجموع يجب أن يساوي 100% (الحالي: ${sum}%)`); return; }
-  store.set('cats', draftCats); alert('تم حفظ البنود بنجاح!'); updateProDashboard();
-});
-document.getElementById('resetPctsBtn').addEventListener('click', () => { if (confirm('استعادة البنود الافتراضية؟')) { store.remove('cats'); initSettingsPage(); } });
-
-document.getElementById('exportDataBtn').addEventListener('click', () => {
-  const data = {}; for (let i = 0; i < localStorage.length; i++) { const k = localStorage.key(i); if (k.startsWith('masar_')) data[k] = localStorage.getItem(k); }
-  const a = document.createElement('a'); a.download = `Backup_${monthKey()}.json`; a.href = URL.createObjectURL(new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' })); a.click();
-});
-
-document.getElementById('importDataBtn').addEventListener('click', () => document.getElementById('importFileInput').click());
-document.getElementById('importFileInput').addEventListener('change', (e) => {
-  const file = e.target.files[0]; if (!file) return;
-  const reader = new FileReader();
-  reader.onload = (ev) => {
-    try {
-      const clean = safeImportBackup(JSON.parse(ev.target.result));
-      Object.entries(clean).forEach(([k, v]) => localStorage.setItem(k, v));
-      alert('تم الاستيراد بنجاح!'); location.reload();
-    } catch(err) { alert(`خطأ: ${err.message}`); }
-  };
-  reader.readAsText(file);
-});
-
-document.getElementById('themeBtn').addEventListener('click', () => {
-  const t = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark';
-  document.documentElement.dataset.theme = t; store.set('theme', t);
-});
-document.getElementById('privacyBtn').addEventListener('click', () => {
-  isPrivacyMode = !isPrivacyMode; document.body.classList.toggle('privacy-active', isPrivacyMode);
-});
-
-let deferredInstallPrompt = null;
-window.addEventListener('beforeinstallprompt', (e) => { e.preventDefault(); deferredInstallPrompt = e; document.getElementById('installBanner')?.classList.add('show'); });
-document.getElementById('installAppBtn')?.addEventListener('click', async () => {
-  if (!deferredInstallPrompt) { alert('من قائمة المتصفح اختر إضافة للشاشة الرئيسية'); return; }
-  deferredInstallPrompt.prompt(); await deferredInstallPrompt.userChoice; deferredInstallPrompt = null;
-  document.getElementById('installBanner')?.classList.remove('show');
-});
-
-function updateMobileSummary() {
-  const txs = getAllTransactions().filter(t => t.currency === getGlobalCurrency() && t.status !== 'reversed');
-  const inc = txs.filter(t => !t.isExpense && t.voucherMode !== 'spend').reduce((n,t)=>n+Number(t.amount||0),0);
-  const sp = txs.filter(t => t.isExpense || t.voucherMode === 'spend').reduce((n,t)=>n+Number(t.amount||0),0);
-  document.getElementById('mobileAvailable').textContent = fmtShort(inc - sp);
-  document.getElementById('mobileSpent').textContent = fmtShort(sp);
-  document.getElementById('mobileSaving').textContent = (inc ? Math.max(0, Math.round((inc - sp) / inc * 100)) : 0) + '%';
-}
-const origRender = renderAllData; renderAllData = function() { origRender(); updateMobileSummary(); };
 
 (function init() {
   document.documentElement.dataset.theme = store.get('theme', 'light');

@@ -71,21 +71,23 @@ header{display:flex; justify-content:space-between; align-items:center; margin-b
   border: 2.5px solid var(--border);
   color: var(--text);
   border-radius: var(--radius);
-  padding: 18px 10px;
+  padding: 22px 10px;
   font-family: inherit;
   font-weight: 900;
-  font-size: 1.1rem;
+  font-size: 1.15rem;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 8px;
+  gap: 10px;
   cursor: pointer;
   box-shadow: var(--shadow);
   transition: transform 0.15s, border-color 0.2s;
 }
 .main-menu-btn:active { transform: scale(0.96); }
 .main-menu-btn:hover { border-color: var(--accent); color: var(--accent); }
+.main-menu-icon { font-size: 2.3rem; line-height: 1; }
+
 .mode-toggle-btn { border: none; background: transparent; font-family: inherit; font-size: 1rem; font-weight: 900; color: var(--muted); padding: 8px; border-radius: 8px; cursor: pointer; }
 .mode-toggle-btn.active { background: var(--accent); color: #fff; }
 
@@ -901,7 +903,7 @@ html{scroll-behavior:smooth}body{padding-bottom:16px}
       <span>🛠️ إدارة بنود الميزانية والنسب</span>
       <button class="btn btn-ghost" id="addCatBtn" style="width:auto; margin-top:0; padding:6px 12px; font-size:0.95rem;">➕ إضافة بند اختياري</button>
     </h2>
-    <p style="color:var(--muted);font-weight:900;margin-bottom:10px;">البنود الأساسية العشرة ثابتة، ويمكن إضافة بندين اختياريين عند الحاجة. الحد الأقصى: 12 بندًا.</p>
+    <p style="color:var(--muted);font-weight:900;margin-bottom:10px;">البنود الأساسية العشرة ثابتة، ويمكن إضافة بندين اختياريين عند الحاجة (الحد الأقصى للإجمالي: 12 بندًا).</p>
     <div id="pctRows"></div>
     <div id="pctSum" style="text-align:center; font-weight:900; margin:14px 0; font-size:1.2rem;">المجموع: 100%</div>
     

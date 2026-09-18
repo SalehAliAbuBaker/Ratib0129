@@ -86,14 +86,6 @@ header{display:flex; justify-content:space-between; align-items:center; margin-b
 }
 .main-menu-btn:active { transform: scale(0.96); }
 .main-menu-btn:hover { border-color: var(--accent); color: var(--accent); }
-.main-menu-btn.budget-btn {
-  background: linear-gradient(135deg, rgba(2,132,199,0.1), rgba(16,185,129,0.1));
-  border-color: var(--accent);
-  color: var(--accent);
-}
-.main-menu-icon { font-size: 2.2rem; line-height: 1; }
-
-.mode-toggle-switch { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; background: var(--card); padding: 4px; border-radius: 10px; border: 2px solid var(--border); }
 .mode-toggle-btn { border: none; background: transparent; font-family: inherit; font-size: 1rem; font-weight: 900; color: var(--muted); padding: 8px; border-radius: 8px; cursor: pointer; }
 .mode-toggle-btn.active { background: var(--accent); color: #fff; }
 
@@ -228,6 +220,16 @@ body.privacy-active .icon-btn#privacyBtn { background: var(--accent); color: #ff
 }
 .acc-accordion-body.open { display: block; }
 
+.acc-accordion-header button,
+.acc-accordion-body button {
+  transition: transform 0.15s, opacity 0.15s;
+}
+.acc-accordion-header button:hover,
+.acc-accordion-body button:hover {
+  transform: scale(1.25);
+  opacity: 1;
+}
+
 .modal-overlay { position: fixed; inset: 0; background: rgba(15,23,42,0.65); backdrop-filter: blur(4px); z-index: 2000; display: none; align-items: center; justify-content: center; padding: 12px; }
 .modal-overlay.show { display: flex; }
 .modal-content { background: var(--card); border: 2px solid var(--border); border-radius: var(--radius); width: 100%; max-width: 500px; max-height: 90vh; overflow-y: auto; padding: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); font-size: 1.1rem; }
@@ -338,7 +340,6 @@ body{user-select:text}.btn,.icon-btn,.nav-tab,.v-card-btn,.rpt-btn,.toggle-vis-b
 .toast.success{border-right-color:var(--ok)}.toast.error{border-right-color:var(--danger)}.toast.warn{border-right-color:var(--warn)}
 @keyframes toastIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
 .pro-kpi-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-bottom:14px}.pro-kpi{background:var(--bg);border:2px solid var(--border);border-radius:12px;padding:14px;text-align:center}.pro-kpi small{display:block;color:var(--muted);font-weight:900;font-size:0.95rem}.pro-kpi strong{display:block;margin-top:4px;font-size:1.3rem}
-.main-menu-btn.home-btn{border-color:var(--accent);background:linear-gradient(135deg,rgba(2,132,199,.16),rgba(14,165,233,.04));color:var(--accent)}
 .open-tasks-cta{width:100%;border:2px solid var(--accent);background:linear-gradient(100deg,rgba(2,132,199,.16),rgba(16,185,129,.10));color:var(--text);border-radius:14px;padding:11px 14px;display:flex;align-items:center;gap:9px;text-align:right;font-family:inherit;cursor:pointer;box-shadow:0 6px 16px rgba(2,132,199,.12);transition:transform .2s,box-shadow .2s}.open-tasks-cta:hover{transform:translateY(-2px);box-shadow:0 10px 22px rgba(2,132,199,.2)}.open-tasks-cta span{font-size:1.65rem}.open-tasks-cta b{font-size:1.02rem}.open-tasks-cta small{color:var(--muted);font-weight:900;font-size:.8rem;flex:1}.open-tasks-cta i{font-size:1.8rem;color:var(--accent);font-style:normal}
 .dashboard-shortcuts{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:14px;padding-top:12px;border-top:2px dashed var(--border)}
 .round-action{border:2px solid var(--border);background:var(--card);color:var(--text);border-radius:50%;aspect-ratio:1/1;min-height:76px;padding:8px 4px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font-family:inherit;font-weight:900;cursor:pointer;transition:transform .2s,border-color .2s,box-shadow .2s}
@@ -385,11 +386,9 @@ html{scroll-behavior:smooth}body{padding-bottom:16px}
   <div class="lock-content">
     <h3 id="lockTitle" style="margin-bottom: 0.8rem; color: var(--accent); font-weight: 900; font-size: 1.4rem;">🔐 قفل حماية راتب</h3>
     <p id="lockDesc" style="font-size: 1.05rem; color: var(--muted); margin-bottom: 1.2rem; font-weight: 900;">الرجاء إدخال الرقم السري أو استخدام البصمة</p>
-    
     <div class="form-group">
       <input type="password" id="pinInput" maxlength="8" placeholder="••••" autocomplete="current-password">
     </div>
-    
     <div style="display: flex; gap: 8px; flex-direction: column;">
       <button class="btn btn-primary" onclick="verifyPinLock()">فتح التطبيق</button>
       <button class="btn btn-success" id="bioUnlockBtn" onclick="authenticateBiometric()" style="display:none;">🔑 الدخول ببصمة الإصبع</button>
@@ -421,7 +420,6 @@ html{scroll-behavior:smooth}body{padding-bottom:16px}
   <div class="quick-summary mobile-only" id="mobileQuickSummary"><div><small>المتاح</small><b id="mobileAvailable">0</b></div><div><small>المصروف</small><b id="mobileSpent">0</b></div><div><small>الادخار</small><b id="mobileSaving">0%</b></div></div>
   
   <div id="pageDashboard" class="">
-    <!-- الواجهة الأمامية المختصرة: ستة أقسام أساسية فقط -->
     <div class="main-menu-grid no-print" aria-label="الأقسام الرئيسية">
       <button class="main-menu-btn home-btn" onclick="openDashboardHome(true)">
         <span class="main-menu-icon">🏠</span>
@@ -449,7 +447,6 @@ html{scroll-behavior:smooth}body{padding-bottom:16px}
       </button>
     </div>
 
-    <!-- محتوى الرئيسية الداخلي: لا يظهر إلا بعد الضغط على أيقونة الرئيسية -->
     <div id="dashboardHomeContent" class="hidden">
       <button class="back-to-menu-btn no-print" id="closeDashboardHomeBtn" onclick="closeDashboardHome(true)">
         <span>⬅️ العودة إلى الأيقونات الرئيسية</span>
@@ -504,430 +501,429 @@ html{scroll-behavior:smooth}body{padding-bottom:16px}
     </div>
   </div>
 
-  <div id="pageExpenses" class="hidden">
-    <div class="card no-print" id="voucherSelectorCard">
-      <h2><span>📝 اختر نوع السند للإدخال المباشر</span></h2>
-      <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 10px;">
-        <button class="btn btn-danger" onclick="selectVoucherTypeDirect('spend')" style="display:flex; flex-direction:column; gap:6px; padding:16px 8px; font-size:1.05rem;">
-          <span style="font-size: 2rem;">📤</span><span>سند صرف</span>
-        </button>
-        <button class="btn btn-success" onclick="selectVoucherTypeDirect('income')" style="display:flex; flex-direction:column; gap:6px; padding:16px 8px; font-size:1.05rem;">
-          <span style="font-size: 2rem;">📥</span><span>سند إيراد</span>
-        </button>
-        <button class="btn btn-primary" onclick="selectVoucherTypeDirect('entry')" style="display:flex; flex-direction:column; gap:6px; padding:16px 8px; font-size:1.05rem;">
-          <span style="font-size: 2rem;">⚖️</span><span>سند قيد</span>
-        </button>
-      </div>
-    </div>
-
-    <div class="card hidden" id="cashFlowCard">
-      <h2>
-        <div style="display: flex; align-items: center; gap: 8px;">
-          <span id="voucherHeaderTitle">💸 تسجيل سند صرف</span>
-          <span id="voucherSeqNumBadge" style="background:#0f172a; color:#fff; font-size:0.95rem; padding:4px 10px; border-radius:6px; font-weight:900;">رقم: 1</span>
-        </div>
-        <button class="btn btn-ghost" onclick="backToVoucherSelector()" style="width:auto; margin-top:0; padding:4px 10px; font-size:0.95rem;">🔄 تغيير النوع</button>
-      </h2>
-
-      <div class="form-group" style="margin-top: 10px;">
-        <label id="lblDebitAcc">الحساب المدين (عليه):</label>
-        <div style="display: flex; gap: 8px;">
-          <div class="searchable-select-wrap" id="wrapDebitAcc" style="flex: 1;">
-            <input type="text" class="searchable-input" id="inpDebitAcc" placeholder="ابحث أو اختر الحساب المدين..." autocomplete="off">
-            <span class="searchable-arrow">▼</span>
-            <div class="searchable-dropdown" id="dropDebitAcc"></div>
-          </div>
-          <button class="icon-btn" id="addNewDebitAccBtn" title="إضافة حساب جديد" style="width: 50px; height: 50px; border-radius: 10px;">➕</button>
-        </div>
-        <input type="hidden" id="valDebitAcc">
-      </div>
-
-      <div style="text-align: center; margin: -6px 0 6px 0;">
-        <button type="button" class="btn btn-ghost" id="swapAccountsBtn" style="width: auto; display: inline-flex; align-items: center; gap: 6px; padding: 6px 14px; font-size: 0.95rem; border-color: var(--accent); color: var(--accent);">🔄 تبديل الحسابات (عكس المدين والدائن)</button>
-      </div>
-
-      <div class="form-group">
-        <label id="lblCreditAcc">الحساب الدائن (له):</label>
-        <div style="display: flex; gap: 8px;">
-          <div class="searchable-select-wrap" id="wrapCreditAcc" style="flex: 1;">
-            <input type="text" class="searchable-input" id="inpCreditAcc" placeholder="ابحث أو اختر الحساب الدائن..." autocomplete="off">
-            <span class="searchable-arrow">▼</span>
-            <div class="searchable-dropdown" id="dropCreditAcc"></div>
-          </div>
-          <button class="icon-btn" id="addNewCreditAccBtn" title="إضافة حساب جديد" style="width: 50px; height: 50px; border-radius: 10px;">➕</button>
-        </div>
-        <input type="hidden" id="valCreditAcc">
-      </div>
-
-      <div style="display: flex; gap: 10px; margin-bottom: 6px;">
-        <div style="flex: 1.3;">
-          <label>إجمالي مبلغ السند:</label>
-          <input type="text" id="voucherAmountInput" class="hide-in-privacy number-formatted" placeholder="أدخل إجمالي المبلغ" inputmode="decimal">
-        </div>
-        <div style="flex: 0.9;">
-          <label>العملة:</label>
-          <select id="voucherCurrencySelect">
-            <option value="YER" selected>🇾🇪 ر.ي</option>
-            <option value="SAR">🇸🇦 ر.س</option>
-            <option value="USD">💵 دولار</option>
-          </select>
-        </div>
-      </div>
-
-      <div id="tafqitDisplayBox" style="font-size:1.05rem; font-weight:900; color:var(--accent); background:var(--bg); padding:12px; border-radius:10px; margin-bottom:12px; border:2px solid var(--border);">
-        ✍️ التفقيط: <span id="tafqitText">صفر</span>
-      </div>
-
-      <div style="background: var(--bg); border: 2px solid var(--border); border-radius: 10px; padding: 14px; margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between;">
-        <div>
-          <div style="font-weight: 900; font-size: 1.1rem;">توزيع السند على بنود الميزانية</div>
-          <div style="font-size: 0.9rem; color: var(--muted); font-weight: 900;">اختياري: تفعيل لتصنيف السند ضمن بنود الميزانية</div>
-        </div>
-        <button type="button" class="btn btn-ghost" id="toggleSplitBoxBtn" style="width: auto; margin-top: 0; padding: 6px 12px; font-size: 1rem; background: var(--card);">معطل ✖</button>
-      </div>
-
-      <div class="voucher-split-box hidden" id="voucherSplitContainer">
-        <div style="background:rgba(2,132,199,.10);border:1px solid var(--accent);border-radius:8px;padding:8px;margin-bottom:10px;font-weight:900;color:var(--accent);">⚖️ لا يُحفظ السند إلا إذا تساوى توزيع البنود مع مبلغ السند. الافتراضي عند عدم الاختيار: «عام».</div>
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-          <span style="font-weight: 900; font-size: 1.1rem; color: var(--accent);">📌 نمط التوزيع:</span>
-          
-          <div class="mode-toggle-switch">
-            <button type="button" class="mode-toggle-btn active" id="btnModePct">نسبة (%)</button>
-            <button type="button" class="mode-toggle-btn" id="btnModeAmt">مبالغ (كاش)</button>
-          </div>
-        </div>
-
-        <div style="display: flex; justify-content: flex-end; gap: 8px; margin-bottom: 6px;">
-          <button type="button" class="btn btn-ghost" id="zeroVoucherAmountsBtn" style="width: auto; margin-top: 0; padding: 4px 8px; font-size: 0.9rem;">تصفير 🗑️</button>
-          <button type="button" class="btn btn-ghost" id="autoDistributeVoucherBtn" style="width: auto; margin-top: 0; padding: 4px 8px; font-size: 0.9rem;">توزيع نسبي 🔄</button>
-        </div>
-
-        <div id="voucherCatsList"></div>
-
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 10px; font-size: 1.05rem; font-weight: 900; border-top: 2px dashed var(--border); padding-top: 8px;">
-          <span>مجموع الموزع: <b id="voucherAllocatedSum">0</b> (<span id="voucherAllocatedPctSum">0%</span>)</span>
-          <span>المتبقي: <b id="voucherRemainingSum" style="color: var(--ok);">0</b></span>
-        </div>
-      </div>
-
-      <div class="form-group">
-        <label>تاريخ السند:</label>
-        <input type="date" id="voucherDateInput">
-      </div>
-
-      <div class="form-group" style="margin-bottom: 12px;">
-        <label>البيان / تفاصيل العملية:</label>
-        <input type="text" id="voucherNoteInput" placeholder="اكتب بيان السند أو الغرض...">
-      </div>
-
-      <button class="btn btn-danger" id="commitVoucherBtn" style="margin-top: 4px;">
-        💾 اعتماد وترحيل السند للسجل
+<div id="pageExpenses" class="hidden">
+  <div class="card no-print" id="voucherSelectorCard">
+    <h2><span>📝 اختر نوع السند للإدخال المباشر</span></h2>
+    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 10px;">
+      <button class="btn btn-danger" onclick="selectVoucherTypeDirect('spend')" style="display:flex; flex-direction:column; gap:6px; padding:16px 8px; font-size:1.05rem;">
+        <span style="font-size: 2rem;">📤</span><span>سند صرف</span>
+      </button>
+      <button class="btn btn-success" onclick="selectVoucherTypeDirect('income')" style="display:flex; flex-direction:column; gap:6px; padding:16px 8px; font-size:1.05rem;">
+        <span style="font-size: 2rem;">📥</span><span>سند إيراد</span>
+      </button>
+      <button class="btn btn-primary" onclick="selectVoucherTypeDirect('entry')" style="display:flex; flex-direction:column; gap:6px; padding:16px 8px; font-size:1.05rem;">
+        <span style="font-size: 2rem;">⚖️</span><span>سند قيد</span>
       </button>
     </div>
   </div>
 
-  <div id="pageLedger" class="hidden">
-    <div class="card">
-      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
-        <h2 style="margin-bottom:0;">
-          <span>📋 بطاقات العمليات المستقلة</span>
-          <span id="ledgerCountBadge" style="background:var(--accent); color:#fff; font-size:0.9rem; padding:4px 10px; border-radius:16px; font-weight:900;">0 عمليات</span>
-        </h2>
-        <div style="display:flex;gap:6px;align-items:center">
-          <button class="btn btn-ghost" id="exportCsvBtn" style="width:auto;margin-top:0;padding:6px 10px;font-size:0.95rem">CSV</button>
-          <button class="btn btn-danger" id="clearAllTxsBtn" style="width:auto; margin-top:0; padding:6px 10px; font-size:0.95rem;">
-            🗑️ تصفير
-          </button>
+  <div class="card hidden" id="cashFlowCard">
+    <h2>
+      <div style="display: flex; align-items: center; gap: 8px;">
+        <span id="voucherHeaderTitle">💸 تسجيل سند صرف</span>
+        <span id="voucherSeqNumBadge" style="background:#0f172a; color:#fff; font-size:0.95rem; padding:4px 10px; border-radius:6px; font-weight:900;">رقم: 1</span>
+      </div>
+      <button class="btn btn-ghost" onclick="backToVoucherSelector()" style="width:auto; margin-top:0; padding:4px 10px; font-size:0.95rem;">🔄 تغيير النوع</button>
+    </h2>
+
+    <div class="form-group" style="margin-top: 10px;">
+      <label id="lblDebitAcc">الحساب المدين (عليه):</label>
+      <div style="display: flex; gap: 8px;">
+        <div class="searchable-select-wrap" id="wrapDebitAcc" style="flex: 1;">
+          <input type="text" class="searchable-input" id="inpDebitAcc" placeholder="ابحث أو اختر الحساب المدين..." autocomplete="off">
+          <span class="searchable-arrow">▼</span>
+          <div class="searchable-dropdown" id="dropDebitAcc"></div>
+        </div>
+        <button class="icon-btn" id="addNewDebitAccBtn" title="إضافة حساب جديد" style="width: 50px; height: 50px; border-radius: 10px;">➕</button>
+      </div>
+      <input type="hidden" id="valDebitAcc">
+    </div>
+
+    <div style="text-align: center; margin: -6px 0 6px 0;">
+      <button type="button" class="btn btn-ghost" id="swapAccountsBtn" style="width: auto; display: inline-flex; align-items: center; gap: 6px; padding: 6px 14px; font-size: 0.95rem; border-color: var(--accent); color: var(--accent);">🔄 تبديل الحسابات (عكس المدين والدائن)</button>
+    </div>
+
+    <div class="form-group">
+      <label id="lblCreditAcc">الحساب الدائن (له):</label>
+      <div style="display: flex; gap: 8px;">
+        <div class="searchable-select-wrap" id="wrapCreditAcc" style="flex: 1;">
+          <input type="text" class="searchable-input" id="inpCreditAcc" placeholder="ابحث أو اختر الحساب الدائن..." autocomplete="off">
+          <span class="searchable-arrow">▼</span>
+          <div class="searchable-dropdown" id="dropCreditAcc"></div>
+        </div>
+        <button class="icon-btn" id="addNewCreditAccBtn" title="إضافة حساب جديد" style="width: 50px; height: 50px; border-radius: 10px;">➕</button>
+      </div>
+      <input type="hidden" id="valCreditAcc">
+    </div>
+
+    <div style="display: flex; gap: 10px; margin-bottom: 6px;">
+      <div style="flex: 1.3;">
+        <label>إجمالي مبلغ السند:</label>
+        <input type="text" id="voucherAmountInput" class="hide-in-privacy number-formatted" placeholder="أدخل إجمالي المبلغ" inputmode="decimal">
+      </div>
+      <div style="flex: 0.9;">
+        <label>العملة:</label>
+        <select id="voucherCurrencySelect">
+          <option value="YER" selected>🇾🇪 ر.ي</option>
+          <option value="SAR">🇸🇦 ر.س</option>
+          <option value="USD">💵 دولار</option>
+        </select>
+      </div>
+    </div>
+
+    <div id="tafqitDisplayBox" style="font-size:1.05rem; font-weight:900; color:var(--accent); background:var(--bg); padding:12px; border-radius:10px; margin-bottom:12px; border:2px solid var(--border);">
+      ✍️ التفقيط: <span id="tafqitText">صفر</span>
+    </div>
+
+    <div style="background: var(--bg); border: 2px solid var(--border); border-radius: 10px; padding: 14px; margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between;">
+      <div>
+        <div style="font-weight: 900; font-size: 1.1rem;">توزيع السند على بنود الميزانية</div>
+        <div style="font-size: 0.9rem; color: var(--muted); font-weight: 900;">اختياري: تفعيل لتصنيف السند ضمن بنود الميزانية</div>
+      </div>
+      <button type="button" class="btn btn-ghost" id="toggleSplitBoxBtn" style="width: auto; margin-top: 0; padding: 6px 12px; font-size: 1rem; background: var(--card);">معطل ✖</button>
+    </div>
+
+    <div class="voucher-split-box hidden" id="voucherSplitContainer">
+      <div style="background:rgba(2,132,199,.10);border:1px solid var(--accent);border-radius:8px;padding:8px;margin-bottom:10px;font-weight:900;color:var(--accent);">⚖️ لا يُحفظ السند إلا إذا تساوى توزيع البنود مع مبلغ السند. الافتراضي عند عدم الاختيار: «عام».</div>
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+        <span style="font-weight: 900; font-size: 1.1rem; color: var(--accent);">📌 نمط التوزيع:</span>
+        <div class="mode-toggle-switch">
+          <button type="button" class="mode-toggle-btn active" id="btnModePct">نسبة (%)</button>
+          <button type="button" class="mode-toggle-btn" id="btnModeAmt">مبالغ (كاش)</button>
         </div>
       </div>
 
-      <div class="search-box">
-        <span class="search-icon">🔍</span>
-        <input type="search" id="ledgerSearchInput" placeholder="بحث فوري (اسم عميل، صندوق، بيان، أو رقم سند)...">
+      <div style="display: flex; justify-content: flex-end; gap: 8px; margin-bottom: 6px;">
+        <button type="button" class="btn btn-ghost" id="zeroVoucherAmountsBtn" style="width: auto; margin-top: 0; padding: 4px 8px; font-size: 0.9rem;">تصفير 🗑️</button>
+        <button type="button" class="btn btn-ghost" id="autoDistributeVoucherBtn" style="width: auto; margin-top: 0; padding: 4px 8px; font-size: 0.9rem;">توزيع نسبي 🔄</button>
       </div>
 
-      <div id="ledgerList" class="hide-in-privacy"></div>
+      <div id="voucherCatsList"></div>
+
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 10px; font-size: 1.05rem; font-weight: 900; border-top: 2px dashed var(--border); padding-top: 8px;">
+        <span>مجموع الموزع: <b id="voucherAllocatedSum">0</b> (<span id="voucherAllocatedPctSum">0%</span>)</span>
+        <span>المتبقي: <b id="voucherRemainingSum" style="color: var(--ok);">0</b></span>
+      </div>
     </div>
+
+    <div class="form-group">
+      <label>تاريخ السند:</label>
+      <input type="date" id="voucherDateInput">
+    </div>
+
+    <div class="form-group" style="margin-bottom: 12px;">
+      <label>البيان / تفاصيل العملية:</label>
+      <input type="text" id="voucherNoteInput" placeholder="اكتب بيان السند أو الغرض...">
+    </div>
+
+    <button class="btn btn-danger" id="commitVoucherBtn" style="margin-top: 4px;">
+      💾 اعتماد وترحيل السند للسجل
+    </button>
   </div>
+</div>
 
-  <div id="pageBudget" class="hidden">
-    <div class="card no-print" style="border-right:6px solid var(--accent);">
-      <h2><span>📊 تحليل الميزانية وبنودها الديناميكية</span><small style="font-size:.85rem;color:var(--muted);">قسم الميزانية</small></h2>
-      <p style="font-weight:900;color:var(--muted);margin-bottom:0;">يعرض هذا القسم المؤشرات والاتساع والتباين بين المخصص والمنصرف والفائض لكل بند.</p>
-    </div>
-    <div id="budgetToolsHost"></div>
-    <div id="budgetReportHost"></div>
-  </div>
-
-  <div id="pageReports" class="hidden">
-    <div class="card no-print" style="border-right:6px solid #8b5cf6;">
-      <h2><span>📈 التقارير وكشف الحساب</span><small style="font-size:.85rem;color:var(--muted);">قسم التقارير</small></h2>
-      <p style="font-weight:900;color:var(--muted);margin-bottom:0;">يمكنك من هنا عرض كشف الحساب وطباعته، وإضافة تقارير أخرى مستقبلًا ضمن هذا القسم.</p>
-    </div>
-    <div class="report-type-switch no-print hidden">
-      <button class="rpt-btn active" id="btnRptBudget">📊 تحليل الميزانية</button>
-      <button class="rpt-btn" id="btnRptAccounts">👤 كشف الحسابات</button>
-    </div>
-    <div class="carousel-shell budget-carousel no-print" id="budgetCarousel" aria-label="التنقل التفاعلي للميزانية والتقارير">
-      <div class="carousel-track">
-        <section class="carousel-slide" aria-label="تحليل الميزانية فقط">
-          <div class="carousel-title"><span>📊 تحليل الميزانية</span><small>هذا القسم مخصص للميزانية فقط</small></div>
-          <div class="budget-shortcut-grid">
-            <button class="budget-shortcut" onclick="toggleReportView('budget'); runActiveReport()"><strong>◉</strong><span>تحليل الميزانية</span></button>
-            <button class="budget-shortcut" onclick="runActiveReport()"><strong>↻</strong><span>تحديث التحليل</span></button>
-            <button class="budget-shortcut" onclick="document.getElementById('generateReportBtn').click()"><strong>▣</strong><span>استخراج التقرير</span></button>
-          </div>
-        </section>
-      </div>
-    </div>
-
-    <div class="no-print" style="display: flex; gap: 8px; margin-bottom: 10px;">
-      <button class="btn btn-ghost" id="exportPngBtn" style="flex:1; margin-top:0; border-color:var(--accent); color:var(--accent); font-size:1.05rem;">📸 تصدير كصورة (PNG)</button>
-      <button class="btn btn-ghost" id="exportPdfBtn" style="flex:1; margin-top:0; border-color:var(--ok); color:var(--ok); font-size:1.05rem;">📄 تصدير كـ PDF</button>
-    </div>
-
-    <div class="card" id="reportFilterBox">
-      <h2>📈 تصفية فترة التقرير</h2>
-      <div style="display:flex; flex-direction:column; gap:8px;">
-        <div id="filterAccountSelectBox" class="hidden">
-          <label>اختر الحساب المطلوب (رئيسي أو فرعي):</label>
-          <div class="searchable-select-wrap account-search-bar" id="wrapReportAccount">
-            <input type="text" class="searchable-input" id="inpReportAccount" placeholder="اكتب اسم الحساب هنا للبحث..." autocomplete="off" aria-label="شريط البحث عن الحساب">
-            <button type="button" class="search-clear-btn hidden" id="clearReportAccountBtn" title="مسح الحساب المختار" aria-label="مسح الحساب المختار">×</button>
-            <span class="searchable-arrow">▼</span>
-            <div class="searchable-dropdown" id="dropReportAccount"></div>
-          </div>
-          <input type="hidden" id="valReportAccount" value="ALL">
-        </div>
-
-        <div>
-          <label>نوع الفترة:</label>
-          <select id="reportFilterType">
-            <option value="current">الدورة الحالية (الشهر الحالي)</option>
-            <option value="all" selected>كافة العمليات المسجلة</option>
-            <option value="month">شهر محدد من الأرشيف</option>
-            <option value="custom">نطاق زمني مخصص (من - إلى)</option>
-          </select>
-        </div>
-
-        <div id="filterMonthSelectBox" class="hidden">
-          <label>حدد الشهر:</label>
-          <select id="reportMonthSelect"></select>
-        </div>
-
-        <div id="filterCustomDateBox" class="hidden" style="display:flex; gap:8px;">
-          <div style="flex:1;">
-            <label>من تاريخ:</label>
-            <input type="date" id="reportStartDate">
-          </div>
-          <div style="flex:1;">
-            <label>إلى تاريخ:</label>
-            <input type="date" id="reportEndDate">
-          </div>
-        </div>
-
-        <button class="btn btn-primary" id="generateReportBtn" style="margin-top:4px;">📊 استخراج التقرير المطلوب</button>
-      </div>
-    </div>
-
-    <div class="card" id="budgetReportCard">
-      <h2>
-        <span>📋 تقارير الميزانية والبنود</span>
-        <button class="icon-btn no-print" id="printBudgetReportBtn" title="طباعة مباشرة" style="width:42px; height:42px;">🖨️</button>
+<div id="pageLedger" class="hidden">
+  <div class="card">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+      <h2 style="margin-bottom:0;">
+        <span>📋 بطاقات العمليات المستقلة</span>
+        <span id="ledgerCountBadge" style="background:var(--accent); color:#fff; font-size:0.9rem; padding:4px 10px; border-radius:16px; font-weight:900;">0 عمليات</span>
       </h2>
-      <div style="font-size:1.05rem; color:var(--muted); font-weight:900; margin-bottom:10px;" id="reportPeriodTitle">الفترة: -</div>
-
-      <div class="kpi-grid">
-        <div class="kpi-card">
-          <div class="kpi-title">المخصص المعتمد</div>
-          <div class="kpi-value hide-in-privacy" id="kpiAllocated" style="color:var(--accent);">0</div>
-        </div>
-        <div class="kpi-card">
-          <div class="kpi-title">المنصرف الفعلي</div>
-          <div class="kpi-value hide-in-privacy" id="kpiSpent" style="color:var(--danger);">0</div>
-        </div>
-        <div class="kpi-card">
-          <div class="kpi-title">الفائض / المتبقي</div>
-          <div class="kpi-value hide-in-privacy" id="kpiSurplus" style="color:var(--ok);">0</div>
-        </div>
-        <div class="kpi-card">
-          <div class="kpi-title">نسبة الصرف</div>
-          <div class="kpi-value" id="kpiRate" style="color:var(--ok);">0%</div>
-        </div>
-      </div>
-
-      <div class="chart-box hide-in-privacy"><canvas id="reportChart"></canvas></div>
-      <div id="budgetInsights" class="budget-insights" aria-label="بطاقات تفاعلية لبنود الميزانية"></div>
-
-      <div style="overflow-x:auto;">
-        <table class="report-table hide-in-privacy">
-          <thead>
-            <tr>
-              <th>البند (انقر للتفاصيل)</th>
-              <th>المخصص</th>
-              <th>المنصرف</th>
-              <th>الفائض/المتبقي</th>
-              <th>النسبة</th>
-            </tr>
-          </thead>
-          <tbody id="reportBody"></tbody>
-        </table>
-      </div>
-      <div id="reportNotesBox" style="margin-top:14px;"></div>
-    </div>
-
-    <div class="card hidden" id="accountStatementCard">
-      <h2>
-        <span id="statementHeaderTitle">📑 كشف حساب العملاء والصناديق</span>
-        <button class="icon-btn no-print" id="printStatementBtn" title="طباعة مباشرة" style="width:42px; height:42px;">🖨️</button>
-      </h2>
-      <div style="font-size:1.05rem; color:var(--muted); font-weight:900; margin-bottom:8px;" id="statementPeriodTitle">الفترة: -</div>
-
-      <div class="search-box">
-        <span class="search-icon">🔍</span>
-        <input type="search" id="statementSearchInput" placeholder="بحث داخل كشف الحساب (بالبيان، الطرف، أو السند)...">
-      </div>
-
-      <div class="kpi-grid">
-        <div class="kpi-card">
-          <div class="kpi-title">إجمالي المدين (عليه)</div>
-          <div class="kpi-value hide-in-privacy" id="kpiAccountDebit" style="color:var(--danger);">0</div>
-        </div>
-        <div class="kpi-card">
-          <div class="kpi-title">إجمالي الدائن (له)</div>
-          <div class="kpi-value hide-in-privacy" id="kpiAccountCredit" style="color:var(--ok);">0</div>
-        </div>
-        <div class="kpi-card" style="grid-column: span 2;">
-          <div class="kpi-title">الرصيد الصافي النهائي</div>
-          <div class="kpi-value hide-in-privacy" id="kpiAccountBalance" style="color:var(--accent);">0</div>
-        </div>
-      </div>
-
-      <div id="singleAccountTableBox" style="overflow-x:auto;">
-        <table class="report-table hide-in-privacy">
-          <thead>
-            <tr>
-              <th style="width:22%;">التاريخ</th>
-              <th style="width:12%;">السند</th>
-              <th style="width:32%;">البيان / الحساب المقابل</th>
-              <th style="width:17%;">مدين (عليه)</th>
-              <th style="width:17%;">دائن (له)</th>
-            </tr>
-          </thead>
-          <tbody id="statementBody"></tbody>
-          <tfoot>
-            <tr class="statement-total-row">
-              <th colspan="3">الإجماليات</th>
-              <th id="statementTotalDebit">0</th>
-              <th id="statementTotalCredit">0</th>
-            </tr>
-            <tr class="statement-balance-row">
-              <th colspan="3">المتبقي / الرصيد الصافي</th>
-              <th colspan="2" id="statementTotalBalance">0</th>
-            </tr>
-          </tfoot>
-        </table>
-      </div>
-
-      <div id="allAccountsSummaryBox" class="hidden" style="overflow-x:auto; margin-top: 10px;">
-        <h3 style="font-size:1.15rem; font-weight:900; color:var(--accent); margin-bottom:8px;">📊 ملخص أرصدة الحسابات (بحسب التصنيف الرئيسي):</h3>
-        <table class="report-table hide-in-privacy">
-          <thead>
-            <tr>
-              <th>التصنيف / الحساب الفرعي</th>
-              <th>إجمالي مدين (عليه)</th>
-              <th>إجمالي دائن (له)</th>
-              <th>الرصيد الصافي</th>
-            </tr>
-          </thead>
-          <tbody id="allAccountsBody"></tbody>
-          <tfoot>
-            <tr class="statement-total-row">
-              <th>الإجماليات</th>
-              <th id="allTotalDebit">0</th>
-              <th id="allTotalCredit">0</th>
-              <th id="allTotalBalance">0</th>
-            </tr>
-          </tfoot>
-        </table>
-      </div>
-    </div>
-  </div>
-
-  <div id="pageSettings" class="hidden">
-    <div class="card" style="border-right: 6px solid var(--accent);">
-      <h2>🔒 إعدادات الأمان وقفل الحماية</h2>
-      <p style="font-size:1.05rem; color:var(--muted); font-weight:900; margin-bottom:10px;">قم بتأمين بياناتك المالية برقم سري أو بصمة الإصبع عند فتح التطبيق:</p>
-      
-      <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px;">
-        <input type="checkbox" id="settingSecurityEnabled" style="width: 22px; height: 22px; cursor: pointer;">
-        <label for="settingSecurityEnabled" style="margin-bottom: 0; cursor: pointer; font-weight: 900; color: var(--accent); font-size: 1.1rem;">تفعيل قفل الحماية عند فتح التطبيق</label>
-      </div>
-
-      <div class="form-group">
-        <label>تغيير أو تعيين الرقم السري (PIN):</label>
-        <div style="display: flex; gap: 8px;">
-          <input type="password" id="settingNewPinInput" maxlength="8" placeholder="أدخل الرقم السري الجديد" style="text-align: right;">
-          <button class="btn btn-primary" id="savePinSettingsBtn" style="width: auto; margin-top: 0; padding: 0 16px;">حفظ الرمز</button>
-        </div>
-      </div>
-    </div>
-
-    <div class="card">
-      <h2>🏷️ إعدادات ترويسة الكشوفات والصور</h2>
-      <p style="font-size:1.05rem; color:var(--muted); font-weight:900; margin-bottom:8px;">أدخل بيانات الجهة أو صاحب الحساب لتظهر في رأس التقارير المطبوعة:</p>
-      <div class="form-group">
-        <label>اسم الجهة / المؤسسة:</label>
-        <input type="text" id="settingOrgName" placeholder="مثلاً: مؤسسة خيرية، أو اسمك الشخصي...">
-      </div>
-      <div class="form-group">
-        <label>العنوان والتفاصيل وأرقام التواصل:</label>
-        <input type="text" id="settingOrgDetails" placeholder="مثلاً: حضرموت - تريم | هاتف: 711111111">
-      </div>
-      <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
-        <input type="checkbox" id="settingShowHeader" style="width: 22px; height: 22px; cursor: pointer;">
-        <label for="settingShowHeader" style="margin-bottom: 0; cursor: pointer; font-weight: 900; font-size: 1.1rem;">إظهار هذه الترويسة في التقارير والطباعة</label>
-      </div>
-      <button class="btn btn-primary" id="saveHeaderSettingsBtn" style="margin-top: 4px;">💾 حفظ إعدادات الترويسة</button>
-    </div>
-
-    <div class="card">
-      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
-        <h2 style="margin-bottom:0;">🏛️ دليل وشجرة الحسابات والأسقف</h2>
-        <button class="btn btn-ghost" id="openAddAccountDialogBtn" style="width:auto; margin-top:0; padding:6px 12px; font-size:0.95rem;">➕ إضافة حساب</button>
-      </div>
-      <p style="font-size:1.05rem; color:var(--muted); font-weight:900; margin-bottom:10px;">انقر على التصنيف الرئيسي لفتحه أو طيه للتعديل:</p>
-      <div id="chartOfAccountsView" style="font-size:1.05rem;"></div>
-    </div>
-
-    <div class="card">
-      <h2>
-        <span>🛠️ إدارة بنود الميزانية والنسب</span>
-        <button class="btn btn-ghost" id="addCatBtn" style="width:auto; margin-top:0; padding:6px 12px; font-size:0.95rem;">➕ إضافة بند اختياري</button>
-      </h2>
-      <p style="color:var(--muted);font-weight:900;margin-bottom:10px;">البنود الأساسية التسعة ثابتة، ويمكن إضافة بندين اختياريين فقط. الحد الأقصى: 11 بندًا.</p>
-      <div id="pctRows"></div>
-      <div id="pctSum" style="text-align:center; font-weight:900; margin:14px 0; font-size:1.2rem;">المجموع: 100%</div>
-      
-      <div style="display:flex; gap:8px;">
-        <button class="btn btn-primary" id="savePctsBtn" style="margin-top:0; flex:2;">💾 حفظ البنود</button>
-        <button class="btn btn-ghost" id="resetPctsBtn" style="margin-top:0; flex:1; font-size:1.05rem;">↺ الافتراضي</button>
-      </div>
-    </div>
-
-    <div class="card">
-      <h2>📁 النسخ الاحتياطي</h2>
-      <div style="display: flex; flex-direction: column; gap: 8px;">
-        <button class="btn btn-ghost" id="exportDataBtn" style="margin-top:0; border-color: var(--accent); color: var(--accent); font-size: 1.1rem;">
-          📥 تصدير نسخة احتياطية (JSON)
-        </button>
-        <input type="file" id="importFileInput" accept=".json" style="display:none;">
-        <button class="btn btn-ghost" id="importDataBtn" style="margin-top:0; font-size: 1.1rem;">
-          📤 استيراد نسخة احتياطية (JSON)
+      <div style="display:flex;gap:6px;align-items:center">
+        <button class="btn btn-ghost" id="exportCsvBtn" style="width:auto;margin-top:0;padding:6px 10px;font-size:0.95rem">CSV</button>
+        <button class="btn btn-danger" id="clearAllTxsBtn" style="width:auto; margin-top:0; padding:6px 10px; font-size:0.95rem;">
+          🗑️ تصفير
         </button>
       </div>
     </div>
+
+    <div class="search-box">
+      <span class="search-icon">🔍</span>
+      <input type="search" id="ledgerSearchInput" placeholder="بحث فوري (اسم عميل، صندوق، بيان، أو رقم سند)...">
+    </div>
+
+    <div id="ledgerList" class="hide-in-privacy"></div>
   </div>
+</div>
+
+<div id="pageBudget" class="hidden">
+  <div class="card no-print" style="border-right:6px solid var(--accent);">
+    <h2><span>📊 تحليل الميزانية وبنودها الديناميكية</span><small style="font-size:.85rem;color:var(--muted);">قسم الميزانية</small></h2>
+    <p style="font-weight:900;color:var(--muted);margin-bottom:0;">يعرض هذا القسم المؤشرات والاتساع والتباين بين المخصص والمنصرف والفائض لكل بند.</p>
+  </div>
+  <div id="budgetToolsHost"></div>
+  <div id="budgetReportHost"></div>
+</div>
+
+<div id="pageReports" class="hidden">
+  <div class="card no-print" style="border-right:6px solid #8b5cf6;">
+    <h2><span>📈 التقارير وكشف الحساب</span><small style="font-size:.85rem;color:var(--muted);">قسم التقارير</small></h2>
+    <p style="font-weight:900;color:var(--muted);margin-bottom:0;">يمكنك من هنا عرض كشف الحساب وطباعته، وإضافة تقارير أخرى مستقبلًا ضمن هذا القسم.</p>
+  </div>
+  <div class="report-type-switch no-print hidden">
+    <button class="rpt-btn active" id="btnRptBudget">📊 تحليل الميزانية</button>
+    <button class="rpt-btn" id="btnRptAccounts">👤 كشف الحسابات</button>
+  </div>
+  <div class="carousel-shell budget-carousel no-print" id="budgetCarousel" aria-label="التنقل التفاعلي للميزانية والتقارير">
+    <div class="carousel-track">
+      <section class="carousel-slide" aria-label="تحليل الميزانية فقط">
+        <div class="carousel-title"><span>📊 تحليل الميزانية</span><small>هذا القسم مخصص للميزانية فقط</small></div>
+        <div class="budget-shortcut-grid">
+          <button class="budget-shortcut" onclick="toggleReportView('budget'); runActiveReport()"><strong>◉</strong><span>تحليل الميزانية</span></button>
+          <button class="budget-shortcut" onclick="runActiveReport()"><strong>↻</strong><span>تحديث التحليل</span></button>
+          <button class="budget-shortcut" onclick="document.getElementById('generateReportBtn').click()"><strong>▣</strong><span>استخراج التقرير</span></button>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <div class="no-print" style="display: flex; gap: 8px; margin-bottom: 10px;">
+    <button class="btn btn-ghost" id="exportPngBtn" style="flex:1; margin-top:0; border-color:var(--accent); color:var(--accent); font-size:1.05rem;">📸 تصدير كصورة (PNG)</button>
+    <button class="btn btn-ghost" id="exportPdfBtn" style="flex:1; margin-top:0; border-color:var(--ok); color:var(--ok); font-size:1.05rem;">📄 تصدير كـ PDF</button>
+  </div>
+
+  <div class="card" id="reportFilterBox">
+    <h2>📈 تصفية فترة التقرير</h2>
+    <div style="display:flex; flex-direction:column; gap:8px;">
+      <div id="filterAccountSelectBox" class="hidden">
+        <label>اختر الحساب المطلوب (رئيسي أو فرعي):</label>
+        <div class="searchable-select-wrap account-search-bar" id="wrapReportAccount">
+          <input type="text" class="searchable-input" id="inpReportAccount" placeholder="اكتب اسم الحساب هنا للبحث..." autocomplete="off" aria-label="شريط البحث عن الحساب">
+          <button type="button" class="search-clear-btn hidden" id="clearReportAccountBtn" title="مسح الحساب المختار" aria-label="مسح الحساب المختار">×</button>
+          <span class="searchable-arrow">▼</span>
+          <div class="searchable-dropdown" id="dropReportAccount"></div>
+        </div>
+        <input type="hidden" id="valReportAccount" value="ALL">
+      </div>
+
+      <div>
+        <label>نوع الفترة:</label>
+        <select id="reportFilterType">
+          <option value="current">الدورة الحالية (الشهر الحالي)</option>
+          <option value="all" selected>كافة العمليات المسجلة</option>
+          <option value="month">شهر محدد من الأرشيف</option>
+          <option value="custom">نطاق زمني مخصص (من - إلى)</option>
+        </select>
+      </div>
+
+      <div id="filterMonthSelectBox" class="hidden">
+        <label>حدد الشهر:</label>
+        <select id="reportMonthSelect"></select>
+      </div>
+
+      <div id="filterCustomDateBox" class="hidden" style="display:flex; gap:8px;">
+        <div style="flex:1;">
+          <label>من تاريخ:</label>
+          <input type="date" id="reportStartDate">
+        </div>
+        <div style="flex:1;">
+          <label>إلى تاريخ:</label>
+          <input type="date" id="reportEndDate">
+        </div>
+      </div>
+
+      <button class="btn btn-primary" id="generateReportBtn" style="margin-top:4px;">📊 استخراج التقرير المطلوب</button>
+    </div>
+  </div>
+
+  <div class="card" id="budgetReportCard">
+    <h2>
+      <span>📋 تقارير الميزانية والبنود</span>
+      <button class="icon-btn no-print" id="printBudgetReportBtn" title="طباعة مباشرة" style="width:42px; height:42px;">🖨️</button>
+    </h2>
+    <div style="font-size:1.05rem; color:var(--muted); font-weight:900; margin-bottom:10px;" id="reportPeriodTitle">الفترة: -</div>
+
+    <div class="kpi-grid">
+      <div class="kpi-card">
+        <div class="kpi-title">المخصص المعتمد</div>
+        <div class="kpi-value hide-in-privacy" id="kpiAllocated" style="color:var(--accent);">0</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-title">المنصرف الفعلي</div>
+        <div class="kpi-value hide-in-privacy" id="kpiSpent" style="color:var(--danger);">0</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-title">الفائض / المتبقي</div>
+        <div class="kpi-value hide-in-privacy" id="kpiSurplus" style="color:var(--ok);">0</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-title">نسبة الصرف</div>
+        <div class="kpi-value" id="kpiRate" style="color:var(--ok);">0%</div>
+      </div>
+    </div>
+
+    <div class="chart-box hide-in-privacy"><canvas id="reportChart"></canvas></div>
+    <div id="budgetInsights" class="budget-insights" aria-label="بطاقات تفاعلية لبنود الميزانية"></div>
+
+    <div style="overflow-x:auto;">
+      <table class="report-table hide-in-privacy">
+        <thead>
+          <tr>
+            <th>البند (انقر للتفاصيل)</th>
+            <th>المخصص</th>
+            <th>المنصرف</th>
+            <th>الفائض/المتبقي</th>
+            <th>النسبة</th>
+          </tr>
+        </thead>
+        <tbody id="reportBody"></tbody>
+      </table>
+    </div>
+    <div id="reportNotesBox" style="margin-top:14px;"></div>
+  </div>
+
+  <div class="card hidden" id="accountStatementCard">
+    <h2>
+      <span id="statementHeaderTitle">📑 كشف حساب العملاء والصناديق</span>
+      <button class="icon-btn no-print" id="printStatementBtn" title="طباعة مباشرة" style="width:42px; height:42px;">🖨️</button>
+    </h2>
+    <div style="font-size:1.05rem; color:var(--muted); font-weight:900; margin-bottom:8px;" id="statementPeriodTitle">الفترة: -</div>
+
+    <div class="search-box">
+      <span class="search-icon">🔍</span>
+      <input type="search" id="statementSearchInput" placeholder="بحث داخل كشف الحساب (بالبيان، الطرف، أو السند)...">
+    </div>
+
+    <div class="kpi-grid">
+      <div class="kpi-card">
+        <div class="kpi-title">إجمالي المدين (عليه)</div>
+        <div class="kpi-value hide-in-privacy" id="kpiAccountDebit" style="color:var(--danger);">0</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-title">إجمالي الدائن (له)</div>
+        <div class="kpi-value hide-in-privacy" id="kpiAccountCredit" style="color:var(--ok);">0</div>
+      </div>
+      <div class="kpi-card" style="grid-column: span 2;">
+        <div class="kpi-title">الرصيد الصافي النهائي</div>
+        <div class="kpi-value hide-in-privacy" id="kpiAccountBalance" style="color:var(--accent);">0</div>
+      </div>
+    </div>
+
+    <div id="singleAccountTableBox" style="overflow-x:auto;">
+      <table class="report-table hide-in-privacy">
+        <thead>
+          <tr>
+            <th style="width:22%;">التاريخ</th>
+            <th style="width:12%;">السند</th>
+            <th style="width:32%;">البيان / الحساب المقابل</th>
+            <th style="width:17%;">مدين (عليه)</th>
+            <th style="width:17%;">دائن (له)</th>
+          </tr>
+        </thead>
+        <tbody id="statementBody"></tbody>
+        <tfoot>
+          <tr class="statement-total-row">
+            <th colspan="3">الإجماليات</th>
+            <th id="statementTotalDebit">0</th>
+            <th id="statementTotalCredit">0</th>
+          </tr>
+          <tr class="statement-balance-row">
+            <th colspan="3">المتبقي / الرصيد الصافي</th>
+            <th colspan="2" id="statementTotalBalance">0</th>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
+
+    <div id="allAccountsSummaryBox" class="hidden" style="overflow-x:auto; margin-top: 10px;">
+      <h3 style="font-size:1.15rem; font-weight:900; color:var(--accent); margin-bottom:8px;">📊 ملخص أرصدة الحسابات (بحسب التصنيف الرئيسي):</h3>
+      <table class="report-table hide-in-privacy">
+        <thead>
+          <tr>
+            <th>التصنيف / الحساب الفرعي</th>
+            <th>إجمالي مدين (عليه)</th>
+            <th>إجمالي دائن (له)</th>
+            <th>الرصيد الصافي</th>
+          </tr>
+        </thead>
+        <tbody id="allAccountsBody"></tbody>
+        <tfoot>
+          <tr class="statement-total-row">
+            <th>الإجماليات</th>
+            <th id="allTotalDebit">0</th>
+            <th id="allTotalCredit">0</th>
+            <th id="allTotalBalance">0</th>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
+  </div>
+</div>
+
+<div id="pageSettings" class="hidden">
+  <div class="card" style="border-right: 6px solid var(--accent);">
+    <h2>🔒 إعدادات الأمان وقفل الحماية</h2>
+    <p style="font-size:1.05rem; color:var(--muted); font-weight:900; margin-bottom:10px;">قم بتأمين بياناتك المالية برقم سري أو بصمة الإصبع عند فتح التطبيق:</p>
+    
+    <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px;">
+      <input type="checkbox" id="settingSecurityEnabled" style="width: 22px; height: 22px; cursor: pointer;">
+      <label for="settingSecurityEnabled" style="margin-bottom: 0; cursor: pointer; font-weight: 900; color: var(--accent); font-size: 1.1rem;">تفعيل قفل الحماية عند فتح التطبيق</label>
+    </div>
+
+    <div class="form-group">
+      <label>تغيير أو تعيين الرقم السري (PIN):</label>
+      <div style="display: flex; gap: 8px;">
+        <input type="password" id="settingNewPinInput" maxlength="8" placeholder="أدخل الرقم السري الجديد" style="text-align: right;">
+        <button class="btn btn-primary" id="savePinSettingsBtn" style="width: auto; margin-top: 0; padding: 0 16px;">حفظ الرمز</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>🏷️ إعدادات ترويسة الكشوفات والصور</h2>
+    <p style="font-size:1.05rem; color:var(--muted); font-weight:900; margin-bottom:8px;">أدخل بيانات الجهة أو صاحب الحساب لتظهر في رأس التقارير المطبوعة:</p>
+    <div class="form-group">
+      <label>اسم الجهة / المؤسسة:</label>
+      <input type="text" id="settingOrgName" placeholder="مثلاً: مؤسسة خيرية، أو اسمك الشخصي...">
+    </div>
+    <div class="form-group">
+      <label>العنوان والتفاصيل وأرقام التواصل:</label>
+      <input type="text" id="settingOrgDetails" placeholder="مثلاً: حضرموت - تريم | هاتف: 711111111">
+    </div>
+    <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
+      <input type="checkbox" id="settingShowHeader" style="width: 22px; height: 22px; cursor: pointer;">
+      <label for="settingShowHeader" style="margin-bottom: 0; cursor: pointer; font-weight: 900; font-size: 1.1rem;">إظهار هذه الترويسة في التقارير والطباعة</label>
+    </div>
+    <button class="btn btn-primary" id="saveHeaderSettingsBtn" style="margin-top: 4px;">💾 حفظ إعدادات الترويسة</button>
+  </div>
+
+  <div class="card">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+      <h2 style="margin-bottom:0;">🏛️ دليل وشجرة الحسابات والأسقف</h2>
+      <button class="btn btn-ghost" id="openAddAccountDialogBtn" style="width:auto; margin-top:0; padding:6px 12px; font-size:0.95rem;">➕ إضافة حساب</button>
+    </div>
+    <p style="font-size:1.05rem; color:var(--muted); font-weight:900; margin-bottom:10px;">انقر على التصنيف الرئيسي لفتحه أو طيه للتعديل أو نقل التبعية:</p>
+    <div id="chartOfAccountsView" style="font-size:1.05rem;"></div>
+  </div>
+
+  <div class="card">
+    <h2>
+      <span>🛠️ إدارة بنود الميزانية والنسب</span>
+      <button class="btn btn-ghost" id="addCatBtn" style="width:auto; margin-top:0; padding:6px 12px; font-size:0.95rem;">➕ إضافة بند اختياري</button>
+    </h2>
+    <p style="color:var(--muted);font-weight:900;margin-bottom:10px;">البنود الأساسية العشرة ثابتة، ويمكن إضافة بندين اختياريين عند الحاجة. الحد الأقصى: 12 بندًا.</p>
+    <div id="pctRows"></div>
+    <div id="pctSum" style="text-align:center; font-weight:900; margin:14px 0; font-size:1.2rem;">المجموع: 100%</div>
+    
+    <div style="display:flex; gap:8px;">
+      <button class="btn btn-primary" id="savePctsBtn" style="margin-top:0; flex:2;">💾 حفظ البنود</button>
+      <button class="btn btn-ghost" id="resetPctsBtn" style="margin-top:0; flex:1; font-size:1.05rem;">↺ الافتراضي</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>📁 النسخ الاحتياطي</h2>
+    <div style="display: flex; flex-direction: column; gap: 8px;">
+      <button class="btn btn-ghost" id="exportDataBtn" style="margin-top:0; border-color: var(--accent); color: var(--accent); font-size: 1.1rem;">
+        📥 تصدير نسخة احتياطية (JSON)
+      </button>
+      <input type="file" id="importFileInput" accept=".json" style="display:none;">
+      <button class="btn btn-ghost" id="importDataBtn" style="margin-top:0; font-size: 1.1rem;">
+        📤 استيراد نسخة احتياطية (JSON)
+      </button>
+    </div>
+  </div>
+</div>
 
   <div class="modal-overlay" id="categoryTransactionsModal">
     <div class="modal-content">
@@ -1047,7 +1043,6 @@ html{scroll-behavior:smooth}body{padding-bottom:16px}
         </div>
       </div>
 
-      <!-- قسم توزيع الموازنة التفاعلي والديناميكي في نافذة التعديل -->
       <div class="voucher-split-box" id="editVoucherSplitContainer">
         <div style="background:rgba(2,132,199,.10);border:1px solid var(--accent);border-radius:8px;padding:8px;margin-bottom:10px;font-weight:900;color:var(--accent);">⚖️ التوزيع الديناميكي لبنود الميزانية: يرجى مطابقة مجموع الموزع مع إجمالي السند.</div>
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
@@ -1098,7 +1093,7 @@ html{scroll-behavior:smooth}body{padding-bottom:16px}
 
       <div style="display:flex; gap:8px; margin-bottom:12px;">
         <button class="rpt-btn active" id="tabAddSubAcc">إضافة حساب فرعي</button>
-        <button class="rpt-btn" id="tabAddParentAcc">إضافة حساب رئيسي جديد</button>
+        <button class="rpt-btn" id="tabAddParentAcc">إضافة حساب رئيسي</button>
       </div>
 
       <div id="boxAddSubAcc">
@@ -1120,17 +1115,19 @@ html{scroll-behavior:smooth}body{padding-bottom:16px}
             <input type="number" id="newAccountMinCeil" placeholder="مثلاً: -200000">
           </div>
         </div>
-        <button class="btn btn-primary" id="saveNewAccountTreeBtn" style="margin-top: 8px;">💾 حفظ الحساب</button>
+        <button class="btn btn-primary" id="saveNewAccountTreeBtn" style="margin-top: 8px;">💾 حفظ الحساب الفرعي</button>
       </div>
 
       <div id="boxAddParentAcc" class="hidden">
         <div class="form-group">
-          <label>اسم الحساب الأساسي الجديد (تصنيف رئيسي):</label>
-          <input type="text" id="newParentCategoryInput" placeholder="مثلاً: الأصول الثابتة، مشاريع تنموية...">
+          <label>يتبع للحساب الرئيسي الأب (اختياري - لجعل هذا رئيسياً فرعياً):</label>
+          <select id="newParentCategoryParentSelect">
+            <option value="">-- تصنيف رئيسي مستقل (مستوى أول) --</option>
+          </select>
         </div>
         <div class="form-group">
-          <label>اسم أول حساب فرعي داخله (اختياري):</label>
-          <input type="text" id="initialSubAccInput" placeholder="مثلاً: سيارة المؤسسة، مشروع أ...">
+          <label>اسم الحساب الرئيسي الجديد:</label>
+          <input type="text" id="newParentCategoryInput" placeholder="مثلاً: الأصول الثابتة، فروع إضافية...">
         </div>
         <button class="btn btn-success" id="saveNewParentCategoryBtn" style="margin-top: 8px;">💾 إنشاء الحساب الرئيسي</button>
       </div>
@@ -1169,6 +1166,40 @@ html{scroll-behavior:smooth}body{padding-bottom:16px}
       <div style="font-size:0.95rem;color:var(--muted);font-weight:900;margin-top:8px">اختصار لوحة المفاتيح: Ctrl + K أو ⌘ + K</div>
     </div>
   </div>
+
+  <div class="modal-overlay" id="accountMoveModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 style="font-size:1.25rem; color:var(--accent); font-weight:900;">🔀 نقل أو إعادة ترتيب الحساب</h3>
+        <button class="icon-btn" id="closeMoveAccountModalBtn" style="width:40px; height:40px;">✕</button>
+      </div>
+
+      <div id="moveAccountInfo" style="background:var(--bg); border:2px solid var(--border); border-radius:10px; padding:12px; margin-bottom:12px; font-weight:900;"></div>
+
+      <div class="form-group">
+        <label>نوع العملية:</label>
+        <div class="mode-toggle-switch" style="grid-template-columns:1fr 1fr 1fr;">
+          <button type="button" class="mode-toggle-btn active" id="btnModeMove">🔀 نقل عادي</button>
+          <button type="button" class="mode-toggle-btn" id="btnModePromote">⬆️ ترقية لرئيسي</button>
+          <button type="button" class="mode-toggle-btn" id="btnModeDemote">⬇️ تنزيل لفرعي</button>
+        </div>
+      </div>
+
+      <div class="form-group" id="moveTargetGroup">
+        <label>الموقع الجديد:</label>
+        <select id="moveTargetSelect"></select>
+      </div>
+
+      <div class="form-group hidden" id="promoteMessage">
+        <div style="background:rgba(16,185,129,0.10); border:2px dashed var(--ok); border-radius:10px; padding:12px; font-weight:900; color:var(--ok);">
+          ✅ سيتم ترقية هذا العنصر ليصبح تصنيفًا رئيسيًا مستقلًا في أعلى الشجرة.
+        </div>
+      </div>
+
+      <button class="btn btn-primary" id="executeAccountMoveBtn" style="margin-top:8px;">✅ تنفيذ العملية</button>
+    </div>
+  </div>
+
   <div id="toastStack" class="toast-stack" aria-live="polite"></div>
 
   <div class="print-statement-container" id="printStatementContainer">
@@ -1257,7 +1288,7 @@ html{scroll-behavior:smooth}body{padding-bottom:16px}
 Chart.register(ChartDataLabels);
 
 const APP_STORAGE_PREFIX = 'masar_';
-const APP_SCHEMA_VERSION = 2;
+const APP_SCHEMA_VERSION = 3;
 const KNOWN_CURRENCIES = new Set(['YER', 'SAR', 'USD']);
 function getGlobalCurrency(){ const el = document.getElementById('currency'); return (el && el.value) || 'YER'; }
 const store = {
@@ -1414,23 +1445,39 @@ function safeImportBackup(parsed) {
 
 function escapeRegExp(value) { return String(value).replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); }
 
-const MAX_BUDGET_CATS = 11;
+const MAX_BUDGET_CATS = 12; // 10 بنود أساسية + بندين اختياريين كحد أقصى
 const DEFAULT_CATS = [
-  {id:'charity_gifts', name:'الصدقة والهبات', description:'الصدقات، الهبات، المساعدات، وأوجه العطاء الاختيارية.', color:'#10b981', pct:10},
-  {id:'food_home', name:'الغذاء والاحتياجات المنزلية', description:'الطعام، الشراب، المياه، الغاز، المنظفات، والاحتياجات المنزلية البسيطة.', color:'#f59e0b', pct:18},
-  {id:'housing_services', name:'السكن والخدمات', description:'الإيجار، الكهرباء، المياه، والصيانة الضرورية.', color:'#0ea5e9', pct:18},
-  {id:'health_treatment', name:'الصحة والعلاج', description:'الكشف، الأدوية، التحاليل والعلاجات الضرورية.', color:'#ef4444', pct:12},
+  {id:'charity_gifts', name:'الصدقة والهبات', description:'الصدقات، الهبات، المساعدات، وأوجه العطاء الاختيارية.', color:'#10b981', pct:9},
+  {id:'food_home', name:'الغذاء والاحتياجات المنزلية', description:'الطعام، الشراب، المياه، الغاز، المنظفات، والاحتياجات المنزلية البسيطة.', color:'#f59e0b', pct:15},
+  {id:'housing_services', name:'السكن والخدمات', description:'الإيجار، الكهرباء، المياه، والصيانة الضرورية.', color:'#0ea5e9', pct:15},
+  {id:'health_treatment', name:'الصحة والعلاج', description:'الكشف، الأدوية، التحاليل والعلاجات الضرورية.', color:'#ef4444', pct:10},
   {id:'transport', name:'المواصلات والتنقل', description:'المواصلات العامة، الوقود، وصيانة وسيلة النقل الأساسية.', color:'#8b5cf6', pct:10},
   {id:'education_comms', name:'التعليم والاتصالات', description:'الدراسة، الكتب والقرطاسية، الهاتف والإنترنت.', color:'#3b82f6', pct:10},
-  {id:'clothing_emergency', name:'الملابس والطوارئ والاحتياجات الاجتماعية', description:'الملابس والأحذية، المناسبات الضرورية، والمصروفات الطارئة.', color:'#ec4899', pct:7},
-  {id:'center', name:'المركز', description:'المبلغ المركزي أو الاحتياطي الذي لم يُخصص لبند تفصيلي بعد.', color:'#10b981', pct:10},
+  {id:'clothing_emergency', name:'الملابس والطوارئ والاحتياجات الاجتماعية', description:'الملابس والأحذية، المناسبات الضرورية، والمصروفات الطارئة.', color:'#ec4899', pct:8},
+  {id:'investment_savings', name:'الاستثمار والادخار', description:'المبالغ المخصصة للاستثمار وبناء المدخرات المستقبلية.', color:'#84cc16', pct:8},
+  {id:'center', name:'المركز', description:'المبلغ المركزي أو الاحتياطي الذي لم يُخصص لبند تفصيلي بعد.', color:'#06b6d4', pct:10},
   {id:'general', name:'عام', description:'البند الافتراضي لأي سند لا يحتاج إلى تصنيف تفصيلي.', color:'#64748b', pct:5}
 ];
 
 const DEFAULT_ACCOUNT_TREE = {
-  "الصناديق والبنوك": ["الصندوق الرئيسي", "حساب بنكي / كاش", "عهدة يد"],
-  "العملاء والمدينون": ["صالح الخطيب", "عميل عام"],
-  "الموردون والدائنون": ["مورد مواد", "التزامات عامة"]
+  "الأصول": {
+    subGroups: {
+      "الصناديق والبنوك": ["الصندوق الرئيسي", "حساب بنكي / كاش", "عهدة يد"]
+    },
+    accounts: []
+  },
+  "الذمم والعملاء": {
+    subGroups: {
+      "العملاء والمدينون": ["صالح الخطيب", "عميل عام"]
+    },
+    accounts: []
+  },
+  "الالتزامات": {
+    subGroups: {
+      "الموردون والدائنون": ["مورد مواد", "التزامات عامة"]
+    },
+    accounts: []
+  }
 };
 
 const PALETTE = ['#0ea5e9','#3b82f6','#f59e0b','#10b981','#8b5cf6','#ef4444','#06b6d4','#f97316','#84cc16','#64748b','#ec4899'];
@@ -1560,17 +1607,29 @@ function renderRemindersList() {
   list.forEach((rem, idx) => {
     const item = document.createElement('div');
     const priorityColor = rem.priority === 'حرجة جداً' ? 'var(--danger)' : (rem.priority === 'عاجلة' ? '#f97316' : (rem.priority === 'مهمة' ? 'var(--warn)' : 'var(--ok)'));
-    item.style.cssText = 'display:flex; justify-content:space-between; align-items:center; background:var(--bg); border:2px solid var(--border); border-radius:10px; padding:10px 12px; margin-bottom:6px; font-weight:900;';
+    const isPartial = rem.status === 'partial';
+    item.style.cssText = `display:flex; justify-content:space-between; align-items:center; background:var(--bg); border:2px solid ${isPartial ? 'var(--warn)' : 'var(--border)'}; border-radius:10px; padding:10px 12px; margin-bottom:6px; font-weight:900;`;
     item.innerHTML = `
       <div>
-        <b>📌 ${esc(rem.title)}</b> <span style="font-size:0.85rem; padding:2px 8px; border-radius:10px; background:${priorityColor}; color:#fff;">${esc(rem.priority || 'عادية')}</span><br>
+        <b>📌 ${esc(rem.title)}</b> <span style="font-size:0.85rem; padding:2px 8px; border-radius:10px; background:${priorityColor}; color:#fff;">${esc(rem.priority || 'عادية')}</span>
+        ${isPartial ? '<span style="font-size:0.8rem; background:rgba(245,158,11,0.15); color:var(--warn); padding:2px 6px; border-radius:8px; margin-right:6px;">⏳ قيد التنفيذ (جزئي)</span>' : ''}<br>
         <small style="color:var(--muted);">📅 ${esc(rem.date)} | ⏰ ${esc(rem.time || 'وقت غير محدد')}</small>
       </div>
-      <div style="display:flex; gap:6px;">
+      <div style="display:flex; gap:6px; align-items:center;">
+        <button class="btn btn-success complete-partial-btn" data-idx="${idx}" title="إنجاز جزئي / قيد التنفيذ" style="width:auto; margin-top:0; padding:4px 8px; font-size:0.85rem;">⏳ جزئي</button>
+        <button class="btn btn-primary complete-full-btn" data-idx="${idx}" title="إنجاز كلي" style="width:auto; margin-top:0; padding:4px 8px; font-size:0.85rem; background:var(--ok);">✅ إنجاز</button>
         <button class="del-btn edit-reminder-btn" data-idx="${idx}" style="color:var(--accent);">✏️</button>
         <button class="del-btn del-reminder-btn" data-idx="${idx}">🗑️</button>
       </div>
     `;
+    item.querySelector('.complete-full-btn').addEventListener('click', () => {
+      list.splice(idx, 1); saveReminders(list); renderRemindersList(); renderRemindersChart(); showToast('تم إنجاز المهمة بنجاح ✅', 'success');
+    });
+    item.querySelector('.complete-partial-btn').addEventListener('click', () => {
+      list[idx].status = list[idx].status === 'partial' ? 'normal' : 'partial';
+      saveReminders(list); renderRemindersList();
+      showToast(list[idx].status === 'partial' ? 'تم تعيين المهمة كـ إنجاز جزئي ⏳' : 'تم العودة للحالة العادية', 'warn');
+    });
     item.querySelector('.edit-reminder-btn').addEventListener('click', () => openReminderModal(idx));
     item.querySelector('.del-reminder-btn').addEventListener('click', () => {
       list.splice(idx, 1); saveReminders(list); renderRemindersList(); renderRemindersChart(); showToast('تم حذف التذكير', 'warn');
@@ -1611,10 +1670,10 @@ document.getElementById('saveNewReminderBtn')?.addEventListener('click', () => {
   if (!title) { alert('يرجى إدخال عنوان التذكير'); return; }
   const list = getReminders();
   if (editIdx >= 0 && list[editIdx]) {
-    list[editIdx] = { title, date, time, priority };
+    list[editIdx] = { ...list[editIdx], title, date, time, priority };
     showToast('تم تعديل التذكير بنجاح', 'success');
   } else {
-    list.push({ title, date, time, priority });
+    list.push({ title, date, time, priority, status: 'normal' });
     showToast('تمت إضافة التذكير بنجاح', 'success');
   }
   saveReminders(list);
@@ -1657,7 +1716,30 @@ function getCats(){
   if (JSON.stringify(stored) !== JSON.stringify(normalized)) store.set('cats', normalized);
   return normalized;
 }
-function getAccountTree(){ return store.get('account_tree', DEFAULT_ACCOUNT_TREE); }
+
+function getAccountTree(){
+  const stored = store.get('account_tree', DEFAULT_ACCOUNT_TREE);
+  const normalized = {};
+  Object.keys(stored).forEach(k => {
+    const val = stored[k];
+    if (Array.isArray(val)) {
+      normalized[k] = { subGroups: {}, accounts: val };
+    } else if (val && typeof val === 'object') {
+      const subGroupsNorm = {};
+      if (val.subGroups && typeof val.subGroups === 'object') {
+        Object.keys(val.subGroups).forEach(subK => {
+          subGroupsNorm[subK] = Array.isArray(val.subGroups[subK]) ? val.subGroups[subK] : [];
+        });
+      }
+      normalized[k] = {
+        subGroups: subGroupsNorm,
+        accounts: Array.isArray(val.accounts) ? val.accounts : []
+      };
+    }
+  });
+  return normalized;
+}
+
 function saveAccountTree(tree){ store.set('account_tree', tree); }
 function getAccountCeilings(){ return store.get('account_ceilings', {}); }
 function saveAccountCeilings(ceilings){ store.set('account_ceilings', ceilings); }
@@ -1974,7 +2056,15 @@ function showExitModal() { document.getElementById('exitConfirmModal').classList
 function hideExitModal() { document.getElementById('exitConfirmModal').classList.remove('show'); }
 
 document.getElementById('cancelExitAppBtn').addEventListener('click', () => { hideExitModal(); pushAppHistoryState(); });
-document.getElementById('confirmExitAppBtn').addEventListener('click', () => { allowExit = true; hideExitModal(); window.history.back(); });
+document.getElementById('confirmExitAppBtn').addEventListener('click', () => { 
+  allowExit = true; 
+  hideExitModal(); 
+  if (typeof navigator !== 'undefined' && navigator.app) {
+    navigator.app.exitApp(); 
+  } else {
+    window.close(); 
+  }
+});
 
 window.addEventListener('popstate', (e) => {
   if (allowExit) return;
@@ -1986,10 +2076,12 @@ window.addEventListener('popstate', (e) => {
   if (document.getElementById('txModal').classList.contains('show')) { document.getElementById('txModal').classList.remove('show'); pushAppHistoryState(); return; }
   if (document.getElementById('addAccountModal').classList.contains('show')) { document.getElementById('addAccountModal').classList.remove('show'); pushAppHistoryState(); return; }
   if (document.getElementById('editAccountModal').classList.contains('show')) { document.getElementById('editAccountModal').classList.remove('show'); pushAppHistoryState(); return; }
+  if (document.getElementById('accountMoveModal').classList.contains('show')) { document.getElementById('accountMoveModal').classList.remove('show'); pushAppHistoryState(); return; }
   if (document.getElementById('printPromptModal').classList.contains('show')) { document.getElementById('printPromptModal').classList.remove('show'); pushAppHistoryState(); return; }
   if (document.getElementById('categoryTransactionsModal').classList.contains('show')) { document.getElementById('categoryTransactionsModal').classList.remove('show'); pushAppHistoryState(); return; }
   if (currentActiveTab && currentActiveTab !== 'pageDashboard') { navigateToTab('pageDashboard', false); pushAppHistoryState(); return; }
-  showExitModal(); pushAppHistoryState();
+  showExitModal(); 
+  pushAppHistoryState();
 });
 
 window.addEventListener('beforeunload', (e) => {
@@ -2034,15 +2126,31 @@ document.getElementById('saveEditedAccountBtn').addEventListener('click', () => 
   const newMax = document.getElementById('editAccountMaxCeil').value, newMin = document.getElementById('editAccountMinCeil').value;
   if (!newName) { alert('يرجى إدخال اسم الحساب'); return; }
   const tree = getAccountTree();
-  let foundG = null, foundIdx = -1;
-  Object.keys(tree).forEach(g => { const idx = tree[g].indexOf(oldName); if (idx !== -1) { foundG = g; foundIdx = idx; } });
-  if (foundG !== null) {
-    if (oldName !== newName && tree[foundG].includes(newName)) { alert('الاسم موجود مسبقاً'); return; }
-    tree[foundG][foundIdx] = newName; saveAccountTree(tree);
+  let foundPath = null;
+  Object.keys(tree).forEach(mainP => {
+    const node = tree[mainP];
+    if (node.accounts && node.accounts.includes(oldName)) foundPath = { type: 'dir', mainP };
+    if (node.subGroups) {
+      Object.keys(node.subGroups).forEach(subP => {
+        if (node.subGroups[subP].includes(oldName)) foundPath = { type: 'sub', mainP, subP };
+      });
+    }
+  });
+
+  if (foundPath) {
     const ceilings = getAccountCeilings();
     if (oldName !== newName) { ceilings[newName] = ceilings[oldName] || {}; delete ceilings[oldName]; }
     ceilings[newName] = { max: newMax !== '' ? Number(newMax) : null, min: newMin !== '' ? Number(newMin) : null };
     saveAccountCeilings(ceilings);
+
+    if (foundPath.type === 'dir') {
+      const idx = tree[foundPath.mainP].accounts.indexOf(oldName);
+      tree[foundPath.mainP].accounts[idx] = newName;
+    } else {
+      const idx = tree[foundPath.mainP].subGroups[foundPath.subP].indexOf(oldName);
+      tree[foundPath.mainP].subGroups[foundPath.subP][idx] = newName;
+    }
+    saveAccountTree(tree);
     document.getElementById('editAccountModal').classList.remove('show');
     updateSearchableData(); renderChartOfAccounts();
     alert('تم التعديل بنجاح!');
@@ -2143,7 +2251,17 @@ function setupSearchableSelects() {
 
 function updateSearchableData() {
   const tree = getAccountTree(), accountItems = [];
-  Object.keys(tree).forEach(p => tree[p].forEach(sub => accountItems.push({ id: sub, text: sub, group: p })));
+  Object.keys(tree).forEach(mainP => {
+    const node = tree[mainP];
+    if (node.accounts) {
+      node.accounts.forEach(sub => accountItems.push({ id: sub, text: sub, group: mainP }));
+    }
+    if (node.subGroups) {
+      Object.keys(node.subGroups).forEach(subP => {
+        node.subGroups[subP].forEach(sub => accountItems.push({ id: sub, text: sub, group: `${mainP} > ${subP}` }));
+      });
+    }
+  });
   selDebitAcc.setItems(accountItems); selCreditAcc.setItems(accountItems);
   if (selEditDebitAcc) selEditDebitAcc.setItems(accountItems);
   if (selEditCreditAcc) selEditCreditAcc.setItems(accountItems);
@@ -2158,8 +2276,25 @@ function updateSearchableData() {
 
 function updateParentAccountSelect() {
   const tree = getAccountTree(), sel = document.getElementById('newAccountParentSelect');
-  sel.innerHTML = '';
-  Object.keys(tree).forEach(p => { const opt = document.createElement('option'); opt.value = p; opt.textContent = `📁 ${p}`; sel.appendChild(opt); });
+  const parentSelForMain = document.getElementById('newParentCategoryParentSelect');
+  sel.innerHTML = ''; parentSelForMain.innerHTML = '<option value="">-- تصنيف رئيسي مستقل (مستوى أول) --</option>';
+
+  Object.keys(tree).forEach(mainP => {
+    const optMain = document.createElement('option'); optMain.value = mainP; optMain.textContent = `📁 ${mainP}`;
+    parentSelForMain.appendChild(optMain.cloneNode(true));
+
+    const node = tree[mainP];
+    if (node.subGroups) {
+      Object.keys(node.subGroups).forEach(subP => {
+        const fullSubName = `${mainP} > ${subP}`;
+        const optSub = document.createElement('option'); optSub.value = fullSubName; optSub.textContent = `📁📁 ${mainP} ⟵ ${subP}`;
+        sel.appendChild(optSub);
+        parentSelForMain.appendChild(optSub.cloneNode(true));
+      });
+    }
+    const optDirect = document.createElement('option'); optDirect.value = mainP; optDirect.textContent = `📁 ${mainP}`;
+    sel.appendChild(optDirect);
+  });
 }
 
 function openAddAccountModal(preParent = '') {
@@ -2168,6 +2303,7 @@ function openAddAccountModal(preParent = '') {
   document.getElementById('newAccountSubNameInput').value = '';
   document.getElementById('newAccountMaxCeil').value = '';
   document.getElementById('newAccountMinCeil').value = '';
+  document.getElementById('newParentCategoryInput').value = '';
   setAccountModalSubTab('sub');
   document.getElementById('addAccountModal').classList.add('show');
 }
@@ -2187,12 +2323,23 @@ document.getElementById('openAddAccountDialogBtn').addEventListener('click', () 
 document.getElementById('closeAddAccountModalBtn').addEventListener('click', () => document.getElementById('addAccountModal').classList.remove('show'));
 
 document.getElementById('saveNewAccountTreeBtn').addEventListener('click', () => {
-  const parentName = document.getElementById('newAccountParentSelect').value, subName = document.getElementById('newAccountSubNameInput').value.trim();
+  const targetPath = document.getElementById('newAccountParentSelect').value, subName = document.getElementById('newAccountSubNameInput').value.trim();
   const maxC = document.getElementById('newAccountMaxCeil').value, minC = document.getElementById('newAccountMinCeil').value;
   if (!subName) { alert('يرجى كتابة اسم الحساب الفرعي'); return; }
   const tree = getAccountTree();
-  if (!tree[parentName]) tree[parentName] = [];
-  if (!tree[parentName].includes(subName)) { tree[parentName].push(subName); saveAccountTree(tree); }
+  
+  if (targetPath.includes('>')) {
+    const [mainP, subP] = targetPath.split('>').map(s=>s.trim());
+    if (tree[mainP] && tree[mainP].subGroups[subP]) {
+      if (!tree[mainP].subGroups[subP].includes(subName)) tree[mainP].subGroups[subP].push(subName);
+    }
+  } else {
+    if (tree[targetPath]) {
+      if (!tree[targetPath].accounts.includes(subName)) tree[targetPath].accounts.push(subName);
+    }
+  }
+  saveAccountTree(tree);
+
   const ceilings = getAccountCeilings();
   ceilings[subName] = { max: maxC !== '' ? Number(maxC) : null, min: minC !== '' ? Number(minC) : null };
   saveAccountCeilings(ceilings);
@@ -2203,10 +2350,23 @@ document.getElementById('saveNewAccountTreeBtn').addEventListener('click', () =>
 });
 
 document.getElementById('saveNewParentCategoryBtn').addEventListener('click', () => {
-  const parentName = document.getElementById('newParentCategoryInput').value.trim(), subName = document.getElementById('initialSubAccInput').value.trim();
-  if (!parentName) { alert('يرجى كتابة اسم الحساب الأساسي'); return; }
+  const parentName = document.getElementById('newParentCategoryInput').value.trim();
+  const parentOfParent = document.getElementById('newParentCategoryParentSelect').value;
+  if (!parentName) { alert('يرجى كتابة اسم الحساب الرئيسي'); return; }
   const tree = getAccountTree();
-  if (!tree[parentName]) { tree[parentName] = subName ? [subName] : []; saveAccountTree(tree); }
+
+  if (parentOfParent) {
+    if (tree[parentOfParent]) {
+      if (!tree[parentOfParent].subGroups[parentName]) {
+        tree[parentOfParent].subGroups[parentName] = [];
+      }
+    }
+  } else {
+    if (!tree[parentName]) {
+      tree[parentName] = { subGroups: {}, accounts: [] };
+    }
+  }
+  saveAccountTree(tree);
   document.getElementById('addAccountModal').classList.remove('show');
   updateSearchableData();
   if (currentActiveTab === 'pageSettings') renderChartOfAccounts();
@@ -2899,164 +3059,400 @@ document.getElementById('closeCategoryModalBtn').addEventListener('click', () =>
   document.getElementById('categoryTransactionsModal').classList.remove('show');
 });
 
-document.getElementById('statementSearchInput').addEventListener('input', (e) => { currentStatementSearchQuery = e.target.value.trim().toLowerCase(); runAccountStatement(); });
+let moveAccountCtx = null;
 
-function runAccountStatement() {
-  const { targetTxs, periodTitle } = getFilteredTransactions(), selectedAcc = selReportAccount.getValue() || 'ALL';
-  document.getElementById('statementPeriodTitle').textContent = `الفترة: ${periodTitle}`;
-  const isAll = (selectedAcc === 'ALL');
-  document.getElementById('statementHeaderTitle').textContent = isAll ? '📑 كشف أرصدة كافة الحسابات والصناديق' : `📑 كشف حساب: ${selectedAcc}`;
-  document.getElementById('singleAccountTableBox').classList.toggle('hidden', isAll);
-  document.getElementById('allAccountsSummaryBox').classList.toggle('hidden', !isAll);
-
-  if (isAll) {
-    const tree = getAccountTree(), map = {};
-    Object.keys(tree).forEach(p => tree[p].forEach(sub => map[sub] = { debit: 0, credit: 0 }));
-    let totD = 0, totC = 0;
-    targetTxs.forEach(t => {
-      const amt = Number(t.amount || 0);
-      if (t.debitAccount && map[t.debitAccount]) { map[t.debitAccount].debit += amt; totD += amt; }
-      if (t.creditAccount && map[t.creditAccount]) { map[t.creditAccount].credit += amt; totC += amt; }
-    });
-    document.getElementById('kpiAccountDebit').textContent = fmt(totD);
-    document.getElementById('kpiAccountCredit').textContent = fmt(totC);
-    document.getElementById('allTotalDebit').textContent = fmt(totD);
-    document.getElementById('allTotalCredit').textContent = fmt(totC);
-    const netB = totC - totD; document.getElementById('kpiAccountBalance').textContent = `${fmt(Math.abs(netB))} (${netB >= 0 ? 'دائن' : 'مدين'})`;
-    document.getElementById('allTotalBalance').textContent = `${fmt(Math.abs(netB))} (${netB >= 0 ? 'دائن' : 'مدين'})`;
-
-    const allBody = document.getElementById('allAccountsBody'); allBody.innerHTML = '';
-    Object.keys(tree).forEach(p => {
-      const subs = tree[p].filter(sub => !currentStatementSearchQuery || sub.toLowerCase().includes(currentStatementSearchQuery));
-      if (subs.length > 0) {
-        allBody.innerHTML += `<tr style="background:var(--bg); border-top:2px solid var(--accent);"><td colspan="4"><b>📁 التصنيف: ${esc(p)}</b></td></tr>`;
-        subs.forEach(sub => {
-          const row = map[sub] || { debit: 0, credit: 0 }, bal = row.credit - row.debit;
-          allBody.innerHTML += `<tr><td style="padding-right:20px;">↳ <span class="clickable-account-link" data-account="${esc(sub)}" style="color:var(--accent); cursor:pointer; text-decoration:underline;">👤 ${esc(sub)}</span></td><td style="color:var(--danger);">${fmt(row.debit)}</td><td style="color:var(--ok);">${fmt(row.credit)}</td><td><b>${fmt(Math.abs(bal))}</b></td></tr>`;
-        });
-      }
-    });
-    allBody.querySelectorAll('.clickable-account-link').forEach(l => l.addEventListener('click', (e) => {
-      navigateToTab('pageReports', true); toggleReportView('accounts');
-      selReportAccount.setValue(e.currentTarget.dataset.account, e.currentTarget.dataset.account); runAccountStatement();
-    }));
-  } else {
-    let totD = 0, totC = 0, tbody = document.getElementById('statementBody'); tbody.innerHTML = '';
-    let matchingTxs = targetTxs.filter(t => t.debitAccount === selectedAcc || t.creditAccount === selectedAcc);
-    if (matchingTxs.length === 0) { tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding:14px;">لا توجد حركات مطابقة</td></tr>'; }
-    else {
-      matchingTxs.forEach(t => {
-        const amt = Number(t.amount || 0), isD = (t.debitAccount === selectedAcc), dAmt = isD ? amt : 0, cAmt = !isD ? amt : 0;
-        totD += dAmt; totC += cAmt;
-        const otherAcc = isD ? (t.creditAccount || 'طرف آخر') : (t.debitAccount || 'طرف آخر');
-        
-        const rowTr = document.createElement('tr');
-        rowTr.style.cursor = 'pointer';
-        rowTr.title = 'تعديل السند مباشرة';
-        rowTr.innerHTML = `<td>${t.date}</td><td>#${t.seqNum || '-'}</td><td><b>${esc(t.type)}</b><br><small>الطرف: ${esc(otherAcc)}</small></td><td style="color:var(--danger);">${dAmt ? fmt(dAmt, t.currency) : '-'}</td><td style="color:var(--ok);">${cAmt ? fmt(cAmt, t.currency) : '-'}</td>`;
-        rowTr.addEventListener('click', () => openTxModal(t));
-        tbody.appendChild(rowTr);
+function getMoveTargets() {
+  const tree = getAccountTree();
+  const targets = [];
+  Object.keys(tree).forEach(mainP => {
+    targets.push({ value: `M::${mainP}`, label: `📁 مباشرة تحت: ${mainP}`, type: 'main', main: mainP });
+    if (tree[mainP].subGroups) {
+      Object.keys(tree[mainP].subGroups).forEach(subP => {
+        targets.push({ value: `S::${mainP}::${subP}`, label: `📂 ${mainP} › ${subP}`, type: 'sub', main: mainP, sub: subP });
       });
     }
-    const netB = totC - totD;
-    document.getElementById('kpiAccountDebit').textContent = fmt(totD);
-    document.getElementById('kpiAccountCredit').textContent = fmt(totC);
-    document.getElementById('kpiAccountBalance').textContent = `${fmt(Math.abs(netB))} (${netB >= 0 ? 'دائن' : 'مدين'})`;
-    document.getElementById('statementTotalDebit').textContent = fmt(totD);
-    document.getElementById('statementTotalCredit').textContent = fmt(totC);
-    document.getElementById('statementTotalBalance').textContent = `${fmt(Math.abs(netB))} (${netB >= 0 ? 'دائن' : 'مدين'})`;
+  });
+  return targets;
+}
+
+function openAccountMoveModal(ctx) {
+  moveAccountCtx = { ...ctx, mode: 'move' };
+
+  const loc = ctx.sub ? `${ctx.main} › ${ctx.sub}` : ctx.main;
+  document.getElementById('moveAccountInfo').innerHTML = `
+    <div style="font-size:0.9rem; color:var(--muted);">العنصر المحدد:</div>
+    <div style="font-size:1.2rem; color:var(--accent);">${esc(ctx.name)}</div>
+    <div style="font-size:0.9rem; color:var(--muted); margin-top:4px;">الموقع الحالي: <b style="color:var(--text);">${esc(loc)}</b></div>
+  `;
+
+  const btnMove = document.getElementById('btnModeMove');
+  const btnPromote = document.getElementById('btnModePromote');
+  const btnDemote = document.getElementById('btnModeDemote');
+
+  if (ctx.kind === 'main') {
+    btnMove.classList.add('hidden');
+    btnPromote.classList.add('hidden');
+    btnDemote.classList.remove('hidden');
+    setMoveMode('demote');
+  } else {
+    btnMove.classList.remove('hidden');
+    btnPromote.classList.remove('hidden');
+    btnDemote.classList.add('hidden');
+    setMoveMode('move');
+  }
+
+  document.getElementById('accountMoveModal').classList.add('show');
+}
+
+function setMoveMode(mode) {
+  if (!moveAccountCtx) return;
+  moveAccountCtx.mode = mode;
+  document.getElementById('btnModeMove').classList.toggle('active', mode === 'move');
+  document.getElementById('btnModePromote').classList.toggle('active', mode === 'promote');
+  document.getElementById('btnModeDemote').classList.toggle('active', mode === 'demote');
+
+  const targetGroup = document.getElementById('moveTargetGroup');
+  const promoteMsg = document.getElementById('promoteMessage');
+
+  if (mode === 'promote') {
+    targetGroup.classList.add('hidden');
+    promoteMsg.classList.remove('hidden');
+  } else {
+    targetGroup.classList.remove('hidden');
+    promoteMsg.classList.add('hidden');
+    populateMoveTargetOptions();
   }
 }
 
-document.getElementById('printBudgetReportBtn').addEventListener('click', () => { document.body.classList.remove('printing-statement'); window.print(); });
-document.getElementById('printStatementBtn').addEventListener('click', () => {
-  const selectedAcc = selReportAccount.getValue() || 'ALL', { targetTxs } = getFilteredTransactions();
-  preparePrintStatementTemplate(selectedAcc, targetTxs);
-  document.body.classList.add('printing-statement'); window.print();
-  setTimeout(() => document.body.classList.remove('printing-statement'), 1000);
-});
+function populateMoveTargetOptions() {
+  const ctx = moveAccountCtx;
+  if (!ctx) return;
+  const targets = getMoveTargets();
+  const sel = document.getElementById('moveTargetSelect');
+  sel.innerHTML = '<option value="">— اختر الموقع الجديد —</option>';
 
-document.getElementById('exportPngBtn').addEventListener('click', () => {
-  html2canvas(activeReportTab === 'budget' ? document.getElementById('budgetReportCard') : document.getElementById('accountStatementCard'), { scale: 2, useCORS: true }).then(canvas => {
-    const a = document.createElement('a'); a.download = `Report_${monthKey()}.png`; a.href = canvas.toDataURL('image/png'); a.click();
+  targets.forEach(t => {
+    if (ctx.kind === 'account' && t.type === 'main' && t.main === ctx.main && !ctx.sub) return;
+    if (ctx.kind === 'account' && t.type === 'sub' && t.main === ctx.main && t.sub === ctx.sub) return;
+    if (ctx.kind === 'subgroup' && t.type === 'sub' && t.main === ctx.main && t.sub === ctx.name) return;
+    if (ctx.kind === 'main' && t.type === 'main' && t.main === ctx.name) return;
+
+    const opt = document.createElement('option');
+    opt.value = t.value;
+    opt.textContent = t.label;
+    sel.appendChild(opt);
   });
-});
 
-document.getElementById('exportPdfBtn').addEventListener('click', () => {
-  html2canvas(activeReportTab === 'budget' ? document.getElementById('budgetReportCard') : document.getElementById('accountStatementCard'), { scale: 2, useCORS: true }).then(canvas => {
-    const pdf = new jspdf.jsPDF('p', 'mm', 'a4');
-    pdf.addImage(canvas.toDataURL('image/png'), 'PNG', 10, 10, 190, (canvas.height * 190) / canvas.width);
-    pdf.save(`Report_${monthKey()}.pdf`);
-  });
-});
+  const optNew = document.createElement('option');
+  optNew.value = '__NEW__';
+  optNew.textContent = '➕ إنشاء تصنيف فرعي جديد هنا...';
+  sel.appendChild(optNew);
+}
 
-document.getElementById('saveHeaderSettingsBtn').addEventListener('click', () => {
-  saveHeaderConfig({ name: document.getElementById('settingOrgName').value.trim(), details: document.getElementById('settingOrgDetails').value.trim(), show: document.getElementById('settingShowHeader').checked });
-  alert('تم حفظ الترويسة بنجاح!');
-});
+function removeFromTree(tree, ctx) {
+  if (ctx.kind === 'subgroup') {
+    if (tree[ctx.main]?.subGroups?.[ctx.name]) {
+      delete tree[ctx.main].subGroups[ctx.name];
+    }
+    return;
+  }
+  if (ctx.sub) {
+    const arr = tree[ctx.main]?.subGroups?.[ctx.sub];
+    if (arr) {
+      const i = arr.indexOf(ctx.name);
+      if (i > -1) arr.splice(i, 1);
+    }
+  } else {
+    const arr = tree[ctx.main]?.accounts;
+    if (arr) {
+      const i = arr.indexOf(ctx.name);
+      if (i > -1) arr.splice(i, 1);
+    }
+  }
+}
 
-function loadHeaderSettingsUI() {
-  const cfg = getHeaderConfig();
-  document.getElementById('settingOrgName').value = cfg.name || '';
-  document.getElementById('settingOrgDetails').value = cfg.details || '';
-  document.getElementById('settingShowHeader').checked = !!cfg.show;
+function executeAccountMove() {
+  const ctx = moveAccountCtx;
+  if (!ctx) return;
+  const tree = getAccountTree();
+
+  try {
+    if (ctx.mode === 'promote') {
+      if (tree[ctx.name]) { alert('يوجد تصنيف رئيسي بنفس الاسم!'); return; }
+      removeFromTree(tree, ctx);
+      tree[ctx.name] = { subGroups: {}, accounts: [] };
+      showToast(`تم ترقية "${ctx.name}" إلى تصنيف رئيسي مستقل ✅`, 'success');
+    }
+    else if (ctx.mode === 'demote') {
+      const target = document.getElementById('moveTargetSelect').value;
+      if (!target || target === '__NEW__') { alert('اختر الموقع الجديد للتنزيل'); return; }
+
+      const mainNode = tree[ctx.name];
+      const flatChildren = [
+        ...(mainNode.accounts || []),
+        ...Object.values(mainNode.subGroups || {}).flat()
+      ];
+
+      let targetMain, targetSub = null;
+      if (target.startsWith('M::')) {
+        targetMain = target.substring(3);
+      } else if (target.startsWith('S::')) {
+        const parts = target.split('::');
+        targetMain = parts[1]; targetSub = parts[2];
+      }
+      if (targetMain === ctx.name) { alert('لا يمكن النقل لنفس المكان'); return; }
+
+      if (targetSub) {
+        if (!tree[targetMain].subGroups[targetSub]) tree[targetMain].subGroups[targetSub] = [];
+        tree[targetMain].subGroups[targetSub].push(ctx.name);
+      } else {
+        tree[targetMain].accounts.push(ctx.name);
+      }
+      if (flatChildren.length) {
+        tree[targetMain].subGroups[`${ctx.name} (فروع سابقة)`] = flatChildren;
+      }
+      delete tree[ctx.name];
+      showToast(`تم تنزيل "${ctx.name}" كحساب فرعي ✅`, 'success');
+    }
+    else {
+      const target = document.getElementById('moveTargetSelect').value;
+      if (!target) { alert('اختر الموقع الجديد'); return; }
+
+      let tMain, tSub = null;
+      if (target === '__NEW__') {
+        const newName = prompt('اسم التصنيف الفرعي الجديد:');
+        if (!newName || !newName.trim()) return;
+        tMain = ctx.main;
+        tSub = newName.trim();
+        if (!tree[tMain].subGroups[tSub]) tree[tMain].subGroups[tSub] = [];
+      } else if (target.startsWith('M::')) {
+        tMain = target.substring(3);
+      } else if (target.startsWith('S::')) {
+        const parts = target.split('::');
+        tMain = parts[1]; tSub = parts[2];
+      }
+
+      if (ctx.kind === 'subgroup') {
+        const content = tree[ctx.main].subGroups[ctx.name] || [];
+        delete tree[ctx.main].subGroups[ctx.name];
+        if (tSub) {
+          if (!tree[tMain].subGroups[tSub]) tree[tMain].subGroups[tSub] = [];
+          tree[tMain].subGroups[tSub].push(...content);
+        } else {
+          if (!tree[tMain].subGroups[ctx.name]) tree[tMain].subGroups[ctx.name] = [];
+          tree[tMain].subGroups[ctx.name].push(...content);
+        }
+      } else {
+        removeFromTree(tree, ctx);
+        if (tSub) {
+          if (!tree[tMain].subGroups[tSub]) tree[tMain].subGroups[tSub] = [];
+          tree[tMain].subGroups[tSub].push(ctx.name);
+        } else {
+          tree[tMain].accounts.push(ctx.name);
+        }
+      }
+      showToast('تم نقل الحساب بنجاح ✅', 'success');
+    }
+
+    saveAccountTree(tree);
+    updateSearchableData();
+    renderChartOfAccounts();
+    document.getElementById('accountMoveModal').classList.remove('show');
+  } catch (e) {
+    alert('حدث خطأ: ' + e.message);
+  }
 }
 
 function renderChartOfAccounts() {
-  const tree = getAccountTree(), container = document.getElementById('chartOfAccountsView'); container.innerHTML = '';
-  Object.keys(tree).forEach(p => {
-    const header = document.createElement('div'); header.className = 'acc-accordion-header';
-    header.innerHTML = `<span>📁 ${esc(p)} (${tree[p].length})</span><div style="display:flex; gap:6px;"><button class="del-btn edit-parent" data-parent="${esc(p)}" style="color:var(--accent);" title="تعديل اسم الحساب الرئيسي">✏️</button><button class="del-btn del-parent" data-parent="${esc(p)}" title="حذف الحساب الرئيسي">❌</button></div>`;
-    const body = document.createElement('div'); body.className = 'acc-accordion-body';
-    body.innerHTML = tree[p].map((sub, i) => `<div style="display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px dashed var(--border);"><span>↳ 👤 ${esc(sub)}</span><div><button class="del-btn edit-sub" data-parent="${esc(p)}" data-name="${esc(sub)}" style="color:var(--accent);">✏️</button><button class="del-btn del-sub" data-parent="${esc(p)}" data-idx="${i}">🗑️</button></div></div>`).join('') || '<div style="color:var(--muted);">لا توجد حسابات</div>';
+  const tree = getAccountTree();
+  const container = document.getElementById('chartOfAccountsView');
+  container.innerHTML = '';
+
+  Object.keys(tree).forEach(mainP => {
+    const node = tree[mainP];
+    const header = document.createElement('div');
+    header.className = 'acc-accordion-header';
+    header.innerHTML = `
+      <span>📁 التصنيف الرئيسي: ${esc(mainP)}</span>
+      <div style="display:flex; gap:6px;">
+        <button class="del-btn act-edit-parent" data-parent="${esc(mainP)}" style="color:var(--accent);" title="تعديل الاسم">✏️</button>
+        <button class="del-btn act-move-parent" data-parent="${esc(mainP)}" style="color:var(--warn);" title="تنزيل/نقل التبعية">⬇️</button>
+        <button class="del-btn act-del-parent" data-parent="${esc(mainP)}" title="حذف">❌</button>
+      </div>`;
+
+    const body = document.createElement('div');
+    body.className = 'acc-accordion-body';
+    let bodyHtml = '';
+
+    if (node.accounts && node.accounts.length) {
+      bodyHtml += node.accounts.map((sub, i) => `
+        <div style="display:flex; justify-content:space-between; align-items:center; padding:8px 0; border-bottom:1px dashed var(--border);">
+          <span>↳ 👤 ${esc(sub)}</span>
+          <div style="display:flex; gap:4px;">
+            <button class="del-btn act-promote" data-name="${esc(sub)}" data-main="${esc(mainP)}" data-sub="" style="color:var(--ok);" title="ترقية لتصبح رئيسيًا">⬆️</button>
+            <button class="del-btn act-move" data-name="${esc(sub)}" data-main="${esc(mainP)}" data-sub="" style="color:var(--warn);" title="نقل لموقع آخر">🔀</button>
+            <button class="del-btn act-edit" data-name="${esc(sub)}" data-main="${esc(mainP)}" data-sub="" style="color:var(--accent);" title="تعديل">✏️</button>
+            <button class="del-btn act-del-sub" data-main="${esc(mainP)}" data-sub="" data-idx="${i}" title="حذف">🗑️</button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    if (node.subGroups) {
+      Object.keys(node.subGroups).forEach(subP => {
+        bodyHtml += `
+          <div style="background:rgba(2,132,199,0.08); padding:8px; border-radius:8px; margin:8px 0 6px; font-weight:900; display:flex; justify-content:space-between; align-items:center;">
+            <span>📂 ${esc(subP)}</span>
+            <div style="display:flex; gap:4px;">
+              <button class="del-btn act-promote-sg" data-sg="${esc(subP)}" data-main="${esc(mainP)}" style="color:var(--ok);" title="ترقية المجموعة لتصبح رئيسيًا">⬆️</button>
+              <button class="del-btn act-move-sg" data-sg="${esc(subP)}" data-main="${esc(mainP)}" style="color:var(--warn);" title="نقل المجموعة">🔀</button>
+              <button class="del-btn act-edit-sg" data-main="${esc(mainP)}" data-sg="${esc(subP)}" style="color:var(--accent);" title="تعديل الاسم">✏️</button>
+              <button class="del-btn act-del-sg" data-main="${esc(mainP)}" data-sg="${esc(subP)}" title="حذف المجموعة">❌</button>
+            </div>
+          </div>`;
+        (node.subGroups[subP] || []).forEach((sub, i) => {
+          bodyHtml += `
+            <div style="display:flex; justify-content:space-between; align-items:center; padding:8px 0 8px 20px; border-bottom:1px dashed var(--border);">
+              <span>↳↳ 👤 ${esc(sub)}</span>
+              <div style="display:flex; gap:4px;">
+                <button class="del-btn act-promote" data-name="${esc(sub)}" data-main="${esc(mainP)}" data-sub="${esc(subP)}" style="color:var(--ok);" title="ترقية لرئيسي">⬆️</button>
+                <button class="del-btn act-move" data-name="${esc(sub)}" data-main="${esc(mainP)}" data-sub="${esc(subP)}" style="color:var(--warn);" title="نقل">🔀</button>
+                <button class="del-btn act-edit" data-name="${esc(sub)}" data-main="${esc(mainP)}" data-sub="${esc(subP)}" style="color:var(--accent);" title="تعديل">✏️</button>
+                <button class="del-btn act-del-sub" data-main="${esc(mainP)}" data-sub="${esc(subP)}" data-idx="${i}" title="حذف">🗑️</button>
+              </div>
+            </div>`;
+        });
+      });
+    }
+
+    if (!bodyHtml) bodyHtml = '<div style="color:var(--muted);">لا توجد حسابات فرعية</div>';
+    body.innerHTML = bodyHtml;
+
     header.addEventListener('click', (e) => { if (e.target.closest('button')) return; body.classList.toggle('open'); });
-    container.appendChild(header); container.appendChild(body);
+    container.appendChild(header);
+    container.appendChild(body);
   });
 
-  container.querySelectorAll('.edit-parent').forEach(b => b.addEventListener('click', (e) => {
+  attachChartOfAccountsListeners(container);
+}
+
+function attachChartOfAccountsListeners(container) {
+  container.querySelectorAll('.act-edit-parent').forEach(b => b.addEventListener('click', (e) => {
     e.stopPropagation();
     const oldName = e.currentTarget.dataset.parent;
-    const newName = prompt('أدخل الاسم الجديد للحساب الرئيسي:', oldName);
-    if (!newName || !newName.trim()) return;
+    const newName = prompt('الاسم الجديد للتصنيف الرئيسي:', oldName);
+    if (!newName || !newName.trim() || newName.trim() === oldName) return;
     const trimmed = newName.trim();
     const tree = getAccountTree();
-    if (trimmed !== oldName && tree[trimmed]) {
-      alert('اسم الحساب الرئيسي موجود مسبقاً!');
-      return;
-    }
+    if (tree[trimmed]) { alert('الاسم مستخدم مسبقًا!'); return; }
     const newTree = {};
-    Object.keys(tree).forEach(k => {
-      if (k === oldName) {
-        newTree[trimmed] = tree[oldName];
-      } else {
-        newTree[k] = tree[k];
-      }
-    });
-    saveAccountTree(newTree);
-    updateSearchableData();
-    renderChartOfAccounts();
-    showToast('تم تعديل اسم الحساب الرئيسي بنجاح', 'success');
+    Object.keys(tree).forEach(k => { newTree[k === oldName ? trimmed : k] = tree[k]; });
+    saveAccountTree(newTree); updateSearchableData(); renderChartOfAccounts();
+    showToast('تم تعديل الاسم بنجاح ✅', 'success');
   }));
 
-  container.querySelectorAll('.del-parent').forEach(b => b.addEventListener('click', (e) => {
+  container.querySelectorAll('.act-move-parent').forEach(b => b.addEventListener('click', (e) => {
+    e.stopPropagation();
+    const name = e.currentTarget.dataset.parent;
+    openAccountMoveModal({ name, main: name, sub: '', kind: 'main' });
+  }));
+
+  container.querySelectorAll('.act-del-parent').forEach(b => b.addEventListener('click', (e) => {
     e.stopPropagation();
     const p = e.currentTarget.dataset.parent;
+    if (!confirm(`حذف التصنيف الرئيسي "${p}" مع كل فروعه؟`)) return;
     const tree = getAccountTree();
-    if (confirm(`هل أنت متأكد من حذف الحساب الرئيسي "${p}" بكافة حساباته الفرعية؟`)) {
-      delete tree[p];
-      saveAccountTree(tree);
-      renderChartOfAccounts();
-      updateSearchableData();
-      showToast('تم حذف الحساب الرئيسي', 'warn');
-    }
+    delete tree[p];
+    saveAccountTree(tree); renderChartOfAccounts(); updateSearchableData();
+    showToast('تم الحذف', 'warn');
   }));
 
-  container.querySelectorAll('.edit-sub').forEach(b => b.addEventListener('click', (e) => { e.stopPropagation(); openEditAccountModal(e.currentTarget.dataset.parent, e.currentTarget.dataset.name); }));
-  container.querySelectorAll('.del-sub').forEach(b => b.addEventListener('click', (e) => {
-    e.stopPropagation(); const p = e.currentTarget.dataset.parent, idx = Number(e.currentTarget.dataset.idx), sub = tree[p][idx];
-    if (confirm(`حذف ${sub}؟`)) { tree[p].splice(idx, 1); saveAccountTree(tree); renderChartOfAccounts(); updateSearchableData(); }
+  container.querySelectorAll('.act-promote').forEach(b => b.addEventListener('click', (e) => {
+    e.stopPropagation();
+    const name = e.currentTarget.dataset.name;
+    const main = e.currentTarget.dataset.main;
+    const sub = e.currentTarget.dataset.sub;
+    openAccountMoveModal({ name, main, sub, kind: 'account' });
+  }));
+
+  container.querySelectorAll('.act-move').forEach(b => b.addEventListener('click', (e) => {
+    e.stopPropagation();
+    const name = e.currentTarget.dataset.name;
+    const main = e.currentTarget.dataset.main;
+    const sub = e.currentTarget.dataset.sub;
+    openAccountMoveModal({ name, main, sub, kind: 'account' });
+  }));
+
+  container.querySelectorAll('.act-edit').forEach(b => b.addEventListener('click', (e) => {
+    e.stopPropagation();
+    const name = e.currentTarget.dataset.name;
+    const main = e.currentTarget.dataset.main;
+    const sub = e.currentTarget.dataset.sub;
+    openEditAccountModal(sub ? `${main} > ${sub}` : main, name);
+  }));
+
+  container.querySelectorAll('.act-del-sub').forEach(b => b.addEventListener('click', (e) => {
+    e.stopPropagation();
+    const main = e.currentTarget.dataset.main;
+    const sub = e.currentTarget.dataset.sub;
+    const idx = Number(e.currentTarget.dataset.idx);
+    const tree = getAccountTree();
+    const arr = sub ? tree[main].subGroups[sub] : tree[main].accounts;
+    const accName = arr[idx];
+    if (!confirm(`حذف الحساب "${accName}"؟`)) return;
+    arr.splice(idx, 1);
+    saveAccountTree(tree); renderChartOfAccounts(); updateSearchableData();
+    showToast('تم حذف الحساب', 'warn');
+  }));
+
+  container.querySelectorAll('.act-promote-sg').forEach(b => b.addEventListener('click', (e) => {
+    e.stopPropagation();
+    const name = e.currentTarget.dataset.sg;
+    const main = e.currentTarget.dataset.main;
+    openAccountMoveModal({ name, main, sub: '', kind: 'subgroup' });
+  }));
+
+  container.querySelectorAll('.act-move-sg').forEach(b => b.addEventListener('click', (e) => {
+    e.stopPropagation();
+    const name = e.currentTarget.dataset.sg;
+    const main = e.currentTarget.dataset.main;
+    openAccountMoveModal({ name, main, sub: '', kind: 'subgroup' });
+  }));
+
+  container.querySelectorAll('.act-edit-sg').forEach(b => b.addEventListener('click', (e) => {
+    e.stopPropagation();
+    const main = e.currentTarget.dataset.main;
+    const oldSub = e.currentTarget.dataset.sg;
+    const newSub = prompt('الاسم الجديد للتصنيف الفرعي:', oldSub);
+    if (!newSub || !newSub.trim() || newSub.trim() === oldSub) return;
+    const tree = getAccountTree();
+    const trimmed = newSub.trim();
+    if (tree[main].subGroups[trimmed]) { alert('الاسم مستخدم!'); return; }
+    tree[main].subGroups[trimmed] = tree[main].subGroups[oldSub];
+    delete tree[main].subGroups[oldSub];
+    saveAccountTree(tree); renderChartOfAccounts(); updateSearchableData();
+    showToast('تم التعديل بنجاح ✅', 'success');
+  }));
+
+  container.querySelectorAll('.act-del-sg').forEach(b => b.addEventListener('click', (e) => {
+    e.stopPropagation();
+    const main = e.currentTarget.dataset.main;
+    const sub = e.currentTarget.dataset.sg;
+    if (!confirm(`حذف التصنيف الفرعي "${sub}" وكل حساباته؟`)) return;
+    const tree = getAccountTree();
+    delete tree[main].subGroups[sub];
+    saveAccountTree(tree); renderChartOfAccounts(); updateSearchableData();
+    showToast('تم الحذف', 'warn');
   }));
 }
+
+document.getElementById('closeMoveAccountModalBtn')?.addEventListener('click', () => {
+  document.getElementById('accountMoveModal').classList.remove('show');
+});
+document.getElementById('btnModeMove')?.addEventListener('click', () => setMoveMode('move'));
+document.getElementById('btnModePromote')?.addEventListener('click', () => setMoveMode('promote'));
+document.getElementById('btnModeDemote')?.addEventListener('click', () => setMoveMode('demote'));
+document.getElementById('executeAccountMoveBtn')?.addEventListener('click', executeAccountMove);
 
 function renderCategoryRows() {
   const box = document.getElementById('pctRows'); box.innerHTML = '';
@@ -3066,7 +3462,7 @@ function renderCategoryRows() {
     row.innerHTML = `<span class="cat-color" style="background:${c.color}; width:16px; height:16px; border-radius:4px;"></span><input type="text" value="${esc(c.name)}" data-idx="${i}" class="c-name" ${isCore ? 'readonly title="بند أساسي ثابت"' : ''} style="flex:1; padding:8px;${isCore ? 'background:var(--bg);color:var(--muted);' : ''}"><input type="number" value="${c.pct}" data-idx="${i}" class="c-pct" style="width:70px; text-align:center; padding:8px;"><span style="font-weight:900;">%</span><button class="del-btn c-del" data-idx="${i}">🗑️</button>`;
     row.querySelector('.c-name').addEventListener('input', (e) => draftCats[i].name = e.target.value);
     row.querySelector('.c-pct').addEventListener('input', (e) => { draftCats[i].pct = parseFloat(e.target.value) || 0; updatePctSum(); });
-    row.querySelector('.c-del').addEventListener('click', () => { if (DEFAULT_CATS.some(base => base.id === draftCats[i].id)) { alert('البنود الأساسية التسعة لا تُحذف، ويمكن تعديل نسبتها فقط.'); return; } if (draftCats.length <= 1) { alert('يجب الإبقاء على بند واحد'); return; } draftCats.splice(i, 1); renderCategoryRows(); updatePctSum(); });
+    row.querySelector('.c-del').addEventListener('click', () => { if (DEFAULT_CATS.some(base => base.id === draftCats[i].id)) { alert('البنود الأساسية العشرة لا تُحذف، ويمكن تعديل نسبتها فقط.'); return; } if (draftCats.length <= 1) { alert('يجب الإبقاء على بند واحد'); return; } draftCats.splice(i, 1); renderCategoryRows(); updatePctSum(); });
     box.appendChild(row);
   });
   updatePctSum();
@@ -3078,7 +3474,7 @@ function updatePctSum() {
 }
 
 document.getElementById('addCatBtn').addEventListener('click', () => {
-  if (draftCats.length >= MAX_BUDGET_CATS) { alert('لا يمكن إضافة أكثر من 11 بندًا للميزانية: 9 أساسية وبندان اختياريان.'); return; }
+  if (draftCats.length >= MAX_BUDGET_CATS) { alert('لا يمكن إضافة أكثر من 12 بندًا للميزانية: 10 أساسية وبندان اختياريان.'); return; }
   draftCats.push({ id: 'c_' + Date.now(), name: 'بند اختياري', description: 'بند إضافي يحدده المستخدم.', color: PALETTE[draftCats.length % PALETTE.length], pct: 0 });
   renderCategoryRows();
 });

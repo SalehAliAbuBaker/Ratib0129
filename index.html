@@ -30,11 +30,11 @@
 }
 *{box-sizing:border-box; margin:0; padding:0; -webkit-tap-highlight-color:transparent}
 html, body { overflow-x: hidden; width: 100%; height: 100%; }
-body{ font-family:'Tajawal',system-ui,sans-serif; background:var(--bg); color:var(--text); min-height:100vh; transition:background .3s, color .3s; padding-bottom:50px; font-size:18px; user-select: none; }
-.wrap{max-width:560px; margin:0 auto; padding:16px 14px; width:100%; min-height: 100vh;}
+body{ font-family:'Tajawal',system-ui,sans-serif; background:var(--bg); color:var(--text); min-height:100vh; transition:background .3s, color .3s; padding-bottom:50px; font-size:21px; user-select: none; }
+.wrap{max-width:620px; margin:0 auto; padding:16px 14px; width:100%; min-height: 100vh;}
 header{display:flex; justify-content:space-between; align-items:center; margin-bottom:14px}
-.logo{font-size:1.35rem; font-weight:900; display:flex; align-items:center; gap:8px; color:var(--accent)}
-.icon-btn{ background:var(--card); border:2px solid var(--border); color:var(--text); width:46px; height:46px; border-radius:12px; cursor:pointer; font-size:1.3rem; box-shadow:var(--shadow); display:flex; align-items:center; justify-content:center; transition: transform 0.2s, background 0.2s; flex-shrink:0;}
+.logo{font-size:1.55rem; font-weight:900; display:flex; align-items:center; gap:8px; color:var(--accent)}
+.icon-btn{ background:var(--card); border:2px solid var(--border); color:var(--text); width:48px; height:48px; border-radius:12px; cursor:pointer; font-size:1.4rem; box-shadow:var(--shadow); display:flex; align-items:center; justify-content:center; transition: transform 0.2s, background 0.2s; flex-shrink:0;}
 .icon-btn:active { transform: scale(0.9); }
 .header-actions { display:flex; gap:10px; }
 
@@ -50,7 +50,7 @@ header{display:flex; justify-content:space-between; align-items:center; margin-b
   border: 2.5px solid var(--accent);
   color: var(--accent);
   font-weight: 900;
-  font-size: 1.15rem;
+  font-size: 1.25rem;
   padding: 14px 16px;
   border-radius: 12px;
   cursor: pointer;
@@ -74,7 +74,7 @@ header{display:flex; justify-content:space-between; align-items:center; margin-b
   padding: 22px 10px;
   font-family: inherit;
   font-weight: 900;
-  font-size: 1.15rem;
+  font-size: 1.25rem;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -86,50 +86,53 @@ header{display:flex; justify-content:space-between; align-items:center; margin-b
 }
 .main-menu-btn:active { transform: scale(0.96); }
 .main-menu-btn:hover { border-color: var(--accent); color: var(--accent); }
-.main-menu-icon { font-size: 2.3rem; line-height: 1; }
+.main-menu-icon { font-size: 2.5rem; line-height: 1; }
 
-.mode-toggle-btn { border: none; background: transparent; font-family: inherit; font-size: 1rem; font-weight: 900; color: var(--muted); padding: 8px; border-radius: 8px; cursor: pointer; }
+.mode-toggle-btn { border: none; background: transparent; font-family: inherit; font-size: 1.15rem; font-weight: 900; color: var(--muted); padding: 8px 12px; border-radius: 8px; cursor: pointer; }
 .mode-toggle-btn.active { background: var(--accent); color: #fff; }
 
 .report-type-switch { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 14px; background: var(--bg); padding: 6px; border-radius: 12px; border: 2px solid var(--border); }
-.rpt-btn { border: none; background: transparent; color: var(--muted); font-family: inherit; font-weight: 900; font-size: 1.05rem; padding: 12px 8px; border-radius: 10px; cursor: pointer; text-align: center; }
+.rpt-btn { border: none; background: transparent; color: var(--muted); font-family: inherit; font-weight: 900; font-size: 1.2rem; padding: 12px 8px; border-radius: 10px; cursor: pointer; text-align: center; }
 .rpt-btn.active { background: var(--accent); color: #fff; }
 
 .card{ background:var(--card); border:2px solid var(--border); border-radius:var(--radius); box-shadow:var(--shadow); padding:18px; margin-bottom:14px; position:relative; width: 100%; }
-h2{font-size:1.35rem; font-weight:900; margin-bottom:12px; display:flex; align-items:center; justify-content:space-between; gap:8px;}
-label{font-size:1.05rem; color:var(--muted); display:block; margin-bottom:4px; font-weight:900}
+h2{font-size:1.5rem; font-weight:900; margin-bottom:12px; display:flex; align-items:center; justify-content:space-between; gap:8px;}
+label{font-size:1.2rem; color:var(--muted); display:block; margin-bottom:4px; font-weight:900}
 .form-group{margin-bottom: 14px; width: 100%; position: relative;}
 
-input[type=number], input[type=text], input[type=password], input[type=date], input[type=search], input[type=time]{ width: 100%; background:var(--bg); border:2px solid var(--border); color:var(--text); border-radius:10px; padding:12px 14px; font-size:1.1rem; font-weight:900; font-family:inherit; outline:none; user-select: text; }
+input[type=number], input[type=text], input[type=password], input[type=date], input[type=search], input[type=time]{ width: 100%; background:var(--bg); border:2px solid var(--border); color:var(--text); border-radius:10px; padding:14px 14px; font-size:1.25rem; font-weight:900; font-family:inherit; outline:none; user-select: text; }
 input:focus{border-color:var(--accent)}
-select{ width: 100%; background:var(--bg); border:2px solid var(--border); color:var(--text); border-radius:10px; padding:0 10px; font-size:1.1rem; font-weight:900; font-family:inherit; outline:none; height: 50px; }
+select{ width: 100%; background:var(--bg); border:2px solid var(--border); color:var(--text); border-radius:10px; padding:0 10px; font-size:1.25rem; font-weight:900; font-family:inherit; outline:none; height: 54px; }
 optgroup { font-weight: 900; color: var(--accent); background: var(--card); }
 option { color: var(--text); font-weight: 800; }
 
 .searchable-select-wrap { position: relative; width: 100%; }
-.searchable-input { width: 100%; background: var(--bg); border: 2px solid var(--border); color: var(--text); border-radius: 10px; padding: 12px 38px 12px 14px; font-size: 1.1rem; font-weight: 900; font-family: inherit; outline: none; cursor: pointer; }
+.searchable-input { width: 100%; background: var(--bg); border: 2px solid var(--border); color: var(--text); border-radius: 10px; padding: 14px 38px 14px 14px; font-size: 1.25rem; font-weight: 900; font-family: inherit; outline: none; cursor: pointer; }
 .searchable-input:focus { border-color: var(--accent); }
-.account-search-bar .searchable-input.has-selection{border-color:var(--ok);background:rgba(16,185,129,.08);padding-left:42px}.search-clear-btn{position:absolute;left:38px;top:50%;transform:translateY(-50%);z-index:2;border:0;background:var(--danger);color:#fff;width:24px;height:24px;border-radius:50%;font:900 1rem/1 Tajawal;cursor:pointer}.account-search-bar .searchable-arrow{left:12px;right:auto}
+.account-search-bar .searchable-input.has-selection{border-color:var(--ok);background:rgba(16,185,129,.08);padding-left:42px}
+.search-clear-btn{position:absolute;left:38px;top:50%;transform:translateY(-50%);z-index:2;border:0;background:var(--danger);color:#fff;width:28px;height:28px;border-radius:50%;font:900 1.1rem/1 Tajawal;cursor:pointer}
+.account-search-bar .searchable-arrow{left:12px;right:auto}
 
-.searchable-arrow { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--muted); font-size: 1rem; pointer-events: none; }
-.searchable-dropdown { position: absolute; top: calc(100% + 6px); right: 0; left: 0; background: var(--card); border: 2px solid var(--border); border-radius: 10px; box-shadow: 0 10px 25px rgba(0,0,0,0.15); max-height: 220px; overflow-y: auto; z-index: 5000; display: none; }
+.searchable-arrow { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--muted); font-size: 1.15rem; pointer-events: none; }
+.searchable-dropdown { position: absolute; top: calc(100% + 6px); right: 0; left: 0; background: var(--card); border: 2px solid var(--border); border-radius: 10px; box-shadow: 0 10px 25px rgba(0,0,0,0.15); max-height: 250px; overflow-y: auto; z-index: 5000; display: none; }
 .searchable-dropdown.open { display: block; }
-.searchable-item { padding: 12px 14px; cursor: pointer; font-weight: 900; font-size: 1.1rem; border-bottom: 1.5px solid var(--border); }
+.searchable-item { padding: 14px 16px; cursor: pointer; font-weight: 900; font-size: 1.25rem; border-bottom: 1.5px solid var(--border); }
 .searchable-item:last-child { border-bottom: none; }
 .searchable-item:hover, .searchable-item.active { background: rgba(2,132,199,0.12); color: var(--accent); }
-.search-results-count{padding:8px 12px;color:var(--accent);background:var(--bg);font-size:.9rem;font-weight:900;border-bottom:2px solid var(--accent);position:sticky;top:0;z-index:1}.searchable-group-label { padding: 8px 12px; font-size: 1rem; font-weight: 900; color: var(--accent); background: var(--bg); border-bottom: 1.5px solid var(--border); }
+.search-results-count{padding:10px 14px;color:var(--accent);background:var(--bg);font-size:1.05rem;font-weight:900;border-bottom:2px solid var(--accent);position:sticky;top:0;z-index:1}
+.searchable-group-label { padding: 10px 14px; font-size: 1.15rem; font-weight: 900; color: var(--accent); background: var(--bg); border-bottom: 1.5px solid var(--border); }
 
 .search-box { position: relative; display: flex; align-items: center; margin-bottom: 12px; }
-.search-box input { padding-right: 44px; background: var(--card); border-color: var(--accent); }
-.search-icon { position: absolute; right: 14px; font-size: 1.3rem; color: var(--muted); pointer-events: none; }
+.search-box input { padding-right: 48px; background: var(--card); border-color: var(--accent); }
+.search-icon { position: absolute; right: 14px; font-size: 1.45rem; color: var(--muted); pointer-events: none; }
 
-.btn{ width:100%; border:none; border-radius:10px; padding:14px; font-size:1.15rem; font-weight:900; font-family:inherit; cursor:pointer; margin-top:8px; transition: transform 0.15s, opacity 0.2s; text-align:center;}
+.btn{ width:100%; border:none; border-radius:10px; padding:15px; font-size:1.25rem; font-weight:900; font-family:inherit; cursor:pointer; margin-top:8px; transition: transform 0.15s, opacity 0.2s; text-align:center;}
 .btn:active{ transform: scale(0.97); }
 .btn-primary{background:var(--accent); color:#fff;}
 .btn-ghost{background:var(--bg); color:var(--text); border:2px solid var(--border)}
 .btn-success{background:var(--ok); color:#fff;}
 .btn-danger{background:var(--danger); color:#fff;}
-.chart-box{position:relative; height:260px; margin:10px 0; width:100%;}
+.chart-box{position:relative; height:270px; margin:10px 0; width:100%;}
 
 body.privacy-active .hide-in-privacy { filter: blur(6px); user-select: none; opacity: 0.8; pointer-events: none; }
 body.privacy-active .icon-btn#privacyBtn { background: var(--accent); color: #fff; }
@@ -138,59 +141,62 @@ body.privacy-active .icon-btn#privacyBtn { background: var(--accent); color: #ff
 .cat-card.muted { opacity: 0.4; border-style: dashed; }
 .cat-header { display: flex; align-items: center; justify-content: space-between; }
 .cat-info { display: flex; align-items: center; gap: 8px; flex: 1; overflow: hidden;}
-.cat-color { width: 16px; height: 16px; border-radius: 4px; flex-shrink: 0; }
-.cat-name { font-weight: 900; font-size: 1.1rem; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;}
-.cat-amount { font-weight: 900; font-size: 1.15rem; }
-.toggle-vis-btn { background:none; border:none; font-size:1.3rem; cursor:pointer; }
+.cat-color { width: 18px; height: 18px; border-radius: 4px; flex-shrink: 0; }
+.cat-name { font-weight: 900; font-size: 1.25rem; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;}
+.cat-amount { font-weight: 900; font-size: 1.25rem; }
+.toggle-vis-btn { background:none; border:none; font-size:1.4rem; cursor:pointer; }
 
 .voucher-split-box { background: var(--bg); border: 2px dashed var(--border); border-radius: 12px; padding: 14px; margin-top: 10px; margin-bottom: 12px; transition: border-color 0.3s ease, box-shadow 0.3s ease; }
 .voucher-split-box.balanced { border-color: var(--ok); box-shadow: 0 0 15px rgba(16,185,129,0.25); }
 .voucher-cat-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 10px 0; border-bottom: 1.5px solid var(--border); }
 .voucher-cat-row:last-child { border-bottom: none; }
 .voucher-cat-row.disabled { opacity: 0.35; }
-.cat-help-btn{border:0;background:none;color:var(--text);font:900 1.02rem Tajawal;cursor:pointer;text-align:right}.cat-help-btn small{color:var(--accent);font-size:.85rem}.voucher-cat-name { display: flex; align-items: center; gap: 8px; font-weight: 900; font-size: 1.05rem; flex: 1; }
+.cat-help-btn{border:0;background:none;color:var(--text);font:900 1.2rem Tajawal;cursor:pointer;text-align:right}
+.cat-help-btn small{color:var(--accent);font-size:.95rem}
+.voucher-cat-name { display: flex; align-items: center; gap: 8px; font-weight: 900; font-size: 1.2rem; flex: 1; }
 .voucher-cat-input-wrap { display: flex; align-items: center; gap: 6px; }
-.voucher-cat-amt-input { width: 110px !important; text-align: center; padding: 8px !important; font-size: 1.05rem !important; }
-.voucher-cat-pct-input { width: 70px !important; text-align: center; padding: 8px 4px !important; font-size: 1.05rem !important; }
+.voucher-cat-amt-input { width: 120px !important; text-align: center; padding: 8px !important; font-size: 1.15rem !important; }
+.voucher-cat-pct-input { width: 75px !important; text-align: center; padding: 8px 4px !important; font-size: 1.15rem !important; }
 
 .budget-insights { display: grid; grid-template-columns: 1fr; gap: 12px; margin: 12px 0 16px; }
 .budget-insight { background: var(--bg); border: 2px solid var(--border); border-radius: 14px; padding: 14px; cursor: pointer; transition: transform 0.2s, border-color 0.2s, box-shadow 0.2s; position: relative; overflow: hidden; }
 .budget-insight:hover { transform: translateY(-3px); border-color: var(--accent); box-shadow: 0 8px 22px rgba(2,132,199,0.18); }
-.budget-insight-head { display: flex; justify-content: space-between; gap: 8px; align-items: center; font-weight: 900; font-size: 1.1rem; margin-bottom: 8px; }
-.budget-insight-body { display: flex; justify-content: space-between; align-items: center; font-size: 1rem; font-weight: 900; color: var(--muted); margin-bottom: 8px; }
+.budget-insight-head { display: flex; justify-content: space-between; gap: 8px; align-items: center; font-weight: 900; font-size: 1.25rem; margin-bottom: 8px; }
+.budget-insight-body { display: flex; justify-content: space-between; align-items: center; font-size: 1.15rem; font-weight: 900; color: var(--muted); margin-bottom: 8px; }
 .budget-insight-body b { color: var(--text); }
-.budget-trend-badge { display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px; border-radius: 12px; font-size: 0.85rem; font-weight: 900; }
-.budget-meter { height: 12px; background: var(--border); border-radius: 20px; overflow: hidden; position: relative; box-shadow: inset 0 2px 4px rgba(0,0,0,0.1); }
+.budget-trend-badge { display: inline-flex; align-items: center; gap: 4px; padding: 3px 10px; border-radius: 12px; font-size: 0.95rem; font-weight: 900; }
+.budget-meter { height: 14px; background: var(--border); border-radius: 20px; overflow: hidden; position: relative; box-shadow: inset 0 2px 4px rgba(0,0,0,0.1); }
 .budget-meter span { display: block; height: 100%; border-radius: 20px; background: linear-gradient(90deg, var(--accent), var(--ok)); transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1), background 0.4s ease; position: relative; }
-.budget-insight-foot { display: flex; justify-content: space-between; margin-top: 8px; font-size: 0.9rem; font-weight: 900; color: var(--muted); }
+.budget-insight-foot { display: flex; justify-content: space-between; margin-top: 8px; font-size: 1.05rem; font-weight: 900; color: var(--muted); }
 
 .tx-log-item { background: var(--card); border: 2px solid var(--border); border-radius: 12px; padding: 14px; margin-bottom: 12px; display: flex; flex-direction: column; gap: 10px; box-shadow: var(--shadow); cursor: pointer; transition: transform 0.15s, border-color 0.2s; }
 .tx-log-item:hover { border-color: var(--accent); transform: translateY(-2px); }
 .tx-main-row { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; }
 .tx-title-area { display: flex; flex-direction: column; gap: 4px; }
 .tx-badge-group { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
-.tx-badge { background: var(--accent); color: #fff; font-size: 0.9rem; padding: 4px 12px; border-radius: 16px; font-weight: 900; }
-.tx-num-tag { background: #0f172a; color: #fff; font-size: 0.9rem; padding: 4px 10px; border-radius: 6px; font-weight: 900; }
-.tx-type-tag { background: rgba(2,132,199,0.12); color: var(--accent); font-size: 0.9rem; padding: 4px 10px; border-radius: 6px; font-weight: 900; }
-.tx-date-line { font-size: 1rem; color: var(--muted); font-weight: 900; margin-top: 2px; }
+.tx-badge { background: var(--accent); color: #fff; font-size: 1.05rem; padding: 4px 14px; border-radius: 16px; font-weight: 900; }
+.tx-num-tag { background: #0f172a; color: #fff; font-size: 1.05rem; padding: 4px 12px; border-radius: 6px; font-weight: 900; }
+.tx-type-tag { background: rgba(2,132,199,0.12); color: var(--accent); font-size: 1.05rem; padding: 4px 12px; border-radius: 6px; font-weight: 900; }
+.tx-date-line { font-size: 1.15rem; color: var(--muted); font-weight: 900; margin-top: 2px; }
 .tx-amt-area { display: flex; align-items: center; gap: 8px; text-align: left; }
-.tx-amount { font-weight: 900; font-size: 1.3rem; color: var(--accent); white-space: nowrap; }
+.tx-amount { font-weight: 900; font-size: 1.45rem; color: var(--accent); white-space: nowrap; }
 
-.tx-account-details { background: var(--bg); border: 2px solid var(--border); border-radius: 10px; padding: 12px 14px; display: flex; flex-direction: column; gap: 6px; font-size: 1.05rem; }
+.tx-account-details { background: var(--bg); border: 2px solid var(--border); border-radius: 10px; padding: 12px 14px; display: flex; flex-direction: column; gap: 6px; font-size: 1.2rem; }
 .tx-acc-row { display: flex; justify-content: space-between; color: var(--muted); font-weight: 900; }
 .tx-acc-row b { color: var(--text); }
 
-.tx-dist { display: flex; gap: 6px; flex-wrap: wrap; font-size: 1rem; }
-.tx-dist span { background: var(--bg); border: 2px solid var(--border); padding: 6px 10px; border-radius: 8px; font-weight: 900; }
+.tx-dist { display: flex; gap: 6px; flex-wrap: wrap; font-size: 1.1rem; }
+.tx-dist span { background: var(--bg); border: 2px solid var(--border); padding: 6px 12px; border-radius: 8px; font-weight: 900; }
 
 .kpi-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-bottom: 14px; }
 .kpi-card { background: var(--bg); border: 2px solid var(--border); border-radius: 12px; padding: 14px; text-align: center; }
-.kpi-title { font-size: 1rem; color: var(--muted); font-weight: 900; margin-bottom: 4px; }
-.kpi-value { font-size: 1.35rem; font-weight: 900; color: var(--text); }
+.kpi-title { font-size: 1.15rem; color: var(--muted); font-weight: 900; margin-bottom: 4px; }
+.kpi-value { font-size: 1.55rem; font-weight: 900; color: var(--text); }
 
-.report-table { width: 100%; border-collapse: collapse; margin-top: 6px; font-size: 1.1rem; }
-.report-table th, .report-table td { padding: 12px 10px; border-bottom: 2px solid var(--border); text-align: right; cursor: pointer; font-weight: 900; }
-.report-table th { background: var(--bg); color: var(--text); font-weight: 900; font-size: 1.15rem; border-bottom: 3px solid var(--accent); cursor: default; }
+.report-table { width: 100%; border-collapse: collapse; margin-top: 6px; font-size: 1.35rem; }
+.report-table th, .report-table td { padding: 14px 10px; border-bottom: 2px solid var(--border); text-align: right; cursor: pointer; font-weight: 900; line-height: 1.4; }
+.report-table th { background: var(--bg); color: var(--text); font-weight: 900; font-size: 1.4rem; border-bottom: 3.5px solid var(--accent); cursor: default; }
+.report-table td small { font-size: 1.1rem !important; }
 .report-table tr:hover td { background: rgba(2,132,199,0.08); }
 
 .highlight-match { background: #fef08a; color: #854d0e; padding: 2px 6px; border-radius: 4px; font-weight: 900; }
@@ -206,7 +212,7 @@ body.privacy-active .icon-btn#privacyBtn { background: var(--accent); color: #ff
   margin-bottom: 8px;
   cursor: pointer;
   font-weight: 900;
-  font-size: 1.15rem;
+  font-size: 1.3rem;
   color: var(--accent);
 }
 .acc-accordion-header:hover { background: rgba(2,132,199,0.08); }
@@ -218,43 +224,35 @@ body.privacy-active .icon-btn#privacyBtn { background: var(--accent); color: #ff
   margin-top: -8px;
   margin-bottom: 12px;
   display: none;
-  font-size: 1.1rem;
+  font-size: 1.25rem;
 }
 .acc-accordion-body.open { display: block; }
 
 .settings-accordion-card { cursor: pointer; border-right: 6px solid var(--accent); transition: border-color 0.2s; }
-.settings-accordion-header { display: flex; justify-content: space-between; align-items: center; font-size: 1.25rem; font-weight: 900; color: var(--text); }
-.settings-accordion-body { margin-top: 14px; padding-top: 12px; border-top: 2px solid var(--border); display: none; }
+.settings-accordion-header { display: flex; justify-content: space-between; align-items: center; font-size: 1.35rem; font-weight: 900; color: var(--text); }
+.settings-accordion-body { margin-top: 14px; padding-top: 12px; border-top: 2px solid var(--border); display: none; font-size: 1.2rem; }
 .settings-accordion-body.open { display: block; }
 
 .modal-overlay { position: fixed; inset: 0; background: rgba(15,23,42,0.65); backdrop-filter: blur(4px); z-index: 2000; display: none; align-items: center; justify-content: center; padding: 12px; }
 .modal-overlay.show { display: flex; }
-.modal-content { background: var(--card); border: 2px solid var(--border); border-radius: var(--radius); width: 100%; max-width: 500px; max-height: 90vh; overflow-y: auto; padding: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); font-size: 1.1rem; }
+.modal-content { background: var(--card); border: 2px solid var(--border); border-radius: var(--radius); width: 100%; max-width: 520px; max-height: 90vh; overflow-y: auto; padding: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); font-size: 1.25rem; }
 .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; border-bottom: 2px solid var(--border); padding-bottom: 10px; }
 
 .hidden{display:none!important}
-.del-btn { background:none; border:none; color:var(--danger); font-size:1.3rem; cursor:pointer; padding:4px; }
+.del-btn { background:none; border:none; color:var(--danger); font-size:1.4rem; cursor:pointer; padding:4px; }
 
 .lock-screen {
   position: fixed; inset: 0; background: var(--primary, #1e3a8a); z-index: 9999;
   display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 1rem; color: white; text-align: center;
 }
 .lock-content {
-  background: var(--card); color: var(--text); width: 100%; max-width: 360px; padding: 1.8rem; border-radius: 18px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); text-align: center; border: 2px solid var(--border); font-size: 1.15rem;
+  background: var(--card); color: var(--text); width: 100%; max-width: 380px; padding: 1.8rem; border-radius: 18px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); text-align: center; border: 2px solid var(--border); font-size: 1.25rem;
 }
 .lock-content input[type="password"] {
-  letter-spacing: 6px; font-weight: 900; font-size: 1.6rem; text-align: center;
+  letter-spacing: 6px; font-weight: 900; font-size: 1.8rem; text-align: center;
 }
 
-.print-header-banner {
-  display: none;
-  text-align: center;
-  border-bottom: 2px solid var(--accent);
-  padding-bottom: 10px;
-  margin-bottom: 12px;
-}
-.print-header-banner h1 { font-size: 1.4rem; font-weight: 900; color: var(--text); }
-.print-header-banner p { font-size: 1rem; color: var(--muted); margin-top: 4px; font-weight: 900; }
+.print-header-banner { display: none; }
 
 .print-statement-container { display: none; }
 body.printing-statement header, body.printing-statement .nav-tabs, body.printing-statement .no-print, body.printing-statement .btn, body.printing-statement .icon-btn, body.printing-statement #reportFilterBox, body.printing-statement .search-box, body.printing-statement .searchable-arrow, body.printing-statement .report-type-switch, body.printing-statement .print-header-banner, body.printing-statement .wrap > div:not(#printStatementContainer) { display: none !important; }
@@ -264,32 +262,37 @@ body.printing-statement .print-statement-container {
   width: 100% !important;
   max-width: 100% !important;
   margin: 0 !important;
-  padding: 3mm !important;
+  padding: 2mm !important;
   font-family: 'Tajawal', sans-serif !important;
   color: #000 !important;
   background: #fff !important;
   font-size: 10pt !important;
 }
 
-.ps-header { text-align: center; border-bottom: 1px solid #000; padding-bottom: 3mm; margin-bottom: 4mm; }
-.ps-header h1 { font-size: 11pt; font-weight: 900; margin-bottom: 1px; color: #000; }
-.ps-header p { font-size: 9pt; color: #000; font-weight: 900; }
-.ps-title { text-align: center; font-size: 10pt; font-weight: 900; background: #f1f5f9; padding: 3px; border-radius: 2px; margin-bottom: 4mm; border: 1px solid #94a3b8; color: #000; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+.ps-header { text-align: center; border-bottom: 1.2px solid #000; padding-bottom: 2mm; margin-bottom: 3mm; }
+.ps-header h1 { font-size: 11pt !important; font-weight: 900; margin-bottom: 1px; color: #000; }
+.ps-header p { font-size: 9pt !important; color: #000; font-weight: 900; }
+.ps-title { text-align: center; font-size: 10pt !important; font-weight: 900; background: #f1f5f9; padding: 2px; border-radius: 2px; margin-bottom: 3mm; border: 1px solid #94a3b8; color: #000; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
 
 .ps-table-wrap { width: 100%; margin-bottom: 0; }
-.ps-table { width: 100%; border-collapse: collapse; font-size: 9.5pt; }
-.ps-table th, .ps-table td { border: 1px solid #000; padding: 3px 5px; text-align: center; font-weight: 900; }
-.ps-table th { background: #e2e8f0; font-weight: 900; color: #000; -webkit-print-color-adjust: exact; print-color-adjust: exact; font-size: 9.5pt; }
-.ps-table td.desc-col { text-align: right; }
+.ps-table { width: 100%; border-collapse: collapse; font-size: 9.5pt !important; }
+.ps-table th, .ps-table td { border: 1px solid #000; padding: 3px 4px !important; text-align: center; font-weight: 900; font-size: 9.5pt !important; }
+.ps-table th { background: #e2e8f0; font-weight: 900; color: #000; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+.ps-table td.desc-col { text-align: right; font-size: 9pt !important; }
+.ps-table td small { font-size: 8pt !important; }
 
-.ps-summary-title{text-align:center;font-weight:900;margin-bottom:3px;color:#000}.ps-summary-table{width:100%;border-collapse:collapse;font-size:9.5pt;margin:2px 0 5px}.ps-summary-table th,.ps-summary-table td{border:1px solid #000;padding:4px;text-align:center;font-weight:900;color:#000}.ps-summary-table th{background:#e2e8f0;-webkit-print-color-adjust:exact;print-color-adjust:exact}.ps-summary-table td{background:#fff}
+.ps-summary-title{text-align:center;font-weight:900;margin-bottom:2px;color:#000;font-size:9.5pt !important;}
+.ps-summary-table{width:100%;border-collapse:collapse;font-size:9pt !important;margin:2px 0 4px}
+.ps-summary-table th,.ps-summary-table td{border:1px solid #000;padding:3px !important;text-align:center;font-weight:900;color:#000;font-size:9pt !important;}
+.ps-summary-table th{background:#e2e8f0;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+.ps-summary-table td{background:#fff}
 .ps-footer-totals {
   border: 1px solid #000;
   border-top: none;
-  font-size: 9.5pt;
+  font-size: 9pt !important;
   font-weight: 900;
   background: #f8fafc;
-  padding: 4px 6px;
+  padding: 3px 6px;
   -webkit-print-color-adjust: exact;
   print-color-adjust: exact;
   display: flex;
@@ -305,7 +308,7 @@ body.printing-voucher .print-voucher-container {
   width: 100% !important; 
   max-width: 100% !important;
   margin: 0 !important;
-  padding: 5mm !important; 
+  padding: 4mm !important; 
   font-family: 'Tajawal', sans-serif !important; 
   color: #000 !important; 
   background: #fff !important; 
@@ -314,75 +317,78 @@ body.printing-voucher .print-voucher-container {
 
 @media print {
   @page { size: A4 portrait; margin: 3mm; }
-  body:not(.printing-voucher):not(.printing-statement) { background: #fff !important; color: #000 !important; font-size: 10pt !important; }
+  body:not(.printing-voucher):not(.printing-statement) { background: #fff !important; color: #000 !important; font-size: 9.5pt !important; }
   body:not(.printing-voucher):not(.printing-statement) header, body:not(.printing-voucher):not(.printing-statement) .nav-tabs, body:not(.printing-voucher):not(.printing-statement) .no-print, body:not(.printing-voucher):not(.printing-statement) .btn, body:not(.printing-voucher):not(.printing-statement) .icon-btn, body:not(.printing-voucher):not(.printing-statement) #reportFilterBox, body:not(.printing-voucher):not(.printing-statement) .search-box, body:not(.printing-voucher):not(.printing-statement) .searchable-arrow, body:not(.printing-voucher):not(.printing-statement) .report-type-switch { display: none !important; }
 }
 
-.pv-header { text-align: center; border-bottom: 1.5px solid #000; padding-bottom: 6px; margin-bottom: 10px; }
-.pv-header h1 { font-size: 12pt; font-weight: 900; margin-bottom: 2px; color: #000; }
-.pv-header p { font-size: 10pt; color: #000; }
-.pv-title { text-align: center; font-size: 11pt; font-weight: 900; background: #f1f5f9; padding: 6px; border-radius: 4px; margin-bottom: 10px; border: 1px solid #94a3b8; color: #000; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-.pv-grid { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 10pt; font-weight: 900; border-bottom: 1px dashed #cbd5e1; padding-bottom: 5px; }
-.pv-row { margin-bottom: 6px; font-size: 10pt; font-weight: 900; }
-.pv-table { width: 100%; border-collapse: collapse; margin-top: 10px; margin-bottom: 15px; font-size: 10pt; }
-.pv-table th, .pv-table td { border: 1px solid #000; padding: 6px; text-align: right; font-weight: 900; }
+.pv-header { text-align: center; border-bottom: 1.5px solid #000; padding-bottom: 4px; margin-bottom: 8px; }
+.pv-header h1 { font-size: 11pt !important; font-weight: 900; margin-bottom: 2px; color: #000; }
+.pv-header p { font-size: 9.5pt !important; color: #000; }
+.pv-title { text-align: center; font-size: 10.5pt !important; font-weight: 900; background: #f1f5f9; padding: 4px; border-radius: 4px; margin-bottom: 8px; border: 1px solid #94a3b8; color: #000; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+.pv-grid { display: flex; justify-content: space-between; margin-bottom: 6px; font-size: 9.5pt !important; font-weight: 900; border-bottom: 1px dashed #cbd5e1; padding-bottom: 4px; }
+.pv-row { margin-bottom: 5px; font-size: 9.5pt !important; font-weight: 900; }
+.pv-table { width: 100%; border-collapse: collapse; margin-top: 8px; margin-bottom: 12px; font-size: 9.5pt !important; }
+.pv-table th, .pv-table td { border: 1px solid #000; padding: 5px; text-align: right; font-weight: 900; font-size: 9.5pt !important; }
 .pv-table th { background: #e2e8f0; font-weight: 900; color: #000; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-.pv-signatures { display: flex; justify-content: space-between; margin-top: 30px; font-weight: 900; font-size: 10pt; }
+.pv-signatures { display: flex; justify-content: space-between; margin-top: 25px; font-weight: 900; font-size: 9.5pt !important; }
 
 :root{--info:#6366f1;--focus-ring:0 0 0 3px rgba(2,132,199,.22)}
 button:focus-visible,input:focus-visible,select:focus-visible{outline:none;box-shadow:var(--focus-ring)}
 body{user-select:text}.btn,.icon-btn,.nav-tab,.v-card-btn,.rpt-btn,.toggle-vis-btn,.del-btn{user-select:none}
 .toast-stack{position:fixed;left:12px;right:12px;bottom:18px;z-index:5000;display:flex;flex-direction:column;gap:8px;pointer-events:none}
-.toast{max-width:560px;margin:0 auto;width:100%;background:var(--card);color:var(--text);border:2.5px solid var(--border);border-right:6px solid var(--accent);border-radius:12px;padding:14px 18px;box-shadow:0 12px 28px rgba(0,0,0,.18);font-weight:900;font-size:1.1rem;animation:toastIn .22s ease}
+.toast{max-width:560px;margin:0 auto;width:100%;background:var(--card);color:var(--text);border:2.5px solid var(--border);border-right:6px solid var(--accent);border-radius:12px;padding:14px 18px;box-shadow:0 12px 28px rgba(0,0,0,.18);font-weight:900;font-size:1.2rem;animation:toastIn .22s ease}
 .toast.success{border-right-color:var(--ok)}.toast.error{border-right-color:var(--danger)}.toast.warn{border-right-color:var(--warn)}
 @keyframes toastIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
-.pro-kpi-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-bottom:14px}.pro-kpi{background:var(--bg);border:2px solid var(--border);border-radius:12px;padding:14px;text-align:center}.pro-kpi small{display:block;color:var(--muted);font-weight:900;font-size:0.95rem}.pro-kpi strong{display:block;margin-top:4px;font-size:1.3rem}
-.open-tasks-cta{width:100%;border:2px solid var(--accent);background:linear-gradient(100deg,rgba(2,132,199,.16),rgba(16,185,129,.10));color:var(--text);border-radius:14px;padding:11px 14px;display:flex;align-items:center;gap:9px;text-align:right;font-family:inherit;cursor:pointer;box-shadow:0 6px 16px rgba(2,132,199,.12);transition:transform .2s,box-shadow .2s}.open-tasks-cta:hover{transform:translateY(-2px);box-shadow:0 10px 22px rgba(2,132,199,.2)}.open-tasks-cta span{font-size:1.65rem}.open-tasks-cta b{font-size:1.02rem}.open-tasks-cta small{color:var(--muted);font-weight:900;font-size:.8rem;flex:1}.open-tasks-cta i{font-size:1.8rem;color:var(--accent);font-style:normal}
+.pro-kpi-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-bottom:14px}.pro-kpi{background:var(--bg);border:2px solid var(--border);border-radius:12px;padding:14px;text-align:center}.pro-kpi small{display:block;color:var(--muted);font-weight:900;font-size:1.05rem}.pro-kpi strong{display:block;margin-top:4px;font-size:1.45rem}
+.open-tasks-cta{width:100%;border:2px solid var(--accent);background:linear-gradient(100deg,rgba(2,132,199,.16),rgba(16,185,129,.10));color:var(--text);border-radius:14px;padding:12px 14px;display:flex;align-items:center;gap:9px;text-align:right;font-family:inherit;cursor:pointer;box-shadow:0 6px 16px rgba(2,132,199,.12);transition:transform .2s,box-shadow .2s}
+.open-tasks-cta span{font-size:1.8rem}.open-tasks-cta b{font-size:1.2rem}.open-tasks-cta small{color:var(--muted);font-weight:900;font-size:.95rem;flex:1}.open-tasks-cta i{font-size:1.9rem;color:var(--accent);font-style:normal}
 .dashboard-shortcuts{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:14px;padding-top:12px;border-top:2px dashed var(--border)}
 .round-action{border:2px solid var(--border);background:var(--card);color:var(--text);border-radius:50%;aspect-ratio:1/1;min-height:76px;padding:8px 4px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font-family:inherit;font-weight:900;cursor:pointer;transition:transform .2s,border-color .2s,box-shadow .2s}
-.round-action:hover{transform:translateY(-3px) rotate(4deg);border-color:var(--accent);box-shadow:0 8px 18px rgba(2,132,199,.18)}.round-action span{font-size:1.45rem;color:var(--accent)}.round-action small{font-size:.72rem;line-height:1.1}
+.round-action span{font-size:1.55rem;color:var(--accent)}.round-action small{font-size:.82rem;line-height:1.1}
 .carousel-shell{position:relative;overflow:hidden;border:2px solid var(--border);border-radius:16px;background:linear-gradient(145deg,var(--card),var(--bg));padding:12px;margin:10px 0 14px;box-shadow:var(--shadow)}
 .carousel-track{display:flex;direction:ltr;transition:transform .45s var(--ease-out);will-change:transform}
 .carousel-slide{direction:rtl;min-width:100%;padding:4px 2px}.carousel-slide[aria-hidden="true"]{visibility:hidden}
-.carousel-title{display:flex;align-items:center;justify-content:space-between;gap:8px;color:var(--accent);font-size:1.05rem;font-weight:900;margin-bottom:8px}
-.carousel-controls{display:flex;align-items:center;justify-content:center;gap:10px;margin-top:8px}.carousel-arrow{border:2px solid var(--border);background:var(--card);color:var(--accent);width:38px;height:38px;border-radius:50%;font:900 1.2rem 'Tajawal',sans-serif;cursor:pointer;transition:transform .2s,border-color .2s}.carousel-arrow:hover{transform:scale(1.08);border-color:var(--accent)}
-.carousel-dots{display:flex;gap:6px;align-items:center;justify-content:center}.carousel-dot{width:9px;height:9px;border:0;border-radius:50%;background:var(--border);padding:0;cursor:pointer}.carousel-dot.active{background:var(--accent);transform:scale(1.3)}
+.carousel-title{display:flex;align-items:center;justify-content:space-between;gap:8px;color:var(--accent);font-size:1.2rem;font-weight:900;margin-bottom:8px}
+.carousel-controls{display:flex;align-items:center;justify-content:center;gap:10px;margin-top:8px}.carousel-arrow{border:2px solid var(--border);background:var(--card);color:var(--accent);width:40px;height:40px;border-radius:50%;font:900 1.3rem 'Tajawal',sans-serif;cursor:pointer;transition:transform .2s,border-color .2s}
+.carousel-dots{display:flex;gap:6px;align-items:center;justify-content:center}.carousel-dot{width:10px;height:10px;border:0;border-radius:50%;background:var(--border);padding:0;cursor:pointer}.carousel-dot.active{background:var(--accent);transform:scale(1.3)}
 .task-carousel-card{min-height:245px;display:flex;flex-direction:column;justify-content:center}.task-carousel-card .interactive-orbit{margin:0 auto 4px}.budget-carousel{margin-top:0}.budget-carousel .carousel-slide{min-height:142px;display:flex;flex-direction:column;justify-content:center}
-.statement-total-row th,.statement-total-row td{background:rgba(2,132,199,.12);border-top:3px solid var(--accent)!important;font-weight:900}.statement-balance-row th,.statement-balance-row td{background:rgba(16,185,129,.1);font-weight:900;border-bottom:3px double var(--accent)!important}.statement-total-row th:not(:first-child),.statement-total-row td{color:var(--text)}
-.budget-shortcut-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.budget-shortcut{border:2px solid var(--border);background:var(--card);border-radius:14px;min-height:88px;padding:8px 4px;color:var(--text);font:900 .88rem 'Tajawal',sans-serif;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;transition:transform .2s,border-color .2s,box-shadow .2s}.budget-shortcut strong{font-size:1.7rem;color:var(--accent)}.budget-shortcut:hover{transform:translateY(-3px);border-color:var(--accent);box-shadow:0 7px 16px rgba(2,132,199,.16)}
-@media(max-width:480px){.budget-shortcut-grid{gap:6px}.budget-shortcut{font-size:.76rem}.budget-shortcut strong{font-size:1.4rem}}
+.statement-total-row th,.statement-total-row td{background:rgba(2,132,199,.12);border-top:3px solid var(--accent)!important;font-weight:900;font-size:1.35rem}.statement-balance-row th,.statement-balance-row td{background:rgba(16,185,129,.1);font-weight:900;font-size:1.45rem;border-bottom:3px double var(--accent)!important}.statement-total-row th:not(:first-child),.statement-total-row td{color:var(--text)}
+.budget-shortcut-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.budget-shortcut{border:2px solid var(--border);background:var(--card);border-radius:14px;min-height:88px;padding:8px 4px;color:var(--text);font:900 1rem 'Tajawal',sans-serif;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;transition:transform .2s,border-color .2s,box-shadow .2s}.budget-shortcut strong{font-size:1.8rem;color:var(--accent)}
 .interactive-orbit{position:relative;width:min(100%,310px);height:190px;margin:4px auto 10px;border-radius:50%;background:radial-gradient(circle at center,rgba(2,132,199,.14) 0 22%,transparent 23% 42%,rgba(2,132,199,.08) 43% 44%,transparent 45%);display:flex;align-items:center;justify-content:center}
 .interactive-orbit:before{content:"";position:absolute;width:150px;height:150px;border:2px dashed color-mix(in srgb,var(--accent) 45%,transparent);border-radius:50%;animation:orbitPulse 4s ease-in-out infinite}
-.orbit-center{position:relative;z-index:2;width:84px;height:84px;border-radius:50%;background:var(--accent);color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;box-shadow:0 8px 20px rgba(2,132,199,.3)}.orbit-center strong{font-size:1.35rem;line-height:1}.orbit-center small{font-size:.67rem;font-weight:900;margin-top:4px}
-.orbit-node{position:absolute;z-index:3;border:2px solid var(--border);border-radius:50%;width:62px;height:62px;background:var(--card);color:var(--text);font:900 .72rem 'Tajawal',sans-serif;cursor:pointer;box-shadow:var(--shadow);transition:transform .2s,border-color .2s,color .2s}.orbit-node:hover{transform:scale(1.1);border-color:var(--accent);color:var(--accent)}
+.orbit-center{position:relative;z-index:2;width:86px;height:86px;border-radius:50%;background:var(--accent);color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;box-shadow:0 8px 20px rgba(2,132,199,.3)}.orbit-center strong{font-size:1.45rem;line-height:1}.orbit-center small{font-size:.75rem;font-weight:900;margin-top:4px}
+.orbit-node{position:absolute;z-index:3;border:2px solid var(--border);border-radius:50%;width:64px;height:64px;background:var(--card);color:var(--text);font:900 .8rem 'Tajawal',sans-serif;cursor:pointer;box-shadow:var(--shadow);transition:transform .2s,border-color .2s,color .2s}
 .reminders-orbit .orbit-normal{top:4px;right:28px;color:#10b981}.reminders-orbit .orbit-important{bottom:5px;right:28px;color:#f59e0b}.reminders-orbit .orbit-urgent{bottom:5px;left:28px;color:#f97316}.reminders-orbit .orbit-critical{top:4px;left:28px;color:#ef4444}
 .budget-orbit{height:160px;margin-bottom:14px}.budget-orbit .orbit-budget{top:2px;right:38px;color:var(--accent)}.budget-orbit .orbit-accounts{bottom:2px;left:38px;color:#8b5cf6}.budget-orbit .orbit-refresh{bottom:2px;right:38px;color:#10b981}
 @keyframes orbitPulse{0%,100%{transform:scale(.96);opacity:.65}50%{transform:scale(1.04);opacity:1}}
-@media(max-width:480px){.dashboard-shortcuts{gap:6px}.round-action{min-height:68px}.round-action small{font-size:.64rem}.interactive-orbit{width:100%;height:178px}}
 
-.global-search-results{max-height:55vh;overflow:auto}.global-result{padding:14px;border-bottom:2px solid var(--border);cursor:pointer;font-size:1.1rem}.global-result:hover{background:rgba(2,132,199,.08)}
-.status-chip{font-size:0.9rem;padding:4px 10px;border-radius:16px;font-weight:900;background:rgba(16,185,129,.14);color:var(--ok)}.status-chip.reversed{background:rgba(239,68,68,.14);color:var(--danger)}.status-chip.draft{background:rgba(245,158,11,.16);color:var(--warn)}
+.global-search-results{max-height:55vh;overflow:auto}.global-result{padding:14px;border-bottom:2px solid var(--border);cursor:pointer;font-size:1.2rem}.global-result:hover{background:rgba(2,132,199,.08)}
+.status-chip{font-size:1rem;padding:4px 12px;border-radius:16px;font-weight:900;background:rgba(16,185,129,.14);color:var(--ok)}.status-chip.reversed{background:rgba(239,68,68,.14);color:var(--danger)}.status-chip.draft{background:rgba(245,158,11,.16);color:var(--warn)}
 
 :root{--mobile-nav-h:68px;--ease-out:cubic-bezier(.23,1,.32,1)}
 html{scroll-behavior:smooth}body{padding-bottom:16px}
-.mobile-fab{display:none}.quick-modal-list{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}.quick-type{padding:12px;border:2px solid var(--border);border-radius:10px;background:var(--bg);font-family:inherit;font-weight:900;color:var(--text);cursor:pointer}.quick-type.active{border-color:var(--accent);background:rgba(2,132,199,.12);color:var(--accent)}.install-banner{display:none;background:linear-gradient(100deg,var(--accent),#0f766e);color:white;border-radius:12px;padding:12px 14px;margin-bottom:12px;font-size:1rem;font-weight:900;align-items:center;justify-content:space-between;gap:8px}.install-banner.show{display:flex}.install-banner button{border:0;background:rgba(255,255,255,.16);color:#fff;border-radius:8px;padding:6px 10px;font-family:inherit;font-weight:900;font-size:0.95rem}.quick-summary{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px}.quick-summary>div{background:var(--bg);border:2px solid var(--border);border-radius:10px;text-align:center;padding:10px 4px}.quick-summary small{display:block;color:var(--muted);font-size:0.85rem;font-weight:900}.quick-summary b{display:block;font-size:1.1rem;margin-top:2px;font-weight:900}.mobile-only{display:none}
+.quick-modal-list{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}.quick-type{padding:12px;border:2px solid var(--border);border-radius:10px;background:var(--bg);font-family:inherit;font-weight:900;color:var(--text);cursor:pointer}.quick-type.active{border-color:var(--accent);background:rgba(2,132,199,.12);color:var(--accent)}
+.install-banner{display:none;background:linear-gradient(100deg,var(--accent),#0f766e);color:white;border-radius:12px;padding:12px 14px;margin-bottom:12px;font-size:1.1rem;font-weight:900;align-items:center;justify-content:space-between;gap:8px}.install-banner.show{display:flex}.install-banner button{border:0;background:rgba(255,255,255,.16);color:#fff;border-radius:8px;padding:6px 10px;font-family:inherit;font-weight:900;font-size:1.05rem}
+.quick-summary{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px}.quick-summary>div{background:var(--bg);border:2px solid var(--border);border-radius:10px;text-align:center;padding:10px 4px}.quick-summary small{display:block;color:var(--muted);font-size:0.95rem;font-weight:900}.quick-summary b{display:block;font-size:1.25rem;margin-top:2px;font-weight:900}.mobile-only{display:none}
 
 @media(max-width:700px){
-  body{font-size:18px;padding-bottom:16px}
-  .wrap{padding:12px 8px 16px;max-width:600px}.nav-tabs{display:none}.mobile-only{display:block}
-  .mobile-fab{ position:fixed;display:flex;align-items:center;justify-content:center; bottom:16px; left:16px;width:54px;height:54px;border:0;border-radius:16px; background:var(--accent);color:#fff;box-shadow:0 8px 20px rgba(2,132,199,.35); z-index:1400;font-size:1.8rem }
-  header{margin-bottom:12px}.logo{font-size:1.35rem}.header-actions{gap:6px}.icon-btn{width:42px;height:42px;border-radius:10px}.card{padding:16px;margin-bottom:12px;border-radius:12px}.kpi-grid{gap:8px}.chart-box{height:240px}.tx-log-item{padding:14px;margin-bottom:10px}.tx-amount{font-size:1.25rem}.tx-type-tag{max-width:130px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.modal-content{max-height:85vh;padding:16px}.mobile-hide-label{display:none}.quick-summary{display:grid}.install-banner{margin-top:0}
+  body{font-size:21px;padding-bottom:16px}
+  .wrap{padding:12px 8px 16px;max-width:100%}.nav-tabs{display:none}.mobile-only{display:block}
+  header{margin-bottom:12px}.logo{font-size:1.45rem}.header-actions{gap:6px}.icon-btn{width:46px;height:46px;border-radius:10px}.card{padding:16px;margin-bottom:12px;border-radius:12px}.kpi-grid{gap:8px}.chart-box{height:250px}
+  .report-table { font-size: 1.35rem; }
+  .report-table th { font-size: 1.4rem; }
+  .report-table td small { font-size: 1.1rem !important; }
+  .tx-log-item{padding:14px;margin-bottom:10px}.tx-amount{font-size:1.4rem}.tx-type-tag{max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.modal-content{max-height:85vh;padding:16px}.quick-summary{display:grid}.install-banner{margin-top:0}
 }
 @media(min-width:701px){.quick-summary{display:none}}
-@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}.mobile-bottom-nav button,.mobile-fab{transition:none}}
 </style>
 </head>
 <body>
 
 <div class="lock-screen" id="lockScreen" style="display:none;">
   <div class="lock-content">
-    <h3 id="lockTitle" style="margin-bottom: 0.8rem; color: var(--accent); font-weight: 900; font-size: 1.4rem;">🔐 قفل حماية راتب</h3>
-    <p id="lockDesc" style="font-size: 1.05rem; color: var(--muted); margin-bottom: 1.2rem; font-weight: 900;">الرجاء إدخال الرقم السري أو استخدام البصمة</p>
+    <h3 id="lockTitle" style="margin-bottom: 0.8rem; color: var(--accent); font-weight: 900; font-size: 1.5rem;">🔐 قفل حماية راتب</h3>
+    <p id="lockDesc" style="font-size: 1.15rem; color: var(--muted); margin-bottom: 1.2rem; font-weight: 900;">الرجاء إدخال الرقم السري أو استخدام البصمة</p>
     <div class="form-group">
       <input type="password" id="pinInput" maxlength="8" placeholder="••••" autocomplete="current-password">
     </div>
@@ -457,14 +463,14 @@ html{scroll-behavior:smooth}body{padding-bottom:16px}
         <div class="carousel-track">
           <section class="carousel-slide" id="pageDashboardKpi" aria-label="لوحة القيادة">
             <div class="card no-print" id="proDashboardCard">
-              <h2><span>⚡ لوحة القيادة</span><span id="lastSavedLabel" style="font-size:.85rem;color:var(--muted);font-weight:900">جاهز</span></h2>
+              <h2><span>⚡ لوحة القيادة</span><span id="lastSavedLabel" style="font-size:1rem;color:var(--muted);font-weight:900">جاهز</span></h2>
               <div class="pro-kpi-grid">
                 <div class="pro-kpi"><small>إجمالي الدخل</small><strong id="proIncomeKpi">0</strong></div>
                 <div class="pro-kpi"><small>إجمالي المصروف</small><strong id="proExpenseKpi">0</strong></div>
                 <div class="pro-kpi"><small>صافي التدفق</small><strong id="proNetKpi">0</strong></div>
                 <div class="pro-kpi"><small>سندات غير مكتملة</small><strong id="proPendingKpi">0</strong></div>
               </div>
-              <div id="proAlertsBox" style="font-size:1.05rem;font-weight:900;color:var(--muted)"></div>
+              <div id="proAlertsBox" style="font-size:1.15rem;font-weight:900;color:var(--muted)"></div>
               <button class="open-tasks-cta" type="button" onclick="goCarousel('dashboardCarousel',1)">
                 <span>🔔</span><b>عرض المهام والتذكيرات</b><small>افتح المخطط الدائري وتوزيع الأولويات</small><i>‹</i>
               </button>
@@ -478,7 +484,7 @@ html{scroll-behavior:smooth}body{padding-bottom:16px}
           </section>
           <section class="carousel-slide task-carousel-card" id="pageReminders" aria-label="المهام والتذكيرات">
             <div class="card no-print">
-              <h2><span>🔔 التذكيرات والمهام</span><button class="btn btn-ghost" id="openAddReminderModalBtn" style="width:auto; margin-top:0; padding:4px 10px; font-size:0.95rem;">➕ إضافة تذكير</button></h2>
+              <h2><span>🔔 التذكيرات والمهام</span><button class="btn btn-ghost" id="openAddReminderModalBtn" style="width:auto; margin-top:0; padding:6px 12px; font-size:1.05rem;">➕ إضافة تذكير</button></h2>
               <div class="interactive-orbit reminders-orbit" aria-label="ملخص دائري للمهام والتذكيرات">
                 <div class="orbit-center"><strong id="remindersTotalCount">0</strong><small>إجمالي المهام</small></div>
                 <button class="orbit-node orbit-normal" onclick="filterRemindersByPriority('عادية')">عادية</button>
@@ -487,7 +493,7 @@ html{scroll-behavior:smooth}body{padding-bottom:16px}
                 <button class="orbit-node orbit-critical" onclick="filterRemindersByPriority('حرجة جداً')">حرجة</button>
               </div>
               <div class="chart-box" style="height: 160px; margin-bottom: 8px;"><canvas id="remindersChart"></canvas></div>
-              <div id="remindersListContainer" style="font-size: 1.05rem; margin-top: 8px;">
+              <div id="remindersListContainer" style="font-size: 1.15rem; margin-top: 8px;">
                 <div style="text-align: center; color: var(--muted); padding: 10px; font-weight: 900;">لا توجد تذكيرات نشطة حالياً</div>
               </div>
             </div>
@@ -506,14 +512,14 @@ html{scroll-behavior:smooth}body{padding-bottom:16px}
   <div class="card no-print" id="voucherSelectorCard">
     <h2><span>📝 اختر نوع السند للإدخال المباشر</span></h2>
     <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 10px;">
-      <button class="btn btn-danger" onclick="selectVoucherTypeDirect('spend')" style="display:flex; flex-direction:column; gap:6px; padding:16px 8px; font-size:1.05rem;">
-        <span style="font-size: 2rem;">📤</span><span>سند صرف</span>
+      <button class="btn btn-danger" onclick="selectVoucherTypeDirect('spend')" style="display:flex; flex-direction:column; gap:6px; padding:16px 8px; font-size:1.15rem;">
+        <span style="font-size: 2.2rem;">📤</span><span>سند صرف</span>
       </button>
-      <button class="btn btn-success" onclick="selectVoucherTypeDirect('income')" style="display:flex; flex-direction:column; gap:6px; padding:16px 8px; font-size:1.05rem;">
-        <span style="font-size: 2rem;">📥</span><span>سند إيراد</span>
+      <button class="btn btn-success" onclick="selectVoucherTypeDirect('income')" style="display:flex; flex-direction:column; gap:6px; padding:16px 8px; font-size:1.15rem;">
+        <span style="font-size: 2.2rem;">📥</span><span>سند إيراد</span>
       </button>
-      <button class="btn btn-primary" onclick="selectVoucherTypeDirect('entry')" style="display:flex; flex-direction:column; gap:6px; padding:16px 8px; font-size:1.05rem;">
-        <span style="font-size: 2rem;">⚖️</span><span>سند قيد</span>
+      <button class="btn btn-primary" onclick="selectVoucherTypeDirect('entry')" style="display:flex; flex-direction:column; gap:6px; padding:16px 8px; font-size:1.15rem;">
+        <span style="font-size: 2.2rem;">⚖️</span><span>سند قيد</span>
       </button>
     </div>
   </div>
@@ -522,9 +528,9 @@ html{scroll-behavior:smooth}body{padding-bottom:16px}
     <h2>
       <div style="display: flex; align-items: center; gap: 8px;">
         <span id="voucherHeaderTitle">💸 تسجيل سند صرف</span>
-        <span id="voucherSeqNumBadge" style="background:#0f172a; color:#fff; font-size:0.95rem; padding:4px 10px; border-radius:6px; font-weight:900;">رقم: 1</span>
+        <span id="voucherSeqNumBadge" style="background:#0f172a; color:#fff; font-size:1.05rem; padding:4px 12px; border-radius:6px; font-weight:900;">رقم: 1</span>
       </div>
-      <button class="btn btn-ghost" onclick="backToVoucherSelector()" style="width:auto; margin-top:0; padding:4px 10px; font-size:0.95rem;">🔄 تغيير النوع</button>
+      <button class="btn btn-ghost" onclick="backToVoucherSelector()" style="width:auto; margin-top:0; padding:6px 12px; font-size:1.05rem;">🔄 تغيير النوع</button>
     </h2>
 
     <div class="form-group" style="margin-top: 10px;">
@@ -535,13 +541,13 @@ html{scroll-behavior:smooth}body{padding-bottom:16px}
           <span class="searchable-arrow">▼</span>
           <div class="searchable-dropdown" id="dropDebitAcc"></div>
         </div>
-        <button class="icon-btn" id="addNewDebitAccBtn" title="إضافة حساب جديد" style="width: 50px; height: 50px; border-radius: 10px;">➕</button>
+        <button class="icon-btn" id="addNewDebitAccBtn" title="إضافة حساب جديد" style="width: 54px; height: 54px; border-radius: 10px;">➕</button>
       </div>
       <input type="hidden" id="valDebitAcc">
     </div>
 
     <div style="text-align: center; margin: -6px 0 6px 0;">
-      <button type="button" class="btn btn-ghost" id="swapAccountsBtn" style="width: auto; display: inline-flex; align-items: center; gap: 6px; padding: 6px 14px; font-size: 0.95rem; border-color: var(--accent); color: var(--accent);">🔄 تبديل الحسابات (عكس المدين والدائن)</button>
+      <button type="button" class="btn btn-ghost" id="swapAccountsBtn" style="width: auto; display: inline-flex; align-items: center; gap: 6px; padding: 8px 16px; font-size: 1.1rem; border-color: var(--accent); color: var(--accent);">🔄 تبديل الحسابات (عكس المدين والدائن)</button>
     </div>
 
     <div class="form-group">
@@ -552,7 +558,7 @@ html{scroll-behavior:smooth}body{padding-bottom:16px}
           <span class="searchable-arrow">▼</span>
           <div class="searchable-dropdown" id="dropCreditAcc"></div>
         </div>
-        <button class="icon-btn" id="addNewCreditAccBtn" title="إضافة حساب جديد" style="width: 50px; height: 50px; border-radius: 10px;">➕</button>
+        <button class="icon-btn" id="addNewCreditAccBtn" title="إضافة حساب جديد" style="width: 54px; height: 54px; border-radius: 10px;">➕</button>
       </div>
       <input type="hidden" id="valCreditAcc">
     </div>
@@ -572,22 +578,22 @@ html{scroll-behavior:smooth}body{padding-bottom:16px}
       </div>
     </div>
 
-    <div id="tafqitDisplayBox" style="font-size:1.05rem; font-weight:900; color:var(--accent); background:var(--bg); padding:12px; border-radius:10px; margin-bottom:12px; border:2px solid var(--border);">
+    <div id="tafqitDisplayBox" style="font-size:1.2rem; font-weight:900; color:var(--accent); background:var(--bg); padding:12px; border-radius:10px; margin-bottom:12px; border:2px solid var(--border);">
       ✍️ التفقيط: <span id="tafqitText">صفر</span>
     </div>
 
     <div style="background: var(--bg); border: 2px solid var(--border); border-radius: 10px; padding: 14px; margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between;">
       <div>
-        <div style="font-weight: 900; font-size: 1.1rem;">توزيع السند على بنود الميزانية</div>
-        <div style="font-size: 0.9rem; color: var(--muted); font-weight: 900;">اختياري: تفعيل لتصنيف السند ضمن بنود الميزانية</div>
+        <div style="font-weight: 900; font-size: 1.2rem;">توزيع السند على بنود الميزانية</div>
+        <div style="font-size: 1rem; color: var(--muted); font-weight: 900;">اختياري: تفعيل لتصنيف السند ضمن بنود الميزانية</div>
       </div>
-      <button type="button" class="btn btn-ghost" id="toggleSplitBoxBtn" style="width: auto; margin-top: 0; padding: 6px 12px; font-size: 1rem; background: var(--card);">معطل ✖</button>
+      <button type="button" class="btn btn-ghost" id="toggleSplitBoxBtn" style="width: auto; margin-top: 0; padding: 8px 14px; font-size: 1.1rem; background: var(--card);">معطل ✖</button>
     </div>
 
     <div class="voucher-split-box hidden" id="voucherSplitContainer">
-      <div style="background:rgba(2,132,199,.10);border:1px solid var(--accent);border-radius:8px;padding:8px;margin-bottom:10px;font-weight:900;color:var(--accent);">⚖️ لا يُحفظ السند إلا إذا تساوى توزيع البنود مع مبلغ السند. الافتراضي عند عدم الاختيار: «عام».</div>
+      <div style="background:rgba(2,132,199,.10);border:1px solid var(--accent);border-radius:8px;padding:10px;margin-bottom:10px;font-weight:900;color:var(--accent);font-size:1.15rem;">⚖️ لا يُحفظ السند إلا إذا تساوى توزيع البنود مع مبلغ السند. الافتراضي عند عدم الاختيار: «عام».</div>
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-        <span style="font-weight: 900; font-size: 1.1rem; color: var(--accent);">📌 نمط التوزيع:</span>
+        <span style="font-weight: 900; font-size: 1.2rem; color: var(--accent);">📌 نمط التوزيع:</span>
         <div class="mode-toggle-switch">
           <button type="button" class="mode-toggle-btn active" id="btnModePct">نسبة (%)</button>
           <button type="button" class="mode-toggle-btn" id="btnModeAmt">مبالغ (كاش)</button>
@@ -595,13 +601,13 @@ html{scroll-behavior:smooth}body{padding-bottom:16px}
       </div>
 
       <div style="display: flex; justify-content: flex-end; gap: 8px; margin-bottom: 6px;">
-        <button type="button" class="btn btn-ghost" id="zeroVoucherAmountsBtn" style="width: auto; margin-top: 0; padding: 4px 8px; font-size: 0.9rem;">تصفير 🗑️</button>
-        <button type="button" class="btn btn-ghost" id="autoDistributeVoucherBtn" style="width: auto; margin-top: 0; padding: 4px 8px; font-size: 0.9rem;">توزيع نسبي 🔄</button>
+        <button type="button" class="btn btn-ghost" id="zeroVoucherAmountsBtn" style="width: auto; margin-top: 0; padding: 6px 10px; font-size: 1rem;">تصفير 🗑️</button>
+        <button type="button" class="btn btn-ghost" id="autoDistributeVoucherBtn" style="width: auto; margin-top: 0; padding: 6px 10px; font-size: 1rem;">توزيع نسبي 🔄</button>
       </div>
 
       <div id="voucherCatsList"></div>
 
-      <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 10px; font-size: 1.05rem; font-weight: 900; border-top: 2px dashed var(--border); padding-top: 8px;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 10px; font-size: 1.15rem; font-weight: 900; border-top: 2px dashed var(--border); padding-top: 8px;">
         <span>مجموع الموزع: <b id="voucherAllocatedSum">0</b> (<span id="voucherAllocatedPctSum">0%</span>)</span>
         <span>المتبقي: <b id="voucherRemainingSum" style="color: var(--ok);">0</b></span>
       </div>
@@ -628,11 +634,11 @@ html{scroll-behavior:smooth}body{padding-bottom:16px}
     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
       <h2 style="margin-bottom:0;">
         <span>📋 بطاقات العمليات المستقلة</span>
-        <span id="ledgerCountBadge" style="background:var(--accent); color:#fff; font-size:0.9rem; padding:4px 10px; border-radius:16px; font-weight:900;">0 عمليات</span>
+        <span id="ledgerCountBadge" style="background:var(--accent); color:#fff; font-size:1.05rem; padding:4px 12px; border-radius:16px; font-weight:900;">0 عمليات</span>
       </h2>
       <div style="display:flex;gap:6px;align-items:center">
-        <button class="btn btn-ghost" id="exportCsvBtn" style="width:auto;margin-top:0;padding:6px 10px;font-size:0.95rem">CSV</button>
-        <button class="btn btn-danger" id="clearAllTxsBtn" style="width:auto; margin-top:0; padding:6px 10px; font-size:0.95rem;">
+        <button class="btn btn-ghost" id="exportCsvBtn" style="width:auto;margin-top:0;padding:6px 12px;font-size:1.05rem">CSV</button>
+        <button class="btn btn-danger" id="clearAllTxsBtn" style="width:auto; margin-top:0; padding:6px 12px; font-size:1.05rem;">
           🗑️ تصفير
         </button>
       </div>
@@ -649,8 +655,8 @@ html{scroll-behavior:smooth}body{padding-bottom:16px}
 
 <div id="pageBudget" class="hidden">
   <div class="card no-print" style="border-right:6px solid var(--accent);">
-    <h2><span>📊 تحليل الميزانية وبنودها الديناميكية</span><small style="font-size:.85rem;color:var(--muted);">قسم الميزانية</small></h2>
-    <p style="font-weight:900;color:var(--muted);margin-bottom:0;">يعرض هذا القسم المؤشرات والاتساع والتباين بين المخصص والمنصرف والفائض لكل بند.</p>
+    <h2><span>📊 تحليل الميزانية وبنودها الديناميكية</span><small style="font-size:1rem;color:var(--muted);">قسم الميزانية</small></h2>
+    <p style="font-weight:900;color:var(--muted);margin-bottom:0;font-size:1.15rem;">يعرض هذا القسم المؤشرات والاتساع والتباين بين المخصص والمنصرف والفائض لكل بند.</p>
   </div>
   <div id="budgetToolsHost"></div>
   <div id="budgetReportHost"></div>
@@ -659,15 +665,15 @@ html{scroll-behavior:smooth}body{padding-bottom:16px}
 <div id="pageAccountsTree" class="hidden">
   <div class="card" style="border-right: 6px solid var(--accent);">
     <h2><span>🌳 شجرة الحسابات (للعرض فقط)</span></h2>
-    <p style="font-size:1.05rem; color:var(--muted); font-weight:900; margin-bottom:10px;">استعراض شجرة الحسابات الفعلية وتفاصيل أرصدتها (لإدارة وإضافة الحسابات يرجى الذهاب إلى قسم الإعدادات):</p>
-    <div id="liveAccountsTreeView" style="font-size:1.05rem;"></div>
+    <p style="font-size:1.2rem; color:var(--muted); font-weight:900; margin-bottom:10px;">استعراض شجرة الحسابات الفعلية وتفاصيل أرصدتها (لإدارة وإضافة الحسابات يرجى الذهاب إلى قسم الإعدادات):</p>
+    <div id="liveAccountsTreeView" style="font-size:1.2rem;"></div>
   </div>
 </div>
 
 <div id="pageReports" class="hidden">
   <div class="card no-print" style="border-right:6px solid #8b5cf6;">
-    <h2><span>📈 التقارير وكشف الحساب</span><small style="font-size:.85rem;color:var(--muted);">قسم التقارير</small></h2>
-    <p style="font-weight:900;color:var(--muted);margin-bottom:0;">يمكنك من هنا عرض كشف الحساب وطباعته، وإضافة تقارير أخرى مستقبلًا ضمن هذا القسم.</p>
+    <h2><span>📈 التقارير وكشف الحساب</span><small style="font-size:1rem;color:var(--muted);">قسم التقارير</small></h2>
+    <p style="font-weight:900;color:var(--muted);margin-bottom:0;font-size:1.15rem;">يمكنك من هنا عرض كشف الحساب وطباعته، وإضافة تقارير أخرى مستقبلًا ضمن هذا القسم.</p>
   </div>
   <div class="report-type-switch no-print hidden">
     <button class="rpt-btn active" id="btnRptBudget">📊 تحليل الميزانية</button>
@@ -687,8 +693,8 @@ html{scroll-behavior:smooth}body{padding-bottom:16px}
   </div>
 
   <div class="no-print" style="display: flex; gap: 8px; margin-bottom: 10px;">
-    <button class="btn btn-ghost" id="exportPngBtn" style="flex:1; margin-top:0; border-color:var(--accent); color:var(--accent); font-size:1.05rem;">📸 تصدير كصورة (PNG)</button>
-    <button class="btn btn-ghost" id="exportPdfBtn" style="flex:1; margin-top:0; border-color:var(--ok); color:var(--ok); font-size:1.05rem;">📄 تصدير كـ PDF</button>
+    <button class="btn btn-ghost" id="exportPngBtn" style="flex:1; margin-top:0; border-color:var(--accent); color:var(--accent); font-size:1.15rem;">📸 تصدير كصورة (PNG)</button>
+    <button class="btn btn-ghost" id="exportPdfBtn" style="flex:1; margin-top:0; border-color:var(--ok); color:var(--ok); font-size:1.15rem;">📄 تصدير كـ PDF</button>
   </div>
 
   <div class="card" id="reportFilterBox">
@@ -738,9 +744,9 @@ html{scroll-behavior:smooth}body{padding-bottom:16px}
   <div class="card" id="budgetReportCard">
     <h2>
       <span>📋 تقارير الميزانية والبنود</span>
-      <button class="icon-btn no-print" id="printBudgetReportBtn" title="طباعة مباشرة" style="width:42px; height:42px;">🖨️</button>
+      <button class="icon-btn no-print" id="printBudgetReportBtn" title="طباعة مباشرة" style="width:46px; height:46px;">🖨️</button>
     </h2>
-    <div style="font-size:1.05rem; color:var(--muted); font-weight:900; margin-bottom:10px;" id="reportPeriodTitle">الفترة: -</div>
+    <div style="font-size:1.2rem; color:var(--muted); font-weight:900; margin-bottom:10px;" id="reportPeriodTitle">الفترة: -</div>
 
     <div class="kpi-grid">
       <div class="kpi-card">
@@ -784,9 +790,9 @@ html{scroll-behavior:smooth}body{padding-bottom:16px}
   <div class="card hidden" id="accountStatementCard">
     <h2>
       <span id="statementHeaderTitle">📑 كشف حساب العملاء والصناديق</span>
-      <button class="icon-btn no-print" id="printStatementBtn" title="طباعة مباشرة" style="width:42px; height:42px;">🖨️</button>
+      <button class="icon-btn no-print" id="printStatementBtn" title="طباعة مباشرة" style="width:46px; height:46px;">🖨️</button>
     </h2>
-    <div style="font-size:1.05rem; color:var(--muted); font-weight:900; margin-bottom:8px;" id="statementPeriodTitle">الفترة: -</div>
+    <div style="font-size:1.2rem; color:var(--muted); font-weight:900; margin-bottom:8px;" id="statementPeriodTitle">الفترة: -</div>
 
     <div class="search-box">
       <span class="search-icon">🔍</span>
@@ -813,10 +819,10 @@ html{scroll-behavior:smooth}body{padding-bottom:16px}
         <thead>
           <tr>
             <th style="width:22%;">التاريخ</th>
-            <th style="width:12%;">السند</th>
-            <th style="width:32%;">البيان / الحساب المقابل</th>
-            <th style="width:17%;">مدين (عليه)</th>
-            <th style="width:17%;">دائن (له)</th>
+            <th style="width:13%;">السند</th>
+            <th style="width:33%;">البيان / الحساب المقابل</th>
+            <th style="width:16%;">مدين (عليه)</th>
+            <th style="width:16%;">دائن (له)</th>
           </tr>
         </thead>
         <tbody id="statementBody"></tbody>
@@ -835,7 +841,7 @@ html{scroll-behavior:smooth}body{padding-bottom:16px}
     </div>
 
     <div id="allAccountsSummaryBox" class="hidden" style="overflow-x:auto; margin-top: 10px;">
-      <h3 style="font-size:1.15rem; font-weight:900; color:var(--accent); margin-bottom:8px;">📊 ملخص أرصدة الحسابات (بحسب التصنيف الرئيسي):</h3>
+      <h3 style="font-size:1.3rem; font-weight:900; color:var(--accent); margin-bottom:8px;">📊 ملخص أرصدة الحسابات (بحسب التصنيف الرئيسي):</h3>
       <table class="report-table hide-in-privacy">
         <thead>
           <tr>
@@ -867,16 +873,16 @@ html{scroll-behavior:smooth}body{padding-bottom:16px}
       <span class="accordion-arrow">▼</span>
     </div>
     <div class="settings-accordion-body" onclick="event.stopPropagation()">
-      <p style="font-size:1.05rem; color:var(--muted); font-weight:900; margin-bottom:10px;">قم بتأمين بياناتك المالية برقم سري أو بصمة الإصبع عند فتح التطبيق:</p>
+      <p style="color:var(--muted); font-weight:900; margin-bottom:10px;">قم بتأمين بياناتك المالية برقم سري أو بصمة الإصبع عند فتح التطبيق:</p>
       <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px;">
-        <input type="checkbox" id="settingSecurityEnabled" style="width: 22px; height: 22px; cursor: pointer;">
-        <label for="settingSecurityEnabled" style="margin-bottom: 0; cursor: pointer; font-weight: 900; color: var(--accent); font-size: 1.1rem;">تفعيل قفل الحماية عند فتح التطبيق</label>
+        <input type="checkbox" id="settingSecurityEnabled" style="width: 24px; height: 24px; cursor: pointer;">
+        <label for="settingSecurityEnabled" style="margin-bottom: 0; cursor: pointer; font-weight: 900; color: var(--accent); font-size: 1.25rem;">تفعيل قفل الحماية عند فتح التطبيق</label>
       </div>
       <div class="form-group">
         <label>تغيير أو تعيين الرقم السري (PIN):</label>
         <div style="display: flex; gap: 8px;">
           <input type="password" id="settingNewPinInput" maxlength="8" placeholder="أدخل الرقم السري الجديد" style="text-align: right;">
-          <button class="btn btn-primary" id="savePinSettingsBtn" style="width: auto; margin-top: 0; padding: 0 16px;">حفظ الرمز</button>
+          <button class="btn btn-primary" id="savePinSettingsBtn" style="width: auto; margin-top: 0; padding: 0 18px;">حفظ الرمز</button>
         </div>
       </div>
     </div>
@@ -888,7 +894,7 @@ html{scroll-behavior:smooth}body{padding-bottom:16px}
       <span class="accordion-arrow">▼</span>
     </div>
     <div class="settings-accordion-body" onclick="event.stopPropagation()">
-      <p style="font-size:1.05rem; color:var(--muted); font-weight:900; margin-bottom:8px;">أدخل بيانات الجهة أو صاحب الحساب لتظهر في رأس التقارير المطبوعة:</p>
+      <p style="color:var(--muted); font-weight:900; margin-bottom:8px;">أدخل بيانات الجهة أو صاحب الحساب لتظهر في رأس التقارير المطبوعة:</p>
       <div class="form-group">
         <label>اسم الجهة / المؤسسة:</label>
         <input type="text" id="settingOrgName" placeholder="مثلاً: مؤسسة خيرية، أو اسمك الشخصي...">
@@ -898,8 +904,8 @@ html{scroll-behavior:smooth}body{padding-bottom:16px}
         <input type="text" id="settingOrgDetails" placeholder="مثلاً: حضرموت - تريم | هاتف: 711111111">
       </div>
       <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
-        <input type="checkbox" id="settingShowHeader" style="width: 22px; height: 22px; cursor: pointer;">
-        <label for="settingShowHeader" style="margin-bottom: 0; cursor: pointer; font-weight: 900; font-size: 1.1rem;">إظهار هذه الترويسة في التقارير والطباعة</label>
+        <input type="checkbox" id="settingShowHeader" style="width: 24px; height: 24px; cursor: pointer;">
+        <label for="settingShowHeader" style="margin-bottom: 0; cursor: pointer; font-weight: 900; font-size: 1.25rem;">إظهار هذه الترويسة في التقارير والطباعة</label>
       </div>
       <button class="btn btn-primary" id="saveHeaderSettingsBtn" style="margin-top: 4px;">💾 حفظ إعدادات الترويسة</button>
     </div>
@@ -911,7 +917,7 @@ html{scroll-behavior:smooth}body{padding-bottom:16px}
       <span class="accordion-arrow">▼</span>
     </div>
     <div class="settings-accordion-body" onclick="event.stopPropagation()">
-      <p style="font-size:1.05rem; color:var(--muted); font-weight:900; margin-bottom:8px;">حدد الحسابات الافتراضية التي تظهر تلقائياً عند فتح السندات (قابلة للتبديل والتعديل بأي وقت):</p>
+      <p style="color:var(--muted); font-weight:900; margin-bottom:8px;">حدد الحسابات الافتراضية التي تظهر تلقائياً عند فتح السندات (قابلة للتبديل والتعديل بأي وقت):</p>
       <div class="form-group">
         <label>الحساب الافتراضي المدين (لسند الإيراد):</label>
         <div class="searchable-select-wrap" id="wrapDefaultIncomeDebit">
@@ -941,10 +947,10 @@ html{scroll-behavior:smooth}body{padding-bottom:16px}
     </div>
     <div class="settings-accordion-body" onclick="event.stopPropagation()">
       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
-        <p style="font-size:1.05rem; color:var(--muted); font-weight:900; margin-bottom:0;">إدارة الحسابات، التعديل، والأسقف:</p>
-        <button class="btn btn-ghost" id="openAddAccountDialogBtn" style="width:auto; margin-top:0; padding:6px 12px; font-size:0.95rem;">➕ إضافة حساب</button>
+        <p style="color:var(--muted); font-weight:900; margin-bottom:0;">إدارة الحسابات، التعديل، والأسقف:</p>
+        <button class="btn btn-ghost" id="openAddAccountDialogBtn" style="width:auto; margin-top:0; padding:6px 14px; font-size:1.1rem;">➕ إضافة حساب</button>
       </div>
-      <div id="chartOfAccountsView" style="font-size:1.05rem;"></div>
+      <div id="chartOfAccountsView"></div>
     </div>
   </div>
 
@@ -956,13 +962,13 @@ html{scroll-behavior:smooth}body{padding-bottom:16px}
     <div class="settings-accordion-body" onclick="event.stopPropagation()">
       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
         <p style="color:var(--muted);font-weight:900;margin-bottom:0;">البنود الأساسية العشرة ثابتة، ويمكن إضافة بندين اختياريين عند الحاجة.</p>
-        <button class="btn btn-ghost" id="addCatBtn" style="width:auto; margin-top:0; padding:6px 12px; font-size:0.95rem;">➕ إضافة بند اختياري</button>
+        <button class="btn btn-ghost" id="addCatBtn" style="width:auto; margin-top:0; padding:6px 14px; font-size:1.1rem;">➕ إضافة بند اختياري</button>
       </div>
       <div id="pctRows"></div>
-      <div id="pctSum" style="text-align:center; font-weight:900; margin:14px 0; font-size:1.2rem;">المجموع: 100%</div>
+      <div id="pctSum" style="text-align:center; font-weight:900; margin:14px 0; font-size:1.35rem;">المجموع: 100%</div>
       <div style="display:flex; gap:8px;">
         <button class="btn btn-primary" id="savePctsBtn" style="margin-top:0; flex:2;">💾 حفظ البنود</button>
-        <button class="btn btn-ghost" id="resetPctsBtn" style="margin-top:0; flex:1; font-size:1.05rem;">↺ الافتراضي</button>
+        <button class="btn btn-ghost" id="resetPctsBtn" style="margin-top:0; flex:1; font-size:1.15rem;">↺ الافتراضي</button>
       </div>
     </div>
   </div>
@@ -974,11 +980,11 @@ html{scroll-behavior:smooth}body{padding-bottom:16px}
     </div>
     <div class="settings-accordion-body" onclick="event.stopPropagation()">
       <div style="display: flex; flex-direction: column; gap: 8px;">
-        <button class="btn btn-ghost" id="exportDataBtn" style="margin-top:0; border-color: var(--accent); color: var(--accent); font-size: 1.1rem;">
+        <button class="btn btn-ghost" id="exportDataBtn" style="margin-top:0; border-color: var(--accent); color: var(--accent); font-size: 1.2rem;">
           📥 تصدير نسخة احتياطية (JSON)
         </button>
         <input type="file" id="importFileInput" accept=".json" style="display:none;">
-        <button class="btn btn-ghost" id="importDataBtn" style="margin-top:0; font-size: 1.1rem;">
+        <button class="btn btn-ghost" id="importDataBtn" style="margin-top:0; font-size: 1.2rem;">
           📤 استيراد نسخة احتياطية (JSON)
         </button>
       </div>
@@ -990,8 +996,8 @@ html{scroll-behavior:smooth}body{padding-bottom:16px}
   <div class="modal-overlay" id="categoryTransactionsModal">
     <div class="modal-content">
       <div class="modal-header">
-        <h3 id="categoryModalTitle" style="font-size:1.25rem; color:var(--accent); font-weight:900;">تفاصيل عمليات البند</h3>
-        <button class="icon-btn" id="closeCategoryModalBtn" style="width:40px; height:40px;">✕</button>
+        <h3 id="categoryModalTitle" style="font-size:1.4rem; color:var(--accent); font-weight:900;">تفاصيل عمليات البند</h3>
+        <button class="icon-btn" id="closeCategoryModalBtn" style="width:44px; height:44px;">✕</button>
       </div>
       <div id="categoryTransactionsList" style="max-height: 60vh; overflow-y: auto;"></div>
     </div>
@@ -1000,8 +1006,8 @@ html{scroll-behavior:smooth}body{padding-bottom:16px}
   <div class="modal-overlay" id="reminderModal">
     <div class="modal-content">
       <div class="modal-header">
-        <h3 id="reminderModalTitle" style="font-size:1.25rem; color:var(--accent); font-weight:900;">⏰ إضافة أو تعديل تذكير</h3>
-        <button class="icon-btn" id="closeReminderModalBtn" style="width:40px; height:40px;">✕</button>
+        <h3 id="reminderModalTitle" style="font-size:1.4rem; color:var(--accent); font-weight:900;">⏰ إضافة أو تعديل تذكير</h3>
+        <button class="icon-btn" id="closeReminderModalBtn" style="width:44px; height:44px;">✕</button>
       </div>
       <input type="hidden" id="editReminderIndex" value="-1">
       <div class="form-group">
@@ -1034,8 +1040,8 @@ html{scroll-behavior:smooth}body{padding-bottom:16px}
   <div class="modal-overlay" id="editAccountModal">
     <div class="modal-content">
       <div class="modal-header">
-        <h3 style="font-size:1.25rem; color:var(--accent); font-weight:900;">✏️ تعديل اسم الحساب أو السقف</h3>
-        <button class="icon-btn" id="closeEditAccountModalBtn" style="width:40px; height:40px;">✕</button>
+        <h3 style="font-size:1.4rem; color:var(--accent); font-weight:900;">✏️ تعديل اسم الحساب أو السقف</h3>
+        <button class="icon-btn" id="closeEditAccountModalBtn" style="width:44px; height:44px;">✕</button>
       </div>
       <input type="hidden" id="editAccountOldName">
       <div class="form-group">
@@ -1060,10 +1066,10 @@ html{scroll-behavior:smooth}body{padding-bottom:16px}
     <div class="modal-content">
       <div class="modal-header">
         <div>
-          <h3 id="modalTitle" style="font-size:1.25rem; color:var(--accent); font-weight:900;">تعديل السند الأساسي</h3>
-          <span id="modalSubtitle" style="font-size:0.95rem; color:var(--muted); font-weight:900;"></span>
+          <h3 id="modalTitle" style="font-size:1.4rem; color:var(--accent); font-weight:900;">تعديل السند الأساسي</h3>
+          <span id="modalSubtitle" style="font-size:1.05rem; color:var(--muted); font-weight:900;"></span>
         </div>
-        <button class="icon-btn" id="closeModalBtn" style="width:40px; height:40px;">✕</button>
+        <button class="icon-btn" id="closeModalBtn" style="width:44px; height:44px;">✕</button>
       </div>
 
       <div class="form-group">
@@ -1077,7 +1083,7 @@ html{scroll-behavior:smooth}body{padding-bottom:16px}
       </div>
 
       <div style="text-align: center; margin: -6px 0 6px 0;">
-        <button type="button" class="btn btn-ghost" id="swapEditAccountsBtn" style="width: auto; display: inline-flex; align-items: center; gap: 6px; padding: 6px 14px; font-size: 0.95rem; border-color: var(--accent); color: var(--accent);">🔄 تبديل الحسابات (عكس المدين والدائن)</button>
+        <button type="button" class="btn btn-ghost" id="swapEditAccountsBtn" style="width: auto; display: inline-flex; align-items: center; gap: 6px; padding: 8px 16px; font-size: 1.1rem; border-color: var(--accent); color: var(--accent);">🔄 تبديل الحسابات (عكس المدين والدائن)</button>
       </div>
 
       <div class="form-group">
@@ -1106,9 +1112,9 @@ html{scroll-behavior:smooth}body{padding-bottom:16px}
       </div>
 
       <div class="voucher-split-box" id="editVoucherSplitContainer">
-        <div style="background:rgba(2,132,199,.10);border:1px solid var(--accent);border-radius:8px;padding:8px;margin-bottom:10px;font-weight:900;color:var(--accent);">⚖️ التوزيع الديناميكي لبنود الميزانية: يرجى مطابقة مجموع الموزع مع إجمالي السند.</div>
+        <div style="background:rgba(2,132,199,.10);border:1px solid var(--accent);border-radius:8px;padding:10px;margin-bottom:10px;font-weight:900;color:var(--accent);font-size:1.15rem;">⚖️ التوزيع الديناميكي لبنود الميزانية: يرجى مطابقة مجموع الموزع مع إجمالي السند.</div>
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-          <span style="font-weight: 900; font-size: 1.1rem; color: var(--accent);">📌 نمط التوزيع:</span>
+          <span style="font-weight: 900; font-size: 1.2rem; color: var(--accent);">📌 نمط التوزيع:</span>
           <div class="mode-toggle-switch">
             <button type="button" class="mode-toggle-btn active" id="editBtnModePct">نسبة (%)</button>
             <button type="button" class="mode-toggle-btn" id="editBtnModeAmt">مبالغ (كاش)</button>
@@ -1116,13 +1122,13 @@ html{scroll-behavior:smooth}body{padding-bottom:16px}
         </div>
 
         <div style="display: flex; justify-content: flex-end; gap: 8px; margin-bottom: 6px;">
-          <button type="button" class="btn btn-ghost" id="editZeroVoucherAmountsBtn" style="width: auto; margin-top: 0; padding: 4px 8px; font-size: 0.9rem;">تصفير 🗑️</button>
-          <button type="button" class="btn btn-ghost" id="editAutoDistributeVoucherBtn" style="width: auto; margin-top: 0; padding: 4px 8px; font-size: 0.9rem;">توزيع نسبي 🔄</button>
+          <button type="button" class="btn btn-ghost" id="editZeroVoucherAmountsBtn" style="width: auto; margin-top: 0; padding: 6px 10px; font-size: 1rem;">تصفير 🗑️</button>
+          <button type="button" class="btn btn-ghost" id="editAutoDistributeVoucherBtn" style="width: auto; margin-top: 0; padding: 6px 10px; font-size: 1rem;">توزيع نسبي 🔄</button>
         </div>
 
         <div id="editVoucherCatsList"></div>
 
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 10px; font-size: 1.05rem; font-weight: 900; border-top: 2px dashed var(--border); padding-top: 8px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 10px; font-size: 1.15rem; font-weight: 900; border-top: 2px dashed var(--border); padding-top: 8px;">
           <span>مجموع الموزع: <b id="editVoucherAllocatedSum">0</b> (<span id="editVoucherAllocatedPctSum">0%</span>)</span>
           <span>المتبقي: <b id="editVoucherRemainingSum" style="color: var(--ok);">0</b></span>
         </div>
@@ -1149,8 +1155,8 @@ html{scroll-behavior:smooth}body{padding-bottom:16px}
   <div class="modal-overlay" id="addAccountModal">
     <div class="modal-content">
       <div class="modal-header">
-        <h3 style="font-size:1.25rem; color:var(--accent); font-weight:900;">➕ إدارة وإضافة الحسابات والأسقف</h3>
-        <button class="icon-btn" id="closeAddAccountModalBtn" style="width:40px; height:40px;">✕</button>
+        <h3 style="font-size:1.4rem; color:var(--accent); font-weight:900;">➕ إدارة وإضافة الحسابات والأسقف</h3>
+        <button class="icon-btn" id="closeAddAccountModalBtn" style="width:44px; height:44px;">✕</button>
       </div>
 
       <div style="display:flex; gap:8px; margin-bottom:12px;">
@@ -1182,7 +1188,7 @@ html{scroll-behavior:smooth}body{padding-bottom:16px}
 
       <div id="boxAddParentAcc" class="hidden">
         <div class="form-group">
-          <label>يتبع للحساب الرئيسي الأب (اختياري - لجعل هذا رئيسياً فرعياً):</label>
+          <label>يتبع للحساب الرئيسي الأب (اختياري):</label>
           <select id="newParentCategoryParentSelect">
             <option value="">-- تصنيف رئيسي مستقل (مستوى أول) --</option>
           </select>
@@ -1196,13 +1202,12 @@ html{scroll-behavior:smooth}body{padding-bottom:16px}
     </div>
   </div>
 
-  <!-- نافذة عرض تفاصيل المستند أو العملية بالمطابقة التامة للصورة -->
   <div class="modal-overlay" id="longPressConfirmModal">
-    <div class="modal-content" style="max-width: 380px; text-align: right; padding: 20px;">
+    <div class="modal-content" style="max-width: 420px; text-align: right; padding: 20px;">
       
-      <h3 id="longPressModalTitle" style="font-size: 1.25rem; font-weight: 900; margin-bottom: 14px; color: var(--text); text-align: center; border-bottom: 2px solid var(--border); padding-bottom: 8px;">اسم الحساب</h3>
+      <h3 id="longPressModalTitle" style="font-size: 1.4rem; font-weight: 900; margin-bottom: 14px; color: var(--text); text-align: center; border-bottom: 2px solid var(--border); padding-bottom: 8px;">اسم الحساب</h3>
       
-      <div style="background: var(--card); display: flex; flex-direction: column; gap: 8px; margin-bottom: 16px; font-size: 1.05rem; font-weight: 900;">
+      <div style="background: var(--card); display: flex; flex-direction: column; gap: 8px; margin-bottom: 16px; font-size: 1.2rem; font-weight: 900;">
         <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); padding-bottom: 6px;">
           <span style="color: var(--muted);">المبلغ :-</span>
           <div style="display: flex; align-items: center; gap: 6px;">
@@ -1228,7 +1233,7 @@ html{scroll-behavior:smooth}body{padding-bottom:16px}
         </div>
       </div>
 
-      <div style="display: flex; gap: 10px; justify-content: center; font-size: 1.1rem;">
+      <div style="display: flex; gap: 10px; justify-content: center; font-size: 1.2rem;">
         <button class="btn btn-ghost" id="confirmEditDocBtn" style="flex: 1; margin-top: 0; border: 2px solid var(--border); font-weight: 900;">تعديل</button>
         <button class="btn btn-ghost" id="cancelEditDocBtn" style="flex: 1; margin-top: 0; border: 2px solid var(--border); font-weight: 900;">موافق</button>
       </div>
@@ -1236,10 +1241,10 @@ html{scroll-behavior:smooth}body{padding-bottom:16px}
   </div>
 
   <div class="modal-overlay" id="exitConfirmModal">
-    <div class="modal-content" style="max-width: 360px; text-align: center;">
+    <div class="modal-content" style="max-width: 380px; text-align: center;">
       <div style="font-size: 2.5rem; margin-bottom: 8px;">🚪</div>
-      <h3 style="font-size: 1.35rem; font-weight: 900; margin-bottom: 6px; color: var(--text);">تأكيد الخروج</h3>
-      <p style="font-size: 1.05rem; color: var(--muted); font-weight: 900; margin-bottom: 16px;">هل تريد بالفعل إغلاق تطبيق راتب والخروج منه؟</p>
+      <h3 style="font-size: 1.45rem; font-weight: 900; margin-bottom: 6px; color: var(--text);">تأكيد الخروج</h3>
+      <p style="font-size: 1.15rem; color: var(--muted); font-weight: 900; margin-bottom: 16px;">هل تريد بالفعل إغلاق تطبيق راتب والخروج منه؟</p>
       <div style="display: flex; gap: 8px;">
         <button class="btn btn-danger" id="confirmExitAppBtn" style="flex: 1; margin-top: 0;">نعم، خروج</button>
         <button class="btn btn-ghost" id="cancelExitAppBtn" style="flex: 1; margin-top: 0;">البقاء بالتطبيق</button>
@@ -1248,10 +1253,10 @@ html{scroll-behavior:smooth}body{padding-bottom:16px}
   </div>
 
   <div class="modal-overlay" id="printPromptModal">
-    <div class="modal-content" style="max-width: 360px; text-align: center;">
+    <div class="modal-content" style="max-width: 380px; text-align: center;">
       <div style="font-size: 2.5rem; margin-bottom: 8px;">🖨️</div>
-      <h3 style="font-size: 1.35rem; font-weight: 900; margin-bottom: 6px; color: var(--text);">تم اعتماد وحفظ السند بنجاح</h3>
-      <p style="font-size: 1.05rem; color: var(--muted); font-weight: 900; margin-bottom: 16px;">هل تريد طباعة هذا المستند الآن؟</p>
+      <h3 style="font-size: 1.45rem; font-weight: 900; margin-bottom: 6px; color: var(--text);">تم اعتماد وحفظ السند بنجاح</h3>
+      <p style="font-size: 1.15rem; color: var(--muted); font-weight: 900; margin-bottom: 16px;">هل تريد طباعة هذا المستند الآن؟</p>
       <div style="display: flex; gap: 8px;">
         <button class="btn btn-success" id="confirmPrintDocBtn" style="flex: 1; margin-top: 0;">طباعة المستند</button>
         <button class="btn btn-ghost" id="skipPrintDocBtn" style="flex: 1; margin-top: 0;">تخطي</button>
@@ -1261,43 +1266,10 @@ html{scroll-behavior:smooth}body{padding-bottom:16px}
 
   <div class="modal-overlay" id="globalSearchModal" role="dialog" aria-modal="true" aria-labelledby="globalSearchTitle">
     <div class="modal-content">
-      <div class="modal-header"><h3 id="globalSearchTitle" style="font-size:1.25rem;color:var(--accent);font-weight:900">🔎 البحث العام</h3><button class="icon-btn" id="closeGlobalSearchBtn" aria-label="إغلاق">✕</button></div>
+      <div class="modal-header"><h3 id="globalSearchTitle" style="font-size:1.4rem;color:var(--accent);font-weight:900">🔎 البحث العام</h3><button class="icon-btn" id="closeGlobalSearchBtn" aria-label="إغلاق">✕</button></div>
       <input type="search" id="globalSearchInput" placeholder="السند، الحساب، المبلغ، البيان، التاريخ..." autocomplete="off">
       <div id="globalSearchResults" class="global-search-results" style="margin-top:10px"></div>
-      <div style="font-size:0.95rem;color:var(--muted);font-weight:900;margin-top:8px">اختصار لوحة المفاتيح: Ctrl + K أو ⌘ + K</div>
-    </div>
-  </div>
-
-  <div class="modal-overlay" id="accountMoveModal">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h3 style="font-size:1.25rem; color:var(--accent); font-weight:900;">🔀 نقل أو إعادة ترتيب الحساب</h3>
-        <button class="icon-btn" id="closeMoveAccountModalBtn" style="width:40px; height:40px;">✕</button>
-      </div>
-
-      <div id="moveAccountInfo" style="background:var(--bg); border:2px solid var(--border); border-radius:10px; padding:12px; margin-bottom:12px; font-weight:900;"></div>
-
-      <div class="form-group">
-        <label>نوع العملية:</label>
-        <div class="mode-toggle-switch" style="grid-template-columns:1fr 1fr 1fr;">
-          <button type="button" class="mode-toggle-btn active" id="btnModeMove">🔀 نقل عادي</button>
-          <button type="button" class="mode-toggle-btn" id="btnModePromote">⬆️ ترقية لرئيسي</button>
-          <button type="button" class="mode-toggle-btn" id="btnModeDemote">⬇️ تنزيل لفرعي</button>
-        </div>
-      </div>
-
-      <div class="form-group" id="moveTargetGroup">
-        <label>الموقع الجديد:</label>
-        <select id="moveTargetSelect"></select>
-      </div>
-
-      <div class="form-group hidden" id="promoteMessage">
-        <div style="background:rgba(16,185,129,0.10); border:2px dashed var(--ok); border-radius:10px; padding:12px; font-weight:900; color:var(--ok);">
-          ✅ سيتم ترقية هذا العنصر ليصبح تصنيفًا رئيسيًا مستقلًا في أعلى الشجرة.
-        </div>
-      </div>
-
-      <button class="btn btn-primary" id="executeAccountMoveBtn" style="margin-top:8px;">✅ تنفيذ العملية</button>
+      <div style="font-size:1.05rem;color:var(--muted);font-weight:900;margin-top:8px">اختصار لوحة المفاتيح: Ctrl + K أو ⌘ + K</div>
     </div>
   </div>
 
@@ -1333,7 +1305,7 @@ html{scroll-behavior:smooth}body{padding-bottom:16px}
           <tbody><tr><td id="psTotAlaykom" style="color:#ef4444;">0</td><td id="psTotLakam" style="color:#10b981;">0</td><td id="psNetBal" style="color:#0284c7;">0</td></tr></tbody>
         </table>
         <div id="psNetBalType" style="font-weight:900;">الرصيد لصالح الدائن</div>
-        <div id="psTafqitText" style="font-size: 9pt; color: #000; font-weight: 900;">-</div>
+        <div id="psTafqitText" style="font-size: 8.5pt; color: #000; font-weight: 900;">-</div>
         <div style="font-size: 8pt; color: #000; font-weight: 900;">يرجى مراجعة الكشف خلال 14 يوما من تاريخه والتواصل عند وجود أي استفسار.</div>
       </div>
     </div>
@@ -1705,8 +1677,8 @@ function renderRemindersChart() {
       hover: { mode: 'nearest', intersect: true },
       onHover: (event, elements) => { event.native.target.style.cursor = elements.length ? 'pointer' : 'default'; },
       plugins: {
-        legend: { position: 'bottom', labels: { font: { family: 'Tajawal', weight: '900', size: 12 }, usePointStyle: true, padding: 12 } },
-        datalabels: { color: '#fff', font: { weight: '900', size: 11 } },
+        legend: { position: 'bottom', labels: { font: { family: 'Tajawal', weight: '900', size: 14 }, usePointStyle: true, padding: 12 } },
+        datalabels: { color: '#fff', font: { weight: '900', size: 13 } },
         centerText: { total: list.length }
       }
     },
@@ -1716,8 +1688,8 @@ function renderRemindersChart() {
         const {ctx, chartArea} = chart; if (!chartArea) return;
         const x=(chartArea.left+chartArea.right)/2, y=(chartArea.top+chartArea.bottom)/2;
         ctx.save(); ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.fillStyle=getComputedStyle(document.documentElement).getPropertyValue('--text').trim() || '#0f172a';
-        ctx.font='900 24px Tajawal'; ctx.fillText(String(opts.total || 0),x,y-7);
-        ctx.font='900 11px Tajawal'; ctx.fillStyle='#64748b'; ctx.fillText('مهمة',x,y+14); ctx.restore();
+        ctx.font='900 26px Tajawal'; ctx.fillText(String(opts.total || 0),x,y-7);
+        ctx.font='900 13px Tajawal'; ctx.fillStyle='#64748b'; ctx.fillText('مهمة',x,y+16); ctx.restore();
       }
     }]
   });
@@ -1732,7 +1704,7 @@ function filterRemindersByPriority(priority) {
   const backup = store.get('_remindersFilterBackup', null);
   store.set('_remindersFilterBackup', list);
   store.set('reminders', filtered); renderRemindersList(); store.set('reminders', backup || list);
-  const clear = document.createElement('button'); clear.className = 'btn btn-ghost'; clear.style.cssText = 'margin:4px 0 8px;font-size:.9rem;padding:8px'; clear.textContent = 'عرض كل المهام'; clear.onclick = () => { renderRemindersList(); };
+  const clear = document.createElement('button'); clear.className = 'btn btn-ghost'; clear.style.cssText = 'margin:4px 0 8px;font-size:1.05rem;padding:8px'; clear.textContent = 'عرض كل المهام'; clear.onclick = () => { renderRemindersList(); };
   container.prepend(clear);
 }
 
@@ -1748,16 +1720,16 @@ function renderRemindersList() {
     const item = document.createElement('div');
     const priorityColor = rem.priority === 'حرجة جداً' ? 'var(--danger)' : (rem.priority === 'عاجلة' ? '#f97316' : (rem.priority === 'مهمة' ? 'var(--warn)' : 'var(--ok)'));
     const isPartial = rem.status === 'partial';
-    item.style.cssText = `display:flex; justify-content:space-between; align-items:center; background:var(--bg); border:2px solid ${isPartial ? 'var(--warn)' : 'var(--border)'}; border-radius:10px; padding:10px 12px; margin-bottom:6px; font-weight:900;`;
+    item.style.cssText = `display:flex; justify-content:space-between; align-items:center; background:var(--bg); border:2px solid ${isPartial ? 'var(--warn)' : 'var(--border)'}; border-radius:10px; padding:12px 14px; margin-bottom:8px; font-weight:900; font-size:1.15rem;`;
     item.innerHTML = `
       <div>
-        <b>📌 ${esc(rem.title)}</b> <span style="font-size:0.85rem; padding:2px 8px; border-radius:10px; background:${priorityColor}; color:#fff;">${esc(rem.priority || 'عادية')}</span>
-        ${isPartial ? '<span style="font-size:0.8rem; background:rgba(245,158,11,0.15); color:var(--warn); padding:2px 6px; border-radius:8px; margin-right:6px;">⏳ قيد التنفيذ (جزئي)</span>' : ''}<br>
-        <small style="color:var(--muted);">📅 ${esc(rem.date)} | ⏰ ${esc(rem.time || 'وقت غير محدد')}</small>
+        <b>📌 ${esc(rem.title)}</b> <span style="font-size:0.95rem; padding:3px 10px; border-radius:10px; background:${priorityColor}; color:#fff;">${esc(rem.priority || 'عادية')}</span>
+        ${isPartial ? '<span style="font-size:0.9rem; background:rgba(245,158,11,0.15); color:var(--warn); padding:2px 8px; border-radius:8px; margin-right:6px;">⏳ قيد التنفيذ (جزئي)</span>' : ''}<br>
+        <small style="color:var(--muted); font-size:1.05rem;">📅 ${esc(rem.date)} | ⏰ ${esc(rem.time || 'وقت غير محدد')}</small>
       </div>
       <div style="display:flex; gap:6px; align-items:center;">
-        <button class="btn btn-success complete-partial-btn" data-idx="${idx}" title="إنجاز جزئي / قيد التنفيذ" style="width:auto; margin-top:0; padding:4px 8px; font-size:0.85rem;">⏳ جزئي</button>
-        <button class="btn btn-primary complete-full-btn" data-idx="${idx}" title="إنجاز كلي" style="width:auto; margin-top:0; padding:4px 8px; font-size:0.85rem; background:var(--ok);">✅ إنجاز</button>
+        <button class="btn btn-success complete-partial-btn" data-idx="${idx}" title="إنجاز جزئي / قيد التنفيذ" style="width:auto; margin-top:0; padding:4px 10px; font-size:0.95rem;">⏳ جزئي</button>
+        <button class="btn btn-primary complete-full-btn" data-idx="${idx}" title="إنجاز كلي" style="width:auto; margin-top:0; padding:4px 10px; font-size:0.95rem; background:var(--ok);">✅ إنجاز</button>
         <button class="del-btn edit-reminder-btn" data-idx="${idx}" style="color:var(--accent);">✏️</button>
         <button class="del-btn del-reminder-btn" data-idx="${idx}">🗑️</button>
       </div>
@@ -1827,7 +1799,7 @@ function closeGlobalSearch() { document.getElementById('globalSearchModal').clas
 function renderGlobalSearch(q) {
   const box=document.getElementById('globalSearchResults'); if(!box)return; const query=q.trim().toLowerCase();
   const txs=getAllTransactions().slice().reverse().filter(t=>{if(!query)return true;return [t.seqNum,t.type,t.date,t.isoDate,t.debitAccount,t.creditAccount,t.amount,t.currency,...Object.values(t.execution||{}).map(x => (x && x.note) || '')].join(' ').toLowerCase().includes(query)}).slice(0,80);
-  box.innerHTML=txs.length?txs.map(t=>`<div class="global-result" data-id="${esc(t.id)}"><b>${esc(t.type||'عملية')}</b> <span class="status-chip ${t.status==='reversed'?'reversed':''}">${t.status==='reversed'?'ملغى':'مرحّل'}</span><br><small>${esc(t.date||t.isoDate||'-')} • ${esc(t.debitAccount||'-')} ← ${esc(t.creditAccount||'-')} • ${esc(fmt(t.amount,t.currency))}</small></div>`).join(''):'<div style="padding:16px;text-align:center;color:var(--muted)">لا توجد نتائج</div>';
+  box.innerHTML=txs.length?txs.map(t=>`<div class="global-result" data-id="${esc(t.id)}"><b>${esc(t.type||'عملية')}</b> <span class="status-chip ${t.status==='reversed'?'reversed':''}">${t.status==='reversed'?'ملغى':'مرحّل'}</span><br><small style="font-size:1.05rem;">${esc(t.date||t.isoDate||'-')} • ${esc(t.debitAccount||'-')} ← ${esc(t.creditAccount||'-')} • ${esc(fmt(t.amount,t.currency))}</small></div>`).join(''):'<div style="padding:16px;text-align:center;color:var(--muted)">لا توجد نتائج</div>';
   box.querySelectorAll('.global-result').forEach(el=>el.addEventListener('click',()=>{const t=getAllTransactions().find(x=>String(x.id)===el.dataset.id);if(t){closeGlobalSearch();openTxModal(t);}}));
 }
 
@@ -1869,11 +1841,11 @@ function renderCategoryRows() {
           <span class="cat-name">${esc(c.name)}</span>
         </div>
         <div style="display:flex; align-items:center; gap:6px;">
-          <input type="number" class="cat-amount hide-in-privacy" data-idx="${idx}" value="${c.pct}" min="0" max="100" style="width:75px; text-align:center; padding:6px; font-weight:900;">
+          <input type="number" class="cat-amount hide-in-privacy" data-idx="${idx}" value="${c.pct}" min="0" max="100" style="width:80px; text-align:center; padding:6px; font-weight:900;">
           <span style="font-weight:900;">%</span>
         </div>
       </div>
-      <div style="font-size:0.9rem; color:var(--muted); font-weight:900; margin-top:6px;">${esc(c.description || '')}</div>
+      <div style="font-size:1.05rem; color:var(--muted); font-weight:900; margin-top:6px;">${esc(c.description || '')}</div>
     `;
     row.querySelector('input').addEventListener('input', (e) => {
       draftCats[idx].pct = parseFloat(e.target.value) || 0;
@@ -1960,14 +1932,6 @@ function monthName(key){ const [y,m] = key.split('-'); const ms = ['يناير',
 function fmt(amount, explicitCur = null){
   const num = Number(amount || 0);
   const formatted = num.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: (num % 1 === 0) ? 0 : 2 });
-  const cur = explicitCur || getGlobalCurrency();
-  const sym = {YER:'ر.ي', SAR:'ر.س', USD:'$'}[cur] || cur;
-  return formatted + ' ' + sym;
-}
-
-function fmtShort(amount, explicitCur = null) {
-  const num = Number(amount || 0);
-  const formatted = num.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
   const cur = explicitCur || getGlobalCurrency();
   const sym = {YER:'ر.ي', SAR:'ر.س', USD:'$'}[cur] || cur;
   return formatted + ' ' + sym;
@@ -2241,17 +2205,6 @@ function navigateToTab(target, pushToHistory = true) {
   if (pushToHistory) window.history.pushState({ page: 'tab', tab: target }, '');
 }
 
-let touchStartX = 0, touchStartY = 0;
-document.addEventListener('touchstart', (e) => { touchStartX = e.changedTouches[0].screenX; touchStartY = e.changedTouches[0].screenY; }, { passive: true });
-document.addEventListener('touchend', (e) => {
-  const diffX = e.changedTouches[0].screenX - touchStartX, diffY = e.changedTouches[0].screenY - touchStartY;
-  if (Math.abs(diffX) > Math.abs(diffY) && Math.abs(diffX) > 60) {
-    const idx = TABS_ORDER.indexOf(currentActiveTab || 'pageDashboard');
-    if (diffX > 0 && idx > 0) navigateToTab(TABS_ORDER[idx - 1], true);
-    else if (diffX < 0 && idx < TABS_ORDER.length - 1) navigateToTab(TABS_ORDER[idx + 1], true);
-  }
-}, { passive: true });
-
 function showExitModal() { document.getElementById('exitConfirmModal').classList.add('show'); }
 function hideExitModal() { document.getElementById('exitConfirmModal').classList.remove('show'); }
 
@@ -2277,7 +2230,6 @@ window.addEventListener('popstate', (e) => {
   if (document.getElementById('longPressConfirmModal').classList.contains('show')) { document.getElementById('longPressConfirmModal').classList.remove('show'); pushAppHistoryState(); return; }
   if (document.getElementById('addAccountModal').classList.contains('show')) { document.getElementById('addAccountModal').classList.remove('show'); pushAppHistoryState(); return; }
   if (document.getElementById('editAccountModal').classList.contains('show')) { document.getElementById('editAccountModal').classList.remove('show'); pushAppHistoryState(); return; }
-  if (document.getElementById('accountMoveModal').classList.contains('show')) { document.getElementById('accountMoveModal').classList.remove('show'); pushAppHistoryState(); return; }
   if (document.getElementById('printPromptModal').classList.contains('show')) { document.getElementById('printPromptModal').classList.remove('show'); pushAppHistoryState(); return; }
   if (document.getElementById('categoryTransactionsModal').classList.contains('show')) { document.getElementById('categoryTransactionsModal').classList.remove('show'); pushAppHistoryState(); return; }
   if (currentActiveTab && currentActiveTab !== 'pageDashboard') { navigateToTab('pageDashboard', false); pushAppHistoryState(); return; }
@@ -2323,10 +2275,10 @@ function initLiveAccountsTreePage() {
       const balColor = res.balance >= 0 ? 'var(--ok)' : 'var(--danger)';
       
       const subRow = document.createElement('div');
-      subRow.style.cssText = 'display:flex; justify-content:space-between; align-items:center; padding:10px 0; border-bottom:1px dashed var(--border); font-size:1.05rem; cursor:pointer;';
+      subRow.style.cssText = 'display:flex; justify-content:space-between; align-items:center; padding:12px 0; border-bottom:1px dashed var(--border); font-size:1.2rem; cursor:pointer;';
       subRow.innerHTML = `
         <span>↳ 👤 ${esc(subName)}</span>
-        <div style="display:flex; gap:12px; font-size:0.95rem;">
+        <div style="display:flex; gap:14px; font-size:1.15rem;">
           <span style="color:var(--danger)">مدين: ${res.debit.toLocaleString()}</span>
           <span style="color:var(--ok)">دائن: ${res.credit.toLocaleString()}</span>
           <span style="color:${balColor}; font-weight:900;">الرصيد: ${res.balance.toLocaleString()}</span>
@@ -2349,7 +2301,7 @@ function initLiveAccountsTreePage() {
     if (node.subGroups) {
       Object.keys(node.subGroups).forEach(subP => {
         const groupTitle = document.createElement('div');
-        groupTitle.style.cssText = 'background:rgba(2,132,199,0.08); padding:8px; border-radius:8px; margin:8px 0 6px; font-weight:900;';
+        groupTitle.style.cssText = 'background:rgba(2,132,199,0.08); padding:10px; border-radius:8px; margin:10px 0 8px; font-weight:900; font-size:1.25rem;';
         groupTitle.textContent = `📂 ${subP}`;
         subContainer.appendChild(groupTitle);
         (node.subGroups[subP] || []).forEach(sub => { subContainer.appendChild(getSubDetails(sub)); });
@@ -2360,10 +2312,10 @@ function initLiveAccountsTreePage() {
     const mainBalColor = mainBalance >= 0 ? 'var(--ok)' : 'var(--danger)';
     
     const summaryDiv = document.createElement('div');
-    summaryDiv.style.cssText = 'background:var(--bg); padding:10px; border-radius:8px; margin-bottom:10px; font-weight:900; display:flex; justify-content:space-between;';
+    summaryDiv.style.cssText = 'background:var(--bg); padding:12px; border-radius:8px; margin-bottom:12px; font-weight:900; display:flex; justify-content:space-between; font-size:1.2rem;';
     summaryDiv.innerHTML = `
       <span>📊 إجماليات التصنيف:</span>
-      <div style="display:flex; gap:12px; font-size:0.95rem;">
+      <div style="display:flex; gap:14px; font-size:1.15rem;">
         <span style="color:var(--danger)">مدين: ${mainTotDebit.toLocaleString()}</span>
         <span style="color:var(--ok)">دائن: ${mainTotCredit.toLocaleString()}</span>
         <span style="color:${mainBalColor}">الصافي: ${mainBalance.toLocaleString()}</span>
@@ -2390,7 +2342,7 @@ function renderChartOfAccounts() {
     header.innerHTML = `
       <span>📁 ${esc(mainP)}</span>
       <div style="display:flex; gap:6px;">
-        <button class="btn btn-ghost" style="width:auto; margin-top:0; padding:2px 8px; font-size:0.85rem;" onclick="event.stopPropagation(); openAddAccountModal('${esc(mainP)}')">➕ فرعي</button>
+        <button class="btn btn-ghost" style="width:auto; margin-top:0; padding:4px 10px; font-size:0.95rem;" onclick="event.stopPropagation(); openAddAccountModal('${esc(mainP)}')">➕ فرعي</button>
       </div>
     `;
 
@@ -2400,14 +2352,14 @@ function renderChartOfAccounts() {
     function buildSubAccountRow(subName) {
       const c = ceilings[subName] || { max: null, min: null };
       const subRow = document.createElement('div');
-      subRow.style.cssText = 'display:flex; justify-content:space-between; align-items:center; padding:10px 0; border-bottom:1px dashed var(--border); font-size:1.05rem;';
+      subRow.style.cssText = 'display:flex; justify-content:space-between; align-items:center; padding:12px 0; border-bottom:1px dashed var(--border); font-size:1.2rem;';
       subRow.innerHTML = `
         <div>
           <b>↳ 👤 ${esc(subName)}</b>
-          <div style="font-size:0.85rem; color:var(--muted); font-weight:900;">الأسقف: الأعلى (${c.max !== null ? c.max.toLocaleString() : 'غير محدود'}) | الأدنى (${c.min !== null ? c.min.toLocaleString() : 'غير محدود'})</div>
+          <div style="font-size:1rem; color:var(--muted); font-weight:900;">الأسقف: الأعلى (${c.max !== null ? c.max.toLocaleString() : 'غير محدود'}) | الأدنى (${c.min !== null ? c.min.toLocaleString() : 'غير محدود'})</div>
         </div>
         <div style="display:flex; gap:6px;">
-          <button class="btn btn-ghost" style="width:auto; margin-top:0; padding:4px 8px; font-size:0.85rem;" onclick="openEditAccountModal('${esc(subName)}')">✏️ تعديل</button>
+          <button class="btn btn-ghost" style="width:auto; margin-top:0; padding:6px 12px; font-size:0.95rem;" onclick="openEditAccountModal('${esc(subName)}')">✏️ تعديل</button>
           <button class="del-btn" onclick="deleteAccountFromTree('${esc(mainP)}', '${esc(subName)}')">🗑️</button>
         </div>
       `;
@@ -2421,11 +2373,11 @@ function renderChartOfAccounts() {
     if (node.subGroups) {
       Object.keys(node.subGroups).forEach(subP => {
         const groupWrap = document.createElement('div');
-        groupWrap.style.cssText = 'margin:8px 0; background:var(--bg); border:1px solid var(--border); border-radius:8px; padding:8px;';
+        groupWrap.style.cssText = 'margin:10px 0; background:var(--bg); border:1px solid var(--border); border-radius:8px; padding:10px;';
         groupWrap.innerHTML = `
-          <div style="display:flex; justify-content:space-between; align-items:center; font-weight:900; color:var(--accent); margin-bottom:6px;">
+          <div style="display:flex; justify-content:space-between; align-items:center; font-weight:900; color:var(--accent); margin-bottom:8px; font-size:1.2rem;">
             <span>📂 مجموعة فرعية: ${esc(subP)}</span>
-            <button class="btn btn-ghost" style="width:auto; margin-top:0; padding:2px 6px; font-size:0.8rem;" onclick="openAddAccountModal('${esc(mainP)} > ${esc(subP)}')">➕ إضافة تحتها</button>
+            <button class="btn btn-ghost" style="width:auto; margin-top:0; padding:4px 10px; font-size:0.9rem;" onclick="openAddAccountModal('${esc(mainP)} > ${esc(subP)}')">➕ إضافة تحتها</button>
           </div>
         `;
         (node.subGroups[subP] || []).forEach(sub => { groupWrap.appendChild(buildSubAccountRow(sub)); });
@@ -2565,7 +2517,7 @@ class SearchableSelect {
     const matches = this.items.filter(item => !q || item.text.toLowerCase().includes(q) || (item.group && item.group.toLowerCase().includes(q)));
     this.visibleItems = matches;
     this.activeIndex = 0;
-    if (!matches.length) { this.drop.innerHTML = '<div style="padding:10px; color:var(--muted); text-align:center;">لا توجد نتائج</div>'; return matches; }
+    if (!matches.length) { this.drop.innerHTML = '<div style="padding:12px; color:var(--muted); text-align:center; font-size:1.15rem;">لا توجد نتائج</div>'; return matches; }
     const resultHeader = document.createElement('div'); resultHeader.className = 'search-results-count'; resultHeader.textContent = `نتائج البحث: ${matches.length}`; this.drop.appendChild(resultHeader);
     const groups = {};
     matches.forEach(item => { const g = item.group || 'أخرى'; if (!groups[g]) groups[g] = []; groups[g].push(item); });
@@ -2785,8 +2737,8 @@ function renderVoucherCategoriesList() {
     const st = voucherCatStates[c.id] || { enabled: true, amount: 0, pct: c.pct || 0 };
     const row = document.createElement('div'); row.className = `voucher-cat-row ${st.enabled ? '' : 'disabled'}`;
     let inputHtml = voucherSplitMode === 'pct' ? 
-      `<div class="voucher-cat-input-wrap"><input type="number" class="voucher-cat-pct-input hide-in-privacy" data-id="${c.id}" value="${st.pct}" ${st.enabled ? '' : 'disabled'}><span style="font-weight:900;">%</span><span style="color:var(--muted); font-weight:900; min-width:60px; text-align:left;">(${Number(st.amount || 0).toLocaleString()} • ${Number(st.pct || 0).toFixed(2)}%)</span></div>` :
-      `<div class="voucher-cat-input-wrap"><input type="number" class="voucher-cat-amt-input hide-in-privacy" data-id="${c.id}" value="${st.amount || 0}" ${st.enabled ? '' : 'disabled'}><span style="color:var(--muted); font-weight:900; min-width:35px; text-align:left;">(${st.pct || 0}%)</span></div>`;
+      `<div class="voucher-cat-input-wrap"><input type="number" class="voucher-cat-pct-input hide-in-privacy" data-id="${c.id}" value="${st.pct}" ${st.enabled ? '' : 'disabled'}><span style="font-weight:900;">%</span><span style="color:var(--muted); font-weight:900; min-width:70px; text-align:left;">(${Number(st.amount || 0).toLocaleString()} • ${Number(st.pct || 0).toFixed(2)}%)</span></div>` :
+      `<div class="voucher-cat-input-wrap"><input type="number" class="voucher-cat-amt-input hide-in-privacy" data-id="${c.id}" value="${st.amount || 0}" ${st.enabled ? '' : 'disabled'}><span style="color:var(--muted); font-weight:900; min-width:40px; text-align:left;">(${st.pct || 0}%)</span></div>`;
 
     row.innerHTML = `<div class="voucher-cat-name" title="${esc(c.description || 'اضغط لعرض شرح البند')}"><button type="button" class="toggle-vis-btn toggle-v-cat" data-id="${c.id}">${st.enabled ? '👁️' : '🔄'}</button><span class="cat-color" style="background:${c.color}"></span><button type="button" class="cat-help-btn" data-id="${c.id}">${esc(c.name)} <small>ⓘ</small></button></div>${inputHtml}`;
     row.querySelector('.cat-help-btn').addEventListener('click', () => showToast(c.description || 'بند الميزانية المحدد', 'success'));
@@ -2926,12 +2878,8 @@ document.getElementById('commitVoucherBtn').addEventListener('click', () => {
     totalAllocated = totalAmount;
     finalDist[general.id] = { id: general.id, name: general.name, amount: totalAmount, pct: 100, color: general.color, excluded: false };
     initialExecution[general.id] = { done: true, actualSpent: currentVoucherMode === 'income' ? 0 : totalAmount, note: note || '' };
-    showToast(`تم تصنيف السند تلقائيًا تحت «${general.name}»`, 'success');
   }
   if (Math.abs(totalAllocated - totalAmount) > 0.001) { alert(`لا يمكن ترحيل السند: مجموع توزيع الميزانية (${totalAllocated.toLocaleString()}) لا يساوي إجمالي السند (${totalAmount.toLocaleString()}).`); return; }
-
-  const warnings = checkCeilingWarning(debitAcc, creditAcc, totalAmount);
-  if (warnings.length > 0 && !confirm(warnings.join('\n\n') + '\n\nهل ترغب بالاستمرار وتجاوز السقف؟')) return;
 
   const assignedSeqNum = getNextVoucherNumber(currentVoucherMode);
   const tx = {
@@ -2943,18 +2891,31 @@ document.getElementById('commitVoucherBtn').addEventListener('click', () => {
   };
 
   const errs = validateTransaction(tx); if (errs.length) { alert(errs.join('\n')); return; }
-  let p = getMasterPlan(); p.transactions.push(tx); store.set('plan', p);
-  audit('CREATE_TRANSACTION', tx.id, null, tx); showToast('تم حفظ السند بنجاح', 'success');
-  lastPrintedTx = tx; preparePrintVoucherTemplate(tx);
+  
+  let p = getMasterPlan(); 
+  if (!p.transactions) p.transactions = [];
+  p.transactions.push(tx); 
+  store.set('plan', p);
+  
+  audit('CREATE_TRANSACTION', tx.id, null, tx); 
+  showToast('تم حفظ السند بنجاح', 'success');
+  
+  lastPrintedTx = tx; 
+  preparePrintVoucherTemplate(tx);
 
-  updateVoucherSeqBadge(); renderAllData();
-  document.getElementById('printPromptModal').classList.add('show'); pushAppHistoryState();
+  updateVoucherSeqBadge(); 
+  renderAllData();
+  updateProDashboard();
+  
+  document.getElementById('printPromptModal').classList.add('show'); 
+  pushAppHistoryState();
 });
 
 document.getElementById('confirmPrintDocBtn')?.addEventListener('click', () => {
   document.getElementById('printPromptModal').classList.remove('show');
   if (lastPrintedTx) preparePrintVoucherTemplate(lastPrintedTx);
-  document.body.classList.add('printing-voucher'); window.print();
+  document.body.classList.add('printing-voucher'); 
+  window.print();
   setTimeout(() => document.body.classList.remove('printing-voucher'), 1000);
 });
 document.getElementById('skipPrintDocBtn')?.addEventListener('click', () => document.getElementById('printPromptModal').classList.remove('show'));
@@ -3043,13 +3004,13 @@ function renderEditVoucherCategoriesList() {
     const row = document.createElement('div'); row.className = `voucher-cat-row ${st.enabled ? '' : 'disabled'}`;
     
     let inputHtml = editVoucherSplitMode === 'pct' ? 
-      `<div class="voucher-cat-input-wrap"><input type="number" class="voucher-cat-pct-input edit-cat-pct-input hide-in-privacy" data-id="${c.id}" value="${st.pct}" ${st.enabled ? '' : 'disabled'}><span style="font-weight:900;">%</span><span style="color:var(--muted); font-weight:900; min-width:60px; text-align:left;">(${Number(st.amount || 0).toLocaleString()} • ${Number(st.pct || 0).toFixed(2)}%)</span></div>` :
-      `<div class="voucher-cat-input-wrap"><input type="number" class="voucher-cat-amt-input edit-cat-amt-input hide-in-privacy" data-id="${c.id}" value="${st.amount || 0}" ${st.enabled ? '' : 'disabled'}><span style="color:var(--muted); font-weight:900; min-width:35px; text-align:left;">(${st.pct || 0}%)</span></div>`;
+      `<div class="voucher-cat-input-wrap"><input type="number" class="voucher-cat-pct-input edit-cat-pct-input hide-in-privacy" data-id="${c.id}" value="${st.pct}" ${st.enabled ? '' : 'disabled'}><span style="font-weight:900;">%</span><span style="color:var(--muted); font-weight:900; min-width:70px; text-align:left;">(${Number(st.amount || 0).toLocaleString()} • ${Number(st.pct || 0).toFixed(2)}%)</span></div>` :
+      `<div class="voucher-cat-input-wrap"><input type="number" class="voucher-cat-amt-input edit-cat-amt-input hide-in-privacy" data-id="${c.id}" value="${st.amount || 0}" ${st.enabled ? '' : 'disabled'}><span style="color:var(--muted); font-weight:900; min-width:40px; text-align:left;">(${st.pct || 0}%)</span></div>`;
 
     row.innerHTML = `
-      <div style="display:flex; align-items:center; gap:8px; font-weight:900; font-size:1.05rem; flex:1;">
+      <div style="display:flex; align-items:center; gap:8px; font-weight:900; font-size:1.15rem; flex:1;">
         <button type="button" class="toggle-vis-btn toggle-edit-cat" data-id="${c.id}" style="background:none; border:none; cursor:pointer;">${st.enabled ? '👁️' : '🔄'}</button>
-        <span class="cat-color" style="background:${c.color}; width:16px; height:16px; border-radius:4px; display:inline-block;"></span>
+        <span class="cat-color" style="background:${c.color}; width:18px; height:18px; border-radius:4px; display:inline-block;"></span>
         <span>${esc(c.name)}</span>
       </div>
       ${inputHtml}
@@ -3587,8 +3548,8 @@ function runBudgetReport() {
       responsive: true,
       maintainAspectRatio: false,
       plugins: {
-        legend: { position: 'bottom', labels: { font: { family: 'Tajawal', weight: '900', size: 12 } } },
-        datalabels: { color: '#fff', font: { weight: '900', size: 11 } }
+        legend: { position: 'bottom', labels: { font: { family: 'Tajawal', weight: '900', size: 14 } } },
+        datalabels: { color: '#fff', font: { weight: '900', size: 13 } }
       }
     }
   });
@@ -3611,8 +3572,8 @@ function openCategoryTransactionsModal(catObj) {
           <span><b>#${t.seqNum || '-'}</b> • ${esc(t.type)}</span>
           <span style="color:var(--accent);">${fmt(t.assignedAmount, t.currency)}</span>
         </div>
-        <div style="font-size:0.95rem; color:var(--muted); margin-top:4px;">📅 ${t.date} | البيان: ${esc(noteStr)}</div>
-        <div style="font-size:0.9rem; color:var(--muted); margin-top:2px;">الطرف المدين: ${esc(t.debitAccount)} ← الدائن: ${esc(t.creditAccount)}</div>
+        <div style="font-size:1.05rem; color:var(--muted); margin-top:4px;">📅 ${t.date} | البيان: ${esc(noteStr)}</div>
+        <div style="font-size:1rem; color:var(--muted); margin-top:2px;">الطرف المدين: ${esc(t.debitAccount)} ← الدائن: ${esc(t.creditAccount)}</div>
       `;
 
       item.addEventListener('click', () => {

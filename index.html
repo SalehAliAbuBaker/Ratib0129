@@ -1196,7 +1196,7 @@ html{scroll-behavior:smooth}body{padding-bottom:16px}
     </div>
   </div>
 
-  <!-- نافذة خيار تعديل المستند أو العملية عند الضغط المطول -->
+  <!-- نافذة خيار تعديل المستند أو العملية عند النقر المباشر -->
   <div class="modal-overlay" id="longPressConfirmModal">
     <div class="modal-content" style="max-width: 360px; text-align: center;">
       <div style="font-size: 2.5rem; margin-bottom: 8px;">✏️</div>
@@ -3220,30 +3220,17 @@ function renderAllData() {
       <div class="tx-dist">${distHtml}</div>
     `;
 
-    let pressTimer = null;
-    const startLongPress = (e) => {
-      if (e.target.closest('.single-del-btn')) return;
-      pressTimer = setTimeout(() => {
-        pendingLongPressTx = item;
-        document.getElementById('longPressConfirmText').textContent = `هل تريد تعديل هذا المستند؟ (${item.type || 'سند'})`;
-        document.getElementById('longPressConfirmModal').classList.add('show');
-        pushAppHistoryState();
-      }, 600);
-    };
-    const cancelLongPress = () => { if (pressTimer) clearTimeout(pressTimer); };
-
-    card.addEventListener('mousedown', startLongPress);
-    card.addEventListener('touchstart', startLongPress, { passive: true });
-    card.addEventListener('mouseup', cancelLongPress);
-    card.addEventListener('mouseleave', cancelLongPress);
-    card.addEventListener('touchend', cancelLongPress);
-    card.addEventListener('touchmove', cancelLongPress);
-
+    // تم تعديل النقر في السجل ليفتح خيارات المستند مباشرة بالنقر العادي
     card.addEventListener('click', (e) => { 
       if (e.target.closest('.single-del-btn')) { 
         e.stopPropagation(); 
         deleteSingleTransaction(item.id); 
-      } 
+        return;
+      }
+      pendingLongPressTx = item;
+      document.getElementById('longPressConfirmText').textContent = `هل تريد تعديل هذا المستند؟ (${item.type || 'سند'})`;
+      document.getElementById('longPressConfirmModal').classList.add('show');
+      pushAppHistoryState();
     });
 
     container.appendChild(card);
@@ -3367,7 +3354,7 @@ function runAccountStatement() {
 
       const row = document.createElement('tr');
       row.style.cursor = 'pointer';
-      row.title = 'اضغط مطولاً لتعديل هذا المستند';
+      row.title = 'انقر لعرض خيارات المستند وتعديله';
       row.innerHTML = `
         <td>${t.isoDate || t.date}</td>
         <td><b>#${t.seqNum || '-'}</b> (${docType})</td>
@@ -3376,23 +3363,13 @@ function runAccountStatement() {
         <td style="color:var(--ok);">${creditAmt > 0 ? creditAmt.toLocaleString() : ''}</td>
       `;
 
-      let rowTimer = null;
-      const startRowLongPress = () => {
-        rowTimer = setTimeout(() => {
-          pendingLongPressTx = t;
-          document.getElementById('longPressConfirmText').textContent = `هل تريد تعديل هذا المستند؟ (${t.type || 'سند'})`;
-          document.getElementById('longPressConfirmModal').classList.add('show');
-          pushAppHistoryState();
-        }, 600);
-      };
-      const cancelRowLongPress = () => { if (rowTimer) clearTimeout(rowTimer); };
-
-      row.addEventListener('mousedown', startRowLongPress);
-      row.addEventListener('touchstart', startRowLongPress, { passive: true });
-      row.addEventListener('mouseup', cancelRowLongPress);
-      row.addEventListener('mouseleave', cancelRowLongPress);
-      row.addEventListener('touchend', cancelRowLongPress);
-      row.addEventListener('touchmove', cancelRowLongPress);
+      // تم تعديل النقر في كشف الحساب ليفتح خيارات المستند مباشرة بالنقر العادي
+      row.addEventListener('click', () => {
+        pendingLongPressTx = t;
+        document.getElementById('longPressConfirmText').textContent = `هل تريد تعديل هذا المستند؟ (${t.type || 'سند'})`;
+        document.getElementById('longPressConfirmModal').classList.add('show');
+        pushAppHistoryState();
+      });
 
       tbody.appendChild(row);
     });
@@ -3596,24 +3573,14 @@ function openCategoryTransactionsModal(catObj) {
         <div style="font-size:0.9rem; color:var(--muted); margin-top:2px;">الطرف المدين: ${esc(t.debitAccount)} ← الدائن: ${esc(t.creditAccount)}</div>
       `;
 
-      let modTimer = null;
-      const startModLongPress = () => {
-        modTimer = setTimeout(() => {
-          document.getElementById('categoryTransactionsModal').classList.remove('show');
-          pendingLongPressTx = t;
-          document.getElementById('longPressConfirmText').textContent = `هل تريد تعديل هذا المستند؟ (${t.type || 'سند'})`;
-          document.getElementById('longPressConfirmModal').classList.add('show');
-          pushAppHistoryState();
-        }, 600);
-      };
-      const cancelModLongPress = () => { if (modTimer) clearTimeout(modTimer); };
-
-      item.addEventListener('mousedown', startModLongPress);
-      item.addEventListener('touchstart', startModLongPress, { passive: true });
-      item.addEventListener('mouseup', cancelModLongPress);
-      item.addEventListener('mouseleave', cancelModLongPress);
-      item.addEventListener('touchend', cancelModLongPress);
-      item.addEventListener('touchmove', cancelModLongPress);
+      // والنقر هنا أيضاً يفتح خيارات المستند مباشرة
+      item.addEventListener('click', () => {
+        document.getElementById('categoryTransactionsModal').classList.remove('show');
+        pendingLongPressTx = t;
+        document.getElementById('longPressConfirmText').textContent = `هل تريد تعديل هذا المستند؟ (${t.type || 'سند'})`;
+        document.getElementById('longPressConfirmModal').classList.add('show');
+        pushAppHistoryState();
+      });
 
       listContainer.appendChild(item);
     });

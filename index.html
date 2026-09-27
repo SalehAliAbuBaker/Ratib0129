@@ -226,6 +226,8 @@ body.privacy-active .icon-btn#privacyBtn { background: var(--accent); color: #ff
   font-size: 1.1rem;
 }
 .acc-accordion-body.open { display: block; }
+.acc-subgroup-row td { background:rgba(2,132,199,0.08); font-weight:900; font-size:1.05rem; text-align:right; padding:8px 10px; }
+.acc-account-row td { transition: background 0.15s; }
 
 .settings-accordion-card { cursor: pointer; border-right: 6px solid var(--accent); transition: border-color 0.2s; }
 .settings-accordion-header { display: flex; justify-content: space-between; align-items: center; font-size: 1.2rem; font-weight: 900; color: var(--text); }
@@ -253,9 +255,12 @@ body.privacy-active .icon-btn#privacyBtn { background: var(--accent); color: #ff
 
 .print-header-banner { display: none; }
 .print-statement-container { display: none; }
+.print-budget-container { display: none; }
 body.printing-statement header, body.printing-statement .nav-tabs, body.printing-statement .no-print, body.printing-statement .btn, body.printing-statement .icon-btn, body.printing-statement #reportFilterBox, body.printing-statement .search-box, body.printing-statement .searchable-arrow, body.printing-statement .report-type-switch, body.printing-statement .print-header-banner, body.printing-statement .wrap > div:not(#printStatementContainer) { display: none !important; }
+body.printing-budget header, body.printing-budget .nav-tabs, body.printing-budget .no-print, body.printing-budget .btn, body.printing-budget .icon-btn, body.printing-budget #reportFilterBox, body.printing-budget .search-box, body.printing-budget .searchable-arrow, body.printing-budget .report-type-switch, body.printing-budget .print-header-banner, body.printing-budget .wrap > div:not(#printBudgetContainer) { display: none !important; }
 
-body.printing-statement .print-statement-container {
+body.printing-statement .print-statement-container,
+body.printing-budget .print-budget-container {
   display: block !important;
   width: 100% !important;
   max-width: 100% !important;
@@ -270,7 +275,10 @@ body.printing-statement .print-statement-container {
 .ps-header { text-align: center; border-bottom: 1.2px solid #000; padding-bottom: 2mm; margin-bottom: 3mm; }
 .ps-header h1 { font-size: 11pt !important; font-weight: 900; margin-bottom: 1px; color: #000; }
 .ps-header p { font-size: 9pt !important; color: #000; font-weight: 900; }
-.ps-title { text-align: center; font-size: 10pt !important; font-weight: 900; background: #f1f5f9; padding: 2px; border-radius: 2px; margin-bottom: 3mm; border: 1px solid #94a3b8; color: #000; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+.ps-title { text-align: center; font-size: 10pt !important; font-weight: 900; background: #f1f5f9; padding: 2px; border-radius: 2px; margin-bottom: 2mm; border: 1px solid #94a3b8; color: #000; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+.ps-period { text-align: center; font-size: 9pt !important; font-weight: 900; color: #000; margin-bottom: 3mm; }
+.ps-info-bar { display:flex; flex-wrap:wrap; justify-content:space-between; gap:2mm; font-size:8.5pt !important; font-weight:900; color:#000; border:1px solid #94a3b8; border-radius:2px; padding:1.5mm 3mm; margin-bottom:3mm; background:#f8fafc; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+.ps-info-label { color:#475569; }
 
 .ps-table-wrap { width: 100%; margin-bottom: 0; }
 .ps-table { width: 100%; border-collapse: collapse; font-size: 9.5pt !important; }
@@ -315,8 +323,8 @@ body.printing-voucher .print-voucher-container {
 
 @media print {
   @page { size: A4 portrait; margin: 3mm; }
-  body:not(.printing-voucher):not(.printing-statement) { background: #fff !important; color: #000 !important; font-size: 9.5pt !important; }
-  body:not(.printing-voucher):not(.printing-statement) header, body:not(.printing-voucher):not(.printing-statement) .nav-tabs, body:not(.printing-voucher):not(.printing-statement) .no-print, body:not(.printing-voucher):not(.printing-statement) .btn, body:not(.printing-voucher):not(.printing-statement) .icon-btn, body:not(.printing-voucher):not(.printing-statement) #reportFilterBox, body:not(.printing-voucher):not(.printing-statement) .search-box, body:not(.printing-voucher):not(.printing-statement) .searchable-arrow, body:not(.printing-voucher):not(.printing-statement) .report-type-switch { display: none !important; }
+  body:not(.printing-voucher):not(.printing-statement):not(.printing-budget) { background: #fff !important; color: #000 !important; font-size: 9.5pt !important; }
+  body:not(.printing-voucher):not(.printing-statement):not(.printing-budget) header, body:not(.printing-voucher):not(.printing-statement):not(.printing-budget) .nav-tabs, body:not(.printing-voucher):not(.printing-statement):not(.printing-budget) .no-print, body:not(.printing-voucher):not(.printing-statement):not(.printing-budget) .btn, body:not(.printing-voucher):not(.printing-statement):not(.printing-budget) .icon-btn, body:not(.printing-voucher):not(.printing-statement):not(.printing-budget) #reportFilterBox, body:not(.printing-voucher):not(.printing-statement):not(.printing-budget) .search-box, body:not(.printing-voucher):not(.printing-statement):not(.printing-budget) .searchable-arrow, body:not(.printing-voucher):not(.printing-statement):not(.printing-budget) .report-type-switch { display: none !important; }
 }
 
 .pv-header { text-align: center; border-bottom: 1.5px solid #000; padding-bottom: 4px; margin-bottom: 8px; }
@@ -351,6 +359,7 @@ body{user-select:text}.btn,.icon-btn,.nav-tab,.v-card-btn,.rpt-btn,.toggle-vis-b
 .carousel-dots{display:flex;gap:6px;align-items:center;justify-content:center}.carousel-dot{width:8px;height:8px;border:0;border-radius:50%;background:var(--border);padding:0;cursor:pointer}.carousel-dot.active{background:var(--accent);transform:scale(1.3)}
 .task-carousel-card{min-height:245px;display:flex;flex-direction:column;justify-content:center}.task-carousel-card .interactive-orbit{margin:0 auto 4px}.budget-carousel{margin-top:0}.budget-carousel .carousel-slide{min-height:142px;display:flex;flex-direction:column;justify-content:center}
 .statement-total-row th,.statement-total-row td{background:rgba(2,132,199,.12);border-top:3px solid var(--accent)!important;font-weight:900;font-size:1.2rem}.statement-balance-row th,.statement-balance-row td{background:rgba(16,185,129,.1);font-weight:900;font-size:1.3rem;border-bottom:3px double var(--accent)!important}.statement-total-row th:not(:first-child),.statement-total-row td{color:var(--text)}
+.statement-opening-row td{background:var(--bg);border-bottom:2px dashed var(--border);font-style:italic;padding:8px}
 .budget-shortcut-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.budget-shortcut{border:2px solid var(--border);background:var(--card);border-radius:12px;min-height:80px;padding:6px 2px;color:var(--text);font:900 0.95rem 'Tajawal',sans-serif;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;transition:transform .2s,border-color .2s}.budget-shortcut strong{font-size:1.6rem;color:var(--accent)}
 .interactive-orbit{position:relative;width:min(100%,300px);height:180px;margin:4px auto 8px;border-radius:50%;background:radial-gradient(circle at center,rgba(2,132,199,.14) 0 22%,transparent 23% 42%,rgba(2,132,199,.08) 43% 44%,transparent 45%);display:flex;align-items:center;justify-content:center}
 .interactive-orbit:before{content:"";position:absolute;width:140px;height:140px;border:2px dashed color-mix(in srgb,var(--accent) 45%,transparent);border-radius:50%;animation:orbitPulse 4s ease-in-out infinite}
@@ -373,7 +382,7 @@ html{scroll-behavior:smooth}body{padding-bottom:16px}
   body{font-size:15px;padding-bottom:16px}
   .wrap{padding:10px 6px 14px;max-width:100%}.nav-tabs{display:none}.mobile-only{display:block}
   header{margin-bottom:10px}.logo{font-size:1.3rem}.header-actions{gap:6px}.icon-btn{width:42px;height:42px;border-radius:10px}.card{padding:14px;margin-bottom:10px;border-radius:12px}.kpi-grid{gap:8px}.chart-box{height:230px}
-  .report-table { font-size: 1.15rem; }
+  .report-table { font-size: 1.15rem; min-width: 620px; }
   .report-table th { font-size: 1.2rem; }
   .report-table td small { font-size: 0.95rem !important; }
   .tx-log-item{padding:12px;margin-bottom:8px}.tx-amount{font-size:1.25rem}.tx-type-tag{max-width:130px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.modal-content{max-height:85vh;padding:14px}.quick-summary{display:grid}.install-banner{margin-top:0}
@@ -777,11 +786,20 @@ html{scroll-behavior:smooth}body{padding-bottom:16px}
             <th>البند (انقر للتفاصيل)</th>
             <th>المخصص</th>
             <th>المنصرف</th>
-            <th>الفائض/المتبقي</th>
-            <th>النسبة</th>
+            <th>الفائض / الفروقات</th>
+            <th>نسبة التنفيذ</th>
           </tr>
         </thead>
         <tbody id="reportBody"></tbody>
+        <tfoot>
+          <tr class="statement-total-row">
+            <th>الإجمالي العام</th>
+            <th id="reportTotAllocated">0</th>
+            <th id="reportTotSpent">0</th>
+            <th id="reportTotSurplus">0</th>
+            <th id="reportTotRate">0%</th>
+          </tr>
+        </tfoot>
       </table>
     </div>
     <div id="reportNotesBox" style="margin-top:12px;"></div>
@@ -801,6 +819,14 @@ html{scroll-behavior:smooth}body{padding-bottom:16px}
 
     <div class="kpi-grid">
       <div class="kpi-card">
+        <div class="kpi-title">الرصيد السابق (افتتاحي الفترة)</div>
+        <div class="kpi-value hide-in-privacy" id="kpiAccountOpening" style="color:var(--muted);">0</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-title">الرصيد الحالي (ختامي الفترة)</div>
+        <div class="kpi-value hide-in-privacy" id="kpiAccountBalance" style="color:var(--accent);">0</div>
+      </div>
+      <div class="kpi-card">
         <div class="kpi-title">إجمالي المدين (عليه)</div>
         <div class="kpi-value hide-in-privacy" id="kpiAccountDebit" style="color:var(--danger);">0</div>
       </div>
@@ -808,33 +834,31 @@ html{scroll-behavior:smooth}body{padding-bottom:16px}
         <div class="kpi-title">إجمالي الدائن (له)</div>
         <div class="kpi-value hide-in-privacy" id="kpiAccountCredit" style="color:var(--ok);">0</div>
       </div>
-      <div class="kpi-card" style="grid-column: span 2;">
-        <div class="kpi-title">الرصيد الصافي النهائي</div>
-        <div class="kpi-value hide-in-privacy" id="kpiAccountBalance" style="color:var(--accent);">0</div>
-      </div>
     </div>
 
     <div id="singleAccountTableBox" style="overflow-x:auto;">
       <table class="report-table hide-in-privacy">
         <thead>
           <tr>
-            <th style="width:22%;">التاريخ</th>
-            <th style="width:13%;">السند</th>
-            <th style="width:33%;">البيان / الحساب المقابل</th>
-            <th style="width:16%;">مدين (عليه)</th>
-            <th style="width:16%;">دائن (له)</th>
+            <th style="width:16%;">التاريخ</th>
+            <th style="width:12%;">السند</th>
+            <th style="width:29%;">البيان / الحساب المقابل</th>
+            <th style="width:13%;">مدين (عليه)</th>
+            <th style="width:13%;">دائن (له)</th>
+            <th style="width:17%;">الرصيد الجاري</th>
           </tr>
         </thead>
         <tbody id="statementBody"></tbody>
         <tfoot>
           <tr class="statement-total-row">
-            <th colspan="3">الإجماليات</th>
+            <th colspan="3">الإجماليات (خلال الفترة)</th>
             <th id="statementTotalDebit">0</th>
             <th id="statementTotalCredit">0</th>
+            <th>—</th>
           </tr>
           <tr class="statement-balance-row">
-            <th colspan="3">المتبقي / الرصيد الصافي</th>
-            <th colspan="2" id="statementTotalBalance">0</th>
+            <th colspan="5">الرصيد الصافي النهائي (شامل الرصيد السابق)</th>
+            <th id="statementTotalBalance">0</th>
           </tr>
         </tfoot>
       </table>
@@ -1227,8 +1251,21 @@ html{scroll-behavior:smooth}body{padding-bottom:16px}
     <div class="modal-content" style="max-width: 400px; text-align: right; padding: 16px;">
       
       <h3 id="longPressModalTitle" style="font-size: 1.25rem; font-weight: 900; margin-bottom: 12px; color: var(--text); text-align: center; border-bottom: 2px solid var(--border); padding-bottom: 8px;">اسم الحساب</h3>
+
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+        <span id="lpModalDocType" style="background:var(--accent); color:#fff; font-size:0.95rem; padding:3px 10px; border-radius:16px; font-weight:900;">سند صرف #1</span>
+        <span id="lpModalStatusChip" class="status-chip">مرحّل</span>
+      </div>
       
       <div style="background: var(--card); display: flex; flex-direction: column; gap: 6px; margin-bottom: 14px; font-size: 1.05rem; font-weight: 900;">
+        <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); padding-bottom: 6px;">
+          <span style="color: var(--muted);">الحساب المدين (عليه) :-</span>
+          <b id="lpModalDebitAcc" style="color: var(--danger);">-</b>
+        </div>
+        <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); padding-bottom: 6px;">
+          <span style="color: var(--muted);">الحساب الدائن (له) :-</span>
+          <b id="lpModalCreditAcc" style="color: var(--ok);">-</b>
+        </div>
         <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); padding-bottom: 6px;">
           <span style="color: var(--muted);">المبلغ :-</span>
           <div style="display: flex; align-items: center; gap: 6px;">
@@ -1302,18 +1339,22 @@ html{scroll-behavior:smooth}body{padding-bottom:16px}
       <p id="psOrgDetails">العنوان: - | هاتف: -</p>
     </div>
     <div class="ps-title" id="psStatementTitle">كشف حساب صندوق المؤسسة</div>
-    
+    <div class="ps-info-bar">
+      <div><span class="ps-info-label">الفترة:</span> <span id="psStatementPeriod">-</span></div>
+      <div><span class="ps-info-label">عدد الحركات:</span> <span id="psTxCount">0</span></div>
+      <div><span class="ps-info-label">تاريخ إصدار الكشف:</span> <span id="psGeneratedDate">-</span></div>
+    </div>
+
     <div class="ps-table-wrap">
       <table class="ps-table">
         <thead>
           <tr>
             <th style="width:14%;">التاريخ</th>
-            <th style="width:12%;">الرقم</th>
-            <th style="width:13%;">المستند</th>
-            <th style="width:25%;">التفاصيل</th>
+            <th style="width:16%;">رقم القيد / المستند</th>
+            <th style="width:28%;">البيان (التفاصيل)</th>
             <th style="width:12%;">مدين (عليكم)</th>
             <th style="width:12%;">دائن (لكم)</th>
-            <th style="width:12%;">الرصيد</th>
+            <th style="width:18%;">الرصيد بعد الحركة</th>
           </tr>
         </thead>
         <tbody id="psTableBody"></tbody>
@@ -1325,9 +1366,48 @@ html{scroll-behavior:smooth}body{padding-bottom:16px}
           <thead><tr><th>المدين (عليكم)</th><th>الدائن (لكم)</th><th>المتبقي / الرصيد</th></tr></thead>
           <tbody><tr><td id="psTotAlaykom" style="color:#ef4444;">0</td><td id="psTotLakam" style="color:#10b981;">0</td><td id="psNetBal" style="color:#0284c7;">0</td></tr></tbody>
         </table>
-        <div id="psNetBalType" style="font-weight:900;">الرصيد لصالح الدائن</div>
         <div id="psTafqitText" style="font-size: 8.5pt; color: #000; font-weight: 900;">-</div>
         <div style="font-size: 8pt; color: #000; font-weight: 900;">يرجى مراجعة الكشف خلال 14 يوماً من تاريخه.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="print-budget-container" id="printBudgetContainer">
+    <div class="ps-header">
+      <h1 id="pbOrgName">مؤسسة خيرية</h1>
+      <p id="pbOrgDetails">العنوان: - | هاتف: -</p>
+    </div>
+    <div class="ps-title" id="pbTitle">تقرير تحليل الميزانية</div>
+    <div class="ps-info-bar">
+      <div><span class="ps-info-label">الفترة:</span> <span id="pbPeriod">-</span></div>
+      <div><span class="ps-info-label">عدد البنود:</span> <span id="pbCatCount">0</span></div>
+      <div><span class="ps-info-label">تاريخ إصدار التقرير:</span> <span id="pbGeneratedDate">-</span></div>
+    </div>
+
+    <div class="ps-table-wrap">
+      <table class="ps-table">
+        <thead>
+          <tr>
+            <th style="width:34%;">البند</th>
+            <th style="width:18%;">المخصص</th>
+            <th style="width:18%;">المنصرف</th>
+            <th style="width:15%;">الفائض / الفروقات</th>
+            <th style="width:15%;">نسبة التنفيذ</th>
+          </tr>
+        </thead>
+        <tbody id="pbTableBody"></tbody>
+        <tfoot>
+          <tr>
+            <th>الإجمالي العام</th>
+            <th id="pbTotAllocated">0</th>
+            <th id="pbTotSpent">0</th>
+            <th id="pbTotSurplus">0</th>
+            <th id="pbTotRate">0%</th>
+          </tr>
+        </tfoot>
+      </table>
+      <div class="ps-footer-totals">
+        <div style="font-size: 8pt; color: #000; font-weight: 900;">تقرير آلي من نظام راتب لإدارة الحسابات — يُرجى مراجعة الأرقام مع السجلات الأصلية.</div>
       </div>
     </div>
   </div>
@@ -1352,6 +1432,18 @@ html{scroll-behavior:smooth}body{padding-bottom:16px}
     <div class="pv-signatures">
       <div>المحاسب / المدير: ........................</div>
       <div>المستلم / المستفيد: ........................</div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="printPreviewModal">
+    <div class="modal-content" style="max-width: 640px; width: 96%; max-height: 92vh; padding: 12px;">
+      <h3 style="text-align:center; font-size:1.1rem; margin-bottom:8px;">معاينة قبل الطباعة</h3>
+      <p style="text-align:center; font-size:0.95rem; color:var(--muted); font-weight:900; margin-bottom:10px;">يمكنك تكبير/تصغير هذا العرض بإصبعين قبل المتابعة للطباعة الفعلية</p>
+      <div id="printPreviewBody" style="overflow:auto; -webkit-overflow-scrolling:touch; border:1px solid var(--border); border-radius:8px; padding:10px; background:#fff; color:#000; max-height:65vh;"></div>
+      <div style="display:flex; gap:8px; margin-top:12px;">
+        <button class="btn btn-primary" id="printPreviewConfirmBtn" style="flex:1; margin-top:0;">🖨️ طباعة الآن</button>
+        <button class="btn btn-ghost" id="printPreviewCancelBtn" style="flex:1; margin-top:0; border:2px solid var(--border);">إلغاء</button>
+      </div>
     </div>
   </div>
 
@@ -1837,17 +1929,51 @@ document.addEventListener('DOMContentLoaded', () => {
     showToast('تم حفظ إعدادات الترويسة بنجاح ✅', 'success');
   });
 
+  function openPrintPreview(sourceContainerId, bodyClass) {
+    const source = document.getElementById(sourceContainerId);
+    const previewBody = document.getElementById('printPreviewBody');
+    if (source && previewBody) previewBody.innerHTML = source.innerHTML;
+    const modal = document.getElementById('printPreviewModal');
+    modal?.classList.add('show');
+    pushAppHistoryState();
+
+    const confirmBtn = document.getElementById('printPreviewConfirmBtn');
+    const cancelBtn = document.getElementById('printPreviewCancelBtn');
+    if (confirmBtn) confirmBtn.onclick = () => {
+      modal?.classList.remove('show');
+      try {
+        document.body.classList.add(bodyClass);
+        if (window.print) window.print();
+      } catch(err) {
+        console.error('تعذر فتح أمر الطباعة:', err);
+        showToast('تعذّر تجهيز الطباعة: ' + (err && err.message ? err.message : 'خطأ غير معروف'), 'error', 6000);
+      } finally {
+        setTimeout(() => document.body.classList.remove(bodyClass), 1000);
+      }
+    };
+    if (cancelBtn) cancelBtn.onclick = () => { modal?.classList.remove('show'); };
+  }
+
   document.getElementById('printStatementBtn')?.addEventListener('click', () => {
-    const selectedAccount = selReportAccount ? selReportAccount.getValue() : 'ALL';
-    const { targetTxs } = getFilteredTransactions();
-    preparePrintStatementTemplate(selectedAccount, targetTxs);
     try {
-      document.body.classList.add('printing-statement');
-      if (window.print) window.print();
+      const selectedAccount = selReportAccount ? selReportAccount.getValue() : 'ALL';
+      const { targetTxs, periodStart, periodTitle } = getFilteredTransactions();
+      const openingBalance = getAccountOpeningBalance(selectedAccount, periodStart);
+      preparePrintStatementTemplate(selectedAccount, targetTxs, openingBalance, periodTitle);
+      openPrintPreview('printStatementContainer', 'printing-statement');
     } catch(err) {
-      console.warn('تعذر فتح أمر الطباعة:', err);
-    } finally {
-      setTimeout(() => document.body.classList.remove('printing-statement'), 1000);
+      console.error('تعذر تجهيز معاينة كشف الحساب:', err);
+      showToast('تعذّر تجهيز الطباعة: ' + (err && err.message ? err.message : 'خطأ غير معروف'), 'error', 6000);
+    }
+  });
+
+  document.getElementById('printBudgetReportBtn')?.addEventListener('click', () => {
+    try {
+      preparePrintBudgetTemplate();
+      openPrintPreview('printBudgetContainer', 'printing-budget');
+    } catch(err) {
+      console.error('تعذر تجهيز معاينة الميزانية:', err);
+      showToast('تعذّر تجهيز الطباعة: ' + (err && err.message ? err.message : 'خطأ غير معروف'), 'error', 6000);
     }
   });
 
@@ -2504,7 +2630,7 @@ function tafqit(num) {
       if (str !== '') str += ' و';
       if (rem < 10) str += units[rem];
       else if (rem < 20) str += teens[rem - 10];
-      else { str += units[u]; if (t > 0) str += ' و' + tens[t]; }
+      else { str += units[u]; if (t > 0) str += (u > 0 ? ' و' : '') + tens[t]; }
     }
     return str;
   }
@@ -2562,22 +2688,82 @@ function updateVoucherSeqBadge() {
   document.getElementById('voucherSeqNumBadge').textContent = `رقم: ${getNextVoucherNumber(currentVoucherMode)}`;
 }
 
-function preparePrintStatementTemplate(accountName, targetTxs) {
+function preparePrintBudgetTemplate() {
+  const cfg = getHeaderConfig();
+  document.getElementById('pbOrgName').textContent = (cfg.show && cfg.name) ? cfg.name : '';
+  document.getElementById('pbOrgDetails').textContent = (cfg.show && cfg.details) ? cfg.details : '';
+
+  const periodTitleEl = document.getElementById('reportPeriodTitle');
+  document.getElementById('pbPeriod').textContent = (periodTitleEl?.textContent || '').replace(/^الفترة:\s*/, '') || '-';
+  document.getElementById('pbGeneratedDate').textContent = new Date().toLocaleDateString('en-CA');
+
+  const catRows = Object.values(cachedBudgetSummary || {}).filter(c => c.allocated > 0 || c.actualSpent > 0);
+  document.getElementById('pbCatCount').textContent = catRows.length.toLocaleString();
+
+  const tbody = document.getElementById('pbTableBody');
+  tbody.innerHTML = '';
+  let grandAllocated = 0, grandSpent = 0;
+
+  if (catRows.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; padding:8px;">لا توجد بيانات ميزانية لهذه الفترة.</td></tr>`;
+  } else {
+    catRows.forEach(c => {
+      const surplus = c.allocated - c.actualSpent, rate = c.allocated > 0 ? Math.round((c.actualSpent / c.allocated) * 100) : 0;
+      grandAllocated += c.allocated; grandSpent += c.actualSpent;
+      const isOverBudget = c.allocated > 0 && c.actualSpent > c.allocated;
+      tbody.innerHTML += `
+        <tr>
+          <td style="text-align:right;">${esc(c.name)}</td>
+          <td>${c.allocated.toLocaleString()}</td>
+          <td>${c.actualSpent.toLocaleString()}</td>
+          <td style="color:${surplus >= 0 ? '#10b981' : '#ef4444'};">${surplus.toLocaleString()}</td>
+          <td>${rate}%${isOverBudget ? ' ⚠️' : ''}</td>
+        </tr>
+      `;
+    });
+  }
+
+  const grandSurplus = grandAllocated - grandSpent, grandRate = grandAllocated > 0 ? Math.round((grandSpent / grandAllocated) * 100) : 0;
+  document.getElementById('pbTotAllocated').textContent = grandAllocated.toLocaleString();
+  document.getElementById('pbTotSpent').textContent = grandSpent.toLocaleString();
+  const totSurplusEl = document.getElementById('pbTotSurplus');
+  totSurplusEl.textContent = grandSurplus.toLocaleString();
+  totSurplusEl.style.color = grandSurplus >= 0 ? '#10b981' : '#ef4444';
+  document.getElementById('pbTotRate').textContent = grandRate + '%';
+}
+
+function preparePrintStatementTemplate(accountName, targetTxs, openingBalance, periodTitle) {
+  openingBalance = Number(openingBalance || 0);
   const cfg = getHeaderConfig();
   document.getElementById('psOrgName').textContent = (cfg.show && cfg.name) ? cfg.name : '';
   document.getElementById('psOrgDetails').textContent = (cfg.show && cfg.details) ? cfg.details : '';
 
   const isAll = (accountName === 'ALL');
   document.getElementById('psStatementTitle').textContent = isAll ? 'كشف أرصدة كافة الحسابات والصناديق' : `كشف حساب: ${accountName}`;
+  const periodEl = document.getElementById('psStatementPeriod');
+  if (periodEl) periodEl.textContent = periodTitle || '-';
+  const genDateEl = document.getElementById('psGeneratedDate');
+  if (genDateEl) genDateEl.textContent = new Date().toLocaleDateString('en-CA'); // YYYY-MM-DD
 
-  let totalLakam = 0, totalAlaykom = 0, runningBalance = 0;
+  let totalLakam = 0, totalAlaykom = 0, runningBalance = (isAll ? 0 : openingBalance);
   const tbody = document.getElementById('psTableBody');
   tbody.innerHTML = '';
 
+  if (!isAll && openingBalance !== 0) {
+    tbody.innerHTML += `
+      <tr>
+        <td colspan="5" style="text-align:right; font-weight:900;">↳ الرصيد السابق (افتتاحي الفترة)</td>
+        <td style="color:${openingBalance >= 0 ? '#10b981' : '#ef4444'}; font-weight:900;">${Math.abs(openingBalance).toLocaleString()} ${openingBalance >= 0 ? '(لكم)' : '(عليكم)'}</td>
+      </tr>
+    `;
+  }
+
   let matchingTxs = isAll ? targetTxs : targetTxs.filter(t => t.debitAccount === accountName || t.creditAccount === accountName);
+  const txCountEl = document.getElementById('psTxCount');
+  if (txCountEl) txCountEl.textContent = matchingTxs.length.toLocaleString();
 
   if (matchingTxs.length === 0) {
-    tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; padding:8px;">لا توجد حركات مسجلة.</td></tr>`;
+    tbody.innerHTML += `<tr><td colspan="6" style="text-align:center; padding:8px;">لا توجد حركات مسجلة.</td></tr>`;
   } else {
     matchingTxs.forEach(t => {
       const amt = Number(t.amount || 0);
@@ -2596,16 +2782,16 @@ function preparePrintStatementTemplate(accountName, targetTxs) {
       const docType = t.voucherMode === 'spend' ? 'سند صرف' : (t.voucherMode === 'income' ? 'سند إيراد' : 'قيد يومي');
 
       const balanceColor = runningBalance >= 0 ? '#10b981' : '#ef4444';
+      const balanceLabel = isAll ? '' : (runningBalance >= 0 ? ' (لكم)' : ' (عليكم)');
 
       tbody.innerHTML += `
         <tr>
           <td>${t.isoDate || t.date}</td>
-          <td>${t.seqNum || '-'}</td>
-          <td>${docType}</td>
+          <td>${docType} <b>#${t.seqNum || '-'}</b></td>
           <td class="desc-col">${esc(noteStr)}<br><small style="color:#000; font-weight:900;">(${esc(otherAccount)})</small></td>
           <td>${alaykomAmt > 0 ? alaykomAmt.toLocaleString() : ''}</td>
           <td>${lakamAmt > 0 ? lakamAmt.toLocaleString() : ''}</td>
-          <td style="color:${balanceColor}; font-weight:900;">${runningBalance.toLocaleString()}</td>
+          <td style="color:${balanceColor}; font-weight:900;">${Math.abs(runningBalance).toLocaleString()}${balanceLabel}</td>
         </tr>
       `;
     });
@@ -2613,12 +2799,12 @@ function preparePrintStatementTemplate(accountName, targetTxs) {
 
   document.getElementById('psTotLakam').textContent = totalLakam.toLocaleString();
   document.getElementById('psTotAlaykom').textContent = totalAlaykom.toLocaleString();
-  const netBal = totalLakam - totalAlaykom;
+  const netBal = (isAll ? 0 : openingBalance) + totalLakam - totalAlaykom;
   const netBalColor = netBal >= 0 ? '#10b981' : '#ef4444';
   
-  document.getElementById('psNetBalType').textContent = netBal >= 0 ? 'لكم' : 'عليكم';
+  const netBalTypeLabel = netBal >= 0 ? '(لكم)' : '(عليكم)';
   const netBalEl = document.getElementById('psNetBal');
-  netBalEl.textContent = `${Math.abs(netBal).toLocaleString()} ريال يمني`;
+  netBalEl.textContent = `${Math.abs(netBal).toLocaleString()} ${netBalTypeLabel}`;
   netBalEl.style.color = netBalColor;
 
   document.getElementById('psTafqitText').textContent = `${netBal >= 0 ? 'لكم' : 'عليكم'} : ${tafqit(Math.abs(netBal))}`;
@@ -2834,65 +3020,84 @@ function initLiveAccountsTreePage() {
     body.className = 'acc-accordion-body';
 
     let mainTotDebit = 0, mainTotCredit = 0;
+    let rowsHtml = '';
 
-    function getSubDetails(subName) {
+    function buildAccountRow(subName) {
       const res = getCurrentAccountBalance(subName);
       mainTotDebit += res.debit;
       mainTotCredit += res.credit;
       const balColor = res.balance >= 0 ? 'var(--ok)' : 'var(--danger)';
 
-      const subRow = document.createElement('div');
-      subRow.style.cssText = 'display:flex; justify-content:space-between; align-items:center; padding:10px 0; border-bottom:1px dashed var(--border); font-size:1.05rem; cursor:pointer;';
-      // إن كان للحساب حركات بأكثر من عملة، لا نجمعها في رقم واحد مضلِّل؛ نعرض كل عملة بسطر مستقل.
-      const detailsHtml = res.isMultiCurrency
+      const debitCell = res.isMultiCurrency
+        ? Object.entries(res.byCurrency).map(([cur, v]) => `<div>${v.debit ? v.debit.toLocaleString() : '-'} ${cur}</div>`).join('')
+        : (res.debit ? res.debit.toLocaleString() : '-');
+      const creditCell = res.isMultiCurrency
+        ? Object.entries(res.byCurrency).map(([cur, v]) => `<div>${v.credit ? v.credit.toLocaleString() : '-'} ${cur}</div>`).join('')
+        : (res.credit ? res.credit.toLocaleString() : '-');
+      const balanceCell = res.isMultiCurrency
         ? Object.entries(res.byCurrency).map(([cur, v]) => `<div style="color:${(v.credit-v.debit)>=0?'var(--ok)':'var(--danger)'};font-weight:900;">${(v.credit-v.debit).toLocaleString()} ${cur}</div>`).join('')
-        : `<span style="color:var(--danger)">مدين: ${res.debit.toLocaleString()}</span>
-           <span style="color:var(--ok)">دائن: ${res.credit.toLocaleString()}</span>
-           <span style="color:${balColor}; font-weight:900;">الرصيد: ${res.balance.toLocaleString()} ${res.currency}</span>`;
-      subRow.innerHTML = `
-        <span>↳ 👤 ${esc(subName)}</span>
-        <div style="display:flex; gap:12px; font-size:1rem;">${detailsHtml}</div>
+        : `<span style="color:${balColor}; font-weight:900;">${res.balance.toLocaleString()} ${res.currency}</span>`;
+
+      return `
+        <tr class="acc-account-row" data-account="${esc(subName)}">
+          <td>↳ 👤 ${esc(subName)}</td>
+          <td style="color:var(--danger);">${debitCell}</td>
+          <td style="color:var(--ok);">${creditCell}</td>
+          <td>${balanceCell}</td>
+        </tr>
       `;
-      subRow.addEventListener('click', () => {
-        navigateToTab('pageReports', true);
-        toggleReportView('accounts');
-        selReportAccount.setValue(subName, subName);
-        runAccountStatement();
-      });
-      return subRow;
     }
 
-    const subContainer = document.createElement('div');
     if (node.accounts && node.accounts.length) {
-      node.accounts.forEach(sub => { subContainer.appendChild(getSubDetails(sub)); });
+      node.accounts.forEach(sub => { rowsHtml += buildAccountRow(sub); });
     }
 
     if (node.subGroups) {
       Object.keys(node.subGroups).forEach(subP => {
-        const groupTitle = document.createElement('div');
-        groupTitle.style.cssText = 'background:rgba(2,132,199,0.08); padding:8px; border-radius:8px; margin:8px 0 6px; font-weight:900; font-size:1.1rem;';
-        groupTitle.textContent = `📂 ${subP}`;
-        subContainer.appendChild(groupTitle);
-        (node.subGroups[subP] || []).forEach(sub => { subContainer.appendChild(getSubDetails(sub)); });
+        rowsHtml += `<tr class="acc-subgroup-row"><td colspan="4">📂 ${esc(subP)}</td></tr>`;
+        (node.subGroups[subP] || []).forEach(sub => { rowsHtml += buildAccountRow(sub); });
       });
     }
 
     const mainBalance = mainTotCredit - mainTotDebit;
     const mainBalColor = mainBalance >= 0 ? 'var(--ok)' : 'var(--danger)';
-    
-    const summaryDiv = document.createElement('div');
-    summaryDiv.style.cssText = 'background:var(--bg); padding:10px; border-radius:8px; margin-bottom:10px; font-weight:900; display:flex; justify-content:space-between; font-size:1.05rem;';
-    summaryDiv.innerHTML = `
-      <span>📊 إجماليات التصنيف:</span>
-      <div style="display:flex; gap:12px; font-size:1rem;">
-        <span style="color:var(--danger)">مدين: ${mainTotDebit.toLocaleString()}</span>
-        <span style="color:var(--ok)">دائن: ${mainTotCredit.toLocaleString()}</span>
-        <span style="color:${mainBalColor}">الصافي: ${mainBalance.toLocaleString()}</span>
-      </div>
+
+    const tableWrap = document.createElement('div');
+    tableWrap.style.overflowX = 'auto';
+    tableWrap.innerHTML = `
+      <table class="report-table">
+        <thead>
+          <tr>
+            <th style="width:40%; text-align:right;">الحساب</th>
+            <th style="width:20%;">مدين (عليه)</th>
+            <th style="width:20%;">دائن (له)</th>
+            <th style="width:20%;">الرصيد</th>
+          </tr>
+        </thead>
+        <tbody>${rowsHtml || `<tr><td colspan="4" style="text-align:center; color:var(--muted); padding:12px;">لا توجد حسابات ضمن هذا التصنيف</td></tr>`}</tbody>
+        <tfoot>
+          <tr class="statement-total-row">
+            <th style="text-align:right;">📊 إجماليات التصنيف</th>
+            <th>${mainTotDebit.toLocaleString()}</th>
+            <th>${mainTotCredit.toLocaleString()}</th>
+            <th style="color:${mainBalColor};">${mainBalance.toLocaleString()}</th>
+          </tr>
+        </tfoot>
+      </table>
     `;
 
-    body.appendChild(summaryDiv);
-    body.appendChild(subContainer);
+    tableWrap.querySelectorAll('.acc-account-row').forEach(row => {
+      row.style.cursor = 'pointer';
+      row.addEventListener('click', () => {
+        const subName = row.getAttribute('data-account');
+        navigateToTab('pageReports', true);
+        toggleReportView('accounts');
+        selReportAccount.setValue(subName, subName);
+        runAccountStatement();
+      });
+    });
+
+    body.appendChild(tableWrap);
 
     header.addEventListener('click', () => { body.classList.toggle('open'); });
     container.appendChild(header);
@@ -3863,7 +4068,21 @@ function openDocumentDetailsModal(item) {
   pendingLongPressTx = item;
   
   const titleEl = document.getElementById('longPressModalTitle');
-  if (titleEl) titleEl.textContent = item.debitAccount || 'تفاصيل المستند';
+  if (titleEl) titleEl.textContent = item.type || 'تفاصيل المستند';
+
+  const docType = item.voucherMode === 'spend' ? 'سند صرف' : (item.voucherMode === 'income' ? 'سند إيراد' : 'سند قيد');
+  const docTypeEl = document.getElementById('lpModalDocType');
+  if (docTypeEl) docTypeEl.textContent = `${docType} #${item.seqNum || '-'}`;
+
+  const isReversed = item.status === 'reversed';
+  const statusChipEl = document.getElementById('lpModalStatusChip');
+  if (statusChipEl) {
+    statusChipEl.textContent = isReversed ? 'ملغي' : 'مرحّل';
+    statusChipEl.classList.toggle('reversed', isReversed);
+  }
+
+  const debitEl = document.getElementById('lpModalDebitAcc'); if (debitEl) debitEl.textContent = item.debitAccount || '-';
+  const creditEl = document.getElementById('lpModalCreditAcc'); if (creditEl) creditEl.textContent = item.creditAccount || '-';
 
   document.getElementById('lpModalAmount').textContent = Number(item.amount || 0).toLocaleString();
   document.getElementById('lpModalCurrency').textContent = item.currency === 'SAR' ? 'ريال سعودي' : (item.currency === 'USD' ? 'دولار أمريكي' : 'ريال يمني');
@@ -3916,22 +4135,49 @@ document.getElementById('generateReportBtn')?.addEventListener('click', runActiv
 
 function getFilteredTransactions() {
   const fType = document.getElementById('reportFilterType')?.value || 'all', p = getMasterPlan(), historyData = store.get('history', []);
-  let targetTxs = [], periodTitle = '';
-  if (fType === 'current') { targetTxs = p.transactions || []; periodTitle = `الدورة الحالية (${monthName(p.month)})`; }
+  let targetTxs = [], periodTitle = '', periodStart = null;
+  if (fType === 'current') {
+    targetTxs = p.transactions || []; periodTitle = `الدورة الحالية (${monthName(p.month)})`;
+    if (/^\d{4}-\d{2}$/.test(p.month || '')) periodStart = `${p.month}-01`;
+  }
   else if (fType === 'all') {
     targetTxs = getAllTransactions();
     periodTitle = 'كافة العمليات المسجلة';
+    periodStart = null; // لا يوجد رصيد سابق قبل أول عملية مسجلة على الإطلاق
   } else if (fType === 'month') {
     const selM = document.getElementById('reportMonthSelect')?.value;
     targetTxs = (selM === p.month) ? (p.transactions || []) : (historyData.find(h => h.month === selM)?.transactions || []);
     periodTitle = `شهر: ${monthName(selM)}`;
+    if (/^\d{4}-\d{2}$/.test(selM || '')) periodStart = `${selM}-01`;
   } else {
     const start = document.getElementById('reportStartDate')?.value, end = document.getElementById('reportEndDate')?.value;
     let pool = getAllTransactions();
     targetTxs = pool.filter(t => (!start || (t.isoDate || '') >= start) && (!end || (t.isoDate || '') <= end));
-    periodTitle = `نطاق زمني`;
+    if (start && end) periodTitle = (start === end) ? `يوم: ${start}` : `من ${start} إلى ${end}`;
+    else if (start) periodTitle = `من ${start} وحتى الآن`;
+    else if (end) periodTitle = `حتى تاريخ ${end}`;
+    else periodTitle = 'كل التواريخ (بدون تحديد نطاق)';
+    periodStart = start || null;
   }
-  return { targetTxs, periodTitle };
+  return { targetTxs, periodTitle, periodStart };
+}
+
+// يحسب الرصيد السابق (الافتتاحي) لحساب معيّن: صافي كل حركاته المسجلة قبل تاريخ بداية الفترة المختارة.
+// نفس قاعدة الإشارة المستخدمة بالتطبيق: دائن(له) موجب، مدين(عليه) سالب.
+function getAccountOpeningBalance(accountName, periodStart) {
+  if (!periodStart || !accountName || accountName === 'ALL') return 0;
+  const priorTxs = getAllTransactions().filter(t =>
+    t.status !== 'reversed' && t.status !== 'deleted' &&
+    (t.debitAccount === accountName || t.creditAccount === accountName) &&
+    (t.isoDate || '') < periodStart
+  );
+  let bal = 0;
+  priorTxs.forEach(t => {
+    const amt = Number(t.amount || 0);
+    if (t.creditAccount === accountName) bal += amt;
+    if (t.debitAccount === accountName) bal -= amt;
+  });
+  return bal;
 }
 
 function runActiveReport() { if (activeReportTab === 'budget') runBudgetReport(); else runAccountStatement(); }
@@ -3942,7 +4188,7 @@ document.getElementById('statementSearchInput')?.addEventListener('input', (e) =
 });
 
 function runAccountStatement() {
-  const { targetTxs, periodTitle } = getFilteredTransactions();
+  const { targetTxs, periodTitle, periodStart } = getFilteredTransactions();
   const selectedAccount = selReportAccount ? selReportAccount.getValue() : 'ALL';
   const periodTitleEl = document.getElementById('statementPeriodTitle');
   if (periodTitleEl) periodTitleEl.textContent = `الفترة: ${periodTitle}`;
@@ -3953,14 +4199,15 @@ function runAccountStatement() {
 
   if (isAll) {
     runAllAccountsSummaryReport(targetTxs);
-    preparePrintStatementTemplate('ALL', targetTxs);
+    preparePrintStatementTemplate('ALL', targetTxs, 0, periodTitle);
     return;
   }
 
   const headerTitle = document.getElementById('statementHeaderTitle');
   if (headerTitle) headerTitle.textContent = `📑 كشف حساب: ${selectedAccount}`;
-  
-  let totalDebit = 0, totalCredit = 0, runningBalance = 0;
+
+  const openingBalance = getAccountOpeningBalance(selectedAccount, periodStart);
+  let totalDebit = 0, totalCredit = 0, runningBalance = openingBalance;
   const tbody = document.getElementById('statementBody');
   if (!tbody) return;
   tbody.innerHTML = '';
@@ -3976,8 +4223,17 @@ function runAccountStatement() {
     });
   }
 
+  // سطر الرصيد السابق (الافتتاحي) يظهر دومًا أول الكشف كمرجع لبداية الفترة
+  const openingRow = document.createElement('tr');
+  openingRow.className = 'statement-opening-row';
+  openingRow.innerHTML = `
+    <td colspan="5" style="color:var(--muted); font-weight:900;">↳ الرصيد السابق (افتتاحي الفترة)</td>
+    <td style="color:${openingBalance >= 0 ? 'var(--ok)' : 'var(--danger)'}; font-weight:900;">${Math.abs(openingBalance).toLocaleString()}${openingBalance !== 0 ? (openingBalance >= 0 ? ' (له)' : ' (عليه)') : ''}</td>
+  `;
+  tbody.appendChild(openingRow);
+
   if (matchingTxs.length === 0) {
-    tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; padding:16px; color:var(--muted);">لا توجد حركات مطابقة لهذا الحساب</td></tr>`;
+    tbody.innerHTML += `<tr><td colspan="6" style="text-align:center; padding:16px; color:var(--muted);">لا توجد حركات مطابقة لهذا الحساب خلال الفترة</td></tr>`;
   } else {
     matchingTxs.forEach(t => {
       const amt = Number(t.amount || 0);
@@ -4005,6 +4261,7 @@ function runAccountStatement() {
         <td>${esc(noteStr)}<br><small style="color:var(--muted); font-weight:900;">(الطرف المقابل: ${esc(otherAccount)})</small></td>
         <td style="color:var(--danger);">${debitAmt > 0 ? debitAmt.toLocaleString() : ''}</td>
         <td style="color:var(--ok);">${creditAmt > 0 ? creditAmt.toLocaleString() : ''}</td>
+        <td style="color:${balanceColor}; font-weight:900;">${Math.abs(runningBalance).toLocaleString()}</td>
       `;
 
       row.addEventListener('click', () => {
@@ -4015,25 +4272,30 @@ function runAccountStatement() {
     });
   }
 
+  const kpiOpen = document.getElementById('kpiAccountOpening');
+  if (kpiOpen) {
+    kpiOpen.textContent = `${Math.abs(openingBalance).toLocaleString()}${openingBalance !== 0 ? (openingBalance >= 0 ? ' (له)' : ' (عليه)') : ''}`;
+    kpiOpen.style.color = openingBalance === 0 ? 'var(--muted)' : (openingBalance >= 0 ? 'var(--ok)' : 'var(--danger)');
+  }
   const kpiDeb = document.getElementById('kpiAccountDebit'); if (kpiDeb) kpiDeb.textContent = totalDebit.toLocaleString();
   const kpiCred = document.getElementById('kpiAccountCredit'); if (kpiCred) kpiCred.textContent = totalCredit.toLocaleString();
   const totDeb = document.getElementById('statementTotalDebit'); if (totDeb) totDeb.textContent = totalDebit.toLocaleString();
   const totCred = document.getElementById('statementTotalCredit'); if (totCred) totCred.textContent = totalCredit.toLocaleString();
 
-  const netBalance = totalCredit - totalDebit;
+  const netBalance = openingBalance + totalCredit - totalDebit;
   const netEl = document.getElementById('kpiAccountBalance');
   if (netEl) {
     netEl.textContent = `${Math.abs(netBalance).toLocaleString()} (${netBalance >= 0 ? 'دائن / لكم' : 'مدين / عليكم'})`;
     netEl.style.color = netBalance >= 0 ? 'var(--ok)' : 'var(--danger)';
   }
-  
+
   const totBalEl = document.getElementById('statementTotalBalance');
   if (totBalEl) {
     totBalEl.textContent = `${Math.abs(netBalance).toLocaleString()} (${netBalance >= 0 ? 'دائن / لكم' : 'مدين / عليكم'})`;
     totBalEl.style.color = netBalance >= 0 ? 'var(--ok)' : 'var(--danger)';
   }
 
-  preparePrintStatementTemplate(selectedAccount, targetTxs);
+  preparePrintStatementTemplate(selectedAccount, targetTxs, openingBalance, periodTitle);
 }
 
 function runAllAccountsSummaryReport(targetTxs) {
@@ -4150,6 +4412,12 @@ function runBudgetReport() {
   const kpiSurp = document.getElementById('kpiSurplus'); if (kpiSurp) kpiSurp.textContent = fmt(grandSurplus);
   const kpiR = document.getElementById('kpiRate'); if (kpiR) kpiR.textContent = grandRate + '%';
 
+  const totAllocEl = document.getElementById('reportTotAllocated'); if (totAllocEl) totAllocEl.textContent = fmt(grandAllocated);
+  const totSpentEl = document.getElementById('reportTotSpent'); if (totSpentEl) totSpentEl.textContent = fmt(grandSpent);
+  const totSurplusEl = document.getElementById('reportTotSurplus');
+  if (totSurplusEl) { totSurplusEl.textContent = fmt(grandSurplus); totSurplusEl.style.color = grandSurplus >= 0 ? 'var(--ok)' : 'var(--danger)'; }
+  const totRateEl = document.getElementById('reportTotRate'); if (totRateEl) totRateEl.textContent = grandRate + '%';
+
   const tbody = document.getElementById('reportBody'); 
   if (!tbody) return;
   tbody.innerHTML = '';
@@ -4159,9 +4427,10 @@ function runBudgetReport() {
   else {
     catRows.forEach(c => {
       const surplus = c.allocated - c.actualSpent, rate = c.allocated > 0 ? Math.round((c.actualSpent / c.allocated) * 100) : 0;
+      const isOverBudget = c.allocated > 0 && c.actualSpent > c.allocated;
       const tr = document.createElement('tr');
       tr.title = 'انقر لاستعراض عمليات هذا البند بالتفصيل';
-      tr.innerHTML = `<td><b style="color:${c.color};">●</b> <b>${esc(c.name)}</b> 🔍</td><td>${fmt(c.allocated)}</td><td style="color:var(--danger);">${fmt(c.actualSpent)}</td><td style="color:${surplus >= 0 ? 'var(--ok)' : 'var(--danger)'};">${fmt(surplus)}</td><td><b>${rate}%</b></td>`;
+      tr.innerHTML = `<td><b style="color:${c.color};">●</b> <b>${esc(c.name)}</b> 🔍</td><td>${fmt(c.allocated)}</td><td style="color:var(--danger);">${fmt(c.actualSpent)}</td><td style="color:${surplus >= 0 ? 'var(--ok)' : 'var(--danger)'};">${fmt(surplus)}</td><td><b>${rate}%</b>${isOverBudget ? ' <span class="status-chip reversed" style="font-size:0.8rem; padding:2px 6px;">⚠️ تجاوز</span>' : ''}</td>`;
       tr.addEventListener('click', () => openCategoryTransactionsModal(c));
       tbody.appendChild(tr);
     });

@@ -1032,11 +1032,50 @@ html{scroll-behavior:smooth}body{padding-bottom:16px}
             <button class="btn btn-danger" id="autoBackupDisableBtn" style="margin-top:0; font-size:1.05rem; display:none;">إيقاف النسخ التلقائي</button>
           </div>
         </div>
+
+        <div style="border-top:2px dashed var(--border); margin:6px 0; padding-top:10px;">
+          <p style="color:var(--muted); font-weight:900; margin-bottom:6px; font-size:0.98rem;">☁️ نسخ احتياطي سحابي يومي على Google Drive (يُنفَّذ في الوقت المحدد أثناء فتح التطبيق، وإن كان مغلقاً وقتها يُنفَّذ فور فتحه لاحقاً). الحد الأقصى ١٠٠ ملف، والأقدم يُحذف تلقائياً.</p>
+          <div id="cloudBackupStatus" style="font-weight:900; color:var(--accent); margin-bottom:4px;">غير مفعّل</div>
+          <div id="cloudBackupLastTime" style="font-weight:700; color:var(--muted); font-size:0.9rem; margin-bottom:8px;"></div>
+          <div id="cloudBackupWarn" style="font-weight:800; color:var(--warn); font-size:0.9rem; margin-bottom:8px; display:none;"></div>
+          <label style="font-weight:900; font-size:0.95rem;">البريد الإلكتروني (حساب Google)</label>
+          <input type="text" inputmode="email" dir="ltr" id="cloudEmailInput" placeholder="name@gmail.com" style="margin-bottom:8px;">
+          <label style="font-weight:900; font-size:0.95rem;">وقت النسخ اليومي</label>
+          <input type="time" id="cloudTimeInput" value="21:00" style="margin-bottom:8px;">
+          <label style="font-weight:900; font-size:0.95rem;">معرّف عميل Google (OAuth Client ID)</label>
+          <input type="text" dir="ltr" id="cloudClientIdInput" placeholder="xxxxxxxx.apps.googleusercontent.com" style="margin-bottom:6px;">
+          <details style="margin-bottom:10px; font-size:0.92rem; font-weight:700; color:var(--muted);">
+            <summary style="cursor:pointer; font-weight:900; color:var(--accent);">كيف أحصل على المعرّف؟ (مرة واحدة)</summary>
+            <ol style="margin:6px 18px 0 0; line-height:1.9;">
+              <li>افتح console.cloud.google.com وأنشئ مشروعاً، ثم فعّل "Google Drive API".</li>
+              <li>من "OAuth consent screen" اختر External وأضف بريدك ضمن Test users.</li>
+              <li>من Credentials أنشئ "OAuth client ID" نوع Web application.</li>
+              <li>ضمن Authorized JavaScript origins ضع رابط موقعك بالضبط، مثل: https://اسمك.github.io</li>
+              <li>انسخ الـ Client ID والصقه هنا. لن يعمل الربط إذا فُتح التطبيق كملف محلي أو من واتساب، بل يلزم رابط https.</li>
+            </ol>
+          </details>
+          <div style="display:flex; gap:8px; flex-wrap:wrap;">
+            <button class="btn btn-primary" id="cloudSaveBtn" style="margin-top:0; font-size:1.05rem;">💾 حفظ وتفعيل السحابة</button>
+            <button class="btn btn-ghost" id="cloudRunNowBtn" style="margin-top:0; font-size:1.05rem; display:none;">☁️ نسخ الآن</button>
+            <button class="btn btn-ghost" id="cloudRestoreBtn" style="margin-top:0; font-size:1.05rem; display:none;">♻️ استعادة من السحابة</button>
+            <button class="btn btn-danger" id="cloudDisableBtn" style="margin-top:0; font-size:1.05rem; display:none;">إيقاف السحابة</button>
+          </div>
+        </div>
       </div>
     </div>
   </div>
 
 </div>
+
+  <div class="modal-overlay" id="cloudRestoreModal">
+    <div class="modal-content" style="max-width: 460px;">
+      <div class="modal-header">
+        <h3 style="font-size:1.2rem; color:var(--accent); font-weight:900;">♻️ استعادة من السحابة</h3>
+        <button class="icon-btn" id="closeCloudRestoreBtn" style="width:38px; height:38px;">✕</button>
+      </div>
+      <div id="cloudRestoreList" style="max-height: 60vh; overflow-y: auto;"></div>
+    </div>
+  </div>
 
   <div class="modal-overlay" id="categoryTransactionsModal">
     <div class="modal-content">
@@ -2043,7 +2082,7 @@ async function exportBackupFile() {
     const blob = new Blob([JSON.stringify(payload)], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
-    a.href = url; a.download = `ratib-backup-${new Date().toISOString().slice(0, 10)}.json`;
+    a.href = url; a.download = `ratib-backup-${backupStamp()}.json`;
     document.body.appendChild(a); a.click(); a.remove();
     setTimeout(() => URL.revokeObjectURL(url), 3000);
     showToast('تم تصدير النسخة الاحتياطية بنجاح', 'success');
@@ -2160,27 +2199,81 @@ function scheduleAutoBackup() {
   _autoBackupTimer = setTimeout(writeAutoBackup, 1500);
 }
 
+// ===== نسخ احتياطية مؤرشفة بأسماء (تاريخ + زمن) بدل استبدال الملف القديم =====
+// السقف: لا يزيد عدد الملفات عن BACKUP_MAX_FILES في كل موقع (المجلد المحلي / السحابة).
+const BACKUP_MAX_FILES = 100;
+// أثناء التعديل المتواصل لا نُنشئ ملفاً جديداً مع كل حفظ (كي لا تُستهلك الـ100 خلال يوم):
+// نُنشئ ملفاً جديداً دائماً كل هذه المدة، وبين ذلك نستبدل آخر ملف بنسخة أحدث منه.
+const LOCAL_NEW_FILE_MIN_INTERVAL_MS = 3 * 60 * 60 * 1000;
+const AUTO_BACKUP_PREFIX = 'ratib-auto-';
+const AUTO_BACKUP_NAME_RE = /^ratib-auto-\d{4}-\d{2}-\d{2}_\d{2}-\d{2}-\d{2}\.json$/;
+function _pad2(n) { return String(n).padStart(2, '0'); }
+function backupStamp(d = new Date()) {
+  return `${d.getFullYear()}-${_pad2(d.getMonth() + 1)}-${_pad2(d.getDate())}_${_pad2(d.getHours())}-${_pad2(d.getMinutes())}-${_pad2(d.getSeconds())}`;
+}
+function backupNameToDate(name) {
+  const m = /(\d{4})-(\d{2})-(\d{2})_(\d{2})-(\d{2})-(\d{2})/.exec(name || '');
+  return m ? new Date(+m[1], +m[2] - 1, +m[3], +m[4], +m[5], +m[6]) : null;
+}
+
+async function listLocalBackups(handle) {
+  const items = [];
+  for await (const [name, h] of handle.entries()) {
+    if (h.kind === 'file' && AUTO_BACKUP_NAME_RE.test(name)) items.push({ name, handle: h });
+  }
+  items.sort((a, b) => (a.name < b.name ? -1 : a.name > b.name ? 1 : 0)); // الأقدم أولاً
+  return items;
+}
+
+async function pruneLocalBackups(handle) {
+  const items = await listLocalBackups(handle);
+  const excess = items.length - BACKUP_MAX_FILES;
+  for (let i = 0; i < excess; i++) { try { await handle.removeEntry(items[i].name); } catch (e) {} }
+}
+
 async function writeAutoBackup() {
   const handle = await getAutoBackupHandle(false); // حفظ صامت بالخلفية، بلا أي نافذة إذن
   if (!handle) return;
   try {
     const payload = await buildBackupPayload();
-    const fileHandle = await handle.getFileHandle('ratib-auto-backup.json', { create: true });
+    const now = new Date();
+    const items = await listLocalBackups(handle);
+    const newest = items[items.length - 1] || null;
+
+    const name = AUTO_BACKUP_PREFIX + backupStamp(now) + '.json';
+    const fileHandle = await handle.getFileHandle(name, { create: true });
     const writable = await fileHandle.createWritable();
     await writable.write(JSON.stringify(payload));
     await writable.close();
-    store._setSilent('auto_backup_last_time', new Date().toISOString());
+
+    // نافذة الدمج تُقاس من بداية النافذة (المرساة) لا من آخر حفظ، كي يبقى ملف واحد على الأقل كل 3 ساعات
+    const anchor = Number(store.get('auto_backup_anchor', 0)) || 0;
+    const inWindow = anchor && (now.getTime() - anchor) < LOCAL_NEW_FILE_MIN_INTERVAL_MS;
+    if (inWindow && newest && newest.name !== name) {
+      try { await handle.removeEntry(newest.name); } catch (e) {}
+    } else {
+      store._setSilent('auto_backup_anchor', now.getTime());
+    }
+    await pruneLocalBackups(handle);
+    store._setSilent('auto_backup_last_time', now.toISOString());
     refreshAutoBackupUI();
   } catch (e) { console.warn('تعذّر حفظ النسخة الاحتياطية التلقائية', e); }
 }
 
-// استعادة البيانات من ملف النسخة التلقائية المحفوظ بالمجلد المختار (بدل الاستيراد اليدوي)
+// استعادة أحدث نسخة مؤرشفة من المجلد المختار (وتبقى القديمة الأخرى متاحة يدوياً من المجلد نفسه عبر "استيراد")
 async function restoreFromAutoBackupFolder() {
   const handle = await getAutoBackupHandle(true); // ضغطة مستخدم صريحة، يجوز إظهار إذن هنا
   if (!handle) { alert('لا يوجد مجلد نسخ تلقائي مفعّل حالياً، أو تم رفض الإذن.'); return; }
   try {
-    const fileHandle = await handle.getFileHandle('ratib-auto-backup.json');
-    const file = await fileHandle.getFile();
+    const items = await listLocalBackups(handle);
+    let file;
+    if (items.length) {
+      file = await items[items.length - 1].handle.getFile();
+    } else {
+      // توافق مع النسخة القديمة التي كانت تُستبدل باسم ثابت
+      const legacy = await handle.getFileHandle('ratib-auto-backup.json');
+      file = await legacy.getFile();
+    }
     await importBackupFile(file);
   } catch (e) { alert('لا يوجد ملف نسخة احتياطية تلقائية بعد في هذا المجلد.'); }
 }
@@ -2212,6 +2305,251 @@ async function refreshAutoBackupUI() {
   if (offBtn) offBtn.style.display = (enabled || needsReauth) ? 'inline-block' : 'none';
   if (changeBtn) changeBtn.style.display = enabled ? 'inline-block' : 'none';
   if (restoreBtn) restoreBtn.style.display = enabled ? 'inline-block' : 'none';
+}
+
+// ===================== النسخ الاحتياطي السحابي (Google Drive) =====================
+// ملاحظات صريحة: (1) لا يوجد تنفيذ بالخلفية في صفحات الويب؛ الجدولة تعمل أثناء فتح التطبيق
+// وعند فتحه لاحقاً يُنفَّذ ما فاته. (2) يحتاج Client ID خاصاً بحسابك ورابط https مُصرَّحاً به.
+// (3) صلاحية drive.file فقط: يرى التطبيق الملفات التي أنشأها هو، ولا يقرأ بقية Drive.
+const CLOUD_CFG_KEY = 'cloud_backup_cfg';
+const CLOUD_FOLDER_NAME = 'Ratib Backups';
+const CLOUD_FILE_PREFIX = 'ratib-cloud-';
+const DRIVE_SCOPE = 'https://www.googleapis.com/auth/drive.file';
+let _cloudToken = null, _cloudTokenExp = 0, _cloudBusy = false, _gisPromise = null, _cloudNotifiedThisSession = false;
+
+function getCloudCfg() {
+  return Object.assign({ enabled: false, email: '', clientId: '', time: '21:00', lastDate: '', lastTime: '', lastError: '' }, store.get(CLOUD_CFG_KEY, {}) || {});
+}
+function saveCloudCfg(patch, silent = false) {
+  const next = Object.assign(getCloudCfg(), patch);
+  if (silent) store._setSilent(CLOUD_CFG_KEY, next); else store.set(CLOUD_CFG_KEY, next);
+  return next;
+}
+function _todayStr(d = new Date()) { return `${d.getFullYear()}-${_pad2(d.getMonth() + 1)}-${_pad2(d.getDate())}`; }
+function _cloudOriginOk() { return location.protocol === 'https:' || location.hostname === 'localhost' || location.hostname === '127.0.0.1'; }
+
+function loadGis() {
+  if (window.google && google.accounts && google.accounts.oauth2) return Promise.resolve();
+  if (_gisPromise) return _gisPromise;
+  _gisPromise = new Promise((resolve, reject) => {
+    const sc = document.createElement('script');
+    sc.src = 'https://accounts.google.com/gsi/client'; sc.async = true; sc.defer = true;
+    sc.onload = () => resolve();
+    sc.onerror = () => { _gisPromise = null; reject(new Error('تعذّر تحميل مكتبة تسجيل الدخول من Google (تحقق من الاتصال بالإنترنت)')); };
+    document.head.appendChild(sc);
+  });
+  return _gisPromise;
+}
+
+// interactive=false → محاولة صامتة (prompt none) لا تُظهر نافذة؛ تفشل إن احتاج الأمر موافقة المستخدم.
+async function getDriveToken(interactive) {
+  if (_cloudToken && Date.now() < _cloudTokenExp - 60000) return _cloudToken;
+  const cfg = getCloudCfg();
+  if (!cfg.clientId) throw new Error('أدخل معرّف عميل Google أولاً');
+  if (!_cloudOriginOk()) throw new Error('يلزم فتح التطبيق من رابط https (مثل GitHub Pages)، لا من ملف محلي');
+  await loadGis();
+  return new Promise((resolve, reject) => {
+    const client = google.accounts.oauth2.initTokenClient({
+      client_id: cfg.clientId,
+      scope: DRIVE_SCOPE,
+      login_hint: cfg.email || undefined,
+      callback: (resp) => {
+        if (resp && resp.access_token) {
+          _cloudToken = resp.access_token;
+          _cloudTokenExp = Date.now() + (Number(resp.expires_in || 3600) * 1000);
+          resolve(_cloudToken);
+        } else { reject(new Error((resp && (resp.error_description || resp.error)) || 'رُفض الإذن')); }
+      },
+      error_callback: (err) => reject(new Error((err && (err.message || err.type)) || 'تعذّر الحصول على الإذن'))
+    });
+    client.requestAccessToken({ prompt: interactive ? '' : 'none' });
+  });
+}
+
+async function driveFetch(url, opts = {}, token) {
+  const res = await fetch(url, Object.assign({}, opts, { headers: Object.assign({ Authorization: 'Bearer ' + token }, opts.headers || {}) }));
+  if (res.status === 401) { _cloudToken = null; _cloudTokenExp = 0; }
+  if (!res.ok) { const t = await res.text().catch(() => ''); throw new Error(`Drive ${res.status}: ${t.slice(0, 160)}`); }
+  return res;
+}
+
+async function ensureDriveFolder(token) {
+  const q = encodeURIComponent(`name='${CLOUD_FOLDER_NAME}' and mimeType='application/vnd.google-apps.folder' and trashed=false`);
+  const r = await (await driveFetch(`https://www.googleapis.com/drive/v3/files?q=${q}&fields=files(id,name)&pageSize=10`, {}, token)).json();
+  if (r.files && r.files.length) return r.files[0].id;
+  const c = await (await driveFetch('https://www.googleapis.com/drive/v3/files?fields=id', {
+    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ name: CLOUD_FOLDER_NAME, mimeType: 'application/vnd.google-apps.folder' })
+  }, token)).json();
+  return c.id;
+}
+
+async function listCloudBackups(token, folderId) {
+  const q = encodeURIComponent(`'${folderId}' in parents and trashed=false and name contains '${CLOUD_FILE_PREFIX}'`);
+  const r = await (await driveFetch(`https://www.googleapis.com/drive/v3/files?q=${q}&fields=files(id,name,size)&orderBy=name&pageSize=1000`, {}, token)).json();
+  return (r.files || []).filter(f => f.name && f.name.startsWith(CLOUD_FILE_PREFIX)); // الأقدم أولاً (الاسم يحمل التاريخ والزمن)
+}
+
+async function pruneCloudBackups(token, folderId) {
+  const files = await listCloudBackups(token, folderId);
+  const excess = files.length - BACKUP_MAX_FILES;
+  for (let i = 0; i < excess; i++) {
+    try { await driveFetch(`https://www.googleapis.com/drive/v3/files/${files[i].id}`, { method: 'DELETE' }, token); } catch (e) { console.warn('تعذّر حذف نسخة سحابية قديمة', e); }
+  }
+}
+
+async function uploadCloudBackup(token, folderId, name, content) {
+  const boundary = 'ratibB' + Math.random().toString(36).slice(2);
+  const meta = JSON.stringify({ name, parents: [folderId], mimeType: 'application/json' });
+  const body = `--${boundary}\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n${meta}\r\n--${boundary}\r\nContent-Type: application/json\r\n\r\n${content}\r\n--${boundary}--`;
+  return (await driveFetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id,name', {
+    method: 'POST', headers: { 'Content-Type': `multipart/related; boundary=${boundary}` }, body
+  }, token)).json();
+}
+
+async function runCloudBackup(interactive) {
+  if (_cloudBusy) return false;
+  const cfg = getCloudCfg();
+  if (!cfg.enabled) return false;
+  _cloudBusy = true; refreshCloudBackupUI();
+  try {
+    const token = await getDriveToken(interactive);
+    const folderId = await ensureDriveFolder(token);
+    const now = new Date();
+    const payload = await buildBackupPayload();
+    await uploadCloudBackup(token, folderId, `${CLOUD_FILE_PREFIX}${backupStamp(now)}.json`, JSON.stringify(payload));
+    await pruneCloudBackups(token, folderId);
+    // تنبيه إن كان الحساب الذي سُجّل به الدخول يختلف عن البريد المُدخل
+    try {
+      const about = await (await driveFetch('https://www.googleapis.com/drive/v3/about?fields=user(emailAddress)', {}, token)).json();
+      const actual = (about.user && about.user.emailAddress || '').toLowerCase();
+      if (cfg.email && actual && actual !== cfg.email.trim().toLowerCase()) {
+        showToast(`تنبيه: رُفعت النسخة إلى حساب ${actual} وهو يختلف عن البريد المُدخل`, 'warn', 7000);
+      }
+    } catch (e) {}
+    saveCloudCfg({ lastDate: _todayStr(now), lastTime: now.toISOString(), lastError: '' }, true);
+    if (interactive) showToast('تم رفع النسخة السحابية بنجاح', 'success');
+    return true;
+  } catch (e) {
+    console.warn('فشل النسخ السحابي', e);
+    saveCloudCfg({ lastError: e.message || String(e) }, true);
+    if (interactive) showToast('تعذّر النسخ السحابي: ' + (e.message || e), 'error', 7000);
+    return false;
+  } finally { _cloudBusy = false; refreshCloudBackupUI(); }
+}
+
+function cloudBackupDue() {
+  const cfg = getCloudCfg();
+  if (!cfg.enabled || !cfg.clientId) return false;
+  const now = new Date();
+  const [hh, mm] = String(cfg.time || '21:00').split(':').map(Number);
+  const scheduled = new Date(now.getFullYear(), now.getMonth(), now.getDate(), hh || 0, mm || 0, 0);
+  return now >= scheduled && cfg.lastDate !== _todayStr(now);
+}
+
+async function checkCloudBackupDue() {
+  if (_cloudBusy || !cloudBackupDue()) return;
+  const ok = await runCloudBackup(false); // محاولة صامتة
+  if (!ok && !_cloudNotifiedThisSession) {
+    _cloudNotifiedThisSession = true;
+    showToast('النسخة السحابية اليومية مستحقة وتحتاج موافقتك — افتح الإعدادات ← النسخ الاحتياطي واضغط "نسخ الآن"', 'warn', 8000);
+  }
+}
+
+function refreshCloudBackupUI() {
+  const cfg = getCloudCfg();
+  const $ = (id) => document.getElementById(id);
+  const statusEl = $('cloudBackupStatus'), lastEl = $('cloudBackupLastTime'), warnEl = $('cloudBackupWarn');
+  if (!statusEl) return;
+  const active = cfg.enabled && cfg.clientId;
+  statusEl.textContent = _cloudBusy ? '⏳ جارٍ رفع النسخة...'
+    : active ? `✅ السحابة مفعّلة — يومياً الساعة ${cfg.time}` : 'غير مفعّل';
+  if (lastEl) {
+    const parts = [];
+    if (cfg.lastTime) parts.push(`آخر نسخة سحابية: ${new Date(cfg.lastTime).toLocaleString('ar-EG')}`);
+    if (cfg.lastError) parts.push(`آخر خطأ: ${cfg.lastError}`);
+    lastEl.textContent = parts.join(' | ');
+  }
+  if (warnEl) {
+    const msgs = [];
+    if (!getSecurityConfig().enabled) msgs.push('⚠️ القفل بالرقم السري غير مفعّل، فستُرفع النسخ بدون تشفير. فعّل الرقم السري ليُشفَّر محتواها قبل الرفع.');
+    if (!_cloudOriginOk()) msgs.push('⚠️ الربط مع Google لا يعمل من ملف محلي أو واتساب؛ افتح التطبيق من رابط https.');
+    warnEl.textContent = msgs.join(' '); warnEl.style.display = msgs.length ? 'block' : 'none';
+  }
+  const show = (id, on) => { const el = $(id); if (el) el.style.display = on ? 'inline-block' : 'none'; };
+  show('cloudRunNowBtn', !!active); show('cloudRestoreBtn', !!active); show('cloudDisableBtn', !!active);
+  const runBtn = $('cloudRunNowBtn'); if (runBtn) runBtn.disabled = _cloudBusy;
+  if (document.activeElement !== $('cloudEmailInput')) { const e = $('cloudEmailInput'); if (e) e.value = cfg.email || ''; }
+  if (document.activeElement !== $('cloudTimeInput')) { const t = $('cloudTimeInput'); if (t) t.value = cfg.time || '21:00'; }
+  if (document.activeElement !== $('cloudClientIdInput')) { const c = $('cloudClientIdInput'); if (c) c.value = cfg.clientId || ''; }
+}
+
+async function openCloudRestoreModal() {
+  const modal = document.getElementById('cloudRestoreModal'), list = document.getElementById('cloudRestoreList');
+  if (!modal || !list) return;
+  list.innerHTML = '<div style="text-align:center; padding:12px; font-weight:900;">⏳ جارٍ تحميل القائمة...</div>';
+  modal.classList.add('show'); pushAppHistoryState();
+  try {
+    const token = await getDriveToken(true);
+    const folderId = await ensureDriveFolder(token);
+    const files = (await listCloudBackups(token, folderId)).reverse(); // الأحدث أولاً
+    if (!files.length) { list.innerHTML = '<div style="text-align:center; padding:12px; color:var(--muted); font-weight:900;">لا توجد نسخ سحابية بعد.</div>'; return; }
+    list.innerHTML = '';
+    files.slice(0, 40).forEach(f => {
+      const d = backupNameToDate(f.name);
+      const row = document.createElement('div');
+      row.style.cssText = 'display:flex; justify-content:space-between; align-items:center; gap:8px; padding:10px 0; border-bottom:1px dashed var(--border);';
+      const label = document.createElement('span');
+      label.style.fontWeight = '900';
+      label.textContent = d ? d.toLocaleString('ar-EG') : f.name;
+      const btn = document.createElement('button');
+      btn.className = 'btn btn-ghost'; btn.style.cssText = 'margin-top:0; padding:6px 12px;'; btn.textContent = 'استعادة';
+      btn.addEventListener('click', async () => {
+        btn.disabled = true;
+        try {
+          const res = await driveFetch(`https://www.googleapis.com/drive/v3/files/${f.id}?alt=media`, {}, token);
+          const text = await res.text();
+          modal.classList.remove('show');
+          await importBackupFile(new File([text], f.name, { type: 'application/json' }));
+        } catch (e) { showToast('تعذّر تنزيل النسخة: ' + (e.message || e), 'error', 6000); btn.disabled = false; }
+      });
+      row.appendChild(label); row.appendChild(btn); list.appendChild(row);
+    });
+  } catch (e) {
+    list.innerHTML = '';
+    const msg = document.createElement('div');
+    msg.style.cssText = 'text-align:center; padding:12px; color:var(--danger); font-weight:900;';
+    msg.textContent = 'تعذّر الوصول للسحابة: ' + (e.message || e);
+    list.appendChild(msg);
+  }
+}
+
+function initCloudBackup() {
+  const $ = (id) => document.getElementById(id);
+  $('cloudSaveBtn')?.addEventListener('click', async () => {
+    const email = ($('cloudEmailInput')?.value || '').trim();
+    const clientId = ($('cloudClientIdInput')?.value || '').trim();
+    const time = $('cloudTimeInput')?.value || '21:00';
+    if (!clientId || !/\.apps\.googleusercontent\.com$/.test(clientId)) { alert('أدخل معرّف عميل Google صحيحاً (ينتهي بـ apps.googleusercontent.com).'); return; }
+    if (email && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) { alert('صيغة البريد الإلكتروني غير صحيحة.'); return; }
+    _cloudToken = null; _cloudTokenExp = 0;
+    saveCloudCfg({ enabled: true, email, clientId, time, lastError: '' });
+    refreshCloudBackupUI();
+    showToast('تم حفظ الإعدادات، جارٍ طلب إذن Google وتنفيذ أول نسخة...', 'success');
+    await runCloudBackup(true); // ضغطة مستخدم صريحة: يجوز إظهار نافذة الإذن
+  });
+  $('cloudRunNowBtn')?.addEventListener('click', () => { runCloudBackup(true); });
+  $('cloudRestoreBtn')?.addEventListener('click', () => { openCloudRestoreModal(); });
+  $('closeCloudRestoreBtn')?.addEventListener('click', () => { $('cloudRestoreModal')?.classList.remove('show'); });
+  $('cloudDisableBtn')?.addEventListener('click', () => {
+    if (!confirm('إيقاف النسخ السحابي اليومي؟ (ملفاتك الموجودة على Drive تبقى كما هي)')) return;
+    saveCloudCfg({ enabled: false }); _cloudToken = null; _cloudTokenExp = 0;
+    refreshCloudBackupUI(); showToast('تم إيقاف النسخ السحابي', 'warn');
+  });
+  refreshCloudBackupUI();
+  setInterval(checkCloudBackupDue, 60000);
+  document.addEventListener('visibilitychange', () => { if (!document.hidden) checkCloudBackupDue(); });
+  setTimeout(checkCloudBackupDue, 4000); // فحص "ما فاته" عند فتح التطبيق
 }
 
 function normalizeTransaction(tx) {
@@ -4518,6 +4856,7 @@ function proceedAppInit() {
   initThemeToggle();
   initPrivacyToggle();
   initExitButton();
+  initCloudBackup();
   pushInitialHistoryBuffer();
 }
 

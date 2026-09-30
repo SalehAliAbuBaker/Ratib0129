@@ -106,9 +106,9 @@ h2{font-size:1.35rem; font-weight:900; margin-bottom:12px; display:flex; align-i
 label{font-size:1.05rem; color:var(--muted); display:block; margin-bottom:4px; font-weight:900}
 .form-group{margin-bottom: 12px; width: 100%; position: relative;}
 
-input[type=number], input[type=text], input[type=password], input[type=date], input[type=search], input[type=time]{ width: 100%; background:var(--bg); border:2px solid var(--border); color:var(--text); border-radius:10px; padding:12px 14px; font-size:1.1rem; font-weight:900; font-family:inherit; outline:none; user-select: text; }
+input[type=number], input[type=text], input[type=password], input[type=date], input[type=search], input[type=time]{ width: 100%; background:var(--bg); border:2px solid var(--ok); color:var(--text); border-radius:10px; padding:12px 14px; font-size:1.1rem; font-weight:900; font-family:inherit; outline:none; user-select: text; }
 input:focus{border-color:var(--accent)}
-select{ width: 100%; background:var(--bg); border:2px solid var(--border); color:var(--text); border-radius:10px; padding:0 10px; font-size:1.1rem; font-weight:900; font-family:inherit; outline:none; height: 48px; }
+select{ width: 100%; background:var(--bg); border:2px solid var(--ok); color:var(--text); border-radius:10px; padding:0 10px; font-size:1.1rem; font-weight:900; font-family:inherit; outline:none; height: 48px; }
 optgroup { font-weight: 900; color: var(--accent); background: var(--card); }
 option { color: var(--text); font-weight: 800; }
 
@@ -429,7 +429,7 @@ h2{font-size:1.18rem;border-bottom:1px solid var(--border);padding-bottom:10px;m
 .btn{border-radius:8px;font-size:1.03rem;padding:11px 14px}
 .btn-primary{background:var(--accent-strong)}
 .btn-ghost{border:1px solid var(--border)}
-input[type=number],input[type=text],input[type=password],input[type=date],input[type=search],input[type=time],select,.searchable-input{border:1px solid var(--border);border-radius:8px;background:var(--card);min-height:46px;font-size:1rem}
+input[type=number],input[type=text],input[type=password],input[type=date],input[type=search],input[type=time],select,.searchable-input{border:1px solid var(--ok);border-radius:8px;background:var(--card);min-height:46px;font-size:1rem}
 input:focus,select:focus,.searchable-input:focus{border-color:var(--accent);box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 15%,transparent)}
 label{font-size:1rem;color:var(--text);margin-bottom:5px}
 .form-group{margin-bottom:15px}
@@ -587,7 +587,7 @@ label{font-size:1rem;color:var(--text);margin-bottom:5px}
               <div class="dashboard-shortcuts" aria-label="اختصارات الرئيسية">
                 <button class="round-action" onclick="navigateToTab('pageExpenses', true)" title="إضافة سند"><span>＋</span><small>إضافة سند</small></button>
                 <button class="round-action" onclick="openReminderModal(-1)" title="مهمة جديدة"><span>✓</span><small>مهمة جديدة</small></button>
-                <button class="round-action" onclick="navigateToTab('pageReports', true); toggleReportView('accounts')" title="كشف الحساب"><span>⌁</span><small>كشف الحساب</small></button>
+                <button class="round-action" onclick="navigateToTab('pageReports', true); openAccountStatementSearch()" title="كشف الحساب"><span>⌁</span><small>كشف الحساب</small></button>
                 <button class="round-action" onclick="navigateToTab('pageReports', true); toggleReportView('budget')" title="تحليل الميزانية"><span>◉</span><small>تحليل الميزانية</small></button>
               </div>
             </div>
@@ -830,16 +830,11 @@ label{font-size:1rem;color:var(--text);margin-bottom:5px}
     </div>
   </div>
 
-  <div class="no-print" style="display: flex; gap: 8px; margin-bottom: 10px;">
-    <button class="btn btn-ghost" id="exportPngBtn" style="flex:1; margin-top:0; border-color:var(--accent); color:var(--accent); font-size:1.05rem;">📸 تصدير كصورة (PNG)</button>
-    <button class="btn btn-ghost" id="exportPdfBtn" style="flex:1; margin-top:0; border-color:var(--ok); color:var(--ok); font-size:1.05rem;">📄 تصدير كـ PDF</button>
-  </div>
-
   <div class="card" id="reportFilterBox">
-    <h2>📈 تصفية فترة التقرير</h2>
+    <h2><span id="reportFilterBoxTitle">📈 تصفية فترة التقرير</span></h2>
     <div style="display:flex; flex-direction:column; gap:8px;">
       <div id="filterAccountSelectBox" class="hidden">
-        <label>اختر الحساب المطلوب (رئيسي أو فرعي):</label>
+        <label>🔍 اكتب اسم الحساب للبحث عن كشفه (رئيسي أو فرعي):</label>
         <div class="searchable-select-wrap account-search-bar" id="wrapReportAccount">
           <input type="text" class="searchable-input" id="inpReportAccount" placeholder="اكتب اسم الحساب هنا للبحث..." autocomplete="off" aria-label="شريط البحث عن الحساب">
           <button type="button" class="search-clear-btn hidden" id="clearReportAccountBtn" title="مسح الحساب المختار" aria-label="مسح الحساب المختار">×</button>
@@ -850,7 +845,7 @@ label{font-size:1rem;color:var(--text);margin-bottom:5px}
       </div>
 
       <div>
-        <label>نوع الفترة:</label>
+        <label>نوع الفترة (اختياري — الافتراضي: كل العمليات):</label>
         <select id="reportFilterType">
           <option value="current">الدورة الحالية (الشهر الحالي)</option>
           <option value="all" selected>كافة العمليات المسجلة</option>
@@ -3515,8 +3510,6 @@ function closeDashboardHome(pushToHistory = true) {
 
 function setupReportSections(target = 'pageReports') {
   const filter = document.getElementById('reportFilterBox');
-  const exportButton = document.getElementById('exportPngBtn');
-  const exports = exportButton ? exportButton.parentElement : null;
   const budget = document.getElementById('budgetReportCard');
   const carousel = document.getElementById('budgetCarousel');
   const toolsHost = document.getElementById('budgetToolsHost');
@@ -3533,12 +3526,11 @@ function setupReportSections(target = 'pageReports') {
     toggleReportView('budget');
   } else {
     reportsPage.appendChild(filter);
-    if (exports) reportsPage.appendChild(exports);
     if (carousel) carousel.classList.add('hidden');
     budget.classList.add('hidden');
     const account = document.getElementById('accountStatementCard');
     if (account) reportsPage.appendChild(account);
-    toggleReportView('accounts');
+    openAccountStatementSearch();
   }
 }
 
@@ -3894,7 +3886,11 @@ class SearchableSelect {
       const clearBtn = this.wrap.querySelector('.search-clear-btn'); if (clearBtn) clearBtn.classList.add('hidden');
       const matches = this.renderDropdown(query);
       this.open();
-      if (query && matches.length === 1) { this.activeIndex = 0; this.paintActiveItem(); }
+      if (query && matches.length === 1) {
+        // إكمال تلقائي: لما النتيجة تتطابق مع عنصر وحيد بالقائمة، يُدرج اسمه مباشرة
+        // بخانة البحث ويُختار فعلياً دون الحاجة لضغط المستخدم عليه يدوياً.
+        this.choose(matches[0]);
+      }
     });
     this.input.addEventListener('keydown', (e) => {
       if (!this.drop.classList.contains('open') || !this.visibleItems.length) return;
@@ -4654,7 +4650,7 @@ function renderAllData() {
     if (item.voucherMode === 'income') card.style.borderRight = '6px solid var(--ok)';
     
     const distItems = Object.values(item.distribution || {}).filter(d => !d.excluded);
-    const distHtml = distItems.length > 0 ? distItems.map(d => `<span><b>${d.name}:</b> ${fmt(d.amount, item.currency)}</span>`).join(' • ') : '<span style="color:var(--muted);">حركة نقدية مباشرة</span>';
+    const distHtml = distItems.length > 0 ? distItems.map(d => `<span><b>${esc(d.name)}:</b> ${fmt(d.amount, item.currency)}</span>`).join(' • ') : '<span style="color:var(--muted);">حركة نقدية مباشرة</span>';
     const noteText = item.execution?.[Object.keys(item.execution || {})[0]]?.note || '';
 
     const isReversed = item.status === 'reversed';
@@ -4738,9 +4734,19 @@ function openDocumentDetailsModal(item) {
   pushAppHistoryState();
 }
 
-function initReportsTab(mode='accounts') { populateReportFilterOptions(); updateSearchableData(); toggleReportView(mode); }
+function initReportsTab(mode='accounts') {
+  populateReportFilterOptions(); updateSearchableData(); toggleReportView(mode);
+  // updateSearchableData() تعيد تعبئة خانة البحث تلقائياً بنص "ملخص كافة الحسابات"،
+  // فنُفرغها ونُفعّل المؤشر فيها هنا كخطوة أخيرة بعد اكتمال كل التحديثات، حتى تبقى فارغة فعلاً عند الدخول.
+  if (mode === 'accounts' && selReportAccount && selReportAccount.input) {
+    selReportAccount.input.value = '';
+    selReportAccount.input.classList.remove('has-selection');
+    document.getElementById('clearReportAccountBtn')?.classList.add('hidden');
+    requestAnimationFrame(() => selReportAccount.input.focus());
+  }
+}
 document.getElementById('btnRptBudget')?.addEventListener('click', () => toggleReportView('budget'));
-document.getElementById('btnRptAccounts')?.addEventListener('click', () => toggleReportView('accounts'));
+document.getElementById('btnRptAccounts')?.addEventListener('click', () => openAccountStatementSearch());
 
 function toggleReportView(mode) {
   activeReportTab = mode;
@@ -4751,7 +4757,21 @@ function toggleReportView(mode) {
   document.getElementById('filterAccountSelectBox')?.classList.toggle('hidden', mode !== 'accounts');
   const budgetCarousel = document.getElementById('budgetCarousel');
   if (budgetCarousel) budgetCarousel.classList.toggle('hidden', mode !== 'budget' || document.getElementById('pageBudget')?.classList.contains('hidden'));
+  const filterTitle = document.getElementById('reportFilterBoxTitle');
+  if (filterTitle) filterTitle.textContent = mode === 'accounts' ? '🔍 البحث عن كشف الحساب' : '📈 تصفية فترة التقرير';
   runActiveReport();
+}
+
+// يفتح صفحة البحث عن كشف الحساب بخانة بحث فارغة ومؤشر الكتابة نشط فيها مباشرة،
+// بدل ما تظهر معبأة بآخر حساب تم اختياره أو بنص "ملخص كافة الحسابات".
+function openAccountStatementSearch() {
+  toggleReportView('accounts');
+  if (selReportAccount && selReportAccount.input) {
+    selReportAccount.input.value = '';
+    selReportAccount.input.classList.remove('has-selection');
+    document.getElementById('clearReportAccountBtn')?.classList.add('hidden');
+    requestAnimationFrame(() => selReportAccount.input.focus());
+  }
 }
 
 function populateReportFilterOptions() {

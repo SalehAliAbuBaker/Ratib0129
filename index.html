@@ -93,6 +93,28 @@ header{display:flex; justify-content:space-between; align-items:center; margin-b
 .main-menu-btn:active { transform: scale(0.96); }
 .main-menu-btn:hover { border-color: var(--accent); color: var(--accent); }
 .main-menu-icon { font-size: 1.8rem; line-height: 1; }
+.accounts-pager-card{border:0;box-shadow:none;overflow:visible;padding:0;margin:0;background:transparent}
+.accounts-pager-tabs{position:sticky;top:0;z-index:20;display:flex;gap:4px;overflow-x:auto;scrollbar-width:thin;padding:8px 2px 7px;border-bottom:2px solid var(--border);background:var(--card);scroll-snap-type:x proximity;direction:rtl}
+.accounts-pager-tabs button{flex:0 0 auto;border:0;border-bottom:3px solid transparent;background:transparent;color:var(--muted);border-radius:0;padding:8px 12px 9px;font:900 1.05rem Tajawal,sans-serif;cursor:pointer;white-space:nowrap;transition:color .2s,border-color .2s;position:relative}
+.accounts-pager-tabs button::first-letter{color:var(--accent)}
+.accounts-pager-tabs button.active{background:transparent;border-bottom-color:var(--accent);color:var(--accent)}
+.accounts-pager-viewport{overflow:hidden;margin-top:4px}
+.accounts-pager-track{display:flex;direction:ltr;overflow-x:auto;scroll-snap-type:x mandatory;scroll-behavior:smooth;overscroll-behavior-x:contain;scrollbar-width:none}
+.accounts-pager-track::-webkit-scrollbar{display:none}
+.accounts-pager-slide{direction:rtl;flex:0 0 100%;min-width:100%;scroll-snap-align:start;padding:2px}
+.accounts-pager-slide-title{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:10px;font-weight:900;color:var(--text)}
+.accounts-pager-slide-title small{color:var(--muted);font-size:.9rem}
+.account-sub-card{display:grid;grid-template-columns:minmax(0,1fr) auto auto auto;align-items:center;gap:10px;background:var(--bg);border:2px solid var(--border);border-radius:10px;padding:12px;margin-bottom:8px;cursor:pointer;text-align:right;transition:border-color .2s,transform .15s,background .2s}
+.account-sub-card:hover{border-color:var(--accent);background:color-mix(in srgb,var(--accent) 7%,var(--bg));transform:translateY(-1px)}
+.account-sub-name{font-weight:900;font-size:1.08rem;min-width:0}.account-currency-badge{display:inline-block;color:var(--accent);background:color-mix(in srgb,var(--accent) 10%,var(--card));border:1px solid var(--accent);border-radius:999px;padding:2px 8px;font-size:.82rem;vertical-align:middle;direction:ltr}.account-sub-path{display:block;color:var(--muted);font-size:.84rem;margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.account-sub-meta{display:flex;flex-wrap:wrap;gap:6px;margin-top:7px;color:var(--muted);font-size:.78rem;font-weight:800}.account-sub-meta span{padding:2px 7px;border:1px solid var(--border);border-radius:999px;background:var(--card)}
+.account-sub-balance{text-align:left;font-weight:900;white-space:nowrap}.account-sub-balance b{display:block;font-size:1.08rem}.account-sub-balance small{font-size:.82rem}.account-sub-balance.credit{color:var(--ok)}.account-sub-balance.debit{color:var(--danger)}
+.account-sub-arrow{font-size:1.25rem;color:var(--accent);font-weight:900}.account-operations-head-actions{order:-1;display:flex;align-items:center;gap:8px;direction:rtl;white-space:nowrap}.account-inline-actions{display:flex;align-items:center;gap:5px;direction:rtl}.account-inline-action{min-width:48px;height:42px;border:1px solid var(--border);border-radius:8px;background:var(--card);color:var(--accent);display:inline-flex;flex-direction:column;align-items:center;justify-content:center;gap:0;padding:3px 6px;font:900 1rem Tajawal,sans-serif;cursor:pointer}.account-inline-action span{font-size:.62rem;line-height:1.05}.account-inline-action:hover{border-color:var(--accent);background:var(--bg)}.account-inline-action:disabled{opacity:.4;cursor:not-allowed}.account-inline-back{color:var(--danger);border-color:color-mix(in srgb,var(--danger) 35%,var(--border))}.account-screen-menu-wrap{position:relative}.account-screen-menu-toggle{width:42px;height:40px;border:1px solid var(--border);border-radius:8px;background:var(--card);color:var(--accent);font-size:1.25rem;font-weight:900;cursor:pointer}.account-screen-menu{position:absolute;top:46px;right:0;left:auto;direction:rtl;z-index:50;display:none;min-width:245px;background:var(--card);border:1px solid var(--border);border-radius:10px;box-shadow:0 10px 28px rgba(15,23,42,.2);padding:6px}.account-screen-menu.open{display:block}.account-screen-menu .account-menu-section{padding:6px 10px 3px;color:var(--muted);font-size:.72rem;font-weight:900;border-bottom:1px solid var(--border);margin-top:3px}.account-screen-menu button{display:block;width:100%;border:0;background:transparent;text-align:right;padding:7px 9px;border-radius:7px;color:var(--text);font:900 .95rem Tajawal,sans-serif;cursor:pointer}.account-screen-menu button:hover{background:var(--bg);color:var(--accent)}.account-screen-menu button:disabled{opacity:.45;cursor:not-allowed}.account-screen-menu button:disabled:hover{background:transparent;color:var(--text)}.account-screen-menu button small{display:block;color:var(--muted);font-size:.78rem;margin-top:2px;font-weight:700}.account-screen-menu .account-menu-close{border-top:1px solid var(--border);margin-top:4px;color:var(--danger)}.account-advanced-search{display:grid;grid-template-columns:minmax(170px,1fr) minmax(170px,1fr) minmax(140px,auto) auto auto;align-items:end;gap:8px;margin:10px 0;padding:10px;border:1px solid var(--border);border-radius:10px;background:var(--bg)}.account-advanced-search label{display:flex;min-width:0;flex-direction:column;gap:4px;font-weight:900;color:var(--muted);font-size:.86rem}.account-advanced-search input{margin:0;padding:7px}.account-advanced-search .btn{width:auto;margin:0;padding:8px 12px}@media(max-width:760px){.account-advanced-search{grid-template-columns:1fr 1fr}.account-advanced-search label:nth-child(3){grid-column:1/-1}.account-advanced-search .btn{width:100%}}@media(max-width:600px){.account-operations-screen-head{align-items:center;overflow-x:auto}.account-operations-head-actions{flex-wrap:nowrap;justify-content:flex-end;flex:0 0 auto}.account-screen-menu{right:0;left:auto}}
+.account-operations-screen{max-width:760px;margin:0 auto}.account-operations-screen-head strong{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.account-operations-screen-head{position:sticky;top:0;z-index:15;overflow:visible;display:flex;direction:rtl;justify-content:flex-start;align-items:center;gap:10px;padding:10px 2px;background:var(--card);border-bottom:2px solid var(--border);font-size:1.2rem}.account-add-operation-btn,.account-direct-action-btn{width:auto!important;margin:0!important;padding:8px 12px!important;font-size:.95rem!important}.account-direct-action-btn{border:1px solid var(--accent);color:var(--accent);background:var(--card)}.account-direct-action-btn:hover{background:var(--bg)}.account-statement-table{width:100%;overflow-x:auto;border:2px solid var(--border);border-radius:10px}.account-statement-grid{min-width:650px}.account-statement-row{display:grid;grid-template-columns:110px 1.3fr 1.2fr 110px 110px 120px;gap:8px;align-items:center;padding:10px 8px;border-bottom:1px solid var(--border);font-weight:900}.account-statement-row:last-child{border-bottom:0}.account-statement-row.opening{background:#eef6f1;color:var(--accent);cursor:default;border-bottom:2px solid var(--accent)}.account-statement-row.total{background:var(--bg);cursor:default!important;border-bottom:1px solid var(--border)}.account-statement-row.total:hover{background:var(--bg)!important}.account-statement-row.total.final{background:color-mix(in srgb,var(--accent) 10%,var(--card));color:var(--accent);border-top:2px solid var(--accent)}.account-statement-row.header{background:var(--bg);color:var(--muted);border-bottom:2px solid var(--accent);font-size:.9rem}.account-statement-row:not(.header){cursor:pointer}.account-statement-row:not(.header):hover{background:color-mix(in srgb,var(--accent) 7%,var(--card))}.account-statement-row .debit{color:var(--danger)}.account-statement-row .credit{color:var(--ok)}.account-statement-row .balance{color:var(--accent)}
+.account-operation-row{cursor:pointer}.account-operation-row:hover{background:color-mix(in srgb,var(--accent) 7%,var(--card))}.account-operation-actions{display:flex;gap:5px;align-items:center}.account-operation-actions button{border:0;border-radius:6px;padding:5px 7px;cursor:pointer;font:900 .85rem Tajawal,sans-serif}.account-operation-edit{background:var(--accent);color:#fff}.account-operation-delete{background:var(--danger);color:#fff}
+.account-operations-panel{margin-top:14px;border-top:2px solid var(--accent);padding-top:12px}.account-operations-head{display:flex;flex-wrap:nowrap;justify-content:space-between;align-items:center;gap:8px;margin-bottom:8px;font-weight:900;white-space:nowrap}.account-operations-head>span{overflow:hidden;text-overflow:ellipsis;min-width:0}.account-operations-head small{color:var(--muted)}.account-operation-row{display:grid;grid-template-columns:120px minmax(0,1fr) auto;gap:10px;align-items:center;padding:10px 4px;border-bottom:1px solid var(--border);font-weight:900}.account-operation-row:last-child{border-bottom:0}.account-operation-date{color:var(--muted);direction:ltr;text-align:right;font-size:.92rem}.account-operation-desc{min-width:0}.account-operation-desc small{display:block;color:var(--muted);font-size:.82rem;margin-top:3px}.account-operation-amount{white-space:nowrap}.account-operation-amount.credit{color:var(--ok)}.account-operation-amount.debit{color:var(--danger)}@media(max-width:600px){.account-operation-row{grid-template-columns:1fr auto}.account-operation-date{grid-column:1/-1;text-align:right}.account-operation-desc{grid-column:1}.account-operation-amount{grid-column:2;grid-row:2}}
+.accounts-empty{padding:24px;text-align:center;color:var(--muted);font-weight:900;border:2px dashed var(--border);border-radius:10px}
+@media(max-width:600px){.account-sub-card{grid-template-columns:minmax(0,1fr) auto auto;}.account-sub-arrow{grid-row:1;grid-column:2}.account-sub-balance{grid-column:1/-1;text-align:right;border-top:1px dashed var(--border);padding-top:7px}.account-sub-path{max-width:55vw}}
+
 
 .mode-toggle-btn { border: none; background: transparent; font-family: inherit; font-size: 1.05rem; font-weight: 900; color: var(--muted); padding: 6px 10px; border-radius: 8px; cursor: pointer; }
 .mode-toggle-btn.active { background: var(--accent); color: #fff; }
@@ -152,6 +174,7 @@ body.privacy-active .icon-btn#privacyBtn { background: var(--accent); color: #ff
 .cat-amount { font-weight: 900; font-size: 1.15rem; }
 .toggle-vis-btn { background:none; border:none; font-size:1.3rem; cursor:pointer; }
 
+.multi-voucher-card{border-right:6px solid var(--accent)}.multi-voucher-badge{background:var(--accent);color:#fff;padding:4px 9px;border-radius:7px;font-size:.9rem}.multi-voucher-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:10px 0}.multi-voucher-grid label,.multi-voucher-source-row label,.multi-voucher-card>label{display:flex;flex-direction:column;gap:5px;font-weight:900;color:var(--muted)}.multi-voucher-source-row{display:grid;grid-template-columns:190px 1fr;align-items:center;gap:8px;margin:8px 0}.multi-voucher-card input,.multi-voucher-card select,.multi-voucher-card textarea{font-family:inherit;font-size:1rem;font-weight:900;color:var(--text)}.multi-voucher-card textarea{resize:vertical}.multi-optional-legacy-field{display:none!important}.multi-voucher-table-wrap{overflow:auto;margin-top:12px;border:1px solid var(--border);border-radius:10px}.multi-voucher-table{width:100%;min-width:900px;border-collapse:collapse;background:var(--card)}.multi-auto-balance-row{background:color-mix(in srgb,var(--accent) 8%,var(--card))}.multi-auto-balance-row td:first-child:before{content:"متمم تلقائي";display:block;font-size:.75rem;color:var(--accent);font-weight:900}.multi-voucher-table .multi-line-side{min-width:92px;font-weight:900}.multi-voucher-table .multi-line-side.debit{color:var(--danger)}.multi-voucher-table .multi-line-side.credit{color:var(--ok)}.multi-voucher-table th,.multi-voucher-table td{border-bottom:1px solid var(--border);padding:7px;text-align:right;vertical-align:middle}.multi-voucher-table th{background:var(--bg);font-weight:900;white-space:nowrap}.multi-voucher-table input,.multi-voucher-table select{min-width:95px;padding:7px}.multi-voucher-table .multi-line-base{font-weight:900;color:var(--accent);white-space:nowrap}.multi-remove-line{width:34px!important;min-width:34px!important;padding:4px!important}.multi-add-line{width:auto;margin-top:10px}.multi-voucher-summary{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}.multi-voucher-summary span{padding:8px 10px;border:1px solid var(--border);border-radius:8px;background:var(--bg);font-weight:900}.multi-voucher-balance{margin-top:10px;padding:10px;border:2px solid var(--border);border-radius:9px;font-weight:900;text-align:center}.multi-voucher-balance.balanced{border-color:var(--ok);color:var(--ok);background:color-mix(in srgb,var(--ok) 8%,var(--card))}.multi-voucher-balance.unbalanced{border-color:var(--danger);color:var(--danger);background:color-mix(in srgb,var(--danger) 8%,var(--card))}.multi-voucher-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}.multi-voucher-actions .btn{width:auto;margin:0}@media(max-width:650px){.multi-voucher-grid{grid-template-columns:1fr}.multi-voucher-source-row{grid-template-columns:1fr}.multi-voucher-actions .btn{flex:1 1 45%}}
 .voucher-split-box { background: var(--bg); border: 2px dashed var(--border); border-radius: 12px; padding: 12px; margin-top: 10px; margin-bottom: 12px; transition: border-color 0.3s ease, box-shadow 0.3s ease; }
 .voucher-split-box.balanced { border-color: var(--ok); box-shadow: 0 0 15px rgba(16,185,129,0.25); }
 .voucher-cat-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 8px 0; border-bottom: 1.5px solid var(--border); }
@@ -262,6 +285,21 @@ body.privacy-active .icon-btn#privacyBtn { background: var(--accent); color: #ff
 .print-header-banner { display: none; }
 .print-statement-container { display: none; }
 .print-budget-container { display: none; }
+
+.account-print-page{break-inside:auto;page-break-inside:auto;}
+.account-print-summary{break-inside:auto;page-break-inside:auto;}
+@media print{
+  /* إصلاح القطع: html/body كانت height:100% + overflow-x:hidden فتقصّ المحتوى بعد الصفحة الأولى في الطباعة */
+  html, body{height:auto!important;min-height:0!important;max-height:none!important;overflow:visible!important;width:auto!important;padding-bottom:0!important;}
+  body.printing-statement .wrap{height:auto!important;min-height:0!important;max-height:none!important;overflow:visible!important;max-width:none!important;width:100%!important;margin:0!important;padding:0!important;}
+  body.printing-statement #printStatementContainer{direction:rtl!important;unicode-bidi:plaintext!important;height:auto!important;max-height:none!important;overflow:visible!important;}
+  /* فاصل صفحة واحد فقط (بعد كل عملة) بدل break-before + break-after معاً، وبدون break-inside:avoid على القسم كله */
+  body.printing-statement .account-print-page{display:block!important;width:100%!important;height:auto!important;min-height:0!important;max-height:none!important;box-sizing:border-box;direction:rtl!important;overflow:visible!important;break-before:auto!important;page-break-before:auto!important;break-after:page!important;page-break-after:always!important;break-inside:auto!important;page-break-inside:auto!important;}
+  body.printing-statement .account-print-summary{display:block!important;width:100%!important;height:auto!important;min-height:0!important;max-height:none!important;box-sizing:border-box;direction:rtl!important;overflow:visible!important;break-before:auto!important;page-break-before:auto!important;break-after:auto!important;page-break-after:auto!important;break-inside:auto!important;page-break-inside:auto!important;}
+  body.printing-statement .ps-table,.printing-statement .ps-summary-table{direction:rtl!important;unicode-bidi:plaintext!important;}
+  body.printing-statement .ps-table tr,.printing-statement .ps-summary-table tr{break-inside:avoid;page-break-inside:avoid;}
+  body.printing-statement .ps-table thead{display:table-header-group;}
+}
 body.printing-statement header, body.printing-statement .nav-tabs, body.printing-statement .no-print, body.printing-statement .btn, body.printing-statement .icon-btn, body.printing-statement #reportFilterBox, body.printing-statement .search-box, body.printing-statement .searchable-arrow, body.printing-statement .report-type-switch, body.printing-statement .print-header-banner, body.printing-statement .wrap > div:not(#printStatementContainer) { display: none !important; }
 body.printing-budget header, body.printing-budget .nav-tabs, body.printing-budget .no-print, body.printing-budget .btn, body.printing-budget .icon-btn, body.printing-budget #reportFilterBox, body.printing-budget .search-box, body.printing-budget .searchable-arrow, body.printing-budget .report-type-switch, body.printing-budget .print-header-banner, body.printing-budget .wrap > div:not(#printBudgetContainer) { display: none !important; }
 
@@ -271,7 +309,7 @@ body.printing-budget .print-budget-container {
   width: 100% !important;
   max-width: 100% !important;
   margin: 0 !important;
-  padding: 2mm !important;
+  padding: 0 !important;
   font-family: 'Tajawal', sans-serif !important;
   color: #000 !important;
   background: #fff !important;
@@ -287,14 +325,16 @@ body.printing-budget .print-budget-container {
 .ps-info-label { color:#475569; }
 
 .ps-table-wrap { width: 100%; margin-bottom: 0; }
-.ps-table { width: 100%; border-collapse: collapse; font-size: 9.5pt !important; }
+.ps-table { width: 100%; border-collapse: collapse; font-size: 9.5pt !important; direction:rtl; }
 .ps-table th, .ps-table td { border: 1px solid #000; padding: 3px 4px !important; text-align: center; font-weight: 900; font-size: 9.5pt !important; }
 .ps-table th { background: #e2e8f0; font-weight: 900; color: #000; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
 .ps-table td.desc-col { text-align: right; font-size: 9pt !important; }
 .ps-table td small { font-size: 8pt !important; }
 
+.ps-table tr.ps-total-row td{background:#f1f5f9;font-weight:900;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+.ps-table tr.ps-total-row.ps-final td{background:#e2e8f0;font-size:10.5pt !important;}
 .ps-summary-title{text-align:center;font-weight:900;margin-bottom:2px;color:#000;font-size:9.5pt !important;}
-.ps-summary-table{width:100%;border-collapse:collapse;font-size:9pt !important;margin:2px 0 4px}
+.ps-summary-table{width:100%;border-collapse:collapse;font-size:9pt !important;margin:2px 0 4px;direction:rtl}
 .ps-summary-table th,.ps-summary-table td{border:1px solid #000;padding:3px !important;text-align:center;font-weight:900;color:#000;font-size:9pt !important;}
 .ps-summary-table th{background:#e2e8f0;-webkit-print-color-adjust:exact;print-color-adjust:exact}
 .ps-summary-table td{background:#fff}
@@ -499,6 +539,24 @@ label{font-size:1rem;color:var(--text);margin-bottom:5px}
 
 .account-code-field input[readonly]{background:var(--bg);color:var(--muted);font-weight:900;cursor:not-allowed}
 
+@media print{body.account-print-mode #pageDashboard,body.account-print-mode #pageExpenses,body.account-print-mode #pageLedger,body.account-print-mode #pageReports,body.account-print-mode #pageBudget,body.account-print-mode #pageAccountsTree,body.account-print-mode #pageSettings,body.account-print-mode header,body.account-print-mode .account-operations-screen-head,body.account-print-mode #accountAdvancedSearchPanel{display:none!important}body.account-print-mode #pageAccountOperations{display:block!important}.account-statement-row{color:#000!important}.account-statement-table{border-color:#000!important}}
+
+.account-inline-back{order:-1}
+/* Account statements: each currency is a separate swipeable ledger, never a sum of unlike units. */
+.account-operations-screen-head{flex-direction:column;align-items:stretch;gap:7px}
+.account-operations-screen-head #accountOperationsScreenTitle{display:block;flex:none;overflow:visible;text-overflow:clip;white-space:normal;overflow-wrap:anywhere;line-height:1.45;font-size:1.13rem}
+.account-operations-screen-head .account-operations-head-actions{order:0;min-width:0;overflow-x:auto;scrollbar-width:thin;justify-content:flex-start;padding-bottom:3px}
+.account-currency-tabs{display:flex;gap:5px;overflow-x:auto;scrollbar-width:thin;padding:9px 0 7px;border-bottom:1px solid var(--border);direction:rtl}
+.account-currency-tabs:empty{display:none}
+.account-currency-tabs button{flex:0 0 auto;border:1px solid var(--border);border-radius:8px;background:var(--card);color:var(--text);padding:7px 13px;min-height:38px;font:900 .94rem Tajawal,sans-serif;cursor:pointer}
+.account-currency-tabs button.active{background:var(--accent);color:#fff;border-color:var(--accent)}
+.account-currency-viewport{min-width:0}
+.account-currency-track{display:flex;direction:ltr;overflow-x:auto;overscroll-behavior-x:contain;scroll-snap-type:x mandatory;scrollbar-width:thin}
+.account-currency-page{direction:rtl;flex:0 0 100%;min-width:100%;scroll-snap-align:start;padding-top:9px}
+.account-currency-page .account-operations-head{flex-direction:column;align-items:stretch;white-space:normal;gap:4px}
+.account-currency-page .account-operations-head>span{overflow:visible;text-overflow:clip;white-space:normal;overflow-wrap:anywhere}
+.account-currency-page .account-operations-head small{line-height:1.5}
+@media(max-width:600px){.account-operations-screen-head{align-items:stretch;overflow:visible}.account-operations-screen-head .account-operations-head-actions{justify-content:flex-start;overflow-x:auto}}
 </style>
 </head>
 <body>
@@ -528,7 +586,6 @@ label{font-size:1rem;color:var(--text);margin-bottom:5px}
   <header class="no-print">
     <div class="logo">راتب للتنظيم والتدبير المالي</div>
     <div class="header-actions">
-      <button class="icon-btn" id="globalSearchBtn" title="البحث العام (Ctrl+K)" aria-label="البحث العام">⌕</button>
       <button class="icon-btn" id="privacyBtn" title="وضع الخصوصية">👁️</button>
       <button class="icon-btn" id="themeBtn" title="الوضع الليلي">🌙</button>
       <button class="icon-btn" id="sidebarMenuBtn" title="القائمة الجانبية" aria-label="فتح القائمة الجانبية">☰</button>
@@ -568,6 +625,30 @@ label{font-size:1rem;color:var(--text);margin-bottom:5px}
   
   <div id="pageDashboard" class="">
     <div id="dashboardHomeContent">
+
+      <h3 class="dashboard-section-title no-print">📂 الأقسام</h3>
+      <div class="main-menu-grid no-print" aria-label="الأقسام الرئيسية">
+        <button class="main-menu-btn" onclick="navigateToTab('pageExpenses', true)">
+          <span class="main-menu-icon">💸</span>
+          <span>إضافة</span>
+        </button>
+        <button class="main-menu-btn" onclick="navigateToTab('pageLedger', true)">
+          <span class="main-menu-icon">📋</span>
+          <span>السجل</span>
+        </button>
+        <button class="main-menu-btn" onclick="navigateToTab('pageReports', true)">
+          <span class="main-menu-icon">📈</span>
+          <span>التقارير</span>
+        </button>
+        <button class="main-menu-btn budget-btn" onclick="navigateToTab('pageBudget', true)">
+          <span class="main-menu-icon">📊</span>
+          <span>الميزانية</span>
+        </button>
+        <button class="main-menu-btn" onclick="navigateToTab('pageAccountsTree', true)" style="grid-column: span 2;">
+          <span class="main-menu-icon">📒</span>
+          <span>الحسابات</span>
+        </button>
+      </div>
 
       <div class="carousel-shell dashboard-carousel" id="dashboardCarousel" aria-label="لوحة القيادة والمهام">
         <div class="carousel-track">
@@ -615,34 +696,6 @@ label{font-size:1rem;color:var(--text);margin-bottom:5px}
           <button class="carousel-arrow" type="button" onclick="moveCarousel('dashboardCarousel',1)" aria-label="التالي">›</button>
         </div>
       </div>
-
-      <h3 class="dashboard-section-title no-print">📂 الأقسام</h3>
-      <div class="main-menu-grid no-print" aria-label="الأقسام الرئيسية" style="grid-template-columns: repeat(3, 1fr);">
-        <button class="main-menu-btn" onclick="navigateToTab('pageExpenses', true)">
-          <span class="main-menu-icon">💸</span>
-          <span>إضافة</span>
-        </button>
-        <button class="main-menu-btn" onclick="navigateToTab('pageLedger', true)">
-          <span class="main-menu-icon">📋</span>
-          <span>السجل</span>
-        </button>
-        <button class="main-menu-btn" onclick="navigateToTab('pageReports', true)">
-          <span class="main-menu-icon">📈</span>
-          <span>التقارير</span>
-        </button>
-        <button class="main-menu-btn budget-btn" onclick="navigateToTab('pageBudget', true)">
-          <span class="main-menu-icon">📊</span>
-          <span>الميزانية</span>
-        </button>
-        <button class="main-menu-btn" onclick="navigateToTab('pageAccountsTree', true)">
-          <span class="main-menu-icon">🌳</span>
-          <span>شجرة الحسابات</span>
-        </button>
-        <button class="main-menu-btn" onclick="navigateToTab('pageSettings', true)">
-          <span class="main-menu-icon">⚙️</span>
-          <span>الإعدادات</span>
-        </button>
-      </div>
     </div>
   </div>
 
@@ -659,7 +712,27 @@ label{font-size:1rem;color:var(--text);margin-bottom:5px}
       <button class="btn btn-primary" onclick="selectVoucherTypeDirect('entry')" style="display:flex; flex-direction:column; gap:4px; padding:14px 6px; font-size:1.05rem;">
         <span style="font-size: 1.8rem;">⚖️</span><span>سند قيد</span>
       </button>
+      <button class="btn btn-warning" onclick="selectMultiVoucherType()" style="display:flex; flex-direction:column; gap:4px; padding:14px 6px; font-size:1.05rem;">
+        <span style="font-size: 1.8rem;">🧾</span><span>سند قيد متعدد</span>
+      </button>
     </div>
+  </div>
+
+  <div class="card hidden multi-voucher-card" id="multiVoucherCard">
+    <h2><span>🧾 سند قيد متعدد</span><span id="multiVoucherSeqBadge" class="multi-voucher-badge">رقم: تلقائي</span><button class="btn btn-ghost" type="button" onclick="backToVoucherSelector()" style="width:auto;margin-top:0;padding:4px 10px;">🔄 تغيير النوع</button></h2>
+    <div class="multi-voucher-grid">
+      <label>التاريخ<input type="date" id="multiVoucherDate"></label>
+      <label>المستفيد<input type="text" id="multiVoucherBeneficiary" placeholder="اسم المستفيد"></label>
+      <label class="multi-optional-legacy-field">الجهة / الطرف<input type="text" id="multiVoucherParty" placeholder="الجهة أو الطرف"></label>
+      <label>العملة الأساسية<select id="multiVoucherBaseCurrency"><option value="YER">ريال يمني YER</option><option value="SAR">ريال سعودي SAR</option><option value="USD">دولار USD</option></select></label>
+    </div>
+    <div class="multi-voucher-source-row multi-optional-legacy-field"><label>حساب مرجعي (اختياري)</label><div class="searchable-select-wrap" id="wrapMultiSourceAcc"><input type="text" class="searchable-input" id="inpMultiSourceAcc" placeholder="اختر الحساب المرجعي (اختياري)" autocomplete="off"><span class="searchable-arrow">▼</span><div class="searchable-dropdown" id="dropMultiSourceAcc"></div></div><input type="hidden" id="valMultiSourceAcc"></div>
+    <label>البيان العام<textarea id="multiVoucherNote" rows="2" placeholder="البيان العام للسند"></textarea></label>
+    <div class="multi-voucher-table-wrap"><table class="multi-voucher-table"><thead><tr><th>الجهة</th><th>الحساب</th><th>بند الميزانية</th><th>البيان</th><th>العملة</th><th>المبلغ</th><th>سعر الصرف</th><th>القيمة الأساسية</th><th>ملاحظات</th><th></th></tr></thead><tbody id="multiVoucherLinesBody"></tbody></table></div>
+    <button type="button" class="btn btn-primary multi-add-line" id="addMultiVoucherLineBtn">＋ إضافة حساب</button>
+    <div class="multi-voucher-summary" id="multiVoucherSummary"></div>
+    <div class="multi-voucher-balance" id="multiVoucherBalance">أضف بنوداً للتحقق من الاتزان</div>
+    <div class="multi-voucher-actions"><button type="button" class="btn btn-ghost" id="saveMultiDraftBtn">حفظ مسودة</button><button type="button" class="btn btn-ghost" id="loadMultiDraftBtn">فتح آخر مسودة</button><button type="button" class="btn btn-success" id="commitMultiVoucherBtn">اعتماد السند</button><button type="button" class="btn btn-ghost" id="printMultiVoucherBtn">🖨️ طباعة</button><button type="button" class="btn btn-ghost" id="pdfMultiVoucherBtn">📄 PDF</button><button type="button" class="btn btn-danger" onclick="backToVoucherSelector()">إلغاء</button></div><div id="multiSavedNotice" class="hidden" style="margin-top:12px;padding:10px;border:2px solid var(--ok);border-radius:10px;background:color-mix(in srgb,var(--ok) 8%,var(--card));font-weight:900;"></div>
   </div>
 
   <div class="card hidden" id="cashFlowCard">
@@ -801,18 +874,42 @@ label{font-size:1rem;color:var(--text);margin-bottom:5px}
 </div>
 
 <div id="pageAccountsTree" class="hidden">
-  <div class="card" style="border-right: 6px solid var(--accent);">
-    <h2><span>🌳 شجرة الحسابات (للعرض فقط)</span></h2>
-    <p style="font-size:1.05rem; color:var(--muted); font-weight:900; margin-bottom:10px;">استعراض شجرة الحسابات الفعلية وتفاصيل أرصدتها (لإدارة وإضافة الحسابات يرجى الذهاب إلى قسم الإعدادات):</p>
-    <div id="liveAccountsTreeView" style="font-size:1.05rem;"></div>
+  <div class="accounts-pager-card" id="accountsPagerCard">
+    <div id="accountsPagerTabs" class="accounts-pager-tabs" role="tablist" aria-label="تصنيفات الحسابات"></div>
+    <div id="accountsPagerViewport" class="accounts-pager-viewport">
+      <div id="accountsPagerTrack" class="accounts-pager-track"></div>
+    </div>
+    <div id="accountOperationsPanel" class="account-operations-panel hidden" aria-live="polite"></div>
+  </div>
+</div>
+
+<div id="pageAccountOperations" class="hidden">
+  <div class="account-operations-screen">
+    <div class="account-operations-screen-head">
+      <strong id="accountOperationsScreenTitle">عمليات الحساب</strong>
+      <div class="account-operations-head-actions">
+        <button type="button" class="btn btn-primary account-add-operation-btn" id="accountAddOperationBtn">＋ إضافة عملية</button><div class="account-inline-actions" aria-label="إجراءات الحساب"><button type="button" class="account-inline-action" data-account-action="advanced" title="بحث متقدم">⌕<span>بحث</span></button><button type="button" class="account-inline-action" data-account-action="print" disabled title="طباعة بعد الفلترة">🖨<span>طباعة</span></button><button type="button" class="account-inline-action" data-account-action="share" title="مشاركة PDF">↗<span>PDF</span></button><button type="button" class="account-inline-action" data-account-action="documentQuery" disabled title="استفسار عن المستند">⌕<span>استفسار</span></button><button type="button" class="account-inline-action account-inline-back" data-account-action="close" title="العودة إلى الشاشة السابقة">←<span>رجوع</span></button></div>
+        <div class="account-screen-menu-wrap hidden">
+          <button type="button" class="account-screen-menu-toggle" id="accountScreenMenuToggle" aria-label="قائمة كشف الحساب" aria-expanded="false">☰</button>
+          <div class="account-screen-menu" id="accountScreenMenu" role="menu">
+            <div class="account-menu-section">تصفية وعرض</div><button type="button" data-account-action="advanced">⌕ بحث متقدم <small>تحديد الفترة والعملة</small></button><button type="button" data-account-action="print" disabled>🖨 طباعة <small>بعد تطبيق الفلترة</small></button><div class="account-menu-section">تصدير ومشاركة</div><button type="button" data-account-action="share">↗ مشاركة PDF <small>العمليات المعروضة</small></button><div class="account-menu-section">المستند</div><button type="button" data-account-action="documentQuery" disabled>⌕ استفسار عن المستند <small>البحث في المستندات</small></button><button type="button" data-account-action="close" class="account-menu-close">← عودة / إغلاق</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div id="accountAdvancedSearchPanel" class="account-advanced-search hidden">
+      <label>من تاريخ <input type="date" id="accountOpsFromDate" lang="en-CA" dir="ltr" aria-label="اختر تاريخ البداية"></label>
+      <label>إلى تاريخ <input type="date" id="accountOpsToDate" lang="en-CA" dir="ltr" aria-label="اختر تاريخ النهاية"></label>
+      <label>العملة <select id="accountOpsCurrencyFilter" aria-label="فلترة حسب العملة"><option value="ALL">كل العملات</option><option value="YER">🇾🇪 ريال يمني</option><option value="SAR">🇸🇦 ريال سعودي</option><option value="USD">🇺🇸 دولار أمريكي</option></select></label>
+      <button type="button" class="btn btn-primary" id="applyAccountOpsFilterBtn">تطبيق</button>
+      <button type="button" class="btn btn-ghost" id="clearAccountOpsFilterBtn">إلغاء البحث</button>
+    </div>
+    <nav id="accountCurrencyTabs" class="account-currency-tabs no-print" role="tablist" aria-label="صفحات عملات الحساب"></nav>
+    <div id="accountOperationsStandalonePanel" class="account-currency-viewport" aria-live="polite"></div>
   </div>
 </div>
 
 <div id="pageReports" class="hidden">
-  <div class="card no-print" style="border-right:6px solid var(--violet);">
-    <h2><span>📈 التقارير وكشف الحساب</span><small style="font-size:0.95rem;color:var(--muted);">قسم التقارير</small></h2>
-    <p style="font-weight:900;color:var(--muted);margin-bottom:0;font-size:1.05rem;">يمكنك من هنا عرض كشف الحساب وطباعته، وإضافة تقارير أخرى مستقبلاً.</p>
-  </div>
   <div class="report-type-switch no-print hidden">
     <button class="rpt-btn active" id="btnRptBudget">📊 تحليل الميزانية</button>
     <button class="rpt-btn" id="btnRptAccounts">👤 كشف الحسابات</button>
@@ -831,7 +928,6 @@ label{font-size:1rem;color:var(--text);margin-bottom:5px}
   </div>
 
   <div class="card" id="reportFilterBox">
-    <h2><span id="reportFilterBoxTitle">📈 تصفية فترة التقرير</span></h2>
     <div style="display:flex; flex-direction:column; gap:8px;">
       <div id="filterAccountSelectBox" class="hidden">
         <label>🔍 اكتب اسم الحساب للبحث عن كشفه (رئيسي أو فرعي):</label>
@@ -870,7 +966,6 @@ label{font-size:1rem;color:var(--text);margin-bottom:5px}
         </div>
       </div>
 
-      <button class="btn btn-primary" id="generateReportBtn" style="margin-top:4px;">📊 استخراج التقرير المطلوب</button>
     </div>
   </div>
 
@@ -932,16 +1027,24 @@ label{font-size:1rem;color:var(--text);margin-bottom:5px}
   <div class="card hidden" id="accountStatementCard">
     <h2>
       <span id="statementHeaderTitle">📑 كشف حساب العملاء والصناديق</span>
-      <button class="icon-btn no-print" id="printStatementBtn" title="طباعة مباشرة" style="width:42px; height:42px;">🖨️</button>
+      <span style="display:flex;gap:6px;"><button class="icon-btn no-print" id="reportAdvToggleBtn" title="بحث متقدم (الفترة والعملة)" style="width:42px; height:42px;">⌕</button><button class="icon-btn no-print" id="shareStatementPdfBtn" title="مشاركة PDF" style="width:42px; height:42px;">📄</button><button class="icon-btn no-print" id="printStatementBtn" title="طباعة مباشرة" style="width:42px; height:42px;">🖨️</button></span>
     </h2>
-    <div style="font-size:1.05rem; color:var(--muted); font-weight:900; margin-bottom:8px;" id="statementPeriodTitle">الفترة: -</div>
-
     <div class="search-box">
       <span class="search-icon">🔍</span>
       <input type="search" id="statementSearchInput" placeholder="بحث داخل كشف الحساب (بالبيان، الطرف، أو السند)...">
     </div>
 
-    <div class="kpi-grid">
+    <div id="reportAdvPanel" class="account-advanced-search hidden no-print">
+      <label>من تاريخ <input type="date" id="reportAdvFrom" dir="ltr" aria-label="من تاريخ"></label>
+      <label>إلى تاريخ <input type="date" id="reportAdvTo" dir="ltr" aria-label="إلى تاريخ"></label>
+      <label>العملة <select id="reportAdvCurrency" aria-label="فلترة حسب العملة"><option value="ALL">كل العملات</option><option value="YER">🇾🇪 ريال يمني</option><option value="SAR">🇸🇦 ريال سعودي</option><option value="USD">🇺🇸 دولار أمريكي</option></select></label>
+      <button type="button" class="btn btn-primary" id="reportAdvApplyBtn">تطبيق</button>
+      <button type="button" class="btn btn-ghost" id="reportAdvClearBtn">إلغاء البحث</button>
+    </div>
+    <nav id="reportCurrencyTabs" class="account-currency-tabs no-print" role="tablist" aria-label="صفحات عملات الحساب"></nav>
+    <div id="reportAccountOpsPanel" class="account-currency-viewport hide-in-privacy" aria-live="polite"></div>
+
+    <div class="kpi-grid hidden" id="statementKpiGrid">
       <div class="kpi-card">
         <div class="kpi-title">الرصيد السابق (افتتاحي الفترة)</div>
         <div class="kpi-value hide-in-privacy" id="kpiAccountOpening" style="color:var(--muted);">0</div>
@@ -1550,11 +1653,13 @@ label{font-size:1rem;color:var(--text);margin-bottom:5px}
       </table>
       
       <div class="ps-footer-totals">
+        <div id="psSummaryBlock">
         <div class="ps-summary-title">ملخص كشف الحساب</div>
         <table class="ps-summary-table">
           <thead><tr><th>المدين (عليكم)</th><th>الدائن (لكم)</th><th>المتبقي / الرصيد</th></tr></thead>
           <tbody><tr><td id="psTotAlaykom" style="color:#ef4444;">0</td><td id="psTotLakam" style="color:#10b981;">0</td><td id="psNetBal" style="color:#0284c7;">0</td></tr></tbody>
         </table>
+        </div>
         <div id="psTafqitText" style="font-size: 8.5pt; color: #000; font-weight: 900;">-</div>
         <div style="font-size: 8pt; color: #000; font-weight: 900;">يرجى مراجعة الكشف خلال 14 يوماً من تاريخه.</div>
       </div>
@@ -2133,20 +2238,34 @@ document.addEventListener('DOMContentLoaded', () => {
       modal?.classList.remove('show');
       try {
         document.body.classList.add(bodyClass);
-        if (window.print) window.print();
+        if (window.print) {
+          const cleanupPrintMode=()=>{document.body.classList.remove(bodyClass);window.removeEventListener('afterprint',cleanupPrintMode);if(window.__ratibPrintCleanup===cleanupPrintMode)window.__ratibPrintCleanup=null;};
+          if(window.__ratibPrintCleanup)window.__ratibPrintCleanup();
+          window.__ratibPrintCleanup=cleanupPrintMode;
+          window.addEventListener('afterprint',cleanupPrintMode,{once:true});
+          window.print();
+          // Some embedded mobile print engines do not emit afterprint; keep the mode
+          // long enough for the print preview to capture every page before fallback cleanup.
+          setTimeout(cleanupPrintMode,15000);
+        }
       } catch(err) {
         console.error('تعذر فتح أمر الطباعة:', err);
         showToast('تعذّر تجهيز الطباعة: ' + (err && err.message ? err.message : 'خطأ غير معروف'), 'error', 6000);
       } finally {
-        setTimeout(() => document.body.classList.remove(bodyClass), 1000);
+        // Cleanup is handled by afterprint (or the guarded 15-second fallback above).
       }
     };
     if (cancelBtn) cancelBtn.onclick = () => { modal?.classList.remove('show'); };
   }
+  // openPrintPreview مُعرّفة محلياً داخل هذا النطاق فقط، بينما دالة طباعة كشف حساب العميل
+  // الجديدة (printCurrentAccountOperations) مُعرّفة بالنطاق العام خارجه، فكانت لا تراها
+  // (خطأ "openPrintPreview is not defined"). نُتيحها هنا بالنطاق العام حتى تصلها أي دالة بالتطبيق.
+  window.openPrintPreview = openPrintPreview;
 
   document.getElementById('printStatementBtn')?.addEventListener('click', () => {
     try {
       const selectedAccount = selReportAccount ? selReportAccount.getValue() : 'ALL';
+      if (selectedAccount && selectedAccount !== 'ALL') { syncAccountOpsStateFromReport(selectedAccount); printCurrentAccountOperations(); return; }
       const { targetTxs, periodStart, periodTitle } = getFilteredTransactions();
       const openingBalance = getAccountOpeningBalance(selectedAccount, periodStart);
       preparePrintStatementTemplate(selectedAccount, targetTxs, openingBalance, periodTitle);
@@ -2155,6 +2274,13 @@ document.addEventListener('DOMContentLoaded', () => {
       console.error('تعذر تجهيز معاينة كشف الحساب:', err);
       showToast('تعذّر تجهيز الطباعة: ' + (err && err.message ? err.message : 'خطأ غير معروف'), 'error', 6000);
     }
+  });
+
+  document.getElementById('shareStatementPdfBtn')?.addEventListener('click', () => {
+    const selectedAccount = selReportAccount ? selReportAccount.getValue() : 'ALL';
+    if (!selectedAccount || selectedAccount === 'ALL') { showToast('اختر حساباً محدداً أولاً لمشاركة كشفه', 'warn'); return; }
+    syncAccountOpsStateFromReport(selectedAccount);
+    shareCurrentAccountOperations();
   });
 
   document.getElementById('printBudgetReportBtn')?.addEventListener('click', () => {
@@ -3074,14 +3200,14 @@ function openGlobalSearch() { lastFocusedElement=document.activeElement; documen
 function closeGlobalSearch() { document.getElementById('globalSearchModal').classList.remove('show'); if(lastFocusedElement?.focus)lastFocusedElement.focus(); }
 function renderGlobalSearch(q) {
   const box=document.getElementById('globalSearchResults'); if(!box)return; const query=q.trim().toLowerCase();
-  const txs=getAllTransactions().slice().reverse().filter(t=>{if(!query)return true;return [t.seqNum,t.type,t.date,t.isoDate,t.debitAccount,t.creditAccount,t.amount,t.currency,...Object.values(t.execution||{}).map(x => (x && x.note) || '')].join(' ').toLowerCase().includes(query)}).slice(0,80);
-  box.innerHTML=txs.length?txs.map(t=>`<div class="global-result" data-id="${esc(t.id)}"><b>${esc(t.type||'عملية')}</b> <span class="status-chip ${t.status==='reversed'?'reversed':''}">${t.status==='reversed'?'ملغى':'مرحّل'}</span><br><small style="font-size:0.95rem;">${esc(t.date||t.isoDate||'-')} • ${esc(t.debitAccount||'-')} ← ${esc(t.creditAccount||'-')} • ${esc(fmt(t.amount,t.currency))}</small></div>`).join(''):'<div style="padding:14px;text-align:center;color:var(--muted)">لا توجد نتائج</div>';
+  const txs=getAllTransactions().slice().reverse().filter(t=>{if(!query)return true;return [t.seqNum,getTransactionDisplayType(t),t.date,t.isoDate,t.debitAccount,t.creditAccount,t.amount,t.currency,...Object.values(t.execution||{}).map(x => (x && x.note) || '')].join(' ').toLowerCase().includes(query)}).slice(0,80);
+  box.innerHTML=txs.length?txs.map(t=>`<div class="global-result" data-id="${esc(t.id)}"><b>${esc(getTransactionDisplayType(t)||'عملية')}</b> <span class="status-chip ${t.status==='reversed'?'reversed':''}">${t.status==='reversed'?'ملغى':'مرحّل'}</span><br><small style="font-size:0.95rem;">${esc(t.date||t.isoDate||'-')} • ${esc(t.debitAccount||'-')} ← ${esc(t.creditAccount||'-')} • ${esc(fmt(t.amount,t.currency))}</small></div>`).join(''):'<div style="padding:14px;text-align:center;color:var(--muted)">لا توجد نتائج</div>';
   box.querySelectorAll('.global-result').forEach(el=>el.addEventListener('click',()=>{const t=getAllTransactions().find(x=>String(x.id)===el.dataset.id);if(t){closeGlobalSearch();openTxModal(t);}}));
 }
 
 function exportTransactionsCsv() {
   const rows=[['رقم السند','التاريخ','النوع','المدين','الدائن','المبلغ','العملة','الحالة','البيان']];
-  getAllTransactions().forEach(t=>rows.push([t.seqNum||'',t.isoDate||t.date||'',t.type||'',t.debitAccount||'',t.creditAccount||'',t.amount||0,t.currency||'',t.status||'posted',Object.values(t.execution||{})[0]?.note||'']));
+  getAllTransactions().forEach(t=>rows.push([t.seqNum||'',t.isoDate||t.date||'',getTransactionDisplayType(t)||'',t.debitAccount||'',t.creditAccount||'',t.amount||0,t.currency||'',t.status||'posted',Object.values(t.execution||{})[0]?.note||'']));
   const csv='\ufeff'+rows.map(r=>r.map(v=>`"${String(v??'').replace(/"/g,'""')}"`).join(',')).join('\n');
   const a=document.createElement('a');a.download=`Ratib_transactions_${monthKey()}.csv`;a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'}));a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000);showToast('تم تصدير العمليات بصيغة CSV','success');
 }
@@ -3272,6 +3398,14 @@ function tafqit(num) {
   return res.join(' ') + ' ريـال فقط لا غير';
 }
 
+function initializeDateInputs(){
+  const today=getLocalTodayISO?getLocalTodayISO():new Date().toISOString().slice(0,10);
+  document.querySelectorAll('input[type="date"]').forEach(el=>{
+    if(!el.value)el.value=today;
+    el.addEventListener('click',()=>{try{el.showPicker?.()}catch(e){}});
+  });
+}
+
 function setupFormattedNumberInputs() {
   document.querySelectorAll('.number-formatted').forEach(input => {
     input.addEventListener('input', (e) => {
@@ -3306,9 +3440,14 @@ function getMasterPlan() {
   return p;
 }
 
+function getTransactionDisplayType(t){return t?.isMultiVoucher?'سند قيد متعدد':(t?.type||'عملية');}
 function getNextVoucherNumber(mode) {
   const allTxs = getAllTransactions();
   return allTxs.filter(t => t.voucherMode === mode).reduce((max, t) => Math.max(max, Number(t.seqNum) || 0), 0) + 1;
+}
+function getNextMultiVoucherNumber(){
+  const allTxs=getAllTransactions();
+  return allTxs.filter(t=>t.isMultiVoucher===true).reduce((max,t)=>Math.max(max,Number(t.seqNum)||0),0)+1;
 }
 
 function updateVoucherSeqBadge() {
@@ -3359,7 +3498,7 @@ function preparePrintBudgetTemplate() {
   document.getElementById('pbTotRate').textContent = grandRate + '%';
 }
 
-function preparePrintStatementTemplate(accountName, targetTxs, openingBalance, periodTitle) {
+function preparePrintStatementTemplate(accountName, targetTxs, openingBalance, periodTitle, currencyLabel) {
   openingBalance = Number(openingBalance || 0);
   const cfg = getHeaderConfig();
   document.getElementById('psOrgName').textContent = (cfg.show && cfg.name) ? cfg.name : '';
@@ -3405,8 +3544,8 @@ function preparePrintStatementTemplate(accountName, targetTxs, openingBalance, p
       runningBalance += (lakamAmt - alaykomAmt);
 
       const otherAccount = isAll ? `${t.debitAccount} ← ${t.creditAccount}` : (isDebit ? (t.creditAccount || 'طرف آخر') : (t.debitAccount || 'طرف آخر'));
-      const noteStr = t.execution?.[Object.keys(t.execution)[0]]?.note || t.type;
-      const docType = t.voucherMode === 'spend' ? 'سند صرف' : (t.voucherMode === 'income' ? 'سند إيراد' : 'قيد يومي');
+      const noteStr = t.execution?.[Object.keys(t.execution)[0]]?.note || getTransactionDisplayType(t);
+      const docType = t.isMultiVoucher ? 'سند قيد متعدد' : (t.voucherMode === 'spend' ? 'سند صرف' : (t.voucherMode === 'income' ? 'سند إيراد' : 'قيد يومي'));
 
       const balanceColor = runningBalance >= 0 ? 'var(--ok)' : 'var(--danger)';
       const balanceLabel = isAll ? '' : (runningBalance >= 0 ? ' (لكم)' : ' (عليكم)');
@@ -3427,6 +3566,20 @@ function preparePrintStatementTemplate(accountName, targetTxs, openingBalance, p
   document.getElementById('psTotLakam').textContent = totalLakam.toLocaleString();
   document.getElementById('psTotAlaykom').textContent = totalAlaykom.toLocaleString();
   const netBal = (isAll ? 0 : openingBalance) + totalLakam - totalAlaykom;
+
+  // الإجماليات تُدرج داخل جدول الحساب نفسه (إجمالي الفترة ← الرصيد السابق ← الرصيد الإجمالي)
+  const summaryBlock = document.getElementById('psSummaryBlock');
+  if (summaryBlock) summaryBlock.style.display = isAll ? '' : 'none';
+  if (!isAll) {
+    const curTxt = currencyLabel ? ' ' + esc(currencyLabel) : '';
+    const openDebit = openingBalance < 0 ? Math.abs(openingBalance).toLocaleString() : (openingBalance === 0 ? '0' : '');
+    const openCredit = openingBalance > 0 ? openingBalance.toLocaleString() : '';
+    tbody.innerHTML += `
+      <tr class="ps-total-row"><td colspan="3" style="text-align:right;">إجمالي العمليات خلال الفترة</td><td>${totalAlaykom.toLocaleString()}</td><td>${totalLakam.toLocaleString()}</td><td>-</td></tr>
+      <tr class="ps-total-row"><td colspan="3" style="text-align:right;">رصيد سابق</td><td>${openDebit}</td><td>${openCredit}</td><td>-</td></tr>
+      <tr class="ps-total-row ps-final"><td colspan="3" style="text-align:right;">الرصيد الإجمالي</td><td colspan="3" style="color:${netBal >= 0 ? 'var(--ok)' : 'var(--danger)'};">${netBal >= 0 ? 'لكم' : 'عليكم'} : ${Math.abs(netBal).toLocaleString()}${curTxt}</td></tr>
+    `;
+  }
   const netBalColor = netBal >= 0 ? 'var(--ok)' : 'var(--danger)';
   
   const netBalTypeLabel = netBal >= 0 ? '(لكم)' : '(عليكم)';
@@ -3460,7 +3613,7 @@ function preparePrintVoucherTemplate(tx) {
   }
 }
 
-const TABS_ORDER = ['pageDashboard', 'pageExpenses', 'pageLedger', 'pageReports', 'pageBudget', 'pageAccountsTree', 'pageSettings'];
+const TABS_ORDER = ['pageDashboard', 'pageExpenses', 'pageLedger', 'pageReports', 'pageBudget', 'pageAccountsTree', 'pageAccountOperations', 'pageSettings'];
 let allowExit = false;
 
 function pushAppHistoryState() { window.history.pushState({ page: 'ratib_app_entry' }, ''); }
@@ -3551,11 +3704,13 @@ function navigateToTab(target, pushToHistory = true) {
   backBtn.classList.remove('hidden');
   document.getElementById(target).classList.remove('hidden');
   currentActiveTab = target;
+  // للشاشتين شريط تنقل داخلي؛ إخفاء زر الرجوع الكبير المكرر يترك اسم الحساب واضحاً.
+  if (target === 'pageAccountsTree' || target === 'pageAccountOperations') backBtn.classList.add('hidden');
 
   if (target === 'pageExpenses') initVoucherSelectorView();
   else if (target === 'pageReports') { setupReportSections('pageReports'); initReportsTab('accounts'); }
   else if (target === 'pageBudget') { setupReportSections('pageBudget'); initReportsTab('budget'); runBudgetReport(); }
-  else if (target === 'pageAccountsTree') initCanonicalLiveAccountsTreePage();
+  else if (target === 'pageAccountsTree') { initCanonicalLiveAccountsTreePage(); renderAccountsPager(); }
   else if (target === 'pageSettings') initSettingsPage();
   else if (target === 'pageDashboard') { updateProDashboard(); renderRemindersList(); renderRemindersChart(); }
 
@@ -3583,6 +3738,10 @@ document.getElementById('confirmExitAppBtn').addEventListener('click', () => {
 
 window.addEventListener('popstate', (e) => {
   if (allowExit) return;
+    const accountMenu=document.getElementById('accountScreenMenu');
+    if(accountMenu?.classList.contains('open')){closeAccountScreenMenu();pushAppHistoryState();return;}
+    const accountSearch=document.getElementById('accountAdvancedSearchPanel');
+    if(currentActiveTab==='pageAccountOperations'&&accountSearch&&!accountSearch.classList.contains('hidden')){accountSearch.classList.add('hidden');return;}
   try {
     const lockScr = document.getElementById('lockScreen');
     if (lockScr && lockScr.style.display === 'flex') return;
@@ -3597,6 +3756,9 @@ window.addEventListener('popstate', (e) => {
 });
 
 function goBackInApp(){
+  if(currentActiveTab==='pageExpenses'&&multiVoucherDraftId&&multiVoucherReturnTab&&multiVoucherReturnTab!=='pageExpenses'){multiVoucherDraftId='';navigateToTab(multiVoucherReturnTab,false);return;}
+  if(document.getElementById('accountScreenMenu')?.classList.contains('open')){closeAccountScreenMenu();return;}
+  if(currentActiveTab==='pageAccountOperations'){navigateToTab('pageAccountsTree',false);return;}
   if (document.querySelector('.modal-overlay.show')) { history.back(); return; }
   if (window.history.length > 1) history.back(); else if (currentActiveTab !== 'pageDashboard') navigateToTab('pageDashboard', false); else showExitModal();
 }
@@ -3933,11 +4095,12 @@ class SearchableSelect {
   }
 }
 
-let selDebitAcc, selCreditAcc, selReportAccount;
+let selDebitAcc, selCreditAcc, selReportAccount, multiSourceAcc;
 let selDefaultIncomeDebit, selDefaultSpendCredit;
 function setupSearchableSelects() {
   selDebitAcc = new SearchableSelect({ wrapId: 'wrapDebitAcc', inputId: 'inpDebitAcc', dropId: 'dropDebitAcc', hiddenId: 'valDebitAcc', isGrouped: true });
   selCreditAcc = new SearchableSelect({ wrapId: 'wrapCreditAcc', inputId: 'inpCreditAcc', dropId: 'dropCreditAcc', hiddenId: 'valCreditAcc', isGrouped: true });
+  multiSourceAcc = new SearchableSelect({ wrapId: 'wrapMultiSourceAcc', inputId: 'inpMultiSourceAcc', dropId: 'dropMultiSourceAcc', hiddenId: 'valMultiSourceAcc', isGrouped: true });
   selReportAccount = new SearchableSelect({ wrapId: 'wrapReportAccount', inputId: 'inpReportAccount', dropId: 'dropReportAccount', hiddenId: 'valReportAccount', isGrouped: true, onSelect: () => runAccountStatement() });
   document.getElementById('clearReportAccountBtn')?.addEventListener('click', (e) => { e.stopPropagation(); selReportAccount.setValue('ALL', ''); selReportAccount.close(); runAccountStatement(); });
   selEditDebitAcc = new SearchableSelect({ wrapId: 'wrapEditDebitAcc', inputId: 'inpEditDebitAcc', dropId: 'dropEditDebitAcc', hiddenId: 'valEditDebitAcc', isGrouped: true });
@@ -3960,7 +4123,7 @@ function updateSearchableData() {
       });
     }
   });
-  selDebitAcc.setItems(accountItems); selCreditAcc.setItems(accountItems);
+  selDebitAcc.setItems(accountItems); selCreditAcc.setItems(accountItems); if (multiSourceAcc) multiSourceAcc.setItems(accountItems);
   if (selEditDebitAcc) selEditDebitAcc.setItems(accountItems);
   if (selEditCreditAcc) selEditCreditAcc.setItems(accountItems);
 
@@ -4198,9 +4361,11 @@ document.getElementById('zeroVoucherAmountsBtn').addEventListener('click', () =>
 function initVoucherSelectorView() {
   document.getElementById('voucherSelectorCard').classList.remove('hidden');
   document.getElementById('cashFlowCard').classList.add('hidden');
+  document.getElementById('multiVoucherCard')?.classList.add('hidden');
 }
 
 function backToVoucherSelector() {
+  multiVoucherDraftId='';
   initVoucherSelectorView();
 }
 
@@ -4239,6 +4404,9 @@ function selectVoucherTypeDirect(mode) {
     card.style.borderRight = '6px solid var(--accent)'; title.textContent = '⚖️ تسجيل سند قيد وتسوية';
     btn.className = 'btn btn-primary'; btn.textContent = '💾 اعتماد وحفظ سند القيد';
     selDebitAcc.setValue('', ''); selCreditAcc.setValue('', '');
+  }
+  if(preferredDebitAccountForNewVoucher){
+    selDebitAcc.setValue(preferredDebitAccountForNewVoucher, preferredDebitAccountForNewVoucher);
   }
 }
 
@@ -4614,7 +4782,7 @@ document.getElementById('closeModalActionBtn')?.addEventListener('click', () => 
 document.getElementById('confirmEditDocBtn')?.addEventListener('click', () => {
   document.getElementById('longPressConfirmModal').classList.remove('show');
   if (pendingLongPressTx) {
-    openTxModal(pendingLongPressTx);
+    if (pendingLongPressTx.isMultiVoucher) openMultiVoucherEditor(pendingLongPressTx); else openTxModal(pendingLongPressTx);
     pendingLongPressTx = null;
   }
 });
@@ -4638,7 +4806,7 @@ function renderAllData() {
   let txs = allTxs;
   if (currentLedgerSearchQuery) {
     const q = currentLedgerSearchQuery;
-    txs = allTxs.filter(t => [t.seqNum, t.type, t.date, t.debitAccount, t.creditAccount, t.amount].join(' ').toLowerCase().includes(q));
+    txs = allTxs.filter(t => [t.seqNum, getTransactionDisplayType(t), t.date, t.debitAccount, t.creditAccount, t.amount].join(' ').toLowerCase().includes(q));
   }
   document.getElementById('ledgerCountBadge').textContent = `${txs.length} من ${allTxs.length}`;
   if (txs.length === 0) { container.innerHTML = '<div style="text-align:center; color:var(--muted); padding:20px; font-weight:900;">لا توجد عمليات مسجلة</div>'; return; }
@@ -4664,7 +4832,7 @@ function renderAllData() {
           <div class="tx-badge-group">
             ${item.seqNum ? `<span class="tx-num-tag">#${item.seqNum}</span>` : ''}
             <span class="tx-badge">${item.voucherMode === 'spend' ? 'سند صرف' : (item.voucherMode === 'income' ? 'سند إيراد' : 'سند قيد')}</span>
-            <span class="tx-type-tag">${highlightText(item.type, currentLedgerSearchQuery)}</span>
+            <span class="tx-type-tag">${highlightText(getTransactionDisplayType(item), currentLedgerSearchQuery)}</span>
             ${statusChipHtml}
           </div>
           <div class="tx-date-line">📅 ${item.date}</div>
@@ -4700,9 +4868,9 @@ function openDocumentDetailsModal(item) {
   pendingLongPressTx = item;
   
   const titleEl = document.getElementById('longPressModalTitle');
-  if (titleEl) titleEl.textContent = item.type || 'تفاصيل المستند';
+  if (titleEl) titleEl.textContent = item.isMultiVoucher ? `سند قيد متعدد #${item.seqNum||'-'}` : (getTransactionDisplayType(item) || 'تفاصيل المستند');
 
-  const docType = item.voucherMode === 'spend' ? 'سند صرف' : (item.voucherMode === 'income' ? 'سند إيراد' : 'سند قيد');
+  const docType = item.isMultiVoucher ? 'سند قيد متعدد' : (item.voucherMode === 'spend' ? 'سند صرف' : (item.voucherMode === 'income' ? 'سند إيراد' : 'سند قيد'));
   const docTypeEl = document.getElementById('lpModalDocType');
   if (docTypeEl) docTypeEl.textContent = `${docType} #${item.seqNum || '-'}`;
 
@@ -4713,10 +4881,24 @@ function openDocumentDetailsModal(item) {
     statusChipEl.classList.toggle('reversed', isReversed);
   }
 
-  const debitEl = document.getElementById('lpModalDebitAcc'); if (debitEl) debitEl.textContent = item.debitAccount || '-';
-  const creditEl = document.getElementById('lpModalCreditAcc'); if (creditEl) creditEl.textContent = item.creditAccount || '-';
+  // سند القيد المتعدد: كل بند فيه يُخزَّن كعملية منفصلة تحمل إما حساب مدين أو حساب دائن فقط
+  // (وليس الاثنين معاً كالسند العادي)، فكانت النافذة تُظهر "-" للجانب غير المستخدم بهذا البند
+  // تحديداً. نجمع هنا كل بنود نفس السند (multiVoucherId) ونعرض جميع حسابات كل جانب معاً.
+  let debitText = item.debitAccount || '-', creditText = item.creditAccount || '-', amountValue = item.amount || 0;
+  if (item.isMultiVoucher) {
+    const groupId = item.multiVoucherId || item.id;
+    const siblingLines = getAllTransactions().filter(t => t.isMultiVoucher && (t.multiVoucherId === groupId || t.id === groupId));
+    const debitNames = siblingLines.filter(t => t.debitAccount).map(t => t.debitAccount);
+    const creditNames = siblingLines.filter(t => t.creditAccount).map(t => t.creditAccount);
+    debitText = debitNames.length ? [...new Set(debitNames)].join('، ') : '-';
+    creditText = creditNames.length ? [...new Set(creditNames)].join('، ') : '-';
+    const debitLinesTotal = siblingLines.filter(t => t.debitAccount).reduce((sum, t) => sum + Number(t.amount || 0), 0);
+    amountValue = item.multiVoucher?.baseTotal || debitLinesTotal || siblingLines.reduce((sum, t) => sum + Number(t.amount || 0), 0) / 2;
+  }
+  const debitEl = document.getElementById('lpModalDebitAcc'); if (debitEl) debitEl.textContent = debitText;
+  const creditEl = document.getElementById('lpModalCreditAcc'); if (creditEl) creditEl.textContent = creditText;
 
-  document.getElementById('lpModalAmount').textContent = Number(item.amount || 0).toLocaleString();
+  document.getElementById('lpModalAmount').textContent = Number(amountValue || 0).toLocaleString();
   document.getElementById('lpModalCurrency').textContent = item.currency === 'SAR' ? 'ريال سعودي' : (item.currency === 'USD' ? 'دولار أمريكي' : 'ريال يمني');
   document.getElementById('lpModalDate').textContent = item.date || item.isoDate || '-';
   
@@ -4727,7 +4909,7 @@ function openDocumentDetailsModal(item) {
   }
   document.getElementById('lpModalTime').textContent = timeStr;
 
-  const noteStr = (item.execution && Object.values(item.execution)[0]?.note) || item.type || 'لا توجد تفاصيل';
+  const noteStr = (item.execution && Object.values(item.execution)[0]?.note) || getTransactionDisplayType(item) || 'لا توجد تفاصيل';
   document.getElementById('lpModalNote').textContent = noteStr;
 
   document.getElementById('longPressConfirmModal').classList.add('show');
@@ -4799,7 +4981,7 @@ document.getElementById('reportFilterType')?.addEventListener('change', (e) => {
   const isCustom=e.target.value==='custom';
   document.getElementById('filterMonthSelectBox')?.classList.toggle('hidden', e.target.value !== 'month');
   document.getElementById('filterCustomDateBox')?.classList.toggle('hidden', !isCustom);
-  if(isCustom)prepareCustomReportDates(true);
+  if(isCustom)prepareCustomReportDates(false);
 });
 document.getElementById('reportStartDate')?.addEventListener('change',()=>{
   const start=document.getElementById('reportStartDate'),end=document.getElementById('reportEndDate');
@@ -4809,7 +4991,10 @@ document.getElementById('reportEndDate')?.addEventListener('change',()=>{
   const start=document.getElementById('reportStartDate'),end=document.getElementById('reportEndDate');
   if(start&&end){start.max=end.value;if(start.value&&start.value>end.value)start.value=end.value;}
 });
-document.getElementById('generateReportBtn')?.addEventListener('click', runActiveReport);
+document.getElementById('reportFilterType')?.addEventListener('change', () => runActiveReport());
+document.getElementById('reportMonthSelect')?.addEventListener('change', () => runActiveReport());
+document.getElementById('reportStartDate')?.addEventListener('change', () => runActiveReport());
+document.getElementById('reportEndDate')?.addEventListener('change', () => runActiveReport());
 
 function getFilteredTransactions() {
   const fType = document.getElementById('reportFilterType')?.value || 'all', p = getMasterPlan(), historyData = store.get('history', []);
@@ -4858,6 +5043,35 @@ function getAccountOpeningBalance(accountName, periodStart) {
   return bal;
 }
 
+function reportDateRange() {
+  const fType = document.getElementById('reportFilterType')?.value || 'all', p = getMasterPlan();
+  const monthRange = (ym) => { if (!/^\d{4}-\d{2}$/.test(ym || '')) return { from: '', to: '' }; const [y, m] = ym.split('-').map(Number); return { from: `${ym}-01`, to: `${ym}-${String(new Date(y, m, 0).getDate()).padStart(2, '0')}` }; };
+  if (fType === 'current') return monthRange(p.month);
+  if (fType === 'month') return monthRange(document.getElementById('reportMonthSelect')?.value);
+  if (fType === 'custom') return { from: document.getElementById('reportStartDate')?.value || '', to: document.getElementById('reportEndDate')?.value || '' };
+  return { from: '', to: '' };
+}
+let reportAdv = { from: '', to: '', currency: 'ALL', active: false };
+function syncAccountOpsStateFromReport(accountName) {
+  let { from, to } = reportDateRange();
+  let currency = 'ALL';
+  if (reportAdv.active) { from = reportAdv.from || from; to = reportAdv.to || to; currency = reportAdv.currency || 'ALL'; }
+  const keep = accountOpsState.accountName === accountName && accountOpsState.activeCurrency ? accountOpsState.activeCurrency : 'YER';
+  accountOpsState = { accountName, scopeNames: [accountName], from, to, filtered: Boolean(from || to || currency !== 'ALL'), currency, activeCurrency: currency !== 'ALL' ? currency : keep, search: currentStatementSearchQuery || '' };
+}
+document.getElementById('reportAdvToggleBtn')?.addEventListener('click', () => document.getElementById('reportAdvPanel')?.classList.toggle('hidden'));
+document.getElementById('reportAdvApplyBtn')?.addEventListener('click', () => {
+  const from = document.getElementById('reportAdvFrom')?.value || '', to = document.getElementById('reportAdvTo')?.value || '';
+  if (from && to && from > to) { showToast('تاريخ البداية يجب أن يكون قبل تاريخ النهاية', 'warn'); return; }
+  reportAdv = { from, to, currency: document.getElementById('reportAdvCurrency')?.value || 'ALL', active: true };
+  runAccountStatement();
+});
+document.getElementById('reportAdvClearBtn')?.addEventListener('click', () => {
+  reportAdv = { from: '', to: '', currency: 'ALL', active: false };
+  ['reportAdvFrom', 'reportAdvTo'].forEach(id => { const e = document.getElementById(id); if (e) e.value = ''; });
+  const c = document.getElementById('reportAdvCurrency'); if (c) c.value = 'ALL';
+  runAccountStatement();
+});
 function runActiveReport() { if (activeReportTab === 'budget') runBudgetReport(); else runAccountStatement(); }
 
 document.getElementById('statementSearchInput')?.addEventListener('input', (e) => {
@@ -4884,6 +5098,13 @@ function runAccountStatement() {
   const headerTitle = document.getElementById('statementHeaderTitle');
   if (headerTitle) headerTitle.textContent = `📑 كشف حساب: ${selectedAccount}`;
 
+  // نفس آلية وشكل «كشف عمليات الحساب»: صفحة لكل عملة، الأقدم أولاً، وإجماليات داخل الجدول
+  syncAccountOpsStateFromReport(selectedAccount);
+  document.getElementById('singleAccountTableBox')?.classList.add('hidden');
+  document.getElementById('statementKpiGrid')?.classList.add('hidden');
+  renderAccountOperations(selectedAccount, [selectedAccount], {panelId:'reportAccountOpsPanel', tabsId:'reportCurrencyTabs'});
+  return;
+
   const openingBalance = getAccountOpeningBalance(selectedAccount, periodStart);
   let totalDebit = 0, totalCredit = 0, runningBalance = openingBalance;
   const tbody = document.getElementById('statementBody');
@@ -4895,7 +5116,7 @@ function runAccountStatement() {
   if (currentStatementSearchQuery) {
     const q = currentStatementSearchQuery;
     matchingTxs = matchingTxs.filter(t => {
-      const noteStr = t.execution?.[Object.keys(t.execution || {})[0]]?.note || t.type || '';
+      const noteStr = t.execution?.[Object.keys(t.execution || {})[0]]?.note || getTransactionDisplayType(t) || '';
       const otherAcc = t.debitAccount === selectedAccount ? t.creditAccount : t.debitAccount;
       return [t.seqNum, t.date, noteStr, otherAcc, t.amount].join(' ').toLowerCase().includes(q);
     });
@@ -4926,8 +5147,8 @@ function runAccountStatement() {
       runningBalance += (creditAmt - debitAmt);
 
       const otherAccount = isDebit ? (t.creditAccount || 'طرف آخر') : (t.debitAccount || 'طرف آخر');
-      const noteStr = t.execution?.[Object.keys(t.execution)[0]]?.note || t.type;
-      const docType = t.voucherMode === 'spend' ? 'سند صرف' : (t.voucherMode === 'income' ? 'سند إيراد' : 'قيد يومي');
+      const noteStr = t.execution?.[Object.keys(t.execution)[0]]?.note || getTransactionDisplayType(t);
+      const docType = t.isMultiVoucher ? 'سند قيد متعدد' : (t.voucherMode === 'spend' ? 'سند صرف' : (t.voucherMode === 'income' ? 'سند إيراد' : 'قيد يومي'));
       const balanceColor = runningBalance >= 0 ? 'var(--ok)' : 'var(--danger)';
 
       const row = document.createElement('tr');
@@ -5150,10 +5371,10 @@ function openCategoryTransactionsModal(catObj) {
     catObj.transactions.forEach(t => {
       const item = document.createElement('div');
       item.style.cssText = 'background:var(--bg); border:2px solid var(--border); border-radius:10px; padding:10px; margin-bottom:6px; font-weight:900;';
-      const noteStr = t.execution?.[Object.keys(t.execution)[0]]?.note || t.type;
+      const noteStr = t.execution?.[Object.keys(t.execution)[0]]?.note || getTransactionDisplayType(t);
       item.innerHTML = `
         <div style="display:flex; justify-content:space-between; align-items:center;">
-          <span><b>#${t.seqNum || '-'}</b> • ${esc(t.type)}</span>
+          <span><b>#${t.seqNum || '-'}</b> • ${esc(getTransactionDisplayType(t))}</span>
           <span style="color:var(--accent);">${fmt(t.assignedAmount, t.currency)}</span>
         </div>
         <div style="font-size:0.95rem; color:var(--muted); margin-top:3px;">📅 ${t.date} | البيان: ${esc(noteStr)}</div>
@@ -5246,16 +5467,488 @@ function initCanonicalLiveAccountsTreePage(){
 const _legacyUpdateSearchableData=updateSearchableData;
 function updateSearchableData(){
   const cat=getCanonicalCatalog(), items=[];cat.forEach(x=>x.details.forEach(d=>items.push({id:d[1],text:d[1],group:`${x.main} > ${x.group} > ${x.sub}`})));
-  selDebitAcc.setItems(items);selCreditAcc.setItems(items);if(selEditDebitAcc)selEditDebitAcc.setItems(items);if(selEditCreditAcc)selEditCreditAcc.setItems(items);if(selDefaultIncomeDebit)selDefaultIncomeDebit.setItems(items);if(selDefaultSpendCredit)selDefaultSpendCredit.setItems(items);
+  selDebitAcc.setItems(items);selCreditAcc.setItems(items);if(multiSourceAcc)multiSourceAcc.setItems(items);if(selEditDebitAcc)selEditDebitAcc.setItems(items);if(selEditCreditAcc)selEditCreditAcc.setItems(items);if(selDefaultIncomeDebit)selDefaultIncomeDebit.setItems(items);if(selDefaultSpendCredit)selDefaultSpendCredit.setItems(items);
   const defs=getDefaultAccountsConfig(), fallback=items[0]?.id||'';selDefaultIncomeDebit?.setValue(items.some(i=>i.id===defs.incomeDebit)?defs.incomeDebit:fallback,items.some(i=>i.id===defs.incomeDebit)?defs.incomeDebit:fallback);selDefaultSpendCredit?.setValue(items.some(i=>i.id===defs.spendCredit)?defs.spendCredit:fallback,items.some(i=>i.id===defs.spendCredit)?defs.spendCredit:fallback);const prev=selReportAccount.getValue();const safePrev=items.some(i=>i.id===prev)?prev:'ALL';selReportAccount.setItems([{id:'ALL',text:'📋 ملخص كافة الحسابات والصناديق (تجميعي)',group:'عرض عام'},...items]);selReportAccount.setValue(safePrev,safePrev==='ALL'?'📋 ملخص كافة الحسابات والصناديق (تجميعي)':'');
 }
+function getAccountPagerBalances(){
+  const balances={};
+  getAllTransactions().forEach(t=>{
+    if(t.status==='reversed'||t.status==='deleted')return;
+    const amount=Number(t.amount||0);
+    if(t.debitAccount)balances[t.debitAccount]=(balances[t.debitAccount]||0)-amount;
+    if(t.creditAccount)balances[t.creditAccount]=(balances[t.creditAccount]||0)+amount;
+  });
+  return balances;
+}
+let accountOpsState={accountName:'',scopeNames:[],from:'',to:'',filtered:false,currency:'ALL',activeCurrency:'YER'};
+const ACCOUNT_OPS_UI_DEFAULT={panelId:'accountOperationsStandalonePanel',tabsId:'accountCurrencyTabs'};
+let accountOpsUi=ACCOUNT_OPS_UI_DEFAULT;
+let accountOperationsReturnTab='pageAccountsTree';
+let multiVoucherReturnTab='pageDashboard';
+let preferredDebitAccountForNewVoucher='';
+// يستخدم تقرير الحساب isoDate حصراً؛ لذلك تستخدم شاشة الحسابات نفس الحقل ونفس حدود الفترة.
+function getAccountOpsDate(t){const value=String(t?.isoDate||'').trim();return /^\d{4}-\d{2}-\d{2}$/.test(value)?value:'';}
+// The saved accounting entry remains in the voucher's base currency. This view uses the
+// original amount of its own line; no financial posting or stored equation is modified.
+function getAccountEntry(t,scope){
+  const names=Array.isArray(scope)?scope:[];
+  const isDebit=names.includes(t?.debitAccount),isCredit=names.includes(t?.creditAccount);
+  if(!isDebit&&!isCredit)return null;
+  const side=isDebit?'debit':'credit';
+  let line=null;
+  if(t?.isMultiVoucher&&Array.isArray(t.multiVoucher?.lines)){
+    // IDs of posted multi-entry lines are <voucher ID>_<line index>. Name alone is not
+    // enough: the same account may appear several times, including in different currencies.
+    const prefix=String(t.multiVoucherId||'')+'_',id=String(t.id||'');
+    if(t.multiVoucherId&&id.startsWith(prefix)){
+      const suffix=id.slice(prefix.length);
+      if(/^\d+$/.test(suffix))line=t.multiVoucher.lines[Number(suffix)]||null;
+    }
+    if(!line)line=t.multiVoucher.lines.find(l=>l.account===(isDebit?t.debitAccount:t.creditAccount)&&l.side===side)||null;
+  }
+  return {side,amount:Number(t.amount||0),foreignAmount:Number(line?.amount??t.amount??0),currency:line?.currency||t.currency||'YER',line};
+}
+function getAccountDisplayAmount(entry){return Number(entry?.foreignAmount??entry?.amount??0);}
+function tafqitAccountCurrency(amount,currency){
+  const name=currency==='SAR'?'ريال سعودي':currency==='USD'?'دولار أمريكي':'ريال يمني';
+  return tafqit(amount).replace('ريـال',name);
+}
+function getAccountCurrencies(accountName,scopeNames=null){
+  const scope=Array.isArray(scopeNames)&&scopeNames.length?scopeNames:[accountName];
+  const used=new Set(getAllTransactions().filter(t=>t.status!=='reversed'&&t.status!=='deleted').map(t=>getAccountEntry(t,scope)?.currency).filter(Boolean));
+  return ['YER',...['SAR','USD',...used].filter((c,i,a)=>c!=='YER'&&used.has(c)&&a.indexOf(c)===i)];
+}
+function accountOpsMatchesSearch(t,entry){const q=String(accountOpsState.search||'').trim().toLowerCase();if(!q)return true;const note=entry?.line?.note||t.execution?.[Object.keys(t.execution||{})[0]]?.note||getTransactionDisplayType(t)||'';return [t.seqNum,getAccountOpsDate(t),note,t.debitAccount,t.creditAccount,entry?.amount].join(' ').toLowerCase().includes(q);}
+function getAccountOperations(accountName,scopeNames=null,currency=accountOpsState.activeCurrency||'YER'){
+  const scope=Array.isArray(scopeNames)&&scopeNames.length?scopeNames:[accountName],from=accountOpsState.from||'',to=accountOpsState.to||'';
+  return getAllTransactions().filter(t=>{const entry=getAccountEntry(t,scope),date=getAccountOpsDate(t);return !!entry&&t.status!=='reversed'&&t.status!=='deleted'&&entry.currency===currency&&(!from||date>=from)&&(!to||date<=to)&&accountOpsMatchesSearch(t,entry);}).sort((a,b)=>{
+    const ad=getAccountOpsDate(a),bd=getAccountOpsDate(b);
+    return ad.localeCompare(bd)||(Number(a.timestamp)||0)-(Number(b.timestamp)||0)||(Number(a.seqNum)||0)-(Number(b.seqNum)||0);
+  });
+}
+function getAccountOpeningBalanceForOperations(scopeNames,fromDate,currency=accountOpsState.activeCurrency||'YER'){
+  if(!fromDate)return 0;
+  const scope=Array.isArray(scopeNames)&&scopeNames.length?scopeNames:[accountOpsState.accountName];let opening=0;
+  getAllTransactions().forEach(t=>{
+    const entry=getAccountEntry(t,scope);
+    if(!entry||t.status==='reversed'||t.status==='deleted'||entry.currency!==currency||getAccountOpsDate(t)>=fromDate)return;
+    opening+=(entry.side==='debit'?-1:1)*getAccountDisplayAmount(entry);
+  });
+  return opening;
+}
+function getAccountRunningBalances(txs,scope,opening){
+  const balances=new Map();let balance=opening;
+  [...txs].forEach(t=>{
+    const entry=getAccountEntry(t,scope);
+    balance+=(entry.side==='debit'?-1:1)*getAccountDisplayAmount(entry);
+    balances.set(t,balance);
+  });
+  return balances;
+}
+function setAccountCurrencyPage(currency,scroll=true){
+  const track=document.querySelector('#'+accountOpsUi.panelId+' .account-currency-track');
+  const pages=track?[...track.querySelectorAll('.account-currency-page')]:[];
+  const index=pages.findIndex(page=>page.dataset.currency===currency);
+  if(index<0)return;
+  accountOpsState.activeCurrency=currency;
+  document.querySelectorAll('#'+accountOpsUi.tabsId+' button').forEach(btn=>{
+    const active=btn.dataset.currency===currency;btn.classList.toggle('active',active);btn.setAttribute('aria-selected',String(active));
+  });
+  if(scroll&&track)track.scrollTo({left:index*(track.clientWidth||1),behavior:'smooth'});
+}
+function renderAccountOperations(accountName,scopeNames=null,ui=null){
+  accountOpsUi=ui||ACCOUNT_OPS_UI_DEFAULT;
+  const panel=document.getElementById(accountOpsUi.panelId);if(!panel)return;
+  const scope=Array.isArray(scopeNames)&&scopeNames.length?scopeNames:[accountName];
+  const title=document.getElementById('accountOperationsScreenTitle');
+  if(title)title.textContent=`عمليات الحساب — ${accountName}`;
+  const currencies=accountOpsState.currency==='ALL'?getAccountCurrencies(accountName,scope):[accountOpsState.currency];
+  const requested=accountOpsState.activeCurrency;
+  accountOpsState.activeCurrency=currencies.includes(requested)?requested:currencies[0];
+  const tabs=document.getElementById(accountOpsUi.tabsId);
+  if(tabs){tabs.innerHTML=currencies.length>1?currencies.map((currency,index)=>`<button type="button" role="tab" data-currency="${esc(currency)}" aria-selected="${currency===accountOpsState.activeCurrency}" aria-label="عرض حساب ${esc(accountName)} بعملة ${esc(currency)}">${index+1}. ${currency==='YER'?'ريال يمني':currency==='SAR'?'ريال سعودي':currency==='USD'?'دولار أمريكي':esc(currency)}</button>`).join(''):'';tabs.querySelectorAll('button').forEach(btn=>btn.addEventListener('click',()=>setAccountCurrencyPage(btn.dataset.currency)));}
+  panel.innerHTML=`<div class="account-currency-track">${currencies.map(currency=>{
+    const txs=getAccountOperations(accountName,scope,currency),opening=getAccountOpeningBalanceForOperations(scope,accountOpsState.from,currency);
+    let totalDebit=0,totalCredit=0;
+    txs.forEach(t=>{const e=getAccountEntry(t,scope),amount=getAccountDisplayAmount(e);if(e.side==='debit')totalDebit+=amount;else totalCredit+=amount;});
+    const prior=accountOpsState.from?` · الرصيد السابق ${Math.abs(opening).toLocaleString()} ${currency} ${opening>=0?'دائن':'مدين'}`:'';
+    const head=`<div class="account-operations-head"><span>كشف حركات ${esc(accountName)} — ${esc(currency)}</span><small>${txs.length} عملية · المدين ${totalDebit.toLocaleString()} ${esc(currency)} · الدائن ${totalCredit.toLocaleString()} ${esc(currency)}${prior}</small></div>`;
+    const openingRow=accountOpsState.from?`<div class="account-statement-row opening"><span>${esc(accountOpsState.from)}</span><span>—</span><span>الرصيد السابق قبل بداية الفترة</span><span></span><span></span><span>${Math.abs(opening).toLocaleString()} ${esc(currency)} ${opening>=0?'دائن':'مدين'}</span></div>`:'';
+    const runningBalances=getAccountRunningBalances(txs,scope,opening);
+    const closingBal=opening+totalCredit-totalDebit;
+    const totalsRows=`<div class="account-statement-row total"><span style="grid-column:1/4">إجمالي العمليات خلال الفترة</span><span class="debit">${totalDebit.toLocaleString()}</span><span class="credit">${totalCredit.toLocaleString()}</span><span>-</span></div><div class="account-statement-row total"><span style="grid-column:1/4">رصيد سابق</span><span class="debit">${opening<0?Math.abs(opening).toLocaleString():'0'}</span><span class="credit">${opening>0?opening.toLocaleString():''}</span><span>-</span></div><div class="account-statement-row total final"><span style="grid-column:1/4">الرصيد الإجمالي</span><span style="grid-column:4/7">${closingBal>=0?'لكم':'عليكم'} : ${Math.abs(closingBal).toLocaleString()} ${esc(currency)}</span></div>`;
+    const rows=txs.map(t=>{
+      const entry=getAccountEntry(t,scope),amount=getAccountDisplayAmount(entry),debit=entry.side==='debit',balance=runningBalances.get(t);
+      const note=entry.line?.note||t.execution?.[Object.keys(t.execution||{})[0]]?.note||getTransactionDisplayType(t)||'بدون بيان';
+      const mode=t.voucherMode==='spend'?'سند صرف':t.voucherMode==='income'?'سند إيراد':t.voucherMode==='multi-entry'?'سند قيد متعدد':'قيد يومي';
+      return `<div class="account-statement-row" data-tx-id="${esc(t.id)}" title="عرض تفاصيل السند"><span>${esc(getAccountOpsDate(t)||'-')}</span><span>#${esc(t.seqNum||'-')} · ${mode}</span><span>${esc(note)}</span><span class="debit">${debit?amount.toLocaleString():''}</span><span class="credit">${debit?'':amount.toLocaleString()}</span><span class="balance">${Math.abs(balance).toLocaleString()} ${esc(currency)}</span></div>`;
+    }).join('');
+    return `<section class="account-currency-page" data-currency="${esc(currency)}" role="tabpanel" aria-label="حركات حساب ${esc(accountName)} ${esc(currency)}">${head}<div class="account-statement-table"><div class="account-statement-grid"><div class="account-statement-row header"><span>التاريخ</span><span>المستند</span><span>البيان</span><span>مدين</span><span>دائن</span><span>الرصيد</span></div>${openingRow}${rows}${totalsRows}</div></div>${txs.length?'':'<div class="accounts-empty">لا توجد عمليات بهذه العملة في الفترة المحددة.</div>'}</section>`;
+  }).join('')}</div>`;
+  panel.querySelectorAll('[data-tx-id]').forEach(row=>{
+    const tx=getAllTransactions().find(x=>String(x.id)===String(row.dataset.txId));
+    if(tx)row.addEventListener('click',()=>openDocumentDetailsModal(tx));
+  });
+  const track=panel.querySelector('.account-currency-track');
+  if(track){
+    track.addEventListener('scroll',()=>{
+      const page=[...track.children][Math.round(track.scrollLeft/(track.clientWidth||1))];
+      if(page&&page.dataset.currency!==accountOpsState.activeCurrency)setAccountCurrencyPage(page.dataset.currency,false);
+    },{passive:true});
+    const index=currencies.indexOf(accountOpsState.activeCurrency);
+    requestAnimationFrame(()=>track.scrollTo({left:Math.max(index,0)*(track.clientWidth||1),behavior:'instant'}));
+  }
+  setAccountCurrencyPage(accountOpsState.activeCurrency,false);
+}
+function openAccountFromPager(accountName, scopeNames=null, currency=null){
+  if(!accountName)return;
+  accountOperationsReturnTab=currentActiveTab==='pageAccountOperations'?'pageAccountsTree':(currentActiveTab||'pageAccountsTree');
+  const sameAccount=accountOpsState.accountName===accountName;
+  const previous={from:accountOpsState.from||'',to:accountOpsState.to||'',filtered:Boolean(accountOpsState.filtered),currency:accountOpsState.currency||'ALL'};
+  accountOpsState={accountName,scopeNames:Array.isArray(scopeNames)&&scopeNames.length?scopeNames:[accountName],from:sameAccount?previous.from:'',to:sameAccount?previous.to:'',filtered:sameAccount?previous.filtered:false,currency:currency||'ALL',activeCurrency:currency&&currency!=='ALL'?currency:'YER'};
+  const from=document.getElementById('accountOpsFromDate'),to=document.getElementById('accountOpsToDate'),currencySel=document.getElementById('accountOpsCurrencyFilter'),today=getLocalTodayISO?getLocalTodayISO():new Date().toISOString().slice(0,10);
+  if(from&&!from.value)from.value=sameAccount?previous.from:today;if(to&&!to.value)to.value=sameAccount?previous.to:today;if(currencySel)currencySel.value=accountOpsState.currency;
+  setAccountReportActionsEnabled(true);
+  document.getElementById('accountAdvancedSearchPanel')?.classList.add('hidden');
+  preferredDebitAccountForNewVoucher=accountName;
+  navigateToTab('pageAccountOperations',true);
+  renderAccountOperations(accountName,accountOpsState.scopeNames);
+}
+function setAccountReportActionsEnabled(enabled=true){['print','share','documentQuery'].forEach(action=>{document.querySelectorAll(`[data-account-action="${action}"]`).forEach(btn=>{btn.disabled=!enabled;});});}
+function closeAccountScreenMenu(){const menu=document.getElementById('accountScreenMenu');const toggle=document.getElementById('accountScreenMenuToggle');menu?.classList.remove('open');toggle?.setAttribute('aria-expanded','false');}
+function exportCurrentAccountOperationsExcel(){
+  const rows=getAccountOperations(accountOpsState.accountName,accountOpsState.scopeNames),out=[['التاريخ','المستند','البيان','مدين','دائن','الرصيد']];let balance=getAccountOpeningBalance(accountOpsState.scopeNames,accountOpsState.from);if(accountOpsState.from)out.push([accountOpsState.from,'—','الرصيد السابق قبل بداية الفترة','','',Math.abs(balance)]);
+  rows.forEach(t=>{const entry=getAccountEntry(t,accountOpsState.scopeNames),debit=entry?.side==='debit',amount=entry?.amount||0,d=debit?amount:0,c=debit?0:amount;balance+=c-d;out.push([getAccountOpsDate(t),`#${t.seqNum||''} ${t.voucherMode==='spend'?'سند صرف':t.voucherMode==='income'?'سند إيراد':'قيد يومي'}`,t.execution?.[Object.keys(t.execution||{})[0]]?.note||getTransactionDisplayType(t)||'',d||'',c||'',Math.abs(balance)]);});
+  {let td=0,tc=0;rows.forEach(t=>{const e=getAccountEntry(t,accountOpsState.scopeNames),a=e?.amount||0;if(e?.side==='debit')td+=a;else tc+=a;});out.push(['','','إجمالي العمليات خلال الفترة',td,tc,''],['','','الرصيد الإجمالي','','',`${Math.abs(balance).toLocaleString()} ${balance>=0?'(لكم)':'(عليكم)'}`]);}
+  const csv='\uFEFF'+out.map(row=>row.map(v=>'"'+String(v).replace(/"/g,'""')+'"').join(',')).join('\r\n');const blob=new Blob([csv],{type:'application/vnd.ms-excel;charset=utf-8'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=`كشف-${accountOpsState.accountName||'حساب'}.xls`;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);showToast('تم تصدير العمليات المعروضة إلى Excel','success');}
+function preparePrintAllAccountCurrencies(){
+  const scope=accountOpsState.scopeNames,currencies=getAccountCurrencies(accountOpsState.accountName,scope),source=document.getElementById('printStatementContainer'),pages=[],datas=currencies.map(getAccountCurrencyReportData),template=source.dataset.accountPrintTemplate||source.innerHTML;
+  source.dataset.accountPrintTemplate=template;
+  source.innerHTML=template;
+  currencies.forEach(currency=>{
+    const data=datas.find(d=>d.currency===currency),txs=data.rows.map(t=>({...t,amount:getAccountDisplayAmount(getAccountEntry(t,scope)),currency}));
+    preparePrintStatementTemplate(accountOpsState.accountName,txs,data.opening,`${accountPeriodTitle()} — ${accountCurrencyLabel(currency)}`,accountCurrencyLabel(currency));
+    document.getElementById('psStatementTitle').textContent=`كشف حساب: ${accountOpsState.accountName} — ${accountCurrencyLabel(currency)}`;
+    document.getElementById('psTafqitText').textContent=`${data.closing>=0?'لكم':'عليكم'} : ${tafqitAccountCurrency(Math.abs(data.closing),currency)}`;
+    pages.push(`<section class="account-print-page">${source.innerHTML}</section>`);
+  });
+  const summaryRows=datas.map(d=>`<tr><td>${esc(accountCurrencyLabel(d.currency))}</td><td>${d.totalCredit.toLocaleString()}</td><td>${d.totalDebit.toLocaleString()}</td><td>${Math.abs(d.closing).toLocaleString()} ${d.closing>=0?'دائن':'مدين'}</td></tr>`).join('');
+  const cfg=getHeaderConfig(),summary=`<section class="account-print-summary"><div class="ps-header"><h1>${esc(cfg.show&&cfg.name?cfg.name:'')}</h1><p>${esc(cfg.show&&cfg.details?cfg.details:'')}</p></div><div class="ps-title">خلاصة كشف الحساب متعدد العملات — ${esc(accountOpsState.accountName)}</div><div class="ps-info-bar"><div><span class="ps-info-label">الفترة:</span> ${esc(accountPeriodTitle())}</div><div><span class="ps-info-label">عدد العملات:</span> ${currencies.length}</div><div><span class="ps-info-label">تاريخ الإصدار:</span> ${new Date().toLocaleDateString('en-CA')}</div></div><div class="ps-table-wrap"><table class="ps-table"><thead><tr><th>نوع العملة</th><th>دائن (لكم)</th><th>مدين (عليكم)</th><th>الرصيد</th></tr></thead><tbody>${summaryRows}</tbody></table></div></section>`;
+  source.innerHTML=pages.join('')+summary;
+  openPrintPreview('printStatementContainer','printing-statement');
+}
+function printCurrentAccountOperations(){try{
+  if(accountOpsState.currency==='ALL'){preparePrintAllAccountCurrencies();return;} 
+  const currency=accountOpsState.activeCurrency||'YER',scope=accountOpsState.scopeNames;
+  const printSource=document.getElementById('printStatementContainer');
+  if(printSource?.dataset.accountPrintTemplate)printSource.innerHTML=printSource.dataset.accountPrintTemplate;
+  const txs=getAccountOperations(accountOpsState.accountName,scope).map(t=>({...t,amount:getAccountDisplayAmount(getAccountEntry(t,scope)),currency}));
+  const periodTitle=(accountOpsState.from&&accountOpsState.to?`من ${accountOpsState.from} إلى ${accountOpsState.to}`:(accountOpsState.from?`من ${accountOpsState.from}`:(accountOpsState.to?`حتى ${accountOpsState.to}`:'كافة العمليات المعروضة')))+` — ${currency}`;
+  const opening=getAccountOpeningBalanceForOperations(scope,accountOpsState.from);
+  const closing=opening+txs.reduce((sum,t)=>sum+(getAccountEntry(t,scope)?.side==='credit'?Number(t.amount):-Number(t.amount)),0);
+  preparePrintStatementTemplate(accountOpsState.accountName,txs,opening,periodTitle,accountCurrencyLabel(currency));
+  document.getElementById('psStatementTitle').textContent=`كشف حساب: ${accountOpsState.accountName} — ${currency}`;
+  document.getElementById('psTafqitText').textContent=`${closing>=0?'لكم':'عليكم'} : ${tafqitAccountCurrency(Math.abs(closing),currency)}`;
+  openPrintPreview('printStatementContainer','printing-statement');
+}catch(e){showToast('تعذّر تجهيز طباعة كشف الحساب: '+(e.message||'خطأ غير معروف'),'error',6000);}}
+function accountCurrencyLabel(currency){return currency==='YER'?'ريال يمني':currency==='SAR'?'ريال سعودي':currency==='USD'?'دولار أمريكي':currency;}
+function getAccountCurrencyReportData(currency){
+  const scope=accountOpsState.scopeNames, rows=getAccountOperations(accountOpsState.accountName,scope,currency), opening=getAccountOpeningBalanceForOperations(scope,accountOpsState.from,currency);
+  let totalDebit=0,totalCredit=0;
+  rows.forEach(t=>{const e=getAccountEntry(t,scope),amount=getAccountDisplayAmount(e);if(e.side==='debit')totalDebit+=amount;else totalCredit+=amount;});
+  return {currency,rows,opening,totalDebit,totalCredit,closing:opening+totalCredit-totalDebit};
+}
+function accountPeriodTitle(){return accountOpsState.from&&accountOpsState.to?`من ${accountOpsState.from} إلى ${accountOpsState.to}`:(accountOpsState.from?`من ${accountOpsState.from}`:(accountOpsState.to?`حتى ${accountOpsState.to}`:'كافة العمليات المعروضة'));}
+function wrapCanvasText(ctx,str,maxW){
+  str=String(str??'');if(!str)return [''];
+  const words=str.split(/\s+/),lines=[];let cur='';
+  const push=w=>{ // كلمة أطول من العمود: تُقسّم حرفياً
+    let part='';for(const ch of w){if(ctx.measureText(part+ch).width>maxW&&part){lines.push(part);part=ch;}else part+=ch;}return part;};
+  words.forEach(w=>{
+    const t=cur?cur+' '+w:w;
+    if(ctx.measureText(t).width<=maxW){cur=t;return;}
+    if(cur)lines.push(cur);
+    cur=ctx.measureText(w).width>maxW?push(w):w;
+  });
+  if(cur)lines.push(cur);return lines;
+}
+function renderAccountCurrencyCanvas(data){
+  const {currency,rows,opening,totalDebit,totalCredit,closing}=data,width=1400,margin=70,minRowH=62,lineH=26;
+  const scope=accountOpsState.scopeNames,cfg=getHeaderConfig();
+  // أعمدة جديدة (من اليسار لليمين): الرصيد | دائن | مدين | البيان | المستند | التاريخ
+  const col=[margin,margin+180,margin+340,margin+500,margin+950,margin+1130,width-margin],labels=['التاريخ','رقم القيد / المستند','البيان (التفاصيل)','مدين (عليكم)','دائن (لكم)','الرصيد بعد الحركة'];
+  const measure=document.createElement('canvas').getContext('2d');
+  const runningBalances=getAccountRunningBalances(rows,scope,opening);
+  const bodyRows=[];
+  if(opening!==0)bodyRows.push({vals:[accountOpsState.from,'—','الرصيد السابق (افتتاحي الفترة)','','',`${Math.abs(opening).toLocaleString()} ${opening>=0?'(لكم)':'(عليكم)'}`],size:17});
+  rows.forEach(t=>{const entry=getAccountEntry(t,scope),debit=entry.side==='debit',amount=getAccountDisplayAmount(entry),d=debit?amount:0,c=debit?0:amount,balance=runningBalances.get(t),note=entry.line?.note||t.execution?.[Object.keys(t.execution||{})[0]]?.note||getTransactionDisplayType(t)||'',other=debit?(t.creditAccount||'طرف آخر'):(t.debitAccount||'طرف آخر'),doc=`${t.voucherMode==='spend'?'سند صرف':t.voucherMode==='income'?'سند إيراد':t.voucherMode==='multi-entry'?'سند قيد متعدد':'قيد يومي'} #${t.seqNum||'-'}`;
+    bodyRows.push({vals:[getAccountOpsDate(t)||'-',doc,`${note} (${other})`,d?d.toLocaleString():'',c?c.toLocaleString():'',`${Math.abs(balance).toLocaleString()} ${balance>=0?'(لكم)':'(عليكم)'}`],size:16});});
+  // نقيس كل خلية ونلفّ النص على أسطر حتى لا يتجاوز عرض عمودها
+  const layout=(vals,size)=>{measure.font=`bold ${size}px Arial`;const cells=vals.map((v,i)=>wrapCanvasText(measure,v,(col[6-i]-col[5-i])-20));const n=Math.max(...cells.map(c=>c.length));return {cells,h:Math.max(minRowH,n*lineH+26)};};
+  const headL=layout(labels,18);bodyRows.forEach(r=>{Object.assign(r,layout(r.vals,r.size));});
+  const tableY=205,bodyH=bodyRows.reduce((sum,r)=>sum+r.h,0),height=Math.max(760,tableY+headL.h+bodyH+minRowH*3+110);
+  const canvas=document.createElement('canvas');canvas.width=width;canvas.height=height;
+  const ctx=canvas.getContext('2d');ctx.fillStyle='#fff';ctx.fillRect(0,0,width,height);ctx.direction='rtl';ctx.textAlign='right';ctx.strokeStyle='#000';ctx.lineWidth=2;ctx.strokeRect(margin-20,20,width-2*margin+40,height-40);
+  const text=(value,x,y,size=22,color='#000',weight='bold')=>{ctx.fillStyle=color;ctx.font=`${weight} ${size}px Arial`;ctx.fillText(String(value??''),x,y)};
+  const centerText=(value,x,y,size=18,color='#000',weight='bold')=>{const old=ctx.textAlign;ctx.textAlign='center';text(value,x,y,size,color,weight);ctx.textAlign=old;};
+  text(cfg.show&&cfg.name?cfg.name:'',width-margin,48,26);text(cfg.show&&cfg.details?cfg.details:'',width-margin,78,19);ctx.strokeStyle='#000';ctx.beginPath();ctx.moveTo(margin,92);ctx.lineTo(width-margin,92);ctx.stroke();
+  const infoWidth=width-margin*2,infoY=108,infoH=76;ctx.fillStyle='#f1f5f9';ctx.fillRect(margin,infoY,infoWidth,infoH);ctx.strokeStyle='#94a3b8';ctx.strokeRect(margin,infoY,infoWidth,infoH);centerText(`كشف حساب: ${accountOpsState.accountName} — ${accountCurrencyLabel(currency)}`,margin+infoWidth/2,139,25);centerText(accountPeriodTitle(),margin+infoWidth*5/6,174,18);centerText(`عدد الحركات: ${rows.length} · ${accountCurrencyLabel(currency)}`,margin+infoWidth/2,174,18);centerText(`تاريخ إصدار الكشف: ${new Date().toLocaleDateString('en-CA')}`,margin+infoWidth/6,174,18);
+  const drawRow=(y,L,size,bg='#fff')=>{ctx.fillStyle=bg;ctx.fillRect(margin,y,width-2*margin,L.h);ctx.strokeStyle='#000';ctx.lineWidth=1.5;for(let i=0;i<col.length-1;i++)ctx.strokeRect(col[i],y,col[i+1]-col[i],L.h);
+    L.cells.forEach((lines,i)=>{const right=col.length-1-i,top=y+(L.h-lines.length*lineH)/2+lineH-7;lines.forEach((ln,k)=>text(ln,col[right]-10,top+k*lineH,size,'#000','bold'));});};
+  drawRow(tableY,headL,18,'#e2e8f0');let y=tableY+headL.h;
+  bodyRows.forEach(r=>{drawRow(y,r,r.size);y+=r.h;});
+  // الإجماليات داخل الجدول: إجمالي الفترة ← الرصيد السابق ← الرصيد الإجمالي
+  const fmtN=n=>Number(n).toLocaleString(),xR=col[6],xBody=col[3],xDebit=col[2],xCredit=col[1],xBal=col[0];
+  const cell=(x1,x2,yy,str,bg,size=17)=>{ctx.fillStyle=bg;ctx.fillRect(x1,yy,x2-x1,minRowH);ctx.strokeStyle='#000';ctx.lineWidth=1.5;ctx.strokeRect(x1,yy,x2-x1,minRowH);if(str!==''&&str!==undefined)text(str,x2-10,yy+38,size,'#000','bold');};
+  const totalRow=(yy,label,d,c,bal,bg)=>{cell(xBody,xR,yy,label,bg);cell(xDebit,xBody,yy,d,bg);cell(xCredit,xDebit,yy,c,bg);cell(xBal,xCredit,yy,bal,bg);};
+  totalRow(y,'إجمالي العمليات خلال الفترة',fmtN(totalDebit),fmtN(totalCredit),'-','#f1f5f9');y+=minRowH;
+  totalRow(y,'رصيد سابق',opening<0?fmtN(Math.abs(opening)):'0',opening>0?fmtN(opening):'','-','#f1f5f9');y+=minRowH;
+  cell(xBody,xR,y,'الرصيد الإجمالي','#e2e8f0',18);cell(xBal,xBody,y,`${closing>=0?'لكم':'عليكم'} : ${fmtN(Math.abs(closing))} ${accountCurrencyLabel(currency)}`,'#e2e8f0',18);y+=minRowH+34;
+  text(`${closing>=0?'لكم':'عليكم'} : ${tafqitAccountCurrency(Math.abs(closing),currency)}`,width-margin-8,y,18,'#000','bold');
+  return canvas;
+}
+function renderAccountCurrencySummaryCanvas(datas){
+  const width=1400,height=Math.max(760,360+datas.length*72),margin=70,rowH=62,canvas=document.createElement('canvas');canvas.width=width;canvas.height=height;const ctx=canvas.getContext('2d');ctx.fillStyle='#fff';ctx.fillRect(0,0,width,height);ctx.direction='rtl';ctx.textAlign='right';ctx.strokeStyle='#000';ctx.lineWidth=2;ctx.strokeRect(margin-20,20,width-2*margin+40,height-40);
+  const cfg=getHeaderConfig(),text=(v,x,y,size=22,color='#000',weight='bold')=>{ctx.fillStyle=color;ctx.font=`${weight} ${size}px Arial`;ctx.fillText(String(v??''),x,y)},center=(v,x,y,size=18)=>{const old=ctx.textAlign;ctx.textAlign='center';text(v,x,y,size);ctx.textAlign=old;};text(cfg.show&&cfg.name?cfg.name:'',width-margin,48,26);text(cfg.show&&cfg.details?cfg.details:'',width-margin,78,19);ctx.beginPath();ctx.moveTo(margin,92);ctx.lineTo(width-margin,92);ctx.stroke();center(`خلاصة كشف الحساب متعدد العملات — ${accountOpsState.accountName}`,width/2,140,26);center(accountPeriodTitle(),width/2,174,18);center(`تاريخ إصدار الكشف: ${new Date().toLocaleDateString('en-CA')}`,width/2,205,18);
+  const col=[margin,margin+300,margin+650,margin+1000,width-margin],draw=(y,vals,bg='#fff',size=19)=>{ctx.fillStyle=bg;ctx.fillRect(margin,y,width-2*margin,rowH);for(let i=0;i<4;i++){ctx.strokeRect(col[i],y,col[i+1]-col[i],rowH);}for(let i=0;i<vals.length;i++){const right=col.length-1-i;text(vals[i],col[right]-8,y+38,size,'#000','bold');}};let y=250;draw(y,['نوع العملة','دائن (لكم)','مدين (عليكم)','الرصيد'],'#e2e8f0',20);y+=rowH;datas.forEach(d=>{draw(y,[accountCurrencyLabel(d.currency),d.totalCredit.toLocaleString(),d.totalDebit.toLocaleString(),`${Math.abs(d.closing).toLocaleString()} ${d.closing>=0?'دائن':'مدين'}`]);y+=rowH;});return canvas;
+}
+function buildPdfFromCanvases(canvases){
+  const enc=new TextEncoder(),parts=[],offsets=[],add=v=>{const b=typeof v==='string'?enc.encode(v):v;parts.push(b);total+=b.length;},total0=0;let total=0;add('%PDF-1.4\n');const pageCount=canvases.length,kids=canvases.map((_,i)=>`${3+i*3} 0 R`).join(' ');offsets[1]=total;add(`1 0 obj\n<< /Type /Catalog /Pages 2 0 R >>\nendobj\n`);offsets[2]=total;add(`2 0 obj\n<< /Type /Pages /Kids [${kids}] /Count ${pageCount} >>\nendobj\n`);
+  canvases.forEach((canvas,i)=>{const pageObj=3+i*3,contentObj=pageObj+1,imgObj=pageObj+2,width=canvas.width,height=canvas.height,pageH=595*height/width,b64=canvas.toDataURL('image/jpeg',.94).split(',')[1],bin=atob(b64),jpg=new Uint8Array(bin.length);for(let j=0;j<bin.length;j++)jpg[j]=bin.charCodeAt(j);const content=`q\n595 0 0 ${pageH} 0 0 cm\n/Im0 Do\nQ`;
+    offsets[pageObj]=total;add(`${pageObj} 0 obj\n<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 ${pageH}] /Resources << /XObject << /Im0 ${imgObj} 0 R >> >> /Contents ${contentObj} 0 R >>\nendobj\n`);offsets[contentObj]=total;add(`${contentObj} 0 obj\n<< /Length ${content.length} >>\nstream\n${content}\nendstream\nendobj\n`);offsets[imgObj]=total;add(`${imgObj} 0 obj\n<< /Type /XObject /Subtype /Image /Width ${width} /Height ${height} /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length ${jpg.length} >>\nstream\n`);add(jpg);add('\nendstream\nendobj\n');});
+  const xref=total;add(`xref\n0 ${pageCount*3+3}\n0000000000 65535 f \n`);for(let i=1;i<=pageCount*3+2;i++)add(String(offsets[i]).padStart(10,'0')+' 00000 n \n');add(`trailer\n<< /Size ${pageCount*3+3} /Root 1 0 R >>\nstartxref\n${xref}\n%%EOF`);const out=new Uint8Array(total);let cursor=0;parts.forEach(b=>{out.set(b,cursor);cursor+=b.length;});return new Blob([out],{type:'application/pdf'});
+}
+function buildAccountOperationsPdf(){const currencies=accountOpsState.currency==='ALL'?getAccountCurrencies(accountOpsState.accountName,accountOpsState.scopeNames):[accountOpsState.activeCurrency||accountOpsState.currency||'YER'];const datas=currencies.map(getAccountCurrencyReportData);const pages=datas.map(renderAccountCurrencyCanvas);if(accountOpsState.currency==='ALL')pages.push(renderAccountCurrencySummaryCanvas(datas));return buildPdfFromCanvases(pages);}
+async function shareCurrentAccountOperations(){try{const file=new File([buildAccountOperationsPdf()],`كشف-${accountOpsState.accountName||'حساب'}.pdf`,{type:'application/pdf'});if(navigator.share&&(!navigator.canShare||navigator.canShare({files:[file]}))){await navigator.share({title:`كشف حساب - ${accountOpsState.accountName}`,files:[file]});showToast('تمت مشاركة ملف PDF','success');}else{const url=URL.createObjectURL(file),a=document.createElement('a');a.href=url;a.download=file.name;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);showToast('تم إنشاء ملف PDF وتنزيله للمشاركة','success');}}catch(e){if(e.name!=='AbortError'){showToast('تعذر إنشاء ملف PDF، سيتم فتح الطباعة للحفظ كـ PDF','warn');printCurrentAccountOperations();}}}
+const accountScreenMenuToggle=document.getElementById('accountScreenMenuToggle'),accountScreenMenu=document.getElementById('accountScreenMenu');
+accountScreenMenuToggle?.addEventListener('click',e=>{e.stopPropagation();const open=accountScreenMenu?.classList.toggle('open');accountScreenMenuToggle.setAttribute('aria-expanded',open?'true':'false');});
+function runAccountAction(action){if(!action)return;if(action==='advanced'){const panel=document.getElementById('accountAdvancedSearchPanel');const opening=panel?.classList.contains('hidden');panel?.classList.toggle('hidden');if(opening){const today=getLocalTodayISO?getLocalTodayISO():new Date().toISOString().slice(0,10),from=document.getElementById('accountOpsFromDate'),to=document.getElementById('accountOpsToDate');if(from&&!from.value)from.value=today;if(to&&!to.value)to.value=today;}}else if(action==='print')printCurrentAccountOperations();else if(action==='share')shareCurrentAccountOperations();else if(action==='documentQuery')openGlobalSearch();else if(action==='close'){if(currentActiveTab==='pageAccountOperations'){navigateToTab(accountOperationsReturnTab||'pageAccountsTree',false);}else goBackInApp();}}
+accountScreenMenu?.addEventListener('click',e=>{e.stopPropagation();const btn=e.target.closest('button');if(!btn||btn.disabled)return;closeAccountScreenMenu();runAccountAction(btn.dataset.accountAction);});
+document.querySelector('.account-inline-actions')?.addEventListener('click',e=>{const btn=e.target.closest('button');if(!btn||btn.disabled)return;runAccountAction(btn.dataset.accountAction);});
+// استبدلنا حقلي التاريخ من type="date" إلى نص عادي بصيغة سنة-شهر-يوم: بعض متصفحات
+// التطبيقات المدمجة (مثل متصفح واتساب الداخلي) لا تُفعّل منتقي التاريخ الأصلي بشكل
+// سليم، فتبقى قيمة الحقل فارغة فعلياً رغم ظهور تاريخ على الشاشة — وهذا كان سبب عدم
+// عمل الفلترة رغم اختيار فترة. الحقل النصي يعمل بشكل موثوق في كل المتصفحات.
+function initAccountDatePickers(){
+  ['accountOpsFromDate','accountOpsToDate'].forEach(id=>{const el=document.getElementById(id);if(!el||el.dataset.calendarReady)return;el.dataset.calendarReady='1';el.type='date';el.addEventListener('click',()=>{if(!el.value)el.value=getLocalTodayISO?getLocalTodayISO():new Date().toISOString().slice(0,10);if(typeof el.showPicker==='function'){try{el.showPicker();}catch(_){}}});el.addEventListener('focus',()=>{if(!el.value)el.value=getLocalTodayISO?getLocalTodayISO():new Date().toISOString().slice(0,10);});});
+}
+initAccountDatePickers();
+function formatDateTypingInput(el) {
+  el.addEventListener('input', () => {
+    let digits = el.value.replace(/\D/g, '').slice(0, 8);
+    let out = digits.slice(0, 4);
+    if (digits.length > 4) out += '-' + digits.slice(4, 6);
+    if (digits.length > 6) out += '-' + digits.slice(6, 8);
+    el.value = out;
+  });
+}
+document.getElementById('applyAccountOpsFilterBtn')?.addEventListener('click',()=>{
+  const from=document.getElementById('accountOpsFromDate')?.value.trim()||'',to=document.getElementById('accountOpsToDate')?.value.trim()||'';
+  const validFormat = /^\d{4}-\d{2}-\d{2}$/;
+  if (from && !validFormat.test(from)) { showToast('صيغة "من تاريخ" غير صحيحة — استخدم سنة-شهر-يوم مثل 2026-09-01', 'warn', 5000); return; }
+  if (to && !validFormat.test(to)) { showToast('صيغة "إلى تاريخ" غير صحيحة — استخدم سنة-شهر-يوم مثل 2026-09-29', 'warn', 5000); return; }
+  if(from&&to&&from>to){showToast('تاريخ البداية يجب أن يسبق تاريخ النهاية','warn');return}
+  const currency=document.getElementById('accountOpsCurrencyFilter')?.value||'ALL';
+  accountOpsState.from=from;accountOpsState.to=to;accountOpsState.currency=currency;accountOpsState.activeCurrency=currency==='ALL'?'YER':currency;accountOpsState.filtered=Boolean(from||to||currency!=='ALL');
+  setAccountReportActionsEnabled(true);
+  renderAccountOperations(accountOpsState.accountName,accountOpsState.scopeNames);
+  const count = (currency==='ALL'?getAccountCurrencies(accountOpsState.accountName,accountOpsState.scopeNames):[currency]).reduce((sum,c)=>sum+getAccountOperations(accountOpsState.accountName,accountOpsState.scopeNames,c).length,0);
+  const rangeText = from && to ? `من ${from} إلى ${to}` : (from ? `من ${from}` : (to ? `حتى ${to}` : 'كل الفترة'));
+  const currencyText = currency === 'ALL' ? '' : ` — ${currency}`;
+  showToast(`تم تطبيق الفترة (${rangeText}${currencyText}) — ${count} عملية`, 'success');
+});
+document.getElementById('clearAccountOpsFilterBtn')?.addEventListener('click',()=>{accountOpsState.from='';accountOpsState.to='';accountOpsState.currency='ALL';accountOpsState.activeCurrency='YER';const from=document.getElementById('accountOpsFromDate'),to=document.getElementById('accountOpsToDate'),currencySel=document.getElementById('accountOpsCurrencyFilter');if(from)from.value='';if(to)to.value='';if(currencySel)currencySel.value='ALL';renderAccountOperations(accountOpsState.accountName,accountOpsState.scopeNames);accountOpsState.filtered=false;setAccountReportActionsEnabled(true);document.getElementById('accountAdvancedSearchPanel')?.classList.add('hidden');});
+document.getElementById('accountAddOperationBtn')?.addEventListener('click',()=>{preferredDebitAccountForNewVoucher=accountOpsState.accountName||'';navigateToTab('pageExpenses',true);});
+function renderAccountsPager(){
+  const tabs=document.getElementById('accountsPagerTabs'),track=document.getElementById('accountsPagerTrack');
+  if(!tabs||!track)return;
+  const catalog=getCanonicalCatalog(), balances=getAccountPagerBalances();
+  const mains=[...new Map(catalog.map(x=>[x.main,x])).values()];
+  tabs.innerHTML='';track.innerHTML='';document.getElementById('accountOperationsPanel')?.classList.add('hidden');
+  if(!mains.length){track.innerHTML='<div class="accounts-empty">لا توجد تصنيفات حسابات متاحة.</div>';return;}
+  mains.forEach((main,index)=>{
+    const tab=document.createElement('button');tab.type='button';tab.role='tab';tab.textContent='#'+main.main;tab.dataset.index=String(index);tab.setAttribute('aria-selected',index===0?'true':'false');
+    tab.addEventListener('click',()=>{const slide=track.children[index];slide?.scrollIntoView({behavior:'smooth',inline:'start',block:'nearest'});setAccountsPagerActive(index)});tabs.appendChild(tab);
+    const slide=document.createElement('section');slide.className='accounts-pager-slide';slide.role='tabpanel';slide.setAttribute('aria-label',main.main);
+    const title=document.createElement('div');title.className='accounts-pager-slide-title';
+    const activeTxs=getAllTransactions().filter(t=>t.status!=='reversed'&&t.status!=='deleted');
+    const latest={};activeTxs.forEach(t=>{const date=t.isoDate||t.date||'';[t.debitAccount,t.creditAccount].filter(Boolean).forEach(n=>{if(!latest[n]||date>latest[n])latest[n]=date;});});
+    const baseItems=catalog.filter(x=>x.main===main.main).flatMap(x=>x.details.map(d=>({code:d[0],name:d[1],level:'المستوى الرابع — تفصيلي (يقبل الحركة)',path:`${x.main} > ${x.group} > ${x.sub}`,main:x.main})));
+    const accountItems=[];
+    const currencyBalance=(name,currency)=>{let total=0,count=0,last='';activeTxs.forEach(t=>{const e=getAccountEntry(t,[name]);if(!e)return;const c=e.currency||'YER';if(c!==currency)return;total+=(e.side==='debit'?-1:1)*getAccountDisplayAmount(e);count++;const d=getAccountOpsDate(t);if(d>last)last=d;});return {total,count,last};};
+    baseItems.forEach(base=>{
+      const currencies=[...new Set(activeTxs.map(t=>getAccountEntry(t,[base.name])?.currency||'').filter(Boolean))];
+      const foreign=currencies.filter(c=>c!=='YER');
+      if(foreign.length){
+        if(currencies.includes('YER'))accountItems.push({...base,currency:'YER',currencyLabel:''});
+        foreign.forEach(c=>accountItems.push({...base,currency:c,currencyLabel:c}));
+      }else accountItems.push({...base,currency:'YER',currencyLabel:''});
+    });
+    accountItems.forEach(a=>{const x=currencyBalance(a.name,a.currency);a.currencyTotal=x.total;a.currencyCount=x.count;a.currencyLast=x.last;});
+    accountItems.sort((a,b)=>{const ad=a.currencyLast||'',bd=b.currencyLast||'';return (bd?1:0)-(ad?1:0)||bd.localeCompare(ad)||a.name.localeCompare(b.name,'ar')||a.currency.localeCompare(b.currency);});
+    title.innerHTML=`<span>حسابات ${esc(main.main)}</span><small>${accountItems.length} حساب / عملة</small>`;slide.appendChild(title);
+    if(!accountItems.length){const empty=document.createElement('div');empty.className='accounts-empty';empty.textContent='لا توجد حسابات تفصيلية ضمن هذا التصنيف.';slide.appendChild(empty)}
+    accountItems.forEach(account=>{
+      const amount=account.currencyTotal,positive=amount>=0,activityCount=account.currencyCount;
+      const card=document.createElement('div');card.className='account-sub-card';card.title='فتح عمليات الحساب بهذه العملة';card.setAttribute('role','button');card.setAttribute('tabindex','0');card.setAttribute('aria-label',`فتح عمليات حساب ${account.name} ${account.currencyLabel}`);
+      const currencyBadge=account.currencyLabel?`<b class="account-currency-badge">${esc(account.currencyLabel)}</b>`:'';
+      const name=document.createElement('span');name.className='account-sub-name';name.innerHTML=`${esc(account.name)} ${currencyBadge}<small class="account-sub-path">${esc(account.path)}</small><small class="account-sub-meta"><span>تفصيلي · يقبل الحركة</span><span>${activityCount} عملية</span><span>${account.currencyLast?`آخر حركة ${esc(account.currencyLast)}`:'لم تُسجل حركة بعد'}</span></small>`;
+      const amountEl=document.createElement('span');amountEl.className=`account-sub-balance ${positive?'credit':'debit'}`;amountEl.innerHTML=`<b>${Math.abs(amount).toLocaleString()}${account.currencyLabel?' '+esc(account.currencyLabel):''}</b><small>${positive?'دائن':'مدين'}</small>`;
+      const arrow=document.createElement('span');arrow.className='account-sub-arrow';arrow.textContent='←';
+      const open=()=>openAccountFromPager(account.name,[account.name],account.currency);card.append(name,amountEl,arrow);card.addEventListener('click',open);card.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();open();}});slide.appendChild(card);
+    });
+    track.appendChild(slide);
+  });
+  setAccountsPagerActive(0);
+  if(!track.dataset.swipeBound){
+    track.dataset.swipeBound='1';
+    track.addEventListener('scroll',()=>{const width=track.clientWidth||1;setAccountsPagerActive(Math.round(Math.abs(track.scrollLeft)/width))},{passive:true});
+  }
+}
+function setAccountsPagerActive(index){
+  const tabs=document.getElementById('accountsPagerTabs'),track=document.getElementById('accountsPagerTrack');if(!tabs||!track)return;
+  const max=Math.max(0,track.children.length-1),safe=Math.max(0,Math.min(index,max));
+  [...tabs.children].forEach((tab,i)=>{const active=i===safe;tab.classList.toggle('active',active);tab.setAttribute('aria-selected',active?'true':'false');if(active)tab.scrollIntoView({behavior:'smooth',inline:'center',block:'nearest'});});
+  
+}
+
+let multiVoucherLines=[], multiVoucherDraftId='';
+function multiToday(){return typeof getLocalTodayISO==='function'?getLocalTodayISO():new Date().toISOString().slice(0,10);}
+function getMultiAccountItems(){
+  const current=multiSourceAcc?.items||[];if(current.length)return current;
+  const out=[];try{getCanonicalCatalog().forEach(x=>x.details.forEach(d=>out.push({id:d[1],text:d[1],group:`${x.main} > ${x.group} > ${x.sub}`})))}catch(e){}return out;
+}
+function multiCurrencyLabel(c){return c==='SAR'?'ريال سعودي SAR':c==='USD'?'دولار USD':'ريال يمني YER';}
+function selectMultiVoucherType(){
+  if(!multiVoucherDraftId && multiVoucherLines.some(l=>l.account||getCleanNumber(l.amount)))resetMultiVoucherForm();
+  document.getElementById('multiSavedNotice')?.classList.add('hidden');
+  document.getElementById('voucherSelectorCard')?.classList.add('hidden');
+  document.getElementById('cashFlowCard')?.classList.add('hidden');
+  document.getElementById('multiVoucherCard')?.classList.remove('hidden');
+  // ضمان تعبئة الحساب المصدر حتى لو فُتحت شاشة السند قبل اكتمال تحديث القوائم.
+  const sourceItems=getMultiAccountItems(); if(multiSourceAcc && multiSourceAcc.items.length!==sourceItems.length) multiSourceAcc.setItems(sourceItems);
+  const date=document.getElementById('multiVoucherDate'); if(date&&!date.value)date.value=multiToday();
+  document.getElementById('multiVoucherSeqBadge').textContent=`رقم: ${getNextMultiVoucherNumber()}`;
+  if(!multiVoucherLines.length) addMultiVoucherLine();
+  renderMultiVoucherLines();
+}
+function newMultiLine(){return {id:`ml_${Date.now()}_${Math.random().toString(36).slice(2)}`,side:'debit',account:'',budgetId:'general',note:'',currency:document.getElementById('multiVoucherBaseCurrency')?.value||'YER',amount:'',rate:'1',base:0,notes:''};}
+function addMultiVoucherLine(){multiVoucherLines=multiVoucherLines.filter(l=>!l.autoBalance);multiVoucherLines.push(newMultiLine());renderMultiVoucherLines();syncMultiAutoBalance();}
+function renderMultiVoucherLines(){
+  const body=document.getElementById('multiVoucherLinesBody');if(!body)return;const items=getMultiAccountItems();
+  body.innerHTML='';
+  multiVoucherLines.forEach((line,index)=>{
+    const tr=document.createElement('tr');if(line.autoBalance)tr.className='multi-auto-balance-row';const opts='<option value="">اختر الحساب</option>'+items.map(i=>`<option value="${esc(i.id)}" ${i.id===line.account?'selected':''}>${esc(i.text)}</option>`).join('');const cats=getCats();const budgetOpts=cats.map(c=>`<option value="${esc(c.id)}" ${c.id===(line.budgetId||'general')?'selected':''}>${esc(c.name)}</option>`).join('');
+    tr.innerHTML=`<td><select class="multi-line-side ${line.side==='credit'?'credit':'debit'}" data-index="${index}" ${line.autoBalance?'disabled':''}><option value="debit" ${line.side!=='credit'?'selected':''}>مدين</option><option value="credit" ${line.side==='credit'?'selected':''}>دائن</option></select></td><td><select class="multi-line-account" data-index="${index}">${opts}</select></td><td><select class="multi-line-budget" data-index="${index}">${budgetOpts}</select></td><td><input class="multi-line-note" data-index="${index}" value="${esc(line.note)}" placeholder="بيان البند"></td><td><select class="multi-line-currency" data-index="${index}"><option value="YER" ${line.currency==='YER'?'selected':''}>YER</option><option value="SAR" ${line.currency==='SAR'?'selected':''}>SAR</option><option value="USD" ${line.currency==='USD'?'selected':''}>USD</option></select></td><td><input class="multi-line-amount" data-index="${index}" value="${esc(line.amount)}" inputmode="decimal" placeholder="0"></td><td><input class="multi-line-rate" data-index="${index}" value="${esc(line.rate||'')}" inputmode="decimal" placeholder="1"></td><td class="multi-line-base" data-index="${index}">${Number(line.base||0).toLocaleString()}</td><td><input class="multi-line-notes" data-index="${index}" value="${esc(line.notes)}" placeholder="ملاحظات"></td><td><button type="button" class="btn btn-danger multi-remove-line" data-index="${index}" title="حذف البند">×</button></td>`;
+    body.appendChild(tr);
+  });
+  body.querySelectorAll('input').forEach(el=>{el.addEventListener('input',()=>updateMultiLineFromDom(el,false));if(el.classList.contains('multi-line-amount')||el.classList.contains('multi-line-rate'))el.addEventListener('blur',()=>{syncMultiAutoBalance();updateMultiVoucherSummary();});});body.querySelectorAll('select').forEach(el=>el.addEventListener('change',()=>updateMultiLineFromDom(el,true)));
+  body.querySelectorAll('.multi-remove-line').forEach(btn=>btn.addEventListener('click',()=>{multiVoucherLines.splice(Number(btn.dataset.index),1);if(!multiVoucherLines.length)multiVoucherLines.push(newMultiLine());renderMultiVoucherLines();syncMultiAutoBalance();}));
+  updateMultiVoucherSummary();
+}
+function updateMultiLineFromDom(el,shouldSync=true){const i=Number(el.dataset.index),line=multiVoucherLines[i];if(!line)return;const key=el.classList.contains('multi-line-side')?'side':el.classList.contains('multi-line-account')?'account':el.classList.contains('multi-line-budget')?'budgetId':el.classList.contains('multi-line-note')?'note':el.classList.contains('multi-line-currency')?'currency':el.classList.contains('multi-line-amount')?'amount':el.classList.contains('multi-line-rate')?'rate':'notes';line[key]=el.value;if(line.currency===(document.getElementById('multiVoucherBaseCurrency')?.value||'YER')&&!line.rate)line.rate='1';const amount=getCleanNumber(line.amount),rate=getCleanNumber(line.rate);line.base=amount*rate;const cell=document.querySelector(`.multi-line-base[data-index="${i}"]`);if(cell)cell.textContent=Number(line.base||0).toLocaleString();if(shouldSync)syncMultiAutoBalance();updateMultiVoucherSummary();}
+function syncMultiAutoBalance(){
+  const real=multiVoucherLines.filter(l=>!l.autoBalance&&l.account&&getCleanNumber(l.amount)>0);let debit=0,credit=0;
+  real.forEach(l=>{const v=getCleanNumber(l.amount)*(getCleanNumber(l.rate)||1);if(l.side==='credit')credit+=v;else debit+=v;});
+  const diff=debit-credit;let auto=multiVoucherLines.find(l=>l.autoBalance);
+  if(Math.abs(diff)<0.001){if(auto){multiVoucherLines=multiVoucherLines.filter(l=>!l.autoBalance);renderMultiVoucherLines();}return;}
+  if(!auto){auto={...newMultiLine(),autoBalance:true,side:diff>0?'credit':'debit',amount:Math.abs(diff),rate:'1',base:Math.abs(diff),note:'سطر متمم تلقائي',budgetId:'general'};multiVoucherLines.push(auto);renderMultiVoucherLines();return;}
+  auto.side=diff>0?'credit':'debit';auto.amount=Math.abs(diff);auto.rate='1';auto.base=Math.abs(diff);const cell=document.querySelector(`.multi-line-base[data-index="${multiVoucherLines.indexOf(auto)}"]`);if(cell)cell.textContent=Number(auto.base).toLocaleString();
+}
+function updateMultiVoucherSummary(){
+  const base=document.getElementById('multiVoucherBaseCurrency')?.value||'YER', totals={YER:0,SAR:0,USD:0};let debitTotal=0,creditTotal=0,validLines=0;
+  multiVoucherLines.forEach(l=>{const amount=getCleanNumber(l.amount),rate=getCleanNumber(l.rate),value=amount*rate;if(amount>0)validLines++;totals[l.currency]=(totals[l.currency]||0)+amount;if(l.side==='credit')creditTotal+=value;else debitTotal+=value;});
+  const sum=document.getElementById('multiVoucherSummary');if(sum)sum.innerHTML=Object.entries(totals).filter(([,v])=>v>0).map(([c,v])=>`<span>${multiCurrencyLabel(c)}: ${v.toLocaleString()}</span>`).join('')+`<span>إجمالي المدين: ${debitTotal.toLocaleString()} ${base}</span><span>إجمالي الدائن: ${creditTotal.toLocaleString()} ${base}</span>`;
+  const balanced=validLines>0&&debitTotal>0&&Math.abs(debitTotal-creditTotal)<0.001;const balance=document.getElementById('multiVoucherBalance');if(balance){balance.dataset.base=String(debitTotal);balance.className='multi-voucher-balance '+(balanced?'balanced':'unbalanced');balance.textContent=balanced?`🟢 القيد متوازن — المدين والدائن: ${debitTotal.toLocaleString()} ${base}`:`🔴 القيد غير متوازن — المدين ${debitTotal.toLocaleString()} / الدائن ${creditTotal.toLocaleString()}`;}
+  return {base,baseTotal:debitTotal,debitTotal,creditTotal,totals,balanced};
+}
+function validateMultiVoucher(){
+  syncMultiAutoBalance();
+  const details=multiVoucherLines.filter(l=>l.account&&getCleanNumber(l.amount)>0),base=document.getElementById('multiVoucherBaseCurrency')?.value||'YER',totals=updateMultiVoucherSummary();
+  if(!details.length)return 'أضف سطراً واحداً على الأقل مع حساب ومبلغ صحيح.';
+  if(multiVoucherLines.some(l=>getCleanNumber(l.amount)>0&&!l.account))return 'يرجى اختيار الحساب للسطر المتمم أو حذف السطر غير المكتمل.';
+  if(details.some(l=>l.currency!==base&&!getCleanNumber(l.rate)))return 'أدخل سعر الصرف لكل عملة مختلفة عن العملة الأساسية.';
+  if(Math.abs(totals.debitTotal-totals.creditTotal)>0.001)return 'لا يمكن اعتماد السند قبل تساوي إجمالي المدين مع إجمالي الدائن.';
+  return '';
+}
+function buildMultiVoucherData(status='draft'){
+  const totals=updateMultiVoucherSummary(),date=document.getElementById('multiVoucherDate')?.value||multiToday(),seq=Number(document.getElementById('multiVoucherSeqBadge')?.textContent.match(/\d+/)?.[0])||getNextMultiVoucherNumber(),id=multiVoucherDraftId||`mv_${Date.now()}_${Math.random().toString(36).slice(2)}`;
+  return {id,seq,date,beneficiary:document.getElementById('multiVoucherBeneficiary')?.value.trim()||'',party:'',note:document.getElementById('multiVoucherNote')?.value.trim()||'',baseCurrency:totals.base,sourceAccount:'',lines:multiVoucherLines.filter(l=>l.account&&getCleanNumber(l.amount)>0).map(l=>({...l,amount:getCleanNumber(l.amount),rate:getCleanNumber(l.rate)||1,base:getCleanNumber(l.amount)*(getCleanNumber(l.rate)||1)})),baseTotal:totals.baseTotal,status,updatedAt:new Date().toISOString()};
+}
+function openMultiVoucherEditor(item){
+  multiVoucherReturnTab=currentActiveTab||'pageDashboard';
+  // كان الضغط على سند قيد متعدد يملأ نموذج التعديل بصفحة "الإضافة" بالخلفية فقط دون الانتقال
+  // إليها فعلياً، فكان يبدو للمستخدم إن التعديل لا يعمل إلا بالدخول يدوياً إلى الإضافة ← قيد متعدد.
+  // الآن ننتقل مباشرة لنفس شاشة الإدخال بالسند مملوءاً بكل بياناته دفعة واحدة.
+  navigateToTab('pageExpenses', true);
+  const groupId=item.multiVoucherId||item.id,txs=getAllTransactions().filter(t=>t.isMultiVoucher&&(t.multiVoucherId===groupId||t.id===groupId)),source=item.multiVoucher||txs[0]?.multiVoucher||{};
+  document.getElementById('voucherSelectorCard')?.classList.add('hidden');document.getElementById('cashFlowCard')?.classList.add('hidden');document.getElementById('multiVoucherCard')?.classList.remove('hidden');
+  multiVoucherDraftId=groupId;document.getElementById('multiVoucherSeqBadge').textContent=`رقم: ${source.seq||item.seqNum||getNextMultiVoucherNumber()}`;document.getElementById('multiVoucherDate').value=source.date||item.isoDate||multiToday();document.getElementById('multiVoucherBeneficiary').value=source.beneficiary||'';document.getElementById('multiVoucherParty').value=source.party||'';document.getElementById('multiVoucherNote').value=source.note||'';document.getElementById('multiVoucherBaseCurrency').value=source.baseCurrency||item.currency||'YER';multiSourceAcc.setValue(source.sourceAccount||'','');
+  if(Array.isArray(source.lines)&&source.lines.length)multiVoucherLines=source.lines.map(l=>({...newMultiLine(),...l,side:l.side||'debit'}));else multiVoucherLines=txs.map(t=>({...newMultiLine(),side:t.creditAccount?'credit':'debit',account:t.debitAccount||t.creditAccount||'',amount:t.amount,rate:1,base:t.amount,note:t.execution?.general?.note||''}));
+  const hasCredit=multiVoucherLines.some(l=>l.side==='credit');if(source.sourceAccount&&!hasCredit)multiVoucherLines.push({...newMultiLine(),side:'credit',account:source.sourceAccount,amount:source.baseTotal||txs.reduce((n,t)=>n+Number(t.amount||0),0),rate:1,base:source.baseTotal||0,note:'الحساب المرجعي'});renderMultiVoucherLines();showToast('تم فتح سند القيد المتعدد للتعديل','info');
+}
+function loadLatestMultiDraft(){const drafts=store.get('multi_voucher_drafts',[]);const d=Array.isArray(drafts)&&drafts.length?drafts[drafts.length-1]:null;if(!d){showToast('لا توجد مسودة محفوظة لسند قيد متعدد','info');return;}multiVoucherDraftId=d.id;document.getElementById('multiVoucherDate').value=d.date||multiToday();document.getElementById('multiVoucherBeneficiary').value=d.beneficiary||'';document.getElementById('multiVoucherParty').value=d.party||'';document.getElementById('multiVoucherNote').value=d.note||'';document.getElementById('multiVoucherBaseCurrency').value=d.baseCurrency||'YER';multiSourceAcc.setValue(d.sourceAccount||'',d.sourceAccount||'');multiVoucherLines=(d.lines||[]).map(l=>({...newMultiLine(),...l}));if(!multiVoucherLines.length)multiVoucherLines.push(newMultiLine());renderMultiVoucherLines();showToast('تم فتح آخر مسودة','success');}
+function saveMultiDraft(){const err=validateMultiVoucher();if(err&&multiVoucherLines.every(l=>!l.account&&!l.amount)){const d=buildMultiVoucherData('draft');const drafts=store.get('multi_voucher_drafts',[]).filter(x=>x.id!==d.id);drafts.push(d);store.set('multi_voucher_drafts',drafts);multiVoucherDraftId=d.id;showToast('تم حفظ مسودة سند القيد المتعدد','success');return;}if(err){showToast(err,'warn',5000);return;}const d=buildMultiVoucherData('draft'),drafts=store.get('multi_voucher_drafts',[]).filter(x=>x.id!==d.id);drafts.push(d);store.set('multi_voucher_drafts',drafts);multiVoucherDraftId=d.id;showToast('تم حفظ مسودة سند القيد المتعدد','success');}
+// السند قد يكون مؤرشفاً في الأرشيف (شهر سابق): عند تعديله كانت بنوده القديمة تبقى هناك
+// وتُضاف البنود الجديدة للشهر الحالي، فيظهر في السند حسابان مدينان ودائنان بدل واحد.
+function removeMultiVoucherLinesFromHistory(voucherId){
+  const history=store.get('history',[]);if(!Array.isArray(history))return;let changed=false;
+  const next=history.map(h=>{if(!h||!Array.isArray(h.transactions))return h;const kept=h.transactions.filter(t=>t.multiVoucherId!==voucherId);if(kept.length===h.transactions.length)return h;changed=true;return {...h,transactions:kept};});
+  if(changed)store.set('history',next);
+}
+// إصلاح بيانات سابقة: إن وُجدت بنود قديمة لنفس السند في الأرشيف إلى جانب بنود أحدث، تُحذف القديمة.
+function repairDuplicateMultiVoucherLines(){
+  try{
+    const plan=store.get('plan',null),history=store.get('history',[]),containers=[];
+    if(plan&&Array.isArray(plan.transactions))containers.push({ref:plan,key:'plan'});
+    (Array.isArray(history)?history:[]).forEach((h,i)=>{if(h&&Array.isArray(h.transactions))containers.push({ref:h,key:'h'+i});});
+    const byVoucher=new Map();
+    containers.forEach(c=>c.ref.transactions.forEach(t=>{if(!t||!t.isMultiVoucher||!t.multiVoucherId)return;const arr=byVoucher.get(t.multiVoucherId)||[];arr.push({t,c});byVoucher.set(t.multiVoucherId,arr);}));
+    const drop=new Set();
+    byVoucher.forEach(list=>{
+      if(new Set(list.map(x=>x.c.key)).size<2)return;
+      const max=Math.max(...list.map(x=>Number(x.t.updatedAt)||0));
+      list.forEach(x=>{if((Number(x.t.updatedAt)||0)<max)drop.add(x.t);});
+    });
+    if(!drop.size)return 0;
+    containers.forEach(c=>{c.ref.transactions=c.ref.transactions.filter(t=>!drop.has(t));});
+    if(plan)store.set('plan',plan);store.set('history',history);
+    return drop.size;
+  }catch(e){console.error('repairDuplicateMultiVoucherLines',e);return 0;}
+}
+function commitMultiVoucher(){const err=validateMultiVoucher();if(err){showToast(err,'warn',5000);return;}const d=buildMultiVoucherData('posted');if(!d.baseTotal||!d.lines.length){showToast('لا توجد بنود صالحة للاعتماد','warn');return;}const p=getMasterPlan(),now=Date.now();if(multiVoucherDraftId){p.transactions=p.transactions.filter(t=>t.multiVoucherId!==multiVoucherDraftId);removeMultiVoucherLinesFromHistory(multiVoucherDraftId);}d.lines.forEach((line,i)=>{p.transactions.push({id:`${d.id}_${i}`,multiVoucherId:d.id,isMultiVoucher:true,seqNum:d.seq,timestamp:new Date(d.date).getTime(),isoDate:d.date,date:d.date,amount:line.base,currency:d.baseCurrency,isExpense:false,voucherMode:'multi-entry',debitAccount:line.side==='debit'?line.account:'',creditAccount:line.side==='credit'?line.account:'',type:`سند قيد متعدد #${d.seq}`,multiVoucher:d,distribution:(()=>{const c=getCats().find(x=>x.id===(line.budgetId||'general'))||getCats().find(x=>x.id==='general');return c?{[c.id]:{id:c.id,name:c.name,amount:line.base,pct:100,color:c.color}}:{}})(),execution:{[line.budgetId||'general']:{done:true,actualSpent:line.base,note:line.note||d.note}},status:'posted',schemaVersion:APP_SCHEMA_VERSION,updatedAt:now});});store.set('plan',p);store.set('multi_voucher_drafts',store.get('multi_voucher_drafts',[]).filter(x=>x.id!==d.id));audit('CREATE_MULTI_ENTRY_VOUCHER',d.id,null,d);lastPrintedTx={...p.transactions[p.transactions.length-1],multiVoucher:d};renderAllData();updateProDashboard();showToast('تم اعتماد سند القيد المتعدد وإنشاء قيد متوازن','success');prepareMultiVoucherPrint(d);resetMultiVoucherForm();showMultiSavedNotice(d);}
+
+function showMultiSavedNotice(d){
+  const box=document.getElementById('multiSavedNotice');if(!box)return;const tx=getAllTransactions().find(t=>t.multiVoucherId===d.id);box.classList.remove('hidden');box.innerHTML=`<div>تم حفظ سند القيد المتعدد رقم (#${d.seq}) بنجاح.</div><div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px"><button type="button" class="btn btn-primary" id="editLastMultiVoucherBtn">✎ تعديل المستند المحفوظ</button><button type="button" class="btn btn-ghost" id="newMultiVoucherAfterSaveBtn">＋ قيد جديد</button></div>`;
+  document.getElementById('editLastMultiVoucherBtn')?.addEventListener('click',()=>{if(tx)openMultiVoucherEditor(tx);});document.getElementById('newMultiVoucherAfterSaveBtn')?.addEventListener('click',()=>{resetMultiVoucherForm();box.classList.add('hidden');});
+}
+function resetMultiVoucherForm(){
+  multiVoucherDraftId='';multiVoucherLines=[];['multiVoucherBeneficiary','multiVoucherParty','multiVoucherNote'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});const date=document.getElementById('multiVoucherDate');if(date)date.value=multiToday();const base=document.getElementById('multiVoucherBaseCurrency');if(base)base.value='YER';if(multiSourceAcc)multiSourceAcc.setValue('','');document.getElementById('multiVoucherSeqBadge').textContent=`رقم: ${getNextMultiVoucherNumber()}`;addMultiVoucherLine();renderMultiVoucherLines();
+}
+function prepareMultiVoucherPrint(d){const box=document.getElementById('pvTableBox');document.getElementById('pvVoucherTitle').textContent=`سند قيد متعدد رقم (#${d.seq})`;document.getElementById('pvDate').textContent=d.date;document.getElementById('pvAmount').textContent=`${d.baseTotal.toLocaleString()} ${d.baseCurrency}`;document.getElementById('pvDebit').textContent=d.lines.filter(l=>l.side!=='credit').map(l=>l.account).join('، ')||'-';document.getElementById('pvCredit').textContent=d.lines.filter(l=>l.side==='credit').map(l=>l.account).join('، ')||d.sourceAccount||'-';document.getElementById('pvTafqit').textContent=tafqit(d.baseTotal);document.getElementById('pvNote').textContent=[d.beneficiary,d.party,d.note].filter(Boolean).join(' — ')||'-';box.innerHTML=`<table style="width:100%;border-collapse:collapse;color:#000"><thead><tr><th>الجهة</th><th>الحساب</th><th>بند الميزانية</th><th>البيان</th><th>العملة</th><th>المبلغ</th><th>سعر الصرف</th><th>القيمة الأساسية</th></tr></thead><tbody>${d.lines.map(l=>`<tr><td>${l.side==='credit'?'دائن':'مدين'}</td><td>${esc(l.account)}</td><td>${esc((getCats().find(c=>c.id===(l.budgetId||'general'))||{}).name||'عام')}</td><td>${esc(l.note)}</td><td>${esc(l.currency)}</td><td>${l.amount.toLocaleString()}</td><td>${l.rate}</td><td>${l.base.toLocaleString()}</td></tr>`).join('')}</tbody></table><p style="font-weight:900">الإجمالي المحول للعملة الأساسية: ${d.baseTotal.toLocaleString()} ${d.baseCurrency}</p>`;}
+function printMultiVoucher(){const err=validateMultiVoucher();if(err){showToast(err,'warn');return;}const d=buildMultiVoucherData('draft');prepareMultiVoucherPrint(d);document.body.classList.add('printing-voucher');setTimeout(()=>{window.print();document.body.classList.remove('printing-voucher')},50);}
+function buildMultiVoucherPdf(d){
+  const canvas=document.createElement('canvas'),width=1400,rowH=58,height=Math.max(820,360+d.lines.length*rowH);canvas.width=width;canvas.height=height;const ctx=canvas.getContext('2d');ctx.fillStyle='#fff';ctx.fillRect(0,0,width,height);ctx.direction='rtl';ctx.textAlign='right';ctx.strokeStyle='#1f2937';ctx.lineWidth=2;ctx.strokeRect(30,30,width-60,height-60);
+  const text=(v,x,y,size=22,bold=false,color='#111827',maxW=undefined)=>{if(v===undefined||v===null||String(v).trim()==='')return;ctx.fillStyle=color;ctx.font=`${bold?'bold ':''}${size}px Arial`;ctx.fillText(String(v),x,y,maxW)};
+  text(`سند قيد متعدد #${d.seq}`,width-70,86,32,true,'#075985');text(`التاريخ: ${d.date}`,width-70,132,21);text(`المستفيد: ${d.beneficiary}`,width-70,170,21);text(d.note,width-70,208,21);
+  let y=300;const cols=[width-70,1160,1010,850,680,510,340,160];['الجهة','الحساب','بند الميزانية','البيان','العملة','المبلغ','سعر الصرف','القيمة الأساسية'].forEach((h,i)=>text(h,cols[i],y,19,true,'#075985',i?cols[i-1]-cols[i]-14:150));ctx.beginPath();ctx.moveTo(50,y+14);ctx.lineTo(width-50,y+14);ctx.stroke();y+=rowH;
+  d.lines.forEach(l=>{[l.side==='credit'?'دائن':'مدين',l.account,(getCats().find(c=>c.id===(l.budgetId||'general'))||{}).name||'عام',l.note,l.currency,Number(l.amount).toLocaleString(),l.rate,Number(l.base).toLocaleString()].forEach((v,i)=>text(v,cols[i],y,18,false,'#111827',i?cols[i-1]-cols[i]-14:150));y+=rowH;});ctx.beginPath();ctx.moveTo(50,y-20);ctx.lineTo(width-50,y-20);ctx.stroke();text(`الإجمالي: ${Number(d.baseTotal).toLocaleString()} ${d.baseCurrency}`,width-70,y+32,23,true,'#075985');text(d.note,width-70,y+72,19,false);
+  const b64=canvas.toDataURL('image/jpeg',.92).split(',')[1],bin=atob(b64),jpg=new Uint8Array(bin.length);for(let i=0;i<bin.length;i++)jpg[i]=bin.charCodeAt(i);const pageH=595*height/width,content=`q\n595 0 0 ${pageH} 0 0 cm\n/Im0 Do\nQ`,enc=new TextEncoder(),parts=[],offsets=[0];let total=0,add=v=>{const b=enc.encode(v);parts.push(b);total+=b.length},obj=(n,b)=>{offsets[n]=total;add(`${n} 0 obj\n${b}\nendobj\n`)};add('%PDF-1.4\n');obj(1,'<< /Type /Catalog /Pages 2 0 R >>');obj(2,'<< /Type /Pages /Kids [3 0 R] /Count 1 >>');obj(3,`<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 ${pageH}] /Resources << /XObject << /Im0 5 0 R >> >> /Contents 4 0 R >>`);obj(4,`<< /Length ${content.length} >>\nstream\n${content}\nendstream`);offsets[5]=total;add(`5 0 obj\n<< /Type /XObject /Subtype /Image /Width ${width} /Height ${height} /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length ${jpg.length} >>\nstream\n`);parts.push(jpg);total+=jpg.length;add('\nendstream\nendobj\n');const xref=total;add('xref\n0 6\n0000000000 65535 f \n');for(let i=1;i<=5;i++)add(String(offsets[i]).padStart(10,'0')+' 00000 n \n');add(`trailer\n<< /Size 6 /Root 1 0 R >>\nstartxref\n${xref}\n%%EOF`);const out=new Uint8Array(total);let at=0;parts.forEach(part=>{out.set(part,at);at+=part.length});return new Blob([out],{type:'application/pdf'});
+}
+function pdfMultiVoucher(){const d=buildMultiVoucherData('draft');prepareMultiVoucherPrint(d);const file=buildMultiVoucherPdf(d),url=URL.createObjectURL(file),a=document.createElement('a');a.href=url;a.download=`سند-قيد-متعدد-${d.seq}.pdf`;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);showToast('تم إنشاء ملف PDF لسند القيد المتعدد','success');}
+function setupMultiVoucherFeature(){document.getElementById('addMultiVoucherLineBtn')?.addEventListener('click',addMultiVoucherLine);document.getElementById('multiVoucherBaseCurrency')?.addEventListener('change',()=>{multiVoucherLines.forEach(l=>{if(l.currency===document.getElementById('multiVoucherBaseCurrency').value)l.rate='1'});renderMultiVoucherLines();syncMultiAutoBalance()});document.getElementById('saveMultiDraftBtn')?.addEventListener('click',saveMultiDraft);document.getElementById('loadMultiDraftBtn')?.addEventListener('click',loadLatestMultiDraft);document.getElementById('commitMultiVoucherBtn')?.addEventListener('click',commitMultiVoucher);document.getElementById('printMultiVoucherBtn')?.addEventListener('click',printMultiVoucher);document.getElementById('pdfMultiVoucherBtn')?.addEventListener('click',pdfMultiVoucher);}
+
 function proceedAppInit() {
   document.documentElement.dataset.theme = store.get('theme', 'light');
   migrateLegacyAccountNames();
+  const repairedMultiLines=repairDuplicateMultiVoucherLines();
+  if(repairedMultiLines)setTimeout(()=>showToast(`تم تنظيف ${repairedMultiLines} بنداً قديماً مكرراً من سندات القيد المتعدد`,'success',6000),1500);
   initializeCanonicalChart();
   setupSearchableSelects();
   updateSearchableData();
   setupFormattedNumberInputs();
+  initializeDateInputs();
+  setupMultiVoucherFeature();
   setupReportSections('pageReports');
   navigateToTab('pageDashboard', false);
   initCarousels();

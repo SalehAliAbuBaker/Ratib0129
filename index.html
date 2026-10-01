@@ -144,6 +144,11 @@ option { color: var(--text); font-weight: 800; }
 .searchable-arrow { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--muted); font-size: 1rem; pointer-events: none; }
 .searchable-dropdown { position: absolute; top: calc(100% + 6px); right: 0; left: 0; background: var(--card); border: 2px solid var(--border); border-radius: 10px; box-shadow: 0 10px 25px rgba(0,0,0,0.15); max-height: 240px; overflow-y: auto; z-index: 5000; display: none; }
 .searchable-dropdown.open { display: block; }
+.sd-toolbar{position:sticky;top:0;z-index:3;display:flex;gap:6px;align-items:center;padding:6px 8px;background:var(--card);border-bottom:1px solid var(--border)}
+.sd-search-btn{flex:0 0 auto;width:34px;height:34px;padding:0;border:1px solid var(--border);border-radius:8px;background:var(--bg);cursor:pointer;font-size:1rem;line-height:1}
+.sd-toolbar.searching .sd-search-btn{border-color:var(--accent);background:color-mix(in srgb,var(--accent) 12%,var(--card))}
+.sd-search-input{display:none;flex:1;min-width:0;padding:6px 10px;border:1px solid var(--accent);border-radius:8px;font:inherit;font-size:1rem;background:var(--card);color:var(--text)}
+.sd-toolbar.searching .sd-search-input{display:block}
 .searchable-item { padding: 12px 14px; cursor: pointer; font-weight: 900; font-size: 1.1rem; border-bottom: 1.5px solid var(--border); }
 .searchable-item:last-child { border-bottom: none; }
 .searchable-item:hover, .searchable-item.active { background: color-mix(in srgb, var(--accent) 12%, transparent); color: var(--accent); }
@@ -1194,7 +1199,7 @@ label{font-size:1rem;color:var(--text);margin-bottom:5px}
       <div class="form-group">
         <label>الحساب الافتراضي المدين (لسند الإيراد):</label>
         <div class="searchable-select-wrap" id="wrapDefaultIncomeDebit">
-          <input type="text" class="searchable-input" id="inpDefaultIncomeDebit" placeholder="اختر الحساب الافتراضي للإيراد..." autocomplete="off">
+          <input type="text" class="searchable-input" id="inpDefaultIncomeDebit" placeholder="اختياري — اتركه فارغاً بدون حساب افتراضي" autocomplete="off">
           <span class="searchable-arrow">▼</span>
           <div class="searchable-dropdown" id="dropDefaultIncomeDebit"></div>
         </div>
@@ -1203,7 +1208,7 @@ label{font-size:1rem;color:var(--text);margin-bottom:5px}
       <div class="form-group">
         <label>الحساب الافتراضي الدائن (لسند الصرف):</label>
         <div class="searchable-select-wrap" id="wrapDefaultSpendCredit">
-          <input type="text" class="searchable-input" id="inpDefaultSpendCredit" placeholder="اختر الحساب الافتراضي للصرف..." autocomplete="off">
+          <input type="text" class="searchable-input" id="inpDefaultSpendCredit" placeholder="اختياري — اتركه فارغاً بدون حساب افتراضي" autocomplete="off">
           <span class="searchable-arrow">▼</span>
           <div class="searchable-dropdown" id="dropDefaultSpendCredit"></div>
         </div>
@@ -2210,9 +2215,9 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('saveDefaultAccountsBtn')?.addEventListener('click', () => {
     const incomeDebit = selDefaultIncomeDebit.getValue();
     const spendCredit = selDefaultSpendCredit.getValue();
-    if (!incomeDebit || !spendCredit) { alert('يرجى اختيار الحسابات الافتراضية بشكل صحيح'); return; }
-    saveDefaultAccountsConfig({ incomeDebit, spendCredit });
-    showToast('تم حفظ الحسابات الافتراضية بنجاح ✅', 'success');
+    // الاختيار اختياري: الحقل الفارغ يعني «بدون حساب افتراضي» وتُترك الخانة فارغة عند فتح السند
+    saveDefaultAccountsConfig({ incomeDebit: incomeDebit || '', spendCredit: spendCredit || '' });
+    showToast(incomeDebit || spendCredit ? 'تم حفظ الحسابات الافتراضية ✅' : 'تم الحفظ — لا حساب افتراضي (الخانات تبقى فارغة)', 'success');
   });
 
   // كان هذا الزر أيضاً بلا أي كود يشغّله (نفس مشكلة زرّي التصدير/الاستيراد سابقاً).
@@ -4026,7 +4031,30 @@ class SearchableSelect {
     this.items = [];
     this.activeIndex = 0;
     this.visibleItems = [];
+    this.inlineOpen = false;
+    this.buildDropdownShell();
     this.initEvents();
+  }
+  // شريط علوي داخل القائمة: زر 🔍 صغير يفتح خانة بحث بالاسم داخل القائمة نفسها
+  buildDropdownShell() {
+    this.drop.innerHTML = '';
+    this.toolbar = document.createElement('div'); this.toolbar.className = 'sd-toolbar';
+    this.searchBtn = document.createElement('button'); this.searchBtn.type = 'button'; this.searchBtn.className = 'sd-search-btn'; this.searchBtn.title = 'بحث باسم الحساب'; this.searchBtn.setAttribute('aria-label', 'بحث باسم الحساب'); this.searchBtn.textContent = '🔍';
+    this.inlineInput = document.createElement('input'); this.inlineInput.type = 'search'; this.inlineInput.className = 'sd-search-input'; this.inlineInput.placeholder = 'اكتب جزءاً من اسم الحساب...'; this.inlineInput.autocomplete = 'off';
+    this.toolbar.append(this.searchBtn, this.inlineInput);
+    this.list = document.createElement('div'); this.list.className = 'sd-list';
+    this.drop.append(this.toolbar, this.list);
+    this.searchBtn.addEventListener('click', (e) => { e.stopPropagation(); this.toggleInlineSearch(); });
+    this.inlineInput.addEventListener('click', (e) => e.stopPropagation());
+    this.inlineInput.addEventListener('input', (e) => { e.stopPropagation(); this.renderDropdown(''); });
+    this.inlineInput.addEventListener('keydown', (e) => this.handleKey(e));
+  }
+  toggleInlineSearch(force) {
+    this.inlineOpen = force === undefined ? !this.inlineOpen : force;
+    this.toolbar.classList.toggle('searching', this.inlineOpen);
+    this.inlineInput.value = '';
+    this.renderDropdown('');
+    if (this.inlineOpen) setTimeout(() => this.inlineInput.focus(), 0);
   }
   setItems(items) { this.items = items; this.renderDropdown(''); }
   setValue(val, textVal = '') {
@@ -4060,41 +4088,43 @@ class SearchableSelect {
         this.choose(matches[0]);
       }
     });
-    this.input.addEventListener('keydown', (e) => {
-      if (!this.drop.classList.contains('open') || !this.visibleItems.length) return;
-      if (e.key === 'ArrowDown') { e.preventDefault(); this.activeIndex = Math.min(this.activeIndex + 1, this.visibleItems.length - 1); this.paintActiveItem(); }
-      else if (e.key === 'ArrowUp') { e.preventDefault(); this.activeIndex = Math.max(this.activeIndex - 1, 0); this.paintActiveItem(); }
-      else if (e.key === 'Enter') { e.preventDefault(); this.choose(this.visibleItems[this.activeIndex]); }
-      else if (e.key === 'Escape') this.close();
-    });
+    this.input.addEventListener('keydown', (e) => this.handleKey(e));
     document.addEventListener('click', (e) => { if (!this.wrap.contains(e.target)) this.close(); });
   }
+  handleKey(e) {
+    if (!this.drop.classList.contains('open') || !this.visibleItems.length) { if (e.key === 'Escape') this.close(); return; }
+    if (e.key === 'ArrowDown') { e.preventDefault(); this.activeIndex = Math.min(this.activeIndex + 1, this.visibleItems.length - 1); this.paintActiveItem(); }
+    else if (e.key === 'ArrowUp') { e.preventDefault(); this.activeIndex = Math.max(this.activeIndex - 1, 0); this.paintActiveItem(); }
+    else if (e.key === 'Enter') { e.preventDefault(); this.choose(this.visibleItems[this.activeIndex]); }
+    else if (e.key === 'Escape') this.close();
+  }
   open() { document.querySelectorAll('.searchable-dropdown').forEach(d => { if (d !== this.drop) d.classList.remove('open'); }); this.drop.classList.add('open'); }
-  close() { this.drop.classList.remove('open'); }
+  close() { this.drop.classList.remove('open'); if (this.inlineOpen) { this.inlineOpen = false; this.toolbar.classList.remove('searching'); this.inlineInput.value = ''; } }
   paintActiveItem() {
     const rows = this.drop.querySelectorAll('.searchable-item');
     rows.forEach((el, i) => { el.classList.toggle('active', i === this.activeIndex); if (i === this.activeIndex) el.scrollIntoView({ block: 'nearest' }); });
   }
   renderDropdown(query = '') {
-    this.drop.innerHTML = '';
-    const q = query.toLowerCase();
+    this.list.innerHTML = '';
+    // أثناء البحث الداخلي نبحث في كل الحسابات (وليس فقط في نص الحساب المختار حالياً)
+    const q = (this.inlineOpen ? this.inlineInput.value : query).trim().toLowerCase();
     const matches = this.items.filter(item => !q || item.text.toLowerCase().includes(q) || (item.group && item.group.toLowerCase().includes(q)));
     this.visibleItems = matches;
     this.activeIndex = 0;
-    if (!matches.length) { this.drop.innerHTML = '<div style="padding:10px; color:var(--muted); text-align:center; font-size:1.05rem;">لا توجد نتائج</div>'; return matches; }
-    const resultHeader = document.createElement('div'); resultHeader.className = 'search-results-count'; resultHeader.textContent = `نتائج البحث: ${matches.length}`; this.drop.appendChild(resultHeader);
+    if (!matches.length) { this.list.innerHTML = '<div style="padding:10px; color:var(--muted); text-align:center; font-size:1.05rem;">لا توجد نتائج</div>'; return matches; }
+    const resultHeader = document.createElement('div'); resultHeader.className = 'search-results-count'; resultHeader.textContent = `نتائج البحث: ${matches.length}`; this.list.appendChild(resultHeader);
     const groups = {};
     matches.forEach(item => { const g = item.group || 'أخرى'; if (!groups[g]) groups[g] = []; groups[g].push(item); });
     let flatIndex = 0;
     Object.keys(groups).forEach(g => {
       const gHeader = document.createElement('div'); gHeader.className = 'searchable-group-label'; gHeader.textContent = `📁 ${g}`;
-      this.drop.appendChild(gHeader);
+      this.list.appendChild(gHeader);
       groups[g].forEach(item => {
         const el = document.createElement('div'); el.className = `searchable-item ${flatIndex === 0 ? 'active' : ''}`; el.innerHTML = highlightText(item.text, q);
         const itemIndex = flatIndex++;
         el.addEventListener('mouseenter', () => { this.activeIndex = itemIndex; this.paintActiveItem(); });
         el.addEventListener('click', () => this.choose(item));
-        this.drop.appendChild(el);
+        this.list.appendChild(el);
       });
     });
     return matches;
@@ -4183,6 +4213,10 @@ function suggestSubAccountCode(targetPath){
   if(sub){const e=cat.find(x=>x.sub===sub&&(!main||x.main===main))||cat.find(x=>x.sub===sub);prefix=String(e?e.subCode:(getAccountCodes()[sub]||''));}
   else if(main){const e=cat.find(x=>x.main===main);prefix=String(e?e.mainCode:(getAccountCodes()[main]||''));}
   const free=()=>{let n=900000;while(accountCodeIsUsed(n))n++;return String(n);};
+  if(!/^\d{1,5}$/.test(prefix)){ // مجموعة غير موجودة في الدليل: نستنتج البادئة من أرقام الحسابات الموجودة تحتها
+    try{const tree=getAccountTree(),names=sub?(tree[main]?.subGroups?.[sub]||[]):(tree[main]?.accounts||[]);
+      const c6=names.map(n=>String(getAccountCodes()[n]||'')).filter(c=>/^\d{6}$/.test(c));if(c6.length)prefix=c6[0].slice(0,4);}catch(e){}
+  }
   if(!/^\d{1,5}$/.test(prefix))return free();
   const width=6-prefix.length;let max=0;
   const eat=v=>{v=String(v);if(v.length===6&&v.startsWith(prefix)){const t=Number(v.slice(prefix.length));if(t>max)max=t;}};
@@ -4213,7 +4247,13 @@ document.getElementById('newAccountParentSelect')?.addEventListener('change',()=
 document.getElementById('newParentCategoryParentSelect')?.addEventListener('change',()=>refreshSuggestedAccountCodes());
 function openAddAccountModal(preParent = '') {
   updateParentAccountSelect();
-  if (preParent) document.getElementById('newAccountParentSelect').value = preParent;
+  { const sel = document.getElementById('newAccountParentSelect');
+    if (preParent) {
+      const alias = { 'الصناديق والبنوك': 'النقدية وما في حكمها' }, want = alias[preParent] || preParent;
+      const opt = [...sel.options].find(o => o.value === preParent || o.value === want || o.value.split('>').pop().trim() === want);
+      if (opt) sel.value = opt.value;
+    }
+    if (sel.selectedIndex < 0 && sel.options.length) sel.selectedIndex = 0; }
   document.getElementById('newAccountSubCodeInput').value = '';delete document.getElementById('newAccountSubCodeInput').dataset.manual;
   document.getElementById('newAccountSubNameInput').value = '';
   document.getElementById('newAccountMaxCeil').value = '';
@@ -4446,7 +4486,7 @@ function selectVoucherTypeDirect(mode) {
     card.style.borderRight = '6px solid var(--danger)'; title.textContent = '💸 تسجيل سند صرف';
     btn.className = 'btn btn-danger'; btn.textContent = '💾 اعتماد وحفظ سند الصرف';
     selDebitAcc.setValue('', ''); 
-    selCreditAcc.setValue(defAccs.spendCredit, defAccs.spendCredit);
+    selCreditAcc.setValue(defAccs.spendCredit || '', defAccs.spendCredit || '');
   } else if (mode === 'income') {
     card.style.borderRight = '6px solid var(--ok)'; title.textContent = '📥 تسجيل سند إيراد';
     btn.className = 'btn btn-success'; btn.textContent = '💾 اعتماد وحفظ سند الإيراد';
@@ -5523,7 +5563,7 @@ const _legacyUpdateSearchableData=updateSearchableData;
 function updateSearchableData(){
   const cat=getCanonicalCatalog(), items=[];cat.forEach(x=>x.details.forEach(d=>items.push({id:d[1],text:d[1],group:`${x.main} > ${x.group} > ${x.sub}`})));
   selDebitAcc.setItems(items);selCreditAcc.setItems(items);if(multiSourceAcc)multiSourceAcc.setItems(items);if(selEditDebitAcc)selEditDebitAcc.setItems(items);if(selEditCreditAcc)selEditCreditAcc.setItems(items);if(selDefaultIncomeDebit)selDefaultIncomeDebit.setItems(items);if(selDefaultSpendCredit)selDefaultSpendCredit.setItems(items);
-  const defs=getDefaultAccountsConfig(), fallback=items[0]?.id||'';selDefaultIncomeDebit?.setValue(items.some(i=>i.id===defs.incomeDebit)?defs.incomeDebit:fallback,items.some(i=>i.id===defs.incomeDebit)?defs.incomeDebit:fallback);selDefaultSpendCredit?.setValue(items.some(i=>i.id===defs.spendCredit)?defs.spendCredit:fallback,items.some(i=>i.id===defs.spendCredit)?defs.spendCredit:fallback);const prev=selReportAccount.getValue();const safePrev=items.some(i=>i.id===prev)?prev:'ALL';selReportAccount.setItems([{id:'ALL',text:'📋 ملخص كافة الحسابات والصناديق (تجميعي)',group:'عرض عام'},...items]);selReportAccount.setValue(safePrev,safePrev==='ALL'?'📋 ملخص كافة الحسابات والصناديق (تجميعي)':'');
+  const defs=getDefaultAccountsConfig(), okInc=items.some(i=>i.id===defs.incomeDebit)?defs.incomeDebit:'', okSpd=items.some(i=>i.id===defs.spendCredit)?defs.spendCredit:'';selDefaultIncomeDebit?.setValue(okInc,okInc);selDefaultSpendCredit?.setValue(okSpd,okSpd);const prev=selReportAccount.getValue();const safePrev=items.some(i=>i.id===prev)?prev:'ALL';selReportAccount.setItems([{id:'ALL',text:'📋 ملخص كافة الحسابات والصناديق (تجميعي)',group:'عرض عام'},...items]);selReportAccount.setValue(safePrev,safePrev==='ALL'?'📋 ملخص كافة الحسابات والصناديق (تجميعي)':'');
 }
 function getAccountPagerBalances(){
   const balances={};

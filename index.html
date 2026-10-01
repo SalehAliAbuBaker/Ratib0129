@@ -1499,8 +1499,8 @@ label{font-size:1rem;color:var(--text);margin-bottom:5px}
           <select id="newAccountParentSelect"></select>
         </div>
         <div class="form-group">
-          <label>رقم الحساب (كود مالي ثابت):</label>
-          <input type="text" id="newAccountSubCodeInput" dir="ltr" inputmode="numeric" placeholder="مثلاً: 110101">
+          <label>رقم الحساب (مقترح تلقائياً حسب سلم الحساب — يمكنك تعديله):</label>
+          <input type="text" id="newAccountSubCodeInput" dir="ltr" inputmode="numeric" placeholder="يُقترح تلقائياً">
         </div>
         <div class="form-group">
           <label>اسم الحساب الفرعي الجديد:</label>
@@ -1527,8 +1527,8 @@ label{font-size:1rem;color:var(--text);margin-bottom:5px}
           </select>
         </div>
         <div class="form-group">
-          <label>رقم الحساب (كود مالي ثابت):</label>
-          <input type="text" id="newParentCategoryCodeInput" dir="ltr" inputmode="numeric" placeholder="مثلاً: 12">
+          <label>رقم الحساب (مقترح تلقائياً حسب سلم الحساب — يمكنك تعديله):</label>
+          <input type="text" id="newParentCategoryCodeInput" dir="ltr" inputmode="numeric" placeholder="يُقترح تلقائياً">
         </div>
         <div class="form-group">
           <label>اسم الحساب الرئيسي الجديد:</label>
@@ -3217,7 +3217,13 @@ document.addEventListener('keydown', (event) => {
   document.querySelectorAll('.modal-overlay.show').forEach(modal => modal.classList.remove('show'));
 });
 
-let isVoucherSplitActive = true, voucherSplitMode = 'pct', voucherCatStates = {};
+let isVoucherSplitActive = true, voucherSplitMode = 'pct', voucherCatStates = {}, voucherCatsExpanded = false, editVoucherCatsExpanded = false;
+function makeCatsExpandToggle(container, hiddenCount, expanded, onToggle){
+  if(!hiddenCount && !expanded) return;
+  const b=document.createElement('button');b.type='button';b.className='btn btn-ghost';b.style.cssText='width:100%;margin-top:8px;font-size:1rem;';
+  b.textContent=expanded?'▲ إخفاء بقية بنود الميزانية':`▼ عرض بقية بنود الميزانية (${hiddenCount})`;
+  b.addEventListener('click',onToggle);container.appendChild(b);
+}
 let selEditDebitAcc, selEditCreditAcc;
 
 function getCats(){
@@ -3554,7 +3560,7 @@ function preparePrintStatementTemplate(accountName, targetTxs, openingBalance, p
         <tr>
           <td>${t.isoDate || t.date}</td>
           <td>${docType} <b>#${t.seqNum || '-'}</b></td>
-          <td class="desc-col">${esc(noteStr)}<br><small style="color:#000; font-weight:900;">(${esc(otherAccount)})</small></td>
+          <td class="desc-col">${esc(noteStr)}${isAll ? `<br><small style="color:#000; font-weight:900;">(${esc(otherAccount)})</small>` : ''}</td>
           <td>${alaykomAmt > 0 ? alaykomAmt.toLocaleString() : ''}</td>
           <td>${lakamAmt > 0 ? lakamAmt.toLocaleString() : ''}</td>
           <td style="color:${balanceColor}; font-weight:900;">${Math.abs(runningBalance).toLocaleString()}${balanceLabel}</td>
@@ -4165,15 +4171,56 @@ function updateParentAccountSelect() {
   });
 }
 
+function accountCodeIsUsed(code){
+  const c=String(code);
+  if(Object.values(getAccountCodes()).some(v=>String(v)===c))return true;
+  return getCanonicalCatalog().some(x=>[x.mainCode,x.groupCode,x.subCode].some(v=>String(v)===c)||(x.details||[]).some(d=>String(d[0])===c));
+}
+// يقترح الرقم التالي في تسلسل الحساب الأب: كود المجموعة + رقم تسلسلي (مثل 1101 ← 110101، 110102 ...)
+function suggestSubAccountCode(targetPath){
+  const cat=getCanonicalCatalog(),parts=String(targetPath||'').split('>').map(x=>x.trim()).filter(Boolean),main=parts[0],sub=parts[1];
+  let prefix='';
+  if(sub){const e=cat.find(x=>x.sub===sub&&(!main||x.main===main))||cat.find(x=>x.sub===sub);prefix=String(e?e.subCode:(getAccountCodes()[sub]||''));}
+  else if(main){const e=cat.find(x=>x.main===main);prefix=String(e?e.mainCode:(getAccountCodes()[main]||''));}
+  const free=()=>{let n=900000;while(accountCodeIsUsed(n))n++;return String(n);};
+  if(!/^\d{1,5}$/.test(prefix))return free();
+  const width=6-prefix.length;let max=0;
+  const eat=v=>{v=String(v);if(v.length===6&&v.startsWith(prefix)){const t=Number(v.slice(prefix.length));if(t>max)max=t;}};
+  Object.values(getAccountCodes()).forEach(eat);cat.forEach(x=>(x.details||[]).forEach(d=>eat(d[0])));
+  let n=max+1;while(n<Math.pow(10,width)&&accountCodeIsUsed(prefix+String(n).padStart(width,'0')))n++;
+  return n<Math.pow(10,width)?prefix+String(n).padStart(width,'0'):free();
+}
+// الحساب الرئيسي: تحت أب (1 ← 11 ← 12) أو مستقل (رقم مستوى أول جديد)
+function suggestParentCategoryCode(parentName){
+  const cat=getCanonicalCatalog(),main=String(parentName||'').split('>')[0].trim();
+  if(main){
+    const e=cat.find(x=>x.main===main),mc=String(e?e.mainCode:(getAccountCodes()[main]||''));
+    if(/^\d{1,3}$/.test(mc)){
+      let max=0;cat.filter(x=>x.main===main).forEach(x=>{const g=String(x.groupCode);if(g.startsWith(mc)&&g.length===mc.length+1)max=Math.max(max,Number(g.slice(mc.length)));});
+      let n=max+1;while(accountCodeIsUsed(mc+n))n++;return mc+n;
+    }
+  }
+  let max=0;cat.forEach(x=>{const m=Number(x.mainCode);if(Number.isFinite(m))max=Math.max(max,m);});
+  let n=max+1;while(accountCodeIsUsed(n))n++;return String(n);
+}
+function refreshSuggestedAccountCodes(force=false){
+  const sub=document.getElementById('newAccountSubCodeInput'),par=document.getElementById('newParentCategoryCodeInput');
+  if(sub&&(force||sub.dataset.manual!=='1'))sub.value=suggestSubAccountCode(document.getElementById('newAccountParentSelect')?.value||'');
+  if(par&&(force||par.dataset.manual!=='1'))par.value=suggestParentCategoryCode(document.getElementById('newParentCategoryParentSelect')?.value||'');
+}
+['newAccountSubCodeInput','newParentCategoryCodeInput'].forEach(id=>document.getElementById(id)?.addEventListener('input',e=>{e.target.dataset.manual='1';}));
+document.getElementById('newAccountParentSelect')?.addEventListener('change',()=>refreshSuggestedAccountCodes());
+document.getElementById('newParentCategoryParentSelect')?.addEventListener('change',()=>refreshSuggestedAccountCodes());
 function openAddAccountModal(preParent = '') {
   updateParentAccountSelect();
   if (preParent) document.getElementById('newAccountParentSelect').value = preParent;
-  document.getElementById('newAccountSubCodeInput').value = '';
+  document.getElementById('newAccountSubCodeInput').value = '';delete document.getElementById('newAccountSubCodeInput').dataset.manual;
   document.getElementById('newAccountSubNameInput').value = '';
   document.getElementById('newAccountMaxCeil').value = '';
   document.getElementById('newAccountMinCeil').value = '';
-  document.getElementById('newParentCategoryCodeInput').value = '';
+  document.getElementById('newParentCategoryCodeInput').value = '';delete document.getElementById('newParentCategoryCodeInput').dataset.manual;
   document.getElementById('newParentCategoryInput').value = '';
+  refreshSuggestedAccountCodes(true);
   setAccountModalSubTab('sub');
   document.getElementById('addAccountModal').classList.add('show');
 }
@@ -4193,9 +4240,10 @@ document.getElementById('openAddAccountDialogBtn').addEventListener('click', () 
 document.getElementById('closeAddAccountModalBtn').addEventListener('click', () => document.getElementById('addAccountModal').classList.remove('show'));
 
 document.getElementById('saveNewAccountTreeBtn').addEventListener('click', () => {
-  const targetPath = document.getElementById('newAccountParentSelect').value, subCode = document.getElementById('newAccountSubCodeInput').value.trim(), subName = document.getElementById('newAccountSubNameInput').value.trim();
+  const targetPath = document.getElementById('newAccountParentSelect').value; let subCode = document.getElementById('newAccountSubCodeInput').value.trim(); const subName = document.getElementById('newAccountSubNameInput').value.trim();
   const maxC = document.getElementById('newAccountMaxCeil').value, minC = document.getElementById('newAccountMinCeil').value;
   if (!subName) { alert('يرجى كتابة اسم الحساب الفرعي'); return; }
+  if (!subCode) { subCode = suggestSubAccountCode(targetPath); document.getElementById('newAccountSubCodeInput').value = subCode; }
   if (!/^\d{6}$/.test(subCode)) { alert('الحساب التفصيلي يجب أن يحمل كوداً رقمياً من 6 أرقام بالضبط'); return; }
   const codes = getAccountCodes(); if (Object.entries(codes).some(([n,c]) => String(c) === subCode && n !== subName)) { alert('رقم الحساب مستخدم مسبقاً، اختر رقماً آخر'); return; }
   const tree = getAccountTree();
@@ -4224,10 +4272,11 @@ document.getElementById('saveNewAccountTreeBtn').addEventListener('click', () =>
 });
 
 document.getElementById('saveNewParentCategoryBtn').addEventListener('click', () => {
-  const parentCode = document.getElementById('newParentCategoryCodeInput').value.trim();
+  let parentCode = document.getElementById('newParentCategoryCodeInput').value.trim();
   const parentName = document.getElementById('newParentCategoryInput').value.trim();
   const parentOfParent = document.getElementById('newParentCategoryParentSelect').value;
   if (!parentName) { alert('يرجى كتابة اسم الحساب الرئيسي'); return; }
+  if (!parentCode) { parentCode = suggestParentCategoryCode(parentOfParent); document.getElementById('newParentCategoryCodeInput').value = parentCode; }
   if (!/^\d+$/.test(parentCode)) { alert('يرجى إدخال رقم حساب رقمي ثابت للحساب الرئيسي'); return; }
   const parentCodes = getAccountCodes(); if (Object.entries(parentCodes).some(([n,c]) => String(c) === parentCode && n !== parentName)) { alert('رقم الحساب مستخدم مسبقاً، اختر رقماً آخر'); return; }
   const tree = getAccountTree();
@@ -4273,7 +4322,7 @@ function setVoucherSplitMode(mode) {
 }
 
 function initVoucherCategoryStates(amount = 0) {
-  const cats = getCats(); voucherCatStates = {};
+  const cats = getCats(); voucherCatStates = {}; voucherCatsExpanded = false;
   cats.forEach(c => voucherCatStates[c.id] = { enabled: c.id === 'general', amount: 0, pct: c.id === 'general' ? 100 : 0 });
   if (amount > 0) recalcAmountsFromPcts(amount); else renderVoucherCategoriesList();
 }
@@ -4302,8 +4351,10 @@ function renderVoucherCategoriesList() {
   container.innerHTML = '';
   const totalAmount = getCleanNumber(document.getElementById('voucherAmountInput').value);
 
+  let hiddenCats = 0;
   cats.forEach(c => {
     const st = voucherCatStates[c.id] || { enabled: true, amount: 0, pct: c.pct || 0 };
+    if (!voucherCatsExpanded && c.id !== 'general' && !st.enabled) { hiddenCats++; return; }
     const row = document.createElement('div'); row.className = `voucher-cat-row ${st.enabled ? '' : 'disabled'}`;
     let inputHtml = voucherSplitMode === 'pct' ? 
       `<div class="voucher-cat-input-wrap"><input type="number" class="voucher-cat-pct-input hide-in-privacy" data-id="${c.id}" value="${st.pct}" ${st.enabled ? '' : 'disabled'}><span style="font-weight:900;">%</span><span style="color:var(--muted); font-weight:900; min-width:65px; text-align:left;">(${Number(st.amount || 0).toLocaleString()} • ${Number(st.pct || 0).toFixed(2)}%)</span></div>` :
@@ -4326,6 +4377,7 @@ function renderVoucherCategoriesList() {
     }
     container.appendChild(row);
   });
+  makeCatsExpandToggle(container, hiddenCats, voucherCatsExpanded, () => { voucherCatsExpanded = !voucherCatsExpanded; renderVoucherCategoriesList(); });
   updateVoucherSummaryNumbers();
 }
 
@@ -4569,7 +4621,7 @@ function openTxModal(item) {
   document.getElementById('editVoucherDate').value = item.isoDate || item.date || new Date().toISOString().split('T')[0];
   document.getElementById('editVoucherNote').value = Object.values(item.execution || {})[0]?.note || '';
 
-  editVoucherCatStates = {};
+  editVoucherCatStates = {}; editVoucherCatsExpanded = false;
   editVoucherSplitMode = 'pct';
   document.getElementById('editBtnModePct').classList.add('active');
   document.getElementById('editBtnModeAmt').classList.remove('active');
@@ -4615,8 +4667,10 @@ function renderEditVoucherCategoriesList() {
   const container = document.getElementById('editVoucherCatsList'); if (!container) return; container.innerHTML = '';
   const totalAmount = getCleanNumber(document.getElementById('editVoucherAmount').value);
 
+  let hiddenEditCats = 0;
   getCats().forEach(c => {
     const st = editVoucherCatStates[c.id] || { enabled: false, amount: 0, pct: c.pct || 0 };
+    if (!editVoucherCatsExpanded && c.id !== 'general' && !st.enabled) { hiddenEditCats++; return; }
     const row = document.createElement('div'); row.className = `voucher-cat-row ${st.enabled ? '' : 'disabled'}`;
     
     let inputHtml = editVoucherSplitMode === 'pct' ? 
@@ -4654,6 +4708,7 @@ function renderEditVoucherCategoriesList() {
     }
     container.appendChild(row);
   });
+  makeCatsExpandToggle(container, hiddenEditCats, editVoucherCatsExpanded, () => { editVoucherCatsExpanded = !editVoucherCatsExpanded; renderEditVoucherCategoriesList(); });
   updateEditVoucherSummaryNumbers();
 }
 
@@ -5518,7 +5573,7 @@ function getAccountCurrencies(accountName,scopeNames=null){
   const used=new Set(getAllTransactions().filter(t=>t.status!=='reversed'&&t.status!=='deleted').map(t=>getAccountEntry(t,scope)?.currency).filter(Boolean));
   return ['YER',...['SAR','USD',...used].filter((c,i,a)=>c!=='YER'&&used.has(c)&&a.indexOf(c)===i)];
 }
-function accountOpsMatchesSearch(t,entry){const q=String(accountOpsState.search||'').trim().toLowerCase();if(!q)return true;const note=entry?.line?.note||t.execution?.[Object.keys(t.execution||{})[0]]?.note||getTransactionDisplayType(t)||'';return [t.seqNum,getAccountOpsDate(t),note,t.debitAccount,t.creditAccount,entry?.amount].join(' ').toLowerCase().includes(q);}
+function accountOpsMatchesSearch(t,entry){const q=String(accountOpsState.search||'').trim().toLowerCase();if(!q)return true;const note=entry?.line?.note||t.execution?.[Object.keys(t.execution||{})[0]]?.note||getTransactionDisplayType(t)||'';return [t.seqNum,getAccountOpsDate(t),note,entry?.amount].join(' ').toLowerCase().includes(q);}
 function getAccountOperations(accountName,scopeNames=null,currency=accountOpsState.activeCurrency||'YER'){
   const scope=Array.isArray(scopeNames)&&scopeNames.length?scopeNames:[accountName],from=accountOpsState.from||'',to=accountOpsState.to||'';
   return getAllTransactions().filter(t=>{const entry=getAccountEntry(t,scope),date=getAccountOpsDate(t);return !!entry&&t.status!=='reversed'&&t.status!=='deleted'&&entry.currency===currency&&(!from||date>=from)&&(!to||date<=to)&&accountOpsMatchesSearch(t,entry);}).sort((a,b)=>{
@@ -5682,7 +5737,7 @@ function renderAccountCurrencyCanvas(data){
   const bodyRows=[];
   if(opening!==0)bodyRows.push({vals:[accountOpsState.from,'—','الرصيد السابق (افتتاحي الفترة)','','',`${Math.abs(opening).toLocaleString()} ${opening>=0?'(لكم)':'(عليكم)'}`],size:17});
   rows.forEach(t=>{const entry=getAccountEntry(t,scope),debit=entry.side==='debit',amount=getAccountDisplayAmount(entry),d=debit?amount:0,c=debit?0:amount,balance=runningBalances.get(t),note=entry.line?.note||t.execution?.[Object.keys(t.execution||{})[0]]?.note||getTransactionDisplayType(t)||'',other=debit?(t.creditAccount||'طرف آخر'):(t.debitAccount||'طرف آخر'),doc=`${t.voucherMode==='spend'?'سند صرف':t.voucherMode==='income'?'سند إيراد':t.voucherMode==='multi-entry'?'سند قيد متعدد':'قيد يومي'} #${t.seqNum||'-'}`;
-    bodyRows.push({vals:[getAccountOpsDate(t)||'-',doc,`${note} (${other})`,d?d.toLocaleString():'',c?c.toLocaleString():'',`${Math.abs(balance).toLocaleString()} ${balance>=0?'(لكم)':'(عليكم)'}`],size:16});});
+    bodyRows.push({vals:[getAccountOpsDate(t)||'-',doc,note,d?d.toLocaleString():'',c?c.toLocaleString():'',`${Math.abs(balance).toLocaleString()} ${balance>=0?'(لكم)':'(عليكم)'}`],size:16});});
   // نقيس كل خلية ونلفّ النص على أسطر حتى لا يتجاوز عرض عمودها
   const layout=(vals,size)=>{measure.font=`bold ${size}px Arial`;const cells=vals.map((v,i)=>wrapCanvasText(measure,v,(col[6-i]-col[5-i])-20));const n=Math.max(...cells.map(c=>c.length));return {cells,h:Math.max(minRowH,n*lineH+26)};};
   const headL=layout(labels,18);bodyRows.forEach(r=>{Object.assign(r,layout(r.vals,r.size));});

@@ -7,9 +7,10 @@
 <meta name="description" content="تطبيق عربي لإدارة السندات والميزانية والتقارير المالية">
 <meta name="color-scheme" content="light dark">
 <meta name="theme-color" content="#0284c7">
-<link rel="manifest" href="manifest.json" id="dynamic-manifest">
-<link rel="icon" type="image/png" sizes="192x192" href="ratib-icon-192.png">
-<link rel="apple-touch-icon" sizes="192x192" href="ratib-icon-192.png">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
+<link rel="icon" type="image/png" sizes="512x512" href="icons/icon-512.png">
+<link rel="apple-touch-icon" sizes="192x192" href="icons/icon-192.png">
 <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@500;700;800;900&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0/dist/chartjs-plugin-datalabels.min.js"></script>
@@ -1751,26 +1752,18 @@ label{font-size:1rem;color:var(--text);margin-bottom:5px}
 </div>
 
 <script>
-(function setupPWA() {
-  const manifestData = {
-    name: "Ratib0129 Pro",
-    short_name: "Ratib",
-    description: "تطبيق عربي لإدارة السندات والميزانية والتقارير المالية",
-    lang: "ar",
-    dir: "rtl",
-    display: "standalone",
-    orientation: "portrait",
-    start_url: location.href,
-    scope: location.href.substring(0, location.href.lastIndexOf('/') + 1),
-    background_color: "#f8fafc",
-    theme_color: "#0284c7",
-    icons: [
-      { src: "ratib-icon-192.png", sizes: "192x192", type: "image/png", purpose: "any maskable" },
-      { src: "ratib-icon-512.png", sizes: "512x512", type: "image/png", purpose: "any maskable" }
-    ]
-  };
-  document.getElementById('dynamic-manifest').href = URL.createObjectURL(new Blob([JSON.stringify(manifestData)], { type: 'application/json' }));
-})();
+// ===== تسجيل Service Worker (يفعّل العمل دون إنترنت بعد أول زيارة) =====
+// يُسجَّل بعد اكتمال تحميل الصفحة حتى لا يؤخر أول عرض للتطبيق. يعمل فقط عبر HTTPS
+// (أو localhost أثناء التطوير) — هذا شرط أساسي من المتصفح نفسه لأي Service Worker.
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./sw.js').then((reg) => {
+      console.log('تم تسجيل Service Worker بنجاح، النطاق:', reg.scope);
+    }).catch((err) => {
+      console.warn('تعذّر تسجيل Service Worker (قد لا يكون الموقع مفعّلاً عبر HTTPS):', err);
+    });
+  });
+}
 
 // ===== تشخيص بيئة التشغيل =====
 // يفيد خصوصاً عند تغليف الملف كـ APK عبر أدوات مثل MIT App Inventor: بعض هذه الأدوات

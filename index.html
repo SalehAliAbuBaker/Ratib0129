@@ -1770,6 +1770,49 @@ label{font-size:1rem;color:var(--text);margin-bottom:5px}
   document.getElementById('dynamic-manifest').href = URL.createObjectURL(new Blob([JSON.stringify(manifestData)], { type: 'application/json' }));
 })();
 
+// ===== تشخيص بيئة التشغيل =====
+// يفيد خصوصاً عند تغليف الملف كـ APK عبر أدوات مثل MIT App Inventor: بعض هذه الأدوات
+// لا تُفعّل التخزين المحلي (localStorage) بالكامل داخل الـ WebView الخاص بها، فتفشل كل
+// عمليات الحفظ/الإضافة بصمت تام دون أي رسالة تنبّه المستخدم. هذا القسم يكشف ذلك فوراً
+// ويعرض تنبيهاً واضحاً بدل الفشل الصامت، ويلتقط أي خطأ برمجي غير متوقع كذلك.
+window.__ratibDiagnostics = { errors: [] };
+function showRatibFatalBanner(msg) {
+  try {
+    let banner = document.getElementById('ratibFatalBanner');
+    if (!banner) {
+      banner = document.createElement('div');
+      banner.id = 'ratibFatalBanner';
+      banner.style.cssText = 'position:fixed;top:0;left:0;right:0;z-index:999999;background:#b42318;color:#fff;padding:10px 14px;font-weight:900;font-size:0.95rem;text-align:center;direction:rtl;box-shadow:0 2px 8px rgba(0,0,0,.3);';
+      document.body.prepend(banner);
+    }
+    banner.textContent = '⚠️ ' + msg;
+  } catch (e) {}
+}
+window.addEventListener('error', (e) => {
+  const msg = e.message || String(e.error || 'خطأ غير معروف');
+  window.__ratibDiagnostics.errors.push(msg);
+  showRatibFatalBanner('حدث خطأ برمجي قد يمنع الحفظ أو الإضافة: ' + msg);
+});
+window.addEventListener('unhandledrejection', (e) => {
+  const msg = e.reason && e.reason.message ? e.reason.message : String(e.reason);
+  window.__ratibDiagnostics.errors.push(msg);
+  showRatibFatalBanner('حدث خطأ غير متوقع: ' + msg);
+});
+// اختبار فوري لقدرة البيئة على الحفظ (يفيد حتى عند أول تشغيل بدون بيانات سابقة بعد)
+function checkRatibStorageCapability() {
+  try {
+    const testKey = '__ratib_storage_test__';
+    localStorage.setItem(testKey, '1');
+    const ok = localStorage.getItem(testKey) === '1';
+    localStorage.removeItem(testKey);
+    if (!ok) throw new Error('readback failed');
+  } catch (e) {
+    showRatibFatalBanner('هذا المتصفح/التطبيق لا يدعم حفظ البيانات بشكل دائم (localStorage) مباشرةً، لكن التطبيق سيحاول الحفظ عبر نسخة احتياطية داخلية تلقائياً (IndexedDB). يُنصح رغم ذلك بتجربة أداة تغليف APK أخرى.');
+  }
+}
+if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', checkRatibStorageCapability, { once: true });
+else checkRatibStorageCapability();
+
 Chart.register(ChartDataLabels);
 
 const APP_STORAGE_PREFIX = 'masar_';
@@ -1834,6 +1877,7 @@ function scheduleVaultFlush() {
     try {
       const blob = await encryptVaultBlob(_vaultCryptoKey, _snapshotMemStore());
       localStorage.setItem(VAULT_BLOB_KEY, JSON.stringify(blob));
+      _shadowIdbSet(VAULT_BLOB_KEY, blob);
     } catch (e) { console.warn('تعذّر حفظ الخزنة المشفّرة', e); }
   }, 250);
 }
@@ -1847,6 +1891,7 @@ function getSecurityConfig() {
 }
 function saveSecurityConfigRaw(cfg) {
   try { localStorage.setItem(SECURITY_CONFIG_KEY, JSON.stringify(cfg)); } catch (e) {}
+  _shadowIdbSet(SECURITY_CONFIG_KEY, cfg);
 }
 
 const store = {
@@ -1875,6 +1920,7 @@ const store = {
     if (getSecurityConfig().enabled) { scheduleVaultFlush(); scheduleAutoBackup(); return; }
     try { if (window.localStorage) localStorage.setItem(key, JSON.stringify(v)); }
     catch (err) { console.warn('LocalStorage restricted, using fallback memory.', err); }
+    _shadowIdbSet(key, v);
     scheduleAutoBackup();
   },
   remove(k) {
@@ -1882,9 +1928,84 @@ const store = {
     delete _memStore[key];
     if (getSecurityConfig().enabled) { scheduleVaultFlush(); scheduleAutoBackup(); return; }
     try { if (window.localStorage) localStorage.removeItem(key); } catch (e) {}
+    _shadowIdbDelete(key);
     scheduleAutoBackup();
   }
 };
+
+// ===== نسخة احتياطية رديفة عبر IndexedDB =====
+// بعض بيئات WebView المقيَّدة (مثل WebViewer في MIT App Inventor) قد توقف أو تقيّد
+// localStorage تحديداً بينما تترك IndexedDB تعمل بشكل طبيعي (آلية تخزين مختلفة تقنياً).
+// لذلك نكتب كل بيانات التطبيق في الاثنين معاً كلما أمكن (دون انتظار/تعطيل الواجهة)،
+// وعند بدء التشغيل (selfHealStorageFromIdb) نتحقق: إن كانت localStorage فارغة فعلياً
+// بينما توجد نسخة سليمة في IndexedDB، نستخدمها لاسترجاع البيانات تلقائياً بدل فقدانها.
+// طابور تسلسلي واحد لتحديث فهرس المفاتيح: كتابتان متزامنتان لمفتاحين مختلفين (شائع جداً
+// عند حفظ عدة حقول بسرعة) كانتا تتسابقان على قراءة/تعديل/كتابة نفس فهرس IndexedDB، فيفوز
+// آخر من يكتب ويمحو إضافة الآخر. التسلسل عبر Promise واحد يضمن تنفيذ كل تحديث فهرس
+// كاملاً (قراءة ثم كتابة) قبل بدء التالي، دون حظر الواجهة (كل هذا يجري في الخلفية).
+let _shadowIndexQueue = Promise.resolve();
+function _shadowIndexAdd(key) {
+  _shadowIndexQueue = _shadowIndexQueue.then(async () => {
+    try {
+      const idx = await _idbGet('shadow_index');
+      const arr = Array.isArray(idx) ? idx : [];
+      if (!arr.includes(key)) { arr.push(key); await _idbSet('shadow_index', arr); }
+    } catch (e) {}
+  });
+  return _shadowIndexQueue;
+}
+function _shadowIndexRemove(key) {
+  _shadowIndexQueue = _shadowIndexQueue.then(async () => {
+    try {
+      const idx = await _idbGet('shadow_index');
+      const arr = Array.isArray(idx) ? idx : [];
+      const i = arr.indexOf(key);
+      if (i !== -1) { arr.splice(i, 1); await _idbSet('shadow_index', arr); }
+    } catch (e) {}
+  });
+  return _shadowIndexQueue;
+}
+function _shadowIdbSet(key, v) {
+  try {
+    if (typeof _idbSet !== 'function') return;
+    _idbSet('shadow_' + key, v).catch(() => {});
+    _shadowIndexAdd(key);
+  } catch (e) {}
+}
+function _shadowIdbDelete(key) {
+  try {
+    if (typeof _idbDelete !== 'function') return;
+    _idbDelete('shadow_' + key).catch(() => {});
+    _shadowIndexRemove(key);
+  } catch (e) {}
+}
+async function _shadowIdbGetAllKeys() {
+  try {
+    const idx = await _idbGet('shadow_index');
+    return Array.isArray(idx) ? idx : [];
+  } catch (e) { return []; }
+}
+async function selfHealStorageFromIdb() {
+  try {
+    if (!window.indexedDB || typeof _idbGet !== 'function') return;
+    const lsHasData = Object.keys(localStorage || {}).some(k => k.startsWith(APP_STORAGE_PREFIX));
+    if (lsHasData) return; // localStorage تعمل بشكل طبيعي، لا داعي للاسترجاع
+    const indexKeys = await _shadowIdbGetAllKeys();
+    let recovered = 0;
+    for (const key of indexKeys) {
+      try {
+        const v = await _idbGet('shadow_' + key);
+        if (v === undefined) continue;
+        _memStore[key] = v;
+        try { localStorage.setItem(key, JSON.stringify(v)); } catch (e) {}
+        recovered++;
+      } catch (e) {}
+    }
+    if (recovered > 0) {
+      showRatibFatalBanner('تم اكتشاف تعطّل في التخزين الاعتيادي لهذا التطبيق، وتم استرجاع بياناتك تلقائياً من نسخة احتياطية داخلية (' + recovered + ' عنصر). يُنصح بتصدير نسخة احتياطية يدوية الآن، وبتجربة أداة تغليف APK أخرى.');
+    }
+  } catch (e) {}
+}
 
 // تفعيل القفل + التشفير لأول مرة: يشفّر كل البيانات الحالية بمفتاح مشتق من الرقم السري
 // ثم يحذف أي نسخة نصّية صريحة كانت محفوظة سابقاً في localStorage.
@@ -1924,9 +2045,14 @@ async function tryUnlockVaultWithPin(pin) {
   const cfg = getSecurityConfig();
   if (!cfg.enabled || !cfg.salt) return false;
   const blobRaw = localStorage.getItem(VAULT_BLOB_KEY);
-  if (!blobRaw) return false;
+  let blob = blobRaw ? JSON.parse(blobRaw) : null;
+  if (!blob) {
+    // localStorage لا يحتوي البلوك (قد يكون التخزين معطوباً في هذه البيئة) — جرّب النسخة الاحتياطية
+    try { blob = typeof _idbGet === 'function' ? await _idbGet('shadow_' + VAULT_BLOB_KEY) : null; } catch (e) { blob = null; }
+  }
+  if (!blob) return false;
   const { key } = await deriveVaultKey(pin, cfg.salt);
-  const data = await decryptVaultBlob(key, JSON.parse(blobRaw)); // يرمي استثناء إن كان الرقم غلطاً
+  const data = await decryptVaultBlob(key, blob); // يرمي استثناء إن كان الرقم غلطاً
   Object.entries(data).forEach(([k, v]) => { _memStore[k] = v; });
   _vaultCryptoKey = key; _vaultUnlocked = true;
   try { sessionStorage.setItem(SESSION_KEY_CACHE, _b64(await crypto.subtle.exportKey('raw', key))); } catch (e) {}
@@ -1940,11 +2066,15 @@ async function tryUnlockVaultWithSessionKey() {
   if (!cfg.enabled) return false;
   const cached = sessionStorage.getItem(SESSION_KEY_CACHE);
   const blobRaw = localStorage.getItem(VAULT_BLOB_KEY);
-  if (!cached || !blobRaw) return false;
+  let blob = blobRaw ? JSON.parse(blobRaw) : null;
+  if (!blob) {
+    try { blob = typeof _idbGet === 'function' ? await _idbGet('shadow_' + VAULT_BLOB_KEY) : null; } catch (e) { blob = null; }
+  }
+  if (!cached || !blob) return false;
   try {
     const rawKey = _fromB64(cached);
     const key = await crypto.subtle.importKey('raw', rawKey, { name: 'AES-GCM' }, true, ['encrypt', 'decrypt']);
-    const data = await decryptVaultBlob(key, JSON.parse(blobRaw));
+    const data = await decryptVaultBlob(key, blob);
     Object.entries(data).forEach(([k, v]) => { _memStore[k] = v; });
     _vaultCryptoKey = key; _vaultUnlocked = true;
     return true;
@@ -6261,7 +6391,7 @@ function showExitedScreen(wasSecured) {
   window.showAboutRatib=about;
 })();
 
-boot();
+selfHealStorageFromIdb().finally(boot);
 </script>
 </body>
 </html>

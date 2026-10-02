@@ -7,7 +7,7 @@
 // ⚠️ مهم عند كل تعديل تنشره على index.html: غيّر رقم CACHE_VERSION أدناه (مثلاً من
 // 'v1' إلى 'v2'). هذا يُنشئ كاشاً جديداً بالكامل ويحذف القديم تلقائياً، فيضمن أن
 // المستخدمين يحصلون على التحديث عوضاً عن البقاء عالقين على نسخة قديمة مخزّنة إلى الأبد.
-const CACHE_VERSION = 'v1';
+const CACHE_VERSION = 'v2-ratib-features';
 const CACHE_NAME = `ratib-cache-${CACHE_VERSION}`;
 
 // قائمة "القشرة" الأساسية التي تُخزَّن فور أول تثبيت، لضمان عمل التطبيق بالكامل دون
@@ -16,10 +16,10 @@ const APP_SHELL = [
   './',
   './index.html',
   './manifest.json',
-  './icons/icon-192.png',
-  './icons/icon-512.png',
-  './icons/icon-192-maskable.png',
-  './icons/icon-512-maskable.png',
+  './Icons/icon-192.png',
+  './Icons/icon-512.png',
+  './Icons/icon-192-maskable.png',
+  './Icons/icon-512-maskable.png',
   'https://fonts.googleapis.com/css2?family=Tajawal:wght@500;700;800;900&display=swap',
   'https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js',
   'https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0/dist/chartjs-plugin-datalabels.min.js',

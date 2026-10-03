@@ -388,7 +388,8 @@ body.printing-voucher .print-voucher-container {
 .pv-table { width: 100%; border-collapse: collapse; margin-top: 8px; margin-bottom: 12px; font-size: 9.5pt !important; }
 .pv-table th, .pv-table td { border: 1px solid #000; padding: 5px; text-align: right; font-weight: 900; font-size: 9.5pt !important; }
 .pv-table th { background: #e2e8f0; font-weight: 900; color: #000; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-.pv-signatures { display: flex; justify-content: space-between; margin-top: 25px; font-weight: 900; font-size: 9.5pt !important; }
+.pv-signatures { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 10px; margin-top: 25px; font-weight: 900; font-size: 9.5pt !important; }
+.pv-signatures > div { flex: 1 1 150px; }
 
 :root{--info:#6366f1;--focus-ring:0 0 0 3px color-mix(in srgb, var(--accent) 22%, transparent)}
 button:focus-visible,input:focus-visible,select:focus-visible{outline:none;box-shadow:var(--focus-ring)}
@@ -833,6 +834,11 @@ label{font-size:1rem;color:var(--text);margin-bottom:5px}
     <div class="form-group">
       <label>تاريخ السند:</label>
       <input type="date" id="voucherDateInput">
+    </div>
+
+    <div class="form-group" style="margin-bottom: 12px;" id="voucherRecipientGroup">
+      <label id="lblVoucherRecipient">اسم المستلم / المستفيد:</label>
+      <input type="text" id="voucherRecipientInput" placeholder="اسم الشخص المستلم أو المستفيد">
     </div>
 
     <div class="form-group" style="margin-bottom: 12px;">
@@ -1375,9 +1381,9 @@ label{font-size:1rem;color:var(--text);margin-bottom:5px}
       </div>
       <input type="hidden" id="editAccountOldName">
       <div class="form-group account-code-field">
-        <label>رقم الحساب (كود مالي ثابت):</label>
-        <input type="text" id="editAccountCodeInput" dir="ltr" readonly aria-readonly="true" title="رقم الحساب ثابت للحفاظ على التسلسل المحاسبي والتقارير المالية">
-        <small class="field-hint">🔒 رقم الحساب ثابت للحفاظ على التسلسل المحاسبي والتقارير المالية.</small>
+        <label>رقم الحساب (كود مالي):</label>
+        <input type="text" id="editAccountCodeInput" dir="ltr" title="يمكن تعديل رقم الحساب — تأكد أنه لا يطابق رقم حساب آخر">
+        <small class="field-hint">⚠️ تغيير الرقم لا يؤثر على الحركات المالية المسجلة سابقاً (مرتبطة بالاسم)، لكن تأكد ألا يتطابق مع رقم حساب آخر.</small>
       </div>
       <div class="form-group">
         <label>اسم الحساب الجديد:</label>
@@ -1477,6 +1483,11 @@ label{font-size:1rem;color:var(--text);margin-bottom:5px}
       <div class="form-group" style="margin-bottom: 10px;">
         <label>البيان / ملاحظات السند:</label>
         <input type="text" id="editVoucherNote" placeholder="اكتب البيان...">
+      </div>
+
+      <div class="form-group" style="margin-bottom: 10px;">
+        <label id="lblEditVoucherRecipient">اسم المستلم / المستفيد:</label>
+        <input type="text" id="editVoucherRecipient" placeholder="اسم الشخص المستلم أو المستفيد">
       </div>
 
       <div style="display:flex; gap:8px; margin-top:10px;">
@@ -1731,9 +1742,12 @@ label{font-size:1rem;color:var(--text);margin-bottom:5px}
 
     <div id="pvTableBox"></div>
 
+    <div class="pv-row" id="pvRecipientRow" style="font-weight:900;">اسم <span id="pvRecipientLabel">المستلم / المستفيد</span>: <span id="pvRecipientName">-</span></div>
+
     <div class="pv-signatures">
       <div>المحاسب / المدير: ........................</div>
-      <div>المستلم / المستفيد: ........................</div>
+      <div>أمين الصندوق: ........................</div>
+      <div>توقيع <span id="pvRecipientSignLabel">المستلم / المستفيد</span>: ........................</div>
     </div>
   </div>
 
@@ -3745,6 +3759,17 @@ function preparePrintVoucherTemplate(tx) {
   document.getElementById('pvTafqit').textContent = tafqit(tx.amount);
   document.getElementById('pvNote').textContent = Object.values(tx.execution || {})[0]?.note || tx.type || '-';
 
+  const recipientLabel = tx.voucherMode === 'spend' ? 'المستلم (استلم المبلغ)' : (tx.voucherMode === 'income' ? 'المستفيد (دفع المبلغ)' : 'المستلم / المستفيد');
+  document.getElementById('pvRecipientLabel').textContent = recipientLabel;
+  document.getElementById('pvRecipientSignLabel').textContent = recipientLabel;
+  const recipientRow = document.getElementById('pvRecipientRow');
+  if (tx.recipient && tx.recipient.trim()) {
+    document.getElementById('pvRecipientName').textContent = tx.recipient.trim();
+    recipientRow.style.display = '';
+  } else {
+    recipientRow.style.display = 'none';
+  }
+
   const tableBox = document.getElementById('pvTableBox');
   const distEntries = Object.values(tx.distribution || {}).filter(d => !d.excluded && Number(d.amount || 0) > 0);
   if (distEntries.length > 0) {
@@ -4106,9 +4131,19 @@ document.getElementById('closeEditAccountModalBtn')?.addEventListener('click', (
 document.getElementById('saveEditedAccountBtn')?.addEventListener('click', () => {
   const oldName = document.getElementById('editAccountOldName').value;
   const newName = document.getElementById('editAccountNameInput').value.trim();
+  const newCode = document.getElementById('editAccountCodeInput').value.trim();
   const maxC = document.getElementById('editAccountMaxCeil').value;
   const minC = document.getElementById('editAccountMinCeil').value;
   if (!newName) { alert('يرجى إدخال اسم الحساب'); return; }
+  if (!newCode) { alert('يرجى إدخال رقم الحساب'); return; }
+
+  // تحقق من عدم تطابق الرقم الجديد مع رقم حساب آخر (باستثناء الحساب نفسه)
+  const oldCode = getAccountCode(oldName);
+  if (newCode !== oldCode) {
+    const cat0 = getCanonicalCatalog();
+    const codeClash = cat0.some(x => (x.mainCode === newCode && x.main !== oldName) || (x.groupCode === newCode && x.group !== oldName) || (x.subCode === newCode && x.sub !== oldName) || x.details.some(d => d[0] === newCode && d[1] !== oldName));
+    if (codeClash) { alert(`رقم الحساب "${newCode}" مستخدم بالفعل لحساب آخر. يرجى اختيار رقم مختلف.`); return; }
+  }
 
   const tree = getAccountTree();
   let found = false;
@@ -4123,14 +4158,37 @@ document.getElementById('saveEditedAccountBtn')?.addEventListener('click', () =>
       });
     }
   });
+  if (found) saveAccountTree(tree);
+  renameCatalogAccount(oldName, newName);
 
-  if (found) { saveAccountTree(tree); renameCatalogAccount(oldName,newName); }
+  // تحديث الكود المخزَّن داخل سجل الدليل المحاسبي نفسه (details[i] = [code, name])
+  const cat = getCanonicalCatalog();
+  cat.forEach(x => { x.details.forEach(d => { if (d[1] === newName) d[0] = newCode; }); });
+  store.set('account_catalog', cat);
+  store.set('account_tree', canonicalTreeProjection(cat));
 
   const ceilings = getAccountCeilings();
-  const codes = getAccountCodes(); if (oldName !== newName && codes[oldName]) { codes[newName] = codes[oldName]; delete codes[oldName]; saveAccountTree(tree); store.set('account_codes', codes); }
+  const codes = getAccountCodes();
+  if (oldName !== newName && codes[oldName]) { delete codes[oldName]; }
+  codes[newName] = newCode;
+  store.set('account_codes', codes);
   if (oldName !== newName && ceilings[oldName]) { ceilings[newName] = ceilings[oldName]; delete ceilings[oldName]; }
   ceilings[newName] = { max: maxC !== '' ? Number(maxC) : null, min: minC !== '' ? Number(minC) : null };
   saveAccountCeilings(ceilings);
+
+  // إن تغيّر الاسم، تُحدَّث كل الحركات المالية المسجَّلة سابقاً لتبقى مرتبطة بالحساب
+  if (oldName !== newName) {
+    const plan = store.get('plan', null);
+    if (plan && Array.isArray(plan.transactions)) {
+      plan.transactions.forEach(t => { if (t.debitAccount === oldName) t.debitAccount = newName; if (t.creditAccount === oldName) t.creditAccount = newName; });
+      store.set('plan', plan);
+    }
+    const history = store.get('history', []);
+    if (Array.isArray(history) && history.length) {
+      history.forEach(h => { if (Array.isArray(h.transactions)) h.transactions.forEach(t => { if (t.debitAccount === oldName) t.debitAccount = newName; if (t.creditAccount === oldName) t.creditAccount = newName; }); });
+      store.set('history', history);
+    }
+  }
 
   document.getElementById('editAccountModal').classList.remove('show');
   updateSearchableData();
@@ -4140,7 +4198,9 @@ document.getElementById('saveEditedAccountBtn')?.addEventListener('click', () =>
 });
 
 function deleteAccountFromTree(mainP, subName) {
-  if (!confirm(`هل أنت متأكد من حذف الحساب "${subName}"؟`)) return;
+  let msg = `هل أنت متأكد من حذف الحساب "${subName}"؟`;
+  if (isAccountNameInUse(subName)) msg += '\n\n⚠️ تنبيه: هذا الحساب له حركات مالية مسجلة فعلاً. حذفه سيجعل تلك الحركات تشير لحساب محذوف، وقد يؤثر على التقارير.';
+  if (!confirm(msg)) return;
   const cat=getCanonicalCatalog();
   cat.forEach(x=>{x.details=x.details.filter(d=>d[1]!==subName)});
   store.set('account_catalog',cat);
@@ -4610,22 +4670,29 @@ function selectVoucherTypeDirect(mode) {
   document.getElementById('tafqitText').textContent = 'صفر';
   document.getElementById('voucherAmountInput').value = '';
   document.getElementById('voucherNoteInput').value = '';
+  document.getElementById('voucherRecipientInput').value = '';
 
   const defAccs = getDefaultAccountsConfig();
 
   if (mode === 'spend') {
     card.style.borderRight = '6px solid var(--danger)'; title.textContent = '💸 تسجيل سند صرف';
     btn.className = 'btn btn-danger'; btn.textContent = '💾 اعتماد وحفظ سند الصرف';
+    document.getElementById('lblVoucherRecipient').textContent = 'اسم المستلم (من استلم المبلغ):';
+    document.getElementById('voucherRecipientInput').placeholder = 'اسم الشخص الذي استلم المبلغ';
     selDebitAcc.setValue('', ''); 
     selCreditAcc.setValue(defAccs.spendCredit || '', defAccs.spendCredit || '');
   } else if (mode === 'income') {
     card.style.borderRight = '6px solid var(--ok)'; title.textContent = '📥 تسجيل سند إيراد';
     btn.className = 'btn btn-success'; btn.textContent = '💾 اعتماد وحفظ سند الإيراد';
+    document.getElementById('lblVoucherRecipient').textContent = 'اسم المستفيد (من دفع المبلغ):';
+    document.getElementById('voucherRecipientInput').placeholder = 'اسم الشخص أو الجهة الدافعة';
     selDebitAcc.setValue(defAccs.incomeDebit, defAccs.incomeDebit); 
     selCreditAcc.setValue('', '');
   } else {
     card.style.borderRight = '6px solid var(--accent)'; title.textContent = '⚖️ تسجيل سند قيد وتسوية';
     btn.className = 'btn btn-primary'; btn.textContent = '💾 اعتماد وحفظ سند القيد';
+    document.getElementById('lblVoucherRecipient').textContent = 'اسم المستلم / المستفيد (اختياري):';
+    document.getElementById('voucherRecipientInput').placeholder = 'اسم الطرف المرتبط بالقيد (اختياري)';
     selDebitAcc.setValue('', ''); selCreditAcc.setValue('', '');
   }
   if(preferredDebitAccountForNewVoucher){
@@ -4653,6 +4720,7 @@ document.getElementById('commitVoucherBtn').addEventListener('click', () => {
   const totalAmount = getCleanNumber(document.getElementById('voucherAmountInput').value);
   const debitAcc = selDebitAcc.getValue(), creditAcc = selCreditAcc.getValue();
   const voucherCur = document.getElementById('voucherCurrencySelect').value, note = document.getElementById('voucherNoteInput').value.trim();
+  const recipient = document.getElementById('voucherRecipientInput').value.trim();
   const dateVal = document.getElementById('voucherDateInput').value || new Date().toISOString().split('T')[0];
 
   if (!totalAmount || totalAmount <= 0) { alert('يرجى إدخال مبلغ صحيح'); return; }
@@ -4683,7 +4751,8 @@ document.getElementById('commitVoucherBtn').addEventListener('click', () => {
     id: `${Date.now()}_${Math.random().toString(36).slice(2)}`,
     seqNum: assignedSeqNum, timestamp: new Date(dateVal).getTime(), isoDate: dateVal, date: dateVal,
     amount: totalAmount, currency: voucherCur, isExpense: currentVoucherMode === 'spend', voucherMode: currentVoucherMode,
-    debitAccount: debitAcc, creditAccount: creditAcc, type: `سند ${currentVoucherMode === 'spend' ? 'صرف' : (currentVoucherMode === 'income' ? 'إيراد' : 'قيد')} #${assignedSeqNum}`,
+    debitAccount: debitAcc, creditAccount: creditAcc, recipient: recipient || '',
+    type: `سند ${currentVoucherMode === 'spend' ? 'صرف' : (currentVoucherMode === 'income' ? 'إيراد' : 'قيد')} #${assignedSeqNum}`,
     distribution: finalDist, execution: initialExecution, status: 'posted', schemaVersion: APP_SCHEMA_VERSION, updatedAt: new Date().toISOString()
   };
 
@@ -4795,6 +4864,8 @@ function openTxModal(item) {
   document.getElementById('editVoucherCurrency').value = item.currency || 'YER';
   document.getElementById('editVoucherDate').value = item.isoDate || item.date || new Date().toISOString().split('T')[0];
   document.getElementById('editVoucherNote').value = Object.values(item.execution || {})[0]?.note || '';
+  document.getElementById('editVoucherRecipient').value = item.recipient || '';
+  document.getElementById('lblEditVoucherRecipient').textContent = item.voucherMode === 'spend' ? 'اسم المستلم (من استلم المبلغ):' : (item.voucherMode === 'income' ? 'اسم المستفيد (من دفع المبلغ):' : 'اسم المستلم / المستفيد (اختياري):');
 
   editVoucherCatStates = {}; editVoucherCatsExpanded = false;
   editVoucherSplitMode = 'pct';
@@ -4951,6 +5022,7 @@ document.getElementById('saveTxExecutionBtn')?.addEventListener('click', () => {
   const newAmount = getCleanNumber(document.getElementById('editVoucherAmount').value);
   const newDebit = selEditDebitAcc.getValue(), newCredit = selEditCreditAcc.getValue();
   const newDate = document.getElementById('editVoucherDate').value, newNote = document.getElementById('editVoucherNote').value.trim();
+  const newRecipient = document.getElementById('editVoucherRecipient').value.trim();
   const newCur = document.getElementById('editVoucherCurrency').value;
 
   if (!newAmount || newAmount <= 0) { alert('يرجى إدخال مبلغ صحيح'); return; }
@@ -4977,7 +5049,7 @@ document.getElementById('saveTxExecutionBtn')?.addEventListener('click', () => {
   if (Math.abs(totalAllocated - newAmount) > 0.001) { alert(`لا يمكن حفظ التعديل: مجموع توزيع الميزانية (${totalAllocated.toLocaleString()}) لا يساوي إجمالي السند (${newAmount.toLocaleString()}).`); return; }
 
   tx.amount = newAmount; tx.debitAccount = newDebit; tx.creditAccount = newCredit; tx.currency = newCur;
-  tx.distribution = finalDist; tx.execution = initialExecution;
+  tx.distribution = finalDist; tx.execution = initialExecution; tx.recipient = newRecipient || '';
   if (newDate) { tx.isoDate = newDate; tx.date = newDate; }
   tx.updatedAt = new Date().toISOString();
   
@@ -5672,6 +5744,102 @@ function initializeCanonicalChart(){
   }
 }
 function renameCatalogAccount(oldName,newName){const cat=getCanonicalCatalog();cat.forEach(x=>x.details.forEach(d=>{if(d[1]===oldName)d[1]=newName}));store.set('account_catalog',cat)}
+
+// ===== تعديل/حذف المستويات الثلاثة العليا من شجرة الحسابات (رئيسي / تجميعي / تجميعي فرعي) =====
+// كانت هذه المستويات قابلة للعرض فقط دون أي إمكانية للتعديل أو الحذف؛ الدوال التالية تفتح
+// هذه القدرة كاملة، مع فحص بسيط قبل الحذف: هل توجد حركات مالية فعلية على حسابات تفصيلية
+// تابعة لهذا المستوى؟ إن وُجدت، يُنبَّه المستخدم بوضوح قبل المتابعة (لا يُمنع الحذف، فقط تحذير).
+function isAccountNameInUse(name){ return getAllTransactions().some(t=>t.debitAccount===name||t.creditAccount===name); }
+
+function renameMainCategory(oldName){
+  const newName=prompt('اسم الحساب الرئيسي الجديد:',oldName); if(newName===null||!newName.trim())return;
+  const newCode=prompt('رقم الحساب الرئيسي الجديد:',getAccountCode(oldName)!=='—'?getAccountCode(oldName):''); if(newCode===null)return;
+  const trimmedName=newName.trim(), trimmedCode=newCode.trim();
+  const cat=getCanonicalCatalog();
+  if(trimmedCode && cat.some(x=>x.main!==oldName && x.mainCode===trimmedCode)){ alert('رقم الحساب مستخدم بالفعل لحساب رئيسي آخر.'); return; }
+  cat.forEach(x=>{ if(x.main===oldName){ x.main=trimmedName; if(trimmedCode)x.mainCode=trimmedCode; } });
+  store.set('account_catalog',cat); store.set('account_tree',canonicalTreeProjection(cat));
+  const codes=getAccountCodes(); if(oldName!==trimmedName) delete codes[oldName]; codes[trimmedName]=trimmedCode||getAccountCode(trimmedName);
+  store.set('account_codes',codes);
+  renderCanonicalChartOfAccounts(); initCanonicalLiveAccountsTreePage();
+  showToast('تم تعديل الحساب الرئيسي بنجاح ✅','success');
+}
+function deleteMainCategory(mainName){
+  const cat=getCanonicalCatalog(), rows=cat.filter(x=>x.main===mainName);
+  const leafNames=rows.flatMap(x=>x.details.map(d=>d[1]));
+  const inUse=leafNames.filter(isAccountNameInUse);
+  let msg=`هل أنت متأكد من حذف الحساب الرئيسي "${mainName}" وكل ما يتبعه (${rows.length} تجميعي فرعي، ${leafNames.length} حساب تفصيلي)؟`;
+  if(inUse.length) msg+=`\n\n⚠️ تنبيه: ${inUse.length} من هذه الحسابات له حركات مالية مسجلة فعلاً. حذفها سيجعل تلك الحركات تشير لحساب محذوف، وقد يؤثر على التقارير.`;
+  if(!confirm(msg))return;
+  const remaining=cat.filter(x=>x.main!==mainName);
+  store.set('account_catalog',remaining); store.set('account_tree',canonicalTreeProjection(remaining));
+  const codes=getAccountCodes(), ceilings=getAccountCeilings();
+  delete codes[mainName];
+  rows.forEach(x=>{ delete codes[x.group]; delete codes[x.sub]; x.details.forEach(d=>{ delete codes[d[1]]; delete ceilings[d[1]]; }); });
+  store.set('account_codes',codes); saveAccountCeilings(ceilings);
+  updateSearchableData(); renderCanonicalChartOfAccounts(); initCanonicalLiveAccountsTreePage();
+  showToast('تم حذف الحساب الرئيسي وكل ما يتبعه','warn');
+}
+
+function renameGroupCategory(mainName,oldGroupName){
+  const newName=prompt('اسم الحساب التجميعي الجديد:',oldGroupName); if(newName===null||!newName.trim())return;
+  const newCode=prompt('رقم الحساب التجميعي الجديد:',getAccountCode(oldGroupName)!=='—'?getAccountCode(oldGroupName):''); if(newCode===null)return;
+  const trimmedName=newName.trim(), trimmedCode=newCode.trim();
+  const cat=getCanonicalCatalog();
+  if(trimmedCode && cat.some(x=>x.group!==oldGroupName && x.groupCode===trimmedCode)){ alert('رقم الحساب مستخدم بالفعل لحساب تجميعي آخر.'); return; }
+  cat.forEach(x=>{ if(x.main===mainName && x.group===oldGroupName){ x.group=trimmedName; if(trimmedCode)x.groupCode=trimmedCode; } });
+  store.set('account_catalog',cat); store.set('account_tree',canonicalTreeProjection(cat));
+  const codes=getAccountCodes(); if(oldGroupName!==trimmedName) delete codes[oldGroupName]; codes[trimmedName]=trimmedCode||getAccountCode(trimmedName);
+  store.set('account_codes',codes);
+  renderCanonicalChartOfAccounts(); initCanonicalLiveAccountsTreePage();
+  showToast('تم تعديل الحساب التجميعي بنجاح ✅','success');
+}
+function deleteGroupCategory(mainName,groupName){
+  const cat=getCanonicalCatalog(), rows=cat.filter(x=>x.main===mainName && x.group===groupName);
+  const leafNames=rows.flatMap(x=>x.details.map(d=>d[1]));
+  const inUse=leafNames.filter(isAccountNameInUse);
+  let msg=`هل أنت متأكد من حذف الحساب التجميعي "${groupName}" وكل ما يتبعه (${rows.length} تجميعي فرعي، ${leafNames.length} حساب تفصيلي)؟`;
+  if(inUse.length) msg+=`\n\n⚠️ تنبيه: ${inUse.length} من هذه الحسابات له حركات مالية مسجلة فعلاً.`;
+  if(!confirm(msg))return;
+  const remaining=cat.filter(x=>!(x.main===mainName && x.group===groupName));
+  store.set('account_catalog',remaining); store.set('account_tree',canonicalTreeProjection(remaining));
+  const codes=getAccountCodes(), ceilings=getAccountCeilings();
+  delete codes[groupName];
+  rows.forEach(x=>{ delete codes[x.sub]; x.details.forEach(d=>{ delete codes[d[1]]; delete ceilings[d[1]]; }); });
+  store.set('account_codes',codes); saveAccountCeilings(ceilings);
+  updateSearchableData(); renderCanonicalChartOfAccounts(); initCanonicalLiveAccountsTreePage();
+  showToast('تم حذف الحساب التجميعي وكل ما يتبعه','warn');
+}
+
+function renameSubCategory(mainName,groupName,oldSubName){
+  const newName=prompt('اسم الحساب التجميعي الفرعي الجديد:',oldSubName); if(newName===null||!newName.trim())return;
+  const newCode=prompt('رقم الحساب التجميعي الفرعي الجديد:',getAccountCode(oldSubName)!=='—'?getAccountCode(oldSubName):''); if(newCode===null)return;
+  const trimmedName=newName.trim(), trimmedCode=newCode.trim();
+  const cat=getCanonicalCatalog();
+  if(trimmedCode && cat.some(x=>x.sub!==oldSubName && x.subCode===trimmedCode)){ alert('رقم الحساب مستخدم بالفعل لحساب تجميعي فرعي آخر.'); return; }
+  cat.forEach(x=>{ if(x.main===mainName && x.group===groupName && x.sub===oldSubName){ x.sub=trimmedName; if(trimmedCode)x.subCode=trimmedCode; } });
+  store.set('account_catalog',cat); store.set('account_tree',canonicalTreeProjection(cat));
+  const codes=getAccountCodes(); if(oldSubName!==trimmedName) delete codes[oldSubName]; codes[trimmedName]=trimmedCode||getAccountCode(trimmedName);
+  store.set('account_codes',codes);
+  renderCanonicalChartOfAccounts(); initCanonicalLiveAccountsTreePage();
+  showToast('تم تعديل الحساب التجميعي الفرعي بنجاح ✅','success');
+}
+function deleteSubCategory(mainName,groupName,subName){
+  const cat=getCanonicalCatalog(), rows=cat.filter(x=>x.main===mainName && x.group===groupName && x.sub===subName);
+  const leafNames=rows.flatMap(x=>x.details.map(d=>d[1]));
+  const inUse=leafNames.filter(isAccountNameInUse);
+  let msg=`هل أنت متأكد من حذف الحساب التجميعي الفرعي "${subName}" وكل حساباته التفصيلية (${leafNames.length})؟`;
+  if(inUse.length) msg+=`\n\n⚠️ تنبيه: ${inUse.length} من هذه الحسابات له حركات مالية مسجلة فعلاً.`;
+  if(!confirm(msg))return;
+  const remaining=cat.filter(x=>!(x.main===mainName && x.group===groupName && x.sub===subName));
+  store.set('account_catalog',remaining); store.set('account_tree',canonicalTreeProjection(remaining));
+  const codes=getAccountCodes(), ceilings=getAccountCeilings();
+  delete codes[subName];
+  rows.forEach(x=>{ x.details.forEach(d=>{ delete codes[d[1]]; delete ceilings[d[1]]; }); });
+  store.set('account_codes',codes); saveAccountCeilings(ceilings);
+  updateSearchableData(); renderCanonicalChartOfAccounts(); initCanonicalLiveAccountsTreePage();
+  showToast('تم حذف الحساب التجميعي الفرعي وحساباته','warn');
+}
 function addCatalogCategory(name,code,parentPath=''){
   const cat=getCanonicalCatalog(); if(cat.some(x=>x.main===name||x.group===name||x.sub===name)) return;
   const parent=(parentPath||'').split('>').map(x=>x.trim()).filter(Boolean)[0];
@@ -5683,20 +5851,70 @@ function addCatalogDetail(name,code){const cat=getCanonicalCatalog(); if(cat.som
 function renderCanonicalChartOfAccounts(){
   const container=document.getElementById('chartOfAccountsView'); if(!container)return; container.innerHTML='';
   const cat=getCanonicalCatalog(), mains=[...new Map(cat.map(x=>[x.main,x])).values()];
+  const levelBtns=(onEdit,onDelete)=>{const wrap=document.createElement('span');wrap.style.cssText='display:flex;gap:4px';const eb=document.createElement('button');eb.className='btn btn-ghost';eb.type='button';eb.style.cssText='width:auto;margin:0;padding:3px 8px;font-size:.82rem';eb.textContent='✏️ تعديل';eb.onclick=(ev)=>{ev.stopPropagation();onEdit();};const db=document.createElement('button');db.className='del-btn';db.type='button';db.title='حذف';db.style.margin='0';db.textContent='🗑️';db.onclick=(ev)=>{ev.stopPropagation();onDelete();};wrap.append(eb,db);return wrap;};
   mains.forEach(m=>{
-    const header=document.createElement('div');header.className='acc-accordion-header';header.innerHTML=`<span>📁 [${m.mainCode}] ${esc(m.main)} <small>(رئيسي)</small></span>`;
+    const header=document.createElement('div');header.className='acc-accordion-header';header.style.cssText='display:flex;justify-content:space-between;align-items:center;gap:8px';
+    const headerLabel=document.createElement('span');headerLabel.innerHTML=`📁 [${esc(m.mainCode)}] ${esc(m.main)} <small>(رئيسي)</small>`;
+    header.appendChild(headerLabel);
+    header.appendChild(levelBtns(()=>renameMainCategory(m.main),()=>deleteMainCategory(m.main)));
     const body=document.createElement('div');body.className='acc-accordion-body';
     const groups=cat.filter(x=>x.main===m.main);
     [...new Map(groups.map(x=>[x.groupCode+'|'+x.group,x])).values()].forEach(g=>{
-      const group=document.createElement('div');group.style.cssText='margin:8px 0;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:8px';group.innerHTML=`<div style="font-weight:900;color:var(--accent);margin-bottom:6px">[${g.groupCode}] ${esc(g.group)} <small>(تجميعي)</small></div>`;
-      groups.filter(x=>x.group===g.group).forEach(x=>{const sub=document.createElement('div');sub.style.cssText='margin:6px 0;padding:6px;border-right:3px solid var(--accent)';sub.innerHTML=`<div style="font-weight:900">[${x.subCode}] ${esc(x.sub)} <small>(تجميعي فرعي)</small></div>`;x.details.forEach(d=>{const row=document.createElement('div');const ceiling=getAccountCeilings()[d[1]]||{max:null,min:null};row.style.cssText='display:flex;justify-content:space-between;align-items:center;gap:8px;padding:7px 0;border-bottom:1px dashed var(--border)';row.innerHTML=`<span style="flex:1">↳ [${d[0]}] ${esc(d[1])} <small style="color:var(--ok)">(تفصيلي — يقبل الحركة)</small><small style="display:block;color:var(--muted)">السقف الأعلى: ${ceiling.max??'غير محدود'} · الأدنى: ${ceiling.min??'غير محدود'}</small></span><span style="display:flex;gap:4px"><button class="btn btn-ghost" style="width:auto;margin:0;padding:3px 8px;font-size:.82rem">✏️ تعديل</button><button class="del-btn" style="margin:0" title="حذف الحساب">🗑️</button></span>`;row.querySelector('.btn').onclick=()=>openEditAccountModal(d[1]);row.querySelector('.del-btn').onclick=()=>deleteAccountFromTree(x.main,d[1]);sub.appendChild(row)});group.appendChild(sub)});body.appendChild(group)});
-    header.addEventListener('click',()=>body.classList.toggle('open'));container.append(header,body);
+      const group=document.createElement('div');group.style.cssText='margin:8px 0;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:8px';
+      const groupHead=document.createElement('div');groupHead.style.cssText='display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:6px';
+      const groupLabel=document.createElement('div');groupLabel.style.cssText='font-weight:900;color:var(--accent)';groupLabel.innerHTML=`[${esc(g.groupCode)}] ${esc(g.group)} <small>(تجميعي)</small>`;
+      groupHead.appendChild(groupLabel);
+      groupHead.appendChild(levelBtns(()=>renameGroupCategory(m.main,g.group),()=>deleteGroupCategory(m.main,g.group)));
+      group.appendChild(groupHead);
+      groups.filter(x=>x.group===g.group).forEach(x=>{
+        const sub=document.createElement('div');sub.style.cssText='margin:6px 0;padding:6px;border-right:3px solid var(--accent)';
+        const subHead=document.createElement('div');subHead.style.cssText='display:flex;justify-content:space-between;align-items:center;gap:8px;font-weight:900';
+        const subLabel=document.createElement('span');subLabel.innerHTML=`[${esc(x.subCode)}] ${esc(x.sub)} <small>(تجميعي فرعي)</small>`;
+        subHead.appendChild(subLabel);
+        subHead.appendChild(levelBtns(()=>renameSubCategory(m.main,g.group,x.sub),()=>deleteSubCategory(m.main,g.group,x.sub)));
+        sub.appendChild(subHead);
+        x.details.forEach(d=>{const row=document.createElement('div');const ceiling=getAccountCeilings()[d[1]]||{max:null,min:null};row.style.cssText='display:flex;justify-content:space-between;align-items:center;gap:8px;padding:7px 0;border-bottom:1px dashed var(--border)';row.innerHTML=`<span style="flex:1">↳ [${esc(d[0])}] ${esc(d[1])} <small style="color:var(--ok)">(تفصيلي — يقبل الحركة)</small><small style="display:block;color:var(--muted)">السقف الأعلى: ${ceiling.max??'غير محدود'} · الأدنى: ${ceiling.min??'غير محدود'}</small></span><span style="display:flex;gap:4px"><button class="btn btn-ghost" style="width:auto;margin:0;padding:3px 8px;font-size:.82rem">✏️ تعديل</button><button class="del-btn" style="margin:0" title="حذف الحساب">🗑️</button></span>`;row.querySelector('.btn').onclick=()=>openEditAccountModal(d[1]);row.querySelector('.del-btn').onclick=()=>deleteAccountFromTree(x.main,d[1]);sub.appendChild(row)});
+        group.appendChild(sub);
+      });
+      body.appendChild(group);
+    });
+    header.addEventListener('click',(ev)=>{if(ev.target.closest('button'))return;body.classList.toggle('open');});
+    container.append(header,body);
   });
 }
 function initCanonicalLiveAccountsTreePage(){
   const c=document.getElementById('liveAccountsTreeView');if(!c)return;c.innerHTML='';
   const cat=getCanonicalCatalog();const mains=[...new Map(cat.map(x=>[x.main,x])).values()];
-  mains.forEach(m=>{const h=document.createElement('div');h.className='acc-accordion-header';h.innerHTML=`<span>📁 [${m.mainCode}] ${esc(m.main)} <small>(رئيسي)</small></span>`;const body=document.createElement('div');body.className='acc-accordion-body';const wrap=document.createElement('div');wrap.style.cssText='padding:8px';cat.filter(x=>x.main===m.main).forEach(x=>{const g=document.createElement('div');g.style.cssText='margin:7px 0;padding:7px;border:1px solid var(--border);border-radius:8px';g.innerHTML=`<b>[${x.groupCode}] ${esc(x.group)}</b><div style="margin-top:4px;color:var(--accent)">[${x.subCode}] ${esc(x.sub)}</div>`;x.details.forEach(d=>{const tr=document.createElement('div');tr.style.cssText='padding:6px 0;border-bottom:1px dashed var(--border);cursor:pointer';tr.innerHTML=`[${d[0]}] ${esc(d[1])}`;tr.onclick=()=>{navigateToTab('pageReports',true);toggleReportView('accounts');selReportAccount.setValue(d[1],d[1]);runAccountStatement()};g.appendChild(tr)});wrap.appendChild(g)});body.appendChild(wrap);h.addEventListener('click',()=>body.classList.toggle('open'));c.append(h,body)});
+  const levelBtns=(onEdit,onDelete)=>{const wrap=document.createElement('span');wrap.style.cssText='display:flex;gap:4px;flex-shrink:0';const eb=document.createElement('button');eb.className='btn btn-ghost';eb.type='button';eb.style.cssText='width:auto;margin:0;padding:2px 7px;font-size:.78rem';eb.textContent='✏️';eb.title='تعديل';eb.onclick=(ev)=>{ev.stopPropagation();onEdit();};const db=document.createElement('button');db.className='del-btn';db.type='button';db.title='حذف';db.style.cssText='margin:0;padding:2px 7px;font-size:.78rem';db.textContent='🗑️';db.onclick=(ev)=>{ev.stopPropagation();onDelete();};wrap.append(eb,db);return wrap;};
+  mains.forEach(m=>{
+    const h=document.createElement('div');h.className='acc-accordion-header';h.style.cssText='display:flex;justify-content:space-between;align-items:center;gap:8px';
+    const hLabel=document.createElement('span');hLabel.innerHTML=`📁 [${esc(m.mainCode)}] ${esc(m.main)} <small>(رئيسي)</small>`;
+    h.append(hLabel,levelBtns(()=>renameMainCategory(m.main),()=>deleteMainCategory(m.main)));
+    const body=document.createElement('div');body.className='acc-accordion-body';const wrap=document.createElement('div');wrap.style.cssText='padding:8px';
+    cat.filter(x=>x.main===m.main).forEach(x=>{
+      const g=document.createElement('div');g.style.cssText='margin:7px 0;padding:7px;border:1px solid var(--border);border-radius:8px';
+      const gHead=document.createElement('div');gHead.style.cssText='display:flex;justify-content:space-between;align-items:center;gap:8px';
+      gHead.innerHTML=`<b>[${esc(x.groupCode)}] ${esc(x.group)}</b>`;
+      gHead.appendChild(levelBtns(()=>renameGroupCategory(m.main,x.group),()=>deleteGroupCategory(m.main,x.group)));
+      g.appendChild(gHead);
+      const subRow=document.createElement('div');subRow.style.cssText='margin-top:4px;color:var(--accent);display:flex;justify-content:space-between;align-items:center;gap:8px';
+      subRow.innerHTML=`<span>[${esc(x.subCode)}] ${esc(x.sub)}</span>`;
+      subRow.appendChild(levelBtns(()=>renameSubCategory(m.main,x.group,x.sub),()=>deleteSubCategory(m.main,x.group,x.sub)));
+      g.appendChild(subRow);
+      x.details.forEach(d=>{
+        const tr=document.createElement('div');tr.style.cssText='padding:6px 0;border-bottom:1px dashed var(--border);cursor:pointer;display:flex;justify-content:space-between;align-items:center;gap:8px';
+        const trLabel=document.createElement('span');trLabel.textContent=`[${d[0]}] ${d[1]}`;
+        tr.appendChild(trLabel);
+        tr.appendChild(levelBtns(()=>openEditAccountModal(d[1]),()=>deleteAccountFromTree(x.main,d[1])));
+        tr.addEventListener('click',(ev)=>{if(ev.target.closest('button'))return;navigateToTab('pageReports',true);toggleReportView('accounts');selReportAccount.setValue(d[1],d[1]);runAccountStatement();});
+        g.appendChild(tr);
+      });
+      wrap.appendChild(g);
+    });
+    body.appendChild(wrap);
+    h.addEventListener('click',(ev)=>{if(ev.target.closest('button'))return;body.classList.toggle('open');});
+    c.append(h,body);
+  });
 }
 const _legacyUpdateSearchableData=updateSearchableData;
 function updateSearchableData(){
@@ -6178,8 +6396,9 @@ function buildMultiVoucherPdf(d){
 function buildSingleVoucherPdf(tx) {
   const cfg = getHeaderConfig();
   const vTitle = tx.voucherMode === 'spend' ? 'سند صرف نقدي' : (tx.voucherMode === 'income' ? 'سند إيراد / قبض' : 'سند قيد وتسوية محاسبية');
+  const recipientLabel = tx.voucherMode === 'spend' ? 'المستلم (استلم المبلغ)' : (tx.voucherMode === 'income' ? 'المستفيد (دفع المبلغ)' : 'المستلم / المستفيد');
   const distEntries = Object.values(tx.distribution || {}).filter(d => !d.excluded && Number(d.amount || 0) > 0);
-  const width = 1000, rowH = 46, baseH = 560, height = Math.max(baseH, baseH + distEntries.length * rowH);
+  const width = 1000, rowH = 46, baseH = 700, height = Math.max(baseH, baseH + distEntries.length * rowH);
   const canvas = document.createElement('canvas'); canvas.width = width; canvas.height = height;
   const ctx = canvas.getContext('2d'); ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, width, height);
   ctx.direction = 'rtl'; ctx.textAlign = 'right'; ctx.strokeStyle = '#1f2937'; ctx.lineWidth = 2; ctx.strokeRect(20, 20, width - 40, height - 40);
@@ -6194,6 +6413,7 @@ function buildSingleVoucherPdf(tx) {
   text(`المبلغ: ${fmt(tx.amount, tx.currency)}`, width - 50, y, 19, true); y += 36;
   text(`مدين: ${tx.debitAccount || '-'}`, width - 50, y, 19); y += 36;
   text(`دائن: ${tx.creditAccount || '-'}`, width - 50, y, 19); y += 36;
+  if (tx.recipient && tx.recipient.trim()) { text(`${recipientLabel}: ${tx.recipient.trim()}`, width - 50, y, 19, true, '#075985'); y += 36; }
   text(`المبلغ كتابة: ${tafqit(tx.amount)}`, width - 50, y, 17, false, '#334155'); y += 36;
   const noteVal = Object.values(tx.execution || {})[0]?.note || tx.type || '-';
   text(`البيان: ${noteVal}`, width - 50, y, 17, false, '#334155'); y += 44;
@@ -6203,6 +6423,13 @@ function buildSingleVoucherPdf(tx) {
     ['البند التصنيفي', 'المبلغ المخصص', 'النسبة'].forEach((h, i) => text(h, cols[i], y, 17, true, '#075985')); y += rowH;
     distEntries.forEach(d => { text(d.name, cols[0], y, 16); text(fmt(d.amount, tx.currency), cols[1], y, 16); text(d.pct ? d.pct + '%' : '-', cols[2], y, 16); y += rowH; });
   }
+  // تذييل التوقيعات: يُعرض دائماً أسفل المستند بنفس تسلسل قالب الطباعة HTML
+  y += 40;
+  ctx.beginPath(); ctx.moveTo(40, y - 24); ctx.lineTo(width - 40, y - 24); ctx.stroke();
+  const sigCols = [width - 50, width - 370, width - 690];
+  text('المحاسب / المدير: ..................', sigCols[0], y, 16, true); 
+  text('أمين الصندوق: ..................', sigCols[1], y, 16, true);
+  text(`توقيع ${recipientLabel}: ..................`, sigCols[2], y, 16, true);
   const b64 = canvas.toDataURL('image/jpeg', .92).split(',')[1], bin = atob(b64), jpg = new Uint8Array(bin.length); for (let i = 0; i < bin.length; i++) jpg[i] = bin.charCodeAt(i);
   const pageH = 595 * height / width, content = `q\n595 0 0 ${pageH} 0 0 cm\n/Im0 Do\nQ`, enc = new TextEncoder(), parts = [], offsets = [0]; let total = 0, add = v => { const b = enc.encode(v); parts.push(b); total += b.length }, obj = (n, b) => { offsets[n] = total; add(`${n} 0 obj\n${b}\nendobj\n`) };
   add('%PDF-1.4\n'); obj(1, '<< /Type /Catalog /Pages 2 0 R >>'); obj(2, '<< /Type /Pages /Kids [3 0 R] /Count 1 >>'); obj(3, `<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 ${pageH}] /Resources << /XObject << /Im0 5 0 R >> >> /Contents 4 0 R >>`); obj(4, `<< /Length ${content.length} >>\nstream\n${content}\nendstream`); offsets[5] = total; add(`5 0 obj\n<< /Type /XObject /Subtype /Image /Width ${width} /Height ${height} /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length ${jpg.length} >>\nstream\n`); parts.push(jpg); total += jpg.length; add('\nendstream\nendobj\n'); const xref = total; add('xref\n0 6\n0000000000 65535 f \n'); for (let i = 1; i <= 5; i++) add(String(offsets[i]).padStart(10, '0') + ' 00000 n \n'); add(`trailer\n<< /Size 6 /Root 1 0 R >>\nstartxref\n${xref}\n%%EOF`);

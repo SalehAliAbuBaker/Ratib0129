@@ -424,6 +424,7 @@ body{user-select:text}.btn,.icon-btn,.nav-tab,.v-card-btn,.rpt-btn,.toggle-vis-b
 
 .global-search-results{max-height:55vh;overflow:auto}.global-result{padding:12px;border-bottom:2px solid var(--border);cursor:pointer;font-size:1.1rem}.global-result:hover{background:color-mix(in srgb, var(--accent) 8%, transparent)}
 .status-chip{font-size:0.9rem;padding:3px 10px;border-radius:14px;font-weight:900;background:rgba(16,185,129,.14);color:var(--ok)}.status-chip.reversed{background:rgba(239,68,68,.14);color:var(--danger)}.status-chip.draft{background:rgba(245,158,11,.16);color:var(--warn)}
+.status-filter-btn{flex:1;padding:6px 8px;border-radius:10px;border:2px solid var(--border);background:var(--card);color:var(--text);font-weight:900;font-size:0.9rem;cursor:pointer}.status-filter-btn.active{border-color:var(--accent);background:var(--accent);color:#fff}
 
 :root{--mobile-nav-h:68px;--ease-out:cubic-bezier(.23,1,.32,1)}
 html{scroll-behavior:smooth}body{padding-bottom:16px}
@@ -1608,6 +1609,7 @@ label{font-size:1rem;color:var(--text);margin-bottom:5px}
 
       <div style="display: flex; gap: 8px; justify-content: center; font-size: 1.05rem;">
         <button class="btn btn-ghost" id="confirmEditDocBtn" style="flex: 1; margin-top: 0; border: 2px solid var(--border); font-weight: 900;">تعديل</button>
+        <button class="btn btn-ghost" id="deleteDocBtn" style="flex: 1; margin-top: 0; border: 2px solid var(--danger); color: var(--danger); font-weight: 900;">🗑️ حذف</button>
         <button class="btn btn-ghost" id="cancelEditDocBtn" style="flex: 1; margin-top: 0; border: 2px solid var(--border); font-weight: 900;">موافق</button>
       </div>
     </div>
@@ -1642,6 +1644,11 @@ label{font-size:1rem;color:var(--text);margin-bottom:5px}
     <div class="modal-content">
       <div class="modal-header"><h3 id="globalSearchTitle" style="font-size:1.25rem;color:var(--accent);font-weight:900">🔎 البحث العام</h3><button class="icon-btn" id="closeGlobalSearchBtn" aria-label="إغلاق">✕</button></div>
       <input type="search" id="globalSearchInput" placeholder="السند، الحساب، المبلغ، البيان، التاريخ..." autocomplete="off">
+      <div id="globalSearchStatusFilter" style="display:flex; gap:6px; margin-top:8px;">
+        <button type="button" class="status-filter-btn active" data-status="all">الكل</button>
+        <button type="button" class="status-filter-btn" data-status="posted">✅ مرحّل</button>
+        <button type="button" class="status-filter-btn" data-status="reversed">❌ ملغى</button>
+      </div>
       <div id="globalSearchResults" class="global-search-results" style="margin-top:8px"></div>
       <div style="font-size:0.95rem;color:var(--muted);font-weight:900;margin-top:6px">اختصار لوحة المفاتيح: Ctrl + K أو ⌘ + K</div>
     </div>
@@ -3351,11 +3358,18 @@ document.getElementById('saveNewReminderBtn')?.addEventListener('click', () => {
   renderRemindersChart();
 });
 
-function openGlobalSearch() { lastFocusedElement=document.activeElement; document.getElementById('globalSearchModal').classList.add('show'); const input=document.getElementById('globalSearchInput'); input.value=''; input.focus(); renderGlobalSearch(''); }
+function openGlobalSearch() { lastFocusedElement=document.activeElement; document.getElementById('globalSearchModal').classList.add('show'); const input=document.getElementById('globalSearchInput'); input.value=''; input.focus(); globalSearchStatusFilter='all'; document.querySelectorAll('#globalSearchStatusFilter .status-filter-btn').forEach(b=>b.classList.toggle('active', b.dataset.status==='all')); renderGlobalSearch(''); }
 function closeGlobalSearch() { document.getElementById('globalSearchModal').classList.remove('show'); if(lastFocusedElement?.focus)lastFocusedElement.focus(); }
+let globalSearchStatusFilter = 'all'; // 'all' | 'posted' | 'reversed'
 function renderGlobalSearch(q) {
   const box=document.getElementById('globalSearchResults'); if(!box)return; const query=q.trim().toLowerCase();
-  const txs=getAllTransactions().slice().reverse().filter(t=>{if(!query)return true;return [t.seqNum,getTransactionDisplayType(t),t.date,t.isoDate,t.debitAccount,t.creditAccount,t.amount,t.currency,...Object.values(t.execution||{}).map(x => (x && x.note) || '')].join(' ').toLowerCase().includes(query)}).slice(0,80);
+  const txs=getAllTransactions().slice().reverse()
+    .filter(t=>{
+      if(globalSearchStatusFilter==='posted') return t.status!=='reversed';
+      if(globalSearchStatusFilter==='reversed') return t.status==='reversed';
+      return true;
+    })
+    .filter(t=>{if(!query)return true;return [t.seqNum,getTransactionDisplayType(t),t.date,t.isoDate,t.debitAccount,t.creditAccount,t.amount,t.currency,...Object.values(t.execution||{}).map(x => (x && x.note) || '')].join(' ').toLowerCase().includes(query)}).slice(0,80);
   box.innerHTML=txs.length?txs.map(t=>`<div class="global-result" data-id="${esc(t.id)}"><b>${esc(getTransactionDisplayType(t)||'عملية')}</b> <span class="status-chip ${t.status==='reversed'?'reversed':''}">${t.status==='reversed'?'ملغى':'مرحّل'}</span><br><small style="font-size:0.95rem;">${esc(t.date||t.isoDate||'-')} • ${esc(t.debitAccount||'-')} ← ${esc(t.creditAccount||'-')} • ${esc(fmt(t.amount,t.currency))}</small></div>`).join(''):'<div style="padding:14px;text-align:center;color:var(--muted)">لا توجد نتائج</div>';
   box.querySelectorAll('.global-result').forEach(el=>el.addEventListener('click',()=>{const t=getAllTransactions().find(x=>String(x.id)===el.dataset.id);if(t){closeGlobalSearch();openTxModal(t);}}));
 }
@@ -4821,7 +4835,9 @@ document.getElementById('skipPrintDocBtn')?.addEventListener('click', () => {
   navigateToTab('pageLedger', false);
 });
 
-function deleteSingleTransaction(itemId) {
+// الإجراء الفعلي للإلغاء (بلا تأكيد) — مُستخرَج هنا ليُستخدَم في مسارين: حذف عملية مفردة
+// بتأكيد بسيط، وحذف سند قيد متعدد بالكامل (كل بنوده) من نافذة تفاصيل المستند بتأكيد مكتوب.
+function reverseTransactionById(itemId) {
   const p = getMasterPlan();
   let tx = (p.transactions || []).find(t => String(t.id) === String(itemId));
   let inPlan = true;
@@ -4834,22 +4850,48 @@ function deleteSingleTransaction(itemId) {
       }
     }
   }
-  if (!tx) return;
-  if (!confirm('سيتم إلغاء السند وحفظ أثره الرقابي. هل أنت متأكد؟')) return;
-  const before = structuredClone(tx); 
-  tx.status = 'reversed'; 
-  tx.reversedAt = new Date().toISOString(); 
+  if (!tx) return false;
+  const before = structuredClone(tx);
+  tx.status = 'reversed';
+  tx.reversedAt = new Date().toISOString();
   tx.updatedAt = new Date().toISOString();
-  
-  if (inPlan) {
-    store.set('plan', p);
-  } else {
-    store.set('history', store.get('history', []));
-  }
+  if (inPlan) { store.set('plan', p); } else { store.set('history', store.get('history', [])); }
   audit('REVERSE_TRANSACTION', tx.id, before, tx);
+  return true;
+}
+function deleteSingleTransaction(itemId) {
+  if (!confirm('سيتم إلغاء السند وحفظ أثره الرقابي. هل أنت متأكد؟')) return;
+  if (!reverseTransactionById(itemId)) return;
   showToast('تم إلغاء السند بنجاح', 'warn'); 
   updateVoucherSeqBadge(); 
   renderAllData(); 
+  updateProDashboard();
+}
+// حذف المستند المعروض حالياً في نافذة تفاصيل المستند (longPressConfirmModal)، بما في ذلك
+// كل بنود سند القيد المتعدد (مخزَّنة كعمليات منفصلة تشترك في multiVoucherId). يتطلب كتابة
+// كلمة "حذف" نصاً قبل التنفيذ — تأكيد أقوى من التأكيد البسيط المستخدم في القائمة العادية.
+function deleteDocumentFromModal() {
+  const item = pendingLongPressTx;
+  if (!item) return;
+  const typed = prompt('لتأكيد حذف هذا المستند نهائياً، اكتب كلمة "حذف" في الخانة أدناه:');
+  if (typed === null) return;
+  if (typed.trim() !== 'حذف') { showToast('لم تتم العملية — الكلمة المدخلة غير مطابقة', 'warn'); return; }
+
+  let count = 0;
+  if (item.isMultiVoucher) {
+    const groupId = item.multiVoucherId || item.id;
+    const siblingIds = getAllTransactions().filter(t => t.isMultiVoucher && (t.multiVoucherId === groupId || t.id === groupId)).map(t => t.id);
+    siblingIds.forEach(id => { if (reverseTransactionById(id)) count++; });
+  } else {
+    if (reverseTransactionById(item.id)) count = 1;
+  }
+  if (count === 0) { showToast('تعذّر حذف المستند', 'warn'); return; }
+
+  document.getElementById('longPressConfirmModal').classList.remove('show');
+  pendingLongPressTx = null;
+  showToast(item.isMultiVoucher ? `تم حذف السند المتعدد بكل بنوده (${count})` : 'تم حذف السند بنجاح', 'warn');
+  updateVoucherSeqBadge();
+  renderAllData();
   updateProDashboard();
 }
 
@@ -5099,6 +5141,7 @@ document.getElementById('modalPrintDocBtn')?.addEventListener('click', () => {
 document.getElementById('closeModalBtn')?.addEventListener('click', () => document.getElementById('txModal').classList.remove('show'));
 document.getElementById('closeModalActionBtn')?.addEventListener('click', () => document.getElementById('txModal').classList.remove('show'));
 
+document.getElementById('deleteDocBtn')?.addEventListener('click', () => { deleteDocumentFromModal(); });
 document.getElementById('confirmEditDocBtn')?.addEventListener('click', () => {
   document.getElementById('longPressConfirmModal').classList.remove('show');
   if (pendingLongPressTx) {
@@ -5119,6 +5162,14 @@ document.getElementById('exportCsvBtn')?.addEventListener('click', exportTransac
 document.getElementById('globalSearchBtn')?.addEventListener('click', openGlobalSearch);
 document.getElementById('closeGlobalSearchBtn')?.addEventListener('click', closeGlobalSearch);
 document.getElementById('globalSearchInput')?.addEventListener('input', (e) => renderGlobalSearch(e.target.value));
+document.querySelectorAll('#globalSearchStatusFilter .status-filter-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('#globalSearchStatusFilter .status-filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    globalSearchStatusFilter = btn.dataset.status;
+    renderGlobalSearch(document.getElementById('globalSearchInput').value);
+  });
+});
 
 function renderAllData() {
   const allTxs = getAllTransactions(), container = document.getElementById('ledgerList');

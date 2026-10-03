@@ -796,6 +796,11 @@ label{font-size:1rem;color:var(--text);margin-bottom:5px}
       </div>
     </div>
 
+    <div id="entryCurrencyConvertHint" class="hidden" style="background:var(--bg); border:2px dashed var(--accent); border-radius:10px; padding:10px; margin-bottom:10px; font-size:.9rem; font-weight:800; display:flex; justify-content:space-between; align-items:center; gap:8px; flex-wrap:wrap;">
+      <span>🔁 لتحويل مبلغ من عملة إلى عملة أخرى (بسعر صرف)، استخدم سند القيد المتعدد — فهذا السند يسجّل بعملة واحدة فقط لطرفي القيد.</span>
+      <button type="button" class="btn btn-primary" style="width:auto; margin:0; padding:6px 12px; font-size:.85rem; flex-shrink:0;" onclick="selectMultiVoucherType()">فتح سند القيد المتعدد</button>
+    </div>
+
     <div id="tafqitDisplayBox" style="font-size:1.05rem; font-weight:900; color:var(--accent); background:var(--bg); padding:10px; border-radius:10px; margin-bottom:10px; border:2px solid var(--border);">
       ✍️ التفقيط: <span id="tafqitText">صفر</span>
     </div>
@@ -1747,7 +1752,7 @@ label{font-size:1rem;color:var(--text);margin-bottom:5px}
     <div class="pv-signatures">
       <div>المحاسب / المدير: ........................</div>
       <div>أمين الصندوق: ........................</div>
-      <div>توقيع <span id="pvRecipientSignLabel">المستلم / المستفيد</span>: ........................</div>
+      <div id="pvRecipientSignRow">توقيع <span id="pvRecipientSignLabel">المستلم / المستفيد</span>: ........................</div>
     </div>
   </div>
 
@@ -3756,19 +3761,22 @@ function preparePrintVoucherTemplate(tx) {
   document.getElementById('pvAmount').textContent = fmt(tx.amount, tx.currency);
   document.getElementById('pvDebit').textContent = tx.debitAccount || '-';
   document.getElementById('pvCredit').textContent = tx.creditAccount || '-';
-  document.getElementById('pvTafqit').textContent = tafqit(tx.amount);
+  document.getElementById('pvTafqit').textContent = tafqitAccountCurrency(tx.amount, tx.currency || 'YER');
   document.getElementById('pvNote').textContent = Object.values(tx.execution || {})[0]?.note || tx.type || '-';
 
+  // في سند القيد العادي: البيان العام يكفي، فلا داعي لصف/توقيع مستلم منفصل في الطباعة
   const recipientLabel = tx.voucherMode === 'spend' ? 'المستلم (استلم المبلغ)' : (tx.voucherMode === 'income' ? 'المستفيد (دفع المبلغ)' : 'المستلم / المستفيد');
   document.getElementById('pvRecipientLabel').textContent = recipientLabel;
   document.getElementById('pvRecipientSignLabel').textContent = recipientLabel;
   const recipientRow = document.getElementById('pvRecipientRow');
-  if (tx.recipient && tx.recipient.trim()) {
+  const recipientSignRow = document.getElementById('pvRecipientSignRow');
+  if (tx.voucherMode !== 'entry' && tx.recipient && tx.recipient.trim()) {
     document.getElementById('pvRecipientName').textContent = tx.recipient.trim();
     recipientRow.style.display = '';
   } else {
     recipientRow.style.display = 'none';
   }
+  recipientSignRow.style.display = (tx.voucherMode === 'entry') ? 'none' : '';
 
   const tableBox = document.getElementById('pvTableBox');
   const distEntries = Object.values(tx.distribution || {}).filter(d => !d.excluded && Number(d.amount || 0) > 0);
@@ -4627,8 +4635,13 @@ function updateVoucherSummaryNumbers() {
 
 document.getElementById('voucherAmountInput').addEventListener('input', (e) => {
   const val = getCleanNumber(e.target.value);
-  document.getElementById('tafqitText').textContent = tafqit(val);
+  const curNow = document.getElementById('voucherCurrencySelect')?.value || 'YER';
+  document.getElementById('tafqitText').textContent = tafqitAccountCurrency(val, curNow);
   if (isVoucherSplitActive) { if (voucherSplitMode === 'pct') recalcAmountsFromPcts(val); else updateVoucherSummaryNumbers(); }
+});
+document.getElementById('voucherCurrencySelect')?.addEventListener('change', () => {
+  const val = getCleanNumber(document.getElementById('voucherAmountInput').value);
+  document.getElementById('tafqitText').textContent = tafqitAccountCurrency(val, document.getElementById('voucherCurrencySelect').value || 'YER');
 });
 
 document.getElementById('autoDistributeVoucherBtn').addEventListener('click', () => {
@@ -4695,6 +4708,7 @@ function selectVoucherTypeDirect(mode) {
     document.getElementById('voucherRecipientInput').placeholder = 'اسم الطرف المرتبط بالقيد (اختياري)';
     selDebitAcc.setValue('', ''); selCreditAcc.setValue('', '');
   }
+  document.getElementById('entryCurrencyConvertHint')?.classList.toggle('hidden', mode !== 'entry');
   if(preferredDebitAccountForNewVoucher){
     selDebitAcc.setValue(preferredDebitAccountForNewVoucher, preferredDebitAccountForNewVoucher);
   }
@@ -6377,12 +6391,12 @@ function showMultiSavedNotice(d){
 function resetMultiVoucherForm(){
   multiVoucherDraftId='';multiVoucherLines=[];['multiVoucherBeneficiary','multiVoucherParty','multiVoucherNote'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});const date=document.getElementById('multiVoucherDate');if(date)date.value=multiToday();const base=document.getElementById('multiVoucherBaseCurrency');if(base)base.value='YER';if(multiSourceAcc)multiSourceAcc.setValue('','');document.getElementById('multiVoucherSeqBadge').textContent=`رقم: ${getNextMultiVoucherNumber()}`;addMultiVoucherLine();renderMultiVoucherLines();
 }
-function prepareMultiVoucherPrint(d){const box=document.getElementById('pvTableBox');document.getElementById('pvVoucherTitle').textContent=`سند قيد متعدد رقم (#${d.seq})`;document.getElementById('pvDate').textContent=d.date;document.getElementById('pvAmount').textContent=`${d.baseTotal.toLocaleString()} ${d.baseCurrency}`;document.getElementById('pvDebit').textContent=d.lines.filter(l=>l.side!=='credit').map(l=>l.account).join('، ')||'-';document.getElementById('pvCredit').textContent=d.lines.filter(l=>l.side==='credit').map(l=>l.account).join('، ')||d.sourceAccount||'-';document.getElementById('pvTafqit').textContent=tafqit(d.baseTotal);document.getElementById('pvNote').textContent=[d.beneficiary,d.party,d.note].filter(Boolean).join(' — ')||'-';box.innerHTML=`<table style="width:100%;border-collapse:collapse;color:#000"><thead><tr><th>الجهة</th><th>الحساب</th><th>بند الميزانية</th><th>البيان</th><th>العملة</th><th>المبلغ</th><th>سعر الصرف</th><th>القيمة الأساسية</th></tr></thead><tbody>${d.lines.map(l=>`<tr><td>${l.side==='credit'?'دائن':'مدين'}</td><td>${esc(l.account)}</td><td>${esc((getCats().find(c=>c.id===(l.budgetId||'general'))||{}).name||'عام')}</td><td>${esc(l.note)}</td><td>${esc(l.currency)}</td><td>${l.amount.toLocaleString()}</td><td>${l.rate}</td><td>${l.base.toLocaleString()}</td></tr>`).join('')}</tbody></table><p style="font-weight:900">الإجمالي المحول للعملة الأساسية: ${d.baseTotal.toLocaleString()} ${d.baseCurrency}</p>`;}
+function prepareMultiVoucherPrint(d){const box=document.getElementById('pvTableBox');document.getElementById('pvVoucherTitle').textContent=`سند قيد متعدد رقم (#${d.seq})`;document.getElementById('pvDate').textContent=d.date;document.getElementById('pvAmount').textContent=`${d.baseTotal.toLocaleString()} ${d.baseCurrency}`;document.getElementById('pvDebit').textContent=d.lines.filter(l=>l.side!=='credit').map(l=>l.account).join('، ')||'-';document.getElementById('pvCredit').textContent=d.lines.filter(l=>l.side==='credit').map(l=>l.account).join('، ')||d.sourceAccount||'-';document.getElementById('pvTafqit').textContent=tafqitAccountCurrency(d.baseTotal,d.baseCurrency||'YER');document.getElementById('pvNote').textContent=[d.party,d.note].filter(Boolean).join(' — ')||'-';box.innerHTML=`<table style="width:100%;border-collapse:collapse;color:#000"><thead><tr><th>الجهة</th><th>الحساب</th><th>بند الميزانية</th><th>البيان</th><th>العملة</th><th>المبلغ</th><th>سعر الصرف</th><th>القيمة الأساسية</th></tr></thead><tbody>${d.lines.map(l=>`<tr><td>${l.side==='credit'?'دائن':'مدين'}</td><td>${esc(l.account)}</td><td>${esc((getCats().find(c=>c.id===(l.budgetId||'general'))||{}).name||'عام')}</td><td>${esc(l.note)}</td><td>${esc(l.currency)}</td><td>${l.amount.toLocaleString()}</td><td>${l.rate}</td><td>${l.base.toLocaleString()}</td></tr>`).join('')}</tbody></table><p style="font-weight:900">الإجمالي المحول للعملة الأساسية: ${d.baseTotal.toLocaleString()} ${d.baseCurrency}</p>`;}
 function printMultiVoucher(){const err=validateMultiVoucher();if(err){showToast(err,'warn');return;}const d=buildMultiVoucherData('draft');prepareMultiVoucherPrint(d);document.body.classList.add('printing-voucher');setTimeout(()=>{window.print();document.body.classList.remove('printing-voucher')},50);}
 function buildMultiVoucherPdf(d){
   const canvas=document.createElement('canvas'),width=1400,rowH=58,height=Math.max(820,360+d.lines.length*rowH);canvas.width=width;canvas.height=height;const ctx=canvas.getContext('2d');ctx.fillStyle='#fff';ctx.fillRect(0,0,width,height);ctx.direction='rtl';ctx.textAlign='right';ctx.strokeStyle='#1f2937';ctx.lineWidth=2;ctx.strokeRect(30,30,width-60,height-60);
   const text=(v,x,y,size=22,bold=false,color='#111827',maxW=undefined)=>{if(v===undefined||v===null||String(v).trim()==='')return;ctx.fillStyle=color;ctx.font=`${bold?'bold ':''}${size}px Arial`;ctx.fillText(String(v),x,y,maxW)};
-  text(`سند قيد متعدد #${d.seq}`,width-70,86,32,true,'#075985');text(`التاريخ: ${d.date}`,width-70,132,21);text(`المستفيد: ${d.beneficiary}`,width-70,170,21);text(d.note,width-70,208,21);
+  text(`سند قيد متعدد #${d.seq}`,width-70,86,32,true,'#075985');text(`التاريخ: ${d.date}`,width-70,132,21);text([d.party,d.note].filter(Boolean).join(' — '),width-70,170,21);
   let y=300;const cols=[width-70,1160,1010,850,680,510,340,160];['الجهة','الحساب','بند الميزانية','البيان','العملة','المبلغ','سعر الصرف','القيمة الأساسية'].forEach((h,i)=>text(h,cols[i],y,19,true,'#075985',i?cols[i-1]-cols[i]-14:150));ctx.beginPath();ctx.moveTo(50,y+14);ctx.lineTo(width-50,y+14);ctx.stroke();y+=rowH;
   d.lines.forEach(l=>{[l.side==='credit'?'دائن':'مدين',l.account,(getCats().find(c=>c.id===(l.budgetId||'general'))||{}).name||'عام',l.note,l.currency,Number(l.amount).toLocaleString(),l.rate,Number(l.base).toLocaleString()].forEach((v,i)=>text(v,cols[i],y,18,false,'#111827',i?cols[i-1]-cols[i]-14:150));y+=rowH;});ctx.beginPath();ctx.moveTo(50,y-20);ctx.lineTo(width-50,y-20);ctx.stroke();text(`الإجمالي: ${Number(d.baseTotal).toLocaleString()} ${d.baseCurrency}`,width-70,y+32,23,true,'#075985');text(d.note,width-70,y+72,19,false);
   const b64=canvas.toDataURL('image/jpeg',.92).split(',')[1],bin=atob(b64),jpg=new Uint8Array(bin.length);for(let i=0;i<bin.length;i++)jpg[i]=bin.charCodeAt(i);const pageH=595*height/width,content=`q\n595 0 0 ${pageH} 0 0 cm\n/Im0 Do\nQ`,enc=new TextEncoder(),parts=[],offsets=[0];let total=0,add=v=>{const b=enc.encode(v);parts.push(b);total+=b.length},obj=(n,b)=>{offsets[n]=total;add(`${n} 0 obj\n${b}\nendobj\n`)};add('%PDF-1.4\n');obj(1,'<< /Type /Catalog /Pages 2 0 R >>');obj(2,'<< /Type /Pages /Kids [3 0 R] /Count 1 >>');obj(3,`<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 ${pageH}] /Resources << /XObject << /Im0 5 0 R >> >> /Contents 4 0 R >>`);obj(4,`<< /Length ${content.length} >>\nstream\n${content}\nendstream`);offsets[5]=total;add(`5 0 obj\n<< /Type /XObject /Subtype /Image /Width ${width} /Height ${height} /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length ${jpg.length} >>\nstream\n`);parts.push(jpg);total+=jpg.length;add('\nendstream\nendobj\n');const xref=total;add('xref\n0 6\n0000000000 65535 f \n');for(let i=1;i<=5;i++)add(String(offsets[i]).padStart(10,'0')+' 00000 n \n');add(`trailer\n<< /Size 6 /Root 1 0 R >>\nstartxref\n${xref}\n%%EOF`);const out=new Uint8Array(total);let at=0;parts.forEach(part=>{out.set(part,at);at+=part.length});return new Blob([out],{type:'application/pdf'});
@@ -6413,8 +6427,8 @@ function buildSingleVoucherPdf(tx) {
   text(`المبلغ: ${fmt(tx.amount, tx.currency)}`, width - 50, y, 19, true); y += 36;
   text(`مدين: ${tx.debitAccount || '-'}`, width - 50, y, 19); y += 36;
   text(`دائن: ${tx.creditAccount || '-'}`, width - 50, y, 19); y += 36;
-  if (tx.recipient && tx.recipient.trim()) { text(`${recipientLabel}: ${tx.recipient.trim()}`, width - 50, y, 19, true, '#075985'); y += 36; }
-  text(`المبلغ كتابة: ${tafqit(tx.amount)}`, width - 50, y, 17, false, '#334155'); y += 36;
+  if (tx.voucherMode !== 'entry' && tx.recipient && tx.recipient.trim()) { text(`${recipientLabel}: ${tx.recipient.trim()}`, width - 50, y, 19, true, '#075985'); y += 36; }
+  text(`المبلغ كتابة: ${tafqitAccountCurrency(tx.amount, tx.currency || 'YER')}`, width - 50, y, 17, false, '#334155'); y += 36;
   const noteVal = Object.values(tx.execution || {})[0]?.note || tx.type || '-';
   text(`البيان: ${noteVal}`, width - 50, y, 17, false, '#334155'); y += 44;
   if (distEntries.length > 0) {
@@ -6426,10 +6440,16 @@ function buildSingleVoucherPdf(tx) {
   // تذييل التوقيعات: يُعرض دائماً أسفل المستند بنفس تسلسل قالب الطباعة HTML
   y += 40;
   ctx.beginPath(); ctx.moveTo(40, y - 24); ctx.lineTo(width - 40, y - 24); ctx.stroke();
-  const sigCols = [width - 50, width - 370, width - 690];
-  text('المحاسب / المدير: ..................', sigCols[0], y, 16, true); 
-  text('أمين الصندوق: ..................', sigCols[1], y, 16, true);
-  text(`توقيع ${recipientLabel}: ..................`, sigCols[2], y, 16, true);
+  if (tx.voucherMode === 'entry') {
+    const sigCols2 = [width - 50, width - 400];
+    text('المحاسب / المدير: ..................', sigCols2[0], y, 16, true);
+    text('أمين الصندوق: ..................', sigCols2[1], y, 16, true);
+  } else {
+    const sigCols = [width - 50, width - 370, width - 690];
+    text('المحاسب / المدير: ..................', sigCols[0], y, 16, true);
+    text('أمين الصندوق: ..................', sigCols[1], y, 16, true);
+    text(`توقيع ${recipientLabel}: ..................`, sigCols[2], y, 16, true);
+  }
   const b64 = canvas.toDataURL('image/jpeg', .92).split(',')[1], bin = atob(b64), jpg = new Uint8Array(bin.length); for (let i = 0; i < bin.length; i++) jpg[i] = bin.charCodeAt(i);
   const pageH = 595 * height / width, content = `q\n595 0 0 ${pageH} 0 0 cm\n/Im0 Do\nQ`, enc = new TextEncoder(), parts = [], offsets = [0]; let total = 0, add = v => { const b = enc.encode(v); parts.push(b); total += b.length }, obj = (n, b) => { offsets[n] = total; add(`${n} 0 obj\n${b}\nendobj\n`) };
   add('%PDF-1.4\n'); obj(1, '<< /Type /Catalog /Pages 2 0 R >>'); obj(2, '<< /Type /Pages /Kids [3 0 R] /Count 1 >>'); obj(3, `<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 ${pageH}] /Resources << /XObject << /Im0 5 0 R >> >> /Contents 4 0 R >>`); obj(4, `<< /Length ${content.length} >>\nstream\n${content}\nendstream`); offsets[5] = total; add(`5 0 obj\n<< /Type /XObject /Subtype /Image /Width ${width} /Height ${height} /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length ${jpg.length} >>\nstream\n`); parts.push(jpg); total += jpg.length; add('\nendstream\nendobj\n'); const xref = total; add('xref\n0 6\n0000000000 65535 f \n'); for (let i = 1; i <= 5; i++) add(String(offsets[i]).padStart(10, '0') + ' 00000 n \n'); add(`trailer\n<< /Size 6 /Root 1 0 R >>\nstartxref\n${xref}\n%%EOF`);

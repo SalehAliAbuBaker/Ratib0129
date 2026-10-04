@@ -939,6 +939,7 @@ label{font-size:1rem;color:var(--text);margin-bottom:5px}
   <div class="report-type-switch no-print hidden">
     <button class="rpt-btn active" id="btnRptBudget">📊 تحليل الميزانية</button>
     <button class="rpt-btn" id="btnRptAccounts">👤 كشف الحسابات</button>
+    <button class="rpt-btn" id="btnRptTrial">⚖️ ميزان المراجعة</button>
   </div>
   <div class="carousel-shell budget-carousel no-print" id="budgetCarousel" aria-label="التنقل التفاعلي للميزانية والتقارير">
     <div class="carousel-track">
@@ -1139,6 +1140,15 @@ label{font-size:1rem;color:var(--text);margin-bottom:5px}
         </tfoot>
       </table>
     </div>
+  </div>
+
+  <div class="card hidden" id="trialBalanceCard">
+    <h2>
+      <span>⚖️ ميزان المراجعة</span>
+      <span style="display:flex;gap:6px;"><button class="icon-btn no-print" id="printTrialBalanceBtn" title="طباعة" style="width:42px; height:42px;">🖨️</button></span>
+    </h2>
+    <p style="color:var(--muted); font-weight:800; font-size:0.9rem; margin-bottom:10px;">يسرد إجمالي الحركة المدينة والدائنة لكل حساب خلال الفترة المحددة أعلاه، للتحقق من توازن القيود (إجمالي المدين = إجمالي الدائن).</p>
+    <div id="trialBalanceSections"></div>
   </div>
 </div>
 
@@ -3199,7 +3209,11 @@ let remindersChartInstance = null;
 
 function updateProDashboard() {
   const txs = effectiveTransactions();
-  const income = txs.filter(t => !t.isExpense && t.voucherMode !== 'spend').reduce((n,t)=>n+Number(t.amount||0),0);
+  // ملاحظة مهمة: سند القيد المتعدد (voucherMode === 'multi-entry') يُخزَّن كعدة عمليات منفصلة
+  // (سطر مدين وسطر دائن لكل بند)، وكلاهما يحمل isExpense:false — فلو احتسبنا "الدخل" بشرط
+  // "ليس مصروفاً" فقط، سيُحتسب مبلغ القيد مرتين (مرة من سطر المدين ومرة من سطر الدائن)، ما
+  // يُضخّم إجمالي الوارد فعلياً. لذلك الدخل يُحتسب فقط من سندات الإيراد الصريحة.
+  const income = txs.filter(t => t.voucherMode === 'income').reduce((n,t)=>n+Number(t.amount||0),0);
   const expense = txs.filter(t => t.isExpense || t.voucherMode === 'spend').reduce((n,t)=>n+Number(t.amount||0),0);
   const pending = txs.filter(t => t.status === 'draft' || t.status === 'pending').length;
   const cur = getGlobalCurrency();
@@ -5255,17 +5269,40 @@ document.querySelectorAll('#globalSearchStatusFilter .status-filter-btn').forEac
   });
 });
 
+// يجمع كل بنود سند القيد المتعدد (مخزَّنة كعمليات منفصلة تشترك في multiVoucherId، كل بند
+// يحمل إما حساب مدين أو دائن فقط) في "بطاقة" منطقية واحدة تمثّل السند بالكامل — بدل عرض كل
+// بند كعملية مستقلة، وهو ما كان يُظهر السند مرتين (مرة لسطر المدين ومرة لسطر الدائن) ويُضاعف
+// المبلغ المعروض في الإجماليات. تُستخدم هذه الدالة في شاشة "السجل".
+function groupLedgerItemsForDisplay(txs) {
+  const seen = new Set(), out = [];
+  txs.forEach(item => {
+    if (item.isMultiVoucher) {
+      const groupId = item.multiVoucherId || item.id;
+      if (seen.has(groupId)) return; seen.add(groupId);
+      const siblingLines = txs.filter(t => t.isMultiVoucher && (t.multiVoucherId === groupId || t.id === groupId));
+      const debitNames = [...new Set(siblingLines.filter(t => t.debitAccount).map(t => t.debitAccount))];
+      const creditNames = [...new Set(siblingLines.filter(t => t.creditAccount).map(t => t.creditAccount))];
+      const debitLinesTotal = siblingLines.filter(t => t.debitAccount).reduce((sum, t) => sum + Number(t.amount || 0), 0);
+      const amountValue = item.multiVoucher?.baseTotal || debitLinesTotal || siblingLines.reduce((sum, t) => sum + Number(t.amount || 0), 0) / 2;
+      out.push({ ...item, debitAccount: debitNames.join('، ') || '-', creditAccount: creditNames.join('، ') || '-', amount: amountValue, _groupId: groupId, _siblingCount: siblingLines.length });
+    } else {
+      out.push(item);
+    }
+  });
+  return out;
+}
 function renderAllData() {
   const allTxs = getAllTransactions(), container = document.getElementById('ledgerList');
   if (!container) return;
-  let txs = allTxs;
+  let txs = groupLedgerItemsForDisplay(allTxs);
+  const totalDocsCount = txs.length;
   if (currentLedgerStatusFilter === 'posted') txs = txs.filter(t => t.status !== 'reversed');
   else if (currentLedgerStatusFilter === 'reversed') txs = txs.filter(t => t.status === 'reversed');
   if (currentLedgerSearchQuery) {
     const q = currentLedgerSearchQuery;
     txs = txs.filter(t => [t.seqNum, getTransactionDisplayType(t), t.date, t.debitAccount, t.creditAccount, t.amount].join(' ').toLowerCase().includes(q));
   }
-  document.getElementById('ledgerCountBadge').textContent = `${txs.length} من ${allTxs.length}`;
+  document.getElementById('ledgerCountBadge').textContent = `${txs.length} من ${totalDocsCount}`;
   if (txs.length === 0) { container.innerHTML = '<div style="text-align:center; color:var(--muted); padding:20px; font-weight:900;">لا توجد عمليات مسجلة</div>'; return; }
 
   container.innerHTML = '';
@@ -5310,7 +5347,14 @@ function renderAllData() {
     card.addEventListener('click', (e) => { 
       if (e.target.closest('.single-del-btn')) { 
         e.stopPropagation(); 
-        deleteSingleTransaction(item.id); 
+        if (item.isMultiVoucher) {
+          if (!confirm(`سيتم إلغاء سند القيد المتعدد بكل بنوده (${item._siblingCount}). هل أنت متأكد؟`)) return;
+          const siblingIds = getAllTransactions().filter(t => t.isMultiVoucher && (t.multiVoucherId === item._groupId || t.id === item._groupId)).map(t => t.id);
+          let count = 0; siblingIds.forEach(id => { if (reverseTransactionById(id)) count++; });
+          if (count > 0) { showToast(`تم إلغاء السند المتعدد بكل بنوده (${count})`, 'warn'); updateVoucherSeqBadge(); renderAllData(); updateProDashboard(); }
+        } else {
+          deleteSingleTransaction(item.id);
+        }
         return;
       }
       openDocumentDetailsModal(item);
@@ -5386,18 +5430,22 @@ function initReportsTab(mode='accounts') {
 }
 document.getElementById('btnRptBudget')?.addEventListener('click', () => toggleReportView('budget'));
 document.getElementById('btnRptAccounts')?.addEventListener('click', () => openAccountStatementSearch());
+document.getElementById('btnRptTrial')?.addEventListener('click', () => toggleReportView('trial'));
+document.getElementById('printTrialBalanceBtn')?.addEventListener('click', () => window.print());
 
 function toggleReportView(mode) {
   activeReportTab = mode;
   document.getElementById('btnRptBudget')?.classList.toggle('active', mode === 'budget');
   document.getElementById('btnRptAccounts')?.classList.toggle('active', mode === 'accounts');
+  document.getElementById('btnRptTrial')?.classList.toggle('active', mode === 'trial');
   document.getElementById('budgetReportCard')?.classList.toggle('hidden', mode !== 'budget');
   document.getElementById('accountStatementCard')?.classList.toggle('hidden', mode !== 'accounts');
+  document.getElementById('trialBalanceCard')?.classList.toggle('hidden', mode !== 'trial');
   document.getElementById('filterAccountSelectBox')?.classList.toggle('hidden', mode !== 'accounts');
   const budgetCarousel = document.getElementById('budgetCarousel');
   if (budgetCarousel) budgetCarousel.classList.toggle('hidden', mode !== 'budget' || document.getElementById('pageBudget')?.classList.contains('hidden'));
   const filterTitle = document.getElementById('reportFilterBoxTitle');
-  if (filterTitle) filterTitle.textContent = mode === 'accounts' ? '🔍 البحث عن كشف الحساب' : '📈 تصفية فترة التقرير';
+  if (filterTitle) filterTitle.textContent = mode === 'accounts' ? '🔍 البحث عن كشف الحساب' : (mode === 'trial' ? '📈 تصفية فترة ميزان المراجعة' : '📈 تصفية فترة التقرير');
   runActiveReport();
 }
 
@@ -5529,7 +5577,66 @@ document.getElementById('reportAdvClearBtn')?.addEventListener('click', () => {
   const c = document.getElementById('reportAdvCurrency'); if (c) c.value = 'ALL';
   runAccountStatement();
 });
-function runActiveReport() { if (activeReportTab === 'budget') runBudgetReport(); else runAccountStatement(); }
+function runActiveReport() { if (activeReportTab === 'budget') runBudgetReport(); else if (activeReportTab === 'trial') runTrialBalanceReport(); else runAccountStatement(); }
+
+// ميزان المراجعة: لكل عملة على حدة، يسرد كل حساب ظهر كطرف مدين أو دائن خلال الفترة المحددة
+// مع إجمالي مدينه وإجمالي دائنه وصافي رصيده، وصف إجمالي للتحقق من توازن القيد (مدين = دائن).
+// يعمل بشكل صحيح مع سند القيد المتعدد لأن كل بند فيه يحمل مسبقاً مبلغه الخاص بجانب واحد فقط
+// (مدين أو دائن)، فجمع الجانبين كل على حدة لا يُكرر أو يُضخّم أي رقم.
+function computeTrialBalance(txs) {
+  const byCurrency = {};
+  txs.forEach(t => {
+    if (t.status === 'reversed' || t.status === 'deleted') return;
+    const cur = KNOWN_CURRENCIES.has(t.currency) ? t.currency : 'YER';
+    const amt = Number(t.amount || 0);
+    if (!byCurrency[cur]) byCurrency[cur] = {};
+    if (t.debitAccount) { byCurrency[cur][t.debitAccount] = byCurrency[cur][t.debitAccount] || { debit: 0, credit: 0 }; byCurrency[cur][t.debitAccount].debit += amt; }
+    if (t.creditAccount) { byCurrency[cur][t.creditAccount] = byCurrency[cur][t.creditAccount] || { debit: 0, credit: 0 }; byCurrency[cur][t.creditAccount].credit += amt; }
+  });
+  return byCurrency;
+}
+function runTrialBalanceReport() {
+  const { targetTxs, periodTitle } = getFilteredTransactions();
+  const periodTitleEl = document.getElementById('reportPeriodTitle');
+  if (periodTitleEl) periodTitleEl.textContent = `الفترة: ${periodTitle}`;
+  const byCurrency = computeTrialBalance(targetTxs);
+  const container = document.getElementById('trialBalanceSections');
+  if (!container) return;
+  const currencyLabel = { YER: 'ريال يمني', SAR: 'ريال سعودي', USD: 'دولار أمريكي' };
+  const currencies = Object.keys(byCurrency);
+  if (currencies.length === 0) { container.innerHTML = '<div style="text-align:center; color:var(--muted); padding:20px; font-weight:900;">لا توجد حركات مسجلة خلال هذه الفترة</div>'; return; }
+
+  container.innerHTML = currencies.map(cur => {
+    const rows = Object.entries(byCurrency[cur]).map(([name, v]) => ({ name, code: getAccountCode(name), debit: v.debit, credit: v.credit, net: v.debit - v.credit }));
+    rows.sort((a, b) => (a.code !== '—' && b.code !== '—') ? a.code.localeCompare(b.code) : a.name.localeCompare(b.name, 'ar'));
+    const totalDebit = rows.reduce((s, r) => s + r.debit, 0), totalCredit = rows.reduce((s, r) => s + r.credit, 0);
+    const balanced = Math.abs(totalDebit - totalCredit) < 0.01;
+    const rowsHtml = rows.map(r => `
+      <tr>
+        <td>${esc(r.code)}</td>
+        <td>${esc(r.name)}</td>
+        <td>${r.debit ? fmt(r.debit, cur) : '-'}</td>
+        <td>${r.credit ? fmt(r.credit, cur) : '-'}</td>
+        <td style="color:${r.net >= 0 ? 'var(--danger)' : 'var(--ok)'}; font-weight:900;">${fmt(Math.abs(r.net), cur)} ${r.net >= 0 ? '(مدين)' : '(دائن)'}</td>
+      </tr>`).join('');
+    return `
+      <h3 style="font-size:1.1rem; font-weight:900; color:var(--accent); margin:14px 0 8px;">💱 ${currencyLabel[cur] || cur}</h3>
+      <div style="overflow-x:auto;">
+        <table class="report-table hide-in-privacy">
+          <thead><tr><th>الكود</th><th>الحساب</th><th>مدين</th><th>دائن</th><th>الصافي</th></tr></thead>
+          <tbody>${rowsHtml}</tbody>
+          <tfoot>
+            <tr class="statement-total-row">
+              <th colspan="2">الإجمالي</th>
+              <th>${fmt(totalDebit, cur)}</th>
+              <th>${fmt(totalCredit, cur)}</th>
+              <th style="color:${balanced ? 'var(--ok)' : 'var(--danger)'};">${balanced ? '✅ متوازن' : '⚠️ غير متوازن'}</th>
+            </tr>
+          </tfoot>
+        </table>
+      </div>`;
+  }).join('');
+}
 
 document.getElementById('statementSearchInput')?.addEventListener('input', (e) => {
   currentStatementSearchQuery = e.target.value.trim().toLowerCase();

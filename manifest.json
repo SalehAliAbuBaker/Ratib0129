@@ -1,7 +1,7 @@
 {
   "name": "راتب للتنظيم والتدبير المالي",
   "short_name": "راتب",
-  "description": "تطبيق عربي لإدارة السندات والميزانية والتقارير المالية — يعمل بالكامل دون إنترنت بعد أول زيارة",
+  "description": "لإدارة السندات والميزانية والتقارير المالية - يعمل بالكامل دون إنترنت بعد أول زيارة",
   "lang": "ar",
   "dir": "rtl",
   "start_url": "./index.html",
@@ -12,3 +12,11 @@
   "background_color": "#f8fafc",
   "theme_color": "#0284c7",
   "categories": ["finance", "business", "productivity"],
+  "icons": [
+    {
+      "src": "./Icons/icon.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

@@ -760,6 +760,7 @@ label{font-size:1rem;color:var(--text);margin-bottom:5px}
           <span class="searchable-arrow">▼</span>
           <div class="searchable-dropdown" id="dropDebitAcc"></div>
         </div>
+        <button class="icon-btn" id="lockDebitAccBtn" title="تثبيت هذا الحساب في السندات التالية" style="width: 48px; height: 48px; border-radius: 10px; font-size:1.2rem;">🔓</button>
         <button class="icon-btn" id="addNewDebitAccBtn" title="إضافة حساب جديد" style="width: 48px; height: 48px; border-radius: 10px;">➕</button>
       </div>
       <input type="hidden" id="valDebitAcc">
@@ -777,6 +778,7 @@ label{font-size:1rem;color:var(--text);margin-bottom:5px}
           <span class="searchable-arrow">▼</span>
           <div class="searchable-dropdown" id="dropCreditAcc"></div>
         </div>
+        <button class="icon-btn" id="lockCreditAccBtn" title="تثبيت هذا الحساب في السندات التالية" style="width: 48px; height: 48px; border-radius: 10px; font-size:1.2rem;">🔓</button>
         <button class="icon-btn" id="addNewCreditAccBtn" title="إضافة حساب جديد" style="width: 48px; height: 48px; border-radius: 10px;">➕</button>
       </div>
       <input type="hidden" id="valCreditAcc">
@@ -876,6 +878,12 @@ label{font-size:1rem;color:var(--text);margin-bottom:5px}
     <div class="search-box">
       <span class="search-icon">🔍</span>
       <input type="search" id="ledgerSearchInput" placeholder="بحث فوري (اسم عميل، صندوق، بيان، أو رقم سند)...">
+    </div>
+
+    <div id="ledgerStatusFilter" style="display:flex; gap:6px; margin:8px 0;">
+      <button type="button" class="status-filter-btn active" data-status="all">الكل</button>
+      <button type="button" class="status-filter-btn" data-status="posted">✅ مرحّل</button>
+      <button type="button" class="status-filter-btn" data-status="reversed">❌ ملغى</button>
     </div>
 
     <div id="ledgerList" class="hide-in-privacy"></div>
@@ -1395,6 +1403,11 @@ label{font-size:1rem;color:var(--text);margin-bottom:5px}
         <label>اسم الحساب الجديد:</label>
         <input type="text" id="editAccountNameInput" placeholder="أدخل الاسم الجديد...">
       </div>
+      <div class="form-group">
+        <label>يتبع التجميعي الفرعي:</label>
+        <select id="editAccountParentSelect"></select>
+        <small class="field-hint">يمكنك نقل هذا الحساب التفصيلي إلى تبعية مختلفة ضمن شجرة الحسابات.</small>
+      </div>
       <div style="display:flex; gap:8px;">
         <div class="form-group" style="flex:1;">
           <label>السقف الأعلى:</label>
@@ -1636,7 +1649,8 @@ label{font-size:1rem;color:var(--text);margin-bottom:5px}
         <button class="btn btn-success" id="confirmPrintDocBtn" style="flex: 1; margin-top: 0;">طباعة المستند</button>
         <button class="btn btn-primary" id="confirmPdfDocBtn" style="flex: 1; margin-top: 0;">📄 حفظ PDF</button>
       </div>
-      <button class="btn btn-ghost" id="skipPrintDocBtn" style="margin-top: 8px; width:100%;">تخطي</button>
+      <button class="btn btn-primary" id="addAnotherVoucherBtn" style="margin-top: 8px; width:100%;">➕ إضافة سند جديد</button>
+      <button class="btn btn-ghost" id="skipPrintDocBtn" style="margin-top: 8px; width:100%;">تخطي (الخروج للسجل)</button>
     </div>
   </div>
 
@@ -3090,8 +3104,18 @@ let isPrivacyMode = false;
 let activeEditingTx = null;
 let currentActiveTab = 'pageDashboard'; 
 let currentVoucherMode = 'spend';
+let voucherDebitLocked = false, voucherCreditLocked = false; // تثبيت الحساب ليبقى كما هو بين السندات المتتالية
+function updateVoucherLockBtn(side) {
+  const locked = side === 'debit' ? voucherDebitLocked : voucherCreditLocked;
+  const btn = document.getElementById(side === 'debit' ? 'lockDebitAccBtn' : 'lockCreditAccBtn');
+  if (!btn) return;
+  btn.textContent = locked ? '🔒' : '🔓';
+  btn.style.borderColor = locked ? 'var(--danger)' : '';
+  btn.style.color = locked ? 'var(--danger)' : '';
+  btn.title = locked ? 'مثبّت — سيبقى هذا الحساب كما هو في السند التالي (اضغط للإلغاء)' : 'تثبيت هذا الحساب في السندات التالية';
+}
 let activeReportTab = 'budget';
-let currentLedgerSearchQuery = '', currentStatementSearchQuery = '';
+let currentLedgerSearchQuery = '', currentStatementSearchQuery = '', currentLedgerStatusFilter = 'all';
 let lastPrintedTx = null;
 let hasUnsavedChanges = false, lastFocusedElement = null, ledgerRenderTimer = null;
 let pendingLongPressTx = null;
@@ -4138,6 +4162,25 @@ function renderChartOfAccounts() {
   });
 }
 
+// يحدّد أي صف من دليل الحسابات (الكتالوج) يملك هذا الحساب التفصيلي حالياً
+function findCatalogRowForDetail(name) {
+  const cat = getCanonicalCatalog();
+  return cat.find(x => x.details.some(d => d[1] === name)) || null;
+}
+function catalogSubKey(x) { return `${x.main}|||${x.group}|||${x.sub}`; }
+function populateEditAccountParentSelect(selectedKey) {
+  const sel = document.getElementById('editAccountParentSelect'); if (!sel) return;
+  const cat = getCanonicalCatalog();
+  const seen = new Set(); sel.innerHTML = '';
+  cat.forEach(x => {
+    const key = catalogSubKey(x);
+    if (seen.has(key)) return; seen.add(key);
+    const opt = document.createElement('option'); opt.value = key;
+    opt.textContent = `📁 ${x.main} ⟵ ${x.group} ⟵ ${x.sub}`;
+    sel.appendChild(opt);
+  });
+  if (selectedKey) sel.value = selectedKey;
+}
 function openEditAccountModal(accName) {
   const ceilings = getAccountCeilings(), c = ceilings[accName] || { max: null, min: null };
   document.getElementById('editAccountOldName').value = accName;
@@ -4145,6 +4188,8 @@ function openEditAccountModal(accName) {
   document.getElementById('editAccountNameInput').value = accName;
   document.getElementById('editAccountMaxCeil').value = c.max !== null ? c.max : '';
   document.getElementById('editAccountMinCeil').value = c.min !== null ? c.min : '';
+  const ownerRow = findCatalogRowForDetail(accName);
+  populateEditAccountParentSelect(ownerRow ? catalogSubKey(ownerRow) : '');
   document.getElementById('editAccountModal').classList.add('show');
 }
 
@@ -4184,8 +4229,20 @@ document.getElementById('saveEditedAccountBtn')?.addEventListener('click', () =>
   renameCatalogAccount(oldName, newName);
 
   // تحديث الكود المخزَّن داخل سجل الدليل المحاسبي نفسه (details[i] = [code, name])
-  const cat = getCanonicalCatalog();
+  let cat = getCanonicalCatalog();
   cat.forEach(x => { x.details.forEach(d => { if (d[1] === newName) d[0] = newCode; }); });
+
+  // نقل الحساب إلى تبعية (تجميعي فرعي) مختلفة إن غيّرها المستخدم من القائمة
+  const newParentKey = document.getElementById('editAccountParentSelect')?.value;
+  if (newParentKey) {
+    const currentRow = cat.find(x => x.details.some(d => d[1] === newName));
+    if (currentRow && catalogSubKey(currentRow) !== newParentKey) {
+      const detailEntry = currentRow.details.find(d => d[1] === newName);
+      currentRow.details = currentRow.details.filter(d => d[1] !== newName);
+      const targetRow = cat.find(x => catalogSubKey(x) === newParentKey);
+      if (targetRow && detailEntry) targetRow.details.push(detailEntry);
+    }
+  }
   store.set('account_catalog', cat);
   store.set('account_tree', canonicalTreeProjection(cat));
 
@@ -4517,11 +4574,18 @@ document.getElementById('saveNewAccountTreeBtn').addEventListener('click', () =>
   const ceilings = getAccountCeilings();
   ceilings[subName] = { max: maxC !== '' ? Number(maxC) : null, min: minC !== '' ? Number(minC) : null };
   saveAccountCeilings(ceilings);
-  document.getElementById('addAccountModal').classList.remove('show');
+  // تبقى النافذة مفتوحة لمواصلة إضافة حسابات أخرى تباعاً (نفس المجموعة الأساسية تبقى محدَّدة
+  // للتسهيل)؛ يغلقها المستخدم يدوياً بزر ✕ عند الانتهاء
+  document.getElementById('newAccountSubCodeInput').value = '';
+  document.getElementById('newAccountSubNameInput').value = '';
+  document.getElementById('newAccountMaxCeil').value = '';
+  document.getElementById('newAccountMinCeil').value = '';
+  { const keepSel = document.getElementById('newAccountParentSelect').value; updateParentAccountSelect(); document.getElementById('newAccountParentSelect').value = keepSel; }
+  document.getElementById('newAccountSubNameInput').focus();
   updateSearchableData(); 
   renderCanonicalChartOfAccounts();
   initCanonicalLiveAccountsTreePage();
-  alert('تمت إضافة الحساب بنجاح!');
+  showToast('تمت الإضافة ✅ — يمكنك متابعة إضافة حساب آخر أو إغلاق النافذة', 'success', 4000);
 });
 
 document.getElementById('saveNewParentCategoryBtn').addEventListener('click', () => {
@@ -4548,11 +4612,14 @@ document.getElementById('saveNewParentCategoryBtn').addEventListener('click', ()
   parentCodes[parentName] = parentCode; store.set('account_codes', parentCodes);
   addCatalogCategory(parentName,parentCode,parentOfParent);
   saveAccountTree(tree);
-  document.getElementById('addAccountModal').classList.remove('show');
+  document.getElementById('newParentCategoryCodeInput').value = '';
+  document.getElementById('newParentCategoryInput').value = '';
+  { const keepSel = document.getElementById('newParentCategoryParentSelect').value; updateParentAccountSelect(); document.getElementById('newParentCategoryParentSelect').value = keepSel; }
+  document.getElementById('newParentCategoryInput').focus();
   updateSearchableData();
   renderCanonicalChartOfAccounts();
   initCanonicalLiveAccountsTreePage();
-  alert('تم إنشاء الحساب الرئيسي بنجاح!');
+  showToast('تم الإنشاء ✅ — يمكنك متابعة إضافة حساب رئيسي آخر أو إغلاق النافذة', 'success', 4000);
 });
 
 const toggleSplitBoxBtn = document.getElementById('toggleSplitBoxBtn'), voucherSplitContainer = document.getElementById('voucherSplitContainer');
@@ -4706,28 +4773,32 @@ function selectVoucherTypeDirect(mode) {
     btn.className = 'btn btn-danger'; btn.textContent = '💾 اعتماد وحفظ سند الصرف';
     document.getElementById('lblVoucherRecipient').textContent = 'اسم المستلم (من استلم المبلغ):';
     document.getElementById('voucherRecipientInput').placeholder = 'اسم الشخص الذي استلم المبلغ';
-    selDebitAcc.setValue('', ''); 
-    selCreditAcc.setValue(defAccs.spendCredit || '', defAccs.spendCredit || '');
+    if (!voucherDebitLocked) selDebitAcc.setValue('', '');
+    if (!voucherCreditLocked) selCreditAcc.setValue(defAccs.spendCredit || '', defAccs.spendCredit || '');
   } else if (mode === 'income') {
     card.style.borderRight = '6px solid var(--ok)'; title.textContent = '📥 تسجيل سند إيراد';
     btn.className = 'btn btn-success'; btn.textContent = '💾 اعتماد وحفظ سند الإيراد';
     document.getElementById('lblVoucherRecipient').textContent = 'اسم المستفيد (من دفع المبلغ):';
     document.getElementById('voucherRecipientInput').placeholder = 'اسم الشخص أو الجهة الدافعة';
-    selDebitAcc.setValue(defAccs.incomeDebit, defAccs.incomeDebit); 
-    selCreditAcc.setValue('', '');
+    if (!voucherDebitLocked) selDebitAcc.setValue(defAccs.incomeDebit, defAccs.incomeDebit);
+    if (!voucherCreditLocked) selCreditAcc.setValue('', '');
   } else {
     card.style.borderRight = '6px solid var(--accent)'; title.textContent = '⚖️ تسجيل سند قيد وتسوية';
     btn.className = 'btn btn-primary'; btn.textContent = '💾 اعتماد وحفظ سند القيد';
     document.getElementById('lblVoucherRecipient').textContent = 'اسم المستلم / المستفيد (اختياري):';
     document.getElementById('voucherRecipientInput').placeholder = 'اسم الطرف المرتبط بالقيد (اختياري)';
-    selDebitAcc.setValue('', ''); selCreditAcc.setValue('', '');
+    if (!voucherDebitLocked) selDebitAcc.setValue('', '');
+    if (!voucherCreditLocked) selCreditAcc.setValue('', '');
   }
   document.getElementById('entryCurrencyConvertHint')?.classList.toggle('hidden', mode !== 'entry');
-  if(preferredDebitAccountForNewVoucher){
+  if(preferredDebitAccountForNewVoucher && !voucherDebitLocked){
     selDebitAcc.setValue(preferredDebitAccountForNewVoucher, preferredDebitAccountForNewVoucher);
   }
+  updateVoucherLockBtn('debit'); updateVoucherLockBtn('credit');
 }
 
+document.getElementById('lockDebitAccBtn')?.addEventListener('click', () => { voucherDebitLocked = !voucherDebitLocked; updateVoucherLockBtn('debit'); showToast(voucherDebitLocked ? 'تم تثبيت الحساب المدين — سيبقى كما هو في السند التالي' : 'تم إلغاء تثبيت الحساب المدين', voucherDebitLocked ? 'success' : 'warn'); });
+document.getElementById('lockCreditAccBtn')?.addEventListener('click', () => { voucherCreditLocked = !voucherCreditLocked; updateVoucherLockBtn('credit'); showToast(voucherCreditLocked ? 'تم تثبيت الحساب الدائن — سيبقى كما هو في السند التالي' : 'تم إلغاء تثبيت الحساب الدائن', voucherCreditLocked ? 'success' : 'warn'); });
 document.getElementById('swapAccountsBtn').addEventListener('click', () => {
   const dVal = selDebitAcc.getValue(), dText = document.getElementById('inpDebitAcc').value;
   const cVal = selCreditAcc.getValue(), cText = document.getElementById('inpCreditAcc').value;
@@ -4833,6 +4904,11 @@ document.getElementById('confirmPrintDocBtn')?.addEventListener('click', () => {
 document.getElementById('skipPrintDocBtn')?.addEventListener('click', () => {
   document.getElementById('printPromptModal').classList.remove('show');
   navigateToTab('pageLedger', false);
+});
+document.getElementById('addAnotherVoucherBtn')?.addEventListener('click', () => {
+  document.getElementById('printPromptModal').classList.remove('show');
+  selectVoucherTypeDirect(currentVoucherMode);
+  showToast('جاهز لإدخال سند جديد', 'success');
 });
 
 // الإجراء الفعلي للإلغاء (بلا تأكيد) — مُستخرَج هنا ليُستخدَم في مسارين: حذف عملية مفردة
@@ -5158,6 +5234,14 @@ document.getElementById('ledgerSearchInput')?.addEventListener('input', (e) => {
   currentLedgerSearchQuery = e.target.value.trim().toLowerCase();
   clearTimeout(ledgerRenderTimer); ledgerRenderTimer = setTimeout(renderAllData, 120);
 });
+document.querySelectorAll('#ledgerStatusFilter .status-filter-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('#ledgerStatusFilter .status-filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    currentLedgerStatusFilter = btn.dataset.status;
+    renderAllData();
+  });
+});
 document.getElementById('exportCsvBtn')?.addEventListener('click', exportTransactionsCsv);
 document.getElementById('globalSearchBtn')?.addEventListener('click', openGlobalSearch);
 document.getElementById('closeGlobalSearchBtn')?.addEventListener('click', closeGlobalSearch);
@@ -5175,9 +5259,11 @@ function renderAllData() {
   const allTxs = getAllTransactions(), container = document.getElementById('ledgerList');
   if (!container) return;
   let txs = allTxs;
+  if (currentLedgerStatusFilter === 'posted') txs = txs.filter(t => t.status !== 'reversed');
+  else if (currentLedgerStatusFilter === 'reversed') txs = txs.filter(t => t.status === 'reversed');
   if (currentLedgerSearchQuery) {
     const q = currentLedgerSearchQuery;
-    txs = allTxs.filter(t => [t.seqNum, getTransactionDisplayType(t), t.date, t.debitAccount, t.creditAccount, t.amount].join(' ').toLowerCase().includes(q));
+    txs = txs.filter(t => [t.seqNum, getTransactionDisplayType(t), t.date, t.debitAccount, t.creditAccount, t.amount].join(' ').toLowerCase().includes(q));
   }
   document.getElementById('ledgerCountBadge').textContent = `${txs.length} من ${allTxs.length}`;
   if (txs.length === 0) { container.innerHTML = '<div style="text-align:center; color:var(--muted); padding:20px; font-weight:900;">لا توجد عمليات مسجلة</div>'; return; }
@@ -5882,7 +5968,18 @@ function renameSubCategory(mainName,groupName,oldSubName){
   const trimmedName=newName.trim(), trimmedCode=newCode.trim();
   const cat=getCanonicalCatalog();
   if(trimmedCode && cat.some(x=>x.sub!==oldSubName && x.subCode===trimmedCode)){ alert('رقم الحساب مستخدم بالفعل لحساب تجميعي فرعي آخر.'); return; }
-  cat.forEach(x=>{ if(x.main===mainName && x.group===groupName && x.sub===oldSubName){ x.sub=trimmedName; if(trimmedCode)x.subCode=trimmedCode; } });
+
+  // خيار نقل التبعية: اكتب اسم تجميعي (مستوى 2) آخر ضمن نفس الرئيسي لنقل هذا التجميعي الفرعي إليه
+  const availableGroups=[...new Set(cat.filter(x=>x.main===mainName).map(x=>x.group))];
+  const newGroup=prompt(`يتبع حالياً: "${groupName}". لتغيير التبعية اكتب اسم تجميعي آخر من القائمة، أو اتركه كما هو:
+${availableGroups.join('، ')}`, groupName);
+  let targetGroup=groupName;
+  if(newGroup!==null && newGroup.trim() && newGroup.trim()!==groupName){
+    if(!availableGroups.includes(newGroup.trim())){ alert('لم يُعثر على تجميعي بهذا الاسم ضمن نفس الحساب الرئيسي — بقي الحساب تحت تبعيته الحالية.'); }
+    else targetGroup=newGroup.trim();
+  }
+
+  cat.forEach(x=>{ if(x.main===mainName && x.group===groupName && x.sub===oldSubName){ x.sub=trimmedName; if(trimmedCode)x.subCode=trimmedCode; if(targetGroup!==groupName){ x.group=targetGroup; x.groupCode=cat.find(y=>y.main===mainName&&y.group===targetGroup)?.groupCode||x.groupCode; } } });
   store.set('account_catalog',cat); store.set('account_tree',canonicalTreeProjection(cat));
   const codes=getAccountCodes(); if(oldSubName!==trimmedName) delete codes[oldSubName]; codes[trimmedName]=trimmedCode||getAccountCode(trimmedName);
   store.set('account_codes',codes);

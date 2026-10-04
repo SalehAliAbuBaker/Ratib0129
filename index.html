@@ -5901,7 +5901,10 @@ function runBudgetReport() {
 
   const ctx = document.getElementById('reportChart');
   if (!ctx) return;
-  if (window.reportChart) window.reportChart.destroy();
+  // ملاحظة: window.reportChart يشير تلقائياً لعنصر الـ canvas نفسه (بسبب id="reportChart")
+  // حتى قبل إنشاء أي رسم بياني فعلياً — لذلك لا يكفي التحقق من وجوده، بل من أنه فعلاً
+  // كائن Chart.js حقيقي يملك دالة destroy (وإلا نحصل على: "destroy is not a function").
+  if (window.reportChart && typeof window.reportChart.destroy === 'function') window.reportChart.destroy();
   window.reportChart = new Chart(ctx, {
     type: 'doughnut',
     data: {

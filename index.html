@@ -808,6 +808,21 @@ label{font-size:1rem;color:var(--text);margin-bottom:5px}
       ✍️ التفقيط: <span id="tafqitText">صفر</span>
     </div>
 
+    <div class="form-group">
+      <label>تاريخ السند:</label>
+      <input type="date" id="voucherDateInput">
+    </div>
+
+    <div class="form-group" style="margin-bottom: 12px;" id="voucherRecipientGroup">
+      <label id="lblVoucherRecipient">اسم المستلم / المستفيد:</label>
+      <input type="text" id="voucherRecipientInput" placeholder="اسم الشخص المستلم أو المستفيد">
+    </div>
+
+    <div class="form-group" style="margin-bottom: 12px;">
+      <label>البيان / تفاصيل العملية:</label>
+      <input type="text" id="voucherNoteInput" placeholder="اكتب بيان السند أو الغرض...">
+    </div>
+
     <div style="background: var(--bg); border: 2px solid var(--border); border-radius: 10px; padding: 12px; margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between;">
       <div>
         <div style="font-weight: 900; font-size: 1.1rem;">توزيع السند على بنود الميزانية</div>
@@ -837,21 +852,6 @@ label{font-size:1rem;color:var(--text);margin-bottom:5px}
         <span>مجموع الموزع: <b id="voucherAllocatedSum">0</b> (<span id="voucherAllocatedPctSum">0%</span>)</span>
         <span>المتبقي: <b id="voucherRemainingSum" style="color: var(--ok);">0</b></span>
       </div>
-    </div>
-
-    <div class="form-group">
-      <label>تاريخ السند:</label>
-      <input type="date" id="voucherDateInput">
-    </div>
-
-    <div class="form-group" style="margin-bottom: 12px;" id="voucherRecipientGroup">
-      <label id="lblVoucherRecipient">اسم المستلم / المستفيد:</label>
-      <input type="text" id="voucherRecipientInput" placeholder="اسم الشخص المستلم أو المستفيد">
-    </div>
-
-    <div class="form-group" style="margin-bottom: 12px;">
-      <label>البيان / تفاصيل العملية:</label>
-      <input type="text" id="voucherNoteInput" placeholder="اكتب بيان السند أو الغرض...">
     </div>
 
     <button class="btn btn-danger" id="commitVoucherBtn" style="margin-top: 4px;">
@@ -936,10 +936,11 @@ label{font-size:1rem;color:var(--text);margin-bottom:5px}
 </div>
 
 <div id="pageReports" class="hidden">
+  <div class="acc-accordion-header no-print" id="reportsGroupStatementHeader" style="cursor:pointer;">📑 كشف الحساب وما يتعلق به</div>
+  <div class="acc-accordion-body open" id="reportsGroupStatementBody">
   <div class="report-type-switch no-print hidden">
     <button class="rpt-btn active" id="btnRptBudget">📊 تحليل الميزانية</button>
     <button class="rpt-btn" id="btnRptAccounts">👤 كشف الحسابات</button>
-    <button class="rpt-btn" id="btnRptTrial">⚖️ ميزان المراجعة</button>
   </div>
   <div class="carousel-shell budget-carousel no-print" id="budgetCarousel" aria-label="التنقل التفاعلي للميزانية والتقارير">
     <div class="carousel-track">
@@ -1141,14 +1142,18 @@ label{font-size:1rem;color:var(--text);margin-bottom:5px}
       </table>
     </div>
   </div>
+  </div>
 
-  <div class="card hidden" id="trialBalanceCard">
+  <div class="acc-accordion-header no-print" id="reportsGroupTrialHeader" style="cursor:pointer;">⚖️ ميزان المراجعة</div>
+  <div class="acc-accordion-body" id="reportsGroupTrialBody">
+  <div class="card" id="trialBalanceCard">
     <h2>
       <span>⚖️ ميزان المراجعة</span>
       <span style="display:flex;gap:6px;"><button class="icon-btn no-print" id="printTrialBalanceBtn" title="طباعة" style="width:42px; height:42px;">🖨️</button></span>
     </h2>
-    <p style="color:var(--muted); font-weight:800; font-size:0.9rem; margin-bottom:10px;">يسرد إجمالي الحركة المدينة والدائنة لكل حساب خلال الفترة المحددة أعلاه، للتحقق من توازن القيود (إجمالي المدين = إجمالي الدائن).</p>
+    <p style="color:var(--muted); font-weight:800; font-size:0.9rem; margin-bottom:10px;">يسرد إجمالي الحركة المدينة والدائنة لكل حساب مُجمَّعة حسب التصنيف الرئيسي، للتحقق من توازن القيود (إجمالي المدين = إجمالي الدائن) — يشمل كل الحركات المسجلة.</p>
     <div id="trialBalanceSections"></div>
+  </div>
   </div>
 </div>
 
@@ -5363,6 +5368,8 @@ function renderAllData() {
     container.appendChild(card);
   });
   updateProDashboard();
+  // تحديث ميزان المراجعة إن كان قسمه مفتوحاً حالياً، حتى يعكس أي تعديل جديد فوراً
+  if (document.getElementById('reportsGroupTrialBody')?.classList.contains('open')) runTrialBalanceReport();
 }
 
 function openDocumentDetailsModal(item) {
@@ -5430,22 +5437,30 @@ function initReportsTab(mode='accounts') {
 }
 document.getElementById('btnRptBudget')?.addEventListener('click', () => toggleReportView('budget'));
 document.getElementById('btnRptAccounts')?.addEventListener('click', () => openAccountStatementSearch());
-document.getElementById('btnRptTrial')?.addEventListener('click', () => toggleReportView('trial'));
 document.getElementById('printTrialBalanceBtn')?.addEventListener('click', () => window.print());
+// قسما التقارير القابلان للطي: "كشف الحساب وما يتعلق به" و"ميزان المراجعة"، كل منهما مستقل
+// عن الآخر ويمكن فتحهما معاً أو كل على حدة.
+let trialBalanceLoadedOnce = false;
+document.getElementById('reportsGroupStatementHeader')?.addEventListener('click', () => {
+  document.getElementById('reportsGroupStatementBody')?.classList.toggle('open');
+});
+document.getElementById('reportsGroupTrialHeader')?.addEventListener('click', () => {
+  const body = document.getElementById('reportsGroupTrialBody');
+  body?.classList.toggle('open');
+  if (body?.classList.contains('open') && !trialBalanceLoadedOnce) { trialBalanceLoadedOnce = true; runTrialBalanceReport(); }
+});
 
 function toggleReportView(mode) {
   activeReportTab = mode;
   document.getElementById('btnRptBudget')?.classList.toggle('active', mode === 'budget');
   document.getElementById('btnRptAccounts')?.classList.toggle('active', mode === 'accounts');
-  document.getElementById('btnRptTrial')?.classList.toggle('active', mode === 'trial');
   document.getElementById('budgetReportCard')?.classList.toggle('hidden', mode !== 'budget');
   document.getElementById('accountStatementCard')?.classList.toggle('hidden', mode !== 'accounts');
-  document.getElementById('trialBalanceCard')?.classList.toggle('hidden', mode !== 'trial');
   document.getElementById('filterAccountSelectBox')?.classList.toggle('hidden', mode !== 'accounts');
   const budgetCarousel = document.getElementById('budgetCarousel');
   if (budgetCarousel) budgetCarousel.classList.toggle('hidden', mode !== 'budget' || document.getElementById('pageBudget')?.classList.contains('hidden'));
   const filterTitle = document.getElementById('reportFilterBoxTitle');
-  if (filterTitle) filterTitle.textContent = mode === 'accounts' ? '🔍 البحث عن كشف الحساب' : (mode === 'trial' ? '📈 تصفية فترة ميزان المراجعة' : '📈 تصفية فترة التقرير');
+  if (filterTitle) filterTitle.textContent = mode === 'accounts' ? '🔍 البحث عن كشف الحساب' : '📈 تصفية فترة التقرير';
   runActiveReport();
 }
 
@@ -5577,7 +5592,7 @@ document.getElementById('reportAdvClearBtn')?.addEventListener('click', () => {
   const c = document.getElementById('reportAdvCurrency'); if (c) c.value = 'ALL';
   runAccountStatement();
 });
-function runActiveReport() { if (activeReportTab === 'budget') runBudgetReport(); else if (activeReportTab === 'trial') runTrialBalanceReport(); else runAccountStatement(); }
+function runActiveReport() { if (activeReportTab === 'budget') runBudgetReport(); else runAccountStatement(); }
 
 // ميزان المراجعة: لكل عملة على حدة، يسرد كل حساب ظهر كطرف مدين أو دائن خلال الفترة المحددة
 // مع إجمالي مدينه وإجمالي دائنه وصافي رصيده، وصف إجمالي للتحقق من توازن القيد (مدين = دائن).
@@ -5595,39 +5610,54 @@ function computeTrialBalance(txs) {
   });
   return byCurrency;
 }
+// يحدد التصنيف الرئيسي (أصول/التزامات/...) الذي يتبعه حساب معيّن، للتجميع الهرمي في
+// ميزان المراجعة — يرجع "غير مصنّف" لأي حساب غير موجود في دليل الحسابات (نادر، حسابات قديمة).
+function getAccountMainCategory(name) {
+  const row = findCatalogRowForDetail(name);
+  return row ? row.main : 'غير مصنّف';
+}
 function runTrialBalanceReport() {
-  const { targetTxs, periodTitle } = getFilteredTransactions();
-  const periodTitleEl = document.getElementById('reportPeriodTitle');
-  if (periodTitleEl) periodTitleEl.textContent = `الفترة: ${periodTitle}`;
-  const byCurrency = computeTrialBalance(targetTxs);
+  const byCurrency = computeTrialBalance(getAllTransactions());
   const container = document.getElementById('trialBalanceSections');
   if (!container) return;
   const currencyLabel = { YER: 'ريال يمني', SAR: 'ريال سعودي', USD: 'دولار أمريكي' };
   const currencies = Object.keys(byCurrency);
-  if (currencies.length === 0) { container.innerHTML = '<div style="text-align:center; color:var(--muted); padding:20px; font-weight:900;">لا توجد حركات مسجلة خلال هذه الفترة</div>'; return; }
+  if (currencies.length === 0) { container.innerHTML = '<div style="text-align:center; color:var(--muted); padding:20px; font-weight:900;">لا توجد حركات مسجلة بعد</div>'; return; }
 
   container.innerHTML = currencies.map(cur => {
-    const rows = Object.entries(byCurrency[cur]).map(([name, v]) => ({ name, code: getAccountCode(name), debit: v.debit, credit: v.credit, net: v.debit - v.credit }));
-    rows.sort((a, b) => (a.code !== '—' && b.code !== '—') ? a.code.localeCompare(b.code) : a.name.localeCompare(b.name, 'ar'));
+    const rows = Object.entries(byCurrency[cur]).map(([name, v]) => ({ name, code: getAccountCode(name), main: getAccountMainCategory(name), debit: v.debit, credit: v.credit, net: v.debit - v.credit }));
+    // تجميع هرمي حسب التصنيف الرئيسي (أصول/التزامات/...)، مع صف إجمالي بارز لكل تصنيف
+    const mains = [...new Set(rows.map(r => r.main))];
     const totalDebit = rows.reduce((s, r) => s + r.debit, 0), totalCredit = rows.reduce((s, r) => s + r.credit, 0);
     const balanced = Math.abs(totalDebit - totalCredit) < 0.01;
-    const rowsHtml = rows.map(r => `
-      <tr>
-        <td>${esc(r.code)}</td>
-        <td>${esc(r.name)}</td>
-        <td>${r.debit ? fmt(r.debit, cur) : '-'}</td>
-        <td>${r.credit ? fmt(r.credit, cur) : '-'}</td>
-        <td style="color:${r.net >= 0 ? 'var(--danger)' : 'var(--ok)'}; font-weight:900;">${fmt(Math.abs(r.net), cur)} ${r.net >= 0 ? '(مدين)' : '(دائن)'}</td>
-      </tr>`).join('');
+    const bodyHtml = mains.map(mainName => {
+      const groupRows = rows.filter(r => r.main === mainName).sort((a, b) => (a.code !== '—' && b.code !== '—') ? a.code.localeCompare(b.code) : a.name.localeCompare(b.name, 'ar'));
+      const groupDebit = groupRows.reduce((s, r) => s + r.debit, 0), groupCredit = groupRows.reduce((s, r) => s + r.credit, 0);
+      const headerRow = `<tr style="background:color-mix(in srgb, var(--accent) 10%, transparent); font-weight:900;">
+        <td colspan="2">📁 ${esc(mainName)}</td>
+        <td>${fmt(groupDebit, cur)}</td>
+        <td>${fmt(groupCredit, cur)}</td>
+        <td></td>
+      </tr>`;
+      const detailRows = groupRows.map(r => `
+        <tr>
+          <td>${esc(r.code)}</td>
+          <td style="padding-right:18px;">↳ ${esc(r.name)}</td>
+          <td>${r.debit ? fmt(r.debit, cur) : '-'}</td>
+          <td>${r.credit ? fmt(r.credit, cur) : '-'}</td>
+          <td style="color:${r.net >= 0 ? 'var(--danger)' : 'var(--ok)'}; font-weight:900;">${fmt(Math.abs(r.net), cur)} ${r.net >= 0 ? '(مدين)' : '(دائن)'}</td>
+        </tr>`).join('');
+      return headerRow + detailRows;
+    }).join('');
     return `
       <h3 style="font-size:1.1rem; font-weight:900; color:var(--accent); margin:14px 0 8px;">💱 ${currencyLabel[cur] || cur}</h3>
       <div style="overflow-x:auto;">
         <table class="report-table hide-in-privacy">
           <thead><tr><th>الكود</th><th>الحساب</th><th>مدين</th><th>دائن</th><th>الصافي</th></tr></thead>
-          <tbody>${rowsHtml}</tbody>
+          <tbody>${bodyHtml}</tbody>
           <tfoot>
             <tr class="statement-total-row">
-              <th colspan="2">الإجمالي</th>
+              <th colspan="2">الإجمالي العام</th>
               <th>${fmt(totalDebit, cur)}</th>
               <th>${fmt(totalCredit, cur)}</th>
               <th style="color:${balanced ? 'var(--ok)' : 'var(--danger)'};">${balanced ? '✅ متوازن' : '⚠️ غير متوازن'}</th>

@@ -3894,7 +3894,7 @@ function closeDashboardHome(pushToHistory = true) {
   currentActiveTab = 'pageDashboard';
 }
 
-function setupReportSections(target = 'pageReports') {
+function setupReportSections(target = 'pageReports', autoOpen = true) {
   const filter = document.getElementById('reportFilterBox');
   const budget = document.getElementById('budgetReportCard');
   const carousel = document.getElementById('budgetCarousel');
@@ -3911,12 +3911,20 @@ function setupReportSections(target = 'pageReports') {
     reportHost.appendChild(budget);
     toggleReportView('budget');
   } else {
-    reportsPage.appendChild(filter);
+    // مهم: يجب إعادة هذه العناصر إلى داخل حاوية قسم "كشف الحساب" القابل للطي نفسها
+    // (reportsGroupStatementBody)، وليس إلى جذر صفحة التقارير مباشرة — وإلا تبقى ظاهرة
+    // دائماً بغض النظر عن حالة الطي (تماماً كالمشكلة التي ظهرت: عناصر كشف الحساب تظهر
+    // أسفل ميزان المراجعة حتى عندما يكون قسم كشف الحساب نفسه مطوياً).
+    const stBody = document.getElementById('reportsGroupStatementBody') || reportsPage;
+    // budget قد لا يكون حالياً ابناً مباشراً لـ stBody (مثلاً لو كان آخر مكان زاره المستخدم
+    // صفحة الميزانية المستقلة)؛ لذا نتحقق أولاً تفادياً لخطأ insertBefore.
+    if (budget.parentElement === stBody) stBody.insertBefore(filter, budget);
+    else stBody.appendChild(filter);
     if (carousel) carousel.classList.add('hidden');
     budget.classList.add('hidden');
     const account = document.getElementById('accountStatementCard');
-    if (account) reportsPage.appendChild(account);
-    openAccountStatementSearch();
+    if (account) stBody.appendChild(account);
+    if (autoOpen) openAccountStatementSearch();
   }
 }
 
@@ -3941,7 +3949,7 @@ function navigateToTab(target, pushToHistory = true) {
   if (target === 'pageAccountsTree' || target === 'pageAccountOperations') backBtn.classList.add('hidden');
 
   if (target === 'pageExpenses') initVoucherSelectorView();
-  else if (target === 'pageReports') { setupReportSections('pageReports'); initReportsTab('accounts', false); }
+  else if (target === 'pageReports') { setupReportSections('pageReports', false); initReportsTab('accounts', false); }
   else if (target === 'pageBudget') { setupReportSections('pageBudget'); initReportsTab('budget'); runBudgetReport(); }
   else if (target === 'pageAccountsTree') { initCanonicalLiveAccountsTreePage(); renderAccountsPager(); }
   else if (target === 'pageSettings') initSettingsPage();
@@ -6872,7 +6880,7 @@ function proceedAppInit() {
   setupFormattedNumberInputs();
   initializeDateInputs();
   setupMultiVoucherFeature();
-  setupReportSections('pageReports');
+  setupReportSections('pageReports', false);
   navigateToTab('pageDashboard', false);
   initCarousels();
   updateProDashboard();

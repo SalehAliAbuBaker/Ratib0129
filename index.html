@@ -261,6 +261,7 @@ body.privacy-active .icon-btn#privacyBtn { background: var(--accent); color: #ff
   font-size: 1.1rem;
 }
 .acc-accordion-body.open { display: block; }
+.acc-accordion-header.open { background: color-mix(in srgb, var(--accent) 12%, var(--bg)); border-color: var(--accent); }
 .acc-subgroup-row td { background:color-mix(in srgb, var(--accent) 8%, transparent); font-weight:900; font-size:1.05rem; text-align:right; padding:8px 10px; }
 .acc-account-row td { transition: background 0.15s; }
 
@@ -937,7 +938,7 @@ label{font-size:1rem;color:var(--text);margin-bottom:5px}
 
 <div id="pageReports" class="hidden">
   <div class="acc-accordion-header no-print" id="reportsGroupStatementHeader" style="cursor:pointer;">📑 كشف الحساب وما يتعلق به</div>
-  <div class="acc-accordion-body open" id="reportsGroupStatementBody">
+  <div class="acc-accordion-body" id="reportsGroupStatementBody">
   <div class="report-type-switch no-print hidden">
     <button class="rpt-btn active" id="btnRptBudget">📊 تحليل الميزانية</button>
     <button class="rpt-btn" id="btnRptAccounts">👤 كشف الحسابات</button>
@@ -1149,7 +1150,7 @@ label{font-size:1rem;color:var(--text);margin-bottom:5px}
   <div class="card" id="trialBalanceCard">
     <h2>
       <span>⚖️ ميزان المراجعة</span>
-      <span style="display:flex;gap:6px;"><button class="icon-btn no-print" id="printTrialBalanceBtn" title="طباعة" style="width:42px; height:42px;">🖨️</button></span>
+      <span style="display:flex;gap:6px;"><button class="icon-btn no-print" id="shareTrialBalancePdfBtn" title="مشاركة PDF" style="width:42px; height:42px;">📄</button><button class="icon-btn no-print" id="printTrialBalanceBtn" title="طباعة" style="width:42px; height:42px;">🖨️</button></span>
     </h2>
     <p style="color:var(--muted); font-weight:800; font-size:0.9rem; margin-bottom:10px;">يسرد إجمالي الحركة المدينة والدائنة لكل حساب مُجمَّعة حسب التصنيف الرئيسي، للتحقق من توازن القيود (إجمالي المدين = إجمالي الدائن) — يشمل كل الحركات المسجلة.</p>
     <div id="trialBalanceSections"></div>
@@ -3940,7 +3941,7 @@ function navigateToTab(target, pushToHistory = true) {
   if (target === 'pageAccountsTree' || target === 'pageAccountOperations') backBtn.classList.add('hidden');
 
   if (target === 'pageExpenses') initVoucherSelectorView();
-  else if (target === 'pageReports') { setupReportSections('pageReports'); initReportsTab('accounts'); }
+  else if (target === 'pageReports') { setupReportSections('pageReports'); initReportsTab('accounts', false); }
   else if (target === 'pageBudget') { setupReportSections('pageBudget'); initReportsTab('budget'); runBudgetReport(); }
   else if (target === 'pageAccountsTree') { initCanonicalLiveAccountsTreePage(); renderAccountsPager(); }
   else if (target === 'pageSettings') initSettingsPage();
@@ -5424,30 +5425,38 @@ function openDocumentDetailsModal(item) {
   pushAppHistoryState();
 }
 
-function initReportsTab(mode='accounts') {
-  populateReportFilterOptions(); updateSearchableData(); toggleReportView(mode);
+function initReportsTab(mode='accounts', autoOpen=true) {
+  populateReportFilterOptions(); updateSearchableData();
+  // autoOpen=false: تهيئة البيانات والمرشحات بصمت فقط، دون فتح أي قسم أو عرض أي تقرير —
+  // تُستخدم عند الدخول العام لصفحة "التقارير" من القائمة الرئيسية، حيث يجب أن تبقى الأقسام
+  // مطوية حتى يضغط المستخدم صراحةً على أحد الزرين.
+  if (autoOpen) toggleReportView(mode);
   // updateSearchableData() تعيد تعبئة خانة البحث تلقائياً بنص "ملخص كافة الحسابات"،
   // فنُفرغها ونُفعّل المؤشر فيها هنا كخطوة أخيرة بعد اكتمال كل التحديثات، حتى تبقى فارغة فعلاً عند الدخول.
   if (mode === 'accounts' && selReportAccount && selReportAccount.input) {
     selReportAccount.input.value = '';
     selReportAccount.input.classList.remove('has-selection');
     document.getElementById('clearReportAccountBtn')?.classList.add('hidden');
-    requestAnimationFrame(() => selReportAccount.input.focus());
+    if (autoOpen) requestAnimationFrame(() => selReportAccount.input.focus());
   }
 }
 document.getElementById('btnRptBudget')?.addEventListener('click', () => toggleReportView('budget'));
 document.getElementById('btnRptAccounts')?.addEventListener('click', () => openAccountStatementSearch());
 document.getElementById('printTrialBalanceBtn')?.addEventListener('click', () => window.print());
-// قسما التقارير القابلان للطي: "كشف الحساب وما يتعلق به" و"ميزان المراجعة"، كل منهما مستقل
-// عن الآخر ويمكن فتحهما معاً أو كل على حدة.
+document.getElementById('shareTrialBalancePdfBtn')?.addEventListener('click', () => shareTrialBalancePdf());
+// قسما التقارير القابلان للطي: "كشف الحساب وما يتعلق به" و"ميزان المراجعة" — تبديل حصري
+// تماماً: فتح أحدهما يطوي الآخر بالكامل فلا يظهر أي تداخل بينهما. الضغط على القسم المفتوح
+// نفسه يطويه (دون فتح أي شيء بدلاً عنه)، تماماً كما في أي قائمة منسدلة عادية.
 let trialBalanceLoadedOnce = false;
 document.getElementById('reportsGroupStatementHeader')?.addEventListener('click', () => {
-  document.getElementById('reportsGroupStatementBody')?.classList.toggle('open');
+  const alreadyOpen = document.getElementById('reportsGroupStatementBody')?.classList.contains('open');
+  if (alreadyOpen) { closeAllReportsSections(); return; }
+  toggleReportView(activeReportTab === 'budget' ? 'budget' : 'accounts');
 });
 document.getElementById('reportsGroupTrialHeader')?.addEventListener('click', () => {
-  const body = document.getElementById('reportsGroupTrialBody');
-  body?.classList.toggle('open');
-  if (body?.classList.contains('open') && !trialBalanceLoadedOnce) { trialBalanceLoadedOnce = true; runTrialBalanceReport(); }
+  const alreadyOpen = document.getElementById('reportsGroupTrialBody')?.classList.contains('open');
+  if (alreadyOpen) { closeAllReportsSections(); return; }
+  openReportsSection('trial');
 });
 
 function toggleReportView(mode) {
@@ -5461,7 +5470,32 @@ function toggleReportView(mode) {
   if (budgetCarousel) budgetCarousel.classList.toggle('hidden', mode !== 'budget' || document.getElementById('pageBudget')?.classList.contains('hidden'));
   const filterTitle = document.getElementById('reportFilterBoxTitle');
   if (filterTitle) filterTitle.textContent = mode === 'accounts' ? '🔍 البحث عن كشف الحساب' : '📈 تصفية فترة التقرير';
+  // فتح قسم "كشف الحساب وما يتعلق به" حصرياً (وإغلاق "ميزان المراجعة") — فقط إن كنا فعلياً
+  // داخل صفحة التقارير نفسها، وليس في سياق إعادة توجيه هذا المحتوى لصفحة الميزانية المستقلة
+  // (pageBudget)، حيث لا توجد أقسام قابلة للطي أصلاً.
+  if (!document.getElementById('pageReports')?.classList.contains('hidden')) {
+    openReportsSection('statement');
+  }
   runActiveReport();
+}
+// يفتح أحد قسمي صفحة التقارير حصرياً ويطوي الآخر تماماً (لا تداخل بين المحتويين إطلاقاً)
+function openReportsSection(which) {
+  const stHeader = document.getElementById('reportsGroupStatementHeader'), stBody = document.getElementById('reportsGroupStatementBody');
+  const trHeader = document.getElementById('reportsGroupTrialHeader'), trBody = document.getElementById('reportsGroupTrialBody');
+  if (which === 'statement') {
+    stBody?.classList.add('open'); stHeader?.classList.add('open');
+    trBody?.classList.remove('open'); trHeader?.classList.remove('open');
+  } else {
+    trBody?.classList.add('open'); trHeader?.classList.add('open');
+    stBody?.classList.remove('open'); stHeader?.classList.remove('open');
+    if (!trialBalanceLoadedOnce) { trialBalanceLoadedOnce = true; runTrialBalanceReport(); }
+  }
+}
+function closeAllReportsSections() {
+  document.getElementById('reportsGroupStatementBody')?.classList.remove('open');
+  document.getElementById('reportsGroupStatementHeader')?.classList.remove('open');
+  document.getElementById('reportsGroupTrialBody')?.classList.remove('open');
+  document.getElementById('reportsGroupTrialHeader')?.classList.remove('open');
 }
 
 // يفتح صفحة البحث عن كشف الحساب بخانة بحث فارغة ومؤشر الكتابة نشط فيها مباشرة،
@@ -6695,6 +6729,76 @@ function buildMultiVoucherPdf(d){
 // window.print() فعلياً رغم عدم ظهور أي خطأ في الكونسول (فشل صامت تماماً)، بينما توليد
 // ملف وتنزيله عبر Blob/createObjectURL أكثر احتمالاً للعمل لأنه لا يعتمد على طابعة نظام
 // حقيقية بل فقط على واجهات Canvas وBlob الأساسية في المتصفح.
+// إنشاء PDF لميزان المراجعة الحالي (بنفس أسلوب رسم Canvas وتجميع بايتات PDF يدوياً المستخدم
+// في باقي التطبيق)، يعرض نفس المحتوى المجمَّع هرمياً الظاهر على الشاشة بالضبط، لكل عملة على حدة.
+function buildTrialBalancePdf() {
+  const byCurrency = computeTrialBalance(getAllTransactions());
+  const currencyLabel = { YER: 'ريال يمني', SAR: 'ريال سعودي', USD: 'دولار أمريكي' };
+  const currencies = Object.keys(byCurrency);
+  const width = 1000, rowH = 40, headerH = 46;
+  // حساب الارتفاع الكلي مسبقاً: عنوان + لكل عملة (عنوان فرعي + لكل مجموعة رئيسية: صف عنوان + صفوف تفصيلية) + صف إجمالي
+  let sectionsData = currencies.map(cur => {
+    const rows = Object.entries(byCurrency[cur]).map(([name, v]) => ({ name, code: getAccountCode(name), main: getAccountMainCategory(name), debit: v.debit, credit: v.credit, net: v.debit - v.credit }));
+    const mains = [...new Set(rows.map(r => r.main))];
+    const groups = mains.map(mainName => ({ mainName, rows: rows.filter(r => r.main === mainName).sort((a, b) => (a.code !== '—' && b.code !== '—') ? a.code.localeCompare(b.code) : a.name.localeCompare(b.name, 'ar')) }));
+    const totalDebit = rows.reduce((s, r) => s + r.debit, 0), totalCredit = rows.reduce((s, r) => s + r.credit, 0);
+    return { cur, groups, totalDebit, totalCredit, rowCount: rows.length + mains.length };
+  });
+  let height = 90;
+  sectionsData.forEach(s => { height += 40 /* عنوان العملة */ + headerH /* رأس الجدول */ + s.rowCount * rowH + rowH /* صف الإجمالي */ + 20; });
+  height = Math.max(height, 300);
+
+  const canvas = document.createElement('canvas'); canvas.width = width; canvas.height = height;
+  const ctx = canvas.getContext('2d'); ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, width, height);
+  ctx.direction = 'rtl'; ctx.textAlign = 'right';
+  const text = (v, x, y, size = 16, bold = false, color = '#111827') => { if (v === undefined || v === null || String(v).trim() === '') return; ctx.fillStyle = color; ctx.font = `${bold ? 'bold ' : ''}${size}px Arial`; ctx.fillText(String(v), x, y); };
+  const cols = [width - 50, width - 330, width - 530, width - 690, width - 850];
+  let y = 60;
+  text('⚖️ ميزان المراجعة', width - 50, y, 28, true, '#075985'); y += 30;
+  text(`تاريخ الإصدار: ${new Date().toLocaleDateString('ar')}`, width - 50, y, 14, false, '#64748b'); y += 40;
+
+  sectionsData.forEach(s => {
+    text(`💱 ${currencyLabel[s.cur] || s.cur}`, width - 50, y, 19, true, '#075985'); y += 34;
+    ctx.beginPath(); ctx.moveTo(40, y - 14); ctx.lineTo(width - 40, y - 14); ctx.strokeStyle = '#1f2937'; ctx.lineWidth = 1.5; ctx.stroke();
+    text('الكود', cols[4], y, 14, true); text('الحساب', cols[0], y, 14, true); text('مدين', cols[1], y, 14, true); text('دائن', cols[2], y, 14, true); text('الصافي', cols[3], y, 14, true);
+    y += headerH;
+    s.groups.forEach(g => {
+      const groupDebit = g.rows.reduce((sum, r) => sum + r.debit, 0), groupCredit = g.rows.reduce((sum, r) => sum + r.credit, 0);
+      text(`📁 ${g.mainName}`, cols[0], y, 15, true, '#075985'); text(fmt(groupDebit, s.cur), cols[1], y, 15, true); text(fmt(groupCredit, s.cur), cols[2], y, 15, true);
+      y += rowH;
+      g.rows.forEach(r => {
+        text(r.code, cols[4], y, 13); text('  ↳ ' + r.name, cols[0], y, 13); text(r.debit ? fmt(r.debit, s.cur) : '-', cols[1], y, 13); text(r.credit ? fmt(r.credit, s.cur) : '-', cols[2], y, 13);
+        text(`${fmt(Math.abs(r.net), s.cur)} ${r.net >= 0 ? '(مدين)' : '(دائن)'}`, cols[3], y, 13, false, r.net >= 0 ? '#b91c1c' : '#15803d');
+        y += rowH;
+      });
+    });
+    const balanced = Math.abs(s.totalDebit - s.totalCredit) < 0.01;
+    ctx.beginPath(); ctx.moveTo(40, y - 14); ctx.lineTo(width - 40, y - 14); ctx.stroke();
+    text('الإجمالي العام', cols[0], y, 15, true); text(fmt(s.totalDebit, s.cur), cols[1], y, 15, true); text(fmt(s.totalCredit, s.cur), cols[2], y, 15, true);
+    text(balanced ? '✅ متوازن' : '⚠️ غير متوازن', cols[3], y, 15, true, balanced ? '#15803d' : '#b91c1c');
+    y += rowH + 20;
+  });
+
+  const b64 = canvas.toDataURL('image/jpeg', .92).split(',')[1], bin = atob(b64), jpg = new Uint8Array(bin.length); for (let i = 0; i < bin.length; i++) jpg[i] = bin.charCodeAt(i);
+  const pageH = 595 * height / width, content = `q\n595 0 0 ${pageH} 0 0 cm\n/Im0 Do\nQ`, enc = new TextEncoder(), parts = [], offsets = [0]; let total = 0, add = v => { const b = enc.encode(v); parts.push(b); total += b.length }, obj = (n, b) => { offsets[n] = total; add(`${n} 0 obj\n${b}\nendobj\n`) };
+  add('%PDF-1.4\n'); obj(1, '<< /Type /Catalog /Pages 2 0 R >>'); obj(2, '<< /Type /Pages /Kids [3 0 R] /Count 1 >>'); obj(3, `<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 ${pageH}] /Resources << /XObject << /Im0 5 0 R >> >> /Contents 4 0 R >>`); obj(4, `<< /Length ${content.length} >>\nstream\n${content}\nendstream`); offsets[5] = total; add(`5 0 obj\n<< /Type /XObject /Subtype /Image /Width ${width} /Height ${height} /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length ${jpg.length} >>\nstream\n`); parts.push(jpg); total += jpg.length; add('\nendstream\nendobj\n'); const xref = total; add('xref\n0 6\n0000000000 65535 f \n'); for (let i = 1; i <= 5; i++) add(String(offsets[i]).padStart(10, '0') + ' 00000 n \n'); add(`trailer\n<< /Size 6 /Root 1 0 R >>\nstartxref\n${xref}\n%%EOF`);
+  const out = new Uint8Array(total); let at = 0; parts.forEach(part => { out.set(part, at); at += part.length; });
+  return new Blob([out], { type: 'application/pdf' });
+}
+async function shareTrialBalancePdf() {
+  try {
+    const file = new File([buildTrialBalancePdf()], 'ميزان-المراجعة.pdf', { type: 'application/pdf' });
+    if (navigator.share && (!navigator.canShare || navigator.canShare({ files: [file] }))) {
+      await navigator.share({ title: 'ميزان المراجعة', files: [file] });
+      showToast('تمت مشاركة ملف PDF', 'success');
+    } else {
+      const url = URL.createObjectURL(file), a = document.createElement('a');
+      a.href = url; a.download = file.name; a.click();
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+      showToast('تم إنشاء ملف PDF وتنزيله للمشاركة', 'success');
+    }
+  } catch (e) { if (e.name !== 'AbortError') { showToast('تعذّر إنشاء ملف PDF', 'warn'); } }
+}
 function buildSingleVoucherPdf(tx) {
   const cfg = getHeaderConfig();
   const vTitle = tx.voucherMode === 'spend' ? 'سند صرف نقدي' : (tx.voucherMode === 'income' ? 'سند إيراد / قبض' : 'سند قيد وتسوية محاسبية');
@@ -6986,121 +7090,6 @@ function showExitedScreen(wasSecured) {
 })();
 
 selfHealStorageFromIdb().finally(boot);
-</script>
-<style>
-button.acc-accordion-header{width:100%;font-family:inherit;text-align:right}
-.acc-accordion-header .acc-arrow{font-size:.9rem;color:var(--muted)}
-</style>
-
-<script>
-/* ===== صفحة التقارير: قسمان مغلقان افتراضيًا ولا يُفتح/يُحسب شيء تلقائيًا ===== */
-(function(){
-  const $ = id => document.getElementById(id);
-  const SECTIONS = {
-    statement: { h:'reportsGroupStatementHeader', b:'reportsGroupStatementBody', label:'📑 كشف الحساب وما يتعلق به' },
-    trial:     { h:'reportsGroupTrialHeader',     b:'reportsGroupTrialBody',     label:'⚖️ ميزان المراجعة' }
-  };
-
-  // تحويل الرأسين إلى أزرار (استبدال العنصر يزيل المستمعين القدامى)
-  function convertHeaders(){
-    Object.values(SECTIONS).forEach(s=>{
-      const old = $(s.h);
-      if(!old || old.tagName === 'BUTTON') return;
-      const btn = document.createElement('button');
-      btn.type = 'button'; btn.id = s.h;
-      btn.className = 'acc-accordion-header no-print';
-      btn.setAttribute('aria-expanded','false');
-      btn.setAttribute('aria-controls', s.b);
-      btn.innerHTML = '<span>'+s.label+'</span><span class="acc-arrow">▼</span>';
-      old.replaceWith(btn);
-    });
-  }
-
-  // تغيير الشكل فقط (فتح/إغلاق) دون تشغيل أي تقرير
-  function paint(which, open){
-    const s = SECTIONS[which], h = $(s.h), b = $(s.b);
-    if(!h || !b) return;
-    b.classList.toggle('open', open);
-    h.setAttribute('aria-expanded', String(open));
-    const a = h.querySelector('.acc-arrow'); if(a) a.textContent = open ? '▲' : '▼';
-  }
-
-  function prepareStatement(focusInput){
-    if(selReportAccount) selReportAccount.setValue('ALL','');
-    toggleReportView('accounts');
-    if(selReportAccount && selReportAccount.input){
-      selReportAccount.input.value = '';
-      selReportAccount.input.classList.remove('has-selection');
-      $('clearReportAccountBtn')?.classList.add('hidden');
-      if(focusInput) requestAnimationFrame(()=>selReportAccount.input.focus());
-    }
-  }
-
-  function setSection(which, open, silent){
-    paint(which, open);
-    if(!open) return;
-    if(which === 'statement') prepareStatement(!silent);
-    else runTrialBalanceReport();            // يُحدَّث بأحدث البيانات عند كل فتح
-  }
-
-  function resetReportsPage(){ paint('statement', false); paint('trial', false); }
-
-  // وضع أدوات التصفية وبطاقة الكشف داخل جسم قسم «كشف الحساب»
-  function placeStatementParts(){
-    const stBody = $(SECTIONS.statement.b);
-    const filter = $('reportFilterBox'), account = $('accountStatementCard');
-    if(!stBody) return;
-    if(filter && filter.parentElement !== stBody) stBody.appendChild(filter);
-    if(account && account.parentElement !== stBody) stBody.appendChild(account);
-  }
-
-  // 1) إعداد صفحة التقارير: بلا فتح تلقائي (الميزانية تبقى كما هي)
-  const _setupReportSections = setupReportSections;
-  setupReportSections = function(target){
-    if(target === 'pageBudget') return _setupReportSections.apply(this, arguments);
-    placeStatementParts();
-    $('budgetCarousel')?.classList.add('hidden');
-    $('budgetReportCard')?.classList.add('hidden');
-  };
-
-  // 2) الدخول لصفحة التقارير: لا بحث ولا تركيز ولا حساب، فقط إغلاق القسمين
-  const _initReportsTab = initReportsTab;
-  initReportsTab = function(mode){
-    if(mode === 'accounts'){
-      populateReportFilterOptions();
-      updateSearchableData();
-      resetReportsPage();
-      return;
-    }
-    return _initReportsTab.apply(this, arguments);
-  };
-
-  // 3) أي مسار يطلب عرض كشف حساب (مثل النقر على حساب في شجرة الحسابات) يفتح القسم تلقائيًا
-  const _toggleReportView = toggleReportView;
-  toggleReportView = function(mode){
-    if(mode === 'accounts' && currentActiveTab === 'pageReports'
-       && !$(SECTIONS.statement.b)?.classList.contains('open')) paint('statement', true);
-    return _toggleReportView.apply(this, arguments);
-  };
-
-  // 4) الاختصار من لوحة القيادة «كشف الحساب» يفتح القسم عمدًا
-  openAccountStatementSearch = function(){ setSection('statement', true); };
-
-  function init(){
-    convertHeaders();
-    placeStatementParts();
-    resetReportsPage();
-    $('reportsGroupStatementHeader').addEventListener('click', ()=>
-      setSection('statement', !$(SECTIONS.statement.b).classList.contains('open')));
-    $('reportsGroupTrialHeader').addEventListener('click', ()=>
-      setSection('trial', !$(SECTIONS.trial.b).classList.contains('open')));
-
-    // اختصار «تحليل الميزانية» كان يفتح صفحة التقارير فارغة؛ نوجّهه لصفحة الميزانية
-    document.querySelector('.round-action[title="تحليل الميزانية"]')
-      ?.setAttribute('onclick', "navigateToTab('pageBudget', true)");
-  }
-  init();
-})();
 </script>
 </body>
 </html>

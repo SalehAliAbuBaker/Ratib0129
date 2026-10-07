@@ -1144,7 +1144,10 @@ label{font-size:1rem;color:var(--text);margin-bottom:5px}
     </div>
   </div>
   </div>
-
+  <div class="acc-accordion-header no-print" id="reportsGroupBudgetHeader" style="cursor:pointer;">📊 بنود الميزانية</div>
+  <div class="acc-accordion-body" id="reportsGroupBudgetBody">
+    <div id="budgetReportSectionHost"></div>
+  </div>
   <div class="acc-accordion-header no-print" id="reportsGroupTrialHeader" style="cursor:pointer;">⚖️ ميزان المراجعة</div>
   <div class="acc-accordion-body" id="reportsGroupTrialBody">
   <div class="card" id="trialBalanceCard">
@@ -3916,14 +3919,17 @@ function setupReportSections(target = 'pageReports', autoOpen = true) {
     // دائماً بغض النظر عن حالة الطي (تماماً كالمشكلة التي ظهرت: عناصر كشف الحساب تظهر
     // أسفل ميزان المراجعة حتى عندما يكون قسم كشف الحساب نفسه مطوياً).
     const stBody = document.getElementById('reportsGroupStatementBody') || reportsPage;
+    const budgetBody = document.getElementById('reportsGroupBudgetBody');
     // budget قد لا يكون حالياً ابناً مباشراً لـ stBody (مثلاً لو كان آخر مكان زاره المستخدم
     // صفحة الميزانية المستقلة)؛ لذا نتحقق أولاً تفادياً لخطأ insertBefore.
     if (budget.parentElement === stBody) stBody.insertBefore(filter, budget);
     else stBody.appendChild(filter);
     if (carousel) carousel.classList.add('hidden');
     budget.classList.add('hidden');
+    if (budgetBody) budgetBody.appendChild(budget);
     const account = document.getElementById('accountStatementCard');
     if (account) stBody.appendChild(account);
+    if (filter && stBody) stBody.insertBefore(filter, stBody.firstElementChild);
     if (autoOpen) openAccountStatementSearch();
   }
 }
@@ -5450,6 +5456,11 @@ function initReportsTab(mode='accounts', autoOpen=true) {
 }
 document.getElementById('btnRptBudget')?.addEventListener('click', () => toggleReportView('budget'));
 document.getElementById('btnRptAccounts')?.addEventListener('click', () => openAccountStatementSearch());
+document.getElementById('reportsGroupBudgetHeader')?.addEventListener('click', () => {
+  const alreadyOpen = document.getElementById('reportsGroupBudgetBody')?.classList.contains('open');
+  if (alreadyOpen) { closeAllReportsSections(); return; }
+  toggleReportView('budget');
+});
 document.getElementById('printTrialBalanceBtn')?.addEventListener('click', () => window.print());
 document.getElementById('shareTrialBalancePdfBtn')?.addEventListener('click', () => shareTrialBalancePdf());
 // قسما التقارير القابلان للطي: "كشف الحساب وما يتعلق به" و"ميزان المراجعة" — تبديل حصري
@@ -5459,7 +5470,7 @@ let trialBalanceLoadedOnce = false;
 document.getElementById('reportsGroupStatementHeader')?.addEventListener('click', () => {
   const alreadyOpen = document.getElementById('reportsGroupStatementBody')?.classList.contains('open');
   if (alreadyOpen) { closeAllReportsSections(); return; }
-  toggleReportView(activeReportTab === 'budget' ? 'budget' : 'accounts');
+  toggleReportView('accounts');
 });
 document.getElementById('reportsGroupTrialHeader')?.addEventListener('click', () => {
   const alreadyOpen = document.getElementById('reportsGroupTrialBody')?.classList.contains('open');
@@ -5478,30 +5489,41 @@ function toggleReportView(mode) {
   if (budgetCarousel) budgetCarousel.classList.toggle('hidden', mode !== 'budget' || document.getElementById('pageBudget')?.classList.contains('hidden'));
   const filterTitle = document.getElementById('reportFilterBoxTitle');
   if (filterTitle) filterTitle.textContent = mode === 'accounts' ? '🔍 البحث عن كشف الحساب' : '📈 تصفية فترة التقرير';
-  // فتح قسم "كشف الحساب وما يتعلق به" حصرياً (وإغلاق "ميزان المراجعة") — فقط إن كنا فعلياً
-  // داخل صفحة التقارير نفسها، وليس في سياق إعادة توجيه هذا المحتوى لصفحة الميزانية المستقلة
-  // (pageBudget)، حيث لا توجد أقسام قابلة للطي أصلاً.
+  // في صفحة التقارير العامة لكل تقرير قسم مستقل: كشف الحساب، بنود الميزانية، وميزان المراجعة.
+  // ننقل المرشح والبطاقة إلى القسم النشط حتى لا تختلط بيانات الميزانية بكشف الحساب.
   if (!document.getElementById('pageReports')?.classList.contains('hidden')) {
-    openReportsSection('statement');
+    const stBody = document.getElementById('reportsGroupStatementBody');
+    const budgetBody = document.getElementById('reportsGroupBudgetBody');
+    const filter = document.getElementById('reportFilterBox');
+    const budget = document.getElementById('budgetReportCard');
+    if (mode === 'budget') {
+      if (filter && budgetBody) budgetBody.appendChild(filter);
+      if (budget && budgetBody) budgetBody.appendChild(budget);
+      openReportsSection('budget');
+    } else {
+      if (filter && stBody) stBody.insertBefore(filter, stBody.firstElementChild);
+      if (budget && budgetBody) budgetBody.appendChild(budget);
+      openReportsSection('statement');
+    }
   }
   runActiveReport();
 }
 // يفتح أحد قسمي صفحة التقارير حصرياً ويطوي الآخر تماماً (لا تداخل بين المحتويين إطلاقاً)
 function openReportsSection(which) {
   const stHeader = document.getElementById('reportsGroupStatementHeader'), stBody = document.getElementById('reportsGroupStatementBody');
+  const budgetHeader = document.getElementById('reportsGroupBudgetHeader'), budgetBody = document.getElementById('reportsGroupBudgetBody');
   const trHeader = document.getElementById('reportsGroupTrialHeader'), trBody = document.getElementById('reportsGroupTrialBody');
-  if (which === 'statement') {
-    stBody?.classList.add('open'); stHeader?.classList.add('open');
-    trBody?.classList.remove('open'); trHeader?.classList.remove('open');
-  } else {
-    trBody?.classList.add('open'); trHeader?.classList.add('open');
-    stBody?.classList.remove('open'); stHeader?.classList.remove('open');
-    if (!trialBalanceLoadedOnce) { trialBalanceLoadedOnce = true; runTrialBalanceReport(); }
-  }
+  stBody?.classList.toggle('open', which === 'statement'); stHeader?.classList.toggle('open', which === 'statement');
+  budgetBody?.classList.toggle('open', which === 'budget'); budgetHeader?.classList.toggle('open', which === 'budget');
+  trBody?.classList.toggle('open', which === 'trial'); trHeader?.classList.toggle('open', which === 'trial');
+  if (which === 'trial' && !trialBalanceLoadedOnce) { trialBalanceLoadedOnce = true; runTrialBalanceReport(); }
 }
+
 function closeAllReportsSections() {
   document.getElementById('reportsGroupStatementBody')?.classList.remove('open');
   document.getElementById('reportsGroupStatementHeader')?.classList.remove('open');
+  document.getElementById('reportsGroupBudgetBody')?.classList.remove('open');
+  document.getElementById('reportsGroupBudgetHeader')?.classList.remove('open');
   document.getElementById('reportsGroupTrialBody')?.classList.remove('open');
   document.getElementById('reportsGroupTrialHeader')?.classList.remove('open');
 }

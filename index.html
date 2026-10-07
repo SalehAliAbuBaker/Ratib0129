@@ -70,8 +70,12 @@ header{display:flex; justify-content:space-between; align-items:center; margin-b
 .main-menu-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
+  grid-template-areas:
+    "ledger add"
+    "accounts reports";
   gap: 10px;
   margin-bottom: 14px;
+  direction: ltr;
 }
 .main-menu-btn {
   background: var(--card);
@@ -90,11 +94,43 @@ header{display:flex; justify-content:space-between; align-items:center; margin-b
   cursor: pointer;
   box-shadow: var(--shadow);
   transition: transform 0.15s, border-color 0.2s;
+  direction: rtl;
 }
+.main-menu-grid .main-menu-btn:nth-child(1){grid-area:add}
+.main-menu-grid .main-menu-btn:nth-child(2){grid-area:ledger}
+.main-menu-grid .main-menu-btn:nth-child(3){grid-area:reports}
+.main-menu-grid .main-menu-btn:nth-child(4){grid-area:accounts}
 .main-menu-btn:active { transform: scale(0.96); }
 .main-menu-btn:hover { border-color: var(--accent); color: var(--accent); }
 .main-menu-icon { font-size: 1.8rem; line-height: 1; }
+.voucher-type-grid{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px!important;margin-top:12px!important}
+.voucher-type-btn{min-height:142px;border:2px solid var(--border)!important;border-radius:16px!important;background:linear-gradient(180deg,var(--card),color-mix(in srgb,var(--accent) 7%,var(--card)))!important;color:var(--text)!important;display:flex!important;flex-direction:column!important;align-items:center;justify-content:center;gap:9px;padding:12px!important;font:900 1.12rem Tajawal,sans-serif;box-shadow:var(--shadow);cursor:pointer;transition:transform .15s,border-color .2s,box-shadow .2s}
+.voucher-type-btn:hover{border-color:var(--accent)!important;box-shadow:0 6px 16px color-mix(in srgb,var(--accent) 18%,transparent);transform:translateY(-2px)}
+.voucher-type-btn .voucher-type-icon{font-size:3rem;line-height:1}
+.voucher-type-btn .voucher-type-label{display:inline-block;padding:6px 18px;border-radius:22px;background:var(--accent);color:#fff;font-size:1.12rem;line-height:1.15;white-space:nowrap}
+@media(max-width:430px){.voucher-type-grid{gap:9px!important}.voucher-type-btn{min-height:126px}.voucher-type-btn .voucher-type-icon{font-size:2.45rem}.voucher-type-btn .voucher-type-label{padding:5px 10px;font-size:.98rem}}
+.ledger-toolbar{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px;padding-bottom:10px;border-bottom:2px solid var(--border)}
+.ledger-page-title{margin:0 0 10px;padding:0 2px;color:var(--accent);font-size:1.2rem;font-weight:900}
+.ledger-toolbar{justify-content:flex-start;direction:rtl}
+.ledger-toolbar-actions{display:flex;align-items:center;gap:6px;flex:1;min-width:0;direction:rtl}
+.ledger-toolbar-actions .btn,.ledger-action-btn,.ledger-count-btn{width:42px!important;height:42px!important;min-width:42px!important;margin:0!important;padding:4px!important;border-radius:9px!important;display:inline-flex;align-items:center;justify-content:center;white-space:nowrap;font-size:.82rem!important;font-weight:900}
+.ledger-toolbar-actions #clearAllTxsBtn,.ledger-toolbar-actions #exportCsvBtn{width:auto!important;min-width:92px!important;padding:4px 9px!important}
+.ledger-count-btn{width:92px!important;min-width:92px!important;border:1px solid var(--accent);background:var(--accent);color:#fff}
+.ledger-action-btn{border:1px solid var(--border);background:var(--card);color:var(--accent);cursor:pointer}
+.ledger-toolbar-actions #ledgerBackBtn{width:92px!important;min-width:92px!important;font-size:1.2rem!important}
+.ledger-action-btn:hover{border-color:var(--accent);background:var(--bg)}
+.ledger-filter-bar{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:9px 0 12px;padding:8px;background:var(--bg);border:1px solid var(--border);border-radius:10px}
+.ledger-filter-label{font-weight:900;color:var(--muted);font-size:.9rem;margin-inline-end:2px}
+.ledger-filter-bar .status-filter-btn{margin:0}
+@media(max-width:600px){.ledger-toolbar{align-items:stretch;flex-direction:row}.ledger-toolbar-actions{justify-content:flex-start;overflow-x:auto}.ledger-filter-bar{overflow-x:auto;flex-wrap:nowrap}.ledger-filter-label{white-space:nowrap}}
+@media(max-width:600px){.ledger-toolbar-actions .btn,.ledger-toolbar-actions .ledger-action-btn,.ledger-toolbar-actions .ledger-count-btn{width:auto!important;min-width:0!important;flex:1 1 0;padding-inline:3px!important;font-size:.72rem!important}.ledger-toolbar-actions #ledgerBackBtn{width:auto!important;min-width:0!important;font-size:1.05rem!important}}
+.account-operations-head-actions{flex-wrap:wrap;justify-content:flex-start}
+.account-operations-head-actions .account-inline-actions{flex:1 1 auto;justify-content:flex-start;overflow-x:auto}
+.account-operations-head-actions .account-add-operation-btn{order:2;flex:1 1 100%}
 .accounts-pager-card{border:0;box-shadow:none;overflow:visible;padding:0;margin:0;background:transparent}
+.accounts-pager-search{display:block;margin:0 0 10px;padding:0;background:transparent;border:0;box-shadow:none}
+.accounts-pager-search input{display:block;width:100%;min-width:0;margin:0;background:var(--card);border:2px solid var(--accent);border-radius:9px;padding:10px 14px;font:900 1rem Tajawal,sans-serif;color:var(--text);outline:none;text-align:right}
+.accounts-pager-search input:focus{border-color:var(--accent);box-shadow:var(--focus-ring)}
 .accounts-pager-tabs{position:sticky;top:0;z-index:20;display:flex;gap:4px;overflow-x:auto;scrollbar-width:thin;padding:8px 2px 7px;border-bottom:2px solid var(--border);background:var(--card);scroll-snap-type:x proximity;direction:rtl}
 .accounts-pager-tabs button{flex:0 0 auto;border:0;border-bottom:3px solid transparent;background:transparent;color:var(--muted);border-radius:0;padding:8px 12px 9px;font:900 1.05rem Tajawal,sans-serif;cursor:pointer;white-space:nowrap;transition:color .2s,border-color .2s;position:relative}
 .accounts-pager-tabs button::first-letter{color:var(--accent)}
@@ -399,12 +435,11 @@ body{user-select:text}.btn,.icon-btn,.nav-tab,.v-card-btn,.rpt-btn,.toggle-vis-b
 .toast{max-width:560px;margin:0 auto;width:100%;background:#ecfdf5;color:#14532d;border:2px solid #86efac;border-right:6px solid #16a34a;border-radius:12px;padding:12px 44px 12px 16px;box-shadow:0 12px 28px rgba(0,0,0,.18);font-weight:900;font-size:1.1rem;animation:toastIn .22s ease;position:relative;pointer-events:auto;touch-action:pan-y}.toast.success,.toast.error,.toast.warn{background:#ecfdf5;color:#14532d;border-color:#86efac;border-right-color:#16a34a}.toast-dismiss{position:absolute;right:10px;top:50%;transform:translateY(-50%);border:0;background:transparent;color:#15803d;font-size:1.3rem;font-weight:900;cursor:pointer;padding:2px 6px}
 .toast.success{border-right-color:var(--ok)}.toast.error{border-right-color:var(--danger)}.toast.warn{border-right-color:var(--warn)}
 @keyframes toastIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
-.pro-kpi-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:12px}.pro-kpi{background:var(--bg);border:2px solid var(--border);border-radius:12px;padding:12px;text-align:center}.pro-kpi small{display:block;color:var(--muted);font-weight:900;font-size:0.95rem}.pro-kpi strong{display:block;margin-top:4px;font-size:1.35rem}
+.pro-kpi-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:12px}.pro-kpi{background:var(--bg);border:2px solid var(--border);border-radius:12px;padding:12px;text-align:center;cursor:pointer;transition:transform .15s,border-color .2s,background .2s}.pro-kpi:hover{border-color:var(--accent);background:color-mix(in srgb,var(--accent) 7%,var(--bg));transform:translateY(-1px)}.pro-kpi:focus-visible{outline:none;box-shadow:var(--focus-ring)}.pro-kpi small{display:block;color:var(--muted);font-weight:900;font-size:0.95rem}.pro-kpi strong{display:block;margin-top:4px;font-size:1.35rem}
 .open-tasks-cta{width:100%;border:2px solid var(--accent);background:linear-gradient(100deg,color-mix(in srgb, var(--accent) 16%, transparent),rgba(16,185,129,.10));color:var(--text);border-radius:14px;padding:10px 12px;display:flex;align-items:center;gap:8px;text-align:right;font-family:inherit;cursor:pointer;box-shadow:0 6px 16px color-mix(in srgb, var(--accent) 12%, transparent);transition:transform .2s,box-shadow .2s}
 .open-tasks-cta span{font-size:1.6rem}.open-tasks-cta b{font-size:1.1rem}.open-tasks-cta small{color:var(--muted);font-weight:900;font-size:.9rem;flex:1}.open-tasks-cta i{font-size:1.6rem;color:var(--accent);font-style:normal}
-.dashboard-shortcuts{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:12px;padding-top:10px;border-top:2px dashed var(--border)}
-.round-action{border:2px solid var(--border);background:var(--card);color:var(--text);border-radius:50%;aspect-ratio:1/1;min-height:68px;padding:6px 2px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font-family:inherit;font-weight:900;cursor:pointer;transition:transform .2s,border-color .2s}
-.round-action span{font-size:1.4rem;color:var(--accent)}.round-action small{font-size:.78rem;line-height:1.1}
+.dashboard-add-reminder-btn{width:100%;margin-top:8px;border:1px solid var(--accent);border-radius:10px;background:var(--card);color:var(--accent);padding:9px 12px;font:900 1rem Tajawal,sans-serif;cursor:pointer}
+.dashboard-add-reminder-btn:hover{background:var(--bg)}
 .carousel-shell{position:relative;overflow:hidden;border:2px solid var(--border);border-radius:16px;background:linear-gradient(145deg,var(--card),var(--bg));padding:12px;margin:10px 0 14px;box-shadow:var(--shadow)}
 .carousel-track{display:flex;direction:ltr;transition:transform .45s var(--ease-out);will-change:transform}
 .carousel-slide{direction:rtl;min-width:100%;padding:4px 2px}.carousel-slide[aria-hidden="true"]{visibility:hidden}
@@ -442,12 +477,10 @@ html{scroll-behavior:smooth}body{padding-bottom:16px}
   .report-table td small { font-size: 0.95rem !important; }
   .tx-log-item{padding:12px;margin-bottom:8px}.tx-amount{font-size:1.25rem}.tx-type-tag{max-width:130px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.modal-content{max-height:85vh;padding:14px}.install-banner{margin-top:0}
   .pro-kpi strong{font-size:1.15rem}.pro-kpi{padding:9px}
-  .round-action{min-height:60px}.round-action span{font-size:1.2rem}.round-action small{font-size:.72rem}
 }
 @media(max-width:380px){
   .main-menu-grid{grid-template-columns:repeat(2,1fr)!important}
-  .dashboard-shortcuts{grid-template-columns:repeat(2,1fr)}
-  .pro-kpi-grid{grid-template-columns:1fr}
+  .pro-kpi-grid{grid-template-columns:repeat(2,1fr)}
 }
 
 /* ===== Ratib Professional UI layer — conservative upgrade ===== */
@@ -498,8 +531,8 @@ label{font-size:1rem;color:var(--text);margin-bottom:5px}
 .field-hint{display:block;margin-top:4px;color:var(--muted);font-size:.88rem;font-weight:700}
 .data-entry-note{background:color-mix(in srgb,var(--accent) 7%,var(--card));border:1px solid color-mix(in srgb,var(--accent) 28%,var(--border));border-radius:8px;padding:9px 11px;color:var(--muted);font-size:.9rem;font-weight:700;margin:0 0 12px}
 @media(min-width:900px){
-  #pageExpenses,#pageLedger,#pageBudget,#pageAccountsTree,#pageReports,#pageSettings{max-width:1080px;margin-inline:auto}
-  .kpi-grid,.pro-kpi-grid{grid-template-columns:repeat(4,1fr)}
+  #pageExpenses,#pageLedger,#pageAccountsTree,#pageReports,#pageSettings{max-width:1080px;margin-inline:auto}
+  .kpi-grid{grid-template-columns:repeat(4,1fr)}
   .main-menu-grid{grid-template-columns:repeat(6,1fr)!important}
   .report-table{font-size:1rem}
 }
@@ -537,18 +570,17 @@ label{font-size:1rem;color:var(--text);margin-bottom:5px}
 .sidebar-head{display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);padding-bottom:12px}.sidebar-head strong{font-size:1.35rem;color:var(--accent-strong)}
 .sidebar-caption{color:var(--muted);font-weight:800;font-size:.9rem;padding:12px 4px 8px}
 .sidebar-nav{display:flex;flex-direction:column;gap:6px}.sidebar-nav button,.sidebar-link{display:flex;align-items:center;gap:10px;width:100%;min-height:48px;padding:10px 12px;border:1px solid transparent;border-radius:8px;background:transparent;color:var(--text);font:900 1rem 'Tajawal',sans-serif;text-align:right;text-decoration:none;cursor:pointer}.sidebar-nav button:hover,.sidebar-link:hover{background:var(--bg);border-color:var(--border);color:var(--accent)}.sidebar-nav button span,.sidebar-link span{flex:1}.sidebar-nav small{font-size:.75rem;color:var(--muted);font-weight:800}.sidebar-contact-menu{margin-top:4px}.sidebar-contact-toggle{display:flex!important;align-items:center;gap:10px;width:100%;min-height:48px;padding:10px 12px;border:1px solid transparent;border-radius:8px;background:transparent;color:var(--text);font:900 1rem Tajawal,sans-serif;text-align:right;cursor:pointer}.sidebar-contact-toggle:hover{background:var(--bg);border-color:var(--border);color:var(--accent)}.sidebar-contact-toggle span{flex:1}.sidebar-contact-toggle small{font-size:.72rem;color:var(--muted)}.sidebar-contact-options{display:none;padding:6px 8px 8px;margin:0 8px;border-right:3px solid var(--ok);background:var(--bg);border-radius:0 0 8px 8px}.sidebar-contact-menu.open .sidebar-contact-options{display:flex;flex-direction:column;gap:4px}.sidebar-contact-options a{display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:6px;color:var(--text);text-decoration:none;font-weight:900}.sidebar-contact-options a:hover{background:var(--card);color:var(--accent)}.sidebar-danger{color:var(--danger)!important;border-top:1px solid var(--border)!important;margin-top:8px}
-#pageBudget{display:flex;flex-direction:column;gap:12px}#pageBudget>.card:first-child{margin-bottom:0}
 #budgetToolsHost,#budgetReportHost{display:flex;flex-direction:column;gap:10px;min-width:0}
 #budgetToolsHost:before{content:'أدوات التقرير والتصفية';display:block;font-size:1rem;font-weight:900;color:var(--accent);padding:4px 2px 0}
 #budgetReportHost:before{content:'نتيجة التحليل وبنود الميزانية';display:block;font-size:1rem;font-weight:900;color:var(--accent);padding:4px 2px 0}
 #budgetToolsHost #reportFilterBox{margin:0;border-right:4px solid var(--accent)}
 #budgetToolsHost>div.no-print{margin:0!important;padding:10px;background:var(--bg);border:1px solid var(--border);border-radius:8px}
 #budgetReportHost .budget-carousel{margin:0}.budget-report-controls{margin:0!important}
-@media(max-width:700px){.app-sidebar{width:min(350px,92vw)}#pageBudget{gap:8px}}
+@media(max-width:700px){.app-sidebar{width:min(350px,92vw)}}
 
 .account-code-field input[readonly]{background:var(--bg);color:var(--muted);font-weight:900;cursor:not-allowed}
 
-@media print{body.account-print-mode #pageDashboard,body.account-print-mode #pageExpenses,body.account-print-mode #pageLedger,body.account-print-mode #pageReports,body.account-print-mode #pageBudget,body.account-print-mode #pageAccountsTree,body.account-print-mode #pageSettings,body.account-print-mode header,body.account-print-mode .account-operations-screen-head,body.account-print-mode #accountAdvancedSearchPanel{display:none!important}body.account-print-mode #pageAccountOperations{display:block!important}.account-statement-row{color:#000!important}.account-statement-table{border-color:#000!important}}
+@media print{body.account-print-mode #pageDashboard,body.account-print-mode #pageExpenses,body.account-print-mode #pageLedger,body.account-print-mode #pageReports,body.account-print-mode #pageAccountsTree,body.account-print-mode #pageSettings,body.account-print-mode header,body.account-print-mode .account-operations-screen-head,body.account-print-mode #accountAdvancedSearchPanel{display:none!important}body.account-print-mode #pageAccountOperations{display:block!important}.account-statement-row{color:#000!important}.account-statement-table{border-color:#000!important}}
 
 .account-inline-back{order:-1}
 /* Account statements: each currency is a separate swipeable ledger, never a sum of unlike units. */
@@ -643,17 +675,13 @@ label{font-size:1rem;color:var(--text);margin-bottom:5px}
         </button>
         <button class="main-menu-btn" onclick="navigateToTab('pageLedger', true)">
           <span class="main-menu-icon">📋</span>
-          <span>السجل</span>
+          <span>سجل العمليات</span>
         </button>
         <button class="main-menu-btn" onclick="navigateToTab('pageReports', true)">
           <span class="main-menu-icon">📈</span>
           <span>التقارير</span>
         </button>
-        <button class="main-menu-btn budget-btn" onclick="navigateToTab('pageBudget', true)">
-          <span class="main-menu-icon">📊</span>
-          <span>الميزانية</span>
-        </button>
-        <button class="main-menu-btn" onclick="navigateToTab('pageAccountsTree', true)" style="grid-column: span 2;">
+        <button class="main-menu-btn" onclick="navigateToTab('pageAccountsTree', true)">
           <span class="main-menu-icon">📒</span>
           <span>الحسابات</span>
         </button>
@@ -664,21 +692,16 @@ label{font-size:1rem;color:var(--text);margin-bottom:5px}
           <section class="carousel-slide" id="pageDashboardKpi" aria-label="لوحة القيادة">
             <div class="card no-print" id="proDashboardCard">
               <h2><span>⚡ لوحة القيادة</span><span id="lastSavedLabel" style="font-size:0.95rem;color:var(--muted);font-weight:900">جاهز</span></h2>
-              <div class="pro-kpi-grid">
-                <div class="pro-kpi"><small>إجمالي الدخل</small><strong id="proIncomeKpi">0</strong></div>
-                <div class="pro-kpi"><small>إجمالي المصروف</small><strong id="proExpenseKpi">0</strong></div>
-                <div class="pro-kpi"><small>صافي التدفق</small><strong id="proNetKpi">0</strong></div>
-                <div class="pro-kpi"><small>سندات غير مكتملة</small><strong id="proPendingKpi">0</strong></div>
-              </div>
               <div id="proAlertsBox" style="font-size:1.05rem;font-weight:900;color:var(--muted)"></div>
               <button class="open-tasks-cta" type="button" onclick="goCarousel('dashboardCarousel',1)">
-                <span style="position:relative;">🔔<span id="remindersBadge" class="hidden" style="position:absolute;top:-6px;left:-10px;background:var(--danger);color:#fff;font-size:0.7rem;min-width:16px;height:16px;border-radius:8px;display:flex;align-items:center;justify-content:center;padding:0 4px;">0</span></span><b>عرض المهام والتذكيرات</b><small>افتح المخطط الدائري وتوزيع الأولويات</small><i>‹</i>
+                <span style="position:relative;">🔔<span id="remindersBadge" class="hidden" style="position:absolute;top:-6px;left:-10px;background:var(--danger);color:#fff;font-size:0.7rem;min-width:16px;height:16px;border-radius:8px;display:flex;align-items:center;justify-content:center;padding:0 4px;">0</span></span><b>التذكيرات التي تحتاج إلى مراجعة</b><small>عرض المهام والتذكيرات وتوزيع الأولويات</small><i>‹</i>
               </button>
-              <div class="dashboard-shortcuts" aria-label="اختصارات الرئيسية">
-                <button class="round-action" onclick="navigateToTab('pageExpenses', true)" title="إضافة سند"><span>＋</span><small>إضافة سند</small></button>
-                <button class="round-action" onclick="openReminderModal(-1)" title="مهمة جديدة"><span>✓</span><small>مهمة جديدة</small></button>
-                <button class="round-action" onclick="navigateToTab('pageReports', true); openAccountStatementSearch()" title="كشف الحساب"><span>⌁</span><small>كشف الحساب</small></button>
-                <button class="round-action" onclick="navigateToTab('pageReports', true); toggleReportView('budget')" title="تحليل الميزانية"><span>◉</span><small>تحليل الميزانية</small></button>
+              <button class="dashboard-add-reminder-btn" type="button" onclick="openReminderModal(-1)">➕ إضافة مهمة جديدة</button>
+              <div class="pro-kpi-grid">
+                <button type="button" class="pro-kpi" onclick="openDashboardOperations('income')" aria-label="فتح عمليات الدخل"><small>إجمالي الدخل</small><strong id="proIncomeKpi">0</strong></button>
+                <button type="button" class="pro-kpi" onclick="openDashboardOperations('expense')" aria-label="فتح عمليات المصروف"><small>إجمالي المصروف</small><strong id="proExpenseKpi">0</strong></button>
+                <button type="button" class="pro-kpi" onclick="openDashboardOperations('net')" aria-label="فتح عمليات صافي التدفق"><small>صافي التدفق</small><strong id="proNetKpi">0</strong></button>
+                <button type="button" class="pro-kpi" onclick="openDashboardOperations('pending')" aria-label="فتح السندات غير المكتملة"><small>سندات غير مكتملة</small><strong id="proPendingKpi">0</strong></button>
               </div>
             </div>
           </section>
@@ -711,18 +734,18 @@ label{font-size:1rem;color:var(--text);margin-bottom:5px}
 <div id="pageExpenses" class="hidden">
   <div class="card no-print" id="voucherSelectorCard">
     <h2><span>📝 اختر نوع السند للإدخال المباشر</span></h2>
-    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 10px;">
-      <button class="btn btn-danger" onclick="selectVoucherTypeDirect('spend')" style="display:flex; flex-direction:column; gap:4px; padding:14px 6px; font-size:1.05rem;">
-        <span style="font-size: 1.8rem;">📤</span><span>سند صرف</span>
+    <div class="voucher-type-grid">
+      <button class="voucher-type-btn" onclick="selectVoucherTypeDirect('spend')">
+        <span class="voucher-type-icon">📤</span><span class="voucher-type-label">صرف</span>
       </button>
-      <button class="btn btn-success" onclick="selectVoucherTypeDirect('income')" style="display:flex; flex-direction:column; gap:4px; padding:14px 6px; font-size:1.05rem;">
-        <span style="font-size: 1.8rem;">📥</span><span>سند إيراد</span>
+      <button class="voucher-type-btn" onclick="selectVoucherTypeDirect('income')">
+        <span class="voucher-type-icon">📥</span><span class="voucher-type-label">قبض</span>
       </button>
-      <button class="btn btn-primary" onclick="selectVoucherTypeDirect('entry')" style="display:flex; flex-direction:column; gap:4px; padding:14px 6px; font-size:1.05rem;">
-        <span style="font-size: 1.8rem;">⚖️</span><span>سند قيد</span>
+      <button class="voucher-type-btn" onclick="selectVoucherTypeDirect('entry')">
+        <span class="voucher-type-icon">🧾</span><span class="voucher-type-label">قيد بسيط</span>
       </button>
-      <button class="btn btn-warning" onclick="selectMultiVoucherType()" style="display:flex; flex-direction:column; gap:4px; padding:14px 6px; font-size:1.05rem;">
-        <span style="font-size: 1.8rem;">🧾</span><span>سند قيد متعدد</span>
+      <button class="voucher-type-btn" onclick="selectMultiVoucherType()">
+        <span class="voucher-type-icon">🧮</span><span class="voucher-type-label">قيد متعدد</span>
       </button>
     </div>
   </div>
@@ -863,25 +886,23 @@ label{font-size:1rem;color:var(--text);margin-bottom:5px}
 
 <div id="pageLedger" class="hidden">
   <div class="card">
-    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
-      <h2 style="margin-bottom:0;">
-        <span>📋 بطاقات العمليات المستقلة</span>
-        <span id="ledgerCountBadge" style="background:var(--accent); color:#fff; font-size:0.95rem; padding:3px 10px; border-radius:16px; font-weight:900;">0 عمليات</span>
-      </h2>
-      <div style="display:flex;gap:6px;align-items:center">
-        <button class="btn btn-ghost" id="exportCsvBtn" style="width:auto;margin-top:0;padding:4px 10px;font-size:0.95rem">CSV</button>
-        <button class="btn btn-danger" id="clearAllTxsBtn" style="width:auto; margin-top:0; padding:4px 10px; font-size:0.95rem;">
-          🗑️ تصفير
-        </button>
+    <div class="ledger-page-title">📋 سجل العمليات</div>
+    <div class="ledger-toolbar">
+      <div class="ledger-toolbar-actions">
+        <button type="button" class="ledger-action-btn" id="ledgerBackBtn" title="العودة إلى القائمة السابقة" aria-label="العودة إلى القائمة السابقة">↩️</button>
+        <button class="btn btn-danger" id="clearAllTxsBtn">🗑️ تصفير</button>
+        <span id="ledgerCountBadge" class="ledger-count-btn" aria-label="عدد العمليات المعروضة">0 من 0</span>
+        <button class="btn btn-ghost" id="exportCsvBtn">📊 تنزيل Excel</button>
       </div>
     </div>
 
     <div class="search-box">
       <span class="search-icon">🔍</span>
-      <input type="search" id="ledgerSearchInput" placeholder="بحث فوري (اسم عميل، صندوق، بيان، أو رقم سند)...">
+      <input type="search" id="ledgerSearchInput" placeholder="ابحث بأي كلمة داخل السند: البيان، الجهة، الحساب، البند، الملاحظات أو رقم السند...">
     </div>
 
-    <div id="ledgerStatusFilter" style="display:flex; gap:6px; margin:8px 0;">
+    <div id="ledgerStatusFilter" class="ledger-filter-bar">
+      <span class="ledger-filter-label">تصفية العمليات:</span>
       <button type="button" class="status-filter-btn active" data-status="all">الكل</button>
       <button type="button" class="status-filter-btn" data-status="posted">✅ مرحّل</button>
       <button type="button" class="status-filter-btn" data-status="reversed">❌ ملغى</button>
@@ -891,17 +912,11 @@ label{font-size:1rem;color:var(--text);margin-bottom:5px}
   </div>
 </div>
 
-<div id="pageBudget" class="hidden">
-  <div class="card no-print" style="border-right:6px solid var(--accent);">
-    <h2><span>📊 تحليل الميزانية وبنودها الديناميكية</span><small style="font-size:0.95rem;color:var(--muted);">قسم الميزانية</small></h2>
-    <p style="font-weight:900;color:var(--muted);margin-bottom:0;font-size:1.05rem;">يعرض هذا القسم المؤشرات والاتساع والتباين بين المخصص والمنصرف والفائض لكل بند.</p>
-  </div>
-  <div id="budgetToolsHost"></div>
-  <div id="budgetReportHost"></div>
-</div>
-
 <div id="pageAccountsTree" class="hidden">
   <div class="accounts-pager-card" id="accountsPagerCard">
+    <div class="accounts-pager-search no-print" role="search" aria-label="البحث في الحسابات">
+      <input type="search" id="accountsPagerSearchInput" placeholder="ابحث باسم الحساب أو بكلمة منه..." autocomplete="off" aria-label="ابحث في أسماء الحسابات ومساراتها">
+    </div>
     <div id="accountsPagerTabs" class="accounts-pager-tabs" role="tablist" aria-label="تصنيفات الحسابات"></div>
     <div id="accountsPagerViewport" class="accounts-pager-viewport">
       <div id="accountsPagerTrack" class="accounts-pager-track"></div>
@@ -1001,7 +1016,7 @@ label{font-size:1rem;color:var(--text);margin-bottom:5px}
   <div class="card" id="budgetReportCard">
     <h2>
       <span>📋 تقارير الميزانية والبنود</span>
-      <button class="icon-btn no-print" id="printBudgetReportBtn" title="طباعة مباشرة" style="width:42px; height:42px;">🖨️</button>
+      <span style="display:flex;gap:6px;"><button class="icon-btn no-print" id="shareBudgetReportPdfBtn" title="مشاركة PDF" style="width:42px; height:42px;">📄</button><button class="icon-btn no-print" id="printBudgetReportBtn" title="طباعة مباشرة" style="width:42px; height:42px;">🖨️</button></span>
     </h2>
     <div style="font-size:1.05rem; color:var(--muted); font-weight:900; margin-bottom:10px;" id="reportPeriodTitle">الفترة: -</div>
 
@@ -2487,6 +2502,18 @@ document.addEventListener('DOMContentLoaded', () => {
       showToast('تعذّر تجهيز الطباعة: ' + (err && err.message ? err.message : 'خطأ غير معروف'), 'error', 6000);
     }
   });
+  document.getElementById('shareBudgetReportPdfBtn')?.addEventListener('click', async () => {
+    try {
+      preparePrintBudgetTemplate();
+      const source=document.getElementById('printBudgetContainer');
+      if(!source||!window.html2canvas||!window.jspdf?.jsPDF) throw new Error('أدوات PDF غير متاحة');
+      const canvas=await html2canvas(source,{scale:2,backgroundColor:'#fff'}), img=canvas.toDataURL('image/jpeg',.94), pdf=new window.jspdf.jsPDF({orientation:'p',unit:'pt',format:'a4'});
+      const pageW=pdf.internal.pageSize.getWidth(),pageH=pdf.internal.pageSize.getHeight(),ratio=Math.min(pageW/canvas.width,pageH/canvas.height),w=canvas.width*ratio,h=canvas.height*ratio;
+      pdf.addImage(img,'JPEG',(pageW-w)/2,18,w,h); const blob=pdf.output('blob'),file=new File([blob],'تقرير-بنود-الميزانية.pdf',{type:'application/pdf'});
+      if(navigator.share&&(!navigator.canShare||navigator.canShare({files:[file]}))){await navigator.share({title:'تقرير بنود الميزانية',files:[file]});showToast('تمت مشاركة تقرير الميزانية PDF','success');}
+      else{const url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=file.name;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);showToast('تم إنشاء تقرير الميزانية PDF وتنزيله','success');}
+    } catch(e) { if(e.name!=='AbortError') showToast('تعذّر إنشاء PDF لتقرير الميزانية','warn'); }
+  });
 
   // ملاحظة: هذان الزران كانا موجودين بالواجهة لكن بلا أي كود يشغّلهما إطلاقاً (لا يفعلان شيئاً عند الضغط).
   document.getElementById('exportDataBtn')?.addEventListener('click', () => { exportBackupFile(); });
@@ -3137,6 +3164,23 @@ let activeReportTab = 'budget';
 let currentLedgerSearchQuery = '', currentStatementSearchQuery = '', currentLedgerStatusFilter = 'all';
 let lastPrintedTx = null;
 let hasUnsavedChanges = false, lastFocusedElement = null, ledgerRenderTimer = null;
+let currentLedgerQuickFilter = 'all';
+function transactionSearchText(t) {
+  // يشمل كل الحقول النصية التي قد يكتبها المستخدم داخل السند، بما فيها
+  // الجهة، البيان، الملاحظات، بنود الميزانية، وسطور سند القيد المتعدد.
+  try { return JSON.stringify(t ?? {}).toLowerCase(); } catch (e) { return ''; }
+}
+function openDashboardOperations(filter='all') {
+  currentLedgerQuickFilter = filter;
+  currentLedgerSearchQuery = '';
+  const input = document.getElementById('ledgerSearchInput');
+  if (input) input.value = '';
+  document.querySelectorAll('#ledgerStatusFilter .status-filter-btn').forEach(b => b.classList.toggle('active', b.dataset.status === 'all'));
+  currentLedgerStatusFilter = 'all';
+  navigateToTab('pageLedger', true);
+  renderAllData();
+  requestAnimationFrame(() => input?.focus());
+}
 let pendingLongPressTx = null;
 
 function showToast(message, type='info', timeout=3200) {
@@ -3424,8 +3468,9 @@ function renderGlobalSearch(q) {
 function exportTransactionsCsv() {
   const rows=[['رقم السند','التاريخ','النوع','المدين','الدائن','المبلغ','العملة','الحالة','البيان']];
   getAllTransactions().forEach(t=>rows.push([t.seqNum||'',t.isoDate||t.date||'',getTransactionDisplayType(t)||'',t.debitAccount||'',t.creditAccount||'',t.amount||0,t.currency||'',t.status||'posted',Object.values(t.execution||{})[0]?.note||'']));
-  const csv='\ufeff'+rows.map(r=>r.map(v=>`"${String(v??'').replace(/"/g,'""')}"`).join(',')).join('\n');
-  const a=document.createElement('a');a.download=`Ratib_transactions_${monthKey()}.csv`;a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'}));a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000);showToast('تم تصدير العمليات بصيغة CSV','success');
+  const table=`<table dir="rtl" border="1"><thead><tr>${rows[0].map(h=>`<th>${String(h)}</th>`).join('')}</tr></thead><tbody>${rows.slice(1).map(r=>`<tr>${r.map(v=>`<td>${String(v??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}</td>`).join('')}</tr>`).join('')}</tbody></table>`;
+  const blob=new Blob([`\ufeff<html><head><meta charset="utf-8"></head><body>${table}</body></html>`],{type:'application/vnd.ms-excel;charset=utf-8'});
+  const a=document.createElement('a');a.download=`Ratib_transactions_${monthKey()}.xls`;a.href=URL.createObjectURL(blob);a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000);showToast('تم تنزيل سجل العمليات بصيغة Excel','success');
 }
 
 document.addEventListener('keydown', (event) => {
@@ -3849,7 +3894,7 @@ function preparePrintVoucherTemplate(tx) {
   }
 }
 
-const TABS_ORDER = ['pageDashboard', 'pageExpenses', 'pageLedger', 'pageReports', 'pageBudget', 'pageAccountsTree', 'pageAccountOperations', 'pageSettings'];
+const TABS_ORDER = ['pageDashboard', 'pageExpenses', 'pageLedger', 'pageReports', 'pageAccountsTree', 'pageAccountOperations', 'pageSettings'];
 let allowExit = false;
 
 function pushAppHistoryState() { window.history.pushState({ page: 'ratib_app_entry' }, ''); }
@@ -3901,19 +3946,9 @@ function setupReportSections(target = 'pageReports', autoOpen = true) {
   const filter = document.getElementById('reportFilterBox');
   const budget = document.getElementById('budgetReportCard');
   const carousel = document.getElementById('budgetCarousel');
-  const toolsHost = document.getElementById('budgetToolsHost');
-  const reportHost = document.getElementById('budgetReportHost');
   const reportsPage = document.getElementById('pageReports');
-  if (!filter || !budget || !toolsHost || !reportHost || !reportsPage) return;
-  if (target === 'pageBudget') {
-    toolsHost.appendChild(filter);
-    // أزرار التصدير تخص التقارير العامة ولا تُعرض داخل صفحة الميزانية.
-    // شريط «هذا القسم مخصص للميزانية فقط» واختصاراته يبقى خارج صفحة الميزانية؛
-    // صفحة الميزانية تعرض المرشحات والنتائج فقط، دون المساس بصفحة التقارير.
-    if (carousel) carousel.classList.add('hidden');
-    reportHost.appendChild(budget);
-    toggleReportView('budget');
-  } else {
+  if (!filter || !budget || !reportsPage) return;
+  if (target === 'pageReports') {
     // مهم: يجب إعادة هذه العناصر إلى داخل حاوية قسم "كشف الحساب" القابل للطي نفسها
     // (reportsGroupStatementBody)، وليس إلى جذر صفحة التقارير مباشرة — وإلا تبقى ظاهرة
     // دائماً بغض النظر عن حالة الطي (تماماً كالمشكلة التي ظهرت: عناصر كشف الحساب تظهر
@@ -3952,11 +3987,10 @@ function navigateToTab(target, pushToHistory = true) {
   document.getElementById(target).classList.remove('hidden');
   currentActiveTab = target;
   // للشاشتين شريط تنقل داخلي؛ إخفاء زر الرجوع الكبير المكرر يترك اسم الحساب واضحاً.
-  if (target === 'pageAccountsTree' || target === 'pageAccountOperations') backBtn.classList.add('hidden');
+  if (target === 'pageLedger' || target === 'pageAccountOperations') backBtn.classList.add('hidden');
 
   if (target === 'pageExpenses') initVoucherSelectorView();
   else if (target === 'pageReports') { setupReportSections('pageReports', false); initReportsTab('accounts', false); }
-  else if (target === 'pageBudget') { setupReportSections('pageBudget'); initReportsTab('budget'); runBudgetReport(); }
   else if (target === 'pageAccountsTree') { initCanonicalLiveAccountsTreePage(); renderAccountsPager(); }
   else if (target === 'pageSettings') initSettingsPage();
   else if (target === 'pageDashboard') { updateProDashboard(); renderRemindersList(); renderRemindersChart(); }
@@ -3996,6 +4030,24 @@ window.addEventListener('popstate', (e) => {
     const modalIds=['reminderModal','txModal','longPressConfirmModal','addAccountModal','editAccountModal','printPromptModal','categoryTransactionsModal','cloudRestoreModal'];
     for (const id of modalIds) { const m=document.getElementById(id); if(m?.classList.contains('show')) { m.classList.remove('show'); return; } }
     const previousTab=e.state?.tab;
+    if(currentActiveTab==='pageReports'){
+      if(e.state?.reportSection){
+        if(e.state.reportSection==='trial') openReportsSection('trial',false);
+        else toggleReportView(e.state.reportSection,false);
+        return;
+      }
+      if(previousTab==='pageReports'){
+        closeAllReportsSections();
+        return;
+      }
+    }
+    // نموذج السند شاشة داخلية لقائمة «إضافة»: الرجوع منه يعيد محدد نوع السند
+    // أولاً، ولا يقفز مباشرة إلى الواجهة الرئيسية حتى لو أسقط المتصفح حالة واحدة.
+    if(currentActiveTab==='pageExpenses' && (document.getElementById('cashFlowCard')?.classList.contains('hidden')===false || document.getElementById('multiVoucherCard')?.classList.contains('hidden')===false) && previousTab!=='pageExpenses'){
+      initVoucherSelectorView();
+      history.replaceState({page:'tab',tab:'pageExpenses'},'');
+      return;
+    }
     if (previousTab && TABS_ORDER.includes(previousTab)) { navigateToTab(previousTab, false); return; }
     if (currentActiveTab && currentActiveTab !== 'pageDashboard') { navigateToTab('pageDashboard', false); return; }
     showExitModal();
@@ -4003,9 +4055,15 @@ window.addEventListener('popstate', (e) => {
 });
 
 function goBackInApp(){
+  if(currentActiveTab==='pageExpenses' && (document.getElementById('cashFlowCard')?.classList.contains('hidden')===false || document.getElementById('multiVoucherCard')?.classList.contains('hidden')===false)){
+    initVoucherSelectorView();
+    history.replaceState({page:'tab',tab:'pageExpenses'},'');
+    return;
+  }
   if(currentActiveTab==='pageExpenses'&&multiVoucherDraftId&&multiVoucherReturnTab&&multiVoucherReturnTab!=='pageExpenses'){multiVoucherDraftId='';navigateToTab(multiVoucherReturnTab,false);return;}
   if(document.getElementById('accountScreenMenu')?.classList.contains('open')){closeAccountScreenMenu();return;}
   if(currentActiveTab==='pageAccountOperations'){navigateToTab('pageAccountsTree',false);return;}
+  if(currentActiveTab==='pageReports' && (document.querySelector('#reportsGroupStatementBody.open')||document.querySelector('#reportsGroupBudgetBody.open')||document.querySelector('#reportsGroupTrialBody.open'))){history.back();return;}
   if (document.querySelector('.modal-overlay.show')) { history.back(); return; }
   if (window.history.length > 1) history.back(); else if (currentActiveTab !== 'pageDashboard') navigateToTab('pageDashboard', false); else showExitModal();
 }
@@ -4774,13 +4832,19 @@ function initVoucherSelectorView() {
   document.getElementById('cashFlowCard').classList.add('hidden');
   document.getElementById('multiVoucherCard')?.classList.add('hidden');
 }
-
+function setVoucherFormHistory(mode){
+  const selectorVisible=!document.getElementById('voucherSelectorCard')?.classList.contains('hidden');
+  const state={page:'voucher_form',tab:'pageExpenses',voucherMode:mode};
+  if(selectorVisible) window.history.pushState(state,'');
+  else window.history.replaceState(state,'');
+}
 function backToVoucherSelector() {
   multiVoucherDraftId='';
   initVoucherSelectorView();
+  window.history.replaceState({page:'tab',tab:'pageExpenses'},'');
 }
-
 function selectVoucherTypeDirect(mode) {
+  setVoucherFormHistory(mode);
   currentVoucherMode = mode;
   document.getElementById('voucherSelectorCard').classList.add('hidden');
   document.getElementById('cashFlowCard').classList.remove('hidden');
@@ -5266,6 +5330,7 @@ document.getElementById('cancelEditDocBtn')?.addEventListener('click', () => {
 
 document.getElementById('ledgerSearchInput')?.addEventListener('input', (e) => {
   currentLedgerSearchQuery = e.target.value.trim().toLowerCase();
+  currentLedgerQuickFilter = 'all';
   clearTimeout(ledgerRenderTimer); ledgerRenderTimer = setTimeout(renderAllData, 120);
 });
 document.querySelectorAll('#ledgerStatusFilter .status-filter-btn').forEach(btn => {
@@ -5273,10 +5338,12 @@ document.querySelectorAll('#ledgerStatusFilter .status-filter-btn').forEach(btn 
     document.querySelectorAll('#ledgerStatusFilter .status-filter-btn').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
     currentLedgerStatusFilter = btn.dataset.status;
+    currentLedgerQuickFilter = 'all';
     renderAllData();
   });
 });
 document.getElementById('exportCsvBtn')?.addEventListener('click', exportTransactionsCsv);
+document.getElementById('ledgerBackBtn')?.addEventListener('click', () => goBackInApp());
 document.getElementById('globalSearchBtn')?.addEventListener('click', openGlobalSearch);
 document.getElementById('closeGlobalSearchBtn')?.addEventListener('click', closeGlobalSearch);
 document.getElementById('globalSearchInput')?.addEventListener('input', (e) => renderGlobalSearch(e.target.value));
@@ -5318,9 +5385,13 @@ function renderAllData() {
   const totalDocsCount = txs.length;
   if (currentLedgerStatusFilter === 'posted') txs = txs.filter(t => t.status !== 'reversed');
   else if (currentLedgerStatusFilter === 'reversed') txs = txs.filter(t => t.status === 'reversed');
+  if (currentLedgerQuickFilter === 'income') txs = txs.filter(t => t.voucherMode === 'income');
+  else if (currentLedgerQuickFilter === 'expense') txs = txs.filter(t => t.isExpense || t.voucherMode === 'spend');
+  else if (currentLedgerQuickFilter === 'pending') txs = txs.filter(t => t.status === 'draft' || t.status === 'pending');
+  else if (currentLedgerQuickFilter === 'net') txs = txs.filter(t => t.voucherMode === 'income' || t.isExpense || t.voucherMode === 'spend');
   if (currentLedgerSearchQuery) {
     const q = currentLedgerSearchQuery;
-    txs = txs.filter(t => [t.seqNum, getTransactionDisplayType(t), t.date, t.debitAccount, t.creditAccount, t.amount].join(' ').toLowerCase().includes(q));
+    txs = txs.filter(t => transactionSearchText(t).includes(q));
   }
   document.getElementById('ledgerCountBadge').textContent = `${txs.length} من ${totalDocsCount}`;
   if (txs.length === 0) { container.innerHTML = '<div style="text-align:center; color:var(--muted); padding:20px; font-weight:900;">لا توجد عمليات مسجلة</div>'; return; }
@@ -5454,12 +5525,15 @@ function initReportsTab(mode='accounts', autoOpen=true) {
     if (autoOpen) requestAnimationFrame(() => selReportAccount.input.focus());
   }
 }
-document.getElementById('btnRptBudget')?.addEventListener('click', () => toggleReportView('budget'));
-document.getElementById('btnRptAccounts')?.addEventListener('click', () => openAccountStatementSearch());
+function pushReportSectionHistory(which){
+  if(currentActiveTab==='pageReports') window.history.pushState({page:'report_section',tab:'pageReports',reportSection:which},'');
+}
+document.getElementById('btnRptBudget')?.addEventListener('click', () => toggleReportView('budget',true));
+document.getElementById('btnRptAccounts')?.addEventListener('click', () => openAccountStatementSearch(true));
 document.getElementById('reportsGroupBudgetHeader')?.addEventListener('click', () => {
   const alreadyOpen = document.getElementById('reportsGroupBudgetBody')?.classList.contains('open');
   if (alreadyOpen) { closeAllReportsSections(); return; }
-  toggleReportView('budget');
+  toggleReportView('budget',true);
 });
 document.getElementById('printTrialBalanceBtn')?.addEventListener('click', () => window.print());
 document.getElementById('shareTrialBalancePdfBtn')?.addEventListener('click', () => shareTrialBalancePdf());
@@ -5470,15 +5544,16 @@ let trialBalanceLoadedOnce = false;
 document.getElementById('reportsGroupStatementHeader')?.addEventListener('click', () => {
   const alreadyOpen = document.getElementById('reportsGroupStatementBody')?.classList.contains('open');
   if (alreadyOpen) { closeAllReportsSections(); return; }
-  toggleReportView('accounts');
+  toggleReportView('accounts',true);
 });
 document.getElementById('reportsGroupTrialHeader')?.addEventListener('click', () => {
   const alreadyOpen = document.getElementById('reportsGroupTrialBody')?.classList.contains('open');
   if (alreadyOpen) { closeAllReportsSections(); return; }
-  openReportsSection('trial');
+  openReportsSection('trial',true);
 });
 
-function toggleReportView(mode) {
+function toggleReportView(mode,pushHistory=false) {
+  if(pushHistory) pushReportSectionHistory(mode);
   activeReportTab = mode;
   document.getElementById('btnRptBudget')?.classList.toggle('active', mode === 'budget');
   document.getElementById('btnRptAccounts')?.classList.toggle('active', mode === 'accounts');
@@ -5486,7 +5561,7 @@ function toggleReportView(mode) {
   document.getElementById('accountStatementCard')?.classList.toggle('hidden', mode !== 'accounts');
   document.getElementById('filterAccountSelectBox')?.classList.toggle('hidden', mode !== 'accounts');
   const budgetCarousel = document.getElementById('budgetCarousel');
-  if (budgetCarousel) budgetCarousel.classList.toggle('hidden', mode !== 'budget' || document.getElementById('pageBudget')?.classList.contains('hidden'));
+  if (budgetCarousel) budgetCarousel.classList.toggle('hidden', mode !== 'budget');
   const filterTitle = document.getElementById('reportFilterBoxTitle');
   if (filterTitle) filterTitle.textContent = mode === 'accounts' ? '🔍 البحث عن كشف الحساب' : '📈 تصفية فترة التقرير';
   // في صفحة التقارير العامة لكل تقرير قسم مستقل: كشف الحساب، بنود الميزانية، وميزان المراجعة.
@@ -5509,7 +5584,8 @@ function toggleReportView(mode) {
   runActiveReport();
 }
 // يفتح أحد قسمي صفحة التقارير حصرياً ويطوي الآخر تماماً (لا تداخل بين المحتويين إطلاقاً)
-function openReportsSection(which) {
+function openReportsSection(which,pushHistory=false) {
+  if(pushHistory) pushReportSectionHistory(which);
   const stHeader = document.getElementById('reportsGroupStatementHeader'), stBody = document.getElementById('reportsGroupStatementBody');
   const budgetHeader = document.getElementById('reportsGroupBudgetHeader'), budgetBody = document.getElementById('reportsGroupBudgetBody');
   const trHeader = document.getElementById('reportsGroupTrialHeader'), trBody = document.getElementById('reportsGroupTrialBody');
@@ -5530,8 +5606,8 @@ function closeAllReportsSections() {
 
 // يفتح صفحة البحث عن كشف الحساب بخانة بحث فارغة ومؤشر الكتابة نشط فيها مباشرة،
 // بدل ما تظهر معبأة بآخر حساب تم اختياره أو بنص "ملخص كافة الحسابات".
-function openAccountStatementSearch() {
-  toggleReportView('accounts');
+function openAccountStatementSearch(pushHistory=false) {
+  toggleReportView('accounts',pushHistory);
   if (selReportAccount && selReportAccount.input) {
     selReportAccount.input.value = '';
     selReportAccount.input.classList.remove('has-selection');
@@ -6272,7 +6348,7 @@ function initCanonicalLiveAccountsTreePage(){
         const trLabel=document.createElement('span');trLabel.textContent=`[${d[0]}] ${d[1]}`;
         tr.appendChild(trLabel);
         tr.appendChild(levelBtns(()=>openEditAccountModal(d[1]),()=>deleteAccountFromTree(x.main,d[1])));
-        tr.addEventListener('click',(ev)=>{if(ev.target.closest('button'))return;navigateToTab('pageReports',true);toggleReportView('accounts');selReportAccount.setValue(d[1],d[1]);runAccountStatement();});
+        tr.addEventListener('click',(ev)=>{if(ev.target.closest('button'))return;navigateToTab('pageReports',true);toggleReportView('accounts',true);selReportAccount.setValue(d[1],d[1]);runAccountStatement();});
         g.appendChild(tr);
       });
       wrap.appendChild(g);
@@ -6581,9 +6657,11 @@ function renderAccountsPager(){
   const tabs=document.getElementById('accountsPagerTabs'),track=document.getElementById('accountsPagerTrack');
   if(!tabs||!track)return;
   const catalog=getCanonicalCatalog(), balances=getAccountPagerBalances();
-  const mains=[...new Map(catalog.map(x=>[x.main,x])).values()];
+  const query=String(document.getElementById('accountsPagerSearchInput')?.value||'').trim().toLocaleLowerCase('ar');
+  const matches=(value)=>!query||String(value||'').toLocaleLowerCase('ar').includes(query);
+  const mains=[...new Map(catalog.map(x=>[x.main,x])).values()].filter(main=>catalog.some(x=>x.main===main.main&&x.details.some(d=>matches(`${d[0]} ${d[1]} ${x.main} ${x.group} ${x.sub}`))));
   tabs.innerHTML='';track.innerHTML='';document.getElementById('accountOperationsPanel')?.classList.add('hidden');
-  if(!mains.length){track.innerHTML='<div class="accounts-empty">لا توجد تصنيفات حسابات متاحة.</div>';return;}
+  if(!mains.length){track.innerHTML=`<div class="accounts-empty">${query?'لا توجد حسابات مطابقة لعبارة البحث.':'لا توجد تصنيفات حسابات متاحة.'}</div>`;return;}
   mains.forEach((main,index)=>{
     const tab=document.createElement('button');tab.type='button';tab.role='tab';tab.textContent='#'+main.main;tab.dataset.index=String(index);tab.setAttribute('aria-selected',index===0?'true':'false');
     tab.addEventListener('click',()=>{const slide=track.children[index];slide?.scrollIntoView({behavior:'smooth',inline:'start',block:'nearest'});setAccountsPagerActive(index)});tabs.appendChild(tab);
@@ -6591,7 +6669,7 @@ function renderAccountsPager(){
     const title=document.createElement('div');title.className='accounts-pager-slide-title';
     const activeTxs=getAllTransactions().filter(t=>t.status!=='reversed'&&t.status!=='deleted');
     const latest={};activeTxs.forEach(t=>{const date=t.isoDate||t.date||'';[t.debitAccount,t.creditAccount].filter(Boolean).forEach(n=>{if(!latest[n]||date>latest[n])latest[n]=date;});});
-    const baseItems=catalog.filter(x=>x.main===main.main).flatMap(x=>x.details.map(d=>({code:d[0],name:d[1],level:'المستوى الرابع — تفصيلي (يقبل الحركة)',path:`${x.main} > ${x.group} > ${x.sub}`,main:x.main})));
+    const baseItems=catalog.filter(x=>x.main===main.main).flatMap(x=>x.details.filter(d=>matches(`${d[0]} ${d[1]} ${x.main} ${x.group} ${x.sub}`)).map(d=>({code:d[0],name:d[1],level:'المستوى الرابع — تفصيلي (يقبل الحركة)',path:`${x.main} > ${x.group} > ${x.sub}`,main:x.main})));
     const accountItems=[];
     const currencyBalance=(name,currency)=>{let total=0,count=0,last='';activeTxs.forEach(t=>{const e=getAccountEntry(t,[name]);if(!e)return;const c=e.currency||'YER';if(c!==currency)return;total+=(e.side==='debit'?-1:1)*getAccountDisplayAmount(e);count++;const d=getAccountOpsDate(t);if(d>last)last=d;});return {total,count,last};};
     baseItems.forEach(base=>{
@@ -6623,6 +6701,7 @@ function renderAccountsPager(){
     track.addEventListener('scroll',()=>{const width=track.clientWidth||1;setAccountsPagerActive(Math.round(Math.abs(track.scrollLeft)/width))},{passive:true});
   }
 }
+document.getElementById('accountsPagerSearchInput')?.addEventListener('input',()=>renderAccountsPager());
 function setAccountsPagerActive(index){
   const tabs=document.getElementById('accountsPagerTabs'),track=document.getElementById('accountsPagerTrack');if(!tabs||!track)return;
   const max=Math.max(0,track.children.length-1),safe=Math.max(0,Math.min(index,max));
@@ -6638,6 +6717,7 @@ function getMultiAccountItems(){
 }
 function multiCurrencyLabel(c){return c==='SAR'?'ريال سعودي SAR':c==='USD'?'دولار USD':'ريال يمني YER';}
 function selectMultiVoucherType(){
+  setVoucherFormHistory('multi-entry');
   if(!multiVoucherDraftId && multiVoucherLines.some(l=>l.account||getCleanNumber(l.amount)))resetMultiVoucherForm();
   document.getElementById('multiSavedNotice')?.classList.add('hidden');
   document.getElementById('voucherSelectorCard')?.classList.add('hidden');
@@ -6699,6 +6779,7 @@ function openMultiVoucherEditor(item){
   // إليها فعلياً، فكان يبدو للمستخدم إن التعديل لا يعمل إلا بالدخول يدوياً إلى الإضافة ← قيد متعدد.
   // الآن ننتقل مباشرة لنفس شاشة الإدخال بالسند مملوءاً بكل بياناته دفعة واحدة.
   navigateToTab('pageExpenses', true);
+  setVoucherFormHistory('multi-entry');
   const groupId=item.multiVoucherId||item.id,txs=getAllTransactions().filter(t=>t.isMultiVoucher&&(t.multiVoucherId===groupId||t.id===groupId)),source=item.multiVoucher||txs[0]?.multiVoucher||{};
   document.getElementById('voucherSelectorCard')?.classList.add('hidden');document.getElementById('cashFlowCard')?.classList.add('hidden');document.getElementById('multiVoucherCard')?.classList.remove('hidden');
   multiVoucherDraftId=groupId;document.getElementById('multiVoucherSeqBadge').textContent=`رقم: ${source.seq||item.seqNum||getNextMultiVoucherNumber()}`;document.getElementById('multiVoucherDate').value=source.date||item.isoDate||multiToday();document.getElementById('multiVoucherBeneficiary').value=source.beneficiary||'';document.getElementById('multiVoucherParty').value=source.party||'';document.getElementById('multiVoucherNote').value=source.note||'';document.getElementById('multiVoucherBaseCurrency').value=source.baseCurrency||item.currency||'YER';multiSourceAcc.setValue(source.sourceAccount||'','');
@@ -7114,7 +7195,7 @@ function showExitedScreen(wasSecured) {
   if(typeof originalSetup==='function'){
     // The function is lexical in this single-file app; decoration is also invoked on navigation below.
   }
-  const observer=new MutationObserver(()=>{if(!document.getElementById('pageBudget')?.classList.contains('hidden'))decorateBudgetLayout()});observer.observe(document.body,{childList:true,subtree:true});
+  const observer=new MutationObserver(()=>decorateBudgetLayout());observer.observe(document.body,{childList:true,subtree:true});
   document.addEventListener('DOMContentLoaded',()=>{decorateBudgetLayout();setTimeout(decorateBudgetLayout,100)});
   window.showAboutRatib=about;
 })();

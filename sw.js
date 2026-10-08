@@ -1,76 +1,80 @@
-// ===== Service Worker لتطبيق "راتب" =====
-// الاستراتيجية: Stale-While-Revalidate لكل الموارد (القشرة + الخطوط + مكتبات CDN).
-// يعني: يُعرض فوراً ما هو مخزّن في الكاش (سرعة فورية + يعمل بلا إنترنت بعد أول زيارة)،
-// وبالتوازي يُطلب من الشبكة نسخة أحدث لتحديث الكاش تلقائياً للمرة القادمة — دون انتظار
-// المستخدم لأي تحميل. هذا هو التوازن الأمثل بين "Offline First" وبين وصول التحديثات.
-//
-// ⚠️ مهم عند كل تعديل تنشره على index.html: غيّر رقم CACHE_VERSION أدناه (مثلاً من
-// 'v1' إلى 'v2'). هذا يُنشئ كاشاً جديداً بالكامل ويحذف القديم تلقائياً، فيضمن أن
-// المستخدمين يحصلون على التحديث عوضاً عن البقاء عالقين على نسخة قديمة مخزّنة إلى الأبد.
-const CACHE_VERSION = 'v12-ratib-features';
-const CACHE_NAME = `ratib-cache-${CACHE_VERSION}`;
-
-// قائمة "القشرة" الأساسية التي تُخزَّن فور أول تثبيت، لضمان عمل التطبيق بالكامل دون
-// إنترنت من أول لحظة (بدل انتظار زيارة كل صفحة/مورد على حدة قبل تخزينه).
-const APP_SHELL = [
-  './',
-  './index.html',
-  './manifest.json',
-  './Icons/icon-192.png',
-  './Icons/icon-512.png',
-  './Icons/icon-192-maskable.png',
-  './Icons/icon-512-maskable.png',
-  'https://fonts.googleapis.com/css2?family=Tajawal:wght@500;700;800;900&display=swap',
-  'https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js',
-  'https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0/dist/chartjs-plugin-datalabels.min.js',
-  'https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js'
+// Ratib 3.1.2: cache identity is unique to this app's scope.
+const CACHE_VERSION='v14-ratib-3.1.2';
+const CACHE_PREFIX=`ratib:${self.registration.scope}:`;
+const CACHE_NAME=CACHE_PREFIX+CACHE_VERSION;
+const APP_SHELL=[
+  "./",
+  "./index.html",
+  "./manifest.json",
+  "./Icons/icon-192.png",
+  "./Icons/icon-512.png",
+  "./Icons/icon-192-maskable.png",
+  "./Icons/icon-512-maskable.png",
+  "./Icons/apple-touch-icon.png",
+  "./vendor/tajawal.css",
+  "./vendor/chart.umd.min.js",
+  "./vendor/chartjs-plugin-datalabels.min.js",
+  "./vendor/tajawal-1.woff2",
+  "./vendor/tajawal-10.woff2",
+  "./vendor/tajawal-2.woff2",
+  "./vendor/tajawal-3.woff2",
+  "./vendor/tajawal-4.woff2",
+  "./vendor/tajawal-5.woff2",
+  "./vendor/tajawal-6.woff2",
+  "./vendor/tajawal-7.woff2",
+  "./vendor/tajawal-8.woff2",
+  "./vendor/tajawal-9.woff2"
 ];
+const SHELL_URLS=new Set(APP_SHELL.map(path=>new URL(path,self.registration.scope).href));
 
-self.addEventListener('install', (event) => {
-  // يُفعّل نسخة الـ Service Worker الجديدة فوراً بدل انتظار إغلاق كل تبويبات التطبيق
-  self.skipWaiting();
-  event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) =>
-      // addAll تفشل كاملة لو تعذّر مورد واحد فقط؛ نستخدم محاولات فردية بدلها حتى لو
-      // فشل تخزين مورد واحد (مثلاً بسبب انقطاع مؤقت) يستمر تخزين البقية بنجاح
-      Promise.allSettled(APP_SHELL.map((url) => cache.add(url)))
-    )
-  );
+self.addEventListener('install',event=>{
+  // All essential resources must be available before this version can replace the previous worker.
+  event.waitUntil(caches.open(CACHE_NAME).then(cache=>cache.addAll(APP_SHELL)));
 });
-
-self.addEventListener('activate', (event) => {
-  event.waitUntil(
-    caches.keys()
-      .then((names) => Promise.all(
-        names.filter((n) => n !== CACHE_NAME).map((n) => caches.delete(n))
-      ))
-      .then(() => self.clients.claim())
-  );
+self.addEventListener('message',event=>{
+  if(event.data?.type==='SKIP_WAITING')event.waitUntil(self.skipWaiting());
+  if(event.data?.type==='OFFLINE_STATUS')event.waitUntil((async()=>{const cache=await caches.open(CACHE_NAME),ready=(await Promise.all([...SHELL_URLS].map(url=>cache.match(url)))).every(Boolean);event.source?.postMessage({type:ready?'OFFLINE_READY':'OFFLINE_UNAVAILABLE',version:CACHE_VERSION});})());
 });
-
-self.addEventListener('fetch', (event) => {
-  const req = event.request;
-  // لا نتدخل إلا في طلبات GET (طلبات الحفظ ونحوها ليست جزءاً من الكاش)
-  if (req.method !== 'GET') return;
-
-  event.respondWith(
-    caches.open(CACHE_NAME).then((cache) =>
-      cache.match(req).then((cachedResponse) => {
-        const networkFetch = fetch(req)
-          .then((networkResponse) => {
-            // نخزّن فقط الاستجابات الناجحة الحقيقية (200) أو الموارد المتاحة عبر CDN
-            // بإعدادات CORS تسمح بالقراءة (type 'cors' أو 'basic')
-            if (networkResponse && networkResponse.status === 200) {
-              cache.put(req, networkResponse.clone());
-            }
-            return networkResponse;
-          })
-          .catch(() => undefined); // لا إنترنت الآن — لا بأس، سنعتمد على النسخة المخزّنة
-
-        // الأهم: نرجّع النسخة المخزّنة فوراً إن وُجدت (لا ننتظر الشبكة إطلاقاً)،
-        // وإلا ننتظر نتيجة الشبكة (أول زيارة فعلية لمورد لم يُخزَّن بعد)
-        return cachedResponse || networkFetch;
-      })
-    )
-  );
+self.addEventListener('activate',event=>{
+  event.waitUntil((async()=>{
+    const names=await caches.keys();
+    await Promise.all(names.filter(name=>name.startsWith(CACHE_PREFIX)&&name!==CACHE_NAME).map(name=>caches.delete(name)));
+    // Old releases shared an unscoped cache. Remove only this app's own URLs from it.
+    for(const name of names.filter(name=>name.startsWith('ratib-cache-'))){
+      const cache=await caches.open(name),requests=await cache.keys();
+      await Promise.all(requests.filter(req=>req.url.startsWith(self.registration.scope)).map(req=>cache.delete(req)));
+    }
+    await self.clients.claim();
+    const clients=await self.clients.matchAll({type:'window',includeUncontrolled:true});
+    for(const client of clients)if(client.url.startsWith(self.registration.scope))client.postMessage({type:'OFFLINE_READY',version:CACHE_VERSION});
+  })());
+});
+self.addEventListener('fetch',event=>{
+  const req=event.request,url=new URL(req.url);
+  if(req.method!=='GET'||url.origin!==self.location.origin||!req.url.startsWith(self.registration.scope))return;
+  const navigation=req.mode==='navigate';
+  if(!navigation&&!SHELL_URLS.has(req.url))return;
+  const cachePromise=caches.open(CACHE_NAME);
+  const network=(async()=>{
+    try{
+      const response=await fetch(req);
+      if(response.status===200&&(response.type==='basic'||response.type==='default')){
+        try{const cache=await cachePromise;await cache.put(req,response.clone());}catch(_){/* A full cache must not discard a successful online response. */}
+      }
+      return response;
+    }catch(_){return null;}
+  })();
+  event.waitUntil(network.then(()=>{}));
+  event.respondWith((async()=>{
+    const cache=await cachePromise,cached=await cache.match(req);
+    if(cached)return cached;
+    const response=await network;
+    if(response?.ok)return response;
+    if(navigation){
+      const shell=await cache.match(new URL('./index.html',self.registration.scope).href);
+      if(shell)return shell;
+      return new Response('<!doctype html><html lang="ar" dir="rtl"><meta charset="utf-8"><title>راتب</title><p>لم يكتمل تجهيز التطبيق للعمل دون الإنترنت. افتحه مرة مع اتصال بالإنترنت ثم أعد المحاولة.</p></html>',{status:503,headers:{'Content-Type':'text/html; charset=utf-8'}});
+    }
+    return response||new Response('',{status:503,statusText:'Offline resource unavailable'});
+  })());
 });

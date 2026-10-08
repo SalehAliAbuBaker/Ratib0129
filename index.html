@@ -799,6 +799,44 @@ body.ratib-sidebar-open,body.ratib-about-open{overflow:hidden}
 @media(max-width:700px){.app-sidebar{width:min(340px,88vw)}}
 @media(prefers-reduced-motion:reduce){.app-sidebar,.contact-options-arrow{transition:none}}
 
+@media screen {
+  #multiVoucherCard.spend-voucher{border-inline-start:3px solid var(--accent);padding:18px}
+  .spend-voucher .multi-voucher-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin-bottom:14px}
+  .spend-voucher .multi-voucher-grid>label{display:flex;flex-direction:column;margin:0;gap:5px}
+  .spend-voucher #multiVoucherSeqBadge{display:none}.spend-voucher .spend-sequence{grid-column:1;grid-row:1}.spend-voucher #spendSeqInput{background:var(--bg);font-variant-numeric:tabular-nums}
+  .spend-voucher .multi-voucher-grid>label:has(#multiVoucherDate){grid-column:2;grid-row:1}
+  .spend-voucher .multi-voucher-grid:not(:has(#spendFxHeader:not(.hidden))) .spend-budget-header{grid-column:2/4}
+  .spend-voucher .multi-voucher-source-row{grid-column:3;grid-row:1;margin:0;min-width:0;display:block}
+  .spend-voucher .multi-voucher-source-row>label{display:block;margin-bottom:5px}
+  .spend-voucher .multi-voucher-grid>label:has(#multiVoucherBeneficiary){grid-column:1/-1;grid-row:3}
+  .spend-voucher .multi-voucher-grid>label:has(#multiVoucherBaseCurrency){grid-column:1;grid-row:2}
+  .spend-voucher .spend-budget-header{grid-column:3;grid-row:2}
+  .spend-voucher #spendFxHeader{grid-column:2;grid-row:2}
+  .spend-voucher #spendFxHeaderButton{margin:0;min-height:46px;padding:8px;direction:ltr;font-variant-numeric:tabular-nums;font-size:.9rem}
+  .spend-voucher #multiVoucherNote{margin:0 0 18px}
+  .spend-lines-toolbar{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:14px 0 10px;flex-wrap:wrap}
+  .spend-lines-toolbar>h3{margin:0;font-size:1.05rem}.spend-lines-toolbar>.btn{width:auto;margin:0}
+  .spend-voucher .multi-voucher-table-wrap{max-width:100%;overflow:auto;overscroll-behavior-x:contain;border:1px solid var(--border);border-radius:8px}
+  .spend-voucher .multi-voucher-table{min-width:1040px;table-layout:fixed;margin:0;font-size:.95rem}
+  .spend-voucher .multi-voucher-table th{font-size:.95rem;font-weight:700;background:var(--bg);padding:10px 8px;white-space:normal!important;overflow-wrap:anywhere;line-height:1.4}
+  .spend-voucher .multi-voucher-table td{padding:8px;vertical-align:top}.spend-voucher .multi-voucher-table th:nth-child(1){width:35px}.spend-voucher .multi-voucher-table th:nth-child(2){width:170px}.spend-voucher .multi-voucher-table th:nth-child(3){width:96px}.spend-voucher .multi-voucher-table th:nth-child(4){width:120px}.spend-voucher .multi-voucher-table th:nth-child(5){width:120px}.spend-voucher .multi-voucher-table th:nth-child(6){width:115px}.spend-voucher .multi-voucher-table th:nth-child(7){width:128px}.spend-voucher .multi-voucher-table th:nth-child(8){width:156px}
+  .spend-voucher .multi-voucher-table :is(input,select){width:100%;min-width:0;font-size:.95rem;font-weight:500;line-height:1.5;height:46px;padding:8px;border:1px solid var(--border);border-radius:8px;background:var(--card);color:var(--text)}
+  .spend-voucher .multi-line-amount{direction:ltr;text-align:right;font-variant-numeric:tabular-nums}
+  .spend-voucher .multi-line-base{font-variant-numeric:tabular-nums;overflow-wrap:anywhere;padding-top:18px!important}
+  .spend-row-actions{display:flex;gap:4px}.spend-row-actions .icon-btn{width:44px;min-width:44px;margin:0;background:var(--card);color:var(--accent);font-size:1.2rem}.spend-row-actions .multi-remove-line{color:var(--danger)}.spend-row-actions button:disabled{opacity:.4}
+  .spend-line-fx{display:block;background:none;border:0;color:var(--accent);font:500 .8rem Tajawal,sans-serif;min-height:32px;margin-top:4px;cursor:pointer}.spend-imported-notes{display:block;color:var(--muted);font-size:.8rem;max-width:100%;overflow-wrap:anywhere}
+  .spend-voucher #multiVoucherSummary{display:flex;align-items:center;gap:8px 20px;flex-wrap:wrap;margin:14px 0 0;padding:14px;background:color-mix(in srgb,var(--accent) 7%,var(--card));border:1px solid var(--border);border-radius:8px}
+  .spend-voucher #multiVoucherSummary>span{background:transparent;border:0;padding:0;font-size:.95rem}.spend-voucher #multiVoucherSummary>strong{flex-basis:100%;font-size:1.05rem}
+  .spend-voucher #multiVoucherBalance{font-weight:500;padding:8px 0;border:0;background:transparent;font-size:.85rem;margin:0}.spend-voucher #spendTafqit{padding:0 4px;margin:6px 0 14px}
+  .spend-previous-options{margin-top:16px;border-top:1px solid var(--border);padding-top:12px}.spend-previous-options summary{cursor:pointer;min-height:36px;color:var(--muted);font-size:.9rem}.spend-previous-options .btn{width:auto}
+  .spend-fx-dialog{max-width:560px}.spend-fx-title{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:14px}.spend-fx-title h3{margin:0;font-size:1.15rem}.spend-fx-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:14px}.spend-fx-grid label{margin:0}.spend-fx-grid input{direction:ltr;text-align:right}
+  #spendFxEquation{padding:12px;background:var(--bg);border:1px solid var(--border);border-radius:8px;margin:14px 0;font-weight:700;overflow-wrap:anywhere;unicode-bidi:plaintext}
+  #spendFxEquation>span{display:block;margin-block:4px}.spend-fx-relation{font-variant-numeric:tabular-nums;text-align:center}
+  .spend-fx-actions,.spend-notice-actions{display:flex;gap:8px;flex-wrap:wrap}.spend-fx-actions>.btn{flex:1;margin:0}.spend-notice-actions>.btn{flex:1 1 140px;margin:0;width:auto}
+  @media(max-width:700px){#multiVoucherCard.spend-voucher{padding:14px}.spend-voucher .multi-voucher-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.spend-voucher .multi-voucher-source-row{grid-column:1/-1;grid-row:2}.spend-voucher .multi-voucher-grid>label:has(#multiVoucherBaseCurrency){grid-column:1;grid-row:3}.spend-voucher .spend-budget-header,.spend-voucher .multi-voucher-grid:not(:has(#spendFxHeader:not(.hidden))) .spend-budget-header{grid-column:2;grid-row:3}.spend-voucher #spendFxHeader{grid-column:1/-1;grid-row:4}.spend-voucher .multi-voucher-grid>label:has(#multiVoucherBeneficiary){grid-column:1/-1;grid-row:5}.spend-voucher .multi-voucher-actions>.btn{flex:1 1 120px}.spend-lines-toolbar>h3{flex:1}.spend-fx-grid{grid-template-columns:1fr}}
+}
+@media print{.spend-print-table{width:100%;border-collapse:collapse;color:#000;font-size:10pt}.spend-print-table th,.spend-print-table td{border:1px solid #bbb;padding:5px;overflow-wrap:anywhere}.spend-print-table th{background:#eee}}
+
 </style>
 </head>
 <body>
@@ -831,7 +869,7 @@ body.ratib-sidebar-open,body.ratib-about-open{overflow:hidden}
       <button class="icon-btn" id="privacyBtn" title="وضع الخصوصية">👁️</button>
       <button class="icon-btn" id="themeBtn" title="الوضع الليلي">🌙</button>
       <button class="icon-btn" id="sidebarMenuBtn" aria-haspopup="dialog" aria-controls="appSidebar" aria-expanded="false" title="القائمة الجانبية" aria-label="فتح القائمة الجانبية">☰</button>
-    </div><small id="appVersionLabel" class="app-version">الإصدار 3.1.9</small></div>
+    </div><small id="appVersionLabel" class="app-version">الإصدار 3.2.0</small></div>
   </header>
   <div class="summary-toolbar hidden no-print" id="storageFeedback"><span id="persistentSaveStatus" hidden aria-hidden="true">جاهز</span><button type="button" id="retryStorageBtn" class="btn btn-ghost hidden">إعادة محاولة الحفظ</button></div>
 <div class="app-update-banner hidden no-print" id="appUpdateBanner" role="status"><span id="appUpdateMessage">يتوفر تحديث لراتب. هل تريد تطبيقه؟</span><button type="button" class="btn btn-ghost" id="applyAppUpdateBtn">حفظ المسودة والتحديث</button></div>
@@ -876,7 +914,7 @@ body.ratib-sidebar-open,body.ratib-about-open{overflow:hidden}
       <img src="Icons/icon-192.png" width="72" height="72" alt="" decoding="async">
       <h2 id="ratibAboutTitle">راتب</h2>
       <p class="ratib-about-subtitle">للتنظيم والتدبير المالي</p>
-      <p class="ratib-about-version">الإصدار 3.1.9</p>
+      <p class="ratib-about-version">الإصدار 3.2.0</p>
       <p id="ratibAboutDescription">إدارة الحسابات والسندات والميزانية، ومتابعة العمليات والتقارير المالية، مع حفظ البيانات على جهازك ودعم العمل دون الإنترنت.</p>
       <button type="button" class="btn btn-primary" id="closeRatibAboutBtn">إغلاق</button>
     </div>
@@ -2397,7 +2435,7 @@ async function tryUnlockVaultWithSessionKey(){
 function getDefaultAccountsConfig() {
   return store.get('default_accounts', {
     incomeDebit: 'الصندوق الرئيسي',
-    spendCredit: 'الصندوق الرئيسي'
+    spendCredit: 'صندوق النقدية الرئيسي'
   });
 }
 function saveDefaultAccountsConfig(cfg) { store.set('default_accounts', cfg); }
@@ -3477,7 +3515,7 @@ let remindersChartInstance = null;
 function updateProDashboard(){
   const txs=dashboardTransactions(),cur=getGlobalCurrency(),selected=txs.filter(t=>t.currency===cur);
   const income=selected.filter(t=>t.voucherMode==='income').reduce((sum,t)=>sum+Number(t.amount||0),0);
-  const expense=selected.filter(t=>t.isExpense||t.voucherMode==='spend').reduce((sum,t)=>sum+Number(t.amount||0),0);
+  const expense=selected.filter(t=>(t.isExpense||t.voucherMode==='spend')&&(!t.isMultiVoucher||!!t.debitAccount)).reduce((sum,t)=>sum+Number(t.amount||0),0);
   for(const [id,value] of [['proIncomeKpi',income],['proExpenseKpi',expense],['proNetKpi',income-expense]]){const el=document.getElementById(id);if(el)el.textContent=fmt(value,cur);}
   const pending=document.getElementById('proPendingKpi');if(pending)pending.textContent=String(txs.filter(t=>t.status==='draft'||t.status==='pending').length);
   const alerts=[],ceilings=getAccountCeilings();
@@ -3914,14 +3952,14 @@ function getMasterPlan(){
   if(changed)store.set('plan',p);return p;
 }
 
-function getTransactionDisplayType(t){return t?.isMultiVoucher?'سند قيد متعدد':(t?.type||'عملية');}
+function getTransactionDisplayType(t){return t?.isMultiVoucher?(t.multiVoucher?.mode==='spend'?'سند صرف':'سند قيد متعدد'):(t?.type||'عملية');}
 function getNextVoucherNumber(mode) {
   const allTxs = getAllTransactions();
   return allTxs.filter(t => t.voucherMode === mode).reduce((max, t) => Math.max(max, Number(t.seqNum) || 0), 0) + 1;
 }
 function getNextMultiVoucherNumber(){
   const allTxs=getAllTransactions();
-  return allTxs.filter(t=>t.isMultiVoucher===true).reduce((max,t)=>Math.max(max,Number(t.seqNum)||0),0)+1;
+  return allTxs.filter(t=>t.isMultiVoucher===true&&t.multiVoucher?.mode!=='spend').reduce((max,t)=>Math.max(max,Number(t.seqNum)||0),0)+1;
 }
 
 function updateVoucherSeqBadge() {
@@ -4020,7 +4058,7 @@ function preparePrintStatementTemplate(accountName, targetTxs, openingBalance, p
 
       const otherAccount = isAll ? `${t.debitAccount} ← ${t.creditAccount}` : (isDebit ? (t.creditAccount || 'طرف آخر') : (t.debitAccount || 'طرف آخر'));
       const noteStr = t.execution?.[Object.keys(t.execution)[0]]?.note || getTransactionDisplayType(t);
-      const docType = t.isMultiVoucher ? 'سند قيد متعدد' : (t.voucherMode === 'spend' ? 'سند صرف' : (t.voucherMode === 'income' ? 'سند إيراد' : 'قيد يومي'));
+      const docType = t.isMultiVoucher ? (t.multiVoucher?.mode==='spend'?'سند صرف':'سند قيد متعدد') : (t.voucherMode === 'spend' ? 'سند صرف' : (t.voucherMode === 'income' ? 'سند إيراد' : 'قيد يومي'));
 
       const balanceColor = runningBalance >= 0 ? 'var(--ok)' : 'var(--danger)';
       const balanceLabel = isAll ? '' : (runningBalance >= 0 ? ' (لكم)' : ' (عليكم)');
@@ -4065,7 +4103,7 @@ function preparePrintStatementTemplate(accountName, targetTxs, openingBalance, p
   document.getElementById('psTafqitText').textContent = `${netBal >= 0 ? 'لكم' : 'عليكم'} : ${tafqit(Math.abs(netBal))}`;
 }
 
-function preparePrintVoucherTemplate(tx) {
+function preparePrintVoucherTemplate(tx) {if(tx?.isMultiVoucher&&tx.multiVoucher?.mode==='spend')return prepareMultiVoucherPrint(tx.multiVoucher);
   const cfg = getHeaderConfig();
   document.getElementById('pvOrgName').textContent = (cfg.show && cfg.name) ? cfg.name : '';
   document.getElementById('pvOrgDetails').textContent = (cfg.show && cfg.details) ? cfg.details : '';
@@ -4979,7 +5017,7 @@ function initVoucherSelectorView() {
 }
 function setVoucherFormHistory(mode,remember=true){if(remember&&!_restoringAppView&&!document.getElementById('voucherSelectorCard')?.classList.contains('hidden'))rememberAppView();recordAppHistory({page:'voucher_form',tab:'pageExpenses',voucherMode:mode});}
 function backToVoucherSelector(){return goBackInApp();}
-function selectVoucherTypeDirect(mode) {
+function entryselectVoucherTypeDirect(mode) {
   setVoucherFormHistory(mode);
   currentVoucherMode = mode;
   document.getElementById('voucherSelectorCard').classList.add('hidden');
@@ -5509,7 +5547,7 @@ document.querySelectorAll('#globalSearchStatusFilter .status-filter-btn').forEac
 // يحمل إما حساب مدين أو دائن فقط) في "بطاقة" منطقية واحدة تمثّل السند بالكامل — بدل عرض كل
 // بند كعملية مستقلة، وهو ما كان يُظهر السند مرتين (مرة لسطر المدين ومرة لسطر الدائن) ويُضاعف
 // المبلغ المعروض في الإجماليات. تُستخدم هذه الدالة في شاشة "السجل".
-function groupLedgerItemsForDisplay(txs){
+function entrygroupLedgerItemsForDisplay(txs){
   const groups=new Map();
   for(const t of txs){if(t.isMultiVoucher){const id=t.multiVoucherId||t.id;if(!groups.has(id))groups.set(id,[]);groups.get(id).push(t);}}
   const seen=new Set(),out=[];
@@ -5609,9 +5647,9 @@ function openDocumentDetailsModal(item) {
   pendingLongPressTx = item;
   
   const titleEl = document.getElementById('longPressModalTitle');
-  if (titleEl) titleEl.textContent = item.isMultiVoucher ? `سند قيد متعدد #${item.seqNum||'-'}` : (getTransactionDisplayType(item) || 'تفاصيل المستند');
+  if (titleEl) titleEl.textContent = item.isMultiVoucher ? `${item.multiVoucher?.mode==='spend'?'سند صرف':'سند قيد متعدد'} #${item.seqNum||'-'}` : (getTransactionDisplayType(item) || 'تفاصيل المستند');
 
-  const docType = item.isMultiVoucher ? 'سند قيد متعدد' : (item.voucherMode === 'spend' ? 'سند صرف' : (item.voucherMode === 'income' ? 'سند إيراد' : 'سند قيد'));
+  const docType = item.isMultiVoucher ? (item.multiVoucher?.mode==='spend'?'سند صرف':'سند قيد متعدد') : (item.voucherMode === 'spend' ? 'سند صرف' : (item.voucherMode === 'income' ? 'سند إيراد' : 'سند قيد'));
   const docTypeEl = document.getElementById('lpModalDocType');
   if (docTypeEl) docTypeEl.textContent = `${docType} #${item.seqNum || '-'}`;
 
@@ -6025,7 +6063,7 @@ function runAccountStatement() {
 
       const otherAccount = isDebit ? (t.creditAccount || 'طرف آخر') : (t.debitAccount || 'طرف آخر');
       const noteStr = t.execution?.[Object.keys(t.execution)[0]]?.note || getTransactionDisplayType(t);
-      const docType = t.isMultiVoucher ? 'سند قيد متعدد' : (t.voucherMode === 'spend' ? 'سند صرف' : (t.voucherMode === 'income' ? 'سند إيراد' : 'قيد يومي'));
+      const docType = t.isMultiVoucher ? (t.multiVoucher?.mode==='spend'?'سند صرف':'سند قيد متعدد') : (t.voucherMode === 'spend' ? 'سند صرف' : (t.voucherMode === 'income' ? 'سند إيراد' : 'قيد يومي'));
       const balanceColor = runningBalance >= 0 ? 'var(--ok)' : 'var(--danger)';
 
       const row = document.createElement('tr');
@@ -6840,7 +6878,7 @@ function getMultiAccountItems(){
   const out=[];try{getCanonicalCatalog().forEach(x=>x.details.forEach(d=>out.push({id:d[1],text:d[1],group:`${x.main} > ${x.group} > ${x.sub}`})))}catch(e){}return out;
 }
 function multiCurrencyLabel(c){return c==='SAR'?'ريال سعودي SAR':c==='USD'?'دولار USD':'ريال يمني YER';}
-function selectMultiVoucherType(){
+function entryselectMultiVoucherType(){
   setVoucherFormHistory('multi-entry');
   if(!multiVoucherDraftId && multiVoucherLines.some(l=>l.account||getCleanNumber(l.amount)))resetMultiVoucherForm();
   document.getElementById('multiSavedNotice')?.classList.add('hidden');
@@ -6856,7 +6894,7 @@ function selectMultiVoucherType(){
 }
 function newMultiLine(){return {id:`ml_${Date.now()}_${Math.random().toString(36).slice(2)}`,side:'debit',account:'',budgetId:'general',note:'',currency:document.getElementById('multiVoucherBaseCurrency')?.value||'YER',amount:'',rate:'1',base:0,notes:''};}
 function addMultiVoucherLine(){multiVoucherLines=multiVoucherLines.filter(l=>!l.autoBalance);multiVoucherLines.push(newMultiLine());renderMultiVoucherLines();syncMultiAutoBalance();}
-function renderMultiVoucherLines(){
+function entryrenderMultiVoucherLines(){
   const body=document.getElementById('multiVoucherLinesBody');if(!body)return;const items=getMultiAccountItems();
   body.innerHTML='';
   multiVoucherLines.forEach((line,index)=>{
@@ -6868,7 +6906,7 @@ function renderMultiVoucherLines(){
   body.querySelectorAll('.multi-remove-line').forEach(btn=>btn.addEventListener('click',()=>{multiVoucherLines.splice(Number(btn.dataset.index),1);if(!multiVoucherLines.length)multiVoucherLines.push(newMultiLine());renderMultiVoucherLines();syncMultiAutoBalance();}));
   updateMultiVoucherSummary();
 }
-function updateMultiLineFromDom(el,shouldSync=true){
+function entryupdateMultiLineFromDom(el,shouldSync=true){
   const i=Number(el.dataset.index),line=multiVoucherLines[i];if(!line)return;
   const key=el.classList.contains('multi-line-side')?'side':el.classList.contains('multi-line-account')?'account':el.classList.contains('multi-line-budget')?'budgetId':el.classList.contains('multi-line-note')?'note':el.classList.contains('multi-line-currency')?'currency':el.classList.contains('multi-line-amount')?'amount':el.classList.contains('multi-line-rate')?'rate':'notes';
   if(line.autoBalance&&['side','currency','amount','rate'].includes(key))return;
@@ -6878,7 +6916,7 @@ function updateMultiLineFromDom(el,shouldSync=true){
   const cell=row?.querySelector('.multi-line-base');if(cell)cell.textContent=Number.isFinite(value)?line.base.toLocaleString():'—';
   if(shouldSync)syncMultiAutoBalance();updateMultiVoucherSummary();hasUnsavedChanges=true;
 }
-function syncMultiAutoBalance(){
+function entrysyncMultiAutoBalance(){
   const base=document.getElementById('multiVoucherBaseCurrency')?.value||'YER';let debit=0,credit=0,invalid=false;
   const real=multiVoucherLines.filter(l=>!l.autoBalance&&l.account&&getCleanNumber(l.amount)>0);
   for(const line of real){const rate=multiLineRate(line,base),value=roundAccountingAmount(getCleanNumber(line.amount)*rate);if(!Number.isFinite(value)||rate<=0){invalid=true;continue;}line.base=value;if(line.currency===base)line.rate='1';if(line.side==='credit')credit+=value;else debit+=value;}
@@ -6890,7 +6928,7 @@ function syncMultiAutoBalance(){
   const index=multiVoucherLines.indexOf(auto),row=document.querySelector(`.multi-line-base[data-index="${index}"]`)?.closest('tr');
   if(row){row.querySelector('.multi-line-base').textContent=auto.base.toLocaleString();for(const [key,value] of [['side',auto.side],['currency',auto.currency],['amount',auto.amount],['rate',auto.rate]]){const el=row.querySelector('.multi-line-'+key);if(el)el.value=String(value);}const side=row.querySelector('.multi-line-side');if(side)side.className='multi-line-side '+auto.side;}
 }
-function updateMultiVoucherSummary(){
+function entryupdateMultiVoucherSummary(){
   const base=document.getElementById('multiVoucherBaseCurrency')?.value||'YER',totals={YER:0,SAR:0,USD:0};let debitTotal=0,creditTotal=0,validLines=0,invalid=false;
   for(const line of multiVoucherLines){
     const amount=getCleanNumber(line.amount),rate=multiLineRate(line,base),value=roundAccountingAmount(amount*rate);
@@ -6904,7 +6942,7 @@ function updateMultiVoucherSummary(){
   const el=document.getElementById('multiVoucherBalance');if(el){el.dataset.base=String(debitTotal);el.className='multi-voucher-balance '+(balanced?'balanced':'unbalanced');el.textContent=invalid?'راجع المبالغ وأسعار الصرف':balanced?`🟢 القيد متوازن — المدين والدائن: ${debitTotal.toLocaleString()} ${base}`:`🔴 القيد غير متوازن — المدين ${debitTotal.toLocaleString()} / الدائن ${creditTotal.toLocaleString()}`;}
   return {base,baseTotal:debitTotal,debitTotal,creditTotal,totals,balanced,invalid};
 }
-function validateMultiVoucher(){
+function entryvalidateMultiVoucher(){
   const base=document.getElementById('multiVoucherBaseCurrency')?.value||'YER';
   if(!KNOWN_CURRENCIES.has(base))return 'اختر عملة أساس مدعومة.';
   if(!isValidISODate(document.getElementById('multiVoucherDate')?.value))return 'أدخل تاريخاً صحيحاً للسند.';
@@ -6919,12 +6957,12 @@ function validateMultiVoucher(){
   if(!totals.balanced)return 'لا يمكن اعتماد السند قبل تساوي إجمالي المدين مع إجمالي الدائن، واكتمال جميع الأسطر.';
   return '';
 }
-function buildMultiVoucherData(status='draft'){
+function entrybuildMultiVoucherData(status='draft'){
   const totals=updateMultiVoucherSummary(),date=document.getElementById('multiVoucherDate')?.value||multiToday(),seq=Number(document.getElementById('multiVoucherSeqBadge')?.textContent.match(/\d+/)?.[0])||getNextMultiVoucherNumber(),id=multiVoucherDraftId||`mv_${Date.now()}_${Math.random().toString(36).slice(2)}`;
   const lines=status==='draft'?multiVoucherLines.map(line=>({...line})):multiVoucherLines.filter(l=>l.account&&getCleanNumber(l.amount)>0).map(line=>{const amount=getCleanNumber(line.amount),rate=multiLineRate(line,totals.base);return {...line,amount,rate,base:roundAccountingAmount(amount*rate)};});
   return {id,seq,date,beneficiary:document.getElementById('multiVoucherBeneficiary')?.value.trim()||'',party:'',note:document.getElementById('multiVoucherNote')?.value.trim()||'',baseCurrency:totals.base,sourceAccount:'',lines,baseTotal:totals.baseTotal,status,updatedAt:new Date().toISOString()};
 }
-function openMultiVoucherEditor(item){
+function entryopenMultiVoucherEditor(item){
   multiVoucherReturnTab=currentActiveTab||'pageDashboard';
   // كان الضغط على سند قيد متعدد يملأ نموذج التعديل بصفحة "الإضافة" بالخلفية فقط دون الانتقال
   // إليها فعلياً، فكان يبدو للمستخدم إن التعديل لا يعمل إلا بالدخول يدوياً إلى الإضافة ← قيد متعدد.
@@ -6937,7 +6975,7 @@ function openMultiVoucherEditor(item){
   if(Array.isArray(source.lines)&&source.lines.length)multiVoucherLines=source.lines.map(l=>({...newMultiLine(),...l,side:l.side||'debit'}));else multiVoucherLines=txs.map(t=>({...newMultiLine(),side:t.creditAccount?'credit':'debit',account:t.debitAccount||t.creditAccount||'',amount:t.amount,rate:1,base:t.amount,note:t.execution?.general?.note||''}));
   const hasCredit=multiVoucherLines.some(l=>l.side==='credit');if(source.sourceAccount&&!hasCredit)multiVoucherLines.push({...newMultiLine(),side:'credit',account:source.sourceAccount,amount:source.baseTotal||txs.reduce((n,t)=>n+Number(t.amount||0),0),rate:1,base:source.baseTotal||0,note:'الحساب المرجعي'});renderMultiVoucherLines();showToast('تم فتح سند القيد المتعدد للتعديل','info');
 }
-function loadLatestMultiDraft(){const drafts=store.get('multi_voucher_drafts',[]);const d=Array.isArray(drafts)&&drafts.length?drafts[drafts.length-1]:null;if(!d){showToast('لا توجد مسودة محفوظة لسند قيد متعدد','info');return;}multiVoucherDraftId=d.id;document.getElementById('multiVoucherDate').value=d.date||multiToday();document.getElementById('multiVoucherBeneficiary').value=d.beneficiary||'';document.getElementById('multiVoucherParty').value=d.party||'';document.getElementById('multiVoucherNote').value=d.note||'';document.getElementById('multiVoucherBaseCurrency').value=d.baseCurrency||'YER';multiSourceAcc.setValue(d.sourceAccount||'',d.sourceAccount||'');multiVoucherLines=(d.lines||[]).map(l=>({...newMultiLine(),...l}));if(!multiVoucherLines.length)multiVoucherLines.push(newMultiLine());renderMultiVoucherLines();showToast('تم فتح آخر مسودة','success');}
+function entryloadLatestMultiDraft(){const drafts=store.get('multi_voucher_drafts',[]);const d=Array.isArray(drafts)&&drafts.length?drafts[drafts.length-1]:null;if(!d){showToast('لا توجد مسودة محفوظة لسند قيد متعدد','info');return;}multiVoucherDraftId=d.id;document.getElementById('multiVoucherDate').value=d.date||multiToday();document.getElementById('multiVoucherBeneficiary').value=d.beneficiary||'';document.getElementById('multiVoucherParty').value=d.party||'';document.getElementById('multiVoucherNote').value=d.note||'';document.getElementById('multiVoucherBaseCurrency').value=d.baseCurrency||'YER';multiSourceAcc.setValue(d.sourceAccount||'',d.sourceAccount||'');multiVoucherLines=(d.lines||[]).map(l=>({...newMultiLine(),...l}));if(!multiVoucherLines.length)multiVoucherLines.push(newMultiLine());renderMultiVoucherLines();showToast('تم فتح آخر مسودة','success');}
 async function saveMultiDraft(){
   const d=buildMultiVoucherData('draft'),drafts=store.get('multi_voucher_drafts',[]).filter(x=>x.id!==d.id);drafts.push(d);store.set('multi_voucher_drafts',drafts);multiVoucherDraftId=d.id;
   try{await flushStorage();showToast('تم حفظ المسودة، ويمكن إكمال بياناتها لاحقاً','success');hasUnsavedChanges=false;}catch(_){showToast('لم يكتمل حفظ المسودة. أعد محاولة الحفظ.','error');}
@@ -6969,18 +7007,18 @@ function repairDuplicateMultiVoucherLines(){
     return drop.size;
   }catch(e){console.error('repairDuplicateMultiVoucherLines',e);return 0;}
 }
-async function commitMultiVoucher(){if(_pendingFinancialCompletion){showToast('انتظر اكتمال الحفظ السابق.','warn');return;}const err=validateMultiVoucher();if(err){showToast(err,'warn',5000);return;}const d=buildMultiVoucherData('posted');if(!d.baseTotal||!d.lines.length){showToast('لا توجد بنود صالحة للاعتماد','warn');return;}const p=getMasterPlan(),now=Date.now();if(multiVoucherDraftId){p.transactions=p.transactions.filter(t=>t.multiVoucherId!==multiVoucherDraftId);removeMultiVoucherLinesFromHistory(multiVoucherDraftId);}d.lines.forEach((line,i)=>{p.transactions.push({id:`${d.id}_${i}`,multiVoucherId:d.id,isMultiVoucher:true,seqNum:d.seq,timestamp:new Date(d.date).getTime(),isoDate:d.date,date:d.date,amount:line.base,currency:d.baseCurrency,isExpense:false,voucherMode:'multi-entry',debitAccount:line.side==='debit'?line.account:'',creditAccount:line.side==='credit'?line.account:'',type:`سند قيد متعدد #${d.seq}`,multiVoucher:d,distribution:(()=>{const c=getCats().find(x=>x.id===(line.budgetId||'general'))||getCats().find(x=>x.id==='general');return c?{[c.id]:{id:c.id,name:c.name,amount:line.base,pct:100,color:c.color}}:{}})(),execution:{[line.budgetId||'general']:{done:true,actualSpent:line.base,note:line.note||d.note}},status:'posted',schemaVersion:APP_SCHEMA_VERSION,updatedAt:now});});store.set('plan',p);store.set('multi_voucher_drafts',store.get('multi_voucher_drafts',[]).filter(x=>x.id!==d.id));audit('CREATE_MULTI_ENTRY_VOUCHER',d.id,null,d);try{await completeFinancialSave(()=>{lastPrintedTx={...p.transactions[p.transactions.length-1],multiVoucher:d};renderAllData();updateProDashboard();showToast('تم اعتماد سند القيد المتعدد وإنشاء قيد متوازن','success');prepareMultiVoucherPrint(d);resetMultiVoucherForm();showMultiSavedNotice(d);});}catch(e){showToast('لم يكتمل حفظ القيد المتعدد؛ أعد محاولة الحفظ.','error');}}
+async function commitMultiVoucher(){if(_pendingFinancialCompletion){showToast('انتظر اكتمال الحفظ السابق.','warn');return;}const err=validateMultiVoucher();if(err){showToast(err,'warn',5000);return;}const d=buildMultiVoucherData('posted');if(!d.baseTotal||!d.lines.length){showToast('لا توجد بنود صالحة للاعتماد','warn');return;}const p=getMasterPlan(),now=Date.now();if(d.mode==='spend'&&getAllTransactions().some(t=>t.voucherMode==='spend'&&Number(t.seqNum)===d.seq&&t.multiVoucherId!==d.id)){showToast('رقم السند مستخدم؛ افتح السند مرة أخرى لتحديث الرقم.','error');return;}if(multiVoucherDraftId){p.transactions=p.transactions.filter(t=>t.multiVoucherId!==multiVoucherDraftId);removeMultiVoucherLinesFromHistory(multiVoucherDraftId);}d.lines.forEach((line,i)=>{p.transactions.push({id:`${d.id}_${i}`,multiVoucherId:d.id,isMultiVoucher:true,seqNum:d.seq,timestamp:new Date(d.date).getTime(),isoDate:d.date,date:d.date,amount:line.base,currency:d.baseCurrency,isExpense:d.mode==='spend'&&line.side==='debit',voucherMode:d.mode==='spend'?'spend':'multi-entry',debitAccount:line.side==='debit'?line.account:'',creditAccount:line.side==='credit'?line.account:'',type:`${d.mode==='spend'?'سند صرف':'سند قيد متعدد'} #${d.seq}`,multiVoucher:d,recipient:d.beneficiary||'',distribution:(()=>{const c=getCats().find(x=>x.id===(line.budgetId||'general'))||getCats().find(x=>x.id==='general');return c?{[c.id]:{id:c.id,name:c.name,amount:line.base,pct:100,color:c.color}}:{}})(),execution:{[line.budgetId||'general']:{done:true,actualSpent:line.base,note:line.note||d.note}},status:'posted',schemaVersion:APP_SCHEMA_VERSION,updatedAt:now});});store.set('plan',p);store.set('multi_voucher_drafts',store.get('multi_voucher_drafts',[]).filter(x=>x.id!==d.id));audit(d.mode==='spend'?'SAVE_SPEND_VOUCHER':'CREATE_MULTI_ENTRY_VOUCHER',d.id,null,d);try{await completeFinancialSave(()=>{lastPrintedTx={...p.transactions[p.transactions.length-1],multiVoucher:d};renderAllData();updateProDashboard();showToast(d.mode==='spend'?'تم حفظ سند الصرف بقيد متوازن':'تم اعتماد سند القيد المتعدد وإنشاء قيد متوازن','success');prepareMultiVoucherPrint(d);resetMultiVoucherForm();showMultiSavedNotice(d);});}catch(e){showToast('لم يكتمل حفظ القيد المتعدد؛ أعد محاولة الحفظ.','error');}}
 
-function showMultiSavedNotice(d){
+function entryshowMultiSavedNotice(d){
   const box=document.getElementById('multiSavedNotice');if(!box)return;const tx=getAllTransactions().find(t=>t.multiVoucherId===d.id);box.classList.remove('hidden');box.innerHTML=`<div>تم حفظ سند القيد المتعدد رقم (#${d.seq}) بنجاح.</div><div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px"><button type="button" class="btn btn-primary" id="editLastMultiVoucherBtn">✎ تعديل المستند المحفوظ</button><button type="button" class="btn btn-ghost" id="newMultiVoucherAfterSaveBtn">＋ قيد جديد</button></div>`;
   document.getElementById('editLastMultiVoucherBtn')?.addEventListener('click',()=>{if(tx)openMultiVoucherEditor(tx);});document.getElementById('newMultiVoucherAfterSaveBtn')?.addEventListener('click',()=>{resetMultiVoucherForm();box.classList.add('hidden');});
 }
-function resetMultiVoucherForm(){
+function entryresetMultiVoucherForm(){
   multiVoucherDraftId='';multiVoucherLines=[];['multiVoucherBeneficiary','multiVoucherParty','multiVoucherNote'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});const date=document.getElementById('multiVoucherDate');if(date)date.value=multiToday();const base=document.getElementById('multiVoucherBaseCurrency');if(base)base.value='YER';if(multiSourceAcc)multiSourceAcc.setValue('','');document.getElementById('multiVoucherSeqBadge').textContent=`رقم: ${getNextMultiVoucherNumber()}`;addMultiVoucherLine();renderMultiVoucherLines();
 }
-function prepareMultiVoucherPrint(d){const box=document.getElementById('pvTableBox');document.getElementById('pvVoucherTitle').textContent=`سند قيد متعدد رقم (#${d.seq})`;document.getElementById('pvDate').textContent=d.date;document.getElementById('pvAmount').textContent=`${d.baseTotal.toLocaleString()} ${d.baseCurrency}`;document.getElementById('pvDebit').textContent=d.lines.filter(l=>l.side!=='credit').map(l=>l.account).join('، ')||'-';document.getElementById('pvCredit').textContent=d.lines.filter(l=>l.side==='credit').map(l=>l.account).join('، ')||d.sourceAccount||'-';document.getElementById('pvTafqit').textContent=tafqitAccountCurrency(d.baseTotal,d.baseCurrency||'YER');document.getElementById('pvNote').textContent=[d.party,d.note].filter(Boolean).join(' — ')||'-';box.innerHTML=`<table style="width:100%;border-collapse:collapse;color:#000"><thead><tr><th>الجهة</th><th>الحساب</th><th>بند الميزانية</th><th>البيان</th><th>العملة</th><th>المبلغ</th><th>سعر الصرف</th><th>القيمة الأساسية</th></tr></thead><tbody>${d.lines.map(l=>`<tr><td>${l.side==='credit'?'دائن':'مدين'}</td><td>${esc(l.account)}</td><td>${esc((getCats().find(c=>c.id===(l.budgetId||'general'))||{}).name||'عام')}</td><td>${esc(l.note)}</td><td>${esc(l.currency)}</td><td>${l.amount.toLocaleString()}</td><td>${l.rate}</td><td>${l.base.toLocaleString()}</td></tr>`).join('')}</tbody></table><p style="font-weight:700">الإجمالي المحول للعملة الأساسية: ${d.baseTotal.toLocaleString()} ${d.baseCurrency}</p>`;}
+function entryprepareMultiVoucherPrint(d){const box=document.getElementById('pvTableBox');document.getElementById('pvVoucherTitle').textContent=`سند قيد متعدد رقم (#${d.seq})`;document.getElementById('pvDate').textContent=d.date;document.getElementById('pvAmount').textContent=`${d.baseTotal.toLocaleString()} ${d.baseCurrency}`;document.getElementById('pvDebit').textContent=d.lines.filter(l=>l.side!=='credit').map(l=>l.account).join('، ')||'-';document.getElementById('pvCredit').textContent=d.lines.filter(l=>l.side==='credit').map(l=>l.account).join('، ')||d.sourceAccount||'-';document.getElementById('pvTafqit').textContent=tafqitAccountCurrency(d.baseTotal,d.baseCurrency||'YER');document.getElementById('pvNote').textContent=[d.party,d.note].filter(Boolean).join(' — ')||'-';box.innerHTML=`<table style="width:100%;border-collapse:collapse;color:#000"><thead><tr><th>الجهة</th><th>الحساب</th><th>بند الميزانية</th><th>البيان</th><th>العملة</th><th>المبلغ</th><th>سعر الصرف</th><th>القيمة الأساسية</th></tr></thead><tbody>${d.lines.map(l=>`<tr><td>${l.side==='credit'?'دائن':'مدين'}</td><td>${esc(l.account)}</td><td>${esc((getCats().find(c=>c.id===(l.budgetId||'general'))||{}).name||'عام')}</td><td>${esc(l.note)}</td><td>${esc(l.currency)}</td><td>${l.amount.toLocaleString()}</td><td>${l.rate}</td><td>${l.base.toLocaleString()}</td></tr>`).join('')}</tbody></table><p style="font-weight:700">الإجمالي المحول للعملة الأساسية: ${d.baseTotal.toLocaleString()} ${d.baseCurrency}</p>`;}
 function printMultiVoucher(){const err=validateMultiVoucher();if(err){showToast(err,'warn');return;}const d=buildMultiVoucherData('draft');prepareMultiVoucherPrint(d);document.body.classList.add('printing-voucher');setTimeout(()=>{window.print();document.body.classList.remove('printing-voucher')},50);}
-function buildMultiVoucherPdf(d){
+function entrybuildMultiVoucherPdf(d){
   const cats=new Map(getCats().map(c=>[c.id,c.name]));
   function* rows(){
     for(const line of d.lines)yield [line.side==='credit'?'دائن':'مدين',line.account,cats.get(line.budgetId||'general')||'عام',line.note||'',line.currency,Number(line.amount||0).toLocaleString(),line.rate,Number(line.base||0).toLocaleString()];
@@ -7030,7 +7068,7 @@ async function shareTrialBalancePdf() {
     }
   } catch (e) { if (e.name !== 'AbortError') { showToast('تعذّر إنشاء ملف PDF', 'warn'); } }
 }
-function buildSingleVoucherPdf(tx) {
+function buildSingleVoucherPdf(tx) {if(tx?.isMultiVoucher&&tx.multiVoucher?.mode==='spend')return buildMultiVoucherPdf(tx.multiVoucher);
   const cfg = getHeaderConfig();
   const vTitle = tx.voucherMode === 'spend' ? 'سند صرف نقدي' : (tx.voucherMode === 'income' ? 'سند إيراد / قبض' : 'سند قيد وتسوية محاسبية');
   const recipientLabel = tx.voucherMode === 'spend' ? 'المستلم (استلم المبلغ)' : (tx.voucherMode === 'income' ? 'المستفيد (دفع المبلغ)' : 'المستلم / المستفيد');
@@ -7085,8 +7123,8 @@ function pdfSingleVoucher(tx) {
     showToast('تم إنشاء ملف PDF للسند — يمكنك فتحه من تطبيق الملفات وطباعته من هناك', 'success', 6000);
   } catch (e) { showToast('تعذّر إنشاء ملف PDF', 'warn'); }
 }
-function pdfMultiVoucher(){const d=buildMultiVoucherData('draft');prepareMultiVoucherPrint(d);const file=buildMultiVoucherPdf(d),url=URL.createObjectURL(file),a=document.createElement('a');a.href=url;a.download=`سند-قيد-متعدد-${d.seq}.pdf`;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);showToast('تم إنشاء ملف PDF لسند القيد المتعدد','success');}
-function setupMultiVoucherFeature(){document.getElementById('addMultiVoucherLineBtn')?.addEventListener('click',addMultiVoucherLine);document.getElementById('multiVoucherBaseCurrency')?.addEventListener('change',()=>{multiVoucherLines.forEach(l=>{if(l.currency===document.getElementById('multiVoucherBaseCurrency').value)l.rate='1'});renderMultiVoucherLines();syncMultiAutoBalance()});document.getElementById('saveMultiDraftBtn')?.addEventListener('click',saveMultiDraft);document.getElementById('loadMultiDraftBtn')?.addEventListener('click',loadLatestMultiDraft);document.getElementById('commitMultiVoucherBtn')?.addEventListener('click',commitMultiVoucher);document.getElementById('printMultiVoucherBtn')?.addEventListener('click',printMultiVoucher);document.getElementById('pdfMultiVoucherBtn')?.addEventListener('click',pdfMultiVoucher);}
+function entrypdfMultiVoucher(){const d=buildMultiVoucherData('draft');prepareMultiVoucherPrint(d);const file=buildMultiVoucherPdf(d),url=URL.createObjectURL(file),a=document.createElement('a');a.href=url;a.download=`سند-قيد-متعدد-${d.seq}.pdf`;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);showToast('تم إنشاء ملف PDF لسند القيد المتعدد','success');}
+function entrysetupMultiVoucherFeature(){document.getElementById('addMultiVoucherLineBtn')?.addEventListener('click',addMultiVoucherLine);document.getElementById('multiVoucherBaseCurrency')?.addEventListener('change',()=>{multiVoucherLines.forEach(l=>{if(l.currency===document.getElementById('multiVoucherBaseCurrency').value)l.rate='1'});renderMultiVoucherLines();syncMultiAutoBalance()});document.getElementById('saveMultiDraftBtn')?.addEventListener('click',saveMultiDraft);document.getElementById('loadMultiDraftBtn')?.addEventListener('click',loadLatestMultiDraft);document.getElementById('commitMultiVoucherBtn')?.addEventListener('click',commitMultiVoucher);document.getElementById('printMultiVoucherBtn')?.addEventListener('click',printMultiVoucher);document.getElementById('pdfMultiVoucherBtn')?.addEventListener('click',pdfMultiVoucher);}
 
 function proceedAppInit() {
   document.documentElement.dataset.theme = store.get('theme', 'light');
@@ -7175,7 +7213,7 @@ function performRealExit(){
       if(_pendingFinancialCompletion){await flushStorage();const after=_pendingFinancialCompletion;_pendingFinancialCompletion=null;after?.();}
       clearTimeout(_draftTimer);_draftTimer=null;
       if(currentActiveTab==='pageExpenses'){
-        if(!document.getElementById('multiVoucherCard')?.classList.contains('hidden')&&multiVoucherLines.some(line=>line.account||line.amount||line.note)){
+        if(!document.getElementById('multiVoucherCard')?.classList.contains('hidden')&&multiVoucherLines.some(line=>!line.autoBalance&&(line.account||line.amount||line.note))){
           const draft=buildMultiVoucherData('draft');store.set('multi_voucher_drafts',[...store.get('multi_voucher_drafts',[]).filter(item=>item.id!==draft.id),draft]);
         }else if(!document.getElementById('cashFlowCard')?.classList.contains('hidden')){const draft=captureSingleDraft();if(draft.amount||draft.note||draft.recipient)store.set('single_voucher_draft_v1',draft);}
       }
@@ -7436,7 +7474,7 @@ function updateDraftButton(){const button=document.getElementById('restoreSingle
 function restoreSingleDraft(){
   const d=store.get('single_voucher_draft_v1',null);if(!d)return;
   if(hasUnsavedChanges&&!confirm('سيتم استبدال الحقول الحالية بالمسودة المحفوظة. متابعة؟'))return;
-  selectVoucherTypeDirect(['income','spend','entry'].includes(d.mode)?d.mode:'spend');
+  selectVoucherTypeDirect(['income','spend','entry'].includes(d.mode)?d.mode:'spend',true);
   for(const [id,value] of Object.entries({voucherDateInput:d.date,voucherCurrencySelect:d.currency,voucherAmountInput:d.amount,voucherRecipientInput:d.recipient,voucherNoteInput:d.note})){const el=document.getElementById(id);if(el)el.value=value||'';}
   selDebitAcc.setValue(d.debitAccount||'',d.debitAccount||'');selCreditAcc.setValue(d.creditAccount||'',d.creditAccount||'');
   isVoucherSplitActive=!!d.splitActive;voucherSplitMode=d.splitMode==='amt'?'amt':'pct';voucherCatStates=d.categoryStates||voucherCatStates;voucherSplitContainer.classList.toggle('hidden',!isVoucherSplitActive);toggleSplitBoxBtn.textContent=isVoucherSplitActive?'مفعل ✔':'معطل ✖';toggleSplitBoxBtn.setAttribute('aria-expanded',String(isVoucherSplitActive));setVoucherSplitMode(voucherSplitMode);
@@ -7619,7 +7657,7 @@ async function shareBudgetPdf(){
 
 
 
-function captureAppView(){
+function entrycaptureAppView(){
   const tab=currentActiveTab||'pageDashboard',page=document.getElementById(tab),view={tab,fields:[],selections:[],scrollY:window.scrollY,focusId:document.activeElement?.id};
   view.carousels=Object.fromEntries([...page?.querySelectorAll('.carousel-shell[id]')||[]].map(el=>[el.id,carouselState[el.id]||0]));
   view.openDropdowns=[...page?.querySelectorAll('.searchable-dropdown.open')||[]].map(el=>el.id);
@@ -7649,7 +7687,7 @@ function rememberAppView(){
   if(_appHistoryInitialized){_appCurrentHistoryDepth=_appBackStack.length;history.pushState(appHistoryState({page:'tab',tab:currentActiveTab}),'');}
 }
 
-function restoreAppView(view){
+function entryrestoreAppView(view){
   if(currentActiveTab===view.tab&&view.tab==='pageSettings'){
     const current=captureAppView();view={...view,fields:current.fields,selections:current.selections,settingsCats:current.settingsCats};
   }
@@ -7657,7 +7695,7 @@ function restoreAppView(view){
   try{
     navigateToTab(view.tab,false);
     if(view.tab==='pageExpenses'){
-      if(view.voucherView==='single'&&view.single){selectVoucherTypeDirect(view.single.mode);isVoucherSplitActive=view.single.splitActive;voucherSplitMode=view.single.splitMode;voucherCatStates=cloneData(view.single.categoryStates);voucherSplitContainer.classList.toggle('hidden',!isVoucherSplitActive);toggleSplitBoxBtn.textContent=isVoucherSplitActive?'مفعل ✔':'معطل ✖';setVoucherSplitMode(voucherSplitMode);}
+      if(view.voucherView==='single'&&view.single){selectVoucherTypeDirect(view.single.mode,true);isVoucherSplitActive=view.single.splitActive;voucherSplitMode=view.single.splitMode;voucherCatStates=cloneData(view.single.categoryStates);voucherSplitContainer.classList.toggle('hidden',!isVoucherSplitActive);toggleSplitBoxBtn.textContent=isVoucherSplitActive?'مفعل ✔':'معطل ✖';setVoucherSplitMode(voucherSplitMode);}
       else if(view.voucherView==='multi'&&view.multi){document.getElementById('voucherSelectorCard').classList.add('hidden');document.getElementById('cashFlowCard').classList.add('hidden');document.getElementById('multiVoucherCard').classList.remove('hidden');multiVoucherLines=cloneData(view.multi.lines);multiVoucherDraftId=view.multi.draftId;multiVoucherReturnTab=view.multi.returnTab;document.getElementById('multiVoucherSeqBadge').textContent=view.multi.seq||'';}
     }
     for(const field of view.fields||[]){const el=document.getElementById(field.id);if(el){el.value=field.value;if(typeof field.checked==='boolean')el.checked=field.checked;}}
@@ -7706,7 +7744,7 @@ function closeTransientAppUi(){
   const sidebar=document.getElementById('appSidebar');
   if(sidebar?.classList.contains('show')){document.getElementById('closeSidebarBtn')?.click();return true;}
   const modals=[...document.querySelectorAll('.modal-overlay.show')];
-  if(modals.length){const modal=modals.at(-1);if(modal.id==='exitConfirmModal')hideExitModal();else if(modal.id==='ratibAboutModal')closeRatibAbout();else modal.classList.remove('show');return true;}
+  if(modals.length){const modal=modals.at(-1);if(modal.id==='exitConfirmModal')hideExitModal();else if(modal.id==='ratibAboutModal')closeRatibAbout();else if(modal.id==='spendFxModal')closeSpendFx();else modal.classList.remove('show');return true;}
   if(document.getElementById('accountScreenMenu')?.classList.contains('open')){closeAccountScreenMenu();return true;}
   const advanced=document.getElementById('accountAdvancedSearchPanel');
   if(currentActiveTab==='pageAccountOperations'&&advanced&&!advanced.classList.contains('hidden')){advanced.classList.add('hidden');return true;}
@@ -7840,7 +7878,7 @@ function initRatibSidebar(){
   document.getElementById('ratibAboutModal').addEventListener('click',event=>{if(event.target.id==='ratibAboutModal')closeRatibAbout();});
   document.addEventListener('keydown',event=>{
     const state=_ratibOverlayState;if(!state)return;
-    if(event.key==='Escape'){event.preventDefault();event.stopImmediatePropagation();if(state.surface===sidebar)closeRatibSidebar();else closeRatibAbout();return;}
+    if(event.key==='Escape'){event.preventDefault();event.stopImmediatePropagation();if(state.surface===sidebar)closeRatibSidebar();else if(state.surface.id==='spendFxModal')closeSpendFx();else closeRatibAbout();return;}
     if(event.key==='Tab'){
       const items=ratibOverlayFocusable(state.surface),first=items[0],last=items.at(-1),active=document.activeElement;
       if(!first){event.preventDefault();state.surface.focus();}
@@ -7857,7 +7895,255 @@ let _ratibOverlayState=null;
 
 let ledgerNeedsRender=true;
 
+let multiVoucherMode='multi-entry',spendFxReturnFocus=null;
+
+function spendMode(){return multiVoucherMode==='spend';}
+
+function spendTitle(d){return d?.mode==='spend'?'سند صرف':'سند قيد متعدد';}
+
+function spendBase(){return document.getElementById('multiVoucherBaseCurrency').value;}
+
+function spendBudgetOptions(value){return getCats().map(c=>`<option value="${esc(c.id)}" ${c.id===value?'selected':''}>${esc(c.name)}</option>`).join('');}
+
+function spendRound(value){return roundAccountingAmount(value);}
+
+function syncSpendSequence(){const field=document.getElementById('spendSeqInput');if(field)field.value=document.getElementById('multiVoucherSeqBadge').textContent.match(/\d+/)?.[0]||'';}
+
+function suggestedSpendRate(currency,base){
+  if(currency===base)return 1;
+  const docs=getAllTransactions().filter(t=>t.isMultiVoucher&&t.multiVoucher?.baseCurrency===base&&t.status!=='reversed').sort((a,b)=>Number(b.updatedAt||b.timestamp)-Number(a.updatedAt||a.timestamp));
+  for(const t of docs){const l=t.multiVoucher.lines?.find(l=>l.currency===currency&&Number(l.rate)>0);if(l)return Number(l.rate);}
+  return '';
+}
+
+function configureVoucherMode(mode){
+  multiVoucherMode=mode;const card=document.getElementById('multiVoucherCard'),spend=spendMode();card.classList.toggle('spend-voucher',spend);
+  card.querySelector('h2>span:first-child').textContent=spend?'سند صرف':'🧾 سند قيد متعدد';
+  card.querySelector('.multi-voucher-source-row').classList.toggle('multi-optional-legacy-field',!spend);
+  card.querySelector('.multi-voucher-source-row>label').textContent=spend?'حساب الصرف (من)':'حساب مرجعي (اختياري)';
+  document.getElementById('inpMultiSourceAcc').placeholder=spend?'ابحث أو اختر حساب الصرف':'اختر الحساب المرجعي (اختياري)';
+  const base=document.getElementById('multiVoucherBaseCurrency');base.parentElement.firstChild.textContent=spend?'العملة':'العملة الأساسية';for(const option of base.options)option.textContent=spend?accountCurrencyLabel(option.value):multiCurrencyLabel(option.value);
+  card.querySelectorAll('.spend-only').forEach(el=>el.classList.toggle('hidden',!spend));
+  card.querySelector('.multi-voucher-table thead').innerHTML=spend?'<tr><th>#</th><th>الحساب</th><th>المبلغ</th><th>العملة</th><th id="spendEquivalentHead">القيمة المعادلة</th><th>بند الميزانية</th><th>ملاحظات البند</th><th>إجراء</th></tr>':'<tr><th>الجهة</th><th>الحساب</th><th>بند الميزانية</th><th>البيان</th><th>العملة</th><th>المبلغ</th><th>سعر الصرف</th><th>القيمة الأساسية</th><th>ملاحظات</th><th></th></tr>';
+  document.getElementById('addMultiVoucherLineBtn').textContent=spend?'＋ إضافة بند':'＋ إضافة حساب';
+  document.getElementById('commitMultiVoucherBtn').textContent=spend?'حفظ سند الصرف':'اعتماد السند';
+  for(const id of ['addMultiVoucherLineBtn','commitMultiVoucherBtn']){const button=document.getElementById(id);button.setAttribute('aria-label',button.textContent);}
+}
+
+function selectVoucherTypeDirect(mode,legacy=false){
+  if(mode!=='spend'||legacy){multiVoucherMode='multi-entry';document.getElementById('multiVoucherCard').classList.add('hidden');return entryselectVoucherTypeDirect(mode);}
+  setVoucherFormHistory('spend');configureVoucherMode('spend');resetMultiVoucherForm();
+  document.getElementById('voucherSelectorCard').classList.add('hidden');document.getElementById('cashFlowCard').classList.add('hidden');document.getElementById('multiVoucherCard').classList.remove('hidden');
+  document.getElementById('multiSavedNotice').classList.add('hidden');currentVoucherMode='spend';
+  if(preferredDebitAccountForNewVoucher)multiVoucherLines[0].account=preferredDebitAccountForNewVoucher;
+  renderMultiVoucherLines();
+}
+
+function selectMultiVoucherType(){configureVoucherMode('multi-entry');resetMultiVoucherForm();return entryselectMultiVoucherType();}
+
+function resetMultiVoucherForm(){
+  if(!spendMode())return entryresetMultiVoucherForm();
+  multiVoucherDraftId='';multiVoucherLines=[];['multiVoucherBeneficiary','multiVoucherParty','multiVoucherNote'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('multiVoucherDate').value=multiToday();document.getElementById('multiVoucherBaseCurrency').value=getGlobalCurrency();document.getElementById('spendHeaderBudget').innerHTML=spendBudgetOptions('general');
+  const source=voucherCreditLocked?selCreditAcc.getValue():getDefaultAccountsConfig().spendCredit||'';multiSourceAcc.setValue(source,source);
+  document.getElementById('multiVoucherSeqBadge').textContent=`رقم: ${getNextVoucherNumber('spend')}`;syncSpendSequence();
+  multiVoucherLines.push(newSpendLine());renderMultiVoucherLines();
+}
+
+function newSpendLine(){const currency=spendBase();return {...newMultiLine(),side:'debit',currency,rate:1,budgetId:document.getElementById('spendHeaderBudget').value||'general',budgetManual:false};}
+
+function spendAmount(line){const amount=getCleanNumber(line.amount),rate=multiLineRate(line,spendBase());return spendRound(amount*rate);}
+
+function renderMultiVoucherLines(){
+  if(!spendMode())return entryrenderMultiVoucherLines();
+  const body=document.getElementById('multiVoucherLinesBody'),items=getMultiAccountItems();body.innerHTML='';
+  multiVoucherLines.filter(l=>!l.autoBalance).forEach((line,number)=>{
+    const index=multiVoucherLines.indexOf(line),tr=document.createElement('tr');
+    const options='<option value="">اختر الحساب</option>'+items.map(i=>`<option value="${esc(i.id)}" ${i.id===line.account?'selected':''}>${esc(i.text)}</option>`).join('');
+    tr.innerHTML=`<td>${number+1}</td><td><select aria-label="حساب البند ${number+1}" class="multi-line-account" data-index="${index}">${options}</select></td><td><input aria-label="مبلغ البند ${number+1}" class="multi-line-amount" data-index="${index}" value="${esc(line.amount)}" inputmode="decimal" placeholder="0"></td><td><select aria-label="عملة البند ${number+1}" class="multi-line-currency" data-index="${index}">${[...KNOWN_CURRENCIES].map(c=>`<option value="${c}" ${line.currency===c?'selected':''}>${esc(accountCurrencyLabel(c))}</option>`).join('')}</select><button type="button" class="spend-line-fx ${line.currency===spendBase()?'hidden':''}" data-index="${index}" title="تعديل معادلة الصرف">معادلة الصرف</button></td><td class="multi-line-base" data-index="${index}"></td><td><select aria-label="بند ميزانية السطر ${number+1}" class="multi-line-budget" data-index="${index}">${spendBudgetOptions(line.budgetId||'general')}</select></td><td><input aria-label="ملاحظات البند ${number+1}" class="multi-line-note" data-index="${index}" value="${esc(line.note||'')}" placeholder="ملاحظات"><span class="spend-imported-notes">${esc(line.notes||'')}</span></td><td><div class="spend-row-actions"><button type="button" class="icon-btn spend-edit-line" data-index="${index}" aria-label="تعديل البند ${number+1}">✎</button><button type="button" class="icon-btn multi-remove-line" data-index="${index}" aria-label="حذف البند ${number+1}">×</button><button type="button" class="icon-btn spend-move-line" data-index="${index}" ${number===0?'disabled':''} aria-label="نقل البند ${number+1} إلى أعلى">↑</button></div></td>`;
+    body.append(tr);
+  });
+  body.querySelectorAll('input,select').forEach(el=>el.addEventListener(el.tagName==='SELECT'?'change':'input',()=>updateMultiLineFromDom(el)));
+  body.querySelectorAll('.multi-remove-line').forEach(el=>el.addEventListener('click',()=>{multiVoucherLines.splice(Number(el.dataset.index),1);if(!multiVoucherLines.some(l=>!l.autoBalance))multiVoucherLines.unshift(newSpendLine());hasUnsavedChanges=true;renderMultiVoucherLines();}));
+  body.querySelectorAll('.spend-edit-line').forEach(el=>el.addEventListener('click',()=>el.closest('tr').querySelector('.multi-line-amount').focus()));
+  body.querySelectorAll('.spend-move-line').forEach(el=>el.addEventListener('click',()=>{const i=Number(el.dataset.index);if(i>0){[multiVoucherLines[i-1],multiVoucherLines[i]]=[multiVoucherLines[i],multiVoucherLines[i-1]];hasUnsavedChanges=true;renderMultiVoucherLines();}}));
+  body.querySelectorAll('.spend-line-fx').forEach(el=>el.addEventListener('click',()=>openSpendFx(multiVoucherLines[Number(el.dataset.index)].currency)));
+  syncMultiAutoBalance();updateMultiVoucherSummary();
+}
+
+function updateMultiLineFromDom(el,shouldSync=true){
+  if(!spendMode())return entryupdateMultiLineFromDom(el,shouldSync);
+  const line=multiVoucherLines[Number(el.dataset.index)];if(!line||line.autoBalance)return;
+  const key=el.classList.contains('multi-line-account')?'account':el.classList.contains('multi-line-budget')?'budgetId':el.classList.contains('multi-line-currency')?'currency':el.classList.contains('multi-line-amount')?'amount':'note';
+  line[key]=el.value;if(key==='budgetId')line.budgetManual=true;
+  if(key==='currency'){
+    const other=multiVoucherLines.find(l=>l!==line&&!l.autoBalance&&l.currency===line.currency&&multiLineRate(l,spendBase())>0);
+    line.rate=line.currency===spendBase()?1:other?.rate??suggestedSpendRate(line.currency,spendBase());delete line.fxQuote;delete line.fxOp;
+    if(other?.fxQuote){line.fxQuote=other.fxQuote;line.fxOp=other.fxOp;}
+    const btn=el.closest('tr').querySelector('.spend-line-fx');btn.classList.toggle('hidden',line.currency===spendBase());
+  }
+  syncMultiAutoBalance();updateMultiVoucherSummary();hasUnsavedChanges=true;
+}
+
+function syncMultiAutoBalance(){
+  if(!spendMode())return entrysyncMultiAutoBalance();
+  const lines=multiVoucherLines.filter(l=>!l.autoBalance);let total=0;
+  for(const line of lines){line.side='debit';if(line.currency===spendBase())line.rate=1;const value=spendAmount(line);line.base=Number.isFinite(value)?value:0;if(value>0)total=spendRound(total+value);}
+  multiVoucherLines=[...lines,{...newMultiLine(),autoBalance:true,side:'credit',currency:spendBase(),account:multiSourceAcc.getValue(),amount:total,rate:1,base:total,budgetId:'general',note:document.getElementById('multiVoucherNote').value.trim()||'حساب الصرف'}];
+}
+
+function updateMultiVoucherSummary(){
+  if(!spendMode())return entryupdateMultiVoucherSummary();
+  const base=spendBase(),totals={},lines=multiVoucherLines.filter(l=>!l.autoBalance);let total=0,invalid=false;
+  for(const line of lines){const amount=getCleanNumber(line.amount),rate=multiLineRate(line,base),value=spendAmount(line);if(!Number.isFinite(amount)||amount<0||!Number.isFinite(rate)||rate<=0||!Number.isFinite(value))invalid=true;
+    if(Number.isFinite(amount)&&amount>0)totals[line.currency]=spendRound((totals[line.currency]||0)+amount);
+    if(Number.isFinite(value)&&value>0)total=spendRound(total+value);
+    const index=multiVoucherLines.indexOf(line),cell=document.querySelector(`.multi-line-base[data-index="${index}"]`);if(cell)cell.textContent=Number.isFinite(value)&&rate>0?fmt(value,base):'حدد سعر الصرف';
+  }
+  syncSpendSequence();const head=document.getElementById('spendEquivalentHead');if(head)head.textContent=`القيمة المعادلة (${base})`;
+  document.getElementById('multiVoucherSummary').innerHTML=Object.entries(totals).map(([currency,value])=>`<span>${esc(accountCurrencyLabel(currency))}: <b>${fmt(value,currency)}</b></span>`).join('')+`<strong>الإجمالي بعملة حساب الصرف: ${invalid?'—':fmt(total,base)}</strong>`;
+  const balanced=!invalid&&total>0&&!!multiSourceAcc.getValue(),balance=document.getElementById('multiVoucherBalance');balance.dataset.base=String(total);balance.className='multi-voucher-balance '+(balanced?'balanced':'unbalanced');balance.textContent=balanced?'القيد متوازن — الحساب الدائن هو حساب الصرف':invalid?'راجع المبالغ ومعادلة الصرف':'اختر حساب الصرف وأكمل البنود';
+  document.getElementById('spendTafqit').textContent=total>0&&!invalid?tafqitAccountCurrency(total,base):'';
+  const mixed=lines.some(l=>l.currency!==base);document.getElementById('spendFxHeader').classList.toggle('hidden',!mixed);document.getElementById('spendFxButton').classList.toggle('hidden',!mixed);
+  const first=lines.find(l=>l.currency!==base);document.getElementById('spendFxHeaderButton').textContent=first&&multiLineRate(first,base)>0?`1 ${first.currency} = ${Number(first.rate).toLocaleString('en-US',{maximumFractionDigits:8})} ${base}`:'تحديد سعر الصرف';
+  return {base,baseTotal:total,debitTotal:total,creditTotal:total,totals,balanced,invalid};
+}
+
+function validateMultiVoucher(){
+  if(!spendMode())return entryvalidateMultiVoucher();
+  if(!isValidISODate(document.getElementById('multiVoucherDate').value))return 'أدخل تاريخاً صحيحاً للسند.';
+  if(!KNOWN_CURRENCIES.has(spendBase()))return 'اختر عملة حساب الصرف.';
+  const accounts=new Set(getMultiAccountItems().map(x=>x.id)),cats=new Set(getCats().map(x=>x.id)),source=multiSourceAcc.getValue();
+  if(!source||!accounts.has(source))return 'اختر حساب الصرف من دليل الحسابات.';
+  const lines=multiVoucherLines.filter(l=>!l.autoBalance);
+  if(!lines.length)return 'أضف بند صرف واحداً على الأقل.';
+  for(const line of lines){
+    if(!accounts.has(line.account)||line.account===source)return 'اختر حساباً صحيحاً للبند يختلف عن حساب الصرف.';
+    const amount=getCleanNumber(line.amount),rate=multiLineRate(line,spendBase()),value=spendAmount(line);
+    if(!Number.isFinite(amount)||amount<=0||amount!==spendRound(amount))return 'أدخل مبلغاً موجباً بدقة لا تتجاوز منزلتين عشريتين.';
+    if(!KNOWN_CURRENCIES.has(line.currency)||!Number.isFinite(rate)||rate<=0||!Number.isFinite(value)||value<=0||value>Number.MAX_SAFE_INTEGER/100)return 'راجع العملة وسعر الصرف؛ يجب أن تكون المعادلة موجبة وصحيحة.';
+    if(!cats.has(line.budgetId))return 'اختر بند ميزانية مسجلاً لكل بند.';
+  }
+  syncMultiAutoBalance();const sum=updateMultiVoucherSummary();
+  if(!sum.balanced||sum.baseTotal>Number.MAX_SAFE_INTEGER/100)return 'لا يمكن حفظ سند غير متوازن أو إجمالي يتجاوز الدقة الآمنة.';
+  return entryvalidateMultiVoucher();
+}
+
+function buildMultiVoucherData(status='draft'){
+  if(!spendMode())return entrybuildMultiVoucherData(status);
+  syncMultiAutoBalance();const data=entrybuildMultiVoucherData(status);
+  if(status==='posted'&&!getAllTransactions().some(t=>t.multiVoucherId===data.id)){data.seq=getNextVoucherNumber('spend');document.getElementById('multiVoucherSeqBadge').textContent=`رقم: ${data.seq}`;}
+  return {...data,mode:'spend',sourceAccount:multiSourceAcc.getValue(),headerBudgetId:document.getElementById('spendHeaderBudget').value||'general'};
+}
+
+function applySpendDocument(d){
+  configureVoucherMode(d.mode==='spend'?'spend':'multi-entry');
+  if(spendMode()){document.getElementById('spendHeaderBudget').innerHTML=spendBudgetOptions(d.headerBudgetId||'general');multiVoucherLines.forEach(l=>{if(l.budgetManual===undefined)l.budgetManual=true;});}
+  renderMultiVoucherLines();
+}
+
+function openMultiVoucherEditor(item){
+  configureVoucherMode(item.multiVoucher?.mode==='spend'?'spend':'multi-entry');entryopenMultiVoucherEditor(item);applySpendDocument(item.multiVoucher||{});
+}
+
+function loadLatestMultiDraft(){
+  const drafts=store.get('multi_voucher_drafts',[]).filter(d=>(d.mode==='spend')===spendMode());const d=drafts.at(-1);
+  if(!d){showToast('لا توجد مسودة محفوظة لهذا النوع من السندات','info');return;}
+  multiVoucherDraftId=d.id;document.getElementById('multiVoucherDate').value=d.date||multiToday();document.getElementById('multiVoucherSeqBadge').textContent=`رقم: ${d.seq}`;document.getElementById('multiVoucherBeneficiary').value=d.beneficiary||'';document.getElementById('multiVoucherParty').value=d.party||'';document.getElementById('multiVoucherNote').value=d.note||'';document.getElementById('multiVoucherBaseCurrency').value=d.baseCurrency||'YER';multiSourceAcc.setValue(d.sourceAccount||'',d.sourceAccount||'');multiVoucherLines=(d.lines||[]).map(l=>({...newMultiLine(),...l}));applySpendDocument(d);showToast('تم فتح آخر مسودة','success');
+}
+
+function showMultiSavedNotice(d){
+  if(d.mode!=='spend')return entryshowMultiSavedNotice(d);
+  const box=document.getElementById('multiSavedNotice');box.classList.remove('hidden');box.innerHTML=`<p>تم حفظ سند الصرف رقم ${d.seq}.</p><div class="spend-notice-actions"><button type="button" class="btn btn-ghost" id="editLastMultiVoucherBtn">تعديل السند المحفوظ</button><button type="button" class="btn btn-primary" id="newMultiVoucherAfterSaveBtn">إضافة سند جديد</button><button type="button" class="btn btn-ghost" id="printSavedSpendBtn">طباعة</button><button type="button" class="btn btn-ghost" id="shareSavedSpendBtn">PDF / مشاركة</button></div>`;
+  document.getElementById('editLastMultiVoucherBtn').onclick=()=>{const tx=getAllTransactions().find(t=>t.multiVoucherId===d.id);if(tx)openMultiVoucherEditor(tx);};
+  document.getElementById('newMultiVoucherAfterSaveBtn').onclick=()=>{resetMultiVoucherForm();box.classList.add('hidden');};
+  document.getElementById('printSavedSpendBtn').onclick=()=>printSpendData(d);document.getElementById('shareSavedSpendBtn').onclick=()=>shareSpendData(d);
+}
+
+function groupLedgerItemsForDisplay(txs){return entrygroupLedgerItemsForDisplay(txs).map(t=>t.multiVoucher?.mode==='spend'?{...t,voucherMode:'spend',isExpense:true,type:`سند صرف #${t.seqNum}`} : t);}
+
+function captureAppView(){const view=entrycaptureAppView();if(view.multi)view.multi.mode=multiVoucherMode;return view;}
+
+function restoreAppView(view){if(view.multi)configureVoucherMode(view.multi.mode||'multi-entry');return entryrestoreAppView(view);}
+
+function openSpendFx(currency){
+  const base=spendBase(),lines=multiVoucherLines.filter(l=>!l.autoBalance&&l.currency!==base);if(!currency)currency=lines[0]?.currency;
+  if(!currency||currency===base){showToast('جميع البنود بعملة حساب الصرف؛ لا يلزم تحويل.','info');return;}
+  spendFxReturnFocus=document.activeElement;const select=document.getElementById('spendFxCurrency');select.innerHTML=[...KNOWN_CURRENCIES].filter(c=>c!==base).map(c=>`<option value="${c}">${esc(accountCurrencyLabel(c))}</option>`).join('');select.value=currency;loadSpendFxFields();document.getElementById('spendFxModal').classList.add('show');activateRatibOverlay(document.getElementById('spendFxModal'),spendFxReturnFocus);document.getElementById('spendFxRate').focus();pushAppHistoryState();
+}
+
+function loadSpendFxFields(){const currency=document.getElementById('spendFxCurrency').value,line=multiVoucherLines.find(l=>!l.autoBalance&&l.currency===currency);document.getElementById('spendFxDirection').value=line?.fxOp||'multiply';document.getElementById('spendFxRate').value=line?.fxQuote??line?.rate??suggestedSpendRate(currency,spendBase());updateSpendFxEquation();}
+
+function updateSpendFxEquation(){
+  const c=document.getElementById('spendFxCurrency').value,base=spendBase(),quote=getCleanNumber(document.getElementById('spendFxRate').value),divide=document.getElementById('spendFxDirection').value==='divide',box=document.getElementById('spendFxEquation');
+  if(!Number.isFinite(quote)||quote<=0){box.textContent='أدخل سعر صرف موجبًا لتوضيح المعادلة.';return;}
+  const line=multiVoucherLines.find(l=>!l.autoBalance&&l.currency===c&&getCleanNumber(l.amount)>0),amount=line?getCleanNumber(line.amount):1,rate=divide?1/quote:quote,result=spendRound(amount*rate),relation=divide?`${quote} ${c} = 1 ${base}`:`1 ${c} = ${quote} ${base}`;
+  box.innerHTML=`<span class="spend-fx-relation" dir="ltr">${esc(relation)}</span><span>لتحويل المبلغ من ${esc(accountCurrencyLabel(c))} إلى ${esc(accountCurrencyLabel(base))}، ${divide?'اقسمه':'اضربه'} ${divide?'على':'في'} ${quote}.</span><span class="spend-fx-relation" dir="ltr">${amount.toLocaleString('en-US')} ${esc(c)} ${divide?'÷':'×'} ${quote} = ${Number.isFinite(result)?result.toLocaleString('en-US'):'—'} ${esc(base)}</span>`;
+}
+
+function closeSpendFx(){const modal=document.getElementById('spendFxModal');releaseRatibOverlay(modal);modal.classList.remove('show');spendFxReturnFocus?.focus({preventScroll:true});}
+
+function saveSpendFx(){const quote=getCleanNumber(document.getElementById('spendFxRate').value),op=document.getElementById('spendFxDirection').value,currency=document.getElementById('spendFxCurrency').value,rate=op==='divide'?1/quote:quote;if(!Number.isFinite(quote)||quote<=0||!Number.isFinite(rate)||rate<=0){showToast('أدخل سعر صرف موجبًا وصحيحًا.','warn');return;}multiVoucherLines.filter(l=>!l.autoBalance&&l.currency===currency).forEach(l=>{l.rate=rate;l.fxQuote=quote;l.fxOp=op;});hasUnsavedChanges=true;closeSpendFx();syncMultiAutoBalance();renderMultiVoucherLines();}
+
+function prepareMultiVoucherPrint(d){
+  entryprepareMultiVoucherPrint(d);if(d.mode!=='spend')return;
+  const cfg=getHeaderConfig();document.getElementById('pvOrgName').textContent=cfg.show&&cfg.name?cfg.name:'';document.getElementById('pvOrgDetails').textContent=cfg.show&&cfg.details?cfg.details:'';
+  document.getElementById('pvRecipientLabel').textContent='المستلم (استلم المبلغ)';document.getElementById('pvRecipientSignLabel').textContent='المستلم (استلم المبلغ)';document.getElementById('pvRecipientName').textContent=d.beneficiary||'';document.getElementById('pvRecipientRow').style.display=d.beneficiary?'':'none';document.getElementById('pvRecipientSignRow').style.display='';
+  document.getElementById('pvVoucherTitle').textContent=`سند صرف رقم (#${d.seq})`;document.getElementById('pvNote').textContent=[d.beneficiary,d.note].filter(Boolean).join(' — ')||'-';
+  const lines=d.lines.filter(l=>!l.autoBalance&&l.side==='debit'),cats=new Map(getCats().map(c=>[c.id,c.name]));
+  document.getElementById('pvTableBox').innerHTML=`<table class="spend-print-table"><thead><tr><th>#</th><th>الحساب</th><th>المبلغ</th><th>العملة</th><th>المعادلة</th><th>القيمة (${esc(d.baseCurrency)})</th><th>بند الميزانية</th><th>ملاحظات</th></tr></thead><tbody>${lines.map((l,i)=>`<tr><td>${i+1}</td><td>${esc(l.account)}</td><td>${fmt(l.amount,l.currency)}</td><td>${esc(l.currency)}</td><td>${esc(spendSavedEquation(l,d.baseCurrency))}</td><td>${fmt(l.base,d.baseCurrency)}</td><td>${esc(cats.get(l.budgetId)||'عام')}</td><td>${esc([l.note,l.notes].filter(Boolean).join(' — '))}</td></tr>`).join('')}</tbody></table><p>الإجمالي بعملة حساب الصرف: ${fmt(d.baseTotal,d.baseCurrency)}</p>`;
+}
+
+function spendSavedEquation(l,base){return l.currency===base?'1 : 1':l.fxOp==='divide'?`÷ ${l.fxQuote}`:`× ${l.fxQuote||l.rate}`;}
+
+function buildMultiVoucherPdf(d){
+  if(d.mode!=='spend')return entrybuildMultiVoucherPdf(d);
+  const cats=new Map(getCats().map(c=>[c.id,c.name]));function* rows(){let i=0;for(const l of d.lines.filter(l=>!l.autoBalance&&l.side==='debit'))yield [++i,l.account,fmt(l.amount,l.currency),spendSavedEquation(l,d.baseCurrency),fmt(l.base,d.baseCurrency),cats.get(l.budgetId)||'عام',[l.note,l.notes].filter(Boolean).join(' — ')];yield {highlight:true,values:['','الإجمالي بعملة حساب الصرف','','',fmt(d.baseTotal,d.baseCurrency),'','']};}
+  return buildPdfFromCanvases(renderPagedReportTable(`سند صرف #${d.seq}`,`${d.date} — من: ${d.sourceAccount} — ${[d.beneficiary,d.note].filter(Boolean).join(' — ')}`,['#','الحساب','المبلغ / العملة','المعادلة',`القيمة ${d.baseCurrency}`,'بند الميزانية','ملاحظات'],[45,210,170,105,165,135,260],rows()));
+}
+
+function printSpendData(d){prepareMultiVoucherPrint(d);document.body.classList.add('printing-voucher');setTimeout(()=>{try{window.print();}finally{document.body.classList.remove('printing-voucher');}},50);}
+
+async function shareSpendData(d){try{if(document.fonts)await document.fonts.ready;const blob=buildMultiVoucherPdf(d),file=new File([blob],`سند-صرف-${d.seq}.pdf`,{type:'application/pdf'});if(navigator.share&&(!navigator.canShare||navigator.canShare({files:[file]})))await navigator.share({title:`سند صرف ${d.seq}`,files:[file]});else{const url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=file.name;a.click();setTimeout(()=>URL.revokeObjectURL(url),1500);showToast('تم تنزيل سند الصرف PDF','success');}}catch(e){if(e.name!=='AbortError')showToast('تعذر إنشاء أو مشاركة PDF','error');}}
+
+function pdfMultiVoucher(){if(!spendMode())return entrypdfMultiVoucher();const err=validateMultiVoucher();if(err){showToast(err,'warn');return;}return shareSpendData(buildMultiVoucherData('posted'));}
+
+function setupMultiVoucherFeature(){
+  const card=document.getElementById('multiVoucherCard'),grid=card.querySelector('.multi-voucher-grid'),source=card.querySelector('.multi-voucher-source-row');grid.append(source);
+  const sequence=document.createElement('label');sequence.className='spend-only hidden spend-sequence';sequence.innerHTML='رقم السند<input id="spendSeqInput" type="text" readonly aria-label="رقم سند الصرف التلقائي">';grid.prepend(sequence);
+  document.getElementById('multiVoucherNote').rows=1;
+  const budget=document.createElement('label');budget.className='spend-only hidden spend-budget-header';budget.innerHTML='بند الميزانية<select id="spendHeaderBudget">'+spendBudgetOptions('general')+'</select>';grid.append(budget);
+  const fx=document.createElement('label');fx.className='spend-only hidden';fx.id='spendFxHeader';fx.innerHTML='سعر الصرف<button type="button" class="btn btn-ghost" id="spendFxHeaderButton">تحديد سعر الصرف</button>';grid.append(fx);
+  const toolbar=document.createElement('div');toolbar.className='spend-lines-toolbar';const title=document.createElement('h3');title.className='spend-only hidden';title.textContent='بنود الصرف';toolbar.append(title,document.getElementById('addMultiVoucherLineBtn'));card.querySelector('.multi-voucher-table-wrap').before(toolbar);
+  const tafqit=document.createElement('p');tafqit.className='spend-only hidden field-hint';tafqit.id='spendTafqit';card.querySelector('#multiVoucherSummary').after(tafqit);
+  const options=document.createElement('details');options.className='spend-only hidden spend-previous-options';options.innerHTML='<summary>خيارات الإدخال السابقة</summary><p class="field-hint">إدخال حسابين وتوزيع المبلغ بالنسب أو بالقيم، وتثبيت الحسابات وعكسها.</p><button type="button" class="btn btn-ghost" id="spendLegacyBtn">الإدخال البسيط وتوزيع المبلغ</button>';card.append(options);
+  const actions=card.querySelector('.multi-voucher-actions');const convert=document.createElement('button');convert.type='button';convert.className='btn btn-ghost spend-only hidden';convert.id='spendFxButton';convert.textContent='معادلة الصرف';actions.prepend(convert);
+  document.getElementById('spendLegacyBtn').onclick=()=>{rememberAppView();selectVoucherTypeDirect('spend',true);};
+  document.getElementById('addMultiVoucherLineBtn').onclick=()=>{if(!spendMode())return addMultiVoucherLine();multiVoucherLines=multiVoucherLines.filter(l=>!l.autoBalance);multiVoucherLines.push(newSpendLine());hasUnsavedChanges=true;renderMultiVoucherLines();};
+  document.getElementById('multiVoucherBaseCurrency').addEventListener('change',()=>{if(spendMode()){multiVoucherLines.filter(l=>!l.autoBalance).forEach(l=>{l.rate=l.currency===spendBase()?1:suggestedSpendRate(l.currency,spendBase());delete l.fxOp;delete l.fxQuote;});renderMultiVoucherLines();}else{multiVoucherLines.forEach(l=>{if(l.currency===spendBase())l.rate=1;});renderMultiVoucherLines();syncMultiAutoBalance();}hasUnsavedChanges=true;});
+  multiSourceAcc.onSelect=()=>{if(spendMode()){syncMultiAutoBalance();updateMultiVoucherSummary();hasUnsavedChanges=true;}};multiSourceAcc.input.addEventListener('input',()=>{if(spendMode()){syncMultiAutoBalance();updateMultiVoucherSummary();}});
+  document.getElementById('spendHeaderBudget').addEventListener('change',e=>{multiVoucherLines.filter(l=>!l.autoBalance&&!l.budgetManual).forEach(l=>l.budgetId=e.target.value);hasUnsavedChanges=true;renderMultiVoucherLines();});
+  document.getElementById('spendFxButton').onclick=()=>openSpendFx();document.getElementById('spendFxHeaderButton').onclick=()=>openSpendFx();document.getElementById('saveSpendFxBtn').onclick=saveSpendFx;document.getElementById('cancelSpendFxBtn').onclick=closeSpendFx;document.getElementById('closeSpendFxBtn').onclick=closeSpendFx;
+  document.getElementById('spendFxCurrency').onchange=loadSpendFxFields;document.getElementById('spendFxRate').oninput=updateSpendFxEquation;document.getElementById('spendFxDirection').onchange=updateSpendFxEquation;
+  document.getElementById('spendFxModal').addEventListener('click',e=>{if(e.target.id==='spendFxModal')closeSpendFx();});
+  document.getElementById('spendFxModal').addEventListener('keydown',e=>{if(e.key==='Escape'){e.preventDefault();e.stopPropagation();closeSpendFx();}else if(e.key==='Tab'){const buttons=[...e.currentTarget.querySelectorAll('button,input,select')];const first=buttons[0],last=buttons.at(-1);if(e.shiftKey&&document.activeElement===first){e.preventDefault();last.focus();}else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first.focus();}}});
+  document.getElementById('saveMultiDraftBtn').onclick=saveMultiDraft;document.getElementById('loadMultiDraftBtn').onclick=loadLatestMultiDraft;
+  document.getElementById('commitMultiVoucherBtn').onclick=async()=>{const btn=document.getElementById('commitMultiVoucherBtn');if(btn.disabled)return;btn.disabled=true;try{await commitMultiVoucher();}finally{btn.disabled=false;}};
+  document.getElementById('printMultiVoucherBtn').onclick=printMultiVoucher;document.getElementById('pdfMultiVoucherBtn').onclick=pdfMultiVoucher;
+}
+
 selfHealStorageFromIdb().then(boot).catch(error=>{showRatibFatalBanner(error.message||"تعذرت قراءة البيانات. لم يتم استبدالها.");});
 </script>
+<div class="modal-overlay no-print" id="spendFxModal" role="dialog" aria-modal="true" aria-labelledby="spendFxTitle">
+  <div class="modal-content spend-fx-dialog">
+    <div class="spend-fx-title"><h3 id="spendFxTitle">سعر الصرف</h3><button type="button" class="icon-btn" id="closeSpendFxBtn" aria-label="إغلاق معادلة الصرف">×</button></div>
+    <label for="spendFxCurrency">العملة المراد تحويلها</label><select id="spendFxCurrency"></select>
+    <div class="spend-fx-grid"><label>سعر الصرف<input type="text" inputmode="decimal" id="spendFxRate" placeholder="مثال: 412"></label><label>اتجاه التحويل<select id="spendFxDirection"><option value="multiply">ضرب المبلغ في السعر</option><option value="divide">قسمة المبلغ على السعر</option></select></label></div>
+    <p id="spendFxEquation" dir="auto" role="status"></p>
+    <p class="field-hint">تُطبق المعادلة على بنود هذه العملة في السند الحالي. تبقى أسعار السندات المحفوظة كما كانت وقت اعتمادها.</p>
+    <div class="spend-fx-actions"><button type="button" class="btn btn-primary" id="saveSpendFxBtn">حفظ</button><button type="button" class="btn btn-ghost" id="cancelSpendFxBtn">إلغاء</button></div>
+  </div>
+</div>
+
 </body>
 </html>

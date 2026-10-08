@@ -619,7 +619,10 @@ button{user-select:none}
 [data-state="error"]{color:var(--danger)!important}
 [data-state="saving"],[data-state="dirty"]{color:var(--muted)}
 #retryStorageBtn{width:auto;margin:0;padding:5px 8px;font-size:.85rem}
-.dashboard-period{display:flex;align-items:center;gap:10px;margin-bottom:10px;color:var(--muted);font-size:.9rem}
+.dashboard-period{display:flex;align-items:center;flex-wrap:wrap;gap:12px;margin-bottom:10px;color:var(--muted);font-size:.9rem}
+.dashboard-filter{display:flex;align-items:center;gap:6px;min-width:0}.dashboard-filter label{margin:0;white-space:nowrap}.dashboard-filter select{max-width:160px;font-size:.9rem}
+#exitProgressModal{z-index:7003;backdrop-filter:none}#exitProgressDescription{margin-top:8px;font-size:.95rem;color:var(--muted)}
+@media(max-width:480px){.dashboard-period{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.dashboard-filter{align-items:stretch;flex-direction:column;gap:3px}.dashboard-filter select{width:100%;max-width:none;font-size:.83rem}.dashboard-filter label{font-size:.78rem}}
 .open-tasks-cta{padding:10px 12px}
 .open-tasks-cta small{display:none}
 .open-tasks-cta b{font-size:.95rem}
@@ -648,6 +651,40 @@ button:focus-visible,[role="button"]:focus-visible,a:focus-visible{outline:3px s
 @media(max-height:480px){.voucher-savebar{position:static;transform:none;width:100%;margin-top:12px}}
 .keyboard-open .voucher-savebar{position:static;transform:none;width:100%;margin-top:12px}
 @media print{.summary-toolbar,.dashboard-period,.voucher-savebar{display:none!important}.wrap{max-width:none}#cashFlowCard,#multiVoucherCard{padding-bottom:0}}
+
+.header-tools{order:-1}.header-tools .header-actions{flex-direction:row-reverse}
+.app-sidebar{--sidebar-green:#0d5b45;--sidebar-gold:#d2b462;--sidebar-hover:#f1f7f4;--sidebar-active:#e6f2eb;right:0;left:auto;width:min(340px,88vw);display:flex;flex-direction:column;gap:0;padding:0;overflow:hidden;border-right:0;border-left:1px solid var(--border);border-radius:16px 0 0 16px;background:var(--card);box-shadow:-8px 0 24px rgba(10,45,35,.12);transform:translateX(105%);visibility:hidden;pointer-events:none;transition:transform .2s ease,visibility 0s .2s;color:var(--text);text-align:right}
+[data-theme="dark"] .app-sidebar{--sidebar-green:#9bd7bc;--sidebar-gold:#d8c387;--sidebar-hover:#243b34;--sidebar-active:#2a443a;box-shadow:-8px 0 24px rgba(0,0,0,.22)}
+.app-sidebar.show{transform:translateX(0);visibility:visible;pointer-events:auto;transition-delay:0s}
+.sidebar-overlay{background:rgba(10,26,22,.4);backdrop-filter:none}
+.sidebar-head{flex-shrink:0;padding:calc(16px + env(safe-area-inset-top)) 16px 14px;gap:8px;border-bottom:1px solid var(--border)}
+.sidebar-brand{display:flex;align-items:center;gap:10px;min-width:0}.sidebar-brand img{width:44px;height:44px;border-radius:10px;flex-shrink:0}.sidebar-brand strong{display:block;font-size:1.4rem;line-height:1.2;color:var(--sidebar-green);font-weight:800}.sidebar-brand small{display:block;color:var(--muted);font-size:.78rem;font-weight:500;margin-top:4px}
+.sidebar-head .icon-btn{width:40px;height:40px;background:transparent;box-shadow:none;border:1px solid var(--border);border-radius:10px}
+.sidebar-icon{width:21px;height:21px;flex:0 0 21px;display:block;color:var(--sidebar-green)}
+.sidebar-head .sidebar-icon{color:var(--muted)}
+.sidebar-nav{flex:1;min-height:0;overflow-y:auto;overscroll-behavior:contain;gap:0;padding:4px 12px 12px;scrollbar-width:thin}
+.sidebar-group{display:flex;flex-direction:column;gap:2px}.sidebar-group+.sidebar-group{border-top:1px solid var(--border);margin-top:12px;padding-top:2px}
+.sidebar-caption{padding:12px 10px 7px;color:var(--muted);font-size:.75rem;font-weight:500;line-height:1.4}
+.sidebar-nav button,.sidebar-contact-toggle,.sidebar-footer button{min-height:48px;width:100%;display:flex;align-items:center;gap:12px;padding:10px 12px;border:1px solid transparent;border-radius:10px;background:transparent;color:var(--text);font:500 .97rem 'Tajawal',sans-serif;text-align:right;cursor:pointer;text-decoration:none;line-height:1.45}
+.sidebar-nav button:hover,.sidebar-contact-toggle:hover,.sidebar-contact-options a:hover{background:var(--sidebar-hover);border-color:transparent;color:var(--sidebar-green)}
+.sidebar-nav button.is-active{background:var(--sidebar-active);border-color:transparent;box-shadow:inset -3px 0 0 var(--sidebar-green);color:var(--sidebar-green);font-weight:700}
+.sidebar-nav button span,.sidebar-footer button span{flex:1}
+.sidebar-contact-menu{margin:0}.sidebar-contact-options{margin:3px 22px 4px 8px;padding:4px 8px;display:none;border-right:2px solid var(--sidebar-gold);background:transparent;border-radius:0}
+.sidebar-contact-menu.open .sidebar-contact-options:not([hidden]){display:flex;flex-direction:column;gap:2px}
+.sidebar-contact-options[hidden]{display:none!important}.sidebar-contact-options a{display:flex;align-items:center;gap:10px;min-height:44px;padding:8px 10px;color:var(--text);font-size:.9rem;font-weight:500;border-radius:8px;text-decoration:none}
+.sidebar-contact-options .sidebar-icon{width:18px;height:18px;flex-basis:18px}.contact-options-arrow{display:block;flex-shrink:0;transition:transform .15s ease}.contact-options-arrow .sidebar-icon{width:16px;height:16px;flex-basis:16px;color:var(--muted)}.sidebar-contact-menu.open .contact-options-arrow{transform:rotate(180deg)}
+.sidebar-footer{flex-shrink:0;border-top:1px solid var(--border);padding:10px 12px calc(12px + env(safe-area-inset-bottom));background:var(--card)}
+.sidebar-footer .sidebar-danger{margin:0;border:1px solid transparent!important;color:var(--danger)!important}.sidebar-footer .sidebar-danger .sidebar-icon{color:currentColor}.sidebar-footer .sidebar-danger:hover{background:var(--sidebar-hover)}
+.app-sidebar button:focus-visible,.app-sidebar a:focus-visible{outline:2px solid var(--sidebar-green);outline-offset:-2px;box-shadow:none}
+body.ratib-sidebar-open,body.ratib-about-open{overflow:hidden}
+#ratibAboutModal{z-index:7002;backdrop-filter:none;background:rgba(10,26,22,.4)}
+.ratib-about-card{max-width:380px;text-align:center;padding:24px;border-radius:16px;border:1px solid var(--border);box-shadow:0 8px 24px rgba(10,26,22,.14)}
+.ratib-about-card>img{display:block;margin:0 auto 14px;border-radius:16px}.ratib-about-card h2{font-size:1.6rem;font-weight:800;color:#0d5b45;line-height:1.3;margin:0}.ratib-about-subtitle{font-size:1rem;margin:3px 0 10px;color:var(--muted)}.ratib-about-version{display:inline-block;font-size:.8rem;border:1px solid #d2b462;border-radius:20px;padding:3px 12px;margin-bottom:16px;color:var(--text)}
+#ratibAboutDescription{font-size:.95rem;line-height:1.8;color:var(--muted)}.ratib-about-card .btn{min-height:44px;background:#0d5b45;border-color:#0d5b45;margin-top:20px;font-size:1rem;color:#fff}.ratib-about-card .btn:focus-visible{outline:2px solid #0d5b45;outline-offset:3px}
+[data-theme="dark"] .ratib-about-card h2{color:#9bd7bc}[data-theme="dark"] .ratib-about-card .btn{background:#9bd7bc;border-color:#9bd7bc;color:#10291f}
+#cloudBackupSection:focus{outline:2px solid var(--accent);outline-offset:6px;border-radius:6px}
+@media(max-width:700px){.app-sidebar{width:min(340px,88vw)}}
+@media(prefers-reduced-motion:reduce){.app-sidebar,.contact-options-arrow{transition:none}}
 
 </style>
 </head>
@@ -680,37 +717,57 @@ button:focus-visible,[role="button"]:focus-visible,a:focus-visible{outline:3px s
     <div class="header-tools"><div class="header-actions">
       <button class="icon-btn" id="privacyBtn" title="وضع الخصوصية">👁️</button>
       <button class="icon-btn" id="themeBtn" title="الوضع الليلي">🌙</button>
-      <button class="icon-btn" id="sidebarMenuBtn" title="القائمة الجانبية" aria-label="فتح القائمة الجانبية">☰</button>
-    </div><small id="appVersionLabel" class="app-version">الإصدار 3.1.4</small></div>
+      <button class="icon-btn" id="sidebarMenuBtn" aria-haspopup="dialog" aria-controls="appSidebar" aria-expanded="false" title="القائمة الجانبية" aria-label="فتح القائمة الجانبية">☰</button>
+    </div><small id="appVersionLabel" class="app-version">الإصدار 3.1.6</small></div>
   </header>
-  <div class="summary-toolbar no-print"><label for="currency">عملة الملخصات</label><select id="currency" aria-label="عملة الملخصات"><option value="YER">ريال يمني</option><option value="SAR">ريال سعودي</option><option value="USD">دولار أمريكي</option></select><span id="persistentSaveStatus" hidden aria-hidden="true">جاهز</span><button type="button" id="retryStorageBtn" class="btn btn-ghost hidden">إعادة محاولة الحفظ</button></div>
+  <div class="summary-toolbar hidden no-print" id="storageFeedback"><span id="persistentSaveStatus" hidden aria-hidden="true">جاهز</span><button type="button" id="retryStorageBtn" class="btn btn-ghost hidden">إعادة محاولة الحفظ</button></div>
 <div class="app-update-banner hidden no-print" id="appUpdateBanner" role="status"><span id="appUpdateMessage">يتوفر تحديث لراتب. هل تريد تطبيقه؟</span><button type="button" class="btn btn-ghost" id="applyAppUpdateBtn">حفظ المسودة والتحديث</button></div>
 
 
   <div class="sidebar-overlay no-print" id="sidebarOverlay" aria-hidden="true"></div>
-  <aside class="app-sidebar no-print" id="appSidebar" aria-label="القائمة الجانبية" aria-hidden="true">
-    <div class="sidebar-head"><strong>راتب للتنظيم والتدبير المالي</strong><button type="button" class="icon-btn" id="closeSidebarBtn" aria-label="إغلاق القائمة">×</button></div>
-    <div class="sidebar-caption">إدارة التطبيق والبيانات</div>
-    <nav class="sidebar-nav">
-      <button type="button" data-sidebar-action="backup">💾 <span>حفظ نسخة احتياطية</span></button>
-      <button type="button" data-sidebar-action="restore">♻️ <span>استرجاع نسخة</span></button>
-      <button type="button" data-sidebar-action="drive">☁️ <span>جوجل درايف</span></button>
-      <button type="button" data-sidebar-action="accounts">🌳 <span>شجرة الحسابات</span></button>
-      <button type="button" data-sidebar-action="settings">⚙️ <span>إعدادات</span></button>
-      <div class="sidebar-contact-menu" id="sidebarContactMenu">
-        <button type="button" class="sidebar-contact-toggle" id="sidebarContactToggle" aria-expanded="false" aria-controls="sidebarContactOptions">
-          ☎️ <span>التواصل والدعم</span><small>فتح الخيارات</small><b class="contact-options-arrow">▼</b>
-        </button>
-        <div class="sidebar-contact-options" id="sidebarContactOptions" aria-label="خيارات التواصل">
-          <a href="tel:+967734915588">☎️ الاتصال الهاتفي <small dir="ltr">+967734915588</small></a>
-          <a href="https://wa.me/967734915588" target="_blank" rel="noopener">💬 التواصل عبر WhatsApp</a>
-          <a href="mailto:saleh0129@gmail.com">✉️ المراسلة عبر Gmail <small dir="ltr">saleh0129@gmail.com</small></a>
+  <aside class="app-sidebar no-print" id="appSidebar" role="dialog" aria-modal="true" aria-labelledby="sidebarTitle" aria-hidden="true" tabindex="-1" inert>
+    <div class="sidebar-head">
+      <div class="sidebar-brand"><img src="Icons/icon-192.png" width="44" height="44" alt="" decoding="async"><div><strong id="sidebarTitle">راتب</strong><small>التنظيم والتدبير المالي</small></div></div>
+      <button type="button" class="icon-btn" id="closeSidebarBtn" aria-label="إغلاق القائمة"><svg class="sidebar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="m6 6 12 12M18 6 6 18"/></svg></button>
+    </div>
+    <nav class="sidebar-nav" aria-label="أدوات راتب">
+      <section class="sidebar-group" aria-labelledby="sidebarManageTitle">
+        <h3 class="sidebar-caption" id="sidebarManageTitle">التنقّل والإدارة</h3>
+        <button type="button" data-sidebar-action="home"><svg class="sidebar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="m3 10 9-7 9 7M5 9v11h5v-6h4v6h5V9"/></svg><span>الرئيسية</span></button>
+        <button type="button" data-sidebar-action="accounts"><svg class="sidebar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><rect x="9" y="3" width="6" height="5" rx="1"/><path d="M12 8v5M5 13h14M5 13v3M19 13v3"/><rect x="2" y="16" width="6" height="5" rx="1"/><rect x="16" y="16" width="6" height="5" rx="1"/></svg><span>شجرة الحسابات</span></button>
+        <button type="button" data-sidebar-action="settings"><svg class="sidebar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="m9 3-.6 3-2.6 1.5-2.8-1L1.5 9l2.2 2v3l-2.2 2L3 18.5l2.8-1L8.4 19l.6 3h3l.6-3 2.6-1.5 2.8 1 1.5-2.5-2.2-2v-3l2.2-2L18 6.5l-2.8 1L12.6 6 12 3Z" transform="translate(1 0) scale(1 .95)"/><circle cx="11.5" cy="12" r="3"/></svg><span>الإعدادات</span></button>
+      </section>
+      <section class="sidebar-group" aria-labelledby="sidebarBackupTitle">
+        <h3 class="sidebar-caption" id="sidebarBackupTitle">النسخ الاحتياطي</h3>
+        <button type="button" data-sidebar-action="backup"><svg class="sidebar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M4 3h13l3 3v15H4ZM8 3v6h8V3M8 21v-7h8v7"/></svg><span>إنشاء نسخة احتياطية</span></button>
+        <button type="button" data-sidebar-action="restore"><svg class="sidebar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M4 13v7h16v-7M12 16V3m-4 4 4-4 4 4"/></svg><span>استعادة نسخة من ملف</span></button>
+        <button type="button" data-sidebar-action="drive"><svg class="sidebar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M7 17H6a4 4 0 0 1-.6-8 6.5 6.5 0 0 1 12.5-1 4.5 4.5 0 0 1 .1 9h-1M12 21V11m-3 3 3-3 3 3"/></svg><span>النسخ عبر Google Drive</span></button>
+      </section>
+      <section class="sidebar-group" aria-labelledby="sidebarHelpTitle">
+        <h3 class="sidebar-caption" id="sidebarHelpTitle">المساعدة</h3>
+        <div class="sidebar-contact-menu" id="sidebarContactMenu">
+          <button type="button" class="sidebar-contact-toggle" id="sidebarContactToggle" aria-expanded="false" aria-controls="sidebarContactOptions"><svg class="sidebar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4"/><path d="m5.6 5.6 3.6 3.6m5.6 5.6 3.6 3.6m0-12.8-3.6 3.6m-5.6 5.6-3.6 3.6"/></svg><span>التواصل والدعم</span><b class="contact-options-arrow" aria-hidden="true"><svg class="sidebar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="m6 9 6 6 6-6"/></svg></b></button>
+          <div class="sidebar-contact-options" id="sidebarContactOptions" aria-label="خيارات التواصل" hidden>
+            <a href="tel:+967734915588"><svg class="sidebar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="m5 3 4 1 1 4-2 2a14 14 0 0 0 6 6l2-2 4 1 1 4c-1 4-6 2-10-1S2 8 3 5Z"/></svg><span>اتصال</span></a>
+            <a href="https://wa.me/967734915588" target="_blank" rel="noopener"><svg class="sidebar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M21 11a9 9 0 0 1-9 9 10 10 0 0 1-4-.9L3 21l1.9-5A9 9 0 1 1 21 11Z"/><path d="M8 9h8M8 13h5"/></svg><span>واتساب</span></a>
+            <a href="mailto:saleh0129@gmail.com"><svg class="sidebar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg><span>بريد إلكتروني</span></a>
+          </div>
         </div>
-      </div>
-      <button type="button" data-sidebar-action="about">ⓘ <span>حول البرنامج</span><small>الإصدار 3.1.4</small></button>
-      <button type="button" class="sidebar-danger" data-sidebar-action="exit">🚪 <span>خروج</span></button>
+        <button type="button" data-sidebar-action="about"><svg class="sidebar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7h.01"/></svg><span>حول التطبيق</span></button>
+      </section>
     </nav>
+    <div class="sidebar-footer"><button type="button" class="sidebar-danger" data-sidebar-action="exit"><svg class="sidebar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M9 3H4v18h5M8 12h13m-4-4 4 4-4 4"/></svg><span>الخروج</span></button></div>
   </aside>
+  <div class="modal-overlay no-print" id="ratibAboutModal" role="dialog" aria-modal="true" aria-labelledby="ratibAboutTitle" aria-describedby="ratibAboutDescription" aria-hidden="true" tabindex="-1" inert>
+    <div class="modal-content ratib-about-card">
+      <img src="Icons/icon-192.png" width="72" height="72" alt="" decoding="async">
+      <h2 id="ratibAboutTitle">راتب</h2>
+      <p class="ratib-about-subtitle">للتنظيم والتدبير المالي</p>
+      <p class="ratib-about-version">الإصدار 3.1.6</p>
+      <p id="ratibAboutDescription">إدارة الحسابات والسندات والميزانية، ومتابعة العمليات والتقارير المالية، مع حفظ البيانات على جهازك ودعم العمل دون الإنترنت.</p>
+      <button type="button" class="btn btn-primary" id="closeRatibAboutBtn">إغلاق</button>
+    </div>
+  </div>
 
   <button class="back-to-menu-btn hidden no-print" id="backToMenuBtn" onclick="goBackInApp()">
     <span>⬅️ العودة للقوائم الرئيسية</span>
@@ -747,7 +804,7 @@ button:focus-visible,[role="button"]:focus-visible,a:focus-visible{outline:3px s
           <section class="carousel-slide" id="pageDashboardKpi" aria-label="لوحة القيادة">
             <div class="card no-print" id="proDashboardCard">
               <h2><span>⚡ لوحة القيادة</span><span hidden aria-hidden="true" id="lastSavedLabel" style="font-size:0.95rem;color:var(--muted);font-weight:700">جاهز</span></h2>
-              <div class="dashboard-period no-print"><label for="dashboardPeriod">الفترة</label><select id="dashboardPeriod"><option value="all">كافة العمليات</option><option value="current">الشهر الحالي</option></select></div>
+              <div class="dashboard-period no-print"><div class="dashboard-filter"><label for="dashboardPeriod">الفترة</label><select id="dashboardPeriod"><option value="all">كافة العمليات</option><option value="current">الشهر الحالي</option></select></div><div class="dashboard-filter"><label for="currency">عملة الملخصات</label><select id="currency" aria-label="عملة الملخصات"><option value="YER">ريال يمني</option><option value="SAR">ريال سعودي</option><option value="USD">دولار أمريكي</option></select></div></div>
               <div id="proAlertsBox" style="font-size:1.05rem;font-weight:700;color:var(--muted)"></div>
               <button class="open-tasks-cta" type="button" onclick="goCarousel('dashboardCarousel',1)">
                 <span style="position:relative;">🔔<span id="remindersBadge" class="hidden" style="position:absolute;top:-6px;left:-10px;background:var(--danger);color:#fff;font-size:0.7rem;min-width:16px;height:16px;border-radius:8px;display:flex;align-items:center;justify-content:center;padding:0 4px;">0</span></span><b>التذكيرات التي تحتاج إلى مراجعة</b><small>عرض المهام والتذكيرات وتوزيع الأولويات</small><i>‹</i>
@@ -1372,11 +1429,11 @@ button:focus-visible,[role="button"]:focus-visible,a:focus-visible{outline:3px s
     <div class="settings-accordion-body" onclick="event.stopPropagation()">
       <div style="display: flex; flex-direction: column; gap: 8px;">
         <button class="btn btn-ghost" id="exportDataBtn" style="margin-top:0; border-color: var(--accent); color: var(--accent); font-size: 1.05rem;">
-          📥 تصدير نسخة احتياطية (JSON)
+          إنشاء نسخة احتياطية
         </button>
         <input type="file" id="importFileInput" accept=".json" style="display:none;">
         <button class="btn btn-ghost" id="importDataBtn" style="margin-top:0; font-size: 1.05rem;">
-          📤 استيراد نسخة احتياطية (JSON)
+          استعادة نسخة من ملف
         </button>
         <div style="border-top:2px dashed var(--border); margin:6px 0; padding-top:10px;">
           <p style="color:var(--muted); font-weight:700; margin-bottom:6px; font-size:0.98rem;">نسخ احتياطي تلقائي لمجلد على جهازك (يدعمه Chrome/Edge على الكمبيوتر فقط؛ اختر مجلداً داخل Google Drive أو OneDrive على جهازك ليرفعه تلقائياً):</p>
@@ -1720,6 +1777,7 @@ button:focus-visible,[role="button"]:focus-visible,a:focus-visible{outline:3px s
     </div>
   </div>
 
+  <div class="modal-overlay no-print" id="exitProgressModal" role="dialog" aria-modal="true" aria-labelledby="exitProgressTitle" aria-describedby="exitProgressDescription" tabindex="-1"><div class="modal-content" style="max-width:360px;text-align:center"><h3 id="exitProgressTitle">جارٍ الحفظ والخروج…</h3><p id="exitProgressDescription" role="status">نحفظ بياناتك قبل إنهاء الجلسة.</p></div></div>
   <div class="modal-overlay" id="exitConfirmModal">
     <div class="modal-content" style="max-width: 360px; text-align: center;">
       <div style="font-size: 2.2rem; margin-bottom: 6px;">🚪</div>
@@ -2026,6 +2084,7 @@ function setPersistenceStatus(state){
   for(const id of ['lastSavedLabel','persistentSaveStatus']){const el=document.getElementById(id);
   if(el){el.textContent=state==='saving'?'جارٍ الحفظ…':state==='error'?'تعذّر الحفظ — أعد المحاولة':state==='dirty'?'تغييرات قيد الحفظ':'محفوظ';el.dataset.state=state;el.hidden=true;el.setAttribute('aria-hidden','true');}}
   const retry=document.getElementById('retryStorageBtn');if(retry)retry.classList.toggle('hidden',state!=='error');
+  document.getElementById('storageFeedback')?.classList.toggle('hidden',state!=='error');
   if(state==='error'&&_lastPersistenceState!=='error')showToast('تعذّر الحفظ. أعد المحاولة قبل إغلاق التطبيق.','error',6000);_lastPersistenceState=state;
 }
 function getSecurityConfig(){
@@ -3938,8 +3997,10 @@ function pushAppHistoryState(){recordAppHistory({page:'ratib_app_entry',tab:curr
 // المتصفح أول ضغطة رجوع دفعة واحدة (يحصل أحياناً في بعض المتصفحات/الأجهزة).
 function pushInitialHistoryBuffer(){
   if(_appHistoryInitialized)return;
-  history.replaceState({page:'ratib_app_base',ratibGuard:false},'');
-  history.pushState({page:'ratib_app_entry',tab:currentActiveTab,ratibGuard:true},'');
+  if(history.state?.ratibGuard){_appExitHistoryDelta=history.state.ratibExitDelta===-2?-2:0;_appHistoryInitialized=true;recordAppHistory({page:'ratib_app_entry',tab:currentActiveTab});return;}
+  _appExitHistoryDelta=history.length>1?-2:0;
+  history.replaceState({page:'ratib_app_base',ratibGuard:false,ratibExitDelta:_appExitHistoryDelta},'');
+  history.pushState({page:'ratib_app_entry',tab:currentActiveTab,ratibGuard:true,ratibExitDelta:_appExitHistoryDelta},'');
   _appHistoryInitialized=true;
 }
 
@@ -4023,6 +4084,7 @@ function navigateToTab(target, pushToHistory = true) {
 
   if (!target || target === 'pageDashboard') {
     currentActiveTab = 'pageDashboard';
+    syncSidebarCurrentPage();
     backBtn.classList.add('hidden');
     document.getElementById('pageDashboard').classList.remove('hidden');
     closeDashboardHome(false);
@@ -4034,6 +4096,7 @@ function navigateToTab(target, pushToHistory = true) {
   backBtn.classList.remove('hidden');
   document.getElementById(target).classList.remove('hidden');
   currentActiveTab = target;
+  syncSidebarCurrentPage();
   // للشاشتين شريط تنقل داخلي؛ إخفاء زر الرجوع الكبير المكرر يترك اسم الحساب واضحاً.
   if (target === 'pageLedger' || target === 'pageAccountOperations') backBtn.classList.add('hidden');
 
@@ -4063,7 +4126,7 @@ function goBackInApp(){
   const sidebar=document.getElementById('appSidebar');
   if(sidebar?.classList.contains('show')){document.getElementById('closeSidebarBtn')?.click();return;}
   const modals=[...document.querySelectorAll('.modal-overlay.show')];
-  if(modals.length){const modal=modals.at(-1);if(modal.id==='exitConfirmModal')hideExitModal();else modal.classList.remove('show');return;}
+  if(modals.length){const modal=modals.at(-1);if(modal.id==='exitConfirmModal')hideExitModal();else if(modal.id==='ratibAboutModal')closeRatibAbout();else modal.classList.remove('show');return;}
   if(document.getElementById('accountScreenMenu')?.classList.contains('open')){closeAccountScreenMenu();return;}
   const advanced=document.getElementById('accountAdvancedSearchPanel');
   if(currentActiveTab==='pageAccountOperations'&&advanced&&!advanced.classList.contains('hidden')){advanced.classList.add('hidden');return;}
@@ -6984,6 +7047,7 @@ function performRealExit(){
   const controls=[...document.querySelectorAll('input,select,textarea,button')].map(element=>({element,disabled:element.disabled}));controls.forEach(({element})=>{element.disabled=true;});
   const buttons=[...document.querySelectorAll('#confirmExitAppBtn,#exitAppBtn,[data-sidebar-action="exit"]')];
   buttons.forEach(button=>{button.disabled=true;button.dataset.exitLabel=button.innerHTML;button.textContent='جارٍ الحفظ والخروج…';});
+  hideExitModal();const progress=document.getElementById('exitProgressModal');progress?.classList.add('show');progress?.focus({preventScroll:true});
   _exitPromise=(async()=>{
     try{
       if(_pendingFinancialCompletion){await flushStorage();const after=_pendingFinancialCompletion;_pendingFinancialCompletion=null;after?.();}
@@ -7001,11 +7065,12 @@ function performRealExit(){
       showExitedScreen(cfg.enabled);
       let nativeExit=false;
       if(typeof navigator.app?.exitApp==='function'){try{navigator.app.exitApp();nativeExit=true;}catch(_){ }}
-      if(!nativeExit){try{window.close();}catch(_){ }if(!window.closed&&_appHistoryInitialized&&history.state?.ratibGuard)history.back();}
+      if(!nativeExit){try{window.close();}catch(_){ }if(!window.closed&&_appHistoryInitialized&&history.state?.ratibGuard){if(_appExitHistoryDelta===-2)history.go(-2);else history.back();}}
       return true;
     }catch(_){
-      allowExit=false;hideExitModal();showToast('لم يكتمل الحفظ؛ بقي التطبيق مفتوحاً. أعد محاولة الحفظ ثم الخروج.','error',7000);
-      controls.forEach(({element,disabled})=>{element.disabled=disabled;});buttons.forEach(button=>{button.innerHTML=button.dataset.exitLabel;delete button.dataset.exitLabel;});return false;
+      allowExit=false;document.getElementById('exitProgressModal')?.classList.remove('show');
+      controls.forEach(({element,disabled})=>{element.disabled=disabled;});buttons.forEach(button=>{button.innerHTML=button.dataset.exitLabel;delete button.dataset.exitLabel;});
+      document.getElementById('retryStorageBtn')?.focus({preventScroll:true});showToast('لم يكتمل الحفظ؛ بقي التطبيق مفتوحاً. أعد محاولة الحفظ ثم الخروج.','error',7000);return false;
     }
   })();
   const pending=_exitPromise;pending.then(result=>{if(!result&&_exitPromise===pending)_exitPromise=null;});return pending;
@@ -7123,15 +7188,7 @@ function showExitedScreen(wasSecured) {
 
 /* ===== Sidebar navigation and budget layout decoration ===== */
 (function installSidebarAndBudgetLayout(){
-  const VERSION='3.1.4';
-  const sidebar=document.getElementById('appSidebar'), overlay=document.getElementById('sidebarOverlay');
-  const close=()=>{sidebar?.classList.remove('show');overlay?.classList.remove('show');sidebar?.setAttribute('aria-hidden','true');overlay?.setAttribute('aria-hidden','true')};
-  const open=()=>{sidebar?.classList.add('show');overlay?.classList.add('show');sidebar?.setAttribute('aria-hidden','false');overlay?.setAttribute('aria-hidden','false');document.getElementById('closeSidebarBtn')?.focus()};
-  function about(){close();showToast(`راتب للتنظيم والتدبير المالي — الإصدار ${VERSION}`,'info',5000)}
-  function drive(){close();navigateToTab('pageSettings',true);setTimeout(()=>{const el=document.getElementById('cloudBackupSection');el?.scrollIntoView({behavior:'smooth',block:'center'});if(el)el.style.outline='3px solid color-mix(in srgb,var(--accent) 25%,transparent)';setTimeout(()=>{if(el)el.style.outline=''},1800)},80)}
-  const contactMenu=document.getElementById('sidebarContactMenu'),contactToggle=document.getElementById('sidebarContactToggle');contactToggle?.addEventListener('click',e=>{e.stopPropagation();const openNow=contactMenu.classList.toggle('open');contactToggle.setAttribute('aria-expanded',String(openNow));const arrow=contactToggle.querySelector('.contact-options-arrow');if(arrow)arrow.textContent=openNow?'▲':'▼'});
-  document.getElementById('sidebarMenuBtn')?.addEventListener('click',open);document.getElementById('closeSidebarBtn')?.addEventListener('click',close);overlay?.addEventListener('click',close);document.addEventListener('keydown',e=>{if(e.key==='Escape')close()});
-  sidebar?.querySelectorAll('[data-sidebar-action]').forEach(btn=>btn.addEventListener('click',()=>{const a=btn.dataset.sidebarAction;close();if(a==='backup')exportBackupFile();else if(a==='restore')document.getElementById('importFileInput')?.click();else if(a==='drive')drive();else if(a==='accounts')navigateToTab('pageAccountsTree',true);else if(a==='settings')navigateToTab('pageSettings',true);else if(a==='about')about();else if(a==='exit')showExitModal()}));
+  function about(){showAboutRatibDialog();}
   function decorateBudgetLayout(){
     const tools=document.getElementById('budgetToolsHost'), reports=document.getElementById('budgetReportHost');
     tools?.classList.add('budget-tools-host');reports?.classList.add('budget-report-host');
@@ -7271,7 +7328,7 @@ function scheduleReminderCheck(){
 }
 
 function initCompatibilityImprovements(){
-  initExitButton();initExitDialog();
+  initExitButton();initExitDialog();initRatibSidebar();
   const currency=document.getElementById('currency');if(currency){currency.value=store.get('preferred_currency','YER');if(!KNOWN_CURRENCIES.has(currency.value))currency.value='YER';currency.addEventListener('change',()=>{store.set('preferred_currency',currency.value);ledgerVisibleLimit=50;updateProDashboard();if(activeReportTab==='budget')runBudgetReport();});}
   document.getElementById('dashboardPeriod')?.addEventListener('change',updateProDashboard);
   document.getElementById('retryStorageBtn')?.addEventListener('click',retryPersistentSave);
@@ -7478,8 +7535,8 @@ function restoreAppView(view){
 }
 
 function recordAppHistory(state={}){
-  if(_appExited)return;
-  history.replaceState({...state,ratibGuard:_appHistoryInitialized},'');
+  if(_appExited||!_appHistoryInitialized)return;
+  history.replaceState({...state,ratibGuard:_appHistoryInitialized,ratibExitDelta:_appExitHistoryDelta},'');
 }
 
 function initExitDialog(){
@@ -7488,15 +7545,118 @@ function initExitDialog(){
 }
 
 function handleRatibPopState(){
-  if(allowExit||_appExited)return;
+  if(allowExit||_appExited){if(history.state?.ratibGuard||history.state?.page==='ratib_app_base')history.back();return;}
   // One guard is restored after a hardware/browser Back, instead of replaying old app states.
-  if(_appHistoryInitialized&&!history.state?.ratibGuard)history.pushState({page:'ratib_app_entry',tab:currentActiveTab,ratibGuard:true},'');
+  if(_appHistoryInitialized&&!history.state?.ratibGuard)history.pushState({page:'ratib_app_entry',tab:currentActiveTab,ratibGuard:true,ratibExitDelta:_appExitHistoryDelta},'');
   const lock=document.getElementById('lockScreen');if(lock?.style.display==='flex')return;
   goBackInApp();
 }
 
 const _appBackStack=[];
-let _appHistoryInitialized=false,_appExited=false,_exitPromise=null,_restoringAppView=false,_exitReturnFocus=null;
+let _appHistoryInitialized=false,_appExited=false,_exitPromise=null,_restoringAppView=false,_exitReturnFocus=null,_appExitHistoryDelta=0;
+
+function syncSidebarCurrentPage(){
+  const pages={home:'pageDashboard',accounts:'pageAccountsTree',settings:'pageSettings'};
+  document.querySelectorAll('#appSidebar [data-sidebar-action]').forEach(button=>{const selected=pages[button.dataset.sidebarAction]===currentActiveTab;button.classList.toggle('is-active',selected);if(selected)button.setAttribute('aria-current','page');else button.removeAttribute('aria-current');});
+}
+
+function ratibOverlayFocusable(surface){
+  return [...surface.querySelectorAll('button,a[href],input,select,textarea,[tabindex]')].filter(element=>{
+    if(element.disabled||element.tabIndex<0)return false;
+    for(let node=element;node&&node!==surface.parentElement;node=node.parentElement)if(node.hidden||node.hasAttribute('inert')||getComputedStyle(node).display==='none'||getComputedStyle(node).visibility==='hidden')return false;
+    return true;
+  });
+}
+
+function activateRatibOverlay(surface,opener){
+  const background=[];
+  for(let current=surface;current&&current!==document.body;current=current.parentElement){
+    for(const sibling of current.parentElement.children){
+      if(sibling===current||sibling.id==='sidebarOverlay'||['SCRIPT','STYLE','LINK'].includes(sibling.tagName))continue;
+      background.push({element:sibling,inert:sibling.hasAttribute('inert')});sibling.setAttribute('inert','');
+    }
+  }
+  _ratibOverlayState={surface,opener,background};
+}
+
+function releaseRatibOverlay(surface,restoreFocus=true){
+  const state=_ratibOverlayState;if(!state||state.surface!==surface)return;
+  _ratibOverlayState=null;
+  for(const item of state.background)if(!item.inert)item.element.removeAttribute('inert');
+  if(restoreFocus&&state.opener?.isConnected&&!state.opener.disabled&&!state.opener.closest('[inert]'))state.opener.focus({preventScroll:true});
+}
+
+function openRatibSidebar(){
+  if(_appExited||_exitPromise||_ratibOverlayState||document.querySelector('.modal-overlay.show')||document.getElementById('lockScreen')?.style.display==='flex')return;
+  const sidebar=document.getElementById('appSidebar'),launcher=document.getElementById('sidebarMenuBtn');
+  if(!sidebar)return;
+  syncSidebarCurrentPage();sidebar.removeAttribute('inert');sidebar.setAttribute('aria-hidden','false');sidebar.classList.add('show');
+  document.getElementById('sidebarOverlay').classList.add('show');launcher.setAttribute('aria-expanded','true');document.body.classList.add('ratib-sidebar-open');
+  activateRatibOverlay(sidebar,launcher);document.getElementById('closeSidebarBtn').focus({preventScroll:true});
+}
+
+function closeRatibSidebar(){
+  const sidebar=document.getElementById('appSidebar');if(!sidebar)return;
+  releaseRatibOverlay(sidebar);sidebar.classList.remove('show');sidebar.setAttribute('aria-hidden','true');sidebar.setAttribute('inert','');
+  document.getElementById('sidebarOverlay')?.classList.remove('show');document.getElementById('sidebarMenuBtn')?.setAttribute('aria-expanded','false');document.body.classList.remove('ratib-sidebar-open');
+  document.getElementById('sidebarContactMenu')?.classList.remove('open');document.getElementById('sidebarContactToggle')?.setAttribute('aria-expanded','false');document.getElementById('sidebarContactOptions').hidden=true;
+}
+
+function showAboutRatibDialog(){
+  if(_appExited||_exitPromise)return;
+  closeRatibSidebar();const modal=document.getElementById('ratibAboutModal');if(!modal||_ratibOverlayState)return;
+  modal.classList.add('show');modal.removeAttribute('inert');modal.setAttribute('aria-hidden','false');document.body.classList.add('ratib-about-open');
+  activateRatibOverlay(modal,document.getElementById('sidebarMenuBtn'));document.getElementById('closeRatibAboutBtn').focus({preventScroll:true});
+}
+
+function closeRatibAbout(){
+  const modal=document.getElementById('ratibAboutModal');if(!modal)return;
+  releaseRatibOverlay(modal);modal.classList.remove('show');modal.setAttribute('aria-hidden','true');modal.setAttribute('inert','');document.body.classList.remove('ratib-about-open');
+}
+
+function openRatibCloudSettings(){
+  if(currentActiveTab!=='pageSettings')navigateToTab('pageSettings',true);
+  const section=document.getElementById('cloudBackupSection'),card=section?.closest('.settings-accordion-card'),body=card?.querySelector('.settings-accordion-body');
+  if(body&&!body.classList.contains('open'))toggleSettingsCard(card);
+  if(section){section.tabIndex=-1;section.focus({preventScroll:true});section.scrollIntoView({behavior:window.matchMedia?.('(prefers-reduced-motion: reduce)').matches?'auto':'smooth',block:'center'});}
+}
+
+function initRatibSidebar(){
+  const sidebar=document.getElementById('appSidebar');if(!sidebar||sidebar.dataset.bound)return;sidebar.dataset.bound='true';
+  document.getElementById('sidebarMenuBtn').addEventListener('click',openRatibSidebar);
+  document.getElementById('closeSidebarBtn').addEventListener('click',closeRatibSidebar);
+  document.getElementById('sidebarOverlay').addEventListener('click',closeRatibSidebar);
+  document.getElementById('sidebarContactToggle').addEventListener('click',()=>{const menu=document.getElementById('sidebarContactMenu'),expanded=!menu.classList.contains('open');menu.classList.toggle('open',expanded);document.getElementById('sidebarContactToggle').setAttribute('aria-expanded',String(expanded));document.getElementById('sidebarContactOptions').hidden=!expanded;});
+  sidebar.querySelectorAll('[data-sidebar-action]').forEach(button=>button.addEventListener('click',()=>{
+    if(_appExited||_exitPromise||button.disabled)return;
+    const action=button.dataset.sidebarAction;closeRatibSidebar();
+    if(action==='home')navigateToTab('pageDashboard',true);
+    else if(action==='accounts')navigateToTab('pageAccountsTree',true);
+    else if(action==='settings'){if(currentActiveTab!=='pageSettings')navigateToTab('pageSettings',true);}
+    else if(action==='drive')openRatibCloudSettings();
+    else if(action==='backup')exportBackupFile();
+    else if(action==='restore')document.getElementById('importFileInput').click();
+    else if(action==='about')showAboutRatibDialog();
+    else if(action==='exit')showExitModal();
+  }));
+  document.getElementById('closeRatibAboutBtn').addEventListener('click',closeRatibAbout);
+  document.getElementById('ratibAboutModal').addEventListener('click',event=>{if(event.target.id==='ratibAboutModal')closeRatibAbout();});
+  document.addEventListener('keydown',event=>{
+    const state=_ratibOverlayState;if(!state)return;
+    if(event.key==='Escape'){event.preventDefault();event.stopImmediatePropagation();if(state.surface===sidebar)closeRatibSidebar();else closeRatibAbout();return;}
+    if(event.key==='Tab'){
+      const items=ratibOverlayFocusable(state.surface),first=items[0],last=items.at(-1),active=document.activeElement;
+      if(!first){event.preventDefault();state.surface.focus();}
+      else if(!items.includes(active)||event.shiftKey&&active===first||!event.shiftKey&&active===last){event.preventDefault();(event.shiftKey?last:first).focus();}
+    }
+    if((event.ctrlKey||event.metaKey)&&['k','s'].includes(event.key.toLowerCase()))event.preventDefault();
+    event.stopImmediatePropagation();
+  },true);
+  document.addEventListener('focusin',event=>{const state=_ratibOverlayState;if(state&&!state.surface.contains(event.target))ratibOverlayFocusable(state.surface)[0]?.focus({preventScroll:true});},true);
+  syncSidebarCurrentPage();
+}
+
+let _ratibOverlayState=null;
 
 let ledgerNeedsRender=true;
 

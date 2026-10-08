@@ -705,7 +705,7 @@ button:focus-visible,[role="button"]:focus-visible,a:focus-visible{outline:3px s
           <a href="mailto:saleh0129@gmail.com">✉️ المراسلة عبر Gmail <small dir="ltr">saleh0129@gmail.com</small></a>
         </div>
       </div>
-      <button type="button" data-sidebar-action="about">ⓘ <span>حول البرنامج</span><small>الإصدار 3.1.2</small></button>
+      <button type="button" data-sidebar-action="about">ⓘ <span>حول البرنامج</span><small>الإصدار 3.1.3</small></button>
       <button type="button" class="sidebar-danger" data-sidebar-action="exit">🚪 <span>خروج</span></button>
     </nav>
   </aside>
@@ -3006,7 +3006,7 @@ function cloudBackupDue() {
   return now >= scheduled && cfg.lastDate !== _todayStr(now);
 }
 
-async function checkCloudBackupDue() {
+async function checkCloudBackupDue() {if(_appExited)return;
   if (_cloudBusy || !cloudBackupDue()) return;
   const ok = await runCloudBackup(false); // محاولة صامتة
   if (!ok && !_cloudNotifiedThisSession) {
@@ -3914,10 +3914,15 @@ function preparePrintVoucherTemplate(tx) {
 const TABS_ORDER = ['pageDashboard', 'pageExpenses', 'pageLedger', 'pageReports', 'pageAccountsTree', 'pageAccountOperations', 'pageSettings'];
 let allowExit = false;
 
-function pushAppHistoryState() { window.history.pushState({ page: 'ratib_app_entry' }, ''); }
+function pushAppHistoryState(){recordAppHistory({page:'ratib_app_entry',tab:currentActiveTab});}
 // عند الإقلاع الأول فقط: دفعتان بدل دفعة واحدة، كهامش أمان إضافي في حال "ابتلع"
 // المتصفح أول ضغطة رجوع دفعة واحدة (يحصل أحياناً في بعض المتصفحات/الأجهزة).
-function pushInitialHistoryBuffer() { pushAppHistoryState(); pushAppHistoryState(); }
+function pushInitialHistoryBuffer(){
+  if(_appHistoryInitialized)return;
+  history.replaceState({page:'ratib_app_base',ratibGuard:false},'');
+  history.pushState({page:'ratib_app_entry',tab:currentActiveTab,ratibGuard:true},'');
+  _appHistoryInitialized=true;
+}
 
 const carouselState = {};
 function updateCarousel(el, index) {
@@ -3988,6 +3993,11 @@ function setupReportSections(target = 'pageReports', autoOpen = true) {
 }
 
 function navigateToTab(target, pushToHistory = true) {
+  if(_appExited||_exitPromise)return;
+  const next=target||'pageDashboard';
+  if(next==='pageDashboard')_appBackStack.length=0;
+  else if(pushToHistory&&currentActiveTab&&currentActiveTab!==next){_appBackStack.push(currentActiveTab);if(_appBackStack.length>50)_appBackStack.shift();}
+  recordAppHistory({page:'tab',tab:next});
   const backBtn = document.getElementById('backToMenuBtn');
   TABS_ORDER.forEach(id => document.getElementById(id).classList.add('hidden'));
 
@@ -4014,77 +4024,41 @@ function navigateToTab(target, pushToHistory = true) {
   else if (target === 'pageSettings') initSettingsPage();
   else if (target === 'pageDashboard') { updateProDashboard(); renderRemindersList(); renderRemindersChart(); }
 
-  if (pushToHistory) window.history.pushState({ page: 'tab', tab: target }, '');
+
 }
 
 function showExitModal() { document.getElementById('exitConfirmModal').classList.add('show'); }
 function hideExitModal() { document.getElementById('exitConfirmModal').classList.remove('show'); }
 
-document.getElementById('cancelExitAppBtn').addEventListener('click', () => { hideExitModal(); pushAppHistoryState(); });
-document.getElementById('confirmExitAppBtn').addEventListener('click', () => { 
-  allowExit = true; 
-  hideExitModal(); 
-  if (typeof navigator !== 'undefined' && navigator.app) {
-    navigator.app.exitApp(); 
-  } else {
-    // كانت تكتفي بمحاولة window.close() فقط، وهذي غالباً محظورة من المتصفح فتفشل
-    // بصمت، فيبقى المستخدم بنفس الصفحة بدون أي نتيجة ظاهرة رغم ضغط "تأكيد الخروج" —
-    // فيضطر يرجع بزر الرجوع عدة مرات ليخرج فعلياً من كل الحالات المتراكمة بالسجل.
-    // الآن تستخدم نفس آلية الخروج الفعلي المضمونة المستخدمة بزر 🚪 بالأعلى: نتيجة
-    // فورية مرئية بضغطة واحدة فقط، بغض النظر هل نجح إغلاق التبويب فعلياً أم لا.
-    performRealExit();
-  }
-});
+document.getElementById('cancelExitAppBtn').addEventListener('click',hideExitModal);
+document.getElementById('confirmExitAppBtn').addEventListener('click',performRealExit);
 
-window.addEventListener('popstate', (e) => {
-  if (allowExit) return;
-    const accountMenu=document.getElementById('accountScreenMenu');
-    if(accountMenu?.classList.contains('open')){closeAccountScreenMenu();pushAppHistoryState();return;}
-    const accountSearch=document.getElementById('accountAdvancedSearchPanel');
-    if(currentActiveTab==='pageAccountOperations'&&accountSearch&&!accountSearch.classList.contains('hidden')){accountSearch.classList.add('hidden');return;}
-  try {
-    const lockScr = document.getElementById('lockScreen');
-    if (lockScr && lockScr.style.display === 'flex') return;
-    if (document.getElementById('exitConfirmModal')?.classList.contains('show')) { hideExitModal(); return; }
-    const modalIds=['reminderModal','txModal','longPressConfirmModal','addAccountModal','editAccountModal','printPromptModal','categoryTransactionsModal','cloudRestoreModal'];
-    for (const id of modalIds) { const m=document.getElementById(id); if(m?.classList.contains('show')) { m.classList.remove('show'); return; } }
-    const previousTab=e.state?.tab;
-    if(currentActiveTab==='pageReports'){
-      if(e.state?.reportSection){
-        if(e.state.reportSection==='trial') openReportsSection('trial',false);
-        else toggleReportView(e.state.reportSection,false);
-        return;
-      }
-      if(previousTab==='pageReports'){
-        closeAllReportsSections();
-        return;
-      }
-    }
-    // نموذج السند شاشة داخلية لقائمة «إضافة»: الرجوع منه يعيد محدد نوع السند
-    // أولاً، ولا يقفز مباشرة إلى الواجهة الرئيسية حتى لو أسقط المتصفح حالة واحدة.
-    if(currentActiveTab==='pageExpenses' && (document.getElementById('cashFlowCard')?.classList.contains('hidden')===false || document.getElementById('multiVoucherCard')?.classList.contains('hidden')===false) && previousTab!=='pageExpenses'){
-      initVoucherSelectorView();
-      history.replaceState({page:'tab',tab:'pageExpenses'},'');
-      return;
-    }
-    if (previousTab && TABS_ORDER.includes(previousTab)) { navigateToTab(previousTab, false); return; }
-    if (currentActiveTab && currentActiveTab !== 'pageDashboard') { navigateToTab('pageDashboard', false); return; }
-    showExitModal();
-  } catch (err) { console.warn('popstate handler error:', err); }
-});
+window.addEventListener('popstate',handleRatibPopState);
 
 function goBackInApp(){
-  if(currentActiveTab==='pageExpenses' && (document.getElementById('cashFlowCard')?.classList.contains('hidden')===false || document.getElementById('multiVoucherCard')?.classList.contains('hidden')===false)){
-    initVoucherSelectorView();
-    history.replaceState({page:'tab',tab:'pageExpenses'},'');
-    return;
-  }
-  if(currentActiveTab==='pageExpenses'&&multiVoucherDraftId&&multiVoucherReturnTab&&multiVoucherReturnTab!=='pageExpenses'){multiVoucherDraftId='';navigateToTab(multiVoucherReturnTab,false);return;}
+  if(_appExited||_exitPromise)return;
+  const sidebar=document.getElementById('appSidebar');
+  if(sidebar?.classList.contains('show')){document.getElementById('closeSidebarBtn')?.click();return;}
+  const modals=[...document.querySelectorAll('.modal-overlay.show')];
+  if(modals.length){const modal=modals.at(-1);modal.classList.remove('show');return;}
   if(document.getElementById('accountScreenMenu')?.classList.contains('open')){closeAccountScreenMenu();return;}
-  if(currentActiveTab==='pageAccountOperations'){navigateToTab('pageAccountsTree',false);return;}
-  if(currentActiveTab==='pageReports' && (document.querySelector('#reportsGroupStatementBody.open')||document.querySelector('#reportsGroupBudgetBody.open')||document.querySelector('#reportsGroupTrialBody.open'))){history.back();return;}
-  if (document.querySelector('.modal-overlay.show')) { history.back(); return; }
-  if (window.history.length > 1) history.back(); else if (currentActiveTab !== 'pageDashboard') navigateToTab('pageDashboard', false); else showExitModal();
+  const advanced=document.getElementById('accountAdvancedSearchPanel');
+  if(currentActiveTab==='pageAccountOperations'&&advanced&&!advanced.classList.contains('hidden')){advanced.classList.add('hidden');return;}
+  if(currentActiveTab==='pageExpenses'){
+    if(!document.getElementById('cashFlowCard')?.classList.contains('hidden')||!document.getElementById('multiVoucherCard')?.classList.contains('hidden')){
+      initVoucherSelectorView();recordAppHistory({page:'tab',tab:'pageExpenses'});return;
+    }
+    if(multiVoucherDraftId&&multiVoucherReturnTab&&multiVoucherReturnTab!=='pageExpenses'){
+      multiVoucherDraftId='';navigateToTab(multiVoucherReturnTab,false);return;
+    }
+  }
+  if(currentActiveTab==='pageAccountOperations'){navigateToTab(accountOperationsReturnTab||'pageAccountsTree',false);return;}
+  if(currentActiveTab==='pageReports'&&document.querySelector('#reportsGroupStatementBody.open,#reportsGroupBudgetBody.open,#reportsGroupTrialBody.open')){
+    closeAllReportsSections();recordAppHistory({page:'tab',tab:'pageReports'});return;
+  }
+  if(currentActiveTab==='pageDashboard'){_appBackStack.length=0;performRealExit();return;}
+  let previous;while(_appBackStack.length){const tab=_appBackStack.pop();if(tab!==currentActiveTab&&TABS_ORDER.includes(tab)){previous=tab;break;}}
+  navigateToTab(previous||'pageDashboard',false);
 }
 
 window.addEventListener('beforeunload', (e) => {
@@ -4812,16 +4786,11 @@ function initVoucherSelectorView() {
   document.getElementById('cashFlowCard').classList.add('hidden');
   document.getElementById('multiVoucherCard')?.classList.add('hidden');
 }
-function setVoucherFormHistory(mode){
-  const selectorVisible=!document.getElementById('voucherSelectorCard')?.classList.contains('hidden');
-  const state={page:'voucher_form',tab:'pageExpenses',voucherMode:mode};
-  if(selectorVisible) window.history.pushState(state,'');
-  else window.history.replaceState(state,'');
-}
+function setVoucherFormHistory(mode){recordAppHistory({page:'voucher_form',tab:'pageExpenses',voucherMode:mode});}
 function backToVoucherSelector() {
   multiVoucherDraftId='';
   initVoucherSelectorView();
-  window.history.replaceState({page:'tab',tab:'pageExpenses'},'');
+  recordAppHistory({page:'tab',tab:'pageExpenses'});
 }
 function selectVoucherTypeDirect(mode) {
   setVoucherFormHistory(mode);
@@ -5516,9 +5485,7 @@ function initReportsTab(mode='accounts', autoOpen=true) {
     if (autoOpen) requestAnimationFrame(() => selReportAccount.input.focus());
   }
 }
-function pushReportSectionHistory(which){
-  if(currentActiveTab==='pageReports') window.history.pushState({page:'report_section',tab:'pageReports',reportSection:which},'');
-}
+function pushReportSectionHistory(which){if(currentActiveTab==='pageReports')recordAppHistory({page:'report_section',tab:'pageReports',reportSection:which});}
 document.getElementById('btnRptBudget')?.addEventListener('click', () => toggleReportView('budget',true));
 document.getElementById('btnRptAccounts')?.addEventListener('click', () => openAccountStatementSearch(true));
 document.getElementById('reportsGroupBudgetHeader')?.addEventListener('click', () => {
@@ -7000,23 +6967,42 @@ function initPrivacyToggle() {
 // - يحاول أيضاً إغلاق التبويب/التطبيق فعلياً؛ لكن المتصفحات لأسباب أمنية تمنع أي صفحة من
 //   إغلاق نفسها تلقائياً إلا إذا كانت هي من فتحت النافذة أصلاً بكود جافاسكربت، فإن لم ينجح
 //   الإغلاق التلقائي (وهذا هو الغالب)، تظهر رسالة صريحة تطلب من المستخدم إغلاق التبويب بنفسه.
-function initExitButton() {
-  const btn = document.getElementById('exitAppBtn');
-  if (!btn) return;
-  btn.addEventListener('click', () => {
-    if (!confirm('هل تريد الخروج من التطبيق الآن؟ سيتم قفل بياناتك فوراً.')) return;
-    performRealExit();
-  });
+function initExitButton(){
+  const button=document.getElementById('exitAppBtn');if(!button||button.dataset.exitBound)return;
+  button.dataset.exitBound='true';button.addEventListener('click',performRealExit);
 }
 
-async function performRealExit(){
-  try{
-    if(_draftTimer){clearTimeout(_draftTimer);_draftTimer=null;const d=captureSingleDraft();if(d.amount||d.note||d.recipient)store.set('single_voucher_draft_v1',d);}
-    await flushStorage();
-    if(_pendingFinancialCompletion){const after=_pendingFinancialCompletion;_pendingFinancialCompletion=null;after();}
-    const cfg=getSecurityConfig();if(cfg.enabled){_vaultCryptoKey=null;_vaultUnlocked=false;for(const key of Object.keys(_memStore))delete _memStore[key];try{sessionStorage.removeItem(SESSION_KEY_CACHE);}catch(_){ }}
-    hasUnsavedChanges=false;try{window.close();}catch(_){ }showExitedScreen(cfg.enabled);
-  }catch(_){hideExitModal();showToast('لم يكتمل الحفظ؛ احتفظ بالتطبيق مفتوحاً وأعد محاولة الحفظ.','error',7000);}
+function performRealExit(){
+  if(_exitPromise)return _exitPromise;if(_appExited)return Promise.resolve(true);
+  allowExit=false;
+  const controls=[...document.querySelectorAll('input,select,textarea,button')].map(element=>({element,disabled:element.disabled}));controls.forEach(({element})=>{element.disabled=true;});
+  const buttons=[...document.querySelectorAll('#confirmExitAppBtn,#exitAppBtn,[data-sidebar-action="exit"]')];
+  buttons.forEach(button=>{button.disabled=true;button.dataset.exitLabel=button.innerHTML;button.textContent='جارٍ الحفظ والخروج…';});
+  _exitPromise=(async()=>{
+    try{
+      if(_pendingFinancialCompletion){await flushStorage();const after=_pendingFinancialCompletion;_pendingFinancialCompletion=null;after?.();}
+      clearTimeout(_draftTimer);_draftTimer=null;
+      if(currentActiveTab==='pageExpenses'){
+        if(!document.getElementById('multiVoucherCard')?.classList.contains('hidden')&&multiVoucherLines.some(line=>line.account||line.amount||line.note)){
+          const draft=buildMultiVoucherData('draft');store.set('multi_voucher_drafts',[...store.get('multi_voucher_drafts',[]).filter(item=>item.id!==draft.id),draft]);
+        }else if(!document.getElementById('cashFlowCard')?.classList.contains('hidden')){const draft=captureSingleDraft();if(draft.amount||draft.note||draft.recipient)store.set('single_voucher_draft_v1',draft);}
+      }
+      await flushStorage();const cfg=getSecurityConfig();
+      clearTimeout(_draftTimer);clearTimeout(_reminderTimer);clearTimeout(_autoBackupTimer);clearTimeout(_storageTimer);
+      _vaultCryptoKey=null;_vaultUnlocked=false;for(const key of Object.keys(_memStore))delete _memStore[key];
+      try{sessionStorage.removeItem(SESSION_KEY_CACHE);}catch(_){ }
+      hasUnsavedChanges=false;allowExit=true;_appExited=true;_appBackStack.length=0;
+      showExitedScreen(cfg.enabled);
+      let nativeExit=false;
+      if(typeof navigator.app?.exitApp==='function'){try{navigator.app.exitApp();nativeExit=true;}catch(_){ }}
+      if(!nativeExit){try{window.close();}catch(_){ }if(!window.closed&&_appHistoryInitialized&&history.state?.ratibGuard)history.back();}
+      return true;
+    }catch(_){
+      allowExit=false;hideExitModal();showToast('لم يكتمل الحفظ؛ بقي التطبيق مفتوحاً. أعد محاولة الحفظ ثم الخروج.','error',7000);
+      controls.forEach(({element,disabled})=>{element.disabled=disabled;});buttons.forEach(button=>{button.innerHTML=button.dataset.exitLabel;delete button.dataset.exitLabel;});return false;
+    }
+  })();
+  const pending=_exitPromise;pending.then(result=>{if(!result&&_exitPromise===pending)_exitPromise=null;});return pending;
 }
 
 function showExitedScreen(wasSecured) {
@@ -7131,7 +7117,7 @@ function showExitedScreen(wasSecured) {
 
 /* ===== Sidebar navigation and budget layout decoration ===== */
 (function installSidebarAndBudgetLayout(){
-  const VERSION='3.1.2';
+  const VERSION='3.1.3';
   const sidebar=document.getElementById('appSidebar'), overlay=document.getElementById('sidebarOverlay');
   const close=()=>{sidebar?.classList.remove('show');overlay?.classList.remove('show');sidebar?.setAttribute('aria-hidden','true');overlay?.setAttribute('aria-hidden','true')};
   const open=()=>{sidebar?.classList.add('show');overlay?.classList.add('show');sidebar?.setAttribute('aria-hidden','false');overlay?.setAttribute('aria-hidden','false');document.getElementById('closeSidebarBtn')?.focus()};
@@ -7139,7 +7125,7 @@ function showExitedScreen(wasSecured) {
   function drive(){close();navigateToTab('pageSettings',true);setTimeout(()=>{const el=document.getElementById('cloudBackupSection');el?.scrollIntoView({behavior:'smooth',block:'center'});if(el)el.style.outline='3px solid color-mix(in srgb,var(--accent) 25%,transparent)';setTimeout(()=>{if(el)el.style.outline=''},1800)},80)}
   const contactMenu=document.getElementById('sidebarContactMenu'),contactToggle=document.getElementById('sidebarContactToggle');contactToggle?.addEventListener('click',e=>{e.stopPropagation();const openNow=contactMenu.classList.toggle('open');contactToggle.setAttribute('aria-expanded',String(openNow));const arrow=contactToggle.querySelector('.contact-options-arrow');if(arrow)arrow.textContent=openNow?'▲':'▼'});
   document.getElementById('sidebarMenuBtn')?.addEventListener('click',open);document.getElementById('closeSidebarBtn')?.addEventListener('click',close);overlay?.addEventListener('click',close);document.addEventListener('keydown',e=>{if(e.key==='Escape')close()});
-  sidebar?.querySelectorAll('[data-sidebar-action]').forEach(btn=>btn.addEventListener('click',()=>{const a=btn.dataset.sidebarAction;close();if(a==='backup')exportBackupFile();else if(a==='restore')document.getElementById('importFileInput')?.click();else if(a==='drive')drive();else if(a==='accounts')navigateToTab('pageAccountsTree',true);else if(a==='settings')navigateToTab('pageSettings',true);else if(a==='about')about();else if(a==='exit')showExitModal()}));
+  sidebar?.querySelectorAll('[data-sidebar-action]').forEach(btn=>btn.addEventListener('click',()=>{const a=btn.dataset.sidebarAction;close();if(a==='backup')exportBackupFile();else if(a==='restore')document.getElementById('importFileInput')?.click();else if(a==='drive')drive();else if(a==='accounts')navigateToTab('pageAccountsTree',true);else if(a==='settings')navigateToTab('pageSettings',true);else if(a==='about')about();else if(a==='exit')performRealExit()}));
   function decorateBudgetLayout(){
     const tools=document.getElementById('budgetToolsHost'), reports=document.getElementById('budgetReportHost');
     tools?.classList.add('budget-tools-host');reports?.classList.add('budget-report-host');
@@ -7271,7 +7257,7 @@ function restoreSingleDraft(){
 }
 
 function scheduleReminderCheck(){
-  clearTimeout(_reminderTimer);if(document.hidden)return;
+  clearTimeout(_reminderTimer);if(document.hidden||_appExited)return;
   checkAndNotifyDueReminders();
   const notified=new Set(getNotifiedReminderKeys()),now=Date.now();let next=Infinity;
   for(const r of getReminders()){if(notified.has(reminderKey(r)))continue;const when=new Date(`${r.date}T${r.time||'09:00'}:00`).getTime();if(Number.isFinite(when)&&when>now)next=Math.min(next,when-now);}
@@ -7279,6 +7265,7 @@ function scheduleReminderCheck(){
 }
 
 function initCompatibilityImprovements(){
+  initExitButton();
   const currency=document.getElementById('currency');if(currency){currency.value=store.get('preferred_currency','YER');if(!KNOWN_CURRENCIES.has(currency.value))currency.value='YER';currency.addEventListener('change',()=>{store.set('preferred_currency',currency.value);ledgerVisibleLimit=50;updateProDashboard();if(activeReportTab==='budget')runBudgetReport();});}
   document.getElementById('dashboardPeriod')?.addEventListener('change',updateProDashboard);
   document.getElementById('retryStorageBtn')?.addEventListener('click',retryPersistentSave);
@@ -7286,12 +7273,13 @@ function initCompatibilityImprovements(){
   document.getElementById('saveAndAddVoucherBtn')?.addEventListener('click',()=>{_saveAndAddAnother=true;document.getElementById('commitVoucherBtn').click();});
   document.getElementById('cashFlowCard')?.addEventListener('input',saveSingleDraftSoon);document.getElementById('cashFlowCard')?.addEventListener('change',saveSingleDraftSoon);
   document.getElementById('enableReminderNotificationsBtn')?.addEventListener('click',async()=>{if(typeof Notification==='undefined'){showToast('إشعارات النظام غير مدعومة؛ التذكيرات داخل التطبيق تعمل.','info');return;}const permission=await Notification.requestPermission();showToast(permission==='granted'?'تم تفعيل إشعارات التذكيرات':'ستستمر التذكيرات داخل التطبيق',permission==='granted'?'success':'info');scheduleReminderCheck();});
-  document.addEventListener('visibilitychange',()=>{if(document.hidden){clearTimeout(_reminderTimer);flushStorage().catch(()=>{});}else{scheduleReminderCheck();updateProDashboard();}});
+  document.addEventListener('visibilitychange',()=>{if(_appExited)return;if(document.hidden){clearTimeout(_reminderTimer);flushStorage().catch(()=>{});}else{scheduleReminderCheck();updateProDashboard();}});
   document.addEventListener('keydown',e=>{
+    if(_appExited||_exitPromise)return;
     if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='s'&&currentActiveTab==='pageExpenses'){e.preventDefault();if(!document.getElementById('multiVoucherCard').classList.contains('hidden'))saveMultiDraft();else if(!document.getElementById('cashFlowCard').classList.contains('hidden'))document.getElementById('commitVoucherBtn').click();}
     if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='k'){e.preventDefault();openGlobalSearch();}
   });
-  document.addEventListener('click',e=>{if(!_pendingFinancialCompletion)return;if(e.target.closest('#commitVoucherBtn,#commitMultiVoucherBtn,#saveTxExecutionBtn,.single-del-btn,#deleteDocBtn,#clearAllTxsBtn')){e.stopImmediatePropagation();e.preventDefault();if(_storageError)retryPersistentSave();else showToast('انتظر اكتمال حفظ العملية السابقة.','info');}},true);
+  document.addEventListener('click',e=>{if(_exitPromise&&!_appExited){e.stopImmediatePropagation();e.preventDefault();return;}if(!_pendingFinancialCompletion)return;if(e.target.closest('#commitVoucherBtn,#commitMultiVoucherBtn,#saveTxExecutionBtn,.single-del-btn,#deleteDocBtn,#clearAllTxsBtn')){e.stopImmediatePropagation();e.preventDefault();if(_storageError)retryPersistentSave();else showToast('انتظر اكتمال حفظ العملية السابقة.','info');}},true);
   document.querySelectorAll('.settings-accordion-header').forEach(el=>{el.tabIndex=0;el.setAttribute('role','button');el.setAttribute('aria-expanded',String(!!el.parentElement.querySelector('.settings-accordion-body.open')));el.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();el.click();}});});
   document.querySelectorAll('.modal-overlay').forEach(el=>{el.setAttribute('role','dialog');el.setAttribute('aria-modal','true');});
   document.getElementById('voucherAmountInput')?.setAttribute('aria-label','إجمالي مبلغ السند');
@@ -7442,6 +7430,22 @@ async function shareBudgetPdf(){
 }
 
 
+
+function recordAppHistory(state={}){
+  if(_appExited)return;
+  history.replaceState({...state,ratibGuard:_appHistoryInitialized},'');
+}
+
+function handleRatibPopState(){
+  if(allowExit||_appExited)return;
+  // One guard is restored after a hardware/browser Back, instead of replaying old app states.
+  if(_appHistoryInitialized&&!history.state?.ratibGuard)history.pushState({page:'ratib_app_entry',tab:currentActiveTab,ratibGuard:true},'');
+  const lock=document.getElementById('lockScreen');if(lock?.style.display==='flex')return;
+  goBackInApp();
+}
+
+const _appBackStack=[];
+let _appHistoryInitialized=false,_appExited=false,_exitPromise=null;
 
 let ledgerNeedsRender=true;
 

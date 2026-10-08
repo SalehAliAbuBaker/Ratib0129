@@ -601,6 +601,8 @@ body{font-weight:500;line-height:1.55}
 button,input,select,textarea{font-family:inherit}
 button{user-select:none}
 .logo{font-weight:800;font-size:1.25rem;line-height:1.4}
+.header-tools{display:flex;flex-direction:column;align-items:center;gap:4px;flex-shrink:0}.app-version{font-size:.72rem;font-weight:500;color:var(--muted);line-height:1.2;white-space:nowrap}.header-tools .header-actions{margin-inline-start:0}
+#persistentSaveStatus,#lastSavedLabel,#offlineReadyStatus{display:none!important}
 .logo{display:flex;align-items:center;gap:10px;min-width:0}.logo span{min-width:0}.app-brand-icon{width:44px;height:44px;object-fit:contain;flex-shrink:0;border-radius:9px}
 .wrap{max-width:1180px}
 .main-menu-icon svg{display:block;width:32px;height:32px;color:var(--accent)}
@@ -675,14 +677,14 @@ button:focus-visible,[role="button"]:focus-visible,a:focus-visible{outline:3px s
 
   <header class="no-print">
     <div class="logo"><img class="app-brand-icon" src="Icons/icon-192.png" width="44" height="44" alt="" decoding="async"><span>راتب للتنظيم والتدبير المالي</span></div>
-    <div class="header-actions">
+    <div class="header-tools"><div class="header-actions">
       <button class="icon-btn" id="privacyBtn" title="وضع الخصوصية">👁️</button>
       <button class="icon-btn" id="themeBtn" title="الوضع الليلي">🌙</button>
       <button class="icon-btn" id="sidebarMenuBtn" title="القائمة الجانبية" aria-label="فتح القائمة الجانبية">☰</button>
-    </div>
+    </div><small id="appVersionLabel" class="app-version">الإصدار 3.1.4</small></div>
   </header>
-  <div class="summary-toolbar no-print"><label for="currency">عملة الملخصات</label><select id="currency" aria-label="عملة الملخصات"><option value="YER">ريال يمني</option><option value="SAR">ريال سعودي</option><option value="USD">دولار أمريكي</option></select><span id="persistentSaveStatus" role="status" aria-live="polite">جاهز</span><button type="button" id="retryStorageBtn" class="btn btn-ghost hidden">إعادة محاولة الحفظ</button></div>
-<div class="app-update-banner hidden no-print" id="appUpdateBanner"><span>يتوفر تحديث لراتب</span><button type="button" class="btn btn-ghost" id="applyAppUpdateBtn">حفظ المسودة والتحديث</button></div>
+  <div class="summary-toolbar no-print"><label for="currency">عملة الملخصات</label><select id="currency" aria-label="عملة الملخصات"><option value="YER">ريال يمني</option><option value="SAR">ريال سعودي</option><option value="USD">دولار أمريكي</option></select><span id="persistentSaveStatus" hidden aria-hidden="true">جاهز</span><button type="button" id="retryStorageBtn" class="btn btn-ghost hidden">إعادة محاولة الحفظ</button></div>
+<div class="app-update-banner hidden no-print" id="appUpdateBanner" role="status"><span id="appUpdateMessage">يتوفر تحديث لراتب. هل تريد تطبيقه؟</span><button type="button" class="btn btn-ghost" id="applyAppUpdateBtn">حفظ المسودة والتحديث</button></div>
 
 
   <div class="sidebar-overlay no-print" id="sidebarOverlay" aria-hidden="true"></div>
@@ -705,7 +707,7 @@ button:focus-visible,[role="button"]:focus-visible,a:focus-visible{outline:3px s
           <a href="mailto:saleh0129@gmail.com">✉️ المراسلة عبر Gmail <small dir="ltr">saleh0129@gmail.com</small></a>
         </div>
       </div>
-      <button type="button" data-sidebar-action="about">ⓘ <span>حول البرنامج</span><small>الإصدار 3.1.3</small></button>
+      <button type="button" data-sidebar-action="about">ⓘ <span>حول البرنامج</span><small>الإصدار 3.1.4</small></button>
       <button type="button" class="sidebar-danger" data-sidebar-action="exit">🚪 <span>خروج</span></button>
     </nav>
   </aside>
@@ -714,7 +716,7 @@ button:focus-visible,[role="button"]:focus-visible,a:focus-visible{outline:3px s
     <span>⬅️ العودة للقوائم الرئيسية</span>
   </button>
 
-  <p class="offline-ready no-print" id="offlineReadyStatus" role="status"></p>
+  <p hidden aria-hidden="true" class="offline-ready no-print" id="offlineReadyStatus"></p>
   <div class="install-banner" id="installBanner"><span>ثبّت راتب على جوالك للوصول السريع والعمل كأنه تطبيق.</span><button id="installAppBtn">تثبيت</button></div>
   
   <div id="pageDashboard" class="">
@@ -744,7 +746,7 @@ button:focus-visible,[role="button"]:focus-visible,a:focus-visible{outline:3px s
         <div class="carousel-track">
           <section class="carousel-slide" id="pageDashboardKpi" aria-label="لوحة القيادة">
             <div class="card no-print" id="proDashboardCard">
-              <h2><span>⚡ لوحة القيادة</span><span id="lastSavedLabel" style="font-size:0.95rem;color:var(--muted);font-weight:700">جاهز</span></h2>
+              <h2><span>⚡ لوحة القيادة</span><span hidden aria-hidden="true" id="lastSavedLabel" style="font-size:0.95rem;color:var(--muted);font-weight:700">جاهز</span></h2>
               <div class="dashboard-period no-print"><label for="dashboardPeriod">الفترة</label><select id="dashboardPeriod"><option value="all">كافة العمليات</option><option value="current">الشهر الحالي</option></select></div>
               <div id="proAlertsBox" style="font-size:1.05rem;font-weight:700;color:var(--muted)"></div>
               <button class="open-tasks-cta" type="button" onclick="goCarousel('dashboardCarousel',1)">
@@ -1724,8 +1726,8 @@ button:focus-visible,[role="button"]:focus-visible,a:focus-visible{outline:3px s
       <h3 style="font-size: 1.3rem; font-weight:700; margin-bottom: 6px; color: var(--text);">تأكيد الخروج</h3>
       <p style="font-size: 1.05rem; color: var(--muted); font-weight:700; margin-bottom: 14px;">هل تريد بالفعل إغلاق تطبيق راتب والخروج منه؟</p>
       <div style="display: flex; gap: 8px;">
-        <button class="btn btn-danger" id="confirmExitAppBtn" style="flex: 1; margin-top: 0;">نعم، خروج</button>
-        <button class="btn btn-ghost" id="cancelExitAppBtn" style="flex: 1; margin-top: 0;">البقاء بالتطبيق</button>
+        <button class="btn btn-danger" id="confirmExitAppBtn" type="button" style="flex: 1; margin-top: 0;">موافق</button>
+        <button class="btn btn-ghost" id="cancelExitAppBtn" type="button" style="flex: 1; margin-top: 0;">البقاء في التطبيق</button>
       </div>
     </div>
   </div>
@@ -1885,27 +1887,42 @@ button:focus-visible,[role="button"]:focus-visible,a:focus-visible{outline:3px s
 // ===== تسجيل Service Worker (يفعّل العمل دون إنترنت بعد أول زيارة) =====
 // يُسجَّل بعد اكتمال تحميل الصفحة حتى لا يؤخر أول عرض للتطبيق. يعمل فقط عبر HTTPS
 // (أو localhost أثناء التطوير) — هذا شرط أساسي من المتصفح نفسه لأي Service Worker.
+let _briefAppNoticeTimer=null;
+function showTransientAppNotice(message,duration=2800){
+  if(_appExited)return;const banner=document.getElementById('appUpdateBanner'),label=document.getElementById('appUpdateMessage'),button=document.getElementById('applyAppUpdateBtn');
+  if(!banner||banner.dataset.pending==='true')return;clearTimeout(_briefAppNoticeTimer);if(label)label.textContent=message;button?.classList.add('hidden');banner.classList.remove('hidden');
+  _briefAppNoticeTimer=setTimeout(()=>{if(banner.dataset.pending!=='true')banner.classList.add('hidden');},duration);
+}
 if('serviceWorker' in navigator){
   window.addEventListener('load',()=>{
     let requestedReload=false;
     navigator.serviceWorker.register('./sw.js').then(reg=>{
       const banner=document.getElementById('appUpdateBanner'),button=document.getElementById('applyAppUpdateBtn');
-      const showUpdate=()=>{if(reg.waiting&&banner)banner.classList.remove('hidden');};
+      const showUpdate=()=>{if(reg.waiting&&banner){clearTimeout(_briefAppNoticeTimer);banner.dataset.pending='true';document.getElementById('appUpdateMessage').textContent='يتوفر تحديث لراتب. هل تريد تطبيقه؟';button?.classList.remove('hidden');banner.classList.remove('hidden');}};
       showUpdate();reg.addEventListener('updatefound',()=>{const worker=reg.installing;if(worker)worker.addEventListener('statechange',()=>{if(worker.state==='installed'&&navigator.serviceWorker.controller)showUpdate();});});
       button?.addEventListener('click',async()=>{
         button.disabled=true;
         try{
+          if(_pendingFinancialCompletion){await retryPersistentSave();if(_pendingFinancialCompletion)throw Error('Pending financial save');}
           if(currentActiveTab==='pageExpenses'){
             if(!document.getElementById('multiVoucherCard').classList.contains('hidden'))await saveMultiDraft();
             else if(!document.getElementById('cashFlowCard').classList.contains('hidden')){const d=captureSingleDraft();if(d.amount||d.note||d.recipient)store.set('single_voucher_draft_v1',d);}
           }
-          await flushStorage();if(!reg.waiting){showToast('لا يوجد تحديث معلّق الآن.','info');button.disabled=false;return;}
+          await flushStorage();if(!reg.waiting){banner.dataset.pending='false';showTransientAppNotice('لا يوجد تحديث معلّق الآن.');button.disabled=false;return;}
+          document.getElementById('appUpdateMessage').textContent='تم حفظ البيانات. جارٍ تطبيق التحديث…';try{sessionStorage.setItem('ratib_update_applied_notice','1');}catch(_){ }
           requestedReload=true;reg.waiting.postMessage({type:'SKIP_WAITING'});
         }catch(_){button.disabled=false;showToast('أكمل حفظ البيانات قبل تطبيق التحديث.','error');}
       });
       navigator.serviceWorker.addEventListener('controllerchange',()=>{if(requestedReload){hasUnsavedChanges=false;location.reload();}});
-    }).catch(()=>{const status=document.getElementById('offlineReadyStatus');if(status)status.textContent='لم يكتمل تجهيز العمل دون الإنترنت';});
-    navigator.serviceWorker.addEventListener('message',event=>{const status=document.getElementById('offlineReadyStatus');if(!status)return;if(event.data?.type==='OFFLINE_READY')status.textContent='جاهز للعمل دون الإنترنت';else if(event.data?.type==='OFFLINE_UNAVAILABLE')status.textContent='افتح التطبيق مع الإنترنت لإكمال تجهيز موارده';});
+    }).catch(()=>showTransientAppNotice('لم يكتمل تجهيز العمل دون الإنترنت.'));
+    navigator.serviceWorker.addEventListener('message',event=>{
+      if(_appExited)return;const status=document.getElementById('offlineReadyStatus');if(status)status.hidden=true;
+      if(event.data?.type==='OFFLINE_READY'){
+        if(status)status.textContent='جاهز للعمل دون الإنترنت';const version=event.data.version||'';let previous=null,updated=false;
+        try{previous=localStorage.getItem('ratib_offline_notice_version');if(version)localStorage.setItem('ratib_offline_notice_version',version);updated=sessionStorage.getItem('ratib_update_applied_notice')==='1';sessionStorage.removeItem('ratib_update_applied_notice');}catch(_){ }
+        if(updated||version&&previous!==version)showTransientAppNotice(updated?'اكتمل التحديث وحُفظت البيانات. جاهز للعمل دون الإنترنت.':'جاهز للعمل دون الإنترنت.');
+      }else if(event.data?.type==='OFFLINE_UNAVAILABLE')showTransientAppNotice('افتح التطبيق مع الإنترنت لإكمال تجهيز موارده.');
+    });
     navigator.serviceWorker.ready.then(reg=>{reg.active?.postMessage({type:'OFFLINE_STATUS'});});
   });
 }
@@ -2004,10 +2021,12 @@ function _snapshotMemStore(){
   Object.keys(_memStore).forEach(k=>{if(k.startsWith(APP_STORAGE_PREFIX)&&!_storageInternalKeys.has(k))out[k]=_memStore[k];});
   return out;
 }
+let _lastPersistenceState=null;
 function setPersistenceStatus(state){
   for(const id of ['lastSavedLabel','persistentSaveStatus']){const el=document.getElementById(id);
-  if(el){el.textContent=state==='saving'?'جارٍ الحفظ…':state==='error'?'تعذّر الحفظ — أعد المحاولة':state==='dirty'?'تغييرات قيد الحفظ':'محفوظ';el.dataset.state=state;el.setAttribute('role','status');el.setAttribute('aria-live','polite');}}
+  if(el){el.textContent=state==='saving'?'جارٍ الحفظ…':state==='error'?'تعذّر الحفظ — أعد المحاولة':state==='dirty'?'تغييرات قيد الحفظ':'محفوظ';el.dataset.state=state;el.hidden=true;el.setAttribute('aria-hidden','true');}}
   const retry=document.getElementById('retryStorageBtn');if(retry)retry.classList.toggle('hidden',state!=='error');
+  if(state==='error'&&_lastPersistenceState!=='error')showToast('تعذّر الحفظ. أعد المحاولة قبل إغلاق التطبيق.','error',6000);_lastPersistenceState=state;
 }
 function getSecurityConfig(){
   if(_securityConfigCache)return _securityConfigCache;
@@ -3996,8 +4015,9 @@ function navigateToTab(target, pushToHistory = true) {
   if(_appExited||_exitPromise)return;
   const next=target||'pageDashboard';
   if(next==='pageDashboard')_appBackStack.length=0;
-  else if(pushToHistory&&currentActiveTab&&currentActiveTab!==next){_appBackStack.push(currentActiveTab);if(_appBackStack.length>50)_appBackStack.shift();}
+  else if(pushToHistory&&currentActiveTab&&currentActiveTab!==next)rememberAppView();
   recordAppHistory({page:'tab',tab:next});
+  document.getElementById('appVersionLabel')?.classList.toggle('hidden',next!=='pageDashboard');
   const backBtn = document.getElementById('backToMenuBtn');
   TABS_ORDER.forEach(id => document.getElementById(id).classList.add('hidden'));
 
@@ -4027,8 +4047,11 @@ function navigateToTab(target, pushToHistory = true) {
 
 }
 
-function showExitModal() { document.getElementById('exitConfirmModal').classList.add('show'); }
-function hideExitModal() { document.getElementById('exitConfirmModal').classList.remove('show'); }
+function showExitModal(){
+  if(_exitPromise||_appExited)return;_exitReturnFocus=document.activeElement;
+  document.getElementById('exitConfirmModal').classList.add('show');document.getElementById('cancelExitAppBtn').focus({preventScroll:true});
+}
+function hideExitModal(){document.getElementById('exitConfirmModal')?.classList.remove('show');if(_exitReturnFocus?.isConnected&&!_exitReturnFocus.disabled)_exitReturnFocus.focus({preventScroll:true});}
 
 document.getElementById('cancelExitAppBtn').addEventListener('click',hideExitModal);
 document.getElementById('confirmExitAppBtn').addEventListener('click',performRealExit);
@@ -4040,25 +4063,15 @@ function goBackInApp(){
   const sidebar=document.getElementById('appSidebar');
   if(sidebar?.classList.contains('show')){document.getElementById('closeSidebarBtn')?.click();return;}
   const modals=[...document.querySelectorAll('.modal-overlay.show')];
-  if(modals.length){const modal=modals.at(-1);modal.classList.remove('show');return;}
+  if(modals.length){const modal=modals.at(-1);if(modal.id==='exitConfirmModal')hideExitModal();else modal.classList.remove('show');return;}
   if(document.getElementById('accountScreenMenu')?.classList.contains('open')){closeAccountScreenMenu();return;}
   const advanced=document.getElementById('accountAdvancedSearchPanel');
   if(currentActiveTab==='pageAccountOperations'&&advanced&&!advanced.classList.contains('hidden')){advanced.classList.add('hidden');return;}
-  if(currentActiveTab==='pageExpenses'){
-    if(!document.getElementById('cashFlowCard')?.classList.contains('hidden')||!document.getElementById('multiVoucherCard')?.classList.contains('hidden')){
-      initVoucherSelectorView();recordAppHistory({page:'tab',tab:'pageExpenses'});return;
-    }
-    if(multiVoucherDraftId&&multiVoucherReturnTab&&multiVoucherReturnTab!=='pageExpenses'){
-      multiVoucherDraftId='';navigateToTab(multiVoucherReturnTab,false);return;
-    }
-  }
+  if(currentActiveTab==='pageDashboard'){_appBackStack.length=0;showExitModal();return;}
+  const previous=_appBackStack.pop();if(previous){restoreAppView(typeof previous==='string'?{tab:previous}:previous);return;}
+  if(currentActiveTab==='pageExpenses'&&(!document.getElementById('cashFlowCard')?.classList.contains('hidden')||!document.getElementById('multiVoucherCard')?.classList.contains('hidden'))){initVoucherSelectorView();return;}
   if(currentActiveTab==='pageAccountOperations'){navigateToTab(accountOperationsReturnTab||'pageAccountsTree',false);return;}
-  if(currentActiveTab==='pageReports'&&document.querySelector('#reportsGroupStatementBody.open,#reportsGroupBudgetBody.open,#reportsGroupTrialBody.open')){
-    closeAllReportsSections();recordAppHistory({page:'tab',tab:'pageReports'});return;
-  }
-  if(currentActiveTab==='pageDashboard'){_appBackStack.length=0;performRealExit();return;}
-  let previous;while(_appBackStack.length){const tab=_appBackStack.pop();if(tab!==currentActiveTab&&TABS_ORDER.includes(tab)){previous=tab;break;}}
-  navigateToTab(previous||'pageDashboard',false);
+  navigateToTab('pageDashboard',false);
 }
 
 window.addEventListener('beforeunload', (e) => {
@@ -4427,11 +4440,7 @@ class SearchableSelect {
       const clearBtn = this.wrap.querySelector('.search-clear-btn'); if (clearBtn) clearBtn.classList.add('hidden');
       const matches = this.renderDropdown(query);
       this.open();
-      if (query && matches.length === 1) {
-        // إكمال تلقائي: لما النتيجة تتطابق مع عنصر وحيد بالقائمة، يُدرج اسمه مباشرة
-        // بخانة البحث ويُختار فعلياً دون الحاجة لضغط المستخدم عليه يدوياً.
-        this.choose(matches[0]);
-      }
+
     });
     this.input.addEventListener('keydown', (e) => this.handleKey(e));
     document.addEventListener('click', (e) => { if (!this.wrap.contains(e.target)) this.close(); });
@@ -4786,12 +4795,8 @@ function initVoucherSelectorView() {
   document.getElementById('cashFlowCard').classList.add('hidden');
   document.getElementById('multiVoucherCard')?.classList.add('hidden');
 }
-function setVoucherFormHistory(mode){recordAppHistory({page:'voucher_form',tab:'pageExpenses',voucherMode:mode});}
-function backToVoucherSelector() {
-  multiVoucherDraftId='';
-  initVoucherSelectorView();
-  recordAppHistory({page:'tab',tab:'pageExpenses'});
-}
+function setVoucherFormHistory(mode,remember=true){if(remember&&!_restoringAppView&&!document.getElementById('voucherSelectorCard')?.classList.contains('hidden'))rememberAppView();recordAppHistory({page:'voucher_form',tab:'pageExpenses',voucherMode:mode});}
+function backToVoucherSelector(){goBackInApp();}
 function selectVoucherTypeDirect(mode) {
   setVoucherFormHistory(mode);
   currentVoucherMode = mode;
@@ -5485,7 +5490,7 @@ function initReportsTab(mode='accounts', autoOpen=true) {
     if (autoOpen) requestAnimationFrame(() => selReportAccount.input.focus());
   }
 }
-function pushReportSectionHistory(which){if(currentActiveTab==='pageReports')recordAppHistory({page:'report_section',tab:'pageReports',reportSection:which});}
+function pushReportSectionHistory(which){if(currentActiveTab==='pageReports'){rememberAppView();recordAppHistory({page:'report_section',tab:'pageReports',reportSection:which});}}
 document.getElementById('btnRptBudget')?.addEventListener('click', () => toggleReportView('budget',true));
 document.getElementById('btnRptAccounts')?.addEventListener('click', () => openAccountStatementSearch(true));
 document.getElementById('reportsGroupBudgetHeader')?.addEventListener('click', () => {
@@ -6413,6 +6418,7 @@ function renderAccountOperations(accountName,scopeNames=null,ui=null){
 }
 function openAccountFromPager(accountName, scopeNames=null, currency=null){
   if(!accountName)return;
+  if(currentActiveTab==='pageAccountOperations'&&accountOpsState.accountName!==accountName)rememberAppView();
   accountOperationsReturnTab=currentActiveTab==='pageAccountOperations'?'pageAccountsTree':(currentActiveTab||'pageAccountsTree');
   const sameAccount=accountOpsState.accountName===accountName;
   const previous={from:accountOpsState.from||'',to:accountOpsState.to||'',filtered:Boolean(accountOpsState.filtered),currency:accountOpsState.currency||'ALL'};
@@ -6549,7 +6555,7 @@ function buildAccountOperationsPdf(){
 async function shareCurrentAccountOperations(){try{const file=new File([buildAccountOperationsPdf()],`كشف-${accountOpsState.accountName||'حساب'}.pdf`,{type:'application/pdf'});if(navigator.share&&(!navigator.canShare||navigator.canShare({files:[file]}))){await navigator.share({title:`كشف حساب - ${accountOpsState.accountName}`,files:[file]});showToast('تمت مشاركة ملف PDF','success');}else{const url=URL.createObjectURL(file),a=document.createElement('a');a.href=url;a.download=file.name;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);showToast('تم إنشاء ملف PDF وتنزيله للمشاركة','success');}}catch(e){if(e.name!=='AbortError'){showToast('تعذر إنشاء ملف PDF، سيتم فتح الطباعة للحفظ كـ PDF','warn');printCurrentAccountOperations();}}}
 const accountScreenMenuToggle=document.getElementById('accountScreenMenuToggle'),accountScreenMenu=document.getElementById('accountScreenMenu');
 accountScreenMenuToggle?.addEventListener('click',e=>{e.stopPropagation();const open=accountScreenMenu?.classList.toggle('open');accountScreenMenuToggle.setAttribute('aria-expanded',open?'true':'false');});
-function runAccountAction(action){if(!action)return;if(action==='advanced'){const panel=document.getElementById('accountAdvancedSearchPanel');const opening=panel?.classList.contains('hidden');panel?.classList.toggle('hidden');if(opening){const today=getLocalTodayISO?getLocalTodayISO():getLocalTodayISO(),from=document.getElementById('accountOpsFromDate'),to=document.getElementById('accountOpsToDate');if(from&&!from.value)from.value=today;if(to&&!to.value)to.value=today;}}else if(action==='print')printCurrentAccountOperations();else if(action==='share')shareCurrentAccountOperations();else if(action==='documentQuery')openGlobalSearch();else if(action==='close'){if(currentActiveTab==='pageAccountOperations'){navigateToTab(accountOperationsReturnTab||'pageAccountsTree',false);}else goBackInApp();}}
+function runAccountAction(action){if(!action)return;if(action==='advanced'){const panel=document.getElementById('accountAdvancedSearchPanel');const opening=panel?.classList.contains('hidden');panel?.classList.toggle('hidden');if(opening){const today=getLocalTodayISO?getLocalTodayISO():getLocalTodayISO(),from=document.getElementById('accountOpsFromDate'),to=document.getElementById('accountOpsToDate');if(from&&!from.value)from.value=today;if(to&&!to.value)to.value=today;}}else if(action==='print')printCurrentAccountOperations();else if(action==='share')shareCurrentAccountOperations();else if(action==='documentQuery')openGlobalSearch();else if(action==='close'){goBackInApp();}}
 accountScreenMenu?.addEventListener('click',e=>{e.stopPropagation();const btn=e.target.closest('button');if(!btn||btn.disabled)return;closeAccountScreenMenu();runAccountAction(btn.dataset.accountAction);});
 document.querySelector('.account-inline-actions')?.addEventListener('click',e=>{const btn=e.target.closest('button');if(!btn||btn.disabled)return;runAccountAction(btn.dataset.accountAction);});
 // استبدلنا حقلي التاريخ من type="date" إلى نص عادي بصيغة سنة-شهر-يوم: بعض متصفحات
@@ -6739,7 +6745,7 @@ function openMultiVoucherEditor(item){
   // إليها فعلياً، فكان يبدو للمستخدم إن التعديل لا يعمل إلا بالدخول يدوياً إلى الإضافة ← قيد متعدد.
   // الآن ننتقل مباشرة لنفس شاشة الإدخال بالسند مملوءاً بكل بياناته دفعة واحدة.
   navigateToTab('pageExpenses', true);
-  setVoucherFormHistory('multi-entry');
+  setVoucherFormHistory('multi-entry',false);
   const groupId=item.multiVoucherId||item.id,txs=getAllTransactions().filter(t=>t.isMultiVoucher&&(t.multiVoucherId===groupId||t.id===groupId)),source=item.multiVoucher||txs[0]?.multiVoucher||{};
   document.getElementById('voucherSelectorCard')?.classList.add('hidden');document.getElementById('cashFlowCard')?.classList.add('hidden');document.getElementById('multiVoucherCard')?.classList.remove('hidden');
   multiVoucherDraftId=groupId;document.getElementById('multiVoucherSeqBadge').textContent=`رقم: ${source.seq||item.seqNum||getNextMultiVoucherNumber()}`;document.getElementById('multiVoucherDate').value=source.date||item.isoDate||multiToday();document.getElementById('multiVoucherBeneficiary').value=source.beneficiary||'';document.getElementById('multiVoucherParty').value=source.party||'';document.getElementById('multiVoucherNote').value=source.note||'';document.getElementById('multiVoucherBaseCurrency').value=source.baseCurrency||item.currency||'YER';multiSourceAcc.setValue(source.sourceAccount||'','');
@@ -6969,7 +6975,7 @@ function initPrivacyToggle() {
 //   الإغلاق التلقائي (وهذا هو الغالب)، تظهر رسالة صريحة تطلب من المستخدم إغلاق التبويب بنفسه.
 function initExitButton(){
   const button=document.getElementById('exitAppBtn');if(!button||button.dataset.exitBound)return;
-  button.dataset.exitBound='true';button.addEventListener('click',performRealExit);
+  button.dataset.exitBound='true';button.addEventListener('click',showExitModal);
 }
 
 function performRealExit(){
@@ -7117,7 +7123,7 @@ function showExitedScreen(wasSecured) {
 
 /* ===== Sidebar navigation and budget layout decoration ===== */
 (function installSidebarAndBudgetLayout(){
-  const VERSION='3.1.3';
+  const VERSION='3.1.4';
   const sidebar=document.getElementById('appSidebar'), overlay=document.getElementById('sidebarOverlay');
   const close=()=>{sidebar?.classList.remove('show');overlay?.classList.remove('show');sidebar?.setAttribute('aria-hidden','true');overlay?.setAttribute('aria-hidden','true')};
   const open=()=>{sidebar?.classList.add('show');overlay?.classList.add('show');sidebar?.setAttribute('aria-hidden','false');overlay?.setAttribute('aria-hidden','false');document.getElementById('closeSidebarBtn')?.focus()};
@@ -7125,7 +7131,7 @@ function showExitedScreen(wasSecured) {
   function drive(){close();navigateToTab('pageSettings',true);setTimeout(()=>{const el=document.getElementById('cloudBackupSection');el?.scrollIntoView({behavior:'smooth',block:'center'});if(el)el.style.outline='3px solid color-mix(in srgb,var(--accent) 25%,transparent)';setTimeout(()=>{if(el)el.style.outline=''},1800)},80)}
   const contactMenu=document.getElementById('sidebarContactMenu'),contactToggle=document.getElementById('sidebarContactToggle');contactToggle?.addEventListener('click',e=>{e.stopPropagation();const openNow=contactMenu.classList.toggle('open');contactToggle.setAttribute('aria-expanded',String(openNow));const arrow=contactToggle.querySelector('.contact-options-arrow');if(arrow)arrow.textContent=openNow?'▲':'▼'});
   document.getElementById('sidebarMenuBtn')?.addEventListener('click',open);document.getElementById('closeSidebarBtn')?.addEventListener('click',close);overlay?.addEventListener('click',close);document.addEventListener('keydown',e=>{if(e.key==='Escape')close()});
-  sidebar?.querySelectorAll('[data-sidebar-action]').forEach(btn=>btn.addEventListener('click',()=>{const a=btn.dataset.sidebarAction;close();if(a==='backup')exportBackupFile();else if(a==='restore')document.getElementById('importFileInput')?.click();else if(a==='drive')drive();else if(a==='accounts')navigateToTab('pageAccountsTree',true);else if(a==='settings')navigateToTab('pageSettings',true);else if(a==='about')about();else if(a==='exit')performRealExit()}));
+  sidebar?.querySelectorAll('[data-sidebar-action]').forEach(btn=>btn.addEventListener('click',()=>{const a=btn.dataset.sidebarAction;close();if(a==='backup')exportBackupFile();else if(a==='restore')document.getElementById('importFileInput')?.click();else if(a==='drive')drive();else if(a==='accounts')navigateToTab('pageAccountsTree',true);else if(a==='settings')navigateToTab('pageSettings',true);else if(a==='about')about();else if(a==='exit')showExitModal()}));
   function decorateBudgetLayout(){
     const tools=document.getElementById('budgetToolsHost'), reports=document.getElementById('budgetReportHost');
     tools?.classList.add('budget-tools-host');reports?.classList.add('budget-report-host');
@@ -7265,7 +7271,7 @@ function scheduleReminderCheck(){
 }
 
 function initCompatibilityImprovements(){
-  initExitButton();
+  initExitButton();initExitDialog();
   const currency=document.getElementById('currency');if(currency){currency.value=store.get('preferred_currency','YER');if(!KNOWN_CURRENCIES.has(currency.value))currency.value='YER';currency.addEventListener('change',()=>{store.set('preferred_currency',currency.value);ledgerVisibleLimit=50;updateProDashboard();if(activeReportTab==='budget')runBudgetReport();});}
   document.getElementById('dashboardPeriod')?.addEventListener('change',updateProDashboard);
   document.getElementById('retryStorageBtn')?.addEventListener('click',retryPersistentSave);
@@ -7431,9 +7437,54 @@ async function shareBudgetPdf(){
 
 
 
+function captureAppView(){
+  const tab=currentActiveTab||'pageDashboard',page=document.getElementById(tab),view={tab,fields:[],selections:[]};
+  page?.querySelectorAll('input[id]:not([type="password"]),select[id],textarea[id]').forEach(el=>{view.fields.push({id:el.id,value:el.value,checked:el.checked});});
+  for(const selector of [selDebitAcc,selCreditAcc,selReportAccount,multiSourceAcc])if(selector&&page?.contains(selector.wrap))view.selections.push({id:selector.input.id,value:selector.getValue(),text:selector.input.value});
+  if(tab==='pageAccountOperations'){view.account=cloneData(accountOpsState);view.accountReturnTab=accountOperationsReturnTab;}
+  if(tab==='pageLedger')view.ledger={search:currentLedgerSearchQuery,status:currentLedgerStatusFilter,quick:currentLedgerQuickFilter,limit:ledgerVisibleLimit};
+  if(tab==='pageReports'){view.reportAdv=cloneData(reportAdv);view.statementSearch=currentStatementSearchQuery;}
+  if(tab==='pageReports'){view.reportMode=activeReportTab;view.reportSection=document.getElementById('reportsGroupTrialBody')?.classList.contains('open')?'trial':document.getElementById('reportsGroupBudgetBody')?.classList.contains('open')?'budget':document.getElementById('reportsGroupStatementBody')?.classList.contains('open')?'statement':null;}
+  if(tab==='pageExpenses'){
+    view.voucherView=!document.getElementById('multiVoucherCard')?.classList.contains('hidden')?'multi':!document.getElementById('cashFlowCard')?.classList.contains('hidden')?'single':'selector';
+    if(view.voucherView==='single')view.single=captureSingleDraft();
+    if(view.voucherView==='multi')view.multi={lines:cloneData(multiVoucherLines),draftId:multiVoucherDraftId,returnTab:multiVoucherReturnTab,seq:document.getElementById('multiVoucherSeqBadge')?.textContent};
+  }
+  if(tab==='pageSettings')view.settingsCats=cloneData(draftCats);
+  return view;
+}
+
+function rememberAppView(){if(!_restoringAppView&&!_appExited)_appBackStack.push(captureAppView());}
+
+function restoreAppView(view){
+  _restoringAppView=true;
+  try{
+    navigateToTab(view.tab,false);
+    if(view.tab==='pageExpenses'){
+      if(view.voucherView==='single'&&view.single){selectVoucherTypeDirect(view.single.mode);isVoucherSplitActive=view.single.splitActive;voucherSplitMode=view.single.splitMode;voucherCatStates=cloneData(view.single.categoryStates);voucherSplitContainer.classList.toggle('hidden',!isVoucherSplitActive);toggleSplitBoxBtn.textContent=isVoucherSplitActive?'مفعل ✔':'معطل ✖';setVoucherSplitMode(voucherSplitMode);}
+      else if(view.voucherView==='multi'&&view.multi){document.getElementById('voucherSelectorCard').classList.add('hidden');document.getElementById('cashFlowCard').classList.add('hidden');document.getElementById('multiVoucherCard').classList.remove('hidden');multiVoucherLines=cloneData(view.multi.lines);multiVoucherDraftId=view.multi.draftId;multiVoucherReturnTab=view.multi.returnTab;document.getElementById('multiVoucherSeqBadge').textContent=view.multi.seq||'';}
+    }
+    for(const field of view.fields||[]){const el=document.getElementById(field.id);if(el){el.value=field.value;if(typeof field.checked==='boolean')el.checked=field.checked;}}
+    for(const selection of view.selections||[]){const selector=[selDebitAcc,selCreditAcc,selReportAccount,multiSourceAcc].find(item=>item?.input.id===selection.id);selector?.setValue(selection.value,selection.text);if(selector&&!selection.value)selector.input.value=selection.text;}
+    if(view.account){accountOpsState=cloneData(view.account);accountOperationsReturnTab=view.accountReturnTab;renderAccountOperations(accountOpsState.accountName,accountOpsState.scopeNames);setAccountReportActionsEnabled(true);}
+    if(view.ledger){currentLedgerSearchQuery=view.ledger.search;currentLedgerStatusFilter=view.ledger.status;currentLedgerQuickFilter=view.ledger.quick;ledgerVisibleLimit=view.ledger.limit;document.querySelectorAll('#ledgerStatusFilter .status-filter-btn').forEach(button=>button.classList.toggle('active',button.dataset.status===currentLedgerStatusFilter));renderAllData(true);}
+    if(view.tab==='pageReports'){reportAdv=cloneData(view.reportAdv||{from:'',to:'',currency:'ALL',active:false});currentStatementSearchQuery=view.statementSearch||'';}
+    if(view.tab==='pageReports'){if(view.reportSection==='trial'){openReportsSection('trial',false);runTrialBalanceReport();}else if(view.reportSection){toggleReportView(view.reportMode||'accounts',false);openReportsSection(view.reportSection,false);}else closeAllReportsSections();}
+    if(view.tab==='pageExpenses'&&view.voucherView==='multi')renderMultiVoucherLines();
+    if(view.tab==='pageExpenses'&&view.voucherView==='single'){voucherCatStates=cloneData(view.single.categoryStates);toggleSplitBoxBtn.setAttribute('aria-expanded',String(isVoucherSplitActive));renderVoucherCategoriesList();updateVoucherSummaryNumbers();}
+    if(view.settingsCats){draftCats=cloneData(view.settingsCats);renderCategoryRows();}
+    recordAppHistory({page:'tab',tab:view.tab});
+  }finally{_restoringAppView=false;}
+}
+
 function recordAppHistory(state={}){
   if(_appExited)return;
   history.replaceState({...state,ratibGuard:_appHistoryInitialized},'');
+}
+
+function initExitDialog(){
+  const modal=document.getElementById('exitConfirmModal');if(!modal||modal.dataset.keyboardBound)return;modal.dataset.keyboardBound='true';
+  modal.addEventListener('keydown',e=>{const stay=document.getElementById('cancelExitAppBtn'),confirm=document.getElementById('confirmExitAppBtn');if(e.key==='Escape'){e.preventDefault();e.stopPropagation();hideExitModal();}else if(e.key==='Enter'){e.preventDefault();e.stopPropagation();(e.target===confirm?confirm:stay).click();}else if(e.key==='Tab'){e.preventDefault();(document.activeElement===stay?confirm:stay).focus();}});
 }
 
 function handleRatibPopState(){
@@ -7445,7 +7496,7 @@ function handleRatibPopState(){
 }
 
 const _appBackStack=[];
-let _appHistoryInitialized=false,_appExited=false,_exitPromise=null;
+let _appHistoryInitialized=false,_appExited=false,_exitPromise=null,_restoringAppView=false,_exitReturnFocus=null;
 
 let ledgerNeedsRender=true;
 

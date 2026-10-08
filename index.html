@@ -652,7 +652,7 @@ button:focus-visible,[role="button"]:focus-visible,a:focus-visible{outline:3px s
 .keyboard-open .voucher-savebar{position:static;transform:none;width:100%;margin-top:12px}
 @media print{.summary-toolbar,.dashboard-period,.voucher-savebar{display:none!important}.wrap{max-width:none}#cashFlowCard,#multiVoucherCard{padding-bottom:0}}
 
-.header-tools{order:-1}.header-tools .header-actions{flex-direction:row-reverse}
+header.no-print{direction:rtl;gap:12px}.header-tools{order:0}.header-tools .header-actions{flex-direction:row}
 .app-sidebar{--sidebar-green:#0d5b45;--sidebar-gold:#d2b462;--sidebar-hover:#f1f7f4;--sidebar-active:#e6f2eb;right:0;left:auto;width:min(340px,88vw);display:flex;flex-direction:column;gap:0;padding:0;overflow:hidden;border-right:0;border-left:1px solid var(--border);border-radius:16px 0 0 16px;background:var(--card);box-shadow:-8px 0 24px rgba(10,45,35,.12);transform:translateX(105%);visibility:hidden;pointer-events:none;transition:transform .2s ease,visibility 0s .2s;color:var(--text);text-align:right}
 [data-theme="dark"] .app-sidebar{--sidebar-green:#9bd7bc;--sidebar-gold:#d8c387;--sidebar-hover:#243b34;--sidebar-active:#2a443a;box-shadow:-8px 0 24px rgba(0,0,0,.22)}
 .app-sidebar.show{transform:translateX(0);visibility:visible;pointer-events:auto;transition-delay:0s}
@@ -718,7 +718,7 @@ body.ratib-sidebar-open,body.ratib-about-open{overflow:hidden}
       <button class="icon-btn" id="privacyBtn" title="وضع الخصوصية">👁️</button>
       <button class="icon-btn" id="themeBtn" title="الوضع الليلي">🌙</button>
       <button class="icon-btn" id="sidebarMenuBtn" aria-haspopup="dialog" aria-controls="appSidebar" aria-expanded="false" title="القائمة الجانبية" aria-label="فتح القائمة الجانبية">☰</button>
-    </div><small id="appVersionLabel" class="app-version">الإصدار 3.1.6</small></div>
+    </div><small id="appVersionLabel" class="app-version">الإصدار 3.1.7</small></div>
   </header>
   <div class="summary-toolbar hidden no-print" id="storageFeedback"><span id="persistentSaveStatus" hidden aria-hidden="true">جاهز</span><button type="button" id="retryStorageBtn" class="btn btn-ghost hidden">إعادة محاولة الحفظ</button></div>
 <div class="app-update-banner hidden no-print" id="appUpdateBanner" role="status"><span id="appUpdateMessage">يتوفر تحديث لراتب. هل تريد تطبيقه؟</span><button type="button" class="btn btn-ghost" id="applyAppUpdateBtn">حفظ المسودة والتحديث</button></div>
@@ -763,14 +763,14 @@ body.ratib-sidebar-open,body.ratib-about-open{overflow:hidden}
       <img src="Icons/icon-192.png" width="72" height="72" alt="" decoding="async">
       <h2 id="ratibAboutTitle">راتب</h2>
       <p class="ratib-about-subtitle">للتنظيم والتدبير المالي</p>
-      <p class="ratib-about-version">الإصدار 3.1.6</p>
+      <p class="ratib-about-version">الإصدار 3.1.7</p>
       <p id="ratibAboutDescription">إدارة الحسابات والسندات والميزانية، ومتابعة العمليات والتقارير المالية، مع حفظ البيانات على جهازك ودعم العمل دون الإنترنت.</p>
       <button type="button" class="btn btn-primary" id="closeRatibAboutBtn">إغلاق</button>
     </div>
   </div>
 
   <button class="back-to-menu-btn hidden no-print" id="backToMenuBtn" onclick="goBackInApp()">
-    <span>⬅️ العودة للقوائم الرئيسية</span>
+    <span>⬅️ الرجوع إلى الشاشة السابقة</span>
   </button>
 
   <p hidden aria-hidden="true" class="offline-ready no-print" id="offlineReadyStatus"></p>
@@ -4011,6 +4011,7 @@ function updateCarousel(el, index) {
   const total = slides.length;
   if (!total) return;
   const safe = ((index % total) + total) % total;
+  if(_appHistoryInitialized&&!_restoringAppView&&document.getElementById(currentActiveTab)?.contains(el)&&(carouselState[el.id]||0)!==safe)rememberAppView();
   carouselState[el.id] = safe;
   // كانت الشريحة النشطة تُعرض عبر إزاحة أفقية (translateX) داخل صف Flex، وهذا يجعل
   // ارتفاع الحاوية بالكامل يساوي أطول شريحة دائماً (سلوك flex الافتراضي)، فتظهر
@@ -4075,7 +4076,7 @@ function setupReportSections(target = 'pageReports', autoOpen = true) {
 function navigateToTab(target, pushToHistory = true) {
   if(_appExited||_exitPromise)return;
   const next=target||'pageDashboard';
-  if(next==='pageDashboard')_appBackStack.length=0;
+  if(next==='pageDashboard'&&!_restoringAppView)_appBackStack.length=0;
   else if(pushToHistory&&currentActiveTab&&currentActiveTab!==next)rememberAppView();
   recordAppHistory({page:'tab',tab:next});
   document.getElementById('appVersionLabel')?.classList.toggle('hidden',next!=='pageDashboard');
@@ -4130,8 +4131,10 @@ function goBackInApp(){
   if(document.getElementById('accountScreenMenu')?.classList.contains('open')){closeAccountScreenMenu();return;}
   const advanced=document.getElementById('accountAdvancedSearchPanel');
   if(currentActiveTab==='pageAccountOperations'&&advanced&&!advanced.classList.contains('hidden')){advanced.classList.add('hidden');return;}
-  if(currentActiveTab==='pageDashboard'){_appBackStack.length=0;showExitModal();return;}
+  const dropdown=document.querySelector('#'+currentActiveTab+' .searchable-dropdown.open');
+  if(dropdown){dropdown.classList.remove('open');return;}
   const previous=_appBackStack.pop();if(previous){restoreAppView(typeof previous==='string'?{tab:previous}:previous);return;}
+  if(currentActiveTab==='pageDashboard'){showExitModal();return;}
   if(currentActiveTab==='pageExpenses'&&(!document.getElementById('cashFlowCard')?.classList.contains('hidden')||!document.getElementById('multiVoucherCard')?.classList.contains('hidden'))){initVoucherSelectorView();return;}
   if(currentActiveTab==='pageAccountOperations'){navigateToTab(accountOperationsReturnTab||'pageAccountsTree',false);return;}
   navigateToTab('pageDashboard',false);
@@ -4495,6 +4498,7 @@ class SearchableSelect {
   initEvents() {
     this.input.addEventListener('focus', (e) => { e.stopPropagation(); this.renderDropdown(this.input.value.trim()); this.open(); });
     this.input.addEventListener('click', (e) => { e.stopPropagation(); this.renderDropdown(this.input.value.trim()); this.open(); });
+    this.input.addEventListener('compositionend',()=>this.input.dispatchEvent(new InputEvent('input',{inputType:'insertCompositionText',bubbles:true})));
     this.input.addEventListener('input', (e) => {
       e.stopPropagation();
       const query = this.input.value.trim();
@@ -4503,9 +4507,16 @@ class SearchableSelect {
       const clearBtn = this.wrap.querySelector('.search-clear-btn'); if (clearBtn) clearBtn.classList.add('hidden');
       const matches = this.renderDropdown(query);
       this.open();
-
+      const inputType=String(e.inputType||''),deleting=inputType.startsWith('delete')||this._deleteInput;
+      this._deleteInput=false;
+      if(this.input.id==='inpReportAccount'&&query&&matches.length===1&&!deleting&&!e.isComposing&&(!inputType||inputType.startsWith('insert'))){
+        const typed=this.input.value,start=this.input.selectionStart,end=this.input.selectionEnd,prefix=matches[0].text.toLowerCase().startsWith(typed.toLowerCase())&&end===typed.length;
+        this.choose(matches[0]);
+        if(prefix)this.input.setSelectionRange(typed.length,this.input.value.length);
+        else{this.input.value=typed;this.input.setSelectionRange(start,end);}
+      }
     });
-    this.input.addEventListener('keydown', (e) => this.handleKey(e));
+    this.input.addEventListener('keydown',e=>{this._deleteInput=e.key==='Backspace'||e.key==='Delete';this.handleKey(e);});
     document.addEventListener('click', (e) => { if (!this.wrap.contains(e.target)) this.close(); });
   }
   handleKey(e) {
@@ -6697,16 +6708,18 @@ function renderAccountsPager(){
     });
     track.appendChild(slide);
   });
-  setAccountsPagerActive(0);
+  setAccountsPagerActive(0,false);
   if(!track.dataset.swipeBound){
     track.dataset.swipeBound='1';
-    track.addEventListener('scroll',()=>{const width=track.clientWidth||1;setAccountsPagerActive(Math.round(Math.abs(track.scrollLeft)/width))},{passive:true});
+    track.addEventListener('scroll',()=>{clearTimeout(track._ratibScrollTimer);track._ratibScrollTimer=setTimeout(()=>{const width=track.clientWidth||1;setAccountsPagerActive(Math.round(Math.abs(track.scrollLeft)/width));},120);},{passive:true});
   }
 }
 document.getElementById('accountsPagerSearchInput')?.addEventListener('input',()=>renderAccountsPager());
-function setAccountsPagerActive(index){
+function setAccountsPagerActive(index,remember=true){
   const tabs=document.getElementById('accountsPagerTabs'),track=document.getElementById('accountsPagerTrack');if(!tabs||!track)return;
   const max=Math.max(0,track.children.length-1),safe=Math.max(0,Math.min(index,max));
+  const previous=Number(tabs.querySelector('[aria-selected="true"]')?.dataset.index||0);
+  if(remember&&_appHistoryInitialized&&!_restoringAppView&&currentActiveTab==='pageAccountsTree'&&safe!==previous)rememberAppView();
   [...tabs.children].forEach((tab,i)=>{const active=i===safe;tab.classList.toggle('active',active);tab.setAttribute('aria-selected',active?'true':'false');if(active)tab.scrollIntoView({behavior:'smooth',inline:'center',block:'nearest'});});
   
 }
@@ -7328,7 +7341,7 @@ function scheduleReminderCheck(){
 }
 
 function initCompatibilityImprovements(){
-  initExitButton();initExitDialog();initRatibSidebar();
+  initExitButton();initExitDialog();initRatibSidebar();initNestedNavigation();
   const currency=document.getElementById('currency');if(currency){currency.value=store.get('preferred_currency','YER');if(!KNOWN_CURRENCIES.has(currency.value))currency.value='YER';currency.addEventListener('change',()=>{store.set('preferred_currency',currency.value);ledgerVisibleLimit=50;updateProDashboard();if(activeReportTab==='budget')runBudgetReport();});}
   document.getElementById('dashboardPeriod')?.addEventListener('change',updateProDashboard);
   document.getElementById('retryStorageBtn')?.addEventListener('click',retryPersistentSave);
@@ -7495,7 +7508,12 @@ async function shareBudgetPdf(){
 
 
 function captureAppView(){
-  const tab=currentActiveTab||'pageDashboard',page=document.getElementById(tab),view={tab,fields:[],selections:[]};
+  const tab=currentActiveTab||'pageDashboard',page=document.getElementById(tab),view={tab,fields:[],selections:[],scrollY:window.scrollY,focusId:document.activeElement?.id};
+  view.carousels=Object.fromEntries([...page?.querySelectorAll('.carousel-shell[id]')||[]].map(el=>[el.id,carouselState[el.id]||0]));
+  view.openDropdowns=[...page?.querySelectorAll('.searchable-dropdown.open')||[]].map(el=>el.id);
+  if(tab==='pageSettings'||tab==='pageAccountsTree')view.panels=[...page.querySelectorAll('.settings-accordion-body,.acc-accordion-body')].map(el=>el.classList.contains('open'));
+  if(tab==='pageAccountsTree')view.accountsIndex=Number(document.querySelector('#accountsPagerTabs [aria-selected="true"]')?.dataset.index||0);
+  if(tab==='pageReports')view.reportAdvancedOpen=!document.getElementById('reportAdvPanel')?.classList.contains('hidden');
   page?.querySelectorAll('input[id]:not([type="password"]),select[id],textarea[id]').forEach(el=>{view.fields.push({id:el.id,value:el.value,checked:el.checked});});
   for(const selector of [selDebitAcc,selCreditAcc,selReportAccount,multiSourceAcc])if(selector&&page?.contains(selector.wrap))view.selections.push({id:selector.input.id,value:selector.getValue(),text:selector.input.value});
   if(tab==='pageAccountOperations'){view.account=cloneData(accountOpsState);view.accountReturnTab=accountOperationsReturnTab;}
@@ -7514,6 +7532,9 @@ function captureAppView(){
 function rememberAppView(){if(!_restoringAppView&&!_appExited)_appBackStack.push(captureAppView());}
 
 function restoreAppView(view){
+  if(currentActiveTab===view.tab&&view.tab==='pageSettings'){
+    const current=captureAppView();view={...view,fields:current.fields,selections:current.selections,settingsCats:current.settingsCats};
+  }
   _restoringAppView=true;
   try{
     navigateToTab(view.tab,false);
@@ -7530,6 +7551,13 @@ function restoreAppView(view){
     if(view.tab==='pageExpenses'&&view.voucherView==='multi')renderMultiVoucherLines();
     if(view.tab==='pageExpenses'&&view.voucherView==='single'){voucherCatStates=cloneData(view.single.categoryStates);toggleSplitBoxBtn.setAttribute('aria-expanded',String(isVoucherSplitActive));renderVoucherCategoriesList();updateVoucherSummaryNumbers();}
     if(view.settingsCats){draftCats=cloneData(view.settingsCats);renderCategoryRows();}
+    if(view.tab==='pageAccountsTree'){renderAccountsPager();setAccountsPagerActive(view.accountsIndex||0,false);document.getElementById('accountsPagerTrack')?.children[view.accountsIndex||0]?.scrollIntoView({behavior:'instant',inline:'start',block:'nearest'});}
+    if(view.panels)document.getElementById(view.tab)?.querySelectorAll('.settings-accordion-body,.acc-accordion-body').forEach((body,index)=>{const open=Boolean(view.panels[index]);body.classList.toggle('open',open);const card=body.closest('.settings-accordion-card'),header=card?.querySelector('.settings-accordion-header');if(header){header.setAttribute('aria-expanded',String(open));const arrow=header.querySelector('.accordion-arrow');if(arrow)arrow.textContent=open?'▲':'▼';card.style.borderColor=open?'var(--ok)':'var(--accent)';}});
+    if(view.tab==='pageReports')document.getElementById('reportAdvPanel')?.classList.toggle('hidden',!view.reportAdvancedOpen);
+    for(const [id,index] of Object.entries(view.carousels||{}))goCarousel(id,index);
+    if(view.focusId){const field=document.getElementById(view.focusId);if(field&&!field.closest('.hidden,[inert]'))field.focus({preventScroll:true});}
+    document.getElementById(view.tab)?.querySelectorAll('.searchable-dropdown').forEach(el=>el.classList.toggle('open',Boolean(view.openDropdowns?.includes(el.id))));
+    window.scrollTo({top:view.scrollY||0,behavior:'instant'});
     recordAppHistory({page:'tab',tab:view.tab});
   }finally{_restoringAppView=false;}
 }
@@ -7542,6 +7570,19 @@ function recordAppHistory(state={}){
 function initExitDialog(){
   const modal=document.getElementById('exitConfirmModal');if(!modal||modal.dataset.keyboardBound)return;modal.dataset.keyboardBound='true';
   modal.addEventListener('keydown',e=>{const stay=document.getElementById('cancelExitAppBtn'),confirm=document.getElementById('confirmExitAppBtn');if(e.key==='Escape'){e.preventDefault();e.stopPropagation();hideExitModal();}else if(e.key==='Enter'){e.preventDefault();e.stopPropagation();(e.target===confirm?confirm:stay).click();}else if(e.key==='Tab'){e.preventDefault();(document.activeElement===stay?confirm:stay).focus();}});
+}
+
+function initNestedNavigation(){
+  document.addEventListener('click',event=>{
+    if(_restoringAppView||_appExited||_exitPromise)return;
+    const page=document.getElementById(currentActiveTab);if(!page?.contains(event.target))return;
+    const header=event.target.closest('.settings-accordion-header,.acc-accordion-header');
+    if(header&&!event.target.closest('button,input,select,textarea')){
+      if(currentActiveTab==='pageSettings'||currentActiveTab==='pageAccountsTree')rememberAppView();
+      else if(currentActiveTab==='pageReports'&&header.nextElementSibling?.classList.contains('open'))rememberAppView();
+    }
+    if(currentActiveTab==='pageReports'&&event.target.closest('#reportAdvToggleBtn'))rememberAppView();
+  },true);
 }
 
 function handleRatibPopState(){

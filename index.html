@@ -610,6 +610,8 @@ button{user-select:none}
 .main-menu-grid{direction:rtl;grid-template-columns:repeat(2,minmax(0,1fr))!important;grid-template-areas:"add ledger" "reports accounts"}
 @media(min-width:900px){.main-menu-grid{grid-template-columns:repeat(4,minmax(0,1fr))!important;grid-template-areas:"add ledger reports accounts"}.pro-kpi-grid{grid-template-columns:repeat(4,minmax(0,1fr))}.header-actions{margin-inline-start:20px}}
 .summary-toolbar{display:flex;align-items:center;flex-wrap:wrap;gap:8px;margin:0 0 16px;color:var(--muted);font-size:.9rem}
+.report-period-currency{display:flex;align-items:center;gap:8px}.report-period-control{flex:1;min-width:0}.report-currency-control{flex:0 0 120px;min-width:0}.report-period-currency select{width:100%;min-width:0;margin:0;padding:10px 8px;font-size:1rem;min-height:46px}
+@media(max-width:480px){.report-currency-control{flex-basis:108px}}
 .summary-toolbar select,.dashboard-period select{width:auto;min-height:36px;padding:4px 8px;max-width:190px}
 #persistentSaveStatus{margin-inline-start:auto;font-size:.85rem}
 .app-update-banner{display:flex;align-items:center;justify-content:space-between;gap:8px;border:1px solid var(--accent);border-radius:8px;padding:8px 12px;margin-bottom:12px;font-size:.9rem}
@@ -718,7 +720,7 @@ body.ratib-sidebar-open,body.ratib-about-open{overflow:hidden}
       <button class="icon-btn" id="privacyBtn" title="وضع الخصوصية">👁️</button>
       <button class="icon-btn" id="themeBtn" title="الوضع الليلي">🌙</button>
       <button class="icon-btn" id="sidebarMenuBtn" aria-haspopup="dialog" aria-controls="appSidebar" aria-expanded="false" title="القائمة الجانبية" aria-label="فتح القائمة الجانبية">☰</button>
-    </div><small id="appVersionLabel" class="app-version">الإصدار 3.1.7</small></div>
+    </div><small id="appVersionLabel" class="app-version">الإصدار 3.1.8</small></div>
   </header>
   <div class="summary-toolbar hidden no-print" id="storageFeedback"><span id="persistentSaveStatus" hidden aria-hidden="true">جاهز</span><button type="button" id="retryStorageBtn" class="btn btn-ghost hidden">إعادة محاولة الحفظ</button></div>
 <div class="app-update-banner hidden no-print" id="appUpdateBanner" role="status"><span id="appUpdateMessage">يتوفر تحديث لراتب. هل تريد تطبيقه؟</span><button type="button" class="btn btn-ghost" id="applyAppUpdateBtn">حفظ المسودة والتحديث</button></div>
@@ -763,7 +765,7 @@ body.ratib-sidebar-open,body.ratib-about-open{overflow:hidden}
       <img src="Icons/icon-192.png" width="72" height="72" alt="" decoding="async">
       <h2 id="ratibAboutTitle">راتب</h2>
       <p class="ratib-about-subtitle">للتنظيم والتدبير المالي</p>
-      <p class="ratib-about-version">الإصدار 3.1.7</p>
+      <p class="ratib-about-version">الإصدار 3.1.8</p>
       <p id="ratibAboutDescription">إدارة الحسابات والسندات والميزانية، ومتابعة العمليات والتقارير المالية، مع حفظ البيانات على جهازك ودعم العمل دون الإنترنت.</p>
       <button type="button" class="btn btn-primary" id="closeRatibAboutBtn">إغلاق</button>
     </div>
@@ -1099,14 +1101,14 @@ body.ratib-sidebar-open,body.ratib-about-open{overflow:hidden}
         <input type="hidden" id="valReportAccount" value="ALL">
       </div>
 
-      <div>
-        <label>نوع الفترة (اختياري — الافتراضي: كل العمليات):</label>
-        <select id="reportFilterType">
+      <div class="report-period-currency">
+        <div class="report-period-control"><select id="reportFilterType" aria-label="فترة التقرير">
           <option value="current">الدورة الحالية (الشهر الحالي)</option>
           <option value="all" selected>كافة العمليات المسجلة</option>
           <option value="month">شهر محدد من الأرشيف</option>
           <option value="custom">نطاق زمني مخصص (من - إلى)</option>
-        </select>
+        </select></div>
+        <div class="report-currency-control hidden" id="budgetReportCurrencyBox"><select id="budgetReportCurrency" aria-label="عملة تقرير بنود الميزانية"><option value="YER">ريال يمني</option><option value="SAR">ريال سعودي</option><option value="USD">دولار أمريكي</option></select></div>
       </div>
 
       <div id="filterMonthSelectBox" class="hidden">
@@ -4000,7 +4002,7 @@ function pushInitialHistoryBuffer(){
   if(history.state?.ratibGuard){_appExitHistoryDelta=history.state.ratibExitDelta===-2?-2:0;_appHistoryInitialized=true;recordAppHistory({page:'ratib_app_entry',tab:currentActiveTab});return;}
   _appExitHistoryDelta=history.length>1?-2:0;
   history.replaceState({page:'ratib_app_base',ratibGuard:false,ratibExitDelta:_appExitHistoryDelta},'');
-  history.pushState({page:'ratib_app_entry',tab:currentActiveTab,ratibGuard:true,ratibExitDelta:_appExitHistoryDelta},'');
+  history.pushState(appHistoryState({page:'ratib_app_entry',tab:currentActiveTab}),'');
   _appHistoryInitialized=true;
 }
 
@@ -4075,8 +4077,9 @@ function setupReportSections(target = 'pageReports', autoOpen = true) {
 
 function navigateToTab(target, pushToHistory = true) {
   if(_appExited||_exitPromise)return;
+  if(_appHistoryPending&&!_restoringAppView){_appHistoryPending.promise.then(()=>navigateToTab(target,pushToHistory));return;}
   const next=target||'pageDashboard';
-  if(next==='pageDashboard'&&!_restoringAppView)_appBackStack.length=0;
+  if(next==='pageDashboard'&&!_restoringAppView)returnToAppHome();
   else if(pushToHistory&&currentActiveTab&&currentActiveTab!==next)rememberAppView();
   recordAppHistory({page:'tab',tab:next});
   document.getElementById('appVersionLabel')?.classList.toggle('hidden',next!=='pageDashboard');
@@ -4123,16 +4126,10 @@ document.getElementById('confirmExitAppBtn').addEventListener('click',performRea
 window.addEventListener('popstate',handleRatibPopState);
 
 function goBackInApp(){
-  if(_appExited||_exitPromise)return;
-  const sidebar=document.getElementById('appSidebar');
-  if(sidebar?.classList.contains('show')){document.getElementById('closeSidebarBtn')?.click();return;}
-  const modals=[...document.querySelectorAll('.modal-overlay.show')];
-  if(modals.length){const modal=modals.at(-1);if(modal.id==='exitConfirmModal')hideExitModal();else if(modal.id==='ratibAboutModal')closeRatibAbout();else modal.classList.remove('show');return;}
-  if(document.getElementById('accountScreenMenu')?.classList.contains('open')){closeAccountScreenMenu();return;}
-  const advanced=document.getElementById('accountAdvancedSearchPanel');
-  if(currentActiveTab==='pageAccountOperations'&&advanced&&!advanced.classList.contains('hidden')){advanced.classList.add('hidden');return;}
-  const dropdown=document.querySelector('#'+currentActiveTab+' .searchable-dropdown.open');
-  if(dropdown){dropdown.classList.remove('open');return;}
+  if(_appExited||_exitPromise)return Promise.resolve(false);
+  if(_appHistoryPending)return _appHomeReset?_appHistoryPending.promise.then(goBackInApp):_appHistoryPending.promise;
+  if(closeTransientAppUi())return Promise.resolve(true);
+  if(_appBackStack.length&&_appHistoryInitialized&&history.state?.ratibSession===_appHistorySession){const result=beginAppHistoryMovement();history.back();return result;}
   const previous=_appBackStack.pop();if(previous){restoreAppView(typeof previous==='string'?{tab:previous}:previous);return;}
   if(currentActiveTab==='pageDashboard'){showExitModal();return;}
   if(currentActiveTab==='pageExpenses'&&(!document.getElementById('cashFlowCard')?.classList.contains('hidden')||!document.getElementById('multiVoucherCard')?.classList.contains('hidden'))){initVoucherSelectorView();return;}
@@ -4870,7 +4867,7 @@ function initVoucherSelectorView() {
   document.getElementById('multiVoucherCard')?.classList.add('hidden');
 }
 function setVoucherFormHistory(mode,remember=true){if(remember&&!_restoringAppView&&!document.getElementById('voucherSelectorCard')?.classList.contains('hidden'))rememberAppView();recordAppHistory({page:'voucher_form',tab:'pageExpenses',voucherMode:mode});}
-function backToVoucherSelector(){goBackInApp();}
+function backToVoucherSelector(){return goBackInApp();}
 function selectVoucherTypeDirect(mode) {
   setVoucherFormHistory(mode);
   currentVoucherMode = mode;
@@ -5592,6 +5589,7 @@ document.getElementById('reportsGroupTrialHeader')?.addEventListener('click', ()
 function toggleReportView(mode,pushHistory=false) {
   if(pushHistory) pushReportSectionHistory(mode);
   activeReportTab = mode;
+  document.getElementById('budgetReportCurrencyBox')?.classList.toggle('hidden',mode!=='budget');
   document.getElementById('btnRptBudget')?.classList.toggle('active', mode === 'budget');
   document.getElementById('btnRptAccounts')?.classList.toggle('active', mode === 'accounts');
   document.getElementById('budgetReportCard')?.classList.toggle('hidden', mode !== 'budget');
@@ -6040,13 +6038,13 @@ function renderBudgetInsights(rows) {
         <span class="budget-trend-badge" style="background:${surplus>=0?'rgba(16,185,129,0.12)':'rgba(239,68,68,0.12)'}; color:${surplus>=0?'var(--ok)':'var(--danger)'};">${trendIcon}</span>
       </div>
       <div class="budget-insight-body">
-        <span>المخصص: <b>${fmt(c.allocated)}</b></span>
-        <span>المنصرف: <b style="color:var(--danger)">${fmt(c.actualSpent)}</b></span>
+        <span>المخصص: <b>${fmt(c.allocated,getBudgetReportCurrency())}</b></span>
+        <span>المنصرف: <b style="color:var(--danger)">${fmt(c.actualSpent,getBudgetReportCurrency())}</b></span>
       </div>
       <div class="budget-meter"><span style="width:${pct}%;background:${color}"></span></div>
       <div class="budget-insight-foot">
         <span>نسبة الاستهلاك: <b>${pct}%</b></span>
-        <span style="color:${color}">${surplus>=0?'المتبقي المتاح: ':'العجز المالي: '}${fmt(Math.abs(surplus))}</span>
+        <span style="color:${color}">${surplus>=0?'المتبقي المتاح: ':'العجز المالي: '}${fmt(Math.abs(surplus),getBudgetReportCurrency())}</span>
       </div>
     `;
     card.addEventListener('click',()=>openCategoryTransactionsModal(c)); box.appendChild(card);
@@ -6057,19 +6055,19 @@ function runBudgetReport() {
   const { targetTxs, periodTitle } = getFilteredTransactions(), cats = getCats();
   const periodTitleEl = document.getElementById('reportPeriodTitle');
   if (periodTitleEl) periodTitleEl.textContent = `الفترة: ${periodTitle}`;
-  cachedBudgetSummary=collectBudgetRows(targetTxs,cats,getGlobalCurrency());
-  if(periodTitleEl)periodTitleEl.textContent=`الفترة: ${periodTitle} — ${accountCurrencyLabel(getGlobalCurrency())}`;
+  cachedBudgetSummary=collectBudgetRows(targetTxs,cats,getBudgetReportCurrency());
+  if(periodTitleEl)periodTitleEl.textContent=`الفترة: ${periodTitle} — ${accountCurrencyLabel(getBudgetReportCurrency())}`;
   const rows=Object.values(cachedBudgetSummary),grandAllocated=rows.reduce((sum,r)=>sum+r.allocated,0),grandSpent=rows.reduce((sum,r)=>sum+r.actualSpent,0);
   const grandSurplus = grandAllocated - grandSpent, grandRate = grandAllocated > 0 ? Math.round((grandSpent / grandAllocated) * 100) : 0;
-  const kpiAlloc = document.getElementById('kpiAllocated'); if (kpiAlloc) kpiAlloc.textContent = fmt(grandAllocated);
-  const kpiSp = document.getElementById('kpiSpent'); if (kpiSp) kpiSp.textContent = fmt(grandSpent);
-  const kpiSurp = document.getElementById('kpiSurplus'); if (kpiSurp) kpiSurp.textContent = fmt(grandSurplus);
+  const kpiAlloc = document.getElementById('kpiAllocated'); if (kpiAlloc) kpiAlloc.textContent = fmt(grandAllocated,getBudgetReportCurrency());
+  const kpiSp = document.getElementById('kpiSpent'); if (kpiSp) kpiSp.textContent = fmt(grandSpent,getBudgetReportCurrency());
+  const kpiSurp = document.getElementById('kpiSurplus'); if (kpiSurp) kpiSurp.textContent = fmt(grandSurplus,getBudgetReportCurrency());
   const kpiR = document.getElementById('kpiRate'); if (kpiR) kpiR.textContent = grandRate + '%';
 
-  const totAllocEl = document.getElementById('reportTotAllocated'); if (totAllocEl) totAllocEl.textContent = fmt(grandAllocated);
-  const totSpentEl = document.getElementById('reportTotSpent'); if (totSpentEl) totSpentEl.textContent = fmt(grandSpent);
+  const totAllocEl = document.getElementById('reportTotAllocated'); if (totAllocEl) totAllocEl.textContent = fmt(grandAllocated,getBudgetReportCurrency());
+  const totSpentEl = document.getElementById('reportTotSpent'); if (totSpentEl) totSpentEl.textContent = fmt(grandSpent,getBudgetReportCurrency());
   const totSurplusEl = document.getElementById('reportTotSurplus');
-  if (totSurplusEl) { totSurplusEl.textContent = fmt(grandSurplus); totSurplusEl.style.color = grandSurplus >= 0 ? 'var(--ok)' : 'var(--danger)'; }
+  if (totSurplusEl) { totSurplusEl.textContent = fmt(grandSurplus,getBudgetReportCurrency()); totSurplusEl.style.color = grandSurplus >= 0 ? 'var(--ok)' : 'var(--danger)'; }
   const totRateEl = document.getElementById('reportTotRate'); if (totRateEl) totRateEl.textContent = grandRate + '%';
 
   const tbody = document.getElementById('reportBody'); 
@@ -6084,7 +6082,7 @@ function runBudgetReport() {
       const isOverBudget = c.allocated > 0 && c.actualSpent > c.allocated;
       const tr = document.createElement('tr');
       tr.title = 'انقر لاستعراض عمليات هذا البند بالتفصيل';
-      tr.innerHTML = `<td><b style="color:${c.color};">●</b> <b>${esc(c.name)}</b> 🔍</td><td>${fmt(c.allocated)}</td><td style="color:var(--danger);">${fmt(c.actualSpent)}</td><td style="color:${surplus >= 0 ? 'var(--ok)' : 'var(--danger)'};">${fmt(surplus)}</td><td><b>${rate}%</b>${isOverBudget ? ' <span class="status-chip reversed" style="font-size:0.8rem; padding:2px 6px;">⚠️ تجاوز</span>' : ''}</td>`;
+      tr.innerHTML = `<td><b style="color:${c.color};">●</b> <b>${esc(c.name)}</b> 🔍</td><td>${fmt(c.allocated,getBudgetReportCurrency())}</td><td style="color:var(--danger);">${fmt(c.actualSpent,getBudgetReportCurrency())}</td><td style="color:${surplus >= 0 ? 'var(--ok)' : 'var(--danger)'};">${fmt(surplus,getBudgetReportCurrency())}</td><td><b>${rate}%</b>${isOverBudget ? ' <span class="status-chip reversed" style="font-size:0.8rem; padding:2px 6px;">⚠️ تجاوز</span>' : ''}</td>`;
       tr.addEventListener('click', () => openCategoryTransactionsModal(c));
       tbody.appendChild(tr);
     });
@@ -6629,7 +6627,7 @@ function buildAccountOperationsPdf(){
 async function shareCurrentAccountOperations(){try{const file=new File([buildAccountOperationsPdf()],`كشف-${accountOpsState.accountName||'حساب'}.pdf`,{type:'application/pdf'});if(navigator.share&&(!navigator.canShare||navigator.canShare({files:[file]}))){await navigator.share({title:`كشف حساب - ${accountOpsState.accountName}`,files:[file]});showToast('تمت مشاركة ملف PDF','success');}else{const url=URL.createObjectURL(file),a=document.createElement('a');a.href=url;a.download=file.name;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);showToast('تم إنشاء ملف PDF وتنزيله للمشاركة','success');}}catch(e){if(e.name!=='AbortError'){showToast('تعذر إنشاء ملف PDF، سيتم فتح الطباعة للحفظ كـ PDF','warn');printCurrentAccountOperations();}}}
 const accountScreenMenuToggle=document.getElementById('accountScreenMenuToggle'),accountScreenMenu=document.getElementById('accountScreenMenu');
 accountScreenMenuToggle?.addEventListener('click',e=>{e.stopPropagation();const open=accountScreenMenu?.classList.toggle('open');accountScreenMenuToggle.setAttribute('aria-expanded',open?'true':'false');});
-function runAccountAction(action){if(!action)return;if(action==='advanced'){const panel=document.getElementById('accountAdvancedSearchPanel');const opening=panel?.classList.contains('hidden');panel?.classList.toggle('hidden');if(opening){const today=getLocalTodayISO?getLocalTodayISO():getLocalTodayISO(),from=document.getElementById('accountOpsFromDate'),to=document.getElementById('accountOpsToDate');if(from&&!from.value)from.value=today;if(to&&!to.value)to.value=today;}}else if(action==='print')printCurrentAccountOperations();else if(action==='share')shareCurrentAccountOperations();else if(action==='documentQuery')openGlobalSearch();else if(action==='close'){goBackInApp();}}
+function runAccountAction(action){if(!action)return;if(action==='advanced'){const panel=document.getElementById('accountAdvancedSearchPanel');const opening=panel?.classList.contains('hidden');panel?.classList.toggle('hidden');if(opening){const today=getLocalTodayISO?getLocalTodayISO():getLocalTodayISO(),from=document.getElementById('accountOpsFromDate'),to=document.getElementById('accountOpsToDate');if(from&&!from.value)from.value=today;if(to&&!to.value)to.value=today;}}else if(action==='print')printCurrentAccountOperations();else if(action==='share')shareCurrentAccountOperations();else if(action==='documentQuery')openGlobalSearch();else if(action==='close'){return goBackInApp();}}
 accountScreenMenu?.addEventListener('click',e=>{e.stopPropagation();const btn=e.target.closest('button');if(!btn||btn.disabled)return;closeAccountScreenMenu();runAccountAction(btn.dataset.accountAction);});
 document.querySelector('.account-inline-actions')?.addEventListener('click',e=>{const btn=e.target.closest('button');if(!btn||btn.disabled)return;runAccountAction(btn.dataset.accountAction);});
 // استبدلنا حقلي التاريخ من type="date" إلى نص عادي بصيغة سنة-شهر-يوم: بعض متصفحات
@@ -7074,11 +7072,11 @@ function performRealExit(){
       clearTimeout(_draftTimer);clearTimeout(_reminderTimer);clearTimeout(_autoBackupTimer);clearTimeout(_storageTimer);
       _vaultCryptoKey=null;_vaultUnlocked=false;for(const key of Object.keys(_memStore))delete _memStore[key];
       try{sessionStorage.removeItem(SESSION_KEY_CACHE);}catch(_){ }
-      hasUnsavedChanges=false;allowExit=true;_appExited=true;_appBackStack.length=0;
+      hasUnsavedChanges=false;allowExit=true;_appExited=true;_appBackStack.length=0;_appSavedViews.clear();
       showExitedScreen(cfg.enabled);
       let nativeExit=false;
       if(typeof navigator.app?.exitApp==='function'){try{navigator.app.exitApp();nativeExit=true;}catch(_){ }}
-      if(!nativeExit){try{window.close();}catch(_){ }if(!window.closed&&_appHistoryInitialized&&history.state?.ratibGuard){if(_appExitHistoryDelta===-2)history.go(-2);else history.back();}}
+      if(!nativeExit){try{window.close();}catch(_){ }if(!window.closed&&_appHistoryInitialized&&history.state?.ratibGuard){if(_appExitHistoryDelta===-2)history.go(-2-Number(history.state.ratibDepth||0));else history.back();}}
       return true;
     }catch(_){
       allowExit=false;document.getElementById('exitProgressModal')?.classList.remove('show');
@@ -7226,6 +7224,8 @@ function isValidISODate(text){
 
 function roundAccountingAmount(value){return Math.round((Number(value)+Number.EPSILON)*100)/100;}
 
+function getBudgetReportCurrency(){const value=document.getElementById('budgetReportCurrency')?.value;return KNOWN_CURRENCIES.has(value)?value:getGlobalCurrency();}
+
 function dashboardTransactions(){
   let txs=effectiveTransactions(),period=document.getElementById('dashboardPeriod')?.value||'all';
   if(period==='current')txs=txs.filter(t=>String(t.isoDate||'').startsWith(monthKey()+'-'));
@@ -7343,6 +7343,7 @@ function scheduleReminderCheck(){
 function initCompatibilityImprovements(){
   initExitButton();initExitDialog();initRatibSidebar();initNestedNavigation();
   const currency=document.getElementById('currency');if(currency){currency.value=store.get('preferred_currency','YER');if(!KNOWN_CURRENCIES.has(currency.value))currency.value='YER';currency.addEventListener('change',()=>{store.set('preferred_currency',currency.value);ledgerVisibleLimit=50;updateProDashboard();if(activeReportTab==='budget')runBudgetReport();});}
+  const budgetCurrency=document.getElementById('budgetReportCurrency');if(budgetCurrency){const preferred=store.get('budget_report_currency',getGlobalCurrency());budgetCurrency.value=KNOWN_CURRENCIES.has(preferred)?preferred:getGlobalCurrency();budgetCurrency.addEventListener('change',()=>{store.set('budget_report_currency',getBudgetReportCurrency());runBudgetReport();});}
   document.getElementById('dashboardPeriod')?.addEventListener('change',updateProDashboard);
   document.getElementById('retryStorageBtn')?.addEventListener('click',retryPersistentSave);
   document.getElementById('restoreSingleDraftBtn')?.addEventListener('click',restoreSingleDraft);updateDraftButton();
@@ -7455,7 +7456,7 @@ function* renderAccountCurrencyCanvases(data){
 }
 
 function* renderBudgetCanvases(){
-  const currency=getGlobalCurrency(),widths=[350,185,185,185,185],labels=['البند','المخصص','المصروف','الفائض','التنفيذ'];
+  const currency=getBudgetReportCurrency(),widths=[350,185,185,185,185],labels=['البند','المخصص','المصروف','الفائض','التنفيذ'];
   const rows=Object.values(cachedBudgetSummary||{}).filter(r=>r.allocated>0||r.actualSpent>0);
   let pageNumber=1,page=reportCanvasPage('تقرير بنود الميزانية',`${document.getElementById('reportPeriodTitle')?.textContent||''} — ${accountCurrencyLabel(currency)}`,pageNumber);
   const header=()=>drawReportTableRow(page,reportTableLayout(page.ctx,labels,widths,19),widths,'#e2e8f0');header();
@@ -7529,7 +7530,13 @@ function captureAppView(){
   return view;
 }
 
-function rememberAppView(){if(!_restoringAppView&&!_appExited)_appBackStack.push(captureAppView());}
+function rememberAppView(){
+  if(_restoringAppView||_appExited)return;
+  const view=captureAppView();_appSavedViews.set(_appBackStack.length,view);
+  for(const depth of _appSavedViews.keys())if(depth>_appBackStack.length)_appSavedViews.delete(depth);
+  recordAppHistory({page:'tab',tab:currentActiveTab});_appBackStack.push(view);
+  if(_appHistoryInitialized){_appCurrentHistoryDepth=_appBackStack.length;history.pushState(appHistoryState({page:'tab',tab:currentActiveTab}),'');}
+}
 
 function restoreAppView(view){
   if(currentActiveTab===view.tab&&view.tab==='pageSettings'){
@@ -7563,13 +7570,38 @@ function restoreAppView(view){
 }
 
 function recordAppHistory(state={}){
-  if(_appExited||!_appHistoryInitialized)return;
-  history.replaceState({...state,ratibGuard:_appHistoryInitialized,ratibExitDelta:_appExitHistoryDelta},'');
+  if(_appExited||!_appHistoryInitialized||_appHomeReset)return;
+  _appCurrentHistoryDepth=_appBackStack.length;history.replaceState(appHistoryState(state),'');
+}
+
+function appHistoryState(state={}){return {...state,ratibGuard:true,ratibExitDelta:_appExitHistoryDelta,ratibSession:_appHistorySession,ratibDepth:_appBackStack.length};}
+
+function finishAppHistoryMovement(){const pending=_appHistoryPending;_appHistoryPending=null;pending?.resolve(true);}
+
+function beginAppHistoryMovement(){if(!_appHistoryPending){let resolve;const promise=new Promise(done=>{resolve=done;});_appHistoryPending={promise,resolve};}return _appHistoryPending.promise;}
+
+function returnToAppHome(){
+  const depth=_appCurrentHistoryDepth;_appBackStack.length=0;_appSavedViews.clear();
+  if(_appHistoryInitialized&&depth>0){_appHomeReset=true;beginAppHistoryMovement();history.go(-depth);}
+  else _appCurrentHistoryDepth=0;
 }
 
 function initExitDialog(){
   const modal=document.getElementById('exitConfirmModal');if(!modal||modal.dataset.keyboardBound)return;modal.dataset.keyboardBound='true';
   modal.addEventListener('keydown',e=>{const stay=document.getElementById('cancelExitAppBtn'),confirm=document.getElementById('confirmExitAppBtn');if(e.key==='Escape'){e.preventDefault();e.stopPropagation();hideExitModal();}else if(e.key==='Enter'){e.preventDefault();e.stopPropagation();(e.target===confirm?confirm:stay).click();}else if(e.key==='Tab'){e.preventDefault();(document.activeElement===stay?confirm:stay).focus();}});
+}
+
+function closeTransientAppUi(){
+  const sidebar=document.getElementById('appSidebar');
+  if(sidebar?.classList.contains('show')){document.getElementById('closeSidebarBtn')?.click();return true;}
+  const modals=[...document.querySelectorAll('.modal-overlay.show')];
+  if(modals.length){const modal=modals.at(-1);if(modal.id==='exitConfirmModal')hideExitModal();else if(modal.id==='ratibAboutModal')closeRatibAbout();else modal.classList.remove('show');return true;}
+  if(document.getElementById('accountScreenMenu')?.classList.contains('open')){closeAccountScreenMenu();return true;}
+  const advanced=document.getElementById('accountAdvancedSearchPanel');
+  if(currentActiveTab==='pageAccountOperations'&&advanced&&!advanced.classList.contains('hidden')){advanced.classList.add('hidden');return true;}
+  const dropdown=document.querySelector('#'+currentActiveTab+' .searchable-dropdown.open');
+  if(dropdown){dropdown.classList.remove('open');return true;}
+  return false;
 }
 
 function initNestedNavigation(){
@@ -7587,14 +7619,27 @@ function initNestedNavigation(){
 
 function handleRatibPopState(){
   if(allowExit||_appExited){if(history.state?.ratibGuard||history.state?.page==='ratib_app_base')history.back();return;}
-  // One guard is restored after a hardware/browser Back, instead of replaying old app states.
-  if(_appHistoryInitialized&&!history.state?.ratibGuard)history.pushState({page:'ratib_app_entry',tab:currentActiveTab,ratibGuard:true,ratibExitDelta:_appExitHistoryDelta},'');
+  if(!_appHistoryInitialized)return;
   const lock=document.getElementById('lockScreen');if(lock?.style.display==='flex')return;
-  goBackInApp();
+  const state=history.state,known=state?.ratibGuard&&state.ratibSession===_appHistorySession,depth=known?Number(state.ratibDepth||0):-1;
+  if(_appHomeReset&&known&&depth===0){_appHomeReset=false;_appCurrentHistoryDepth=0;_appSavedViews.set(0,captureAppView());recordAppHistory({page:'tab',tab:'pageDashboard'});finishAppHistoryMovement();return;}
+  if(_appReplayDepth!==null&&known&&depth===_appReplayDepth){_appReplayDepth=null;finishAppHistoryMovement();return;}
+  // Reuse existing entries when closing an overlay or showing root confirmation.
+  // Inserting a new entry from popstate makes subsequent phone Back gestures skippable.
+  if(closeTransientAppUi()){_appReplayDepth=_appCurrentHistoryDepth;history.go(known?_appCurrentHistoryDepth-depth:1);return;}
+  _appSavedViews.set(_appCurrentHistoryDepth,captureAppView());
+  if(known&&depth!==_appCurrentHistoryDepth){
+    const view=_appSavedViews.get(depth)||_appBackStack[depth];
+    if(view){_appBackStack.length=0;for(let i=0;i<depth;i++){const previous=_appSavedViews.get(i);if(previous)_appBackStack.push(previous);}_appCurrentHistoryDepth=depth;restoreAppView(view);finishAppHistoryMovement();return;}
+  }
+  if(!known){_appReplayDepth=_appCurrentHistoryDepth;showExitModal();history.forward();return;}
+  if(currentActiveTab==='pageDashboard')showExitModal();finishAppHistoryMovement();
 }
 
 const _appBackStack=[];
 let _appHistoryInitialized=false,_appExited=false,_exitPromise=null,_restoringAppView=false,_exitReturnFocus=null,_appExitHistoryDelta=0;
+const _appSavedViews=new Map();
+let _appHistorySession=Date.now().toString(36)+'-'+Math.random().toString(36).slice(2),_appCurrentHistoryDepth=0,_appHistoryPending=null,_appReplayDepth=null,_appHomeReset=false;
 
 function syncSidebarCurrentPage(){
   const pages={home:'pageDashboard',accounts:'pageAccountsTree',settings:'pageSettings'};

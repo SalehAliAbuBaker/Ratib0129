@@ -478,6 +478,7 @@ html{scroll-behavior:smooth}body{padding-bottom:16px}
   .pro-kpi-grid{grid-template-columns:repeat(2,1fr)}
 }
 
+@media print {
 /* ===== Ratib Professional UI layer — conservative upgrade ===== */
 :root{
   --bg:#f4f7fb; --card:#ffffff; --text:#172033; --muted:#56657a;
@@ -545,6 +546,7 @@ label{font-size:1rem;color:var(--text);margin-bottom:5px}
 }
 
 
+}
 /* Budget report controls: keep the report compact and remove the dead space. */
 #budgetReportHost{display:flex;flex-direction:column;gap:8px}
 #budgetReportHost .budget-carousel{margin:0}
@@ -595,6 +597,114 @@ label{font-size:1rem;color:var(--text);margin-bottom:5px}
 @media(max-width:600px){.account-operations-screen-head{align-items:stretch;overflow:visible}.account-operations-screen-head .account-operations-head-actions{justify-content:flex-start;overflow-x:auto}}
 </style>
 <style>
+/* One shared screen layer; the accounting scripts and print templates are untouched. */
+@media screen {
+  :root{--bg:#f4f7fb;--card:#fff;--text:#172033;--muted:#56657a;--border:#d7e0e9;--accent:#145da0;--accent-strong:#0d477b;--danger:#b42318;--ok:#16794c;--warn:#a15c00;--teal:#216e7a;--radius:10px;--shadow:0 3px 12px rgba(15,23,42,.035);--ui-pad:18px;--ui-control:46px;--focus-ring:0 0 0 3px color-mix(in srgb,var(--accent) 18%,transparent)}
+  [data-theme="dark"]{--bg:#111827;--card:#1b2638;--text:#eef3f8;--muted:#a8b5c5;--border:#35445a;--accent:#62a6d9;--accent-strong:#8ec4eb;--danger:#f27b72;--ok:#54c58e;--warn:#f3b35b;--teal:#69c1c9;--shadow:0 3px 12px rgba(0,0,0,.25)}
+  html{background:var(--bg);scroll-padding-block:12px}
+  body{font-size:16px;font-weight:500;line-height:1.55;padding-bottom:0}
+  button,input,select,textarea{font-family:inherit}button{user-select:none;touch-action:manipulation}
+  .wrap{max-width:1180px;padding:20px 24px 36px}
+  .wrap>[id^="page"]{min-width:0;max-width:1080px;margin-inline:auto}
+  header.no-print{padding:10px 0 14px;margin-bottom:18px;border-bottom:1px solid var(--border)}
+  .logo{display:flex;align-items:center;gap:10px;min-width:0;font-size:1.25rem;font-weight:800;line-height:1.4;color:var(--accent-strong)}.logo span{min-width:0}
+  .app-brand-icon{width:44px;height:44px;object-fit:contain;flex-shrink:0;border-radius:9px}
+  .header-tools{display:flex;flex-direction:column;align-items:center;gap:4px;flex-shrink:0}.header-tools .header-actions{gap:6px;margin-inline-start:0}
+  .app-version{font-size:.72rem;font-weight:500;color:var(--muted);line-height:1.2;white-space:nowrap}
+  #persistentSaveStatus,#lastSavedLabel,#offlineReadyStatus{display:none!important}
+
+  /* Shared surfaces, headings, fields and touch targets. */
+  .card,.carousel-shell,.modal-content,.lock-content{border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow)}
+  .card{min-width:0;padding:var(--ui-pad);margin-bottom:16px}
+  h2,.ledger-page-title{font-size:1.15rem;font-weight:700;color:var(--text)}
+  h2{flex-wrap:wrap;align-items:center;gap:8px 12px;border-bottom:1px solid var(--border);padding-bottom:12px;margin-bottom:14px}
+  h2>*{min-width:0;max-width:100%}h2>span:first-child,h2>div:first-child{flex:1 1 180px;overflow-wrap:anywhere}h2>div:first-child{flex-wrap:wrap}h2>span:has(>.icon-btn){flex:0 0 auto}h2 .btn{flex:0 1 auto}
+  .dashboard-section-title{font-size:1rem;margin:16px 2px 10px}
+  .btn,.back-to-menu-btn,.icon-btn,.account-inline-action,.account-screen-menu-toggle,.carousel-arrow,.quick-type,.rpt-btn,.mode-toggle-btn,.status-filter-btn,.dashboard-add-reminder-btn{min-height:44px;border-radius:8px;font-family:inherit;font-weight:700;line-height:1.45}
+  .btn{padding:10px 14px;font-size:1rem;white-space:normal;overflow-wrap:anywhere}.btn-primary{background:var(--accent-strong);color:#fff}.btn-ghost,.icon-btn{border:1px solid var(--border);box-shadow:none}
+  [data-theme="dark"] .btn-primary{color:var(--bg)}.btn-success{background:var(--ok);color:#fff}.btn-danger{background:var(--danger);color:#fff}[data-theme="dark"] :is(.btn-success,.btn-danger){color:var(--bg)}
+  [data-theme="dark"] :is(.rpt-btn.active,.mode-toggle-btn.active,.status-filter-btn.active,.account-currency-tabs button.active,.orbit-center,.multi-voucher-badge,.tx-badge,.ledger-count-btn,.account-operation-edit,.account-operation-delete){color:var(--bg)}
+  .icon-btn{min-width:44px;width:44px;height:44px}.back-to-menu-btn{border:1px solid var(--border);padding:10px 14px;font-size:1rem;box-shadow:none;margin-bottom:16px}
+  button:focus-visible,[role="button"]:focus-visible,a:focus-visible{outline:3px solid var(--accent);outline-offset:3px}
+  label{font-size:.95rem;font-weight:500;color:var(--text);margin-bottom:5px}.form-group,.searchable-select-wrap{min-width:0}.form-group{margin-bottom:14px}
+  input:is([type="number"],[type="text"],[type="password"],[type="date"],[type="search"],[type="time"]),select,textarea,.searchable-input{min-width:0;max-width:100%;width:100%;min-height:var(--ui-control);border:1px solid var(--border);border-radius:8px;padding:10px 12px;background:var(--card);color:var(--text);font:500 1rem/1.5 'Tajawal',system-ui,sans-serif}
+  select{height:var(--ui-control);padding-block:6px}textarea{resize:vertical}input:focus,select:focus,textarea:focus{outline:none;border-color:var(--accent);box-shadow:var(--focus-ring)}
+  input:is([type="checkbox"],[type="radio"]){flex-shrink:0;accent-color:var(--accent)}
+  .validation-error{border-color:var(--danger)!important;box-shadow:0 0 0 3px color-mix(in srgb,var(--danger) 13%,transparent)!important}.validation-ok{border-color:var(--ok)!important}
+  .field-hint{display:block;margin-top:4px;color:var(--muted);font-size:.85rem;font-weight:500}.data-entry-note{background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:10px 12px;color:var(--muted);font-size:.9rem;margin-bottom:12px}
+  .search-box input{padding-inline-start:44px}.searchable-input{padding-inline-end:40px!important;cursor:text}.account-search-bar .searchable-input{padding-inline-end:84px!important}
+  .search-clear-btn{width:44px;height:44px;inset-inline-start:auto;inset-inline-end:28px;background:transparent;color:var(--danger);border-radius:8px}
+  .searchable-dropdown{border:1px solid var(--border);border-radius:8px;box-shadow:0 8px 20px rgba(23,32,51,.14);max-height:min(300px,50dvh)}
+  .searchable-item,.searchable-group-label{font-size:1rem;line-height:1.5;padding:10px 12px;overflow-wrap:anywhere}.searchable-item{min-height:44px;border-bottom:1px solid var(--border);font-weight:500}.sd-search-btn{width:44px;height:44px}
+
+  /* Dashboard buttons have separate flow rows and an explicit gap before the KPIs. */
+  .main-menu-grid{direction:rtl;gap:12px;grid-template-columns:repeat(2,minmax(0,1fr))!important;grid-template-areas:"add ledger" "reports accounts"}
+  .main-menu-btn{min-height:96px;border:1px solid var(--border);border-radius:var(--radius);box-shadow:none;font-size:1rem}.main-menu-btn:hover{background:color-mix(in srgb,var(--accent) 4%,var(--card))}
+  .main-menu-icon svg{display:block;width:32px;height:32px;color:var(--accent)}
+  .carousel-shell{min-width:0;padding:10px;background:var(--card)}.carousel-slide{flex:0 0 100%;min-width:0;padding:2px}.carousel-slide>.card{margin-bottom:0}
+  #proDashboardCard{display:flex;flex-direction:column;gap:12px}#proDashboardCard>h2,#proDashboardCard>.dashboard-period,#proDashboardCard>.pro-kpi-grid{margin:0}#proAlertsBox:empty{display:none}
+  .open-tasks-cta{background:var(--bg);border:1px solid var(--border);border-radius:8px;box-shadow:none;padding:10px 12px;min-height:48px;gap:10px}.open-tasks-cta b{min-width:0;flex:1;font-size:.95rem}.open-tasks-cta small{display:none}.open-tasks-cta>span,.open-tasks-cta i{flex-shrink:0}
+  .dashboard-add-reminder-btn{display:block;position:static;flex-shrink:0;margin:0;padding:10px 12px;font-size:1rem;border-color:var(--border)}
+  .pro-kpi-grid,.kpi-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.pro-kpi,.kpi-card{min-width:0;padding:12px;border:1px solid var(--border);border-radius:8px;color:var(--text)}
+  .pro-kpi strong,.kpi-value{font-size:1.25rem;font-weight:700;overflow-wrap:anywhere}.pro-kpi small,.kpi-title{font-size:.9rem;font-weight:500}
+  .dashboard-period{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;color:var(--muted)}.dashboard-filter{display:flex;flex-direction:column;align-items:stretch;gap:4px;min-width:0}.dashboard-filter label{margin:0}.dashboard-filter select{width:100%;max-width:none}
+  .carousel-title{flex-wrap:wrap;font-size:1rem}.carousel-title small{font-size:.85rem;font-weight:500;color:var(--muted)}.carousel-arrow{width:44px;height:44px;border:1px solid var(--border)}.carousel-controls{margin-top:10px}
+  .carousel-dot{width:24px;height:44px;border-radius:0;background:transparent;position:relative}.carousel-dot::after{content:"";display:block;width:8px;height:8px;border-radius:50%;background:var(--border);margin:auto}.carousel-dot.active{background:transparent;transform:none}.carousel-dot.active::after{background:var(--accent)}
+  .task-carousel-card{justify-content:flex-start}.budget-carousel .carousel-slide{min-height:0;padding:8px}.budget-shortcut{min-width:0;border-width:1px;border-radius:8px;font-size:.95rem;padding:10px 6px}
+
+  /* Voucher entry keeps all actions reachable when the width is limited. */
+  .voucher-type-grid{gap:12px!important}.voucher-type-btn{min-width:0;min-height:112px;background:var(--card)!important;border:1px solid var(--border)!important;border-radius:10px!important;box-shadow:none;font-size:1rem}
+  .voucher-type-btn .voucher-type-icon{font-size:2rem}.voucher-type-btn .voucher-type-label{background:transparent;color:var(--accent-strong);padding:2px 4px;font-size:1rem}
+  #cashFlowCard .form-group>div{align-items:center}#cashFlowCard>div:has(>div>#voucherAmountInput){display:grid!important;grid-template-columns:minmax(0,1.3fr) minmax(0,.9fr)}
+  #cashFlowCard>div:has(>#toggleSplitBoxBtn){gap:12px;flex-wrap:wrap;border-width:1px!important}#cashFlowCard>div:has(>#toggleSplitBoxBtn)>div{flex:1 1 200px}#toggleSplitBoxBtn{flex-shrink:0}
+  .multi-voucher-card{border-inline-start:3px solid var(--accent)}.multi-voucher-grid{gap:12px}.multi-voucher-grid label,.multi-voucher-source-row label,.multi-voucher-card>label{font-weight:500}.multi-voucher-actions{gap:8px}.multi-voucher-actions>.btn{flex:1 1 150px}
+  .multi-remove-line{min-height:44px;min-width:44px!important;width:44px!important}.voucher-split-box{border-width:1px;padding:12px;box-shadow:none}.voucher-cat-row{flex-wrap:wrap;gap:8px;border-bottom-width:1px}.voucher-cat-name{min-width:0;font-size:1rem}.voucher-cat-input-wrap{min-width:0;margin-inline-start:auto}.cat-help-btn{font-size:1rem;min-width:0;overflow-wrap:anywhere}
+  .toggle-vis-btn,.del-btn,.cat-help-btn{min-width:44px;min-height:44px;border-radius:8px}
+  .voucher-savebar{display:flex;align-items:stretch;flex-wrap:wrap;gap:8px;position:sticky;bottom:12px;background:var(--card);border:1px solid var(--border);border-radius:10px;padding:8px;box-shadow:var(--shadow);z-index:20;margin-top:12px}
+  .voucher-savebar .btn{flex:1 1 160px;width:auto!important;margin:0!important;font-size:.95rem}.voucher-savebar .btn:disabled{opacity:.65;cursor:wait}.voucher-savebar.multi-savebar{flex-basis:100%;width:100%}
+
+  /* Lists, tabs and report toolbars. Wide tables scroll inside their own containers. */
+  .ledger-toolbar{border-bottom-width:1px}.ledger-toolbar-actions{flex-wrap:wrap;gap:8px;overflow:visible}
+  .ledger-toolbar-actions .btn,.ledger-toolbar-actions .ledger-action-btn,.ledger-toolbar-actions .ledger-count-btn{min-height:44px;height:auto!important;font-size:.95rem!important;flex:0 1 auto;padding:8px 12px!important}
+  .ledger-count-btn{display:inline-flex;align-items:center;justify-content:center}.ledger-filter-bar{flex-wrap:wrap;gap:8px;padding:10px;overflow:visible}.ledger-filter-label{flex-basis:100%}.status-filter-btn{flex:1 1 70px;border-width:1px}
+  .tx-log-item,.tx-account-details,.cat-card,.budget-insight{border-width:1px;border-radius:8px;box-shadow:none}.tx-main-row,.tx-acc-row{flex-wrap:wrap}.tx-title-area{flex:1 1 180px;min-width:0}.tx-amt-area{max-width:100%;flex-wrap:wrap}
+  .tx-amount{font-size:1.1rem;white-space:normal;overflow-wrap:anywhere}.tx-date-line,.tx-account-details,.tx-dist{font-size:.95rem}.tx-account-details{background:transparent}.tx-acc-row{gap:4px 10px}.tx-acc-row b{min-width:0;overflow-wrap:anywhere}.tx-dist span{font-weight:500;border-width:1px}
+  .account-sub-balance,.account-statement-row,.tx-amount,.kpi-value{font-variant-numeric:tabular-nums;user-select:text}
+  .accounts-pager-search input{border:1px solid var(--border);font-weight:500}.accounts-pager-tabs button,.account-currency-tabs button{min-height:44px;font-weight:700;font-size:.95rem}.accounts-pager-slide-title{flex-wrap:wrap}
+  .account-sub-card{border-width:1px;gap:8px;padding:12px}.account-sub-name{font-size:1rem;overflow-wrap:anywhere}.account-sub-meta{font-weight:500}.account-sub-balance{white-space:normal;overflow-wrap:anywhere;min-width:0}
+  .account-operations-screen{max-width:1080px}.account-operations-screen-head{border-bottom-width:1px;font-size:1.1rem;gap:12px}.account-operations-screen-head .account-operations-head-actions{display:flex;flex-wrap:wrap;overflow:visible;padding:0;gap:8px}
+  .account-operations-head-actions .account-add-operation-btn{order:2;flex:1 1 100%}.account-operations-head-actions .account-inline-actions{display:grid;grid-template-columns:repeat(5,minmax(44px,1fr));gap:8px;width:100%;overflow:visible}
+  .account-inline-action{min-width:0;height:auto;padding:6px;font-size:1rem}.account-inline-action span{font-size:.75rem;line-height:1.3}
+  .account-advanced-search{grid-template-columns:repeat(2,minmax(0,1fr)) minmax(120px,.8fr) auto auto;gap:12px}.account-advanced-search label{font-weight:500}.account-advanced-search input{padding:10px 12px}
+  .report-period-currency{display:grid;grid-template-columns:minmax(0,1fr) minmax(130px,.5fr);gap:8px;align-items:center}.report-period-control,.report-currency-control{min-width:0}.report-period-currency:has(>.report-currency-control.hidden){grid-template-columns:minmax(0,1fr)}.report-period-currency select{margin:0;padding-inline:8px}
+  .acc-accordion-header{gap:10px;flex-wrap:wrap;padding:12px;border-width:1px;font-size:1rem;min-height:48px}.acc-accordion-body{border-width:1px;font-size:1rem;padding:12px}.acc-accordion-header>span:first-child{min-width:0;flex:1 1 170px;overflow-wrap:anywhere}.acc-accordion-header>span:has(>button){flex:0 0 auto}
+  .report-table,.multi-voucher-table{font-size:.95rem}.report-table th,.report-table td,.multi-voucher-table th,.multi-voucher-table td{padding:10px;border-bottom:1px solid var(--border);line-height:1.5}.report-table th{font-size:.95rem;border-bottom:2px solid var(--accent)}.report-table td{font-weight:500}.report-table td b,.report-table th{font-weight:700}.report-table :is(th,td) small{font-size:.85rem!important}
+  .report-table .statement-total-row>*{font-size:.95rem}.report-table .statement-balance-row>*{font-size:1rem}.report-table tr:hover td{background:color-mix(in srgb,var(--accent) 5%,var(--card))}
+  .account-statement-table,.multi-voucher-table-wrap{max-width:100%;border-width:1px;scrollbar-width:thin}.account-statement-row{font-size:.95rem;font-weight:500}.account-statement-row.opening{background:color-mix(in srgb,var(--accent) 6%,var(--card))}.account-statement-row.header,.account-statement-row.total{font-weight:700}.account-operation-actions button{min-width:44px;min-height:44px}
+  .budget-insight-head,.budget-insight-body{flex-wrap:wrap;font-size:1rem}.budget-insight-foot{flex-wrap:wrap;gap:4px;font-size:.85rem}#budgetReportHost,#budgetToolsHost{gap:12px}
+
+  /* Settings and dialogs retain the existing visibility and expanded states. */
+  .settings-accordion-card{border-inline-start:3px solid var(--accent)!important}.settings-accordion-header{gap:12px;font-size:1rem;min-height:44px}.settings-accordion-header>span:first-child{flex:1;min-width:0;overflow-wrap:anywhere}.settings-accordion-header .accordion-arrow{flex-shrink:0}.settings-accordion-body{border-top-width:1px;font-size:1rem}
+  .settings-accordion-body>div:has(>p):has(>.btn){flex-wrap:wrap;gap:8px}.cat-header{flex-wrap:wrap;gap:8px}.cat-info{min-width:0;flex:1 1 160px}.cat-name{font-size:1rem;white-space:normal;overflow-wrap:anywhere}
+  #chartOfAccountsView :is(div,span)[style*="display:flex"]:has(>span>button){flex-wrap:wrap}#chartOfAccountsView span:has(>button){flex-shrink:0}#chartOfAccountsView :is(div,span)>span:first-child{min-width:0;overflow-wrap:anywhere}
+  .modal-overlay{backdrop-filter:none;background:rgba(15,23,42,.55);padding:12px}.modal-content{padding:var(--ui-pad);max-height:calc(100vh - 24px);max-height:calc(100dvh - 24px);font-size:1rem;overscroll-behavior:contain;scroll-padding-block:12px}.modal-header{gap:12px;border-bottom-width:1px}.modal-header h3{min-width:0;font-size:1.1rem!important;overflow-wrap:anywhere}.modal-header .icon-btn{flex-shrink:0}.modal-content .form-group{min-width:0}
+  .global-result{font-size:1rem;font-weight:500;border-bottom-width:1px}.quick-modal-list{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .app-update-banner{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;border:1px solid var(--accent);border-radius:8px;padding:10px 12px;margin-bottom:12px;font-size:.95rem}.app-update-banner .btn{width:auto;margin:0}.install-banner{background:var(--accent-strong);border-radius:8px;flex-wrap:wrap}.install-banner button{min-height:44px}
+  .summary-toolbar{display:flex;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:12px;color:var(--muted);font-size:.9rem}#retryStorageBtn{width:auto;margin:0}#exitProgressModal{z-index:7003}#exitProgressDescription{margin-top:8px;font-size:.95rem;color:var(--muted)}[data-state="error"]{color:var(--danger)!important}[data-state="saving"],[data-state="dirty"]{color:var(--muted)}
+  .toast{background:var(--card)!important;color:var(--text)!important;border:1px solid var(--border)!important;border-inline-start:4px solid var(--ok)!important;font-size:.95rem;border-radius:8px;padding:12px 52px 12px 16px;box-shadow:var(--shadow)}.toast.error{border-inline-start-color:var(--danger)!important}.toast.warn{border-inline-start-color:var(--warn)!important}.toast-dismiss{min-width:44px;min-height:44px;right:4px;color:var(--muted)}
+
+  @media(min-width:900px){.main-menu-grid{grid-template-columns:repeat(4,minmax(0,1fr))!important;grid-template-areas:"add ledger reports accounts"}.pro-kpi-grid,.kpi-grid{grid-template-columns:repeat(4,minmax(0,1fr))}.budget-insights{grid-template-columns:repeat(2,minmax(0,1fr))}.voucher-type-grid{grid-template-columns:repeat(4,minmax(0,1fr))}.dashboard-period{display:flex;flex-wrap:wrap;gap:16px}.dashboard-filter{flex-direction:row;align-items:center;gap:8px}.dashboard-filter select{width:auto;min-width:160px}}
+  @media(max-width:899px){.account-advanced-search{grid-template-columns:repeat(2,minmax(0,1fr))}.account-advanced-search label:nth-child(3){grid-column:1/-1}.account-advanced-search .btn{width:100%}}
+  @media(max-width:700px){:root{--ui-pad:14px}.wrap{padding:12px 12px 100px}header.no-print{padding-top:0;margin-bottom:14px}.logo{font-size:1.05rem;gap:8px}.card{margin-bottom:12px}.main-menu-grid{gap:10px}.main-menu-btn{min-height:86px}.carousel-shell{padding:8px}.dashboard-filter label{font-size:.85rem}.report-table{min-width:650px}.voucher-cat-name{flex-basis:100%}.account-sub-balance{display:flex;align-items:center;gap:10px;justify-content:space-between}.voucher-savebar{position:fixed;bottom:max(8px,env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);width:calc(100% - 24px);max-width:676px;margin:0;box-shadow:0 3px 20px rgba(15,23,42,.14)}#cashFlowCard,#multiVoucherCard{padding-bottom:120px}.voucher-savebar .btn{flex-basis:120px;font-size:.9rem;padding:8px}}
+  @media(max-width:480px){.ledger-toolbar-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));width:100%}.ledger-toolbar-actions :is(.btn,.ledger-action-btn,.ledger-count-btn),.ledger-toolbar-actions :is(#ledgerBackBtn,#clearAllTxsBtn,#exportCsvBtn){width:100%!important;min-width:0!important;flex:none;font-size:.9rem!important}.account-operations-screen-head{position:static}.report-period-currency{grid-template-columns:minmax(0,1fr) minmax(108px,.65fr)}.budget-shortcut-grid{grid-template-columns:repeat(3,minmax(0,1fr))}.budget-shortcut{font-size:.85rem;overflow-wrap:anywhere}.multi-voucher-actions>.btn{flex-basis:110px}#filterCustomDateBox{flex-wrap:wrap}#filterCustomDateBox>div{flex:1 1 140px!important;min-width:0}.modal-content div:has(>.form-group>#reminderDateInput){flex-wrap:wrap}.modal-content div:has(>.form-group>#reminderDateInput)>.form-group{flex:1 1 140px!important}}
+  @media(max-width:359px){.logo{font-size:.95rem}.app-brand-icon{width:36px;height:36px}.header-tools .header-actions{gap:4px}.account-operations-head-actions .account-inline-actions{gap:4px}.voucher-savebar .btn{flex-basis:100%}#cashFlowCard{padding-bottom:140px}}
+  @media(max-height:480px){.voucher-savebar{position:static;transform:none;width:100%;margin-top:12px}#cashFlowCard,#multiVoucherCard{padding-bottom:var(--ui-pad)}}
+  .keyboard-open .voucher-savebar{position:static;transform:none;width:100%;margin-top:12px}
+  @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important;scroll-behavior:auto!important}}
+}
+@media print{.summary-toolbar,.dashboard-period,.voucher-savebar{display:none!important}.wrap{max-width:none}#cashFlowCard,#multiVoucherCard{padding-bottom:0}}
+
+@media print {
 :root{--border:#d7e0e9;--shadow:0 3px 12px rgba(15,23,42,.035)}
 [data-theme="dark"]{--border:#334155;--shadow:0 3px 12px rgba(0,0,0,.25)}
 body{font-weight:500;line-height:1.55}
@@ -654,6 +764,7 @@ button:focus-visible,[role="button"]:focus-visible,a:focus-visible{outline:3px s
 .keyboard-open .voucher-savebar{position:static;transform:none;width:100%;margin-top:12px}
 @media print{.summary-toolbar,.dashboard-period,.voucher-savebar{display:none!important}.wrap{max-width:none}#cashFlowCard,#multiVoucherCard{padding-bottom:0}}
 
+}
 header.no-print{direction:rtl;gap:12px}.header-tools{order:0}.header-tools .header-actions{flex-direction:row}
 .app-sidebar{--sidebar-green:#0d5b45;--sidebar-gold:#d2b462;--sidebar-hover:#f1f7f4;--sidebar-active:#e6f2eb;right:0;left:auto;width:min(340px,88vw);display:flex;flex-direction:column;gap:0;padding:0;overflow:hidden;border-right:0;border-left:1px solid var(--border);border-radius:16px 0 0 16px;background:var(--card);box-shadow:-8px 0 24px rgba(10,45,35,.12);transform:translateX(105%);visibility:hidden;pointer-events:none;transition:transform .2s ease,visibility 0s .2s;color:var(--text);text-align:right}
 [data-theme="dark"] .app-sidebar{--sidebar-green:#9bd7bc;--sidebar-gold:#d8c387;--sidebar-hover:#243b34;--sidebar-active:#2a443a;box-shadow:-8px 0 24px rgba(0,0,0,.22)}
@@ -720,7 +831,7 @@ body.ratib-sidebar-open,body.ratib-about-open{overflow:hidden}
       <button class="icon-btn" id="privacyBtn" title="وضع الخصوصية">👁️</button>
       <button class="icon-btn" id="themeBtn" title="الوضع الليلي">🌙</button>
       <button class="icon-btn" id="sidebarMenuBtn" aria-haspopup="dialog" aria-controls="appSidebar" aria-expanded="false" title="القائمة الجانبية" aria-label="فتح القائمة الجانبية">☰</button>
-    </div><small id="appVersionLabel" class="app-version">الإصدار 3.1.8</small></div>
+    </div><small id="appVersionLabel" class="app-version">الإصدار 3.1.9</small></div>
   </header>
   <div class="summary-toolbar hidden no-print" id="storageFeedback"><span id="persistentSaveStatus" hidden aria-hidden="true">جاهز</span><button type="button" id="retryStorageBtn" class="btn btn-ghost hidden">إعادة محاولة الحفظ</button></div>
 <div class="app-update-banner hidden no-print" id="appUpdateBanner" role="status"><span id="appUpdateMessage">يتوفر تحديث لراتب. هل تريد تطبيقه؟</span><button type="button" class="btn btn-ghost" id="applyAppUpdateBtn">حفظ المسودة والتحديث</button></div>
@@ -765,7 +876,7 @@ body.ratib-sidebar-open,body.ratib-about-open{overflow:hidden}
       <img src="Icons/icon-192.png" width="72" height="72" alt="" decoding="async">
       <h2 id="ratibAboutTitle">راتب</h2>
       <p class="ratib-about-subtitle">للتنظيم والتدبير المالي</p>
-      <p class="ratib-about-version">الإصدار 3.1.8</p>
+      <p class="ratib-about-version">الإصدار 3.1.9</p>
       <p id="ratibAboutDescription">إدارة الحسابات والسندات والميزانية، ومتابعة العمليات والتقارير المالية، مع حفظ البيانات على جهازك ودعم العمل دون الإنترنت.</p>
       <button type="button" class="btn btn-primary" id="closeRatibAboutBtn">إغلاق</button>
     </div>

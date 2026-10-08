@@ -1,5 +1,5 @@
-// Ratib 3.1.8: cache identity is unique to this app's scope.
-const CACHE_VERSION='v20-ratib-3.1.8';
+// Ratib 3.1.9: cache identity is unique to this app's scope.
+const CACHE_VERSION='v21-ratib-3.1.9';
 const CACHE_PREFIX=`ratib:${self.registration.scope}:`;
 const CACHE_NAME=CACHE_PREFIX+CACHE_VERSION;
 const APP_SHELL=[

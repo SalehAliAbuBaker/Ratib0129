@@ -1,6 +1,6 @@
 // Ratib 3.1.9: cache identity is unique to this app's scope.
-const CACHE_VERSION='v25-ratib-3.4.0';
-const APP_RELEASE={"version":"3.4.0","changes":["سند قبض/صرف موحد: اليمين قبض والحساب العلوي مدين، واليسار صرف والحساب العلوي دائن، مع المصارفة الفورية.","إزالة إدخال القبض والصرف والتوزيع القديمين، مع بقاء اختيار بنود الميزانية و«عام» افتراضيًا.","توحيد تصميم القيد البسيط والمركب مع السند الجديد، وإظهار أبرز التغييرات في رسالة كل تحديث."]};
+const CACHE_VERSION='v27-ratib-3.5.0';
+const APP_RELEASE={"version":"3.5.0","changes":["استيراد Excel وCSV وJSON مع مراجعة الأعمدة وحفظ المطابقة ونموذج Excel جاهز ومعاينة القيد الافتتاحي.","ميزان مراجعة بفترات وأرصدة افتتاحية وحركة وختام، وعرض العملات الأصلية والمعادل والطباعة وPDF وExcel.","حاسبة مشتركة للمبالغ وأسعار المصارفة والأرصدة، وتفقيط المبلغ كاملًا بما فيه الكسور.","تقديم البيان العام على المستفيد في السندات والطباعة، وفصل حقول المصارفة عن نماذج كلمات المرور.","سند قبض/صرف موحد وتصميم قيود متناسق، مع ملخص التغييرات في رسالة كل تحديث وحفظ المسودة قبل تطبيقه."]};
 const CACHE_PREFIX=`ratib:${self.registration.scope}:`;
 const CACHE_NAME=CACHE_PREFIX+CACHE_VERSION;
 const APP_SHELL=[
@@ -15,6 +15,8 @@ const APP_SHELL=[
   "./vendor/tajawal.css",
   "./vendor/chart.umd.min.js",
   "./vendor/chartjs-plugin-datalabels.min.js",
+  "./vendor/xlsx.full.min.js",
+  "./assets/ratib-accounts-template.xlsx",
   "./vendor/tajawal-1.woff2",
   "./vendor/tajawal-10.woff2",
   "./vendor/tajawal-2.woff2",
@@ -80,3 +82,4 @@ self.addEventListener('fetch',event=>{
     return response||new Response('',{status:503,statusText:'Offline resource unavailable'});
   })());
 });
+

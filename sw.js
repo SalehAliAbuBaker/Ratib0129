@@ -1,5 +1,6 @@
 // Ratib 3.1.9: cache identity is unique to this app's scope.
-const CACHE_VERSION='v24-ratib-3.3.0';
+const CACHE_VERSION='v25-ratib-3.4.0';
+const APP_RELEASE={"version":"3.4.0","changes":["سند قبض/صرف موحد: اليمين قبض والحساب العلوي مدين، واليسار صرف والحساب العلوي دائن، مع المصارفة الفورية.","إزالة إدخال القبض والصرف والتوزيع القديمين، مع بقاء اختيار بنود الميزانية و«عام» افتراضيًا.","توحيد تصميم القيد البسيط والمركب مع السند الجديد، وإظهار أبرز التغييرات في رسالة كل تحديث."]};
 const CACHE_PREFIX=`ratib:${self.registration.scope}:`;
 const CACHE_NAME=CACHE_PREFIX+CACHE_VERSION;
 const APP_SHELL=[
@@ -32,8 +33,9 @@ self.addEventListener('install',event=>{
   event.waitUntil(caches.open(CACHE_NAME).then(cache=>cache.addAll(APP_SHELL)));
 });
 self.addEventListener('message',event=>{
+  if(event.data?.type==='GET_UPDATE_DETAILS')event.source?.postMessage({type:'UPDATE_DETAILS',release:APP_RELEASE});
   if(event.data?.type==='SKIP_WAITING')event.waitUntil(self.skipWaiting());
-  if(event.data?.type==='OFFLINE_STATUS')event.waitUntil((async()=>{const cache=await caches.open(CACHE_NAME),ready=(await Promise.all([...SHELL_URLS].map(url=>cache.match(url)))).every(Boolean);event.source?.postMessage({type:ready?'OFFLINE_READY':'OFFLINE_UNAVAILABLE',version:CACHE_VERSION});})());
+  if(event.data?.type==='OFFLINE_STATUS')event.waitUntil((async()=>{const cache=await caches.open(CACHE_NAME),ready=(await Promise.all([...SHELL_URLS].map(url=>cache.match(url)))).every(Boolean);event.source?.postMessage({type:ready?'OFFLINE_READY':'OFFLINE_UNAVAILABLE',version:CACHE_VERSION,release:APP_RELEASE});})());
 });
 self.addEventListener('activate',event=>{
   event.waitUntil((async()=>{
@@ -46,7 +48,7 @@ self.addEventListener('activate',event=>{
     }
     await self.clients.claim();
     const clients=await self.clients.matchAll({type:'window',includeUncontrolled:true});
-    for(const client of clients)if(client.url.startsWith(self.registration.scope))client.postMessage({type:'OFFLINE_READY',version:CACHE_VERSION});
+    for(const client of clients)if(client.url.startsWith(self.registration.scope))client.postMessage({type:'OFFLINE_READY',version:CACHE_VERSION,release:APP_RELEASE});
   })());
 });
 self.addEventListener('fetch',event=>{

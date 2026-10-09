@@ -1,9 +1,13 @@
 // Ratib 3.1.9: cache identity is unique to this app's scope.
-const CACHE_VERSION='v27-ratib-3.5.0';
-const APP_RELEASE={"version":"3.5.0","changes":["استيراد Excel وCSV وJSON مع مراجعة الأعمدة وحفظ المطابقة ونموذج Excel جاهز ومعاينة القيد الافتتاحي.","ميزان مراجعة بفترات وأرصدة افتتاحية وحركة وختام، وعرض العملات الأصلية والمعادل والطباعة وPDF وExcel.","حاسبة مشتركة للمبالغ وأسعار المصارفة والأرصدة، وتفقيط المبلغ كاملًا بما فيه الكسور.","تقديم البيان العام على المستفيد في السندات والطباعة، وفصل حقول المصارفة عن نماذج كلمات المرور.","سند قبض/صرف موحد وتصميم قيود متناسق، مع ملخص التغييرات في رسالة كل تحديث وحفظ المسودة قبل تطبيقه."]};
+const CACHE_VERSION='v28-ratib-licensing-preview-1';
+const APP_RELEASE={"version":"3.5.0-licensing-preview.1","changes":["نظام تراخيص موقّعة وتفعيل الجهاز دون إنترنت، مع تجربة موثوقة لمدة ثلاثة أيام.","شاشة تفعيل عربية ووقف الإضافة والتعديل عند انتهاء الترخيص مع إبقاء العرض والتصدير.","لوحة إدارة التراخيص والأجهزة وسجل المراجعة؛ هذه نسخة مراجعة قبل اعتماد النشر."]};
 const CACHE_PREFIX=`ratib:${self.registration.scope}:`;
 const CACHE_NAME=CACHE_PREFIX+CACHE_VERSION;
 const APP_SHELL=[
+  "./licensing/config.js",
+  "./licensing/protocol.js",
+  "./licensing/client.js",
+  "./licensing/ui.css",
   "./",
   "./index.html",
   "./manifest.json",

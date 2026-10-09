@@ -8,6 +8,10 @@
 <meta name="color-scheme" content="light dark">
 <meta name="theme-color" content="#0284c7">
 <link rel="manifest" href="manifest.json">
+<link rel="stylesheet" href="./licensing/ui.css">
+<script src="./licensing/config.js"></script>
+<script src="./licensing/protocol.js"></script>
+<script src="./licensing/client.js"></script>
 <link rel="icon" type="image/png" sizes="192x192" href="Icons/icon-192.png">
 <link rel="icon" type="image/png" sizes="512x512" href="Icons/icon-512.png">
 <link rel="apple-touch-icon" sizes="180x180" href="Icons/apple-touch-icon.png">
@@ -935,6 +939,7 @@ body.ratib-sidebar-open,body.ratib-about-open{overflow:hidden}
 
 
   <div class="sidebar-overlay no-print" id="sidebarOverlay" aria-hidden="true"></div>
+  <p id="licenseReadOnlyBanner" class="ratib-license-banner no-print" role="status" hidden></p>
   <aside class="app-sidebar no-print" id="appSidebar" role="dialog" aria-modal="true" aria-labelledby="sidebarTitle" aria-hidden="true" tabindex="-1" inert>
     <div class="sidebar-head">
       <div class="sidebar-brand"><img src="Icons/icon-192.png" width="44" height="44" alt="" decoding="async"><div><strong id="sidebarTitle">راتب</strong><small>التنظيم والتدبير المالي</small></div></div>
@@ -956,6 +961,7 @@ body.ratib-sidebar-open,body.ratib-about-open{overflow:hidden}
       </section>
       <section class="sidebar-group" aria-labelledby="sidebarHelpTitle">
         <h3 class="sidebar-caption" id="sidebarHelpTitle">المساعدة</h3>
+        <button type="button" id="openRatibLicenseBtn"><span aria-hidden="true">🔑</span><span>تفعيل راتب</span></button>
         <div class="sidebar-contact-menu" id="sidebarContactMenu">
           <button type="button" class="sidebar-contact-toggle" id="sidebarContactToggle" aria-expanded="false" aria-controls="sidebarContactOptions"><svg class="sidebar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4"/><path d="m5.6 5.6 3.6 3.6m5.6 5.6 3.6 3.6m0-12.8-3.6 3.6m-5.6 5.6-3.6 3.6"/></svg><span>التواصل والدعم</span><b class="contact-options-arrow" aria-hidden="true"><svg class="sidebar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="m6 9 6 6 6-6"/></svg></b></button>
           <div class="sidebar-contact-options" id="sidebarContactOptions" aria-label="خيارات التواصل" hidden>
@@ -2184,7 +2190,7 @@ if('serviceWorker' in navigator){
             if(!document.getElementById('multiVoucherCard').classList.contains('hidden'))await saveMultiDraft();
             else if(!document.getElementById('cashFlowCard').classList.contains('hidden')){const d=captureSingleDraft();if(d.amount||d.note||d.recipient)store.set('single_voucher_draft_v1',d);}
           }
-          await flushStorage();if(!reg.waiting){banner.dataset.pending='false';showTransientAppNotice('لا يوجد تحديث معلّق الآن.');button.disabled=false;return;}
+          await flushStorage();await window.RatibLicense.checkpoint();if(!reg.waiting){banner.dataset.pending='false';showTransientAppNotice('لا يوجد تحديث معلّق الآن.');button.disabled=false;return;}
           document.getElementById('appUpdateMessage').textContent='تم حفظ البيانات. جارٍ تطبيق التحديث…';try{sessionStorage.setItem('ratib_update_applied_notice','1');}catch(_){ }
           requestedReload=true;reg.waiting.postMessage({type:'SKIP_WAITING'});
         }catch(_){button.disabled=false;showToast('أكمل حفظ البيانات قبل تطبيق التحديث.','error');}
@@ -2327,19 +2333,21 @@ function scheduleVaultFlush(){if(_vaultUnlocked&&_vaultCryptoKey){_pendingWrites
 const store={
   get(k,d){
     const key=APP_STORAGE_PREFIX+k;
-    if(_memStore[key]!==undefined)return _memStore[key]??d;
+    if(_memStore[key]!==undefined)return window.RatibLicense.copyRead(k,_memStore[key]??d);
     if(getSecurityConfig().enabled)return d;
-    try{const raw=localStorage.getItem(key);if(raw!==null){const v=JSON.parse(raw);_memStore[key]=v;return v??d;}}catch(_){ }
+    try{const raw=localStorage.getItem(key);if(raw!==null){const v=JSON.parse(raw);_memStore[key]=v;return window.RatibLicense.copyRead(k,v??d);}}catch(_){ }
     return d;
   },
   _setSilent(k,v){this._write(k,v,false);},
   set(k,v){this._write(k,v,true);},
   _write(k,v,backup){
+    if(window.RatibLicense.protectedKey(k)&&!window.RatibLicense.allowWrite())throw new Error("LICENSE_READ_ONLY");
     if(getSecurityConfig().enabled&&!_vaultUnlocked)throw new Error('الخزنة مقفلة؛ لا يمكن الحفظ قبل فتحها.');
     const key=APP_STORAGE_PREFIX+k;_memStore[key]=v;_pendingWrites.set(key,v);scheduleStorageFlush();
     if(backup)scheduleAutoBackup();
   },
   remove(k){
+    if(window.RatibLicense.protectedKey(k)&&!window.RatibLicense.allowWrite())throw new Error("LICENSE_READ_ONLY");
     if(getSecurityConfig().enabled&&!_vaultUnlocked)throw new Error('الخزنة مقفلة.');
     const key=APP_STORAGE_PREFIX+k;delete _memStore[key];_pendingWrites.set(key,undefined);scheduleStorageFlush();scheduleAutoBackup();
   }
@@ -2515,7 +2523,8 @@ function saveDefaultAccountsConfig(cfg) { store.set('default_accounts', cfg); }
 
 // نقطة الدخول الحقيقية للتطبيق: لا يتم عرض أي بيانات (renderAllData وغيرها)
 // إلا بعد فك القفل بنجاح، بدل أن يُبنى كل شيء في الخلفية وتوضع فوقه شاشة قفل شكلية فقط.
-function boot() {
+async function boot() {
+  await window.RatibLicense.ready;
   const cfg = getSecurityConfig();
   if (!cfg.enabled) { proceedAppInit(); return; }
 
@@ -3803,7 +3812,8 @@ function makeCatsExpandToggle(container, hiddenCount, expanded, onToggle){
 }
 let selEditDebitAcc, selEditCreditAcc;
 
-function getCats(){
+function getCats(){const value=window.RatibLicense.maintenance(()=>_ratibMaintenance_getCats());return window.RatibLicense.copyRead("cats",value);}
+function _ratibMaintenance_getCats(){
   const stored = store.get('cats', null);
   if (!Array.isArray(stored) || !stored.length) return DEFAULT_CATS.map(c => ({...c}));
   const coreIds = new Set(DEFAULT_CATS.map(c => c.id));
@@ -3851,6 +3861,7 @@ function updatePctSumDisplay() {
 }
 
 document.getElementById('savePctsBtn')?.addEventListener('click', () => {
+  if(!window.RatibLicense.requireWrite())return;
   const sum = draftCats.reduce((acc, c) => acc + Number(c.pct || 0), 0);
   if (sum !== 100) { alert(`مجموع النسب يجب أن يساوي 100% تماماً. المجموع الحالي: ${sum}%`); return; }
   store.set('cats', draftCats);
@@ -3878,13 +3889,15 @@ const DEFAULT_ACCOUNT_CODES = {
   'الالتزامات':'2','الالتزامات المتداولة':'21','الموردون والدائنون':'2101','ذمم الموردين التجارية':'210101','المستحقات والضرائب':'2102','ضريبة القيمة المضافة المستحقة':'210201','الالتزامات غير المتداولة':'22','القروض طويلة الأجل':'2201',
   'حقوق الملكية':'3','رأس المال المدفوع':'3101','الأرباح المبقاة (المرحلة)':'3102','جاري الشركاء':'3103','الإيرادات':'4','إيرادات النشاط التشغيلي':'41','مبيعات المنتجات':'4101','إيرادات الخدمات':'4102','إيرادات أخرى':'42','المصروفات':'5','تكلفة المبيعات / النشاط':'51','تكلفة البضاعة المباعة':'5101','المصروفات الإدارية والعمومية':'52','الرواتب والأجور':'5201','إيجار المقرات':'5202','مصاريف الكهرباء والمياه':'5203','المصروفات التسويقية والبيعية':'53','الدعاية والإعلان':'5301'
 };
-function getAccountCodes(){
+function getAccountCodes(){const value=window.RatibLicense.maintenance(()=>_ratibMaintenance_getAccountCodes());return window.RatibLicense.copyRead("account_codes",value);}
+function _ratibMaintenance_getAccountCodes(){
   const saved=store.get('account_codes',{}); const codes=(saved&&typeof saved==='object')?{...saved}:{}; let changed=false;
   Object.entries(DEFAULT_ACCOUNT_CODES).forEach(([name,code])=>{if(!codes[name]){codes[name]=code;changed=true}});
   if(changed)store.set('account_codes',codes); return codes;
 }
 function getAccountCode(name){return String(getAccountCodes()[name]||'—')}
-function ensureAccountCodes(tree){
+function ensureAccountCodes(tree){return window.RatibLicense.maintenance(()=>_ratibMaintenance_ensureAccountCodes(tree));}
+function _ratibMaintenance_ensureAccountCodes(tree){
   const codes=getAccountCodes(); const used=new Set(Object.values(codes).map(String)); let next=900000;
   const add=(name)=>{if(!name||codes[name])return;while(used.has(String(next)))next++;codes[name]=String(next++);used.add(String(next-1))};
   Object.entries(tree||{}).forEach(([main,node])=>{add(main);(node.accounts||[]).forEach(add);Object.keys(node.subGroups||{}).forEach(group=>{add(group);(node.subGroups[group]||[]).forEach(add)})});
@@ -3980,7 +3993,8 @@ function getCleanNumber(value){
   const n=Number(text);return Number.isFinite(n)&&Math.abs(n)<=Number.MAX_SAFE_INTEGER/100?n:NaN;
 }
 
-function getMasterPlan(){
+function getMasterPlan(){const value=window.RatibLicense.maintenance(()=>_ratibMaintenance_getMasterPlan());return window.RatibLicense.copyRead("plan",value);}
+function _ratibMaintenance_getMasterPlan(){
   const currentKey=monthKey();let p=store.get('plan',null),changed=false;
   if(p&&typeof p==='object'&&p.month&&p.month!==currentKey){
     const history=store.get('history',[]);
@@ -4540,6 +4554,7 @@ function openEditAccountModal(accName) {
 document.getElementById('closeEditAccountModalBtn')?.addEventListener('click', () => document.getElementById('editAccountModal').classList.remove('show'));
 
 document.getElementById('saveEditedAccountBtn')?.addEventListener('click', () => {
+  if(!window.RatibLicense.requireWrite())return;
   const oldName = document.getElementById('editAccountOldName').value;
   const newName = document.getElementById('editAccountNameInput').value.trim();
   const newCode = document.getElementById('editAccountCodeInput').value.trim();
@@ -4620,7 +4635,7 @@ document.getElementById('saveEditedAccountBtn')?.addEventListener('click', () =>
   showToast('تم تعديل الحساب بنجاح ✅', 'success');
 });
 
-function deleteAccountFromTree(mainP, subName) {
+function deleteAccountFromTree(mainP, subName) {if(!window.RatibLicense.requireWrite())return;
   let msg = `هل أنت متأكد من حذف الحساب "${subName}"؟`;
   if (isAccountNameInUse(subName)) msg += '\n\n⚠️ تنبيه: هذا الحساب له حركات مالية مسجلة فعلاً. حذفه سيجعل تلك الحركات تشير لحساب محذوف، وقد يؤثر على التقارير.';
   if (!confirm(msg)) return;
@@ -4868,6 +4883,7 @@ document.getElementById('openAddAccountDialogBtn').addEventListener('click', () 
 document.getElementById('closeAddAccountModalBtn').addEventListener('click', () => document.getElementById('addAccountModal').classList.remove('show'));
 
 document.getElementById('saveNewAccountTreeBtn').addEventListener('click', () => {
+  if(!window.RatibLicense.requireWrite())return;
   const targetPath = document.getElementById('newAccountParentSelect').value; let subCode = document.getElementById('newAccountSubCodeInput').value.trim(); const subName = document.getElementById('newAccountSubNameInput').value.trim();
   const maxC = document.getElementById('newAccountMaxCeil').value, minC = document.getElementById('newAccountMinCeil').value;
   if (!subName) { alert('يرجى كتابة اسم الحساب الفرعي'); return; }
@@ -4907,6 +4923,7 @@ document.getElementById('saveNewAccountTreeBtn').addEventListener('click', () =>
 });
 
 document.getElementById('saveNewParentCategoryBtn').addEventListener('click', () => {
+  if(!window.RatibLicense.requireWrite())return;
   let parentCode = document.getElementById('newParentCategoryCodeInput').value.trim();
   const parentName = document.getElementById('newParentCategoryInput').value.trim();
   const parentOfParent = document.getElementById('newParentCategoryParentSelect').value;
@@ -5116,6 +5133,7 @@ document.getElementById('swapEditAccountsBtn').addEventListener('click', () => {
 });
 
 document.getElementById('commitVoucherBtn').addEventListener('click',async()=>{
+  if(!window.RatibLicense.requireWrite())return;
   const button=document.getElementById('commitVoucherBtn');if(button.disabled)return;button.disabled=true;
   const addAnother=_saveAndAddAnother;_saveAndAddAnother=false;
   try{
@@ -5223,7 +5241,7 @@ document.getElementById('addAnotherVoucherBtn')?.addEventListener('click', () =>
 
 // الإجراء الفعلي للإلغاء (بلا تأكيد) — مُستخرَج هنا ليُستخدَم في مسارين: حذف عملية مفردة
 // بتأكيد بسيط، وحذف سند قيد مركب بالكامل (كل بنوده) من نافذة تفاصيل المستند بتأكيد مكتوب.
-function reverseTransactionById(itemId) {
+function reverseTransactionById(itemId) {if(!window.RatibLicense.requireWrite())return;
   const p = getMasterPlan();
   let tx = (p.transactions || []).find(t => String(t.id) === String(itemId));
   let inPlan = true;
@@ -5245,7 +5263,7 @@ function reverseTransactionById(itemId) {
   audit('REVERSE_TRANSACTION', tx.id, before, tx);
   return true;
 }
-async function deleteSingleTransaction(itemId) {
+async function deleteSingleTransaction(itemId) {if(!window.RatibLicense.requireWrite())return;
   if (!confirm('سيتم إلغاء السند وحفظ أثره الرقابي. هل أنت متأكد؟')) return;
   if (!reverseTransactionById(itemId)) return;
 try{await completeFinancialSave(()=>{  showToast('تم إلغاء السند بنجاح', 'warn'); 
@@ -5256,7 +5274,7 @@ try{await completeFinancialSave(()=>{  showToast('تم إلغاء السند ب�
 // حذف المستند المعروض حالياً في نافذة تفاصيل المستند (longPressConfirmModal)، بما في ذلك
 // كل بنود سند القيد المركب (مخزَّنة كعمليات منفصلة تشترك في multiVoucherId). يتطلب كتابة
 // كلمة "حذف" نصاً قبل التنفيذ — تأكيد أقوى من التأكيد البسيط المستخدم في القائمة العادية.
-async function deleteDocumentFromModal() {
+async function deleteDocumentFromModal() {if(!window.RatibLicense.requireWrite())return;
   const item = pendingLongPressTx;
   if (!item) return;
   if(item.isOpeningBalance){document.getElementById('longPressConfirmModal').classList.remove('show');openLegacyImport();loadLastLegacyImport(item.importBatchId);showToast('راجع دفعة الأرصدة مع الحفاظ على توازنها، أو تراجع عن الاستيراد كاملًا.','info');return;}
@@ -5283,6 +5301,7 @@ try{await completeFinancialSave(()=>{  document.getElementById('longPressConfirm
 });}catch(e){showToast('لم يكتمل حفظ الإلغاء؛ أعد محاولة الحفظ.','error');}}
 
 document.getElementById('clearAllTxsBtn')?.addEventListener('click', () => {
+  if(!window.RatibLicense.requireWrite())return;
   const firstCheck = confirm('⚠️ تحذير خطير: أنت على وشك تصفير ومسح كافة العمليات والسندات المسجلة نهائياً!\n\nهل أنت متأكد تماماً من رغبتك في المتابعة؟');
   if (!firstCheck) return;
   const secondCheck = prompt('لإتمام عملية التصفير وتأكيد الحذف، يرجى كتابة كلمة (تأكيد) في الخانة أدناه:');
@@ -5446,6 +5465,7 @@ document.getElementById('editVoucherAmount')?.addEventListener('input', (e) => {
 });
 
 document.getElementById('saveTxExecutionBtn')?.addEventListener('click', async () => {
+  if(!window.RatibLicense.requireWrite())return;
   if (!activeEditingTx) return;
   const before = structuredClone(activeEditingTx);
   const p = getMasterPlan();
@@ -6297,7 +6317,7 @@ function initializeCanonicalChart(){
     const codes=getAccountCodes(); CANONICAL_ACCOUNT_CATALOG.forEach(x=>{codes[x.main]=x.mainCode;codes[x.group]=x.groupCode;codes[x.sub]=x.subCode;x.details.forEach(d=>codes[d[1]]=d[0])}); store.set('account_codes',codes);
   }
 }
-function renameCatalogAccount(oldName,newName){const cat=getCanonicalCatalog();cat.forEach(x=>x.details.forEach(d=>{if(d[1]===oldName)d[1]=newName}));store.set('account_catalog',cat)}
+function renameCatalogAccount(oldName,newName){if(!window.RatibLicense.requireWrite())return;const cat=getCanonicalCatalog();cat.forEach(x=>x.details.forEach(d=>{if(d[1]===oldName)d[1]=newName}));store.set('account_catalog',cat)}
 
 // ===== تعديل/حذف المستويات الثلاثة العليا من شجرة الحسابات (رئيسي / تجميعي / تجميعي فرعي) =====
 // كانت هذه المستويات قابلة للعرض فقط دون أي إمكانية للتعديل أو الحذف؛ الدوال التالية تفتح
@@ -6305,7 +6325,7 @@ function renameCatalogAccount(oldName,newName){const cat=getCanonicalCatalog();c
 // تابعة لهذا المستوى؟ إن وُجدت، يُنبَّه المستخدم بوضوح قبل المتابعة (لا يُمنع الحذف، فقط تحذير).
 function isAccountNameInUse(name){ return getAllTransactions().some(t=>t.debitAccount===name||t.creditAccount===name); }
 
-function renameMainCategory(oldName){
+function renameMainCategory(oldName){if(!window.RatibLicense.requireWrite())return;
   const newName=prompt('اسم الحساب الرئيسي الجديد:',oldName); if(newName===null||!newName.trim())return;
   const newCode=prompt('رقم الحساب الرئيسي الجديد:',getAccountCode(oldName)!=='—'?getAccountCode(oldName):''); if(newCode===null)return;
   const trimmedName=newName.trim(), trimmedCode=newCode.trim();
@@ -6318,7 +6338,7 @@ function renameMainCategory(oldName){
   renderCanonicalChartOfAccounts(); initCanonicalLiveAccountsTreePage();
   showToast('تم تعديل الحساب الرئيسي بنجاح ✅','success');
 }
-function deleteMainCategory(mainName){
+function deleteMainCategory(mainName){if(!window.RatibLicense.requireWrite())return;
   const cat=getCanonicalCatalog(), rows=cat.filter(x=>x.main===mainName);
   const leafNames=rows.flatMap(x=>x.details.map(d=>d[1]));
   const inUse=leafNames.filter(isAccountNameInUse);
@@ -6335,7 +6355,7 @@ function deleteMainCategory(mainName){
   showToast('تم حذف الحساب الرئيسي وكل ما يتبعه','warn');
 }
 
-function renameGroupCategory(mainName,oldGroupName){
+function renameGroupCategory(mainName,oldGroupName){if(!window.RatibLicense.requireWrite())return;
   const newName=prompt('اسم الحساب التجميعي الجديد:',oldGroupName); if(newName===null||!newName.trim())return;
   const newCode=prompt('رقم الحساب التجميعي الجديد:',getAccountCode(oldGroupName)!=='—'?getAccountCode(oldGroupName):''); if(newCode===null)return;
   const trimmedName=newName.trim(), trimmedCode=newCode.trim();
@@ -6348,7 +6368,7 @@ function renameGroupCategory(mainName,oldGroupName){
   renderCanonicalChartOfAccounts(); initCanonicalLiveAccountsTreePage();
   showToast('تم تعديل الحساب التجميعي بنجاح ✅','success');
 }
-function deleteGroupCategory(mainName,groupName){
+function deleteGroupCategory(mainName,groupName){if(!window.RatibLicense.requireWrite())return;
   const cat=getCanonicalCatalog(), rows=cat.filter(x=>x.main===mainName && x.group===groupName);
   const leafNames=rows.flatMap(x=>x.details.map(d=>d[1]));
   const inUse=leafNames.filter(isAccountNameInUse);
@@ -6365,7 +6385,7 @@ function deleteGroupCategory(mainName,groupName){
   showToast('تم حذف الحساب التجميعي وكل ما يتبعه','warn');
 }
 
-function renameSubCategory(mainName,groupName,oldSubName){
+function renameSubCategory(mainName,groupName,oldSubName){if(!window.RatibLicense.requireWrite())return;
   const newName=prompt('اسم الحساب التجميعي الفرعي الجديد:',oldSubName); if(newName===null||!newName.trim())return;
   const newCode=prompt('رقم الحساب التجميعي الفرعي الجديد:',getAccountCode(oldSubName)!=='—'?getAccountCode(oldSubName):''); if(newCode===null)return;
   const trimmedName=newName.trim(), trimmedCode=newCode.trim();
@@ -6389,7 +6409,7 @@ ${availableGroups.join('، ')}`, groupName);
   renderCanonicalChartOfAccounts(); initCanonicalLiveAccountsTreePage();
   showToast('تم تعديل الحساب التجميعي الفرعي بنجاح ✅','success');
 }
-function deleteSubCategory(mainName,groupName,subName){
+function deleteSubCategory(mainName,groupName,subName){if(!window.RatibLicense.requireWrite())return;
   const cat=getCanonicalCatalog(), rows=cat.filter(x=>x.main===mainName && x.group===groupName && x.sub===subName);
   const leafNames=rows.flatMap(x=>x.details.map(d=>d[1]));
   const inUse=leafNames.filter(isAccountNameInUse);
@@ -6405,14 +6425,14 @@ function deleteSubCategory(mainName,groupName,subName){
   updateSearchableData(); renderCanonicalChartOfAccounts(); initCanonicalLiveAccountsTreePage();
   showToast('تم حذف الحساب التجميعي الفرعي وحساباته','warn');
 }
-function addCatalogCategory(name,code,parentPath=''){
+function addCatalogCategory(name,code,parentPath=''){if(!window.RatibLicense.requireWrite())return;
   const cat=getCanonicalCatalog(); if(cat.some(x=>x.main===name||x.group===name||x.sub===name)) return;
   const parent=(parentPath||'').split('>').map(x=>x.trim()).filter(Boolean)[0];
   if(parent && cat.some(x=>x.main===parent)) cat.push({mainCode:getAccountCode(parent),main:parent,groupCode:code,group:name,subCode:code+'01',sub:name,details:[]});
   else cat.push({mainCode:code,main:name,groupCode:code,group:name,subCode:code+'01',sub:name,details:[]});
   store.set('account_catalog',cat);const codes=getAccountCodes();codes[name]=code;codes[name]=code;store.set('account_codes',codes);store.set('account_tree',canonicalTreeProjection(cat));
 }
-function addCatalogDetail(name,code){const cat=getCanonicalCatalog(); if(cat.some(x=>x.details.some(d=>d[0]===code)))return; const selected=document.getElementById('newAccountParentSelect')?.value||''; const parentSub=selected.includes('>')?selected.split('>').pop().trim():selected; const base=cat.find(x=>x.sub===parentSub)||cat[0]; if(base){base.details.push([code,name]);store.set('account_catalog',cat)}}
+function addCatalogDetail(name,code){if(!window.RatibLicense.requireWrite())return;const cat=getCanonicalCatalog(); if(cat.some(x=>x.details.some(d=>d[0]===code)))return; const selected=document.getElementById('newAccountParentSelect')?.value||''; const parentSub=selected.includes('>')?selected.split('>').pop().trim():selected; const base=cat.find(x=>x.sub===parentSub)||cat[0]; if(base){base.details.push([code,name]);store.set('account_catalog',cat)}}
 function renderCanonicalChartOfAccounts(){
   const container=document.getElementById('chartOfAccountsView'); if(!container)return; container.innerHTML='';
   const cat=getCanonicalCatalog(), mains=[...new Map(cat.map(x=>[x.main,x])).values()];
@@ -6991,7 +7011,7 @@ function repairDuplicateMultiVoucherLines(){
     return drop.size;
   }catch(e){console.error('repairDuplicateMultiVoucherLines',e);return 0;}
 }
-async function commitMultiVoucher(){if(_pendingFinancialCompletion){showToast('انتظر اكتمال الحفظ السابق.','warn');return;}const err=validateMultiVoucher();if(err){showToast(err,'warn',5000);return;}const d=buildMultiVoucherData('posted');if(!d.baseTotal||!d.lines.length){showToast('لا توجد بنود صالحة للاعتماد','warn');return;}const p=getMasterPlan(),now=Date.now();if(['income','spend'].includes(d.mode)&&getAllTransactions().some(t=>t.voucherMode===d.mode&&Number(t.seqNum)===d.seq&&t.multiVoucherId!==d.id&&t.id!==d.id)){showToast('رقم السند مستخدم؛ افتح السند مرة أخرى لتحديث الرقم.','error');return;}if(multiVoucherDraftId){p.transactions=p.transactions.filter(t=>t.multiVoucherId!==multiVoucherDraftId&&t.id!==multiVoucherDraftId);removeMultiVoucherLinesFromHistory(multiVoucherDraftId);}d.lines.forEach((line,i)=>{p.transactions.push({id:`${d.id}_${i}`,multiVoucherId:d.id,isMultiVoucher:true,seqNum:d.seq,timestamp:new Date(d.date).getTime(),isoDate:d.date,date:d.date,amount:line.base,currency:d.baseCurrency,isExpense:d.mode==='spend'&&line.side==='debit',voucherMode:['income','spend'].includes(d.mode)?d.mode:'multi-entry',debitAccount:line.side==='debit'?line.account:'',creditAccount:line.side==='credit'?line.account:'',type:`${cashVoucherTitle(d.mode)} #${d.seq}`,multiVoucher:d,recipient:d.beneficiary||'',distribution:(()=>{const c=getCats().find(x=>x.id===(line.budgetId||'general'))||getCats().find(x=>x.id==='general');return c?{[c.id]:{id:c.id,name:c.name,amount:line.base,pct:100,color:c.color}}:{}})(),execution:{[line.budgetId||'general']:{done:true,actualSpent:d.mode==='income'?0:line.base,note:line.note||d.note}},status:'posted',schemaVersion:APP_SCHEMA_VERSION,updatedAt:now});});store.set('plan',p);store.set('multi_voucher_drafts',store.get('multi_voucher_drafts',[]).filter(x=>x.id!==d.id));audit(d.mode==='income'?'SAVE_RECEIPT_VOUCHER':d.mode==='spend'?'SAVE_SPEND_VOUCHER':'CREATE_MULTI_ENTRY_VOUCHER',d.id,null,d);try{await completeFinancialSave(()=>{lastPrintedTx={...p.transactions[p.transactions.length-1],multiVoucher:d};renderAllData();updateProDashboard();showToast('تم حفظ '+cashVoucherTitle(d.mode)+' بقيد متوازن','success');prepareMultiVoucherPrint(d);resetMultiVoucherForm();showMultiSavedNotice(d);});}catch(e){showToast('لم يكتمل حفظ القيد المركب؛ أعد محاولة الحفظ.','error');}}
+async function commitMultiVoucher(){if(!window.RatibLicense.requireWrite())return;if(_pendingFinancialCompletion){showToast('انتظر اكتمال الحفظ السابق.','warn');return;}const err=validateMultiVoucher();if(err){showToast(err,'warn',5000);return;}const d=buildMultiVoucherData('posted');if(!d.baseTotal||!d.lines.length){showToast('لا توجد بنود صالحة للاعتماد','warn');return;}const p=getMasterPlan(),now=Date.now();if(['income','spend'].includes(d.mode)&&getAllTransactions().some(t=>t.voucherMode===d.mode&&Number(t.seqNum)===d.seq&&t.multiVoucherId!==d.id&&t.id!==d.id)){showToast('رقم السند مستخدم؛ افتح السند مرة أخرى لتحديث الرقم.','error');return;}if(multiVoucherDraftId){p.transactions=p.transactions.filter(t=>t.multiVoucherId!==multiVoucherDraftId&&t.id!==multiVoucherDraftId);removeMultiVoucherLinesFromHistory(multiVoucherDraftId);}d.lines.forEach((line,i)=>{p.transactions.push({id:`${d.id}_${i}`,multiVoucherId:d.id,isMultiVoucher:true,seqNum:d.seq,timestamp:new Date(d.date).getTime(),isoDate:d.date,date:d.date,amount:line.base,currency:d.baseCurrency,isExpense:d.mode==='spend'&&line.side==='debit',voucherMode:['income','spend'].includes(d.mode)?d.mode:'multi-entry',debitAccount:line.side==='debit'?line.account:'',creditAccount:line.side==='credit'?line.account:'',type:`${cashVoucherTitle(d.mode)} #${d.seq}`,multiVoucher:d,recipient:d.beneficiary||'',distribution:(()=>{const c=getCats().find(x=>x.id===(line.budgetId||'general'))||getCats().find(x=>x.id==='general');return c?{[c.id]:{id:c.id,name:c.name,amount:line.base,pct:100,color:c.color}}:{}})(),execution:{[line.budgetId||'general']:{done:true,actualSpent:d.mode==='income'?0:line.base,note:line.note||d.note}},status:'posted',schemaVersion:APP_SCHEMA_VERSION,updatedAt:now});});store.set('plan',p);store.set('multi_voucher_drafts',store.get('multi_voucher_drafts',[]).filter(x=>x.id!==d.id));audit(d.mode==='income'?'SAVE_RECEIPT_VOUCHER':d.mode==='spend'?'SAVE_SPEND_VOUCHER':'CREATE_MULTI_ENTRY_VOUCHER',d.id,null,d);try{await completeFinancialSave(()=>{lastPrintedTx={...p.transactions[p.transactions.length-1],multiVoucher:d};renderAllData();updateProDashboard();showToast('تم حفظ '+cashVoucherTitle(d.mode)+' بقيد متوازن','success');prepareMultiVoucherPrint(d);resetMultiVoucherForm();showMultiSavedNotice(d);});}catch(e){showToast('لم يكتمل حفظ القيد المركب؛ أعد محاولة الحفظ.','error');}}
 
 function entryshowMultiSavedNotice(d){
   const box=document.getElementById('multiSavedNotice');if(!box)return;const tx=getAllTransactions().find(t=>t.multiVoucherId===d.id);box.classList.remove('hidden');box.innerHTML=`<div>تم حفظ سند القيد المركب رقم (#${d.seq}) بنجاح.</div><div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px"><button type="button" class="btn btn-primary" id="editLastMultiVoucherBtn">✎ تعديل المستند المحفوظ</button><button type="button" class="btn btn-ghost" id="newMultiVoucherAfterSaveBtn">＋ قيد جديد</button></div>`;
@@ -7079,7 +7099,8 @@ function pdfSingleVoucher(tx) {
 function entrypdfMultiVoucher(){const d=buildMultiVoucherData('draft');prepareMultiVoucherPrint(d);const file=buildMultiVoucherPdf(d),url=URL.createObjectURL(file),a=document.createElement('a');a.href=url;a.download=`سند-قيد-متعدد-${d.seq}.pdf`;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);showToast('تم إنشاء ملف PDF لسند القيد المركب','success');}
 function entrysetupMultiVoucherFeature(){document.getElementById('addMultiVoucherLineBtn')?.addEventListener('click',addMultiVoucherLine);document.getElementById('multiVoucherBaseCurrency')?.addEventListener('change',()=>{multiVoucherLines.forEach(l=>{if(l.currency===document.getElementById('multiVoucherBaseCurrency').value)l.rate='1'});renderMultiVoucherLines();syncMultiAutoBalance()});document.getElementById('saveMultiDraftBtn')?.addEventListener('click',saveMultiDraft);document.getElementById('loadMultiDraftBtn')?.addEventListener('click',loadLatestMultiDraft);document.getElementById('commitMultiVoucherBtn')?.addEventListener('click',commitMultiVoucher);document.getElementById('printMultiVoucherBtn')?.addEventListener('click',printMultiVoucher);document.getElementById('pdfMultiVoucherBtn')?.addEventListener('click',pdfMultiVoucher);}
 
-function proceedAppInit() {
+function proceedAppInit(){const value=window.RatibLicense.maintenance(()=>_ratibMaintenance_proceedAppInit());return value;}
+function _ratibMaintenance_proceedAppInit(){
   document.documentElement.dataset.theme = store.get('theme', 'light');
   loadLegacyCurrencies();
   migrateLegacyAccountNames();
@@ -7699,6 +7720,7 @@ function initExitDialog(){
 }
 
 function closeTransientAppUi(){
+  if(!document.getElementById('ratibLicenseModal')?.hidden){window.RatibLicense.close();return true;}
   const sidebar=document.getElementById('appSidebar');
   if(sidebar?.classList.contains('show')){document.getElementById('closeSidebarBtn')?.click();return true;}
   const modals=[...document.querySelectorAll('.modal-overlay.show')];
@@ -7838,7 +7860,7 @@ function initRatibSidebar(){
   document.getElementById('ratibAboutModal').addEventListener('click',event=>{if(event.target.id==='ratibAboutModal')closeRatibAbout();});
   document.addEventListener('keydown',event=>{
     const state=_ratibOverlayState;if(!state)return;
-    if(event.key==='Escape'){event.preventDefault();event.stopImmediatePropagation();if(state.surface===sidebar)closeRatibSidebar();else if(state.surface.id==='spendFxModal')closeSpendFx();else if(state.surface.id==='legacyImportModal')closeLegacyImport();else if(state.surface.id==='financialCalculatorModal')closeFinancialCalculator();else if(state.surface.id==='trialPreviewModal')closeTrialPreview();else closeRatibAbout();return;}
+    if(event.key==='Escape'){event.preventDefault();event.stopImmediatePropagation();if(state.surface.id==='ratibLicenseModal')window.RatibLicense.close();else if(state.surface===sidebar)closeRatibSidebar();else if(state.surface.id==='spendFxModal')closeSpendFx();else if(state.surface.id==='legacyImportModal')closeLegacyImport();else if(state.surface.id==='financialCalculatorModal')closeFinancialCalculator();else if(state.surface.id==='trialPreviewModal')closeTrialPreview();else closeRatibAbout();return;}
     if(event.key==='Tab'){
       const items=ratibOverlayFocusable(state.surface),first=items[0],last=items.at(-1),active=document.activeElement;
       if(!first){event.preventDefault();state.surface.focus();}
@@ -8341,7 +8363,7 @@ async function legacyPersistSnapshot(data){
   for(const k of Object.keys(_memStore))delete _memStore[k];Object.assign(_memStore,data);if(cfg.enabled)_vaultBlob=blob;hasUnsavedChanges=false;clearTimeout(_draftTimer);clearTimeout(_autoBackupTimer);loadLegacyCurrencies();
 }
 
-async function applyLegacyImport(){
+async function applyLegacyImport(){if(!window.RatibLicense.requireWrite())return;
   if(legacyImportState.busy||!document.getElementById('legacyImportApprove').checked)return false;
   const expected=legacyImportState.fingerprint,plan=legacyCalculatePreview();if(!plan)return false;if(expected!==legacyImportState.fingerprint){document.getElementById('legacyImportApprove').checked=false;document.getElementById('applyLegacyImportBtn').disabled=true;document.getElementById('legacyImportError').textContent='تغيرت البيانات بعد المعاينة؛ راجع النتائج ووافق عليها مجددًا.';return false;}legacyImportState.busy=true;document.getElementById('applyLegacyImportBtn').disabled=true;
   try{await flushStorage();if(_pendingFinancialCompletion)throw Error('أكمل حفظ المستند المعلّق قبل الاستيراد.');const before=legacyCurrentData();
@@ -8354,7 +8376,7 @@ async function applyLegacyImport(){
   }catch(error){document.getElementById('legacyImportError').textContent='لم يكتمل الاستيراد: '+error.message;return false;}finally{legacyImportState.busy=false;}
 }
 
-async function undoLegacyImport(){
+async function undoLegacyImport(){if(!window.RatibLicense.requireWrite())return;
   if(legacyImportState.busy)return false;const undo=store.get('legacy_import_undo',null);if(!undo)return false;legacyImportState.busy=true;
   try{await flushStorage();if(legacyFinancialFingerprint(legacyCurrentData())!==undo.afterFingerprint)throw Error('تغيرت البيانات المحاسبية بعد الاستيراد. احتفظ بنسخة الأمان وراجع الحركات الجديدة قبل استعادتها.');await legacyPersistSnapshot(undo.before);legacyImportState.committed=true;legacyImportState.payload=null;legacyImportState.replaceBatch='';legacyImportState.mapping={};document.getElementById('legacyImportSummary').textContent='تم التراجع عن دفعة الاستيراد كاملة واستعادة البيانات السابقة.';document.getElementById('legacyImportError').textContent='';document.getElementById('undoLegacyImportBtn').disabled=true;return true;}catch(error){document.getElementById('legacyImportError').textContent=error.message;return false;}finally{legacyImportState.busy=false;}
 }
@@ -8660,5 +8682,16 @@ selfHealStorageFromIdb().then(boot).catch(error=>{showRatibFatalBanner(error.mes
 
 <div class="modal-overlay no-print" id="financialCalculatorModal" role="dialog" aria-modal="true" aria-labelledby="financialCalcTitle" tabindex="-1"><div class="modal-content financial-calculator"><div class="spend-fx-title"><h2 id="financialCalcTitle">الحاسبة</h2><button type="button" class="icon-btn" id="financialCalcClose" aria-label="إغلاق الحاسبة">×</button></div><label>العملية<input id="financialCalcExpression" type="text" inputmode="decimal" autocomplete="off" dir="ltr"></label><output id="financialCalcResult" dir="ltr" aria-live="polite"></output><small id="financialCalcPrecision"></small><div class="financial-calc-keys"><button type="button" data-calc-key="clear">مسح</button><button type="button" data-calc-key="back">⌫</button><button type="button" data-calc-key="(">(</button><button type="button" data-calc-key=")">)</button><button type="button" data-calc-key="7">7</button><button type="button" data-calc-key="8">8</button><button type="button" data-calc-key="9">9</button><button type="button" data-calc-key="÷">÷</button><button type="button" data-calc-key="4">4</button><button type="button" data-calc-key="5">5</button><button type="button" data-calc-key="6">6</button><button type="button" data-calc-key="×">×</button><button type="button" data-calc-key="1">1</button><button type="button" data-calc-key="2">2</button><button type="button" data-calc-key="3">3</button><button type="button" data-calc-key="−">−</button><button type="button" data-calc-key="0">0</button><button type="button" data-calc-key=".">.</button><button type="button" data-calc-key="+">+</button></div><button type="button" class="btn btn-primary" id="financialCalcUse">استخدام النتيجة</button></div></div>
 <div class="modal-overlay no-print" id="trialPreviewModal" role="dialog" aria-modal="true" aria-labelledby="trialPreviewTitle" tabindex="-1"><div class="modal-content trial-print-preview"><div class="spend-fx-title"><h2 id="trialPreviewTitle">معاينة ميزان المراجعة</h2><button type="button" class="icon-btn" id="trialPreviewClose" aria-label="إغلاق معاينة الميزان">×</button></div><div class="trial-preview-content" id="trialPreviewContent"></div></div></div><div id="trialPrintHost" class="trial-print-host"></div>
+<section id="ratibLicenseModal" class="ratib-license-modal no-print" role="dialog" aria-modal="true" aria-labelledby="licenseTitle" aria-hidden="true" hidden inert tabindex="-1">
+ <div class="ratib-license-card"><div class="ratib-license-heading"><h2 id="licenseTitle">تفعيل راتب</h2><button type="button" id="licenseClose" class="icon-btn" aria-label="إغلاق التفعيل">×</button></div>
+ <p>حالة الترخيص: <strong id="licenseStatus"></strong></p><p id="licenseTrialDays"></p><p id="licenseDetails"></p><p id="licenseReadOnly" role="status"></p>
+ <label for="licenseEmail">البريد عند ربط الترخيص بالبريد (اختياري للجهاز)</label><input id="licenseEmail" type="email" maxlength="254" autocomplete="email">
+ <button type="button" class="btn btn-ghost" id="licenseMakeRequest">إنشاء طلب تفعيل لهذا الجهاز</button><label for="licenseRequestCode">رمز طلب الجهاز</label><textarea id="licenseRequestCode" readonly rows="3" dir="ltr" spellcheck="false"></textarea><button type="button" class="btn btn-ghost" id="licenseCopyRequest">نسخ طلب التفعيل</button>
+ <label for="licenseToken">رمز التفعيل من مالك النظام</label><textarea id="licenseToken" rows="4" dir="ltr" maxlength="16000" spellcheck="false" autocomplete="off"></textarea>
+ <div class="ratib-license-actions"><button type="button" class="btn btn-primary" id="licenseActivate">التحقق والتفعيل</button><button type="button" class="btn btn-ghost" id="licenseRefresh">التحقق عبر الإنترنت</button></div><p id="licenseMessage" role="status" aria-live="polite"></p>
+ <details><summary>الخصوصية والعمل دون إنترنت</summary><p>تُرسل إلى خدمة التراخيص هوية تثبيت الجهاز ومفتاحه العام ورقم الترخيص والبريد عند اختياره. لا تُرسل الحسابات أو السندات أو المبالغ. الترخيص الموقّع يعمل دون إنترنت حتى نهاية مدته؛ يظهر إلغاء الترخيص عند الاتصال التالي.</p><p>تغيير ساعة الجهاز وحده لا يعيد التجربة. حذف بيانات التطبيق أو تعديل ملفاته قد يتجاوز بعض القيود المحلية؛ تطبيق HTML دون اتصال ليس حماية مطلقة. يحتاج أول بدء تجربة إلى اتصال موثوق، أو رمز تجريبي يصدره المالك لطلب الجهاز.</p><p>النسخ الاحتياطية المالية لا تنقل ترخيص الجهاز ولا تمدد التجربة. تبقى استعادة النسخ متاحة لاسترجاع البيانات عند انتهاء الترخيص.</p></details>
+ </div>
+</section>
+
 </body>
 </html>

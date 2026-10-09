@@ -1,0 +1,7 @@
+node_modules/
+.wrangler/
+cloudflare/wrangler.toml
+cloudflare/.dev.vars
+*.keystore
+*.secrets.json
+private-analysis/

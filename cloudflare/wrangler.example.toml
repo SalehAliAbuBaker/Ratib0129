@@ -1,0 +1,17 @@
+name = "ratib-license-staging"
+main = "src/worker.mjs"
+compatibility_date = "2026-10-09"
+workers_dev = true
+
+[vars]
+LICENSE_ISSUER = "REPLACE_WITH_STAGING_WORKER_ORIGIN"
+ALLOWED_APP_ORIGINS = '["https://salehaliabubaker.github.io"]'
+
+[[d1_databases]]
+binding = "DB"
+database_name = "ratib-license-db-staging"
+database_id = "REPLACE_WITH_SEPARATE_STAGING_D1_ID"
+migrations_dir = "migrations"
+
+# Cloudflare-only secrets: ADMIN_API_KEY, SIGNING_KEY_ENCRYPTION_KEY (>=32 random characters).
+# Never place values in this file or GitHub. /api/admin/signing/init generates keys inside Cloudflare.

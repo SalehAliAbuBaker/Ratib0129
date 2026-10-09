@@ -39,6 +39,7 @@ function validateLicense(b){const binding=b.binding_type||'device',max=Number(b.
 async function activateDevice(env,l,request,confirmed){
  if(l.status!=='active')fail('LICENSE_REVOKED',403);if(l.expiry_date&&parseUTC(l.expiry_date)<=Date.now())fail('LICENSE_EXPIRED',403);
  const m=await meta(env.DB,l.id);if(l.binding_type!=='device'&&(request.email!==String(l.email).toLowerCase()||(!m.email_verified&&!confirmed)))fail('EMAIL_MISMATCH_OR_UNVERIFIED',403);
+ const previousDevice=await stmt(env.DB,'SELECT status FROM ratib_signed_devices WHERE license_id=? AND device_id=?',l.id,request.device).first();
  const now=Date.now();
  // One conditional write serializes competing requests in D1. Legacy active devices consume slots too.
  const reservation=stmt(env.DB,`INSERT INTO ratib_signed_devices(license_id,device_id,public_key,status,first_activated_at,updated_at)
@@ -48,6 +49,7 @@ async function activateDevice(env,l,request,confirmed){
  const results=await env.DB.batch([reservation,auditStatement(env.DB,'DEVICE_ACTIVATION_REQUEST',l.id,request.device,{emailVerifiedByOwner:!!confirmed})]);
  if(!changes(results[0]))fail('DEVICE_LIMIT_REACHED',409);
  if(confirmed&&l.binding_type!=='device')await stmt(env.DB,'INSERT INTO ratib_license_meta(license_id,revision,email_verified,updated_at) VALUES(?,1,1,?) ON CONFLICT(license_id) DO UPDATE SET email_verified=1,updated_at=excluded.updated_at',l.id,now).run();
+ if(previousDevice?.status==='revoked')await bump(env.DB,l.id,[auditStatement(env.DB,'REACTIVATE_DEVICE',l.id,request.device)]);
  const latest=await license(env,l.id);const token=await issue(env,latest,request.device);await auditStatement(env.DB,'ISSUE_SIGNED_TOKEN',l.id,request.device).run();return {success:true,token};
 }
 async function trial(env,req){

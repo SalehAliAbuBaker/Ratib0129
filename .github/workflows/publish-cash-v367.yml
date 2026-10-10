@@ -1,0 +1,22 @@
+name: Publish Ratib 3.6.7
+on:
+  push:
+    paths:
+      - tools/patch-cash-v367.py
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Apply version changes
+        run: python tools/patch-cash-v367.py
+      - name: Publish updated app
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html
+          git commit -m "Publish Ratib 3.6.7 narration autocomplete and compact voucher sides"
+          git push origin HEAD:main

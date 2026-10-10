@@ -11,7 +11,7 @@ block=s[start:end]
 # Remove from Excel export literal, restoring the original closing script text.
 s=s[:start]+s[end:]
 # Restore the Excel HTML string exactly: remove injected script wrapper too.
-bad='<script>\n\n</script>\n</body></html>'
+bad='<script>\n\n\n</script>\n</body></html>'
 if bad in s:
  s=s.replace(bad,'</body></html>',1)
 else:

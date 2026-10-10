@@ -24,3 +24,5 @@ a=s.index('const RATIB_RELEASE=');b=s.index(';',a)
 s=s[:a]+'const RATIB_RELEASE={"version":"3.6.8","changes":["إصلاح عدم فتح القوائم بعد تحديث 3.6.7.","تصحيح موقع كود الاقتراحات خارج قالب تصدير Excel.","الإبقاء على بقية تحسينات السند دون تغيير البيانات."]}'+s[b:]
 assert '"version":"3.6.8"' in s
 p.write_text(s,encoding="utf-8")
+
+# Trigger urgent menu repair.

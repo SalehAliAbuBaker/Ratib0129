@@ -1,6 +1,6 @@
 // Ratib 3.1.9: cache identity is unique to this app's scope.
-const CACHE_VERSION='v29-ratib-3.5.3';
-const APP_RELEASE={"version":"3.5.3","changes":["تحسين موضع زر الإدخال السريع في سند الصرف والقبض.","تعبئة ملاحظات البند من البيان العام مع إمكان تعديلها.","تحسين الإكمال التلقائي للحساب الوحيد وتقليل فراغات نافذة الإدخال.","إصلاح ظهور الحاسبة وربط استخدامها بحقل المبلغ السريع."]};
+const CACHE_VERSION='v30-ratib-3.6.0';
+const APP_RELEASE={"version":"3.6.0","changes":["تحديث تصميم سند الصرف والقبض المعتمد للجوال مع الحفاظ على السجلات المحاسبية.","إلغاء الإدخال السريع والعناوين الزائدة وإعادة ترتيب الحقول.","إضافة المبلغ العلوي وحساب المصارفة والاتزان، مع أدوات المسودات والطباعة وPDF والمشاركة.","تحسين إدخال المبلغ والحاسبة وعكس القيد."]};
 const CACHE_PREFIX=`ratib:${self.registration.scope}:`;
 const CACHE_NAME=CACHE_PREFIX+CACHE_VERSION;
 const APP_SHELL=[

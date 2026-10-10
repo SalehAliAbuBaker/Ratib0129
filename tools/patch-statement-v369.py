@@ -183,3 +183,5 @@ a=s.index("const RATIB_RELEASE=");b=s.index(";",a)
 s=s[:a]+'const RATIB_RELEASE={"version":"3.6.9","changes":["خيارات إظهار رقم القيد والمستند والحساب المقابل في كشف الحساب والطباعة وPDF.","حفظ خيارات الكشف محلياً مع حماية القراءة والكتابة.","ترتيب الحركات حسب تاريخ المستند ثم تسلسل القيد دون تأثير وقت التعديل."]}'+s[b:]
 assert '"version":"3.6.9"' in s
 p.write_text(s,encoding="utf-8")
+
+# Trigger verified release.

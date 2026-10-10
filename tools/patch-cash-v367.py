@@ -107,9 +107,10 @@ js=r"""
  window.addEventListener('resize',()=>{if(panel.classList.contains('open'))position();});
  window.addEventListener('scroll',()=>{if(panel.classList.contains('open'))position();},true);
  document.body.append(panel);
+ abbreviateSides();
 })();
 """
-s=s.replace("</script>",js+"\n</script>",1)
+s=s.replace("</body>","<script>"+js+"\n</script>\n</body>",1)
 s=s.replace("الإصدار 3.6.6","الإصدار 3.6.7")
 a=s.index("const RATIB_RELEASE=");b=s.index(";",a)
 s=s[:a]+'const RATIB_RELEASE={"version":"3.6.7","changes":["توسيع حقول الحسابات مع الحفاظ على الأزرار المصغرة في سطر واحد.","اختصار الطرفين إلى د للدائن وم للمدين مع زر تبديل ⇄.","اقتراح البيانات السابقة مع حذف الاقتراحات وحفظها عند نجاح ترحيل السند فقط.","المحافظة على إصلاحات التفقيط والفواصل الألفية."]}'+s[b:]

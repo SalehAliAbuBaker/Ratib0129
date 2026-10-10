@@ -14,3 +14,5 @@ s=s[:a]+'const RATIB_RELEASE={"version":"3.6.6","changes":["إصلاح خطأ ب
 s=s.replace("</head>",'<meta name="ratib-cash-v366" content="setup-order-hotfix">\n</head>',1)
 assert '"version":"3.6.6"' in s
 p.write_text(s,encoding="utf-8")
+
+# Trigger hotfix workflow.

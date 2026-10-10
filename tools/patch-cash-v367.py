@@ -116,3 +116,5 @@ a=s.index("const RATIB_RELEASE=");b=s.index(";",a)
 s=s[:a]+'const RATIB_RELEASE={"version":"3.6.7","changes":["توسيع حقول الحسابات مع الحفاظ على الأزرار المصغرة في سطر واحد.","اختصار الطرفين إلى د للدائن وم للمدين مع زر تبديل ⇄.","اقتراح البيانات السابقة مع حذف الاقتراحات وحفظها عند نجاح ترحيل السند فقط.","المحافظة على إصلاحات التفقيط والفواصل الألفية."]}'+s[b:]
 assert '"version":"3.6.7"' in s and 'ratib-cash-v367' in s and 'ratibNarrationSuggestions' in s
 p.write_text(s,encoding="utf-8")
+
+# Trigger release workflow.

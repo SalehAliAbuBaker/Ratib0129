@@ -8019,7 +8019,7 @@ function resetMultiVoucherForm(){cashLegacySource=null;
   multiVoucherLines.push(newSpendLine());renderMultiVoucherLines();
 }
 
-function newSpendLine(){const currency=spendBase();return {...newMultiLine(),side:cashCounterSide(),currency,rate:1,budgetId:document.getElementById('spendHeaderBudget').value||'general',budgetManual:false};}
+function newSpendLine(){const currency='YER';return {...newMultiLine(),side:cashCounterSide(),currency,rate:1,budgetId:document.getElementById('spendHeaderBudget').value||'general',budgetManual:false};}
 
 function spendAmount(line){const amount=getCleanNumber(line.amount),rate=multiLineRate(line,spendBase());return spendRound(amount*rate);}
 
@@ -8866,7 +8866,7 @@ document.addEventListener('scroll',e=>{if(!e.target.closest?.('.searchable-dropd
   const icons=['↶','▣','🖨','▤'];
   const names=['فتح آخر مسودة','حفظ مسودة','طباعة','PDF'];
   ids.forEach((id,i)=>{const b=q(id);b.textContent=icons[i];b.title=names[i];b.setAttribute('aria-label',names[i]);tools.append(b)});
-  const share=document.createElement('button');share.type='button';share.title='مشاركة PDF';share.setAttribute('aria-label','مشاركة PDF');share.textContent='●';share.onclick=()=>{if(!active())return;const err=validateMultiVoucher();if(err){showToast(err,'warn');return;}return shareSpendData(buildMultiVoucherData('posted'))};tools.append(share);
+  const share=document.createElement('button');share.type='button';share.title='مشاركة PDF';share.setAttribute('aria-label','مشاركة PDF');share.innerHTML='<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="m8.7 10.6 6.6-4.2m-6.6 7 6.6 4.2"/></svg>';share.onclick=()=>{if(!active())return;const err=validateMultiVoucher();if(err){showToast(err,'warn');return;}return shareSpendData(buildMultiVoucherData('posted'))};tools.append(share);
   const cancel=actions.querySelector('.btn-danger');actions.append(cancel);actions.after(q('multiVoucherBalance'));
   q('multiVoucherNote').placeholder='البيان العام';
   q('multiVoucherDate').setAttribute('aria-label','التاريخ');

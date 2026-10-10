@@ -26,3 +26,5 @@ end=s.index(';',start)
 s=s[:start]+'const RATIB_RELEASE={"version":"3.6.3","changes":["توحيد ثيم سند القبض والصرف مع القيد البسيط.","محاذاة قفلي الحسابات مع الحقول.","إزالة الظل الجانبي وتوسيع عرض السند.","الحفاظ على عمليات المبالغ والمصارفة والفواصل الألفية."]}'+s[end:]
 assert '"version":"3.6.3"' in s
 p.write_text(s,encoding="utf-8")
+
+# Publication triggered by source update.

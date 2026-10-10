@@ -8744,6 +8744,52 @@ buildMultiVoucherData=function(status='draft'){
 window.addEventListener('resize',()=>voucherRowSelectors.forEach(x=>x.selector.close()));
 document.addEventListener('scroll',e=>{if(!e.target.closest?.('.searchable-dropdown'))voucherRowSelectors.forEach(x=>x.selector.close());},true);
 
+
+/* Ratib 3.5.2: fast entry for existing cash voucher; no separate ledger. */
+(function(){
+function installRapidEntry(){
+ const add=document.getElementById('addMultiVoucherLineBtn');if(!add||document.getElementById('ratibRapidEntry'))return;
+ const btn=document.createElement('button');btn.type='button';btn.id='ratibRapidEntry';btn.className='btn btn-primary';btn.textContent='＋ إدخال سريع';add.before(btn);
+ const layer=document.createElement('div');layer.id='ratibRapidLayer';layer.style.cssText='display:none;position:fixed;inset:0;background:#0009;z-index:25000;align-items:center;justify-content:center;padding:12px';
+ layer.innerHTML='<section role="dialog" aria-modal="true" aria-label="إدخال بند سريع" style="background:var(--card);color:var(--text);width:min(440px,100%);max-height:90vh;overflow:auto;border-radius:14px;padding:18px;display:grid;gap:10px"><strong>إدخال بند سريع</strong><label>الحساب<input id="rapidAcc" placeholder="اكتب اسم الحساب" autocomplete="off" style="width:100%"></label><div id="rapidChoices" style="max-height:125px;overflow:auto"></div><label>المبلغ<input id="rapidAmount" inputmode="decimal" type="number" step="any" style="width:100%"></label><label>عملة المبلغ<select id="rapidCurrency" style="width:100%"></select></label><label>سعر الصرف: قيمة وحدة من عملة المبلغ بعملة السند<input id="rapidRate" inputmode="decimal" type="number" step="any" style="width:100%"></label><small id="rapidCalc"></small><label>بند الميزانية<select id="rapidBudget" style="width:100%"></select></label><label>الملاحظات<input id="rapidNote" style="width:100%"></label><div style="display:flex;gap:8px"><button id="rapidSave" type="button" class="btn btn-primary">إضافة والتالي</button><button id="rapidClose" type="button" class="btn btn-ghost">إغلاق</button></div></section>';
+ document.body.append(layer);const el=id=>document.getElementById(id);let chosen=null;
+ function pick(item){chosen=item;el('rapidAcc').value=item.text;el('rapidChoices').replaceChildren();el('rapidAmount').focus();}
+ el('rapidAcc').addEventListener('input',()=>{
+  chosen=null;const q=el('rapidAcc').value.trim().toLocaleLowerCase(),box=el('rapidChoices');box.replaceChildren();if(!q)return;
+  const matches=getMultiAccountItems().filter(i=>i.text.toLocaleLowerCase().includes(q));
+  if(matches.length===1){chosen=matches[0];return;}
+  matches.slice(0,30).forEach(item=>{const option=document.createElement('button');option.type='button';option.className='btn btn-ghost';option.style.cssText='display:block;width:100%;text-align:right';option.textContent=item.text;option.onclick=()=>pick(item);box.append(option);});
+ });
+ function calc(){const a=Number(el('rapidAmount').value),r=Number(el('rapidRate').value);el('rapidCalc').textContent=a>0&&r>0?'المعادل بعملة السند: '+(a*r).toLocaleString('ar')+' '+accountCurrencyLabel(spendBase()):'أدخل المبلغ وسعر الصرف';}
+ function rate(){
+  const c=el('rapidCurrency').value,base=spendBase(),d=c===base?null:spendFindFx(c,base);
+  const q=Number(d?.quote);el('rapidRate').disabled=c===base;
+  el('rapidRate').value=c===base?'1':q>0?(d.unit===c?q:1/q):'';calc();
+ }
+ el('rapidAmount').oninput=calc;el('rapidRate').oninput=calc;el('rapidCurrency').onchange=rate;
+ function close(){layer.style.display='none';}
+ el('rapidClose').onclick=close;layer.addEventListener('click',e=>{if(e.target===layer)close();});
+ btn.onclick=()=>{
+  if(!cashVoucherMode())return;
+  chosen=null;el('rapidAcc').value='';el('rapidAmount').value='';el('rapidNote').value='';el('rapidChoices').replaceChildren();
+  el('rapidCurrency').innerHTML=[...KNOWN_CURRENCIES].map(c=>'<option value="'+c+'">'+accountCurrencyLabel(c)+'</option>').join('');
+  el('rapidCurrency').value=spendBase();el('rapidBudget').innerHTML=spendBudgetOptions(el('spendHeaderBudget').value||'general');
+  rate();layer.style.display='flex';el('rapidAcc').focus();
+ };
+ el('rapidSave').onclick=()=>{
+  const a=Number(el('rapidAmount').value),r=Number(el('rapidRate').value),c=el('rapidCurrency').value;
+  if(!chosen){showToast('اختر حساباً صحيحاً من دليل الحسابات','error');return;}
+  if(!(a>0&&r>0&&Number.isFinite(a*r))){showToast('تحقق من المبلغ وسعر الصرف','error');return;}
+  const line=newSpendLine();line.account=chosen.id;line.accountId=chosen.accountId||'';line.accountQuery=chosen.text;line.amount=String(a);line.currency=c;line.note=el('rapidNote').value;line.budgetId=el('rapidBudget').value||'general';line.budgetManual=true;
+  if(c!==spendBase()){line.rate=r;line.fxUnitCurrency=c;line.fxQuoteCurrency=spendBase();line.fxQuote=r;line.fxOp='multiply';}
+  multiVoucherLines=multiVoucherLines.filter(l=>!l.autoBalance&&(l.account||String(l.amount||'').trim()));
+  multiVoucherLines.push(line);hasUnsavedChanges=true;renderMultiVoucherLines();
+  chosen=null;el('rapidAcc').value='';el('rapidAmount').value='';el('rapidNote').value='';el('rapidChoices').replaceChildren();calc();el('rapidAcc').focus();
+ };
+}
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',installRapidEntry);else installRapidEntry();
+})();
+
 </script>
 </body>
 </html>

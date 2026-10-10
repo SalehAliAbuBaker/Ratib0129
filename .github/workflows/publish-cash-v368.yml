@@ -1,0 +1,22 @@
+name: Hotfix Ratib menus 3.6.8
+on:
+  push:
+    paths:
+      - tools/patch-cash-v368.py
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  hotfix:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Fix misplaced script
+        run: python tools/patch-cash-v368.py
+      - name: Publish repaired application
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html
+          git commit -m "Restore menus and correct narration script in Ratib 3.6.8"
+          git push origin HEAD:main

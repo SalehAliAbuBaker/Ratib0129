@@ -1,0 +1,46 @@
+name: Publish Ratib statement 3.6.9
+on:
+  push:
+    paths:
+      - tools/patch-statement-v369.py
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  verify-and-publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Apply statement options patch
+        run: python tools/patch-statement-v369.py
+      - name: Check script syntax and release markers
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          from html.parser import HTMLParser
+          class Reader(HTMLParser):
+              def __init__(self):
+                  super().__init__();self.scripts=[];self.in_script=False
+              def handle_starttag(self,tag,attrs):
+                  if tag=='script' and not dict(attrs).get('src'):
+                      self.in_script=True;self.scripts.append('')
+              def handle_endtag(self,tag):
+                  if tag=='script':self.in_script=False
+              def handle_data(self,data):
+                  if self.in_script:self.scripts[-1]+=data
+          s=Path('index.html').read_text()
+          assert '"version":"3.6.9"' in s and 'ratib-statement-369' in s
+          parser=Reader();parser.feed(s)
+          for i,js in enumerate(parser.scripts):
+              if js.strip():Path(f'/tmp/ratib-inline-{i}.js').write_text(js)
+          print('Inline scripts:',len(parser.scripts))
+          PY
+          for file in /tmp/ratib-inline-*.js; do node --check "$file"; done
+      - name: Publish verified version
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html
+          git commit -m "Publish verified Ratib 3.6.9 statement settings and chronological sorting"
+          git push origin HEAD:main

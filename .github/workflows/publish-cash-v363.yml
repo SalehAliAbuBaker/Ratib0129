@@ -1,0 +1,26 @@
+name: Apply Ratib cash voucher 3.6.3
+on:
+  push:
+    paths:
+      - tools/patch-cash-v363.py
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - name: Patch HTML
+        run: python tools/patch-cash-v363.py
+      - name: Commit updated website
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html
+          if ! git diff --cached --quiet; then
+            git commit -m "Publish Ratib 3.6.3 cash voucher UI"
+            git push origin HEAD:main
+          fi

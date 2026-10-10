@@ -1,0 +1,22 @@
+name: Publish Ratib 3.6.4
+on:
+  push:
+    paths:
+      - tools/patch-cash-v364.py
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Apply changes
+        run: python tools/patch-cash-v364.py
+      - name: Commit and publish
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html
+          git commit -m "Publish Ratib 3.6.4 cash formatting and tafqit"
+          git push origin HEAD:main

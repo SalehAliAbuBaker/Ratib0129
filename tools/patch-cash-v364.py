@@ -43,3 +43,5 @@ end=s.index(';',start)
 s=s[:start]+'const RATIB_RELEASE={"version":"3.6.4","changes":["تصحيح فواصل الآلاف أثناء الكتابة؛ 120000 تظهر 120,000.","عرض التفقيط كنص بسيط فوق أزرار الحفظ والطباعة والمشاركة.","إزالة مربع التفقيط دون التأثير في الاتزان أو حفظ البيانات."]}'+s[end:]
 assert s.count('id="ratib-cash-v364"')==1 and '"version":"3.6.4"' in s
 p.write_text(s,encoding="utf-8")
+
+# Trigger publication workflow.

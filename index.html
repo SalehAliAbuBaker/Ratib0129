@@ -1100,6 +1100,23 @@ body.ratib-sidebar-open,body.ratib-about-open{overflow:hidden}
  }
 }
 </style>
+<style id="ratib-cash-v363">
+/* Ratib 3.6.3: mirror simple-entry theme without moving voucher fields. */
+@media screen {
+#multiVoucherCard.spend-voucher{box-shadow:none!important;border:0!important;width:100%!important;max-width:100%!important;background:var(--card)!important;color:var(--text)!important}
+#multiVoucherCard.spend-voucher :is(input,select,textarea),#multiVoucherCard.spend-voucher .searchable-select-wrap{background:var(--card)!important;color:var(--text)!important;border-color:var(--border)!important}
+#multiVoucherCard.spend-voucher :is(input,select,textarea):focus-visible{outline:2px solid var(--accent)}
+#multiVoucherCard.spend-voucher .multi-voucher-table-wrap,#multiVoucherCard.spend-voucher .multi-voucher-table tbody tr{border-color:var(--border)!important;box-shadow:none!important}
+#multiVoucherCard.spend-voucher .multi-voucher-table th{background:var(--bg)!important;color:var(--text)!important}
+#multiVoucherCard.spend-voucher :is(#ratibLockSource,#ratibLockCounter){display:inline-flex!important;align-items:center!important;justify-content:center!important;flex:0 0 42px!important;width:42px!important;min-width:42px!important;max-width:42px!important;height:42px!important;position:static!important;align-self:center!important;margin:0!important;padding:0!important;border:2px solid var(--border)!important;border-radius:10px!important;background:var(--card)!important;color:var(--text)!important;font-size:1.2rem!important;box-shadow:none!important}
+#multiVoucherCard.spend-voucher .multi-voucher-table tbody td:nth-child(2){display:flex!important;flex-flow:row nowrap!important;align-items:center!important;gap:8px!important;min-width:0!important}
+#multiVoucherCard.spend-voucher .multi-voucher-table tbody td:nth-child(2)>.multi-line-account{flex:1 1 auto!important;width:auto!important;min-width:0!important}
+#multiVoucherCard.spend-voucher .multi-voucher-source-row{display:flex!important;align-items:center!important;gap:8px!important}
+#multiVoucherCard.spend-voucher .multi-voucher-source-row .searchable-select-wrap{flex:1 1 auto!important;min-width:0!important}
+#multiVoucherCard.spend-voucher :is(.multi-line-amount,.spend-line-quote,#ratibHeaderAmount,#ratibHeaderRate){direction:ltr;text-align:right;font-variant-numeric:tabular-nums}
+#multiVoucherCard.spend-voucher .multi-voucher-actions .btn-primary{background:var(--accent)!important;color:#fff!important;border-color:var(--accent)!important}
+}
+</style>
 </head>
 <body>
 
@@ -1131,7 +1148,7 @@ body.ratib-sidebar-open,body.ratib-about-open{overflow:hidden}
       <button class="icon-btn" id="privacyBtn" title="وضع الخصوصية">👁️</button>
       <button class="icon-btn" id="themeBtn" title="الوضع الليلي">🌙</button>
       <button class="icon-btn" id="sidebarMenuBtn" aria-haspopup="dialog" aria-controls="appSidebar" aria-expanded="false" title="القائمة الجانبية" aria-label="فتح القائمة الجانبية">☰</button>
-    </div><small id="appVersionLabel" class="app-version">الإصدار 3.6.2</small></div>
+    </div><small id="appVersionLabel" class="app-version">الإصدار 3.6.3</small></div>
   </header>
   <div class="summary-toolbar hidden no-print" id="storageFeedback"><span id="persistentSaveStatus" hidden aria-hidden="true">جاهز</span><button type="button" id="retryStorageBtn" class="btn btn-ghost hidden">إعادة محاولة الحفظ</button></div>
 <div class="app-update-banner hidden no-print" id="appUpdateBanner" role="status"><span id="appUpdateMessage">يتوفر تحديث لراتب. هل تريد تطبيقه؟</span><button type="button" class="btn btn-ghost" id="applyAppUpdateBtn">موافق، تطبيق التحديث</button><div id="appUpdateDetails" class="hidden"></div></div>
@@ -1177,7 +1194,7 @@ body.ratib-sidebar-open,body.ratib-about-open{overflow:hidden}
       <img src="Icons/icon-192.png" width="72" height="72" alt="" decoding="async">
       <h2 id="ratibAboutTitle">راتب</h2>
       <p class="ratib-about-subtitle">للتنظيم والتدبير المالي</p>
-      <p class="ratib-about-version">الإصدار 3.6.0</p>
+      <p class="ratib-about-version">الإصدار 3.6.3</p>
       <p id="ratibAboutDescription">إدارة الحسابات والسندات والميزانية، ومتابعة العمليات والتقارير المالية، مع حفظ البيانات على جهازك ودعم العمل دون الإنترنت.</p>
       <button type="button" class="btn btn-primary" id="closeRatibAboutBtn">إغلاق</button>
     </div>
@@ -2358,7 +2375,7 @@ body.ratib-sidebar-open,body.ratib-about-open{overflow:hidden}
 // (أو localhost أثناء التطوير) — هذا شرط أساسي من المتصفح نفسه لأي Service Worker.
 let _briefAppNoticeTimer=null;
 let _releaseSummaryDisplayed=false;
-const RATIB_RELEASE={"version":"3.6.2","changes":["إظهار قفل الحساب المقابل ملاصقاً لحقل الحساب دون نزوله لسطر مستقل.","عرض فواصل الآلاف في مبالغ السند وأسعار المصارفة مع الحفاظ على حساب الأرقام الصحيح.","إزالة الحافة والظل الجانبي من نموذج الصرف والقبض لتوسيع مساحة العرض.","الإبقاء على المصارفة التلقائية والاتزان والمسودات ووظائف الحفظ وجديد والتثبيت."]};
+const RATIB_RELEASE={"version":"3.6.3","changes":["توحيد ثيم سند القبض والصرف مع القيد البسيط.","محاذاة قفلي الحسابات مع الحقول.","إزالة الظل الجانبي وتوسيع عرض السند.","الحفاظ على عمليات المبالغ والمصارفة والفواصل الألفية."]};
 function showAppReleaseDetails(release){
   const box=document.getElementById('appUpdateDetails');if(!box)return;box.replaceChildren();
   if(!release||typeof release.version!=='string'||!Array.isArray(release.changes)){box.classList.add('hidden');return;}

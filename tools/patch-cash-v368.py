@@ -10,6 +10,12 @@ end=s.index(anchor,start)+len(anchor)
 block=s[start:end]
 # Remove from Excel export literal, restoring the original closing script text.
 s=s[:start]+s[end:]
+# Restore the Excel HTML string exactly: remove injected script wrapper too.
+bad='<script>\n\n</script>\n</body></html>'
+if bad in s:
+ s=s.replace(bad,'</body></html>',1)
+else:
+ s=s.replace('<script>\n\n</script>\n</body></html>','</body></html>',1)
 needle='\n</script>\n</body>'
 assert s.count(needle)==1, 'expected final script close'
 s=s.replace(needle,'\n/* ratib-menu-hotfix-368: narration script moved outside Excel export template */\n'+block+needle,1)

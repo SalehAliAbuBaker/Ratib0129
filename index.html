@@ -1041,6 +1041,25 @@ body.ratib-sidebar-open,body.ratib-about-open{overflow:hidden}
    #multiVoucherCard.spend-voucher #ratibReverseSide{font-size:11px!important;padding:4px 6px!important}
  }
 </style>
+
+<style id="ratib-cash-locks-361">
+@media screen {
+ #multiVoucherCard.spend-voucher .ratib-account-lock{
+  display:inline-flex!important;align-items:center;justify-content:center;flex:0 0 34px;
+  width:34px;height:42px;padding:1px;border:1px solid #c7d9eb;border-radius:9px;
+  background:#edf4ff;cursor:pointer;font-size:17px;line-height:1;
+ }
+ #multiVoucherCard.spend-voucher .multi-voucher-source-row>.ratib-account-lock{order:2}
+ #multiVoucherCard.spend-voucher .multi-voucher-table td:nth-child(2){min-width:0;display:flex!important;align-items:center;gap:6px}
+ #multiVoucherCard.spend-voucher .multi-voucher-table td:nth-child(2) select{flex:1;min-width:0}
+ #multiVoucherCard.spend-voucher .multi-voucher-actions>#ratibSaveAndNew{
+  display:inline-flex!important;align-items:center;justify-content:center;
+  flex:1;min-width:0;margin:0;white-space:nowrap;font-size:13px;padding:10px 5px;border-radius:10px;
+ }
+ #multiVoucherCard.spend-voucher .multi-voucher-actions>.voucher-savebar{min-width:0}
+ #multiVoucherCard.spend-voucher .multi-voucher-actions>.btn-danger{min-width:0;font-size:13px;padding:10px 5px}
+}
+</style>
 </head>
 <body>
 
@@ -1072,7 +1091,7 @@ body.ratib-sidebar-open,body.ratib-about-open{overflow:hidden}
       <button class="icon-btn" id="privacyBtn" title="وضع الخصوصية">👁️</button>
       <button class="icon-btn" id="themeBtn" title="الوضع الليلي">🌙</button>
       <button class="icon-btn" id="sidebarMenuBtn" aria-haspopup="dialog" aria-controls="appSidebar" aria-expanded="false" title="القائمة الجانبية" aria-label="فتح القائمة الجانبية">☰</button>
-    </div><small id="appVersionLabel" class="app-version">الإصدار 3.6.0</small></div>
+    </div><small id="appVersionLabel" class="app-version">الإصدار 3.6.1</small></div>
   </header>
   <div class="summary-toolbar hidden no-print" id="storageFeedback"><span id="persistentSaveStatus" hidden aria-hidden="true">جاهز</span><button type="button" id="retryStorageBtn" class="btn btn-ghost hidden">إعادة محاولة الحفظ</button></div>
 <div class="app-update-banner hidden no-print" id="appUpdateBanner" role="status"><span id="appUpdateMessage">يتوفر تحديث لراتب. هل تريد تطبيقه؟</span><button type="button" class="btn btn-ghost" id="applyAppUpdateBtn">موافق، تطبيق التحديث</button><div id="appUpdateDetails" class="hidden"></div></div>
@@ -2299,7 +2318,7 @@ body.ratib-sidebar-open,body.ratib-about-open{overflow:hidden}
 // (أو localhost أثناء التطوير) — هذا شرط أساسي من المتصفح نفسه لأي Service Worker.
 let _briefAppNoticeTimer=null;
 let _releaseSummaryDisplayed=false;
-const RATIB_RELEASE={"version":"3.6.0","changes":["اعتماد تصميم جديد موحّد لسندَي الصرف والقبض مناسب للجوال دون تداخل الحقول.","حذف الإدخال السريع وحقل المستفيد والعناوين المتكررة، وترتيب رقم السند والتاريخ والعملة وسعر الصرف وبند الميزانية.","إظهار أدوات الطباعة وPDF والمشاركة والمسودات بأيقونات مختصرة، مع إبقاء حفظ السند وإلغاء.","إدخال مبلغ الحساب العلوي ومعادلة المبلغ المقابل آلياً، وإظهار المدين والدائن والاتزان والتحقق قبل الحفظ.","إتاحة عكس المدين والدائن مع الحفاظ على وظائف المحاسبة الأصلية."]};
+const RATIB_RELEASE={"version":"3.6.1","changes":["اعتماد تصميم جديد موحّد لسندَي الصرف والقبض مناسب للجوال دون تداخل الحقول.","حذف الإدخال السريع وحقل المستفيد والعناوين المتكررة، وترتيب رقم السند والتاريخ والعملة وسعر الصرف وبند الميزانية.","إظهار أدوات الطباعة وPDF والمشاركة والمسودات بأيقونات مختصرة، مع إبقاء حفظ السند وإلغاء.","إدخال مبلغ الحساب العلوي ومعادلة المبلغ المقابل آلياً، وإظهار المدين والدائن والاتزان والتحقق قبل الحفظ.","إتاحة عكس المدين والدائن مع الحفاظ على وظائف المحاسبة الأصلية."]};
 function showAppReleaseDetails(release){
   const box=document.getElementById('appUpdateDetails');if(!box)return;box.replaceChildren();
   if(!release||typeof release.version!=='string'||!Array.isArray(release.changes)){box.classList.add('hidden');return;}
@@ -7163,7 +7182,7 @@ function repairDuplicateMultiVoucherLines(){
     return drop.size;
   }catch(e){console.error('repairDuplicateMultiVoucherLines',e);return 0;}
 }
-async function commitMultiVoucher(){if(_pendingFinancialCompletion){showToast('انتظر اكتمال الحفظ السابق.','warn');return;}const err=validateMultiVoucher();if(err){showToast(err,'warn',5000);return;}const d=buildMultiVoucherData('posted');if(!d.baseTotal||!d.lines.length){showToast('لا توجد بنود صالحة للاعتماد','warn');return;}const p=getMasterPlan(),now=Date.now();if(['income','spend'].includes(d.mode)&&getAllTransactions().some(t=>t.voucherMode===d.mode&&Number(t.seqNum)===d.seq&&t.multiVoucherId!==d.id&&t.id!==d.id)){showToast('رقم السند مستخدم؛ افتح السند مرة أخرى لتحديث الرقم.','error');return;}if(multiVoucherDraftId){p.transactions=p.transactions.filter(t=>t.multiVoucherId!==multiVoucherDraftId&&t.id!==multiVoucherDraftId);removeMultiVoucherLinesFromHistory(multiVoucherDraftId);}d.lines.forEach((line,i)=>{p.transactions.push({id:`${d.id}_${i}`,multiVoucherId:d.id,isMultiVoucher:true,seqNum:d.seq,timestamp:new Date(d.date).getTime(),isoDate:d.date,date:d.date,amount:line.base,currency:d.baseCurrency,isExpense:d.mode==='spend'&&line.side==='debit',voucherMode:['income','spend'].includes(d.mode)?d.mode:'multi-entry',debitAccount:line.side==='debit'?line.account:'',creditAccount:line.side==='credit'?line.account:'',debitAccountId:line.side==='debit'?line.accountId||'':'',creditAccountId:line.side==='credit'?line.accountId||'':'',type:`${cashVoucherTitle(d.mode)} #${d.seq}`,multiVoucher:d,recipient:d.beneficiary||'',distribution:(()=>{const c=getCats().find(x=>x.id===(line.budgetId||'general'))||getCats().find(x=>x.id==='general');return c?{[c.id]:{id:c.id,name:c.name,amount:line.base,pct:100,color:c.color}}:{}})(),execution:{[line.budgetId||'general']:{done:true,actualSpent:d.mode==='income'?0:line.base,note:line.note||d.note}},status:'posted',schemaVersion:APP_SCHEMA_VERSION,updatedAt:now});});store.set('plan',p);store.set('multi_voucher_drafts',store.get('multi_voucher_drafts',[]).filter(x=>x.id!==d.id));audit(d.mode==='income'?'SAVE_RECEIPT_VOUCHER':d.mode==='spend'?'SAVE_SPEND_VOUCHER':'CREATE_MULTI_ENTRY_VOUCHER',d.id,null,d);try{await completeFinancialSave(()=>{lastPrintedTx={...p.transactions[p.transactions.length-1],multiVoucher:d};renderAllData();updateProDashboard();showToast('تم حفظ '+cashVoucherTitle(d.mode)+' بقيد متوازن','success');prepareMultiVoucherPrint(d);resetMultiVoucherForm();showMultiSavedNotice(d);});}catch(e){showToast('لم يكتمل حفظ القيد المركب؛ أعد محاولة الحفظ.','error');}}
+async function commitMultiVoucher(afterSuccess=null){if(_pendingFinancialCompletion){showToast('انتظر اكتمال الحفظ السابق.','warn');return;}const err=validateMultiVoucher();if(err){showToast(err,'warn',5000);return;}const d=buildMultiVoucherData('posted');if(!d.baseTotal||!d.lines.length){showToast('لا توجد بنود صالحة للاعتماد','warn');return;}const p=getMasterPlan(),now=Date.now();if(['income','spend'].includes(d.mode)&&getAllTransactions().some(t=>t.voucherMode===d.mode&&Number(t.seqNum)===d.seq&&t.multiVoucherId!==d.id&&t.id!==d.id)){showToast('رقم السند مستخدم؛ افتح السند مرة أخرى لتحديث الرقم.','error');return;}if(multiVoucherDraftId){p.transactions=p.transactions.filter(t=>t.multiVoucherId!==multiVoucherDraftId&&t.id!==multiVoucherDraftId);removeMultiVoucherLinesFromHistory(multiVoucherDraftId);}d.lines.forEach((line,i)=>{p.transactions.push({id:`${d.id}_${i}`,multiVoucherId:d.id,isMultiVoucher:true,seqNum:d.seq,timestamp:new Date(d.date).getTime(),isoDate:d.date,date:d.date,amount:line.base,currency:d.baseCurrency,isExpense:d.mode==='spend'&&line.side==='debit',voucherMode:['income','spend'].includes(d.mode)?d.mode:'multi-entry',debitAccount:line.side==='debit'?line.account:'',creditAccount:line.side==='credit'?line.account:'',debitAccountId:line.side==='debit'?line.accountId||'':'',creditAccountId:line.side==='credit'?line.accountId||'':'',type:`${cashVoucherTitle(d.mode)} #${d.seq}`,multiVoucher:d,recipient:d.beneficiary||'',distribution:(()=>{const c=getCats().find(x=>x.id===(line.budgetId||'general'))||getCats().find(x=>x.id==='general');return c?{[c.id]:{id:c.id,name:c.name,amount:line.base,pct:100,color:c.color}}:{}})(),execution:{[line.budgetId||'general']:{done:true,actualSpent:d.mode==='income'?0:line.base,note:line.note||d.note}},status:'posted',schemaVersion:APP_SCHEMA_VERSION,updatedAt:now});});store.set('plan',p);store.set('multi_voucher_drafts',store.get('multi_voucher_drafts',[]).filter(x=>x.id!==d.id));audit(d.mode==='income'?'SAVE_RECEIPT_VOUCHER':d.mode==='spend'?'SAVE_SPEND_VOUCHER':'CREATE_MULTI_ENTRY_VOUCHER',d.id,null,d);try{await completeFinancialSave(()=>{lastPrintedTx={...p.transactions[p.transactions.length-1],multiVoucher:d};renderAllData();updateProDashboard();showToast('تم حفظ '+cashVoucherTitle(d.mode)+' بقيد متوازن','success');prepareMultiVoucherPrint(d);resetMultiVoucherForm();showMultiSavedNotice(d);if(typeof afterSuccess==='function')afterSuccess(d);});}catch(e){showToast('لم يكتمل حفظ القيد المركب؛ أعد محاولة الحفظ.','error');}}
 
 function entryshowMultiSavedNotice(d){
   const box=document.getElementById('multiSavedNotice');if(!box)return;const tx=getAllTransactions().find(t=>t.multiVoucherId===d.id);box.classList.remove('hidden');box.innerHTML=`<div>تم حفظ سند القيد المركب رقم (#${d.seq}) بنجاح.</div><div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px"><button type="button" class="btn btn-primary" id="editLastMultiVoucherBtn">✎ تعديل المستند المحفوظ</button><button type="button" class="btn btn-ghost" id="newMultiVoucherAfterSaveBtn">＋ قيد جديد</button></div>`;
@@ -9030,6 +9049,100 @@ document.addEventListener('scroll',e=>{if(!e.target.closest?.('.searchable-dropd
  applySpendDocument=function(d){const out=oldApply(d);if(active()&&q('ratibHeaderAmount')){q('ratibHeaderAmount').value=d.ratibHeaderAmount??d.baseTotal??'';q('ratibHeaderRate').value=d.ratibHeaderRate??'1';headerSide=d.ratibHeaderSide|| (multiVoucherMode==='income'?'debit':'credit');refreshSides();}return out};
  const oldConfigure=configureVoucherMode;
  configureVoucherMode=function(mode){headerSide=mode==='income'?'debit':'credit';const out=oldConfigure(mode);const card=q('multiVoucherCard'),toolbar=card?.querySelector('.spend-lines-toolbar'),table=card?.querySelector('.multi-voucher-table-wrap');if(toolbar&&table){if(active())table.after(toolbar);else table.before(toolbar);}if(q('ratibHeaderSide'))refreshSides();return out};
+})();
+
+/* Ratib 3.6.1 — persistent independent cash-account locks and save/new. */
+(function(){
+ const key='ratib_cash_account_locks_v1', el=id=>document.getElementById(id);
+ const isCash=()=>typeof cashVoucherMode==='function'&&cashVoucherMode();
+ const currentMode=()=>multiVoucherMode==='income'?'income':'spend';
+ function allLocks(){const v=store.get(key,{});return v&&typeof v==='object'?v:{};}
+ function locks(){return allLocks()[currentMode()]||{};}
+ function valid(name){return !!name&&getMultiAccountItems().some(x=>x.id===name);}
+ function persist(which,value){
+  if(!isCash())return;
+  const all=allLocks(),current={...locks()};
+  if(value)current[which]=value;else delete current[which];
+  all[currentMode()]=current;store.set(key,all);
+  Promise.resolve(flushStorage()).catch(()=>showToast('تعذر حفظ تثبيت الحساب','error'));
+  paint();
+ }
+ function paint(){
+  for(const [id,which,label] of [['ratibLockSource','source','الحساب العلوي'],['ratibLockCounter','counter','الحساب المقابل']]){
+   const b=el(id);if(!b)continue;
+   const locked=!!locks()[which];b.textContent=locked?'🔒':'🔓';
+   b.title=(locked?'إلغاء تثبيت ':'تثبيت ')+label;b.setAttribute('aria-label',b.title);b.setAttribute('aria-pressed',String(locked));
+  }
+ }
+ function applyLocks(){
+  if(!isCash())return;
+  const l=locks();
+  if(valid(l.source))multiSourceAcc.setValue(l.source,l.source);
+  const line=multiVoucherLines.find(x=>!x.autoBalance);
+  if(line&&valid(l.counter))line.account=l.counter;
+  syncMultiAutoBalance();updateMultiVoucherSummary();paint();
+ }
+ const prevSetup=setupMultiVoucherFeature;
+ setupMultiVoucherFeature=function(){
+  prevSetup();
+  const source=el('multiVoucherCard').querySelector('.multi-voucher-source-row');
+  const b=document.createElement('button');b.type='button';b.id='ratibLockSource';b.className='ratib-account-lock spend-only';
+  b.onclick=()=>{
+    const l=locks();if(l.source){persist('source','');return;}
+    const account=multiSourceAcc.getValue();
+    if(!valid(account)){showToast('اختر حساباً صحيحاً قبل تثبيته','warn');return;}persist('source',account);
+  };source.append(b);
+  const btn=document.createElement('button');btn.type='button';btn.id='ratibSaveAndNew';
+  btn.className='btn btn-primary spend-only';btn.textContent='حفظ وجديد';
+  btn.title='حفظ السند ثم فتح سند جديد من النوع نفسه';
+  const save=el('commitMultiVoucherBtn');
+  save.closest('.voucher-savebar').after(btn);
+  btn.onclick=async()=>{
+    if(!isCash()||btn.disabled)return;
+    btn.disabled=true;save.disabled=true;
+    try{await commitMultiVoucher(d=>{
+      if(d.mode!==multiVoucherMode)configureVoucherMode(d.mode);
+      el('multiSavedNotice').classList.add('hidden');
+      applyLocks();renderMultiVoucherLines();
+      el('ratibHeaderAmount')?.focus();
+    });}catch(e){showToast('لم يكتمل حفظ السند؛ لم يتم تفريغ الحقول','error')}
+    finally{btn.disabled=false;save.disabled=false}
+  };
+  const before=multiSourceAcc.onSelect;
+  multiSourceAcc.onSelect=function(...args){
+    const result=before?.apply(this,args);
+    if(isCash()&&locks().source&&valid(multiSourceAcc.getValue()))persist('source',multiSourceAcc.getValue());
+    return result;
+  };
+  el('multiVoucherLinesBody').addEventListener('change',event=>{
+    const input=event.target;
+    if(!isCash()||!input.matches('.multi-line-account'))return;
+    const first=multiVoucherLines.findIndex(l=>!l.autoBalance);
+    if(Number(input.dataset.index)===first&&locks().counter&&valid(input.value))persist('counter',input.value);
+  });
+  paint();
+ };
+ const prevRender=renderMultiVoucherLines;
+ renderMultiVoucherLines=function(){
+  const result=prevRender();if(!isCash())return result;
+  const row=el('multiVoucherLinesBody')?.querySelector('tr');
+  const select=row?.querySelector('.multi-line-account');
+  if(select&&!row.querySelector('#ratibLockCounter')){
+    const b=document.createElement('button');b.type='button';b.id='ratibLockCounter';b.className='ratib-account-lock';
+    b.onclick=()=>{
+      const l=locks();if(l.counter){persist('counter','');return;}
+      if(!valid(select.value)){showToast('اختر الحساب المقابل قبل تثبيته','warn');return;}
+      persist('counter',select.value);
+    };select.after(b);
+  }
+  paint();return result;
+ };
+ const prevReset=resetMultiVoucherForm;
+ resetMultiVoucherForm=function(){const out=prevReset();if(isCash()){applyLocks();renderMultiVoucherLines()}return out;};
+ const prevSelect=selectVoucherTypeDirect;
+ selectVoucherTypeDirect=function(type){const out=prevSelect(type);if(isCash()&&['income','spend'].includes(type)){applyLocks();renderMultiVoucherLines()}return out;};
+ const prevConfigure=configureVoucherMode;
+ configureVoucherMode=function(type){const out=prevConfigure(type);paint();return out;};
 })();
 
 </script>

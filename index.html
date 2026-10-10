@@ -999,6 +999,47 @@ body.ratib-sidebar-open,body.ratib-about-open{overflow:hidden}
   #multiVoucherCard.spend-voucher .multi-voucher-grid{grid-template-columns:minmax(0,1fr) minmax(56px,.3fr) minmax(0,1fr)!important;gap:6px!important}
   #multiVoucherCard.spend-voucher .multi-voucher-table tbody tr{padding:9px!important;gap:6px!important}
  }
+
+ /* Exact approved note and side placement — cash voucher only. */
+ #multiVoucherCard.spend-voucher .multi-voucher-grid>.multi-voucher-source-row{
+   display:flex!important;align-items:center!important;gap:8px!important;
+   grid-template-columns:none!important;background:#fff8e8!important;padding:10px!important;
+   border-radius:12px!important;min-width:0!important;width:100%!important;
+ }
+ #multiVoucherCard.spend-voucher .multi-voucher-source-row>.ratib-side-choice{
+   display:flex!important;align-items:center!important;gap:6px!important;
+   order:0!important;flex:0 0 auto!important;margin:0!important;min-width:0!important;
+ }
+ #multiVoucherCard.spend-voucher .multi-voucher-source-row>.searchable-select-wrap{
+   flex:1 1 auto!important;min-width:0!important;width:auto!important;order:1!important;
+ }
+ #multiVoucherCard.spend-voucher #ratibHeaderSide{width:66px!important;min-width:66px!important;height:43px!important;padding:5px!important;font-size:13px!important;background:#e8eff9!important;border-radius:9px!important}
+ #multiVoucherCard.spend-voucher #ratibReverseSide{font-size:12px!important;min-height:43px!important;padding:6px 10px!important;border:1px solid #ccdced!important;border-radius:9px!important;background:#e8f0fc!important;color:#185aa6!important;white-space:nowrap}
+ #multiVoucherCard.spend-voucher .ratib-approved-general-note{
+   display:block!important;width:100%!important;max-width:100%!important;min-width:0!important;
+   margin:10px 0 12px!important;padding:0!important;box-sizing:border-box!important;
+   grid-column:1/-1!important;grid-row:auto!important;font-size:0!important
+ }
+ #multiVoucherCard.spend-voucher .ratib-approved-general-note>#multiVoucherNote{
+   display:block!important;width:100%!important;min-width:0!important;max-width:100%!important;
+   height:108px!important;min-height:108px!important;margin:0!important;
+   padding:13px!important;font-size:16px!important;box-sizing:border-box!important;
+   background:#fff!important;resize:vertical
+ }
+ #multiVoucherCard.spend-voucher .multi-line-note{
+   display:block!important;width:100%!important;min-height:48px!important;
+   box-sizing:border-box!important;padding:10px 12px!important;font-size:15px!important;
+ }
+ #multiVoucherCard.spend-voucher .ratib-money-row>button{
+   background:#0962bd!important;color:#fff!important;border:0!important;
+   border-radius:9px!important;min-height:46px!important;cursor:pointer
+ }
+ #multiVoucherCard.spend-voucher #ratibCounterSide{display:none!important}
+ @media(max-width:480px){
+   #multiVoucherCard.spend-voucher .multi-voucher-grid>.multi-voucher-source-row{gap:5px!important;padding:7px!important}
+   #multiVoucherCard.spend-voucher #ratibHeaderSide{width:55px!important;min-width:55px!important;font-size:11px!important}
+   #multiVoucherCard.spend-voucher #ratibReverseSide{font-size:11px!important;padding:4px 6px!important}
+ }
 </style>
 </head>
 <body>
@@ -8887,7 +8928,7 @@ document.addEventListener('scroll',e=>{if(!e.target.closest?.('.searchable-dropd
   oldSetup();const card=q('multiVoucherCard'),grid=card.querySelector('.multi-voucher-grid');
   const money=document.createElement('div');money.id='ratibHeaderMoney';money.className='spend-only';money.innerHTML='<div class="ratib-money-row"><input type="number" id="ratibHeaderAmount" inputmode="decimal" min="0" step="any" placeholder="0.00" aria-label="مبلغ الحساب العلوي"><button type="button" title="الحاسبة" aria-label="حاسبة مبلغ الحساب العلوي" data-ratib-calc="header">▦</button></div>';grid.append(money);
   const fx=document.createElement('label');fx.id='ratibHeaderFx';fx.className='spend-only';fx.innerHTML='<input type="number" id="ratibHeaderRate" inputmode="decimal" min="0.000001" step="any" value="1" placeholder="سعر الصرف" aria-label="سعر صرف الحساب العلوي مقابل الريال اليمني">';grid.append(fx);
-  const control=document.createElement('div');control.className='ratib-side-choice spend-only';control.innerHTML='<select id="ratibHeaderSide" aria-label="طرف الحساب العلوي"><option value="credit">دائن</option><option value="debit">مدين</option></select><button type="button" id="ratibReverseSide" class="btn btn-ghost">⇄ عكس القيد</button><span id="ratibCounterSide"></span>';card.querySelector('.multi-voucher-grid').after(control);
+  const control=document.createElement('div');control.className='ratib-side-choice spend-only';control.innerHTML='<select id="ratibHeaderSide" aria-label="طرف الحساب العلوي"><option value="credit">دائن</option><option value="debit">مدين</option></select><button type="button" id="ratibReverseSide" class="btn btn-ghost" title="عكس طرفي القيد">⇄ عكس القيد</button><span id="ratibCounterSide" hidden></span>';const source=card.querySelector('.multi-voucher-source-row');source.prepend(control);
   q('ratibHeaderSide').onchange=e=>setSide(e.target.value);
   q('ratibReverseSide').onclick=()=>setSide(headerSide==='credit'?'debit':'credit');
   q('ratibHeaderAmount').addEventListener('input',autoAmounts);
@@ -8902,14 +8943,14 @@ document.addEventListener('scroll',e=>{if(!e.target.closest?.('.searchable-dropd
   ids.forEach((id,i)=>{const b=q(id);b.textContent=icons[i];b.title=names[i];b.setAttribute('aria-label',names[i]);tools.append(b)});
   const share=document.createElement('button');share.type='button';share.title='مشاركة PDF';share.setAttribute('aria-label','مشاركة PDF');share.innerHTML='<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="m8.7 10.6 6.6-4.2m-6.6 7 6.6 4.2"/></svg>';share.onclick=()=>{if(!active())return;const err=validateMultiVoucher();if(err){showToast(err,'warn');return;}return shareSpendData(buildMultiVoucherData('posted'))};tools.append(share);
   const cancel=actions.querySelector('.btn-danger');actions.append(cancel);actions.after(q('multiVoucherBalance'));
-  q('multiVoucherNote').placeholder='البيان العام';
+  q('multiVoucherNote').placeholder='البيان العام';q('multiVoucherNote').parentElement.classList.add('ratib-approved-general-note');grid.after(q('multiVoucherNote').parentElement);
   q('multiVoucherDate').setAttribute('aria-label','التاريخ');
   q('multiVoucherBaseCurrency').setAttribute('aria-label','العملة');
   const date=q('multiVoucherDate');date.parentElement.firstChild.textContent='';
   const currency=q('multiVoucherBaseCurrency');currency.parentElement.firstChild.textContent='';
   const seq=q('spendSeqInput');seq.parentElement.firstChild.textContent='';
   q('spendHeaderBudget').parentElement.firstChild.textContent='';
-  money.querySelector('button').onclick=()=>openRatibCalc(q('ratibHeaderAmount'));
+  money.querySelector('button').onclick=()=>openFinancialCalculator(q('ratibHeaderAmount'));
   const origAdd=q('addMultiVoucherLineBtn').onclick;
   q('addMultiVoucherLineBtn').onclick=function(ev){origAdd.call(this,ev);autoAmounts()};
   if(q('cashDirectionSwitch'))q('cashDirectionSwitch').addEventListener('change',()=>{headerSide=q('cashDirectionSwitch').checked?'debit':'credit';setTimeout(refreshSides,0)});
@@ -8942,11 +8983,11 @@ document.addEventListener('scroll',e=>{if(!e.target.closest?.('.searchable-dropd
    if(!amount)return;
    const index=Number(amount.dataset.index),l=multiVoucherLines[index];
    if(l&&!l.note&&!l._ratibNoteManual&&q('multiVoucherNote')?.value)l.note=q('multiVoucherNote').value;
-   if(l){const note=tr.querySelector('.multi-line-note');if(note&&note.value!==l.note)note.value=l.note||'';}
+   if(l){const note=tr.querySelector('.multi-line-note');if(note){note.placeholder='البيان العام';note.setAttribute('aria-label','البيان العام للبند');if(note.value!==l.note)note.value=l.note||'';}}
    const cell=amount.parentElement;
    if(!cell.querySelector('.ratib-money-row')){
     const row=document.createElement('div');row.className='ratib-money-row';amount.before(row);row.append(amount);
-    const b=document.createElement('button');b.type='button';b.title='الحاسبة';b.setAttribute('aria-label','حاسبة مبلغ البند');b.textContent='▦';b.onclick=()=>openRatibCalc(amount);row.append(b);
+    const b=document.createElement('button');b.type='button';b.title='الحاسبة';b.setAttribute('aria-label','حاسبة مبلغ البند');b.textContent='▦';b.onclick=()=>openFinancialCalculator(amount);row.append(b);
    }
    const quote=tr.querySelector('.spend-line-quote');if(quote)quote.placeholder='سعر الصرف';
   });

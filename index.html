@@ -4712,6 +4712,15 @@ class SearchableSelect {
         const typed=this.input.value,start=this.input.selectionStart,end=this.input.selectionEnd;
         this.choose(exact[0]);this.input.value=typed;this.input.setSelectionRange(start,end);
       }
+      // 3.5.2: Accept the sole matching account after typing pauses.
+      clearTimeout(this._singleMatchTimer);
+      if(query&&!e.isComposing&&this.input.id!=='inpReportAccount'){
+        this._singleMatchTimer=setTimeout(()=>{
+          if(this.input.value.trim()!==query||this.getValue())return;
+          const unique=this.items.filter(item=>item.text.toLocaleLowerCase().includes(query.toLocaleLowerCase())||(item.group||'').toLocaleLowerCase().includes(query.toLocaleLowerCase()));
+          if(unique.length===1)this.choose(unique[0]);
+        },450);
+      }
       const inputType=String(e.inputType||''),deleting=inputType.startsWith('delete')||this._deleteInput;
       this._deleteInput=false;
       if(this.input.id==='inpReportAccount'&&query&&matches.length===1&&!deleting&&!e.isComposing&&(!inputType||inputType.startsWith('insert'))){

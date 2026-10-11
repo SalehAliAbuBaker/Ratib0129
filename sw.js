@@ -1,5 +1,5 @@
 // Ratib 3.1.9: cache identity is unique to this app's scope.
-const CACHE_VERSION='v37-ratib-3.6.11-statement-fix';
+const CACHE_VERSION='v38-ratib-3.6.11-print-restore';
 const APP_RELEASE={"version":"3.6.10","changes":["تعديل الرصيد المستورد مباشرة من كشف الحساب دون فتح الاستيراد.","استبدال أثر السجل القديم وتحديث الأرصدة والتقارير دون تكرار القيود.","حفظ مصدر الاستيراد وسجل القيم السابقة والجديدة وتاريخ التصحيح."]};
 const CACHE_PREFIX=`ratib:${self.registration.scope}:`;
 const CACHE_NAME=CACHE_PREFIX+CACHE_VERSION;

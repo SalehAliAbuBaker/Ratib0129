@@ -1,6 +1,6 @@
 // Ratib 3.1.9: cache identity is unique to this app's scope.
-const CACHE_VERSION='v38-ratib-3.6.11-print-restore';
-const APP_RELEASE={"version":"3.6.10","changes":["تعديل الرصيد المستورد مباشرة من كشف الحساب دون فتح الاستيراد.","استبدال أثر السجل القديم وتحديث الأرصدة والتقارير دون تكرار القيود.","حفظ مصدر الاستيراد وسجل القيم السابقة والجديدة وتاريخ التصحيح."]};
+const CACHE_VERSION='v39-ratib-3.6.12-desktop-print-sync';
+const APP_RELEASE={"version":"3.6.12","changes":["إصلاح تعارض النسخة المخزنة بين الهاتف والكمبيوتر.","استعادة عمل القائمة والوضع الليلي والمفضلة والخروج على سطح المكتب.","توحيد تحميل منظومة الطباعة والإخراج تمهيدًا لتطبيقها على جميع السندات والتقارير."]};
 const CACHE_PREFIX=`ratib:${self.registration.scope}:`;
 const CACHE_NAME=CACHE_PREFIX+CACHE_VERSION;
 const APP_SHELL=[
@@ -13,6 +13,8 @@ const APP_SHELL=[
   "./Icons/icon-512-maskable.png",
   "./Icons/apple-touch-icon.png",
   "./vendor/tajawal.css",
+  "./ratib-quick-favorites.js",
+  "./ratib-unified-output.js",
   "./vendor/chart.umd.min.js",
   "./vendor/chartjs-plugin-datalabels.min.js",
   "./vendor/xlsx.full.min.js",
@@ -70,7 +72,16 @@ self.addEventListener('fetch',event=>{
   })();
   event.waitUntil(network.then(()=>{}));
   event.respondWith((async()=>{
-    const cache=await cachePromise,cached=await cache.match(req);
+    const cache=await cachePromise;
+    // Navigation must prefer the published HTML. This prevents an old index.html
+    // from running with newer external UI scripts on desktop browsers.
+    if(navigation){
+      const response=await network;
+      if(response?.ok)return response;
+      const cached=await cache.match(req)||await cache.match(new URL('./index.html',self.registration.scope).href);
+      if(cached)return cached;
+    }
+    const cached=await cache.match(req);
     if(cached)return cached;
     const response=await network;
     if(response?.ok)return response;

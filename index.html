@@ -199,8 +199,6 @@ option { color: var(--text); font-weight: 800; }
 .btn-danger{background:var(--danger); color:#fff;}
 .chart-box{position:relative; height:250px; margin:10px 0; width:100%;}
 
-body.privacy-active .hide-in-privacy { filter: blur(6px); user-select: none; opacity: 0.8; pointer-events: none; }
-body.privacy-active .icon-btn#privacyBtn { background: var(--accent); color: #fff; }
 
 .cat-card { background: var(--bg); border: 2px solid var(--border); border-radius: 10px; margin-bottom: 8px; padding: 12px; width:100%; }
 .cat-card.muted { opacity: 0.4; border-style: dashed; }
@@ -1217,7 +1215,6 @@ body.ratib-sidebar-open,body.ratib-about-open{overflow:hidden}
   <header class="no-print">
     <div class="logo"><img class="app-brand-icon" src="Icons/icon-192.png" width="44" height="44" alt="" decoding="async"><span>راتب للتنظيم والتدبير المالي</span></div>
     <div class="header-tools"><div class="header-actions">
-      <button class="icon-btn" id="privacyBtn" title="وضع الخصوصية">👁️</button>
       <button class="icon-btn" id="themeBtn" title="الوضع الليلي">🌙</button>
       <button class="icon-btn" id="sidebarMenuBtn" aria-haspopup="dialog" aria-controls="appSidebar" aria-expanded="false" title="القائمة الجانبية" aria-label="فتح القائمة الجانبية">☰</button>
     </div><small id="appVersionLabel" class="app-version">الإصدار 3.6.11</small></div>
@@ -1426,7 +1423,7 @@ body.ratib-sidebar-open,body.ratib-about-open{overflow:hidden}
     <div style="display: flex; gap: 10px; margin-bottom: 6px;">
       <div style="flex: 1.3;">
         <label>إجمالي مبلغ السند:</label>
-        <input type="text" id="voucherAmountInput" class="hide-in-privacy number-formatted" placeholder="أدخل إجمالي المبلغ" inputmode="decimal">
+        <input type="text" id="voucherAmountInput" class="number-formatted" placeholder="أدخل إجمالي المبلغ" inputmode="decimal">
       </div>
       <div style="flex: 0.9;">
         <label>العملة:</label>
@@ -1523,7 +1520,7 @@ body.ratib-sidebar-open,body.ratib-about-open{overflow:hidden}
       <button type="button" class="status-filter-btn" data-status="reversed">❌ ملغى</button>
     </div>
 
-    <div id="ledgerList" class="hide-in-privacy"></div>
+    <div id="ledgerList"></div>
   </div>
 </div>
 
@@ -1638,15 +1635,15 @@ body.ratib-sidebar-open,body.ratib-about-open{overflow:hidden}
     <div class="kpi-grid">
       <div class="kpi-card">
         <div class="kpi-title">المخصص المعتمد</div>
-        <div class="kpi-value hide-in-privacy" id="kpiAllocated" style="color:var(--accent);">0</div>
+        <div class="kpi-value" id="kpiAllocated" style="color:var(--accent);">0</div>
       </div>
       <div class="kpi-card">
         <div class="kpi-title">المنصرف الفعلي</div>
-        <div class="kpi-value hide-in-privacy" id="kpiSpent" style="color:var(--danger);">0</div>
+        <div class="kpi-value" id="kpiSpent" style="color:var(--danger);">0</div>
       </div>
       <div class="kpi-card">
         <div class="kpi-title">الفائض / المتبقي</div>
-        <div class="kpi-value hide-in-privacy" id="kpiSurplus" style="color:var(--ok);">0</div>
+        <div class="kpi-value" id="kpiSurplus" style="color:var(--ok);">0</div>
       </div>
       <div class="kpi-card">
         <div class="kpi-title">نسبة الصرف</div>
@@ -1654,11 +1651,11 @@ body.ratib-sidebar-open,body.ratib-about-open{overflow:hidden}
       </div>
     </div>
 
-    <div class="chart-box hide-in-privacy"><canvas id="reportChart"></canvas></div>
+    <div class="chart-box"><canvas id="reportChart"></canvas></div>
     <div id="budgetInsights" class="budget-insights" aria-label="بطاقات تفاعلية لبنود الميزانية"></div>
 
     <div style="overflow-x:auto;">
-      <table class="report-table hide-in-privacy">
+      <table class="report-table">
         <thead>
           <tr>
             <th>البند (انقر للتفاصيل)</th>
@@ -1701,29 +1698,29 @@ body.ratib-sidebar-open,body.ratib-about-open{overflow:hidden}
       <button type="button" class="btn btn-ghost" id="reportAdvClearBtn">إلغاء البحث</button>
     </div>
     <nav id="reportCurrencyTabs" class="account-currency-tabs no-print" role="tablist" aria-label="صفحات عملات الحساب"></nav>
-    <div id="reportAccountOpsPanel" class="account-currency-viewport hide-in-privacy" aria-live="polite"></div>
+    <div id="reportAccountOpsPanel" class="account-currency-viewport" aria-live="polite"></div>
 
     <div class="kpi-grid hidden" id="statementKpiGrid">
       <div class="kpi-card">
         <div class="kpi-title">الرصيد السابق (افتتاحي الفترة)</div>
-        <div class="kpi-value hide-in-privacy" id="kpiAccountOpening" style="color:var(--muted);">0</div>
+        <div class="kpi-value" id="kpiAccountOpening" style="color:var(--muted);">0</div>
       </div>
       <div class="kpi-card">
         <div class="kpi-title">الرصيد الحالي (ختامي الفترة)</div>
-        <div class="kpi-value hide-in-privacy" id="kpiAccountBalance" style="color:var(--accent);">0</div>
+        <div class="kpi-value" id="kpiAccountBalance" style="color:var(--accent);">0</div>
       </div>
       <div class="kpi-card">
         <div class="kpi-title">إجمالي المدين (عليه)</div>
-        <div class="kpi-value hide-in-privacy" id="kpiAccountDebit" style="color:var(--danger);">0</div>
+        <div class="kpi-value" id="kpiAccountDebit" style="color:var(--danger);">0</div>
       </div>
       <div class="kpi-card">
         <div class="kpi-title">إجمالي الدائن (له)</div>
-        <div class="kpi-value hide-in-privacy" id="kpiAccountCredit" style="color:var(--ok);">0</div>
+        <div class="kpi-value" id="kpiAccountCredit" style="color:var(--ok);">0</div>
       </div>
     </div>
 
     <div id="singleAccountTableBox" style="overflow-x:auto;">
-      <table class="report-table hide-in-privacy">
+      <table class="report-table">
         <thead>
           <tr>
             <th style="width:16%;">التاريخ</th>
@@ -1752,7 +1749,7 @@ body.ratib-sidebar-open,body.ratib-about-open{overflow:hidden}
 
     <div id="allAccountsSummaryBox" class="hidden" style="overflow-x:auto; margin-top: 10px;">
       <h3 style="font-size:1.15rem; font-weight:700; color:var(--accent); margin-bottom:8px;">📊 ملخص أرصدة الحسابات (بحسب التصنيف الرئيسي):</h3>
-      <table class="report-table hide-in-privacy">
+      <table class="report-table">
         <thead>
           <tr>
             <th>التصنيف / الحساب الفرعي</th>
@@ -4117,7 +4114,7 @@ function renderCategoryRows() {
           <span class="cat-name">${esc(c.name)}</span>
         </div>
         <div style="display:flex; align-items:center; gap:6px;">
-          <input type="number" class="cat-amount hide-in-privacy" data-idx="${idx}" value="${c.pct}" min="0" max="100" style="width:70px; text-align:center; padding:6px; font-weight:700;">
+          <input type="number" class="cat-amount" data-idx="${idx}" value="${c.pct}" min="0" max="100" style="width:70px; text-align:center; padding:6px; font-weight:700;">
           <span style="font-weight:700;">%</span>
         </div>
       </div>
@@ -5315,8 +5312,8 @@ function renderVoucherCategoriesList() {
     if (!voucherCatsExpanded && c.id !== 'general' && !st.enabled) { hiddenCats++; return; }
     const row = document.createElement('div'); row.className = `voucher-cat-row ${st.enabled ? '' : 'disabled'}`;
     let inputHtml = voucherSplitMode === 'pct' ? 
-      `<div class="voucher-cat-input-wrap"><input type="number" class="voucher-cat-pct-input hide-in-privacy" data-id="${c.id}" value="${st.pct}" ${st.enabled ? '' : 'disabled'}><span style="font-weight:700;">%</span><span style="color:var(--muted); font-weight:700; min-width:65px; text-align:left;">(${Number(st.amount || 0).toLocaleString()} • ${Number(st.pct || 0).toFixed(2)}%)</span></div>` :
-      `<div class="voucher-cat-input-wrap"><input type="number" class="voucher-cat-amt-input hide-in-privacy" data-id="${c.id}" value="${st.amount || 0}" ${st.enabled ? '' : 'disabled'}><span style="color:var(--muted); font-weight:700; min-width:35px; text-align:left;">(${st.pct || 0}%)</span></div>`;
+      `<div class="voucher-cat-input-wrap"><input type="number" class="voucher-cat-pct-input" data-id="${c.id}" value="${st.pct}" ${st.enabled ? '' : 'disabled'}><span style="font-weight:700;">%</span><span style="color:var(--muted); font-weight:700; min-width:65px; text-align:left;">(${Number(st.amount || 0).toLocaleString()} • ${Number(st.pct || 0).toFixed(2)}%)</span></div>` :
+      `<div class="voucher-cat-input-wrap"><input type="number" class="voucher-cat-amt-input" data-id="${c.id}" value="${st.amount || 0}" ${st.enabled ? '' : 'disabled'}><span style="color:var(--muted); font-weight:700; min-width:35px; text-align:left;">(${st.pct || 0}%)</span></div>`;
 
     row.innerHTML = `<div class="voucher-cat-name" title="${esc(c.description || 'اضغط لعرض شرح البند')}"><button type="button" class="toggle-vis-btn toggle-v-cat" data-id="${c.id}">${st.enabled ? '👁️' : '🔄'}</button><span class="cat-color" style="background:${c.color}"></span><button type="button" class="cat-help-btn" data-id="${c.id}">${esc(c.name)} <small>ⓘ</small></button></div>${inputHtml}`;
     row.querySelector('.cat-help-btn').addEventListener('click', () => showToast(c.description || 'بند الميزانية المحدد', 'success'));
@@ -5683,8 +5680,8 @@ function renderEditVoucherCategoriesList() {
     const row = document.createElement('div'); row.className = `voucher-cat-row ${st.enabled ? '' : 'disabled'}`;
     
     let inputHtml = editVoucherSplitMode === 'pct' ? 
-      `<div class="voucher-cat-input-wrap"><input type="number" class="voucher-cat-pct-input edit-cat-pct-input hide-in-privacy" data-id="${c.id}" value="${st.pct}" ${st.enabled ? '' : 'disabled'}><span style="font-weight:700;">%</span><span style="color:var(--muted); font-weight:700; min-width:65px; text-align:left;">(${Number(st.amount || 0).toLocaleString()} • ${Number(st.pct || 0).toFixed(2)}%)</span></div>` :
-      `<div class="voucher-cat-input-wrap"><input type="number" class="voucher-cat-amt-input edit-cat-amt-input hide-in-privacy" data-id="${c.id}" value="${st.amount || 0}" ${st.enabled ? '' : 'disabled'}><span style="color:var(--muted); font-weight:700; min-width:35px; text-align:left;">(${st.pct || 0}%)</span></div>`;
+      `<div class="voucher-cat-input-wrap"><input type="number" class="voucher-cat-pct-input edit-cat-pct-input" data-id="${c.id}" value="${st.pct}" ${st.enabled ? '' : 'disabled'}><span style="font-weight:700;">%</span><span style="color:var(--muted); font-weight:700; min-width:65px; text-align:left;">(${Number(st.amount || 0).toLocaleString()} • ${Number(st.pct || 0).toFixed(2)}%)</span></div>` :
+      `<div class="voucher-cat-input-wrap"><input type="number" class="voucher-cat-amt-input edit-cat-amt-input" data-id="${c.id}" value="${st.amount || 0}" ${st.enabled ? '' : 'disabled'}><span style="color:var(--muted); font-weight:700; min-width:35px; text-align:left;">(${st.pct || 0}%)</span></div>`;
 
     row.innerHTML = `
       <div style="display:flex; align-items:center; gap:8px; font-weight:700; font-size:1.05rem; flex:1;">
@@ -7430,7 +7427,6 @@ function proceedAppInit() {
   initExternalImport();
   initFinancialTools();
   initThemeToggle();
-  initPrivacyToggle();
   initCloudBackup();
   initReminderNotifications();
   pushInitialHistoryBuffer();
@@ -7451,24 +7447,6 @@ function initThemeToggle() {
   });
 }
 
-// زر "وضع الخصوصية" 👁️ (privacyBtn): كانت كل بنية الـ CSS جاهزة تماماً (كلاس
-// hide-in-privacy موجود على عشرات العناصر عبر التطبيق: أرقام لوحة التحكم،
-// قائمة اليومية، جداول التقارير، الرسوم البيانية)، لكن ما فيه أي كود جافاسكربت
-// يفعّلها إطلاقاً — نفس مشكلة زر الثيم وأزرار التصدير/الاستيراد سابقاً.
-function initPrivacyToggle() {
-  const btn = document.getElementById('privacyBtn');
-  if (!btn) return;
-  const applyState = (active) => {
-    document.body.classList.toggle('privacy-active', active);
-    btn.title = active ? 'إظهار الأرقام (وضع الخصوصية مفعّل)' : 'وضع الخصوصية';
-  };
-  applyState(store.get('privacy_mode', false));
-  btn.addEventListener('click', () => {
-    const next = !document.body.classList.contains('privacy-active');
-    applyState(next);
-    store.set('privacy_mode', next);
-  });
-}
 
 // زر "🚪 خروج من التطبيق": يطلب تأكيداً صريحاً أولاً، ثم يقوم بخروج حقيقي فعلي وليس شكلياً فقط:
 // - إن كان القفل بالرقم السري مفعّلاً: يمحو مفتاح التشفير وكل البيانات المفكوكة من الذاكرة

@@ -1,6 +1,6 @@
 // Ratib 3.1.9: cache identity is unique to this app's scope.
-const CACHE_VERSION='v40-ratib-3.6.13-unified-output';
-const APP_RELEASE={"version":"3.6.13","changes":["توحيد شريط الإخراج في كشف الحساب والميزانية وميزان المراجعة والسندات.","إضافة أزرار A4 وPDF والمشاركة والمعاينة بأيقونات موحدة.","تحسين طباعة السندات عبر المعاينة قبل الطباعة دون تغيير القيود المحاسبية.","ترتيب أدوات التاريخ والفلاتر بصورة أوضح ومتجانسة."]};
+const CACHE_VERSION='v41-ratib-3.6.14-account-parent';
+const APP_RELEASE={"version":"3.6.14","changes":["توحيد لون جميع أزرار شريط الإخراج وإلغاء تعدد الألوان.","إضافة إمكانية جعل الحساب التفصيلي يتبع حساباً تفصيلياً آخر من نافذة التعديل.","إظهار تبعية الحساب داخل شجرة الحسابات مع منع التبعية الدائرية.","الحفاظ على القيود والأرصدة عند تغيير تبعية الحساب."]};
 const CACHE_PREFIX=`ratib:${self.registration.scope}:`;
 const CACHE_NAME=CACHE_PREFIX+CACHE_VERSION;
 const APP_SHELL=[

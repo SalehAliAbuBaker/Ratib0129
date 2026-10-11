@@ -45,9 +45,10 @@ save();render();
 });
 document.addEventListener('keydown',e=>{if(e.key==='Escape'&&panel.classList.contains('open'))close();});
 const actions=document.querySelector('header .header-actions');
+let star=null, exit=null;
 if(actions){
-const star=document.createElement('button');star.type='button';star.className='icon-btn ratib-quick-btn';star.textContent='☆';star.title='المفضلة السريعة';star.setAttribute('aria-label','فتح المفضلة السريعة');star.addEventListener('click',open);actions.prepend(star);
-const exit=document.createElement('button');exit.type='button';exit.className='icon-btn ratib-quick-btn';exit.textContent='🚪';exit.title='الخروج';exit.setAttribute('aria-label','الخروج من التطبيق');exit.addEventListener('click',()=>{
+star=document.createElement('button');star.type='button';star.className='icon-btn ratib-quick-btn';star.textContent='☆';star.title='المفضلة السريعة';star.setAttribute('aria-label','فتح المفضلة السريعة');star.addEventListener('click',open);actions.prepend(star);
+exit=document.createElement('button');exit.type='button';exit.className='icon-btn ratib-quick-btn';exit.textContent='🚪';exit.title='الخروج';exit.setAttribute('aria-label','الخروج من التطبيق');exit.addEventListener('click',()=>{
 if(!confirm('هل تريد الخروج من التطبيق؟ تأكد من حفظ التعديلات أولاً.'))return;
 const editing=[...document.querySelectorAll('input,textarea,select')].some(el=>el.matches(':focus')&&!el.disabled);
 if(editing&&!confirm('قد تكون هناك تعديلات لم تُحفظ. هل تريد المتابعة؟'))return;

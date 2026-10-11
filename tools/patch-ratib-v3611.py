@@ -161,3 +161,5 @@ a=s.index('const RATIB_RELEASE=');b=s.index(';',a)
 s=s[:a]+'const RATIB_RELEASE={"version":"3.6.11","changes":["إصلاح عرض الحساب المقابل الحقيقي من طرف القيد وبنود القيد المركب.","إضافة إدارة العملات وربطها بقوائم الإدخال مع الحفاظ على البيانات القديمة.","إتاحة طباعة ومشاركة PDF للقيد المركب أثناء التعديل دون حفظ جديد.","تحديد اسم الحساب كاملًا تلقائيًا عند فتح حقله."]}'+s[b:]
 assert '"version":"3.6.11"' in s and 'ratib-v3611' in s
 p.write_text(s,encoding='utf-8')
+
+# Trigger syntax-checked publishing workflow.

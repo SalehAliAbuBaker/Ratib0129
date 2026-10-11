@@ -11,6 +11,10 @@ function addStyle(){if(document.getElementById(STYLE_ID))return;const s=document
 #accountAdvancedSearchPanel.ratib-unified-filter label{margin:0!important}
 .ratib-unified-voucher-actions{display:flex!important;gap:8px!important;align-items:center!important;flex-wrap:wrap!important}
 header .header-actions{direction:ltr!important}
+#dashboardHomeContent>.btn.btn-ghost.no-print{display:none!important}
+#pageDashboard .main-menu-grid::before{display:none!important}
+#reportsGroupStatementHeader{display:none!important}
+#filterAccountSelectBox>label{display:none!important}
 @media(max-width:560px){#accountAdvancedSearchPanel.ratib-unified-filter{grid-template-columns:1fr 1fr!important}.ratib-output-icon{width:52px!important;height:52px!important;min-width:52px!important}}
 @media print{.ratib-output-icon{display:none!important}table{border-collapse:collapse}thead{display:table-header-group}tr{break-inside:avoid;page-break-inside:avoid}}
 `;document.head.appendChild(s);}
@@ -43,8 +47,14 @@ function normalizeVoucher(){
  const p=document.getElementById('printMultiVoucherBtn'),pdf=document.getElementById('pdfMultiVoucherBtn');iconify(p,'print');iconify(pdf,'pdf');
  const save=document.getElementById('commitMultiVoucherBtn');if(save){const host=save.parentElement?.parentElement;if(host)host.classList.add('ratib-unified-voucher-actions');}
 }
+function cleanRedundantUi(){
+ const home=document.getElementById('dashboardHomeContent');
+ if(home){[...home.children].forEach(el=>{if(el.matches('button.btn.btn-ghost.no-print')&&/المفضلة السريعة/.test(el.textContent))el.style.display='none';});}
+ const h=document.getElementById('reportsGroupStatementHeader');if(h)h.style.display='none';
+ const label=document.querySelector('#filterAccountSelectBox>label');if(label)label.style.display='none';
+}
 function normalizeHeader(){const a=document.querySelector('header .header-actions');if(!a)return;const btn=[...a.querySelectorAll('button')];const exit=btn.find(b=>b.textContent.trim()==='🚪'),star=btn.find(b=>b.textContent.trim()==='☆'),menu=document.getElementById('sidebarMenuBtn'),theme=document.getElementById('themeBtn');[exit,menu,theme,star].filter(Boolean).forEach(b=>a.appendChild(b));}
-function run(){addStyle();normalizeButtons();normalizeAccount();normalizeVoucher();normalizeHeader();}
+function run(){addStyle();normalizeButtons();normalizeAccount();normalizeVoucher();normalizeHeader();cleanRedundantUi();}
 let q=false;const o=new MutationObserver(()=>{if(q)return;q=true;requestAnimationFrame(()=>{q=false;run();});});
 function start(){run();o.observe(document.body,{childList:true,subtree:true});}
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else start();

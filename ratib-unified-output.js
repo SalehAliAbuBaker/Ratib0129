@@ -1,59 +1,76 @@
-/* Ratib unified output UI — approved 2026-10-11, direct integration */
+/* Ratib unified output system — v3.6.13
+   Presentation/output only. No accounting calculations are changed here. */
 (()=>{'use strict';
-const STYLE_ID='ratibUnifiedOutputStyle';
+const STYLE_ID='ratibUnifiedOutputStyleV3613';
+const SHARE_SVG='<svg viewBox="0 0 24 24" width="23" height="23" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="18" cy="5" r="2.4"/><circle cx="6" cy="12" r="2.4"/><circle cx="18" cy="19" r="2.4"/><path d="M8.2 10.9 15.8 6.1M8.2 13.1l7.6 4.8"/></svg>';
+const eye='👁';
 function addStyle(){if(document.getElementById(STYLE_ID))return;const s=document.createElement('style');s.id=STYLE_ID;s.textContent=`
-.ratib-output-icon{width:54px!important;height:54px!important;min-width:54px!important;padding:0!important;display:inline-flex!important;align-items:center!important;justify-content:center!important;border-radius:12px!important;font-size:21px!important;line-height:1!important}
-.ratib-output-icon.ratib-text-icon{font-size:13px!important;font-weight:900!important}
-.ratib-unified-account-actions{display:flex!important;gap:8px!important;align-items:center!important;justify-content:flex-start!important;flex-wrap:nowrap!important;overflow-x:auto!important}
-.ratib-unified-account-actions .account-inline-action span{display:none!important}
-#accountAdvancedSearchPanel.ratib-unified-filter{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr) minmax(125px,.8fr) auto auto;gap:8px;align-items:end;padding:10px;margin-top:8px}
+.ratib-output-toolbar{display:flex!important;direction:ltr!important;align-items:center!important;justify-content:flex-start!important;gap:7px!important;flex-wrap:nowrap!important;overflow-x:auto!important;scrollbar-width:thin;padding:2px 0!important}
+.ratib-output-icon{width:46px!important;height:46px!important;min-width:46px!important;min-height:46px!important;padding:0!important;margin:0!important;border-radius:11px!important;display:inline-flex!important;align-items:center!important;justify-content:center!important;font:900 18px/1 Tajawal,system-ui,sans-serif!important;box-shadow:none!important;flex:0 0 46px!important}
+.ratib-output-icon svg{pointer-events:none}.ratib-output-icon span,.ratib-output-icon small{display:none!important}
+.ratib-output-icon[data-ratib-kind="share"]{background:#7c3aed!important;border-color:#7c3aed!important;color:#fff!important}
+.ratib-output-icon[data-ratib-kind="pdf"]{background:#dc2626!important;border-color:#dc2626!important;color:#fff!important;font-size:13px!important;letter-spacing:.2px}
+.ratib-output-icon[data-ratib-kind="print"],.ratib-output-icon[data-ratib-kind="preview"]{background:#059669!important;border-color:#059669!important;color:#fff!important}
+.ratib-output-icon[data-ratib-kind="draft"]{background:#d97706!important;border-color:#d97706!important;color:#fff!important}
+.ratib-output-icon[data-ratib-kind="load"]{background:#2563eb!important;border-color:#2563eb!important;color:#fff!important}
+.ratib-output-icon[data-ratib-kind="a4"]{background:var(--card)!important;border-color:var(--border)!important;color:var(--text)!important;font-size:13px!important}
+.ratib-output-icon[data-ratib-kind="search"]{background:var(--card)!important;border-color:var(--accent)!important;color:var(--accent)!important}
+.ratib-output-icon[data-ratib-kind="reset"]{background:var(--card)!important;border-color:var(--border)!important;color:var(--text)!important}
+.ratib-unified-account-actions{display:flex!important;direction:ltr!important;gap:7px!important;align-items:center!important;justify-content:flex-start!important;flex-wrap:nowrap!important;overflow-x:auto!important}
+.ratib-date-row{display:flex!important;direction:rtl!important;align-items:end!important;gap:7px!important;flex-wrap:nowrap!important;overflow-x:auto!important;padding:8px 0!important}
+.ratib-date-row label{display:flex!important;align-items:center!important;gap:5px!important;min-width:max-content!important;margin:0!important;font-weight:800!important}
+.ratib-date-row label>input{width:148px!important;min-width:148px!important;margin:0!important}
+#accountAdvancedSearchPanel.ratib-unified-filter{display:block!important;padding:8px 10px!important;margin-top:7px!important}
 #accountAdvancedSearchPanel.ratib-unified-filter.hidden{display:none!important}
-#accountAdvancedSearchPanel.ratib-unified-filter label{margin:0!important}
-.ratib-unified-voucher-actions{display:flex!important;gap:8px!important;align-items:center!important;flex-wrap:wrap!important}
+#accountAdvancedSearchPanel.ratib-unified-filter>.ratib-filter-rest{display:flex!important;gap:7px!important;align-items:end!important;flex-wrap:wrap!important;margin-top:7px!important}
+#accountAdvancedSearchPanel.ratib-unified-filter>.ratib-filter-rest label{min-width:150px!important;flex:1!important;margin:0!important}
+#accountStatementCard h2>span:last-child,#budgetReportCard h2>span:last-child,#trialBalanceCard h2>span:last-child{display:flex!important;direction:ltr!important;gap:7px!important;align-items:center!important;overflow-x:auto!important}
+.multi-voucher-actions.ratib-voucher-actions{display:flex!important;direction:ltr!important;gap:7px!important;align-items:center!important;flex-wrap:wrap!important}
+.multi-voucher-actions.ratib-voucher-actions .voucher-savebar{order:20!important;flex:1 1 100%!important;direction:rtl!important}
+.multi-voucher-actions.ratib-voucher-actions .btn-danger{order:21!important;flex:1 1 100%!important}
+.spend-notice-actions{gap:7px!important}.spend-notice-actions .ratib-output-icon{display:inline-flex!important}
 header .header-actions{direction:ltr!important}
 #dashboardHomeContent>.btn.btn-ghost.no-print{display:none!important}
-#pageDashboard .main-menu-grid::before{display:none!important}
 #filterAccountSelectBox>label{display:none!important}
-@media(max-width:560px){#accountAdvancedSearchPanel.ratib-unified-filter{grid-template-columns:1fr 1fr!important}.ratib-output-icon{width:52px!important;height:52px!important;min-width:52px!important}}
-@media print{.ratib-output-icon{display:none!important}table{border-collapse:collapse}thead{display:table-header-group}tr{break-inside:avoid;page-break-inside:avoid}}
+@media(max-width:560px){.ratib-output-icon{width:43px!important;height:43px!important;min-width:43px!important;min-height:43px!important;flex-basis:43px!important}.ratib-date-row label>input{width:137px!important;min-width:137px!important}}
+@media print{
+  @page{size:A4 portrait;margin:7mm}
+  html.ratib-print-landscape @page{size:A4 landscape;margin:7mm}
+  .ratib-output-toolbar,.ratib-output-icon,.ratib-date-row{display:none!important}
+  table{border-collapse:collapse!important}thead{display:table-header-group!important}tfoot{display:table-footer-group!important}
+  tr,td,th{break-inside:avoid!important;page-break-inside:avoid!important}
+}
 `;document.head.appendChild(s);}
-const shareSvg='<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="2.4"/><circle cx="6" cy="12" r="2.4"/><circle cx="18" cy="19" r="2.4"/><path d="M8.2 10.9 15.8 6.1M8.2 13.1l7.6 4.8"/></svg>';
-function iconify(b,type){if(!b)return;b.classList.add('ratib-output-icon');b.dataset.ratibUnified='1';
- if(type==='pdf'){b.textContent='PDF';b.classList.add('ratib-text-icon');}
- else if(type==='share'){b.innerHTML=shareSvg;}
- else if(type==='print'){b.textContent='🖨';}
- else if(type==='preview'){b.textContent='👁';}
- else if(type==='download'){b.textContent='⬇';}
- else if(type==='a4'){b.textContent='A4';b.classList.add('ratib-text-icon');}
- b.querySelectorAll('span,small').forEach(x=>x.remove());
-}
-function classify(b){const t=((b.title||'')+' '+(b.getAttribute('aria-label')||'')+' '+(b.textContent||'')).toLowerCase();
- if(/مشارك/.test(t)&&!/pdf/.test(t))return'share';if(/pdf/.test(t))return'pdf';if(/طباع/.test(t))return'print';if(/معاين/.test(t))return'preview';if(/تنزيل|تحميل/.test(t))return'download';if(/a4|حجم الورق|اتجاه الصفحة/.test(t))return'a4';return'';}
-function normalizeButtons(){document.querySelectorAll('button').forEach(b=>{const t=classify(b);if(t)iconify(b,t);});}
-function normalizeAccount(){
- const actions=document.querySelector('#pageAccountOperations .account-inline-actions');
- if(actions){actions.classList.add('ratib-unified-account-actions');actions.querySelectorAll('button').forEach(b=>{const a=b.dataset.accountAction||'';
-  if(a==='advanced'){b.textContent='🔎';b.title='بحث';}
-  else if(a==='print'){b.textContent='🖨';b.title='طباعة';}
-  else if(a==='share'){b.textContent='PDF';b.title='PDF / مشاركة';b.classList.add('ratib-text-icon');}
-  else if(a==='documentQuery'){b.textContent='⌕';b.title='استفسار';}
-  else if(a==='close'){b.textContent='←';b.title='رجوع';}
-  b.classList.add('ratib-output-icon');});}
- const p=document.getElementById('accountAdvancedSearchPanel');if(p)p.classList.add('ratib-unified-filter');
- const clear=document.getElementById('clearAccountOpsFilterBtn');if(clear){clear.textContent='↻';clear.title='إعادة الضبط';clear.classList.add('ratib-output-icon');}
-}
-function normalizeVoucher(){
- const p=document.getElementById('printMultiVoucherBtn'),pdf=document.getElementById('pdfMultiVoucherBtn');iconify(p,'print');iconify(pdf,'pdf');
- const save=document.getElementById('commitMultiVoucherBtn');if(save){const host=save.parentElement?.parentElement;if(host)host.classList.add('ratib-unified-voucher-actions');}
-}
-function cleanRedundantUi(){
- const home=document.getElementById('dashboardHomeContent');
- if(home){[...home.children].forEach(el=>{if(el.matches('button.btn.btn-ghost.no-print')&&/المفضلة السريعة/.test(el.textContent))el.style.display='none';});}
- const label=document.querySelector('#filterAccountSelectBox>label');if(label)label.style.display='none';
-}
-function normalizeHeader(){const a=document.querySelector('header .header-actions');if(!a)return;const btn=[...a.querySelectorAll('button')];const exit=btn.find(b=>b.textContent.trim()==='🚪'),star=btn.find(b=>b.textContent.trim()==='☆'),menu=document.getElementById('sidebarMenuBtn'),theme=document.getElementById('themeBtn');[menu,theme,star,exit].filter(Boolean).forEach(b=>a.appendChild(b));}
-function run(){addStyle();normalizeButtons();normalizeAccount();normalizeVoucher();normalizeHeader();cleanRedundantUi();}
-let q=false;const o=new MutationObserver(()=>{if(q)return;q=true;requestAnimationFrame(()=>{q=false;run();});});
-function start(){run();o.observe(document.body,{childList:true,subtree:true});}
+function setKind(btn,kind,title){if(!btn)return null;btn.classList.add('ratib-output-icon');const changed=btn.dataset.ratibKind!==kind;if(changed)btn.dataset.ratibKind=kind;if(title&&btn.title!==title)btn.title=title;if(title&&btn.getAttribute('aria-label')!==title)btn.setAttribute('aria-label',title);if(changed||!btn.dataset.ratibGlyph){if(kind==='pdf')btn.textContent='PDF';else if(kind==='share')btn.innerHTML=SHARE_SVG;else if(kind==='print')btn.textContent='🖨';else if(kind==='preview')btn.textContent=eye;else if(kind==='a4')btn.textContent='A4';else if(kind==='draft')btn.textContent='💾';else if(kind==='load')btn.textContent='↥';else if(kind==='search')btn.textContent='⌕';else if(kind==='reset')btn.textContent='↻';btn.dataset.ratibGlyph='1';}return btn;}
+function orderGroup(host,items){const desired=items.filter(Boolean),current=[...host.children].filter(x=>desired.includes(x));if(current.length===desired.length&&current.every((x,i)=>x===desired[i]))return;desired.forEach(x=>host.appendChild(x));}
+function classify(btn){const t=((btn.title||'')+' '+(btn.getAttribute('aria-label')||'')+' '+(btn.textContent||'')).toLowerCase();if(/مشارك/.test(t)&&!/تنزيل/.test(t))return'share';if(/pdf/.test(t))return'pdf';if(/معاين/.test(t))return'preview';if(/طباع/.test(t))return'print';if(/حفظ مسودة/.test(t))return'draft';if(/فتح آخر مسودة/.test(t))return'load';return'';}
+function directDownload(blob,name){if(!blob)return false;try{if(typeof window.downloadFinancialFile==='function'){window.downloadFinancialFile(blob,name);return true;}const url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1800);return true;}catch(e){console.error('Ratib PDF download',e);return false;}}
+async function directShare(blob,name,title){try{const file=new File([blob],name,{type:'application/pdf'});if(navigator.share&&(!navigator.canShare||navigator.canShare({files:[file]}))){await navigator.share({title,files:[file]});return true;}return directDownload(blob,name);}catch(e){if(e?.name!=='AbortError')console.error('Ratib share',e);return false;}}
+function ensureButton(host,id,kind,title,handler){let b=document.getElementById(id);if(!b){b=document.createElement('button');b.type='button';b.id=id;b.className='icon-btn no-print';host?.appendChild(b);}setKind(b,kind,title);if(handler&&!b.dataset.ratibBound){b.dataset.ratibBound='1';b.addEventListener('click',handler);}return b;}
+function normalizeHeader(){const host=document.querySelector('header .header-actions');if(!host)return;const menu=document.getElementById('sidebarMenuBtn'),theme=document.getElementById('themeBtn');const buttons=[...host.querySelectorAll('button')],star=buttons.find(b=>b.textContent.trim()==='☆'),exit=buttons.find(b=>b.textContent.trim()==='🚪');orderGroup(host,[menu,theme,star,exit]);}
+function normalizeAccountDates(){const panel=document.getElementById('accountAdvancedSearchPanel');if(!panel||panel.dataset.ratibLayout==='1')return;panel.dataset.ratibLayout='1';panel.classList.add('ratib-unified-filter');const from=document.getElementById('accountOpsFromDate'),to=document.getElementById('accountOpsToDate'),currency=document.getElementById('accountOpsCurrencyFilter'),apply=document.getElementById('applyAccountOpsFilterBtn'),clear=document.getElementById('clearAccountOpsFilterBtn');if(!from||!to)return;const fromLabel=from.closest('label'),toLabel=to.closest('label');if(fromLabel){[...fromLabel.childNodes].filter(n=>n.nodeType===3).forEach(n=>n.remove());fromLabel.prepend(document.createTextNode('من'));}if(toLabel){[...toLabel.childNodes].filter(n=>n.nodeType===3).forEach(n=>n.remove());toLabel.prepend(document.createTextNode('إلى'));}const row=document.createElement('div');row.className='ratib-date-row no-print';panel.prepend(row);row.append(fromLabel,toLabel);if(clear){setKind(clear,'reset','إعادة الضبط');row.append(clear);}const rest=document.createElement('div');rest.className='ratib-filter-rest no-print';panel.append(rest);const currencyLabel=currency?.closest('label');if(currencyLabel)rest.append(currencyLabel);if(apply){apply.textContent='✓';apply.title='تطبيق الفلترة';apply.setAttribute('aria-label','تطبيق الفلترة');apply.classList.add('ratib-output-icon');apply.dataset.ratibKind='search';rest.append(apply);}}
+function normalizeAccountToolbar(){const host=document.querySelector('#pageAccountOperations .account-inline-actions');if(!host)return;host.classList.add('ratib-unified-account-actions','ratib-output-toolbar');const advanced=host.querySelector('[data-account-action="advanced"]'),print=host.querySelector('[data-account-action="print"]'),share=host.querySelector('[data-account-action="share"]'),query=host.querySelector('[data-account-action="documentQuery"]'),back=host.querySelector('[data-account-action="close"]');setKind(advanced,'search','بحث وتصفية');setKind(print,'preview','معاينة وطباعة');setKind(share,'share','مشاركة PDF');setKind(query,'search','استفسار عن المستند');if(back){back.classList.remove('ratib-output-icon');back.textContent='←';back.title='رجوع';}
+ const pdf=ensureButton(host,'ratibAccountPdfBtn','pdf','تنزيل PDF',()=>{try{if(typeof window.buildAccountOperationsPdf==='function'&&directDownload(window.buildAccountOperationsPdf(),`كشف-${window.accountOpsState?.accountName||'حساب'}.pdf`)){window.showToast?.('تم إنشاء ملف PDF','success');return;}share?.click();}catch(e){console.error(e);share?.click();}});
+ const a4=ensureButton(host,'ratibAccountA4Btn','a4','A4 / اتجاه الصفحة',togglePaper);
+ orderGroup(host,[advanced,a4,print,pdf,share,query,back]);normalizeAccountDates();}
+function togglePaper(){const root=document.documentElement;const land=root.classList.toggle('ratib-print-landscape');try{localStorage.setItem('ratib.printLandscape',land?'1':'0');}catch(_){}window.showToast?.(land?'A4 أفقي':'A4 عمودي','success');}
+function restorePaper(){try{document.documentElement.classList.toggle('ratib-print-landscape',localStorage.getItem('ratib.printLandscape')==='1');}catch(_){}}
+function normalizeReportToolbar(cardId,printId,shareId,pdfId,pdfBuilder,pdfName,title){const card=document.getElementById(cardId),host=card?.querySelector('h2>span:last-child');if(!host)return;host.classList.add('ratib-output-toolbar');const print=document.getElementById(printId),share=document.getElementById(shareId);setKind(print,'preview','معاينة وطباعة');setKind(share,'share','مشاركة PDF');const a4=ensureButton(host,`ratib-${cardId}-a4`,'a4','A4 / اتجاه الصفحة',togglePaper);const pdf=ensureButton(host,pdfId,'pdf','تنزيل PDF',()=>{try{const blob=pdfBuilder?.();if(blob&&directDownload(blob,pdfName)){window.showToast?.('تم إنشاء ملف PDF','success');return;}share?.click();}catch(e){console.error(e);share?.click();}});orderGroup(host,[a4,print,pdf,share]);}
+function budgetPdf(){try{window.runBudgetReport?.();if(typeof window.buildPdfFromCanvases==='function'&&typeof window.renderBudgetCanvases==='function')return window.buildPdfFromCanvases(window.renderBudgetCanvases());}catch(e){console.error(e);}return null;}
+function normalizeReports(){normalizeReportToolbar('budgetReportCard','printBudgetReportBtn','shareBudgetReportPdfBtn','ratibBudgetPdfBtn',budgetPdf,'راتب-الميزانية.pdf','الميزانية');normalizeReportToolbar('trialBalanceCard','printTrialBalanceBtn','shareTrialBalancePdfBtn','ratibTrialPdfBtn',()=>window.buildTrialBalancePdf?.(),'راتب-ميزان-المراجعة.pdf','ميزان المراجعة');const card=document.getElementById('accountStatementCard'),host=card?.querySelector('h2>span:last-child');if(host){host.classList.add('ratib-output-toolbar');const search=document.getElementById('reportAdvToggleBtn'),print=document.getElementById('printStatementBtn'),share=document.getElementById('shareStatementPdfBtn');setKind(search,'search','بحث وتصفية');setKind(print,'preview','معاينة وطباعة');setKind(share,'share','مشاركة PDF');const a4=ensureButton(host,'ratibReportStatementA4Btn','a4','A4 / اتجاه الصفحة',togglePaper);const pdf=ensureButton(host,'ratibReportStatementPdfBtn','pdf','تنزيل PDF',()=>{try{if(typeof window.buildAccountOperationsPdf==='function'&&directDownload(window.buildAccountOperationsPdf(),'راتب-كشف-الحساب.pdf')){window.showToast?.('تم إنشاء ملف PDF','success');return;}share?.click();}catch(e){console.error(e);share?.click();}});orderGroup(host,[search,a4,print,pdf,share]);}}
+function currentVoucherData(){if(typeof window.validateMultiVoucher==='function'){const err=window.validateMultiVoucher();if(err){window.showToast?.(err,'warn');return null;}}return typeof window.buildMultiVoucherData==='function'?window.buildMultiVoucherData('draft'):null;}
+function voucherBlob(data){return data&&typeof window.buildMultiVoucherPdf==='function'?window.buildMultiVoucherPdf(data):null;}
+function voucherName(data){const mode=data?.mode;const name=mode==='income'?'سند-قبض':mode==='spend'?'سند-صرف':'سند-قيد';return `${name}-${data?.seq||''}.pdf`;}
+function previewCurrentVoucher(ev){try{const d=currentVoucherData();if(!d)return;window.prepareMultiVoucherPrint?.(d);if(typeof window.openPrintPreview==='function'){ev?.preventDefault();ev?.stopImmediatePropagation();window.openPrintPreview('printVoucherContainer','printing-voucher');}}catch(e){console.error(e);}}
+function normalizeVoucher(){const card=document.getElementById('multiVoucherCard'),host=card?.querySelector('.multi-voucher-actions');if(!host)return;host.classList.add('ratib-voucher-actions','ratib-output-toolbar');const draft=document.getElementById('saveMultiDraftBtn'),load=document.getElementById('loadMultiDraftBtn'),print=document.getElementById('printMultiVoucherBtn'),pdf=document.getElementById('pdfMultiVoucherBtn');setKind(draft,'draft','حفظ مسودة');setKind(load,'load','فتح آخر مسودة');setKind(print,'preview','معاينة وطباعة');setKind(pdf,'pdf','تنزيل PDF');if(print&&!print.dataset.ratibPreviewBound){print.dataset.ratibPreviewBound='1';print.addEventListener('click',previewCurrentVoucher,true);}if(pdf&&!pdf.dataset.ratibPdfBound){pdf.dataset.ratibPdfBound='1';pdf.addEventListener('click',e=>{const d=currentVoucherData();const blob=voucherBlob(d);if(blob){e.preventDefault();e.stopImmediatePropagation();directDownload(blob,voucherName(d));window.showToast?.('تم إنشاء ملف PDF','success');}},true);}const share=ensureButton(host,'ratibMultiVoucherShareBtn','share','مشاركة',async()=>{const d=currentVoucherData(),blob=voucherBlob(d);if(blob)await directShare(blob,voucherName(d),d?.mode==='income'?'سند قبض':d?.mode==='spend'?'سند صرف':'سند قيد');});const a4=ensureButton(host,'ratibMultiVoucherA4Btn','a4','A4 / اتجاه الصفحة',togglePaper);orderGroup(host,[share,pdf,print,draft,load,a4]);
+ ['modalPrintDocBtn','confirmPrintDocBtn','printSavedSpendBtn'].forEach(id=>setKind(document.getElementById(id),'print','طباعة'));
+ ['modalPdfDocBtn','confirmPdfDocBtn'].forEach(id=>setKind(document.getElementById(id),'pdf','PDF'));
+ setKind(document.getElementById('shareSavedSpendBtn'),'share','مشاركة PDF');}
+function genericIcons(){document.querySelectorAll('button').forEach(b=>{if(b.dataset.ratibKind)return;const k=classify(b);if(k)setKind(b,k,b.title||b.getAttribute('aria-label')||'');});}
+function cleanUi(){const home=document.getElementById('dashboardHomeContent');if(home)[...home.children].forEach(el=>{if(el.matches('button.btn.btn-ghost.no-print')&&/المفضلة السريعة/.test(el.textContent))el.style.display='none';});const label=document.querySelector('#filterAccountSelectBox>label');if(label)label.style.display='none';}
+function run(){addStyle();restorePaper();normalizeHeader();normalizeAccountToolbar();normalizeReports();normalizeVoucher();genericIcons();cleanUi();}
+let pending=false;const observer=new MutationObserver(()=>{if(pending)return;pending=true;requestAnimationFrame(()=>{pending=false;run();});});
+function start(){run();observer.observe(document.body,{childList:true,subtree:true});}
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else start();
+window.RatibUnifiedOutput={refresh:run,togglePaper};
 })();

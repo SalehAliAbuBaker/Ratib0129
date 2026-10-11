@@ -1,6 +1,6 @@
 // Ratib 3.1.9: cache identity is unique to this app's scope.
-const CACHE_VERSION='v45-ratib-3.6.18-quick-voucher-modal';
-const APP_RELEASE={"version":"3.6.18","changes":["إصلاح زر + في كشف الحساب ليظهر اختيار سند قبض أو صرف فعلياً.","نقل نافذة اختيار السند إلى مستوى الصفحة العام حتى لا تختفي داخل شاشة الحسابات المخفية.","الإبقاء على الحساب المحدد وربطه بالسند الجديد."]};
+const CACHE_VERSION='v46-ratib-3.6.19-direct-cash-voucher';
+const APP_RELEASE={"version":"3.6.19","changes":["فتح سند القبض والصرف الموحد مباشرة من كشف الحساب دون نافذة وسيطة.","إتاحة التحويل بين الصرف والقبض من داخل السند نفسه.","ربط الحساب المحدد بالسند الجديد."]};
 const CACHE_PREFIX=`ratib:${self.registration.scope}:`;
 const CACHE_NAME=CACHE_PREFIX+CACHE_VERSION;
 const APP_SHELL=[

@@ -4381,8 +4381,10 @@ function preparePrintStatementTemplate(accountName, targetTxs, openingBalance, p
       const isDebit = isAll ? false : (t.debitAccount === accountName);
       const isCredit = isAll ? false : (t.creditAccount === accountName);
 
-      const alaykomAmt = isAll ? 0 : (isDebit ? amt : 0);
-      const lakamAmt = isAll ? 0 : (isCredit ? amt : 0);
+      // في الكشف التجميعي لا يجوز تصفير طرفي الحركة؛ نجمع القيود الفعلية كما هي.
+      // أما كشف حساب محدد فنحتسب الحركة من منظور ذلك الحساب فقط.
+      const alaykomAmt = isAll ? amt : (isDebit ? amt : 0);
+      const lakamAmt = isAll ? amt : (isCredit ? amt : 0);
 
       totalAlaykom += alaykomAmt;
       totalLakam += lakamAmt;

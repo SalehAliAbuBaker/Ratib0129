@@ -58,3 +58,6 @@ const home=document.querySelector('#dashboardHomeContent');
 if(home){const b=document.createElement('button');b.type='button';b.className='btn btn-ghost no-print';b.style.cssText='width:100%;margin:10px 0';b.textContent='⭐ المفضلة السريعة';b.onclick=open;home.prepend(b);}
 window.RatibQuickFavorites={open,close};
 })();
+
+/* Load the approved unified output UI without touching accounting logic. */
+(()=>{if(document.querySelector('script[data-ratib-unified-output]'))return;const s=document.createElement('script');s.src='./ratib-unified-output.js?v=1';s.defer=true;s.dataset.ratibUnifiedOutput='1';document.head.appendChild(s);})();

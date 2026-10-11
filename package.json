@@ -1,9 +1,9 @@
 {
   "name": "ratib-account-autocomplete-tests",
   "private": true,
-  "version": "3.5.1",
+  "version": "3.6.10",
   "scripts": {
-    "test": "node test-account-autocomplete.cjs"
+    "test": "node test-account-autocomplete.cjs && node test-imported-record-edit.cjs"
   },
   "engines": {
     "node": ">=24"

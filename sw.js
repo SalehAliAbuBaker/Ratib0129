@@ -1,6 +1,6 @@
 // Ratib 3.1.9: cache identity is unique to this app's scope.
-const CACHE_VERSION='v34-ratib-3.6.2-thousands-layout';
-const APP_RELEASE={"version":"3.6.2","changes":["جعل زر تثبيت الحساب المقابل في السطر نفسه ملاصقاً لحقل الحساب.","إظهار الأرقام بفواصل الآلاف في نموذج الصرف والقبض مع الحفاظ على دقة العمليات الحسابية.","إزالة الظل والحافة الجانبية لنموذج سند الصرف والقبض لتوسيع العرض.","الحفاظ على التثبيت وحفظ وجديد والمصارفة والاتزان."]};
+const CACHE_VERSION='v35-ratib-3.6.10-imported-record-edit';
+const APP_RELEASE={"version":"3.6.10","changes":["تعديل الرصيد المستورد مباشرة من كشف الحساب دون فتح الاستيراد.","استبدال أثر السجل القديم وتحديث الأرصدة والتقارير دون تكرار القيود.","حفظ مصدر الاستيراد وسجل القيم السابقة والجديدة وتاريخ التصحيح."]};
 const CACHE_PREFIX=`ratib:${self.registration.scope}:`;
 const CACHE_NAME=CACHE_PREFIX+CACHE_VERSION;
 const APP_SHELL=[

@@ -1,0 +1,46 @@
+name: Ratib 3.6.11 verified deployment
+on:
+  push:
+    paths:
+      - tools/patch-ratib-v3611.py
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  verify-publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Generate updated application
+        run: python tools/patch-ratib-v3611.py
+      - name: Verify script syntax and feature integration
+        shell: bash
+        run: |
+          python - <<'PY'
+          from html.parser import HTMLParser
+          from pathlib import Path
+          class Parse(HTMLParser):
+              def __init__(self):
+                  super().__init__();self.inside=False;self.js=[]
+              def handle_starttag(self,tag,attrs):
+                  if tag=='script' and not dict(attrs).get('src'):self.inside=True;self.js.append('')
+              def handle_endtag(self,tag):
+                  if tag=='script':self.inside=False
+              def handle_data(self,v):
+                  if self.inside:self.js[-1]+=v
+          s=Path('index.html').read_text()
+          assert '"version":"3.6.11"' in s and 'ratib-v3611' in s
+          assert 'ratibCurrencyManager' in s and 'ratibMultiEditPrint' in s and 'ratibResolveCounterpart' in s
+          p=Parse();p.feed(s)
+          for i,js in enumerate(p.js):
+              if js.strip():Path('/tmp/ratib-script-'+str(i)+'.js').write_text(js)
+          print('Scripts checked:',len(p.js))
+          PY
+          for script in /tmp/ratib-script-*.js; do node --check "$script"; done
+      - name: Publish to main
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html
+          git commit -m "Ratib 3.6.11: currency settings, real counterpart, multi-entry PDF, account UX"
+          git push origin HEAD:main

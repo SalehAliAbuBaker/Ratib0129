@@ -1,4 +1,4 @@
-/* Ratib unified output system — v3.6.13
+/* Ratib unified output system — v3.6.14
    Presentation/output only. No accounting calculations are changed here. */
 (()=>{'use strict';
 const STYLE_ID='ratibUnifiedOutputStyleV3613';
@@ -8,14 +8,8 @@ function addStyle(){if(document.getElementById(STYLE_ID))return;const s=document
 .ratib-output-toolbar{display:flex!important;direction:ltr!important;align-items:center!important;justify-content:flex-start!important;gap:7px!important;flex-wrap:nowrap!important;overflow-x:auto!important;scrollbar-width:thin;padding:2px 0!important}
 .ratib-output-icon{width:46px!important;height:46px!important;min-width:46px!important;min-height:46px!important;padding:0!important;margin:0!important;border-radius:11px!important;display:inline-flex!important;align-items:center!important;justify-content:center!important;font:900 18px/1 Tajawal,system-ui,sans-serif!important;box-shadow:none!important;flex:0 0 46px!important}
 .ratib-output-icon svg{pointer-events:none}.ratib-output-icon span,.ratib-output-icon small{display:none!important}
-.ratib-output-icon[data-ratib-kind="share"]{background:#7c3aed!important;border-color:#7c3aed!important;color:#fff!important}
-.ratib-output-icon[data-ratib-kind="pdf"]{background:#dc2626!important;border-color:#dc2626!important;color:#fff!important;font-size:13px!important;letter-spacing:.2px}
-.ratib-output-icon[data-ratib-kind="print"],.ratib-output-icon[data-ratib-kind="preview"]{background:#059669!important;border-color:#059669!important;color:#fff!important}
-.ratib-output-icon[data-ratib-kind="draft"]{background:#d97706!important;border-color:#d97706!important;color:#fff!important}
-.ratib-output-icon[data-ratib-kind="load"]{background:#2563eb!important;border-color:#2563eb!important;color:#fff!important}
-.ratib-output-icon[data-ratib-kind="a4"]{background:var(--card)!important;border-color:var(--border)!important;color:var(--text)!important;font-size:13px!important}
-.ratib-output-icon[data-ratib-kind="search"]{background:var(--card)!important;border-color:var(--accent)!important;color:var(--accent)!important}
-.ratib-output-icon[data-ratib-kind="reset"]{background:var(--card)!important;border-color:var(--border)!important;color:var(--text)!important}
+.ratib-output-icon[data-ratib-kind]{background:var(--accent)!important;border-color:var(--accent)!important;color:#fff!important}
+.ratib-output-icon[data-ratib-kind="pdf"],.ratib-output-icon[data-ratib-kind="a4"]{font-size:13px!important;letter-spacing:.2px}
 .ratib-unified-account-actions{display:flex!important;direction:ltr!important;gap:7px!important;align-items:center!important;justify-content:flex-start!important;flex-wrap:nowrap!important;overflow-x:auto!important}
 .ratib-date-row{display:flex!important;direction:rtl!important;align-items:end!important;gap:7px!important;flex-wrap:nowrap!important;overflow-x:auto!important;padding:8px 0!important}
 .ratib-date-row label{display:flex!important;align-items:center!important;gap:5px!important;min-width:max-content!important;margin:0!important;font-weight:800!important}

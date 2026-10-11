@@ -51,7 +51,7 @@ function cleanRedundantUi(){
  if(home){[...home.children].forEach(el=>{if(el.matches('button.btn.btn-ghost.no-print')&&/المفضلة السريعة/.test(el.textContent))el.style.display='none';});}
  const label=document.querySelector('#filterAccountSelectBox>label');if(label)label.style.display='none';
 }
-function normalizeHeader(){const a=document.querySelector('header .header-actions');if(!a)return;const btn=[...a.querySelectorAll('button')];const exit=btn.find(b=>b.textContent.trim()==='🚪'),star=btn.find(b=>b.textContent.trim()==='☆'),menu=document.getElementById('sidebarMenuBtn'),theme=document.getElementById('themeBtn');[exit,menu,theme,star].filter(Boolean).forEach(b=>a.appendChild(b));}
+function normalizeHeader(){const a=document.querySelector('header .header-actions');if(!a)return;const btn=[...a.querySelectorAll('button')];const exit=btn.find(b=>b.textContent.trim()==='🚪'),star=btn.find(b=>b.textContent.trim()==='☆'),menu=document.getElementById('sidebarMenuBtn'),theme=document.getElementById('themeBtn');[menu,theme,star,exit].filter(Boolean).forEach(b=>a.appendChild(b));}
 function run(){addStyle();normalizeButtons();normalizeAccount();normalizeVoucher();normalizeHeader();cleanRedundantUi();}
 let q=false;const o=new MutationObserver(()=>{if(q)return;q=true;requestAnimationFrame(()=>{q=false;run();});});
 function start(){run();o.observe(document.body,{childList:true,subtree:true});}

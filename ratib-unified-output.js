@@ -13,7 +13,6 @@ function addStyle(){if(document.getElementById(STYLE_ID))return;const s=document
 header .header-actions{direction:ltr!important}
 #dashboardHomeContent>.btn.btn-ghost.no-print{display:none!important}
 #pageDashboard .main-menu-grid::before{display:none!important}
-#reportsGroupStatementHeader{display:none!important}
 #filterAccountSelectBox>label{display:none!important}
 @media(max-width:560px){#accountAdvancedSearchPanel.ratib-unified-filter{grid-template-columns:1fr 1fr!important}.ratib-output-icon{width:52px!important;height:52px!important;min-width:52px!important}}
 @media print{.ratib-output-icon{display:none!important}table{border-collapse:collapse}thead{display:table-header-group}tr{break-inside:avoid;page-break-inside:avoid}}
@@ -50,7 +49,6 @@ function normalizeVoucher(){
 function cleanRedundantUi(){
  const home=document.getElementById('dashboardHomeContent');
  if(home){[...home.children].forEach(el=>{if(el.matches('button.btn.btn-ghost.no-print')&&/المفضلة السريعة/.test(el.textContent))el.style.display='none';});}
- const h=document.getElementById('reportsGroupStatementHeader');if(h)h.style.display='none';
  const label=document.querySelector('#filterAccountSelectBox>label');if(label)label.style.display='none';
 }
 function normalizeHeader(){const a=document.querySelector('header .header-actions');if(!a)return;const btn=[...a.querySelectorAll('button')];const exit=btn.find(b=>b.textContent.trim()==='🚪'),star=btn.find(b=>b.textContent.trim()==='☆'),menu=document.getElementById('sidebarMenuBtn'),theme=document.getElementById('themeBtn');[exit,menu,theme,star].filter(Boolean).forEach(b=>a.appendChild(b));}

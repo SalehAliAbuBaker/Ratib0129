@@ -56,6 +56,14 @@ close();const screen=document.createElement('div');screen.style.cssText='positio
 }
 const home=document.querySelector('#dashboardHomeContent');
 if(home){const b=document.createElement('button');b.type='button';b.className='btn btn-ghost no-print';b.style.cssText='width:100%;margin:10px 0';b.textContent='⭐ المفضلة السريعة';b.onclick=open;home.prepend(b);}
+
+// Desktop-safe direct bindings: do not depend on the deferred application init chain.
+const menuBtn=document.getElementById('sidebarMenuBtn');
+if(menuBtn){menuBtn.onclick=(e)=>{e.preventDefault();e.stopImmediatePropagation();if(typeof window.openRatibSidebar==='function')window.openRatibSidebar();};}
+const themeBtn=document.getElementById('themeBtn');
+if(themeBtn){themeBtn.onclick=(e)=>{e.preventDefault();e.stopImmediatePropagation();const root=document.documentElement,next=root.dataset.theme==='dark'?'light':'dark';root.dataset.theme=next;try{localStorage.setItem('theme',JSON.stringify(next));}catch(_){}themeBtn.textContent=next==='dark'?'☀️':'🌙';};}
+if(star){star.onclick=(e)=>{e.preventDefault();e.stopImmediatePropagation();open();};}
+if(exit){exit.onclick=(e)=>{e.preventDefault();e.stopImmediatePropagation();if(typeof window.showExitModal==='function'){window.showExitModal();return;}if(!confirm('هل تريد الخروج من التطبيق؟'))return;location.reload();};}
 window.RatibQuickFavorites={open,close};
 })();
 

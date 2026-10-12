@@ -1219,6 +1219,16 @@ body.ratib-sidebar-open,body.ratib-about-open{overflow:hidden}
  #multiVoucherCard .multi-voucher-grid :is(input,select){width:100%!important;min-width:0!important;padding-inline:6px!important}
 }
 </style>
+
+<style id="ratib-account-return-voucher-actions">
+@media(max-width:600px){
+  #multiVoucherCard.spend-voucher.statement-return-voucher .multi-voucher-actions{display:flex!important;flex-wrap:wrap!important;gap:8px!important}
+  #multiVoucherCard.spend-voucher.statement-return-voucher .multi-voucher-actions>.voucher-savebar{flex:1 1 45%!important;width:auto!important}
+  #multiVoucherCard.spend-voucher.statement-return-voucher .multi-voucher-actions>.voucher-savebar button{min-height:52px!important;white-space:normal!important;line-height:1.35!important;overflow-wrap:anywhere;font-size:.84rem!important;padding:7px 4px!important}
+  #multiVoucherCard.spend-voucher.statement-return-voucher .multi-voucher-actions>#ratibSaveAndNew{flex:1 1 45%!important;white-space:normal!important;line-height:1.35!important;min-height:52px!important;font-size:.84rem!important}
+  #multiVoucherCard.spend-voucher.statement-return-voucher .multi-voucher-actions>.btn-danger{flex:1 1 100%!important}
+}
+</style>
 </head>
 <body>
 
@@ -8379,7 +8389,7 @@ function suggestedSpendRate(currency,base){
 }
 
 function configureVoucherMode(mode){
-  multiVoucherMode=mode;const card=document.getElementById('multiVoucherCard'),spend=cashVoucherMode();card.classList.toggle('spend-voucher',spend);
+  multiVoucherMode=mode;const card=document.getElementById('multiVoucherCard'),spend=cashVoucherMode();card.classList.toggle('spend-voucher',spend);card.classList.toggle('statement-return-voucher',Boolean(spend&&quickVoucherOrigin));
   card.querySelector('h2>span:first-child').textContent=cashVoucherTitle(mode);document.getElementById('cashDirectionSwitch').checked=mode==='income';document.getElementById('cashDirectionSwitch').setAttribute('aria-label',mode==='income'?'قبض: الحساب العلوي مدين':'صرف: الحساب العلوي دائن');card.classList.add('unified-voucher');document.getElementById('cashDirectionControl').classList.toggle('hidden',!spend);document.getElementById('cashLineHeading').textContent=spend?(mode==='income'?'بنود القبض':'بنود الصرف'):'بنود القيد';
   card.querySelector('.multi-voucher-source-row').classList.toggle('multi-optional-legacy-field',!spend);
   card.querySelector('.multi-voucher-source-row>label').textContent=spend?cashSourceLabel()+(mode==='income'?' (مدين)':' (دائن)'):'حساب مرجعي (اختياري)';

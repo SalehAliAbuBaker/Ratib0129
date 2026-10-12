@@ -1,6 +1,6 @@
 // Ratib 3.1.9: cache identity is unique to this app's scope.
-const CACHE_VERSION='v49-ratib-3.6.22-statement-return';
-const APP_RELEASE={"version":"3.6.22","changes":["العودة إلى كشف الحساب نفسه بعد حفظ سند قبض أو صرف مع الاحتفاظ بالحساب والفترة والعملة والبحث.","إظهار السند المحفوظ مباشرة ضمن حركات الحساب عند مطابقته لمرشحات الكشف.","اعتماد راتب للتنظيم والتدبير المالي اسماً افتراضياً في الترويسات والكشوفات والطباعة، مع احترام أسماء الجهات المخصصة."]};
+const CACHE_VERSION='v50-ratib-3.6.23-voucher-return';
+const APP_RELEASE={"version":"3.6.23","changes":["العودة إلى كشف الحساب نفسه بعد حفظ سند قبض أو صرف مع الاحتفاظ بالحساب والفترة والعملة والبحث.","إظهار السند المحفوظ مباشرة ضمن حركات الحساب عند مطابقته لمرشحات الكشف.","اعتماد راتب للتنظيم والتدبير المالي اسماً افتراضياً في الترويسات والكشوفات والطباعة، مع احترام أسماء الجهات المخصصة."]};
 const CACHE_PREFIX=`ratib:${self.registration.scope}:`;
 const CACHE_NAME=CACHE_PREFIX+CACHE_VERSION;
 const APP_SHELL=[

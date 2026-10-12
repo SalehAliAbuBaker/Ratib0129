@@ -1,6 +1,6 @@
 // Ratib 3.1.9: cache identity is unique to this app's scope.
-const CACHE_VERSION='v48-ratib-3.6.21-button-fix';
-const APP_RELEASE={"version":"3.6.21","changes":["إصلاح خطأ برمجي في الإكمال التلقائي كان يوقف تهيئة وظائف الواجهات ويجعل كثيراً من الأزرار لا تستجيب.","الحفاظ على الإكمال الانسيابي للحساب مع تحديد الجزء المكمل فقط.","الإبقاء على تنسيق شاشات الإدخال الحالي دون تغييرات إضافية حتى التأكد من الاستقرار."]};
+const CACHE_VERSION='v49-ratib-3.6.22-statement-return';
+const APP_RELEASE={"version":"3.6.22","changes":["العودة إلى كشف الحساب نفسه بعد حفظ سند قبض أو صرف مع الاحتفاظ بالحساب والفترة والعملة والبحث.","إظهار السند المحفوظ مباشرة ضمن حركات الحساب عند مطابقته لمرشحات الكشف.","اعتماد راتب للتنظيم والتدبير المالي اسماً افتراضياً في الترويسات والكشوفات والطباعة، مع احترام أسماء الجهات المخصصة."]};
 const CACHE_PREFIX=`ratib:${self.registration.scope}:`;
 const CACHE_NAME=CACHE_PREFIX+CACHE_VERSION;
 const APP_SHELL=[

@@ -1,6 +1,6 @@
 // Ratib 3.1.9: cache identity is unique to this app's scope.
-const CACHE_VERSION='v53-ratib-3.6.25-currency-print-choice';
-const APP_RELEASE={"version":"3.6.25","changes":["اختيار طباعة كشف الحساب بجميع العملات أو بعملة واحدة عند تعدد العملات الفعلية.","طباعة ومشاركة PDF مباشرة عندما يكون الكشف بعملة واحدة فقط.","فصل أرصدة العملات في المخرجات مع المحافظة على نطاق الحساب والفترة والبحث."]};
+const CACHE_VERSION='v54-ratib-3.6.26-tree-position';
+const APP_RELEASE={"version":"3.6.26","changes":["تثبيت موضع شجرة الحسابات بعد الحفظ والتعديل والحذف.","عرض الشجرة مرتبة تصاعدياً حسب رقم الحساب.","الضغط على الحساب التفصيلي في إعدادات الشجرة لفتح تحريره."]};
 const CACHE_PREFIX=`ratib:${self.registration.scope}:`;
 const CACHE_NAME=CACHE_PREFIX+CACHE_VERSION;
 const APP_SHELL=[

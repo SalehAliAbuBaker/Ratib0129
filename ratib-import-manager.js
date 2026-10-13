@@ -208,7 +208,10 @@ function review(){
    const signature=optionsSignature(),args=JSON.parse(signature);
    const plan=prepare(args[0],args[1],args[2],args[3]);
    const m=plan.meta;
-   $('ratibImportReview').textContent='المعاينة: '+m.count+' حساب محدد؛ '+m.openings+' رصيد سيُحذف؛ '+m.accounts+' حساب سيُزال من الشجرة؛ '+m.archived+' حالة إخفاء/إظهار؛ '+m.restored+' حساب سيُستعاد.'+\n     (args[2]==='restore'?'\\nالموجودة سابقًا (لن تتغير): '+m.alreadyPresent+'؛ المتعارضة (ستُستثنى): '+m.conflicts.length+'؛ الصالحة للاستعادة: '+m.restored+'.':'')+\n     (m.restorable.length?'\\nالحسابات التي ستُستعاد:\\n'+m.restorable.join('\\n'):'')+\n     (m.conflicts.length?'\\nالحسابات المتعارضة وأسباب الاستثناء:\\n'+m.conflicts.join('\\n'):'')+
+   $('ratibImportReview').textContent='المعاينة: '+m.count+' حساب محدد؛ '+m.openings+' رصيد سيُحذف؛ '+m.accounts+' حساب سيُزال من الشجرة؛ '+m.archived+' حالة إخفاء/إظهار؛ '+m.restored+' حساب سيُستعاد.'+
+     (args[2]==='restore'?'\\nالموجودة سابقًا (لن تتغير): '+m.alreadyPresent+'؛ المتعارضة (ستُستثنى): '+m.conflicts.length+'؛ الصالحة للاستعادة: '+m.restored+'.':'')+
+     (m.restorable.length?'\\nالحسابات التي ستُستعاد:\\n'+m.restorable.join('\\n'):'')+
+     (m.conflicts.length?'\\nالحسابات المتعارضة وأسباب الاستثناء:\\n'+m.conflicts.join('\\n'):'')+
      (m.balances.length?'\nميزان الأرصدة المختارة: '+m.balances.join('، '):'')+
      (m.warnings.length?'\n'+m.warnings.join('\n'):'')+
      '\nلن يتغير شيء حتى تضغط «تأكيد التنفيذ».';

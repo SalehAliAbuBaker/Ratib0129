@@ -2531,13 +2531,13 @@ if(false && 'serviceWorker' in navigator){
       if(_appExited)return;const status=document.getElementById('offlineReadyStatus');if(status)status.hidden=true;
       if(event.data?.type==='OFFLINE_READY'){
         if(status)status.textContent='جاهز للعمل دون الإنترنت';const version=event.data.version||'';let previous=null,updated=false;
-        try{previous=localStorage.getItem('ratib_offline_notice_version');if(version)localStorage.setItem('ratib_offline_notice_version',version);updated=sessionStorage.getItem('ratib_update_applied_notice')==='1';sessionStorage.removeItem('ratib_update_applied_notice');}catch(_){ }
+        try{previous=localStorage.getItem('ratib_trial_offline_notice_version');if(version)localStorage.setItem('ratib_trial_offline_notice_version',version);updated=sessionStorage.getItem('ratib_trial_update_applied_notice')==='1';sessionStorage.removeItem('ratib_trial_update_applied_notice');}catch(_){ }
         if(updated||version&&previous!==version){showTransientAppNotice(updated?'اكتمل التحديث وحُفظت البيانات. جاهز للعمل دون الإنترنت.':'جاهز للعمل دون الإنترنت.',updated?16000:2800);if(updated)showAppReleaseDetails(event.data.release||RATIB_RELEASE);}
         // Older clients can consume the session notice before their reload. The new
         // release therefore presents its summary once independently of that flag.
-        let summarySeen=false;try{summarySeen=localStorage.getItem('ratib_release_summary_seen')===RATIB_RELEASE.version;}catch(_){ }
+        let summarySeen=false;try{summarySeen=localStorage.getItem('ratib_trial_release_summary_seen')===RATIB_RELEASE.version;}catch(_){ }
         if(!_releaseSummaryDisplayed&&!summarySeen&&version.endsWith('-'+RATIB_RELEASE.version)&&document.getElementById('appUpdateBanner')?.dataset.pending!=='true'){
-          showTransientAppNotice(updated?'اكتمل التحديث وحُفظت البيانات.':'جاهز للعمل دون الإنترنت. أبرز مستجدات راتب في هذا الإصدار.',16000);showAppReleaseDetails(RATIB_RELEASE);_releaseSummaryDisplayed=true;try{localStorage.setItem('ratib_release_summary_seen',RATIB_RELEASE.version);}catch(_){ }
+          showTransientAppNotice(updated?'اكتمل التحديث وحُفظت البيانات.':'جاهز للعمل دون الإنترنت. أبرز مستجدات راتب في هذا الإصدار.',16000);showAppReleaseDetails(RATIB_RELEASE);_releaseSummaryDisplayed=true;try{localStorage.setItem('ratib_trial_release_summary_seen',RATIB_RELEASE.version);}catch(_){ }
         }
       }else if(event.data?.type==='OFFLINE_UNAVAILABLE')showTransientAppNotice('افتح التطبيق مع الإنترنت لإكمال تجهيز موارده.');
     });
@@ -2582,7 +2582,7 @@ window.addEventListener('unhandledrejection', (e) => {
 // اختبار فوري لقدرة البيئة على الحفظ (يفيد حتى عند أول تشغيل بدون بيانات سابقة بعد)
 function checkRatibStorageCapability() {
   try {
-    const testKey = '__ratib_storage_test__';
+    const testKey = '__ratib_trial_storage_test__';
     localStorage.setItem(testKey, '1');
     const ok = localStorage.getItem(testKey) === '1';
     localStorage.removeItem(testKey);
@@ -3519,8 +3519,8 @@ async function refreshAutoBackupUI() {
 // وعند فتحه لاحقاً يُنفَّذ ما فاته. (2) يستخدم معرّف OAuth المدمج ورابط https مُصرَّحاً به.
 // (3) صلاحية drive.file فقط: يرى التطبيق الملفات التي أنشأها هو، ولا يقرأ بقية Drive.
 const CLOUD_CFG_KEY = 'cloud_backup_cfg';
-const CLOUD_FOLDER_NAME = 'Ratib Backups';
-const CLOUD_FILE_PREFIX = 'ratib-cloud-';
+const CLOUD_FOLDER_NAME = 'Ratib Trial Backups';
+const CLOUD_FILE_PREFIX = 'ratib-trial-cloud-';
 const DRIVE_SCOPE = 'https://www.googleapis.com/auth/drive.file';
 const RATIB_GOOGLE_CLIENT_ID = '127962228897-k19m5nstjaun38k38348er1c9cf8vemb.apps.googleusercontent.com';
 let _cloudToken = null, _cloudTokenExp = 0, _cloudBusy = false, _gisPromise = null, _cloudNotifiedThisSession = false;
@@ -9899,7 +9899,7 @@ document.addEventListener('scroll',e=>{if(!e.target.closest?.('.searchable-dropd
 /* Ratib 3.6.7: concise side indicators and successful-post narration memory. */
 (function(){
  'use strict';
- const STORE_KEY='ratib_narration_history_v1';
+ const STORE_KEY='ratib_trial_narration_history_v1';
  const $=id=>document.getElementById(id);
  const cash=()=>typeof cashVoucherMode==='function'&&cashVoucherMode();
  const maxItems=120;
@@ -9986,7 +9986,7 @@ document.addEventListener('scroll',e=>{if(!e.target.closest?.('.searchable-dropd
 /* ratib-statement-369: non-invasive statement display/print/PDF preferences. */
 (function(){
  'use strict';
- const KEY='ratib_statement_columns_v1';
+ const KEY='ratib_trial_statement_columns_v1';
  const defaults={document:true,counterpart:true};
  function read(){
   try{const v=JSON.parse(localStorage.getItem(KEY)||'null');return {document:v?.document!==false,counterpart:v?.counterpart!==false};}

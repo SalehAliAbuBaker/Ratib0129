@@ -7142,7 +7142,7 @@ function renderCanonicalChartOfAccounts(){
   const container=document.getElementById('chartOfAccountsView'); if(!container)return;
   const expandedBefore=new Set([...container.children].filter(el=>el.classList.contains('acc-accordion-body')&&el.classList.contains('open')).map(el=>el.dataset.treeMain));
   const query=normalizeParentQuery(document.getElementById('chartAccountSearchInput')?.value||'');
-  const fullCatalog=sortAccountCatalogForTreeDisplay(getCanonicalCatalog());
+  const fullCatalog=sortAccountCatalogForTreeDisplay(window.ratibImportVisibleCatalog?window.ratibImportVisibleCatalog(getCanonicalCatalog()):getCanonicalCatalog());
   const cat=query?fullCatalog.map(x=>{
     const parentMatches=[x.mainCode,x.main,x.groupCode,x.group,x.subCode,x.sub].some(v=>normalizeParentQuery(v).includes(query));
     const details=parentMatches?x.details:x.details.filter(d=>[d[0],d[1]].some(v=>normalizeParentQuery(v).includes(query)));
@@ -7212,7 +7212,7 @@ function renderCanonicalChartOfAccounts(){
 document.getElementById('chartAccountSearchInput')?.addEventListener('input',()=>renderCanonicalChartOfAccounts());
 function initCanonicalLiveAccountsTreePage(){
   const c=document.getElementById('liveAccountsTreeView');if(!c)return;c.innerHTML='';
-  const cat=sortAccountCatalogForTreeDisplay(getCanonicalCatalog());const mains=[...new Map(cat.map(x=>[x.main,x])).values()],treeBalances=computeAccountTreeBalanceSummary();
+  const cat=sortAccountCatalogForTreeDisplay(window.ratibImportVisibleCatalog?window.ratibImportVisibleCatalog(getCanonicalCatalog()):getCanonicalCatalog());const mains=[...new Map(cat.map(x=>[x.main,x])).values()],treeBalances=computeAccountTreeBalanceSummary();
   const levelBtns=(onEdit,onDelete)=>{const wrap=document.createElement('span');wrap.style.cssText='display:flex;gap:4px;flex-shrink:0';const eb=document.createElement('button');eb.className='btn btn-ghost';eb.type='button';eb.style.cssText='width:auto;margin:0;padding:2px 7px;font-size:.78rem';eb.textContent='✏️';eb.title='تعديل';eb.onclick=(ev)=>{ev.stopPropagation();onEdit();};const db=document.createElement('button');db.className='del-btn';db.type='button';db.title='حذف';db.style.cssText='margin:0;padding:2px 7px;font-size:.78rem';db.textContent='🗑️';db.onclick=(ev)=>{ev.stopPropagation();onDelete();};wrap.append(eb,db);return wrap;};
   mains.forEach(m=>{
     const h=document.createElement('div');h.className='acc-accordion-header';h.style.cssText='display:flex;justify-content:space-between;align-items:center;gap:8px';
@@ -10366,5 +10366,6 @@ try{currenciesUi();multiEditPrint();sync();}catch(e){console.error('Ratib 3.6.12
 </script>
 
 <script src="./ratib-quick-favorites.js?v=12" defer></script>
+<script src="./ratib-import-manager.js?v=1" defer></script>
 </body>
 </html>

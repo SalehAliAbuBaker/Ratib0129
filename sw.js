@@ -1,6 +1,6 @@
 // Ratib 3.1.9: cache identity is unique to this app's scope.
-const CACHE_VERSION='v61-ratib-3.6.33-active-account-code-lookup';
-const APP_RELEASE={"version":"3.6.33","changes":["إظهار الحسابات الرئيسية والتجميعية عند البحث حتى دون حسابات فرعية.","السماح بإعادة استخدام الأرقام غير النشطة مع منع التعارض الفعلي وحفظ السجلات القديمة.","توحيد فحص أرقام الحسابات مع الدليل المحاسبي الفعلي.","منع التباس رموز الحسابات القديمة مع الحسابات الظاهرة في شجرة الحسابات.","إظهار توضيح لرقم مسجل قديماً ولا يظهر في الشجرة، دون حذف البيانات.","الحفاظ على البحث بالاسم أو الرقم في الشجرة وكشف الحساب."]};
+const CACHE_VERSION='v62-ratib-3.6.34-import-management';
+const APP_RELEASE={"version":"3.6.34","changes":["إدارة حسابات وأرصدة دفعات الاستيراد السابقة انتقائيًا.","إخفاء الحساب المستورد من الشجرة دون حذف قيوده.","استعادة حسابات مستوردة محذوفة إلى مساراتها المحفوظة مع كشف تعارض الأرقام.","منع حذف الأرصدة المستوردة إن كان الحذف يخل بتوازن القيد الافتتاحي.","نسخة احتياطية ومعاينة قبل أي حذف أو تعديل."]};
 const CACHE_PREFIX=`ratib:${self.registration.scope}:`;
 const CACHE_NAME=CACHE_PREFIX+CACHE_VERSION;
 const APP_SHELL=[
@@ -14,6 +14,7 @@ const APP_SHELL=[
   "./Icons/apple-touch-icon.png",
   "./vendor/tajawal.css",
   "./ratib-quick-favorites.js",
+  "./ratib-import-manager.js",
   "./ratib-unified-output.js",
   "./vendor/chart.umd.min.js",
   "./vendor/chartjs-plugin-datalabels.min.js",

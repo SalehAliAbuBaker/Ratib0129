@@ -94,7 +94,7 @@ function prepare(batchId,ids,action,removeEmpty){
  if(!batch)throw Error('تعذر تحديد دفعة الاستيراد.');
  const selected=origins(batch,data).filter(x=>ids.includes(str(x.source.id)));
  if(!selected.length||selected.length!==ids.length)throw Error('اختر حسابًا واحدًا على الأقل من الدفعة.');
- const meta={count:selected.length,openings:0,accounts:0,archived:0,restored:0,balances:[],warnings:[]};
+ const meta={count:selected.length,openings:0,accounts:0,archived:0,restored:0,alreadyPresent:0,conflicts:[],restorable:[],balances:[],warnings:[]};
  const savedArchive=new Set(data.masar_import_archived_accounts||[]);
  if(action==='archive'||action==='show'){
    for(const row of selected){
@@ -106,20 +106,33 @@ function prepare(batchId,ids,action,removeEmpty){
    if(!meta.archived)throw Error('لا توجد حسابات نشطة لتنفيذ هذا الإجراء.');
    data.masar_import_archived_accounts=[...savedArchive];
  }else if(action==='restore'){
+   // Evaluate every selected account independently. A conflict must never mask later eligible accounts.
    for(const row of selected){
-     if(restoreOne(data.masar_account_catalog,row.source))meta.restored++;
-     savedArchive.delete(accountKey(row.source));
+     const code=row.code||'—',name=row.name||'بدون اسم';
+     try{
+       if(restoreOne(data.masar_account_catalog,row.source)){
+         meta.restored++;
+         meta.restorable.push('['+code+'] '+name);
+         savedArchive.delete(accountKey(row.source));
+       }else{
+         meta.alreadyPresent++;
+       }
+     }catch(error){
+       meta.conflicts.push('['+code+'] '+name+' — '+error.message);
+     }
    }
-   if(!meta.restored)throw Error('الحسابات المحددة موجودة بالفعل؛ لا تحتاج إلى استعادة.');
-   data.masar_import_archived_accounts=[...savedArchive];
-   data.masar_account_tree=canonicalTreeProjection(data.masar_account_catalog);
-   const codes={...(data.masar_account_codes||{})};
-   data.masar_account_catalog.forEach(r=>{
-     ['main','group','sub'].forEach(level=>{codes[r[level]]=str(r[level+'Code'])});
-     (r.details||[]).forEach(d=>{codes[d[1]]=str(d[0])});
-   });
-   data.masar_account_codes=codes;
-   meta.warnings.push('تُستعاد الحسابات إلى الدليل فقط؛ لا تُعاد الأرصدة التي حُذفت سابقًا إلا من النسخة الاحتياطية أو باستيراد جديد بعد المراجعة.');
+   if(meta.restored){
+     data.masar_import_archived_accounts=[...savedArchive];
+     data.masar_account_tree=canonicalTreeProjection(data.masar_account_catalog);
+     const codes={...(data.masar_account_codes||{})};
+     data.masar_account_catalog.forEach(r=>{
+       ['main','group','sub'].forEach(level=>{codes[r[level]]=str(r[level+'Code'])});
+       (r.details||[]).forEach(d=>{codes[d[1]]=str(d[0])});
+     });
+     data.masar_account_codes=codes;
+     meta.warnings.push('تُستعاد الحسابات القابلة للاستعادة فقط إلى الدليل؛ لا تُعاد الأرصدة المحذوفة سابقًا إلا من نسخة احتياطية أو باستيراد جديد بعد المراجعة.');
+   }
+   if(!meta.restored)meta.warnings.push('لا توجد حسابات قابلة للاستعادة ضمن هذا الاختيار. لن يُسمح بالتنفيذ.');
  }else if(action==='remove'){
    const toRemove=new Set(),delta=new Map();
    for(const row of selected)for(const tx of row.openings){
@@ -195,12 +208,12 @@ function review(){
    const signature=optionsSignature(),args=JSON.parse(signature);
    const plan=prepare(args[0],args[1],args[2],args[3]);
    const m=plan.meta;
-   $('ratibImportReview').textContent='المعاينة: '+m.count+' حساب محدد؛ '+m.openings+' رصيد سيُحذف؛ '+m.accounts+' حساب سيُزال من الشجرة؛ '+m.archived+' حالة إخفاء/إظهار؛ '+m.restored+' حساب سيُستعاد.'+
+   $('ratibImportReview').textContent='المعاينة: '+m.count+' حساب محدد؛ '+m.openings+' رصيد سيُحذف؛ '+m.accounts+' حساب سيُزال من الشجرة؛ '+m.archived+' حالة إخفاء/إظهار؛ '+m.restored+' حساب سيُستعاد.'+\n     (args[2]==='restore'?'\\nالموجودة سابقًا (لن تتغير): '+m.alreadyPresent+'؛ المتعارضة (ستُستثنى): '+m.conflicts.length+'؛ الصالحة للاستعادة: '+m.restored+'.':'')+\n     (m.restorable.length?'\\nالحسابات التي ستُستعاد:\\n'+m.restorable.join('\\n'):'')+\n     (m.conflicts.length?'\\nالحسابات المتعارضة وأسباب الاستثناء:\\n'+m.conflicts.join('\\n'):'')+
      (m.balances.length?'\nميزان الأرصدة المختارة: '+m.balances.join('، '):'')+
      (m.warnings.length?'\n'+m.warnings.join('\n'):'')+
      '\nلن يتغير شيء حتى تضغط «تأكيد التنفيذ».';
-   approved={signature,fingerprint:plan.fingerprint};
-   $('ratibImportCommit').disabled=false;
+   approved=(args[2]==='restore'&&!m.restored)?null:{signature,fingerprint:plan.fingerprint};
+   $('ratibImportCommit').disabled=!approved;
  }catch(error){$('ratibImportReview').textContent='تعذرت المعاينة: '+error.message;invalidateExceptMessage();}
 }
 function invalidateExceptMessage(){approved=null;$('ratibImportCommit').disabled=true;}

@@ -132,7 +132,8 @@ function prepare(batchId,ids,action,removeEmpty){
      meta.balances.push(cur+': الفرق '+displayUnits(balance));
      if(balance!==0n)throw Error('لا يمكن حذف هذه الأرصدة منفردة؛ سيختل القيد الافتتاحي بعملة '+cur+' بمقدار '+displayUnits(balance)+'. اختر الحسابات المقابلة المتوازنة معها.');
    }
-   const erase=list=>list.filter(t=>!toRemove.has(t.id));
+   const sourceIds=new Set(selected.map(row=>str(row.source.id)));
+   const erase=list=>list.filter(t=>!(t.isOpeningBalance&&t.importBatchId===batch.id&&toRemove.has(t.id)&&sourceIds.has(str(t.openingBalance?.sourceAccountId))));
    if(data.masar_plan?.transactions)data.masar_plan.transactions=erase(data.masar_plan.transactions);
    for(const h of data.masar_history||[])h.transactions=erase(h.transactions||[]);
    meta.openings=toRemove.size;

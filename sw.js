@@ -1,6 +1,6 @@
 // Ratib 3.1.9: cache identity is unique to this app's scope.
-const CACHE_VERSION='v63-ratib-3.6.35-full-restore-preview';
-const APP_RELEASE={"version":"3.6.35","changes":["عرض تقرير شامل للحسابات المستوردة القابلة للاستعادة والمتعارضة دون توقف عند أول تعارض.","إدارة حسابات وأرصدة دفعات الاستيراد السابقة انتقائيًا.","إخفاء الحساب المستورد من الشجرة دون حذف قيوده.","استعادة حسابات مستوردة محذوفة إلى مساراتها المحفوظة مع كشف تعارض الأرقام.","منع حذف الأرصدة المستوردة إن كان الحذف يخل بتوازن القيد الافتتاحي.","نسخة احتياطية ومعاينة قبل أي حذف أو تعديل."]};
+const CACHE_VERSION='v65-ratib-3.6.36-license';
+const APP_RELEASE={"version":"3.6.36","changes":["عرض تقرير شامل للحسابات المستوردة القابلة للاستعادة والمتعارضة دون توقف عند أول تعارض.","إدارة حسابات وأرصدة دفعات الاستيراد السابقة انتقائيًا.","إخفاء الحساب المستورد من الشجرة دون حذف قيوده.","استعادة حسابات مستوردة محذوفة إلى مساراتها المحفوظة مع كشف تعارض الأرقام.","منع حذف الأرصدة المستوردة إن كان الحذف يخل بتوازن القيد الافتتاحي.","نسخة احتياطية ومعاينة قبل أي حذف أو تعديل."]};
 const CACHE_PREFIX=`ratib:${self.registration.scope}:`;
 const CACHE_NAME=CACHE_PREFIX+CACHE_VERSION;
 const APP_SHELL=[
@@ -13,6 +13,7 @@ const APP_SHELL=[
   "./Icons/icon-512-maskable.png",
   "./Icons/apple-touch-icon.png",
   "./vendor/tajawal.css",
+  "./ratib-license-draft.js",
   "./ratib-quick-favorites.js",
   "./ratib-import-manager.js",
   "./ratib-unified-output.js",

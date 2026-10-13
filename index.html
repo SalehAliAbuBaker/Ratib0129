@@ -4907,7 +4907,7 @@ function populateEditAccountDetailParentSelect(accName){
   const map=getAccountDetailParents(),current=map[accName]||'',cat=getCanonicalCatalog();
   const names=[...new Set(cat.flatMap(x=>x.details.map(d=>d[1])))].filter(name=>name!==accName).sort((a,b)=>a.localeCompare(b,'ar'));
   sel.innerHTML='<option value="">— بدون حساب أب —</option>';
-  names.forEach(name=>{const opt=document.createElement('option');opt.value=name;const row=findCatalogRowForDetail(name);opt.textContent=`${name} — ${row?row.sub:''}`;sel.appendChild(opt);});
+  names.forEach(name=>{const opt=document.createElement('option');opt.value=name;const row=findCatalogRowForDetail(name);const detail=row?.details.find(d=>d[1]===name);opt.textContent=`[${detail?.[0]||'—'}] ${name} — ${row?row.sub:''}`;sel.appendChild(opt);});
   sel.value=names.includes(current)?current:'';
 }
 function populateEditAccountParentSelect(selectedKey) {
@@ -4918,7 +4918,7 @@ function populateEditAccountParentSelect(selectedKey) {
     const key = catalogSubKey(x);
     if (seen.has(key)) return; seen.add(key);
     const opt = document.createElement('option'); opt.value = key;
-    opt.textContent = `📁 ${x.main} ⟵ ${x.group} ⟵ ${x.sub}`;
+    opt.textContent = `📁 [${x.subCode}] ${x.main} ⟵ ${x.group} ⟵ ${x.sub}`;
     sel.appendChild(opt);
   });
   if (selectedKey) sel.value = selectedKey;
@@ -4942,19 +4942,16 @@ document.getElementById('closeEditAccountModalBtn')?.addEventListener('click', (
 document.getElementById('saveEditedAccountBtn')?.addEventListener('click', () => {
   const oldName = document.getElementById('editAccountOldName').value;
   const newName = document.getElementById('editAccountNameInput').value.trim();
-  const newCode = document.getElementById('editAccountCodeInput').value.trim();
+  const newCode = normalizeParentQuery(document.getElementById('editAccountCodeInput').value);
   const maxC = document.getElementById('editAccountMaxCeil').value;
   const minC = document.getElementById('editAccountMinCeil').value;
   if (!newName) { alert('يرجى إدخال اسم الحساب'); return; }
   if (!newCode) { alert('يرجى إدخال رقم الحساب'); return; }
 
-  // تحقق من عدم تطابق الرقم الجديد مع رقم حساب آخر (باستثناء الحساب نفسه)
-  const oldCode = getAccountCode(oldName);
-  if (newCode !== oldCode) {
-    const cat0 = getCanonicalCatalog();
-    const codeClash = cat0.some(x => (x.mainCode === newCode && x.main !== oldName) || (x.groupCode === newCode && x.group !== oldName) || (x.subCode === newCode && x.sub !== oldName) || x.details.some(d => d[0] === newCode && d[1] !== oldName));
-    if (codeClash) { alert(`رقم الحساب "${newCode}" مستخدم بالفعل لحساب آخر. يرجى اختيار رقم مختلف.`); return; }
-  }
+  // افحص جميع مستويات الدليل، مع استثناء الحساب التفصيلي الجاري تعديله وحده.
+  if(!/^\d+$/.test(newCode)){alert('يرجى إدخال رقم حساب رقمي صحيح');return;}
+  const conflict=accountCodeConflictMessage(newCode,'detail',oldName);
+  if(conflict){alert(conflict);return;}
 
   const tree = getAccountTree();
   let found = false;
@@ -5259,24 +5256,67 @@ function updateParentAccountSelect() {
     sel.appendChild(detailParent);
   });
 }
-function accountCodeIsUsed(code){
-  const c=normalizeParentQuery(code),cat=getCanonicalCatalog();
-  const activeNames=new Set(),activeCodes=new Set();
-  cat.forEach(x=>{
-    [[x.main,x.mainCode],[x.group,x.groupCode],[x.sub,x.subCode],...(x.details||[]).map(d=>[d[1],d[0]])].forEach(([name,id])=>{
-      if(name)activeNames.add(String(name));
-      if(id!=null)activeCodes.add(normalizeParentQuery(id));
-    });
+// المرجع الوحيد للحسابات النشطة هو الدليل الحالي، وليس السجل القديم للأرقام.
+function getActiveAccountCodeOwners(code){
+  const q=normalizeParentQuery(code),owners=[],seen=new Set();
+  if(!q)return owners;
+  const add=(kind,name,number,path)=>{
+    if(!name||normalizeParentQuery(number)!==q)return;
+    const key=kind+'|'+String(name)+'|'+String(number);
+    if(seen.has(key))return;
+    seen.add(key);owners.push({kind,name:String(name),code:String(number),path});
+  };
+  getCanonicalCatalog().forEach(x=>{
+    const groupPath=x.main+' ← '+x.group;
+    add('main',x.main,x.mainCode,x.main);
+    add('group',x.group,x.groupCode,groupPath);
+    add('sub',x.sub,x.subCode,groupPath+' ← '+x.sub);
+    (x.details||[]).forEach(d=>add('detail',d[1],d[0],groupPath+' ← '+x.sub+' ← '+d[1]));
   });
-  if(activeCodes.has(c))return true;
-  // لا تُحسب الرموز الافتراضية اليتيمة حساباتٍ فعلية؛ تبقى البيانات القديمة دون حذف.
-  // أما الرموز التاريخية غير الافتراضية فتبقى محجوزة لمنع تكرار أرقام المستخدم.
-  return Object.entries(getAccountCodes()).some(([name,id])=>{
-    if(normalizeParentQuery(id)!==c||activeNames.has(name))return false;
-    if(String(DEFAULT_ACCOUNT_CODES[name]??'')===String(id))return false;
-    return true;
+  return owners;
+}
+function accountCodeIsUsed(code,exceptKind='',exceptName=''){
+  return getActiveAccountCodeOwners(code).some(x=>!(x.kind===exceptKind&&x.name===exceptName));
+}
+function accountCodeConflictMessage(code,exceptKind='',exceptName=''){
+  const names={main:'رئيسي',group:'تجميعي',sub:'تجميعي فرعي',detail:'تفصيلي'};
+  const owners=getActiveAccountCodeOwners(code).filter(x=>!(x.kind===exceptKind&&x.name===exceptName));
+  if(!owners.length)return '';
+  return 'رقم الحساب ['+normalizeParentQuery(code)+'] مستخدم في الدليل الحالي:\n'+
+    owners.map(x=>'• '+x.name+' ('+(names[x.kind]||x.kind)+') — '+x.path).join('\n')+
+    '\nابحث عن الرقم في شجرة الحسابات لمعرفة موضعه. لا يمكن تخصيص رقم حساب نشط لحساب آخر.';
+}
+function getHistoricalAccountCodeOwners(code){
+  const q=normalizeParentQuery(code);
+  const saved=store.get('account_codes',{});
+  if(!q||!saved||typeof saved!=='object'||Array.isArray(saved))return [];
+  const activeNames=new Set(getCanonicalCatalog().flatMap(x=>[x.main,x.group,x.sub,...(x.details||[]).map(d=>d[1])]));
+  return Object.entries(saved).filter(([name,number])=>!activeNames.has(name)&&normalizeParentQuery(number)===q).map(([name,number])=>({name,code:String(number)}));
+}
+// إيضاح الحالة فور كتابة الرقم: نشط، تاريخي غير نشط، أو متاح.
+function setupAccountCodeStatusHints(){
+  ['newAccountSubCodeInput','newParentCategoryCodeInput','editAccountCodeInput'].forEach(id=>{
+    const input=document.getElementById(id);
+    if(!input||input.dataset.codeStatusBound==='1')return;
+    input.dataset.codeStatusBound='1';
+    const hint=document.createElement('small');
+    hint.className='field-hint';hint.setAttribute('role','status');
+    input.insertAdjacentElement('afterend',hint);
+    const refresh=()=>{
+      const code=normalizeParentQuery(input.value);
+      if(!code){hint.textContent='';return;}
+      const exceptKind=id==='editAccountCodeInput'?'detail':'';
+      const exceptName=exceptKind?document.getElementById('editAccountOldName')?.value||'':'';
+      const conflict=accountCodeConflictMessage(code,exceptKind,exceptName);
+      const old=getHistoricalAccountCodeOwners(code);
+      hint.textContent=conflict||(old.length?'الرقم متاح في الدليل النشط، وله سجل قديم باسم: '+old.map(x=>x.name).join('، ')+'. لن تُعدّل السجلات القديمة.':'الرقم متاح في دليل الحسابات الحالي.');
+      hint.style.color=conflict?'var(--danger)':old.length?'var(--muted)':'var(--ok)';
+    };
+    input.addEventListener('input',refresh);
+    input.addEventListener('change',refresh);
   });
 }
+setupAccountCodeStatusHints();
 // يقترح الرقم التالي في تسلسل الحساب الأب: كود المجموعة + رقم تسلسلي (مثل 1101 ← 110101، 110102 ...)
 function suggestSubAccountCode(targetPath){
   const cat=getCanonicalCatalog();
@@ -5292,7 +5332,7 @@ function suggestSubAccountCode(targetPath){
       const n=Number(v.slice(prefix.length));if(n>max)max=n;
     }
   };
-  Object.values(getAccountCodes()).forEach(eat);
+  // التسلسل المقترح يعتمد على الأرقام النشطة فقط؛ لا يحجز رقم حساب محذوف.
   cat.forEach(x=>(x.details||[]).forEach(d=>eat(d[0])));
   let n=max+1;
   while(n<Math.pow(10,width)&&accountCodeIsUsed(prefix+String(n).padStart(width,'0')))n++;
@@ -5365,15 +5405,17 @@ document.getElementById('saveNewAccountTreeBtn').addEventListener('click', () =>
   const sel=document.getElementById('newAccountParentSelect');
   const targetPath=sel.value;
   const parent=getCanonicalCatalog().find(x=>catalogSubKey(x)===targetPath);
-  let subCode=document.getElementById('newAccountSubCodeInput').value.trim();
+  let subCode=normalizeParentQuery(document.getElementById('newAccountSubCodeInput').value);
   const subName=document.getElementById('newAccountSubNameInput').value.trim();
   const maxC=document.getElementById('newAccountMaxCeil').value,minC=document.getElementById('newAccountMinCeil').value;
   if(!parent){alert('اختر الحساب التجميعي الفرعي الصحيح أولاً');return;}
   if(!subName){alert('يرجى كتابة اسم الحساب الفرعي');return;}
-  if(getCanonicalCatalog().some(x=>x.details.some(d=>d[1]===subName))){alert('اسم الحساب مسجل سابقاً');return;}
+  if(getCanonicalCatalog().some(x=>[x.main,x.group,x.sub].includes(subName)||x.details.some(d=>d[1]===subName))){alert('اسم الحساب مسجل سابقاً');return;}
+  if(isAccountNameInUse(subName)){alert('هذا الاسم مرتبط بحركات مالية سابقة ولا يمكن إعادة استخدامه لحساب مختلف. اختر اسماً مميزاً مع الاحتفاظ بالحركات القديمة.');return;}
   if(!subCode){subCode=suggestSubAccountCode(targetPath);document.getElementById('newAccountSubCodeInput').value=subCode;}
   if(!/^[0-9]{6}$/.test(subCode)){alert('الحساب التفصيلي يحتاج رقماً من 6 أرقام');return;}
-  if(accountCodeIsUsed(subCode)){alert('رقم الحساب مستخدم مسبقاً');return;}
+  const subCodeConflict=accountCodeConflictMessage(subCode);
+  if(subCodeConflict){alert(subCodeConflict);return;}
   if(!addCatalogDetail(subName,subCode,targetPath)){alert('تعذر الربط بالفرع المحدد، لم تُحفظ الإضافة');return;}
   const codes=getAccountCodes();codes[subName]=subCode;store.set('account_codes',codes);
   const ceilings=getAccountCeilings();
@@ -5393,14 +5435,16 @@ document.getElementById('saveNewAccountTreeBtn').addEventListener('click', () =>
   showToast('تمت إضافة الحساب تحت: '+parent.main+' ← '+parent.group+' ← '+parent.sub,'success',4000);
 });
 document.getElementById('saveNewParentCategoryBtn').addEventListener('click', () => {
-  let code=document.getElementById('newParentCategoryCodeInput').value.trim();
+  let code=normalizeParentQuery(document.getElementById('newParentCategoryCodeInput').value);
   const name=document.getElementById('newParentCategoryInput').value.trim();
   const parentSel=document.getElementById('newParentCategoryParentSelect');
   const parent=parentSel.value;
   if(!name){alert('يرجى كتابة اسم الحساب الرئيسي أو التجميعي');return;}
+  if(isAccountNameInUse(name)){alert('هذا الاسم مرتبط بحركات مالية سابقة؛ يرجى اختيار اسم مختلف لتجنب خلط الحركات القديمة بالجديدة.');return;}
   if(!code){code=suggestParentCategoryCode(parent);document.getElementById('newParentCategoryCodeInput').value=code;}
   if(!/^[0-9]+$/.test(code)){alert('يرجى إدخال رقم حساب رقمي');return;}
-  if(accountCodeIsUsed(code)){alert('رقم الحساب مستخدم مسبقاً');return;}
+  const newCategoryConflict=accountCodeConflictMessage(code);
+  if(newCategoryConflict){alert(newCategoryConflict);return;}
   if(!addCatalogCategory(name,code,parent)){
     alert('تعذر إضافة التصنيف: الاسم مستخدم أو الحساب الأب غير موجود');return;
   }
@@ -6809,7 +6853,7 @@ function renameMainCategory(oldName){
   const newCode=prompt('رقم الحساب الرئيسي الجديد:',getAccountCode(oldName)!=='—'?getAccountCode(oldName):''); if(newCode===null)return;
   const trimmedName=newName.trim(), trimmedCode=newCode.trim();
   const cat=getCanonicalCatalog();
-  if(trimmedCode && cat.some(x=>x.main!==oldName && x.mainCode===trimmedCode)){ alert('رقم الحساب مستخدم بالفعل لحساب رئيسي آخر.'); return; }
+  if(trimmedCode){const conflict=accountCodeConflictMessage(trimmedCode,'main',oldName);if(conflict){alert(conflict);return;}}
   cat.forEach(x=>{ if(x.main===oldName){ x.main=trimmedName; if(trimmedCode)x.mainCode=trimmedCode; } });
   store.set('account_catalog',cat); store.set('account_tree',canonicalTreeProjection(cat));
   const codes=getAccountCodes(); if(oldName!==trimmedName) delete codes[oldName]; codes[trimmedName]=trimmedCode||getAccountCode(trimmedName);
@@ -6839,7 +6883,7 @@ function renameGroupCategory(mainName,oldGroupName){
   const newCode=prompt('رقم الحساب التجميعي الجديد:',getAccountCode(oldGroupName)!=='—'?getAccountCode(oldGroupName):''); if(newCode===null)return;
   const trimmedName=newName.trim(), trimmedCode=newCode.trim();
   const cat=getCanonicalCatalog();
-  if(trimmedCode && cat.some(x=>x.group!==oldGroupName && x.groupCode===trimmedCode)){ alert('رقم الحساب مستخدم بالفعل لحساب تجميعي آخر.'); return; }
+  if(trimmedCode){const conflict=accountCodeConflictMessage(trimmedCode,'group',oldGroupName);if(conflict){alert(conflict);return;}}
   cat.forEach(x=>{ if(x.main===mainName && x.group===oldGroupName){ x.group=trimmedName; if(trimmedCode)x.groupCode=trimmedCode; } });
   store.set('account_catalog',cat); store.set('account_tree',canonicalTreeProjection(cat));
   const codes=getAccountCodes(); if(oldGroupName!==trimmedName) delete codes[oldGroupName]; codes[trimmedName]=trimmedCode||getAccountCode(trimmedName);
@@ -6875,7 +6919,7 @@ function renameSubCategory(mainName,groupName,oldSubName){
  if(rawCode===null)return;
  const code=normalizeParentQuery(rawCode);
  if(!/^\d+$/.test(code)){alert('يرجى إدخال رقم حساب صحيح.');return;}
- if(code!==oldCode&&accountCodeIsUsed(code)){alert('رقم الحساب مستخدم مسبقاً.');return;}
+ if(code!==oldCode){const conflict=accountCodeConflictMessage(code,'sub',oldSubName);if(conflict){alert(conflict);return;}}
  if(name!==oldSubName&&cat.some(x=>(x.sub===name&&x!==row)||x.group===name||x.main===name||x.details.some(d=>d[1]===name))){alert('اسم الحساب مستخدم مسبقاً.');return;}
  const descendants=subgroupDescendants(oldCode,oldLinks),currentParent=String(oldLinks[oldCode]||row.groupCode);
  let target;
@@ -6922,7 +6966,7 @@ function deleteSubCategory(mainName,groupName,subName){
 }
 function addCatalogCategory(name,code,parentPath=''){
   const cat=getCanonicalCatalog();
-  if(cat.some(x=>x.main===name||x.group===name||x.sub===name||x.details.some(d=>d[1]===name)))return false;
+  if(isAccountNameInUse(name)||accountCodeIsUsed(code)||cat.some(x=>x.main===name||x.group===name||x.sub===name||x.details.some(d=>d[1]===name)))return false;
   const parts=String(parentPath||'').split('|||');
   let row=null;
   if(parts[0]==='main'&&parts[1]){
@@ -6946,7 +6990,7 @@ function addCatalogCategory(name,code,parentPath=''){
 }
 function addCatalogDetail(name,code,parentPath){
   const cat=getCanonicalCatalog(),row=cat.find(x=>catalogSubKey(x)===parentPath);
-  if(!row||cat.some(x=>x.details.some(d=>d[0]===code||d[1]===name)))return false;
+  if(!row||accountCodeIsUsed(code)||isAccountNameInUse(name)||cat.some(x=>[x.main,x.group,x.sub].includes(name)||x.details.some(d=>d[1]===name)))return false;
   row.details.push([code,name]);
   store.set('account_catalog',cat);
   store.set('account_tree',canonicalTreeProjection(cat));
@@ -7640,9 +7684,16 @@ function renderAccountsPager(){
   const catalog=getCanonicalCatalog(), balances=getAccountPagerBalances();
   const query=normalizeParentQuery(document.getElementById('accountsPagerSearchInput')?.value||'');
   const matches=(value)=>!query||normalizeParentQuery(value).includes(query);
-  const mains=[...new Map(catalog.map(x=>[x.main,x])).values()].filter(main=>catalog.some(x=>x.main===main.main&&x.details.some(d=>matches(`${d[0]} ${d[1]} ${x.mainCode} ${x.main} ${x.groupCode} ${x.group} ${x.subCode} ${x.sub}`))));
+  // لا تُخفِ الحسابات الرئيسية أو التجميعية التي لم تعد تحتها حسابات تفصيلية.
+  const parentMatches=x=>[x.mainCode,x.main,x.groupCode,x.group,x.subCode,x.sub].some(matches);
+  const mains=[...new Map(catalog.map(x=>[x.main,x])).values()].filter(main=>catalog.some(x=>x.main===main.main&&(parentMatches(x)||x.details.some(d=>matches(`${d[0]} ${d[1]} ${x.mainCode} ${x.main} ${x.groupCode} ${x.group} ${x.subCode} ${x.sub}`)))));
   tabs.innerHTML='';track.innerHTML='';document.getElementById('accountOperationsPanel')?.classList.add('hidden');
-  if(!mains.length){track.innerHTML=`<div class="accounts-empty">${query?'لا توجد حسابات مطابقة لعبارة البحث.':'لا توجد تصنيفات حسابات متاحة.'}</div>`;return;}
+  if(!mains.length){
+    const msg=document.createElement('div');msg.className='accounts-empty';
+    const old=getHistoricalAccountCodeOwners(query);
+    msg.textContent=old.length?'الرقم غير مستخدم في الدليل الحالي، لكنه ظهر في السجل القديم باسم: '+old.map(x=>x.name).join('، ')+'. يمكن إعادة استخدام الرقم إذا لم يكن مخصصاً لحساب نشط.':(query?'لا توجد حسابات نشطة مطابقة للاسم أو الرقم.':'لا توجد تصنيفات حسابات متاحة.');
+    track.appendChild(msg);return;
+  }
   mains.forEach((main,index)=>{
     const tab=document.createElement('button');tab.type='button';tab.role='tab';tab.textContent='#'+main.main;tab.dataset.index=String(index);tab.setAttribute('aria-selected',index===0?'true':'false');
     tab.addEventListener('click',()=>{const slide=track.children[index];slide?.scrollIntoView({behavior:'smooth',inline:'start',block:'nearest'});setAccountsPagerActive(index)});tabs.appendChild(tab);
@@ -7664,6 +7715,30 @@ function renderAccountsPager(){
     accountItems.forEach(a=>{const x=currencyBalance(a.name,a.currency);a.currencyTotal=x.total;a.currencyCount=x.count;a.currencyLast=x.last;});
     accountItems.sort((a,b)=>{const ad=a.currencyLast||'',bd=b.currencyLast||'';return (bd?1:0)-(ad?1:0)||bd.localeCompare(ad)||a.name.localeCompare(b.name,'ar')||a.currency.localeCompare(b.currency);});
     title.innerHTML=`<span>حسابات ${esc(main.main)}</span><small>${accountItems.length} حساب / عملة</small>`;slide.appendChild(title);
+    // في البحث باسم أو رقم الحساب: أظهر المستويات العليا نفسها، لا الحسابات التفصيلية وحدها.
+    if(query){
+      const seenParents=new Set(),parents=[];
+      catalog.filter(x=>x.main===main.main).forEach(x=>{
+        [
+          {kind:'رئيسي',code:x.mainCode,name:x.main,path:x.main},
+          {kind:'تجميعي',code:x.groupCode,name:x.group,path:x.main+' ← '+x.group},
+          {kind:'تجميعي فرعي',code:x.subCode,name:x.sub,path:x.main+' ← '+x.group+' ← '+x.sub}
+        ].forEach(p=>{
+          if(!matches(p.code)&&!matches(p.name))return;
+          const key=p.kind+'|'+p.code+'|'+p.name;
+          if(!seenParents.has(key)){seenParents.add(key);parents.push(p);}
+        });
+      });
+      parents.forEach(p=>{
+        const parentCard=document.createElement('div');
+        parentCard.className='account-sub-card';
+        parentCard.style.cssText='display:block;cursor:default;margin:6px 0;padding:10px 12px';
+        parentCard.textContent='['+p.code+'] '+p.name+' — '+p.kind;
+        const path=document.createElement('small');
+        path.className='account-sub-path';path.style.display='block';path.textContent=p.path;
+        parentCard.appendChild(path);slide.appendChild(parentCard);
+      });
+    }
     if(!accountItems.length){const empty=document.createElement('div');empty.className='accounts-empty';empty.textContent='لا توجد حسابات تفصيلية ضمن هذا التصنيف.';slide.appendChild(empty)}
     accountItems.forEach(account=>{
       const amount=account.currencyTotal,positive=amount>=0,activityCount=account.currencyCount;

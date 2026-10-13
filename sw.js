@@ -1,6 +1,6 @@
 // Ratib 3.1.9: cache identity is unique to this app's scope.
-const CACHE_VERSION='v56-ratib-3.6.28-account-parents-folding';
-const APP_RELEASE={"version":"3.6.28","changes":["تصحيح عرض جميع الحسابات الرئيسية والتجميعية عند الإضافة.","حفظ الحساب تحت فرعه الأصلي المختار دون الانتقال لفرع آخر.","إتاحة طي وتوسيع الحسابات التجميعية والفرعية داخل الشجرة."]};
+const CACHE_VERSION='v57-ratib-3.6.29-parent-lookup-code-or-name';
+const APP_RELEASE={"version":"3.6.29","changes":["البحث عن الحساب الأب برقم الحساب أو باسمه عند تعديل الحسابات التجميعية الفرعية.","ربط التجميعي الفرعي بحساب تجميعي أو تجميعي فرعي آخر، مع منع الربط الدائري.","إعادة إدخال الأب فقط عند الخطأ دون فقدان الاسم والرقم."]};
 const CACHE_PREFIX=`ratib:${self.registration.scope}:`;
 const CACHE_NAME=CACHE_PREFIX+CACHE_VERSION;
 const APP_SHELL=[

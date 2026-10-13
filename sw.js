@@ -1,6 +1,6 @@
 // Ratib 3.1.9: cache identity is unique to this app's scope.
-const CACHE_VERSION='v57-ratib-3.6.29-parent-lookup-code-or-name';
-const APP_RELEASE={"version":"3.6.29","changes":["البحث عن الحساب الأب برقم الحساب أو باسمه عند تعديل الحسابات التجميعية الفرعية.","ربط التجميعي الفرعي بحساب تجميعي أو تجميعي فرعي آخر، مع منع الربط الدائري.","إعادة إدخال الأب فقط عند الخطأ دون فقدان الاسم والرقم."]};
+const CACHE_VERSION='v58-ratib-3.6.30-account-search-by-code-or-name';
+const APP_RELEASE={"version":"3.6.30","changes":["بحث موحد بالاسم أو رقم الحساب في الشجرة وكشف الحساب، بما في ذلك الأرقام العربية.","إظهار الفروع المطابقة في الشجرة دون المساس بالبيانات أو قيود الحساب.","البحث عن الحساب الأب برقم الحساب أو باسمه عند تعديل الحسابات التجميعية الفرعية.","ربط التجميعي الفرعي بحساب تجميعي أو تجميعي فرعي آخر، مع منع الربط الدائري.","إعادة إدخال الأب فقط عند الخطأ دون فقدان الاسم والرقم."]};
 const CACHE_PREFIX=`ratib:${self.registration.scope}:`;
 const CACHE_NAME=CACHE_PREFIX+CACHE_VERSION;
 const APP_SHELL=[

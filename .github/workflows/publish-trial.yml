@@ -1,0 +1,68 @@
+name: Publish Ratib trial only
+on:
+  push:
+    branches: [develop]
+    paths:
+      - 'trial/**'
+      - '.github/workflows/publish-trial.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: ratib-trial-publication
+  cancel-in-progress: false
+
+jobs:
+  publish-trial:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out experimental branch
+        uses: actions/checkout@v4
+        with:
+          ref: develop
+          path: candidate
+
+      - name: Check out production branch
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          path: published
+
+      - name: Verify the trial remains isolated
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          folder=Path('candidate/trial')
+          html=(folder/'index.html').read_text(encoding='utf-8')
+          license_js=(folder/'ratib-license-draft.js').read_text(encoding='utf-8')
+          assert '<base href="../">' in html, "Trial asset base must stay isolated"
+          assert "APP_STORAGE_PREFIX = 'ratib_trial_masar_'" in html, "Trial financial keys must be separate"
+          assert "if(false && 'serviceWorker' in navigator)" in html, "Trial must not register the production service worker"
+          assert "ratib_trial_license_client_v2" in license_js, "Trial license state must be separate"
+          assert "CLOUD_FOLDER_NAME = 'Ratib Trial Backups'" in html, "Trial cloud backup folder must be separate"
+          assert "CLOUD_FILE_PREFIX = 'ratib-trial-cloud-'" in html, "Trial cloud backup file names must be separate"
+          assert "ratib_trial_narration_history_v1" in html, "Trial text history must be separate"
+          print("Trial isolation checks passed")
+          PY
+
+      - name: Publish only trial directory to main
+        shell: bash
+        run: |
+          set -euo pipefail
+          rsync -a --delete candidate/trial/ published/trial/
+          git -C published config user.name "github-actions[bot]"
+          git -C published config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git -C published add -A -- trial/
+          if git -C published diff --cached --quiet; then
+            echo "Trial directory already matches develop; no production changes."
+            exit 0
+          fi
+          if git -C published diff --cached --name-only | grep -Ev '^trial/' ; then
+            echo "Refusing to publish non-trial changes."
+            exit 1
+          fi
+          git -C published commit -m "Publish isolated trial from develop"
+          git -C published push origin HEAD:main

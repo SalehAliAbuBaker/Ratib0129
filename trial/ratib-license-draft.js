@@ -53,10 +53,15 @@
     if (count !== recorded) { state.used = count; safeWrite(state); }
     return count;
   }
+  function updateTrialCounter(transactions) {
+    const node = document.getElementById('ratibTrialCounter');
+    if (node) node.textContent = 'السندات المجانية: ' + Math.min(getUsed(transactions), TRIAL_LIMIT) + ' / ' + TRIAL_LIMIT;
+  }
   function recordCreated() {
     const s = safeRead();
     s.used = Math.max(0, Number(s.used) || 0) + 1;
     safeWrite(s);
+    updateTrialCounter();
     return s.used;
   }
   function validExpiry(value) {
@@ -126,10 +131,12 @@
     dlg.style.display='flex';dlg.querySelector('#ratibLicenseCode').focus();
   }
   async function beforeCreate(transactions) {
+    updateTrialCounter(transactions);
     if (getUsed(transactions) < TRIAL_LIMIT) return true;
     if (await licensed()) return true;
     showActivation();return false;
   }
+  document.addEventListener('DOMContentLoaded',()=>updateTrialCounter());
   global.RatibLicense = Object.freeze({
     TRIAL_LIMIT,deviceId,requestText,whatsappUrl,recordCreated,used:getUsed,
     remaining:()=>Math.max(0,TRIAL_LIMIT-getUsed()),activate,licensed,beforeCreate,showActivation

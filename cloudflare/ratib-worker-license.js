@@ -115,10 +115,10 @@ export default {
         if (existing?.status === 'revoked') return reply({ valid: false, error: 'تم إيقاف هذا الجهاز.' }, 403);
         if (!existing) {
           if (path !== '/api/license/activate') return reply({ valid: false, error: 'لم يُفعّل الترخيص على هذا الجهاز.' }, 403);
-          const result = await env.DB.prepare(\`INSERT INTO license_devices
+          const result = await env.DB.prepare(`INSERT INTO license_devices
             (id,license_id,device_id,device_name,status,last_seen_at)
             SELECT ?,?,?,NULL,'active',CURRENT_TIMESTAMP
-            WHERE (SELECT COUNT(*) FROM license_devices WHERE license_id=? AND status='active') < ?\`)
+            WHERE (SELECT COUNT(*) FROM license_devices WHERE license_id=? AND status='active') < ?`)
             .bind('DEV-'+crypto.randomUUID(),license,device,license,Number(row.max_devices)).run();
           if (!result.meta?.changes) return reply({ valid: false, error: 'اكتمل عدد الأجهزة المسموح بها.' }, 409);
         } else {

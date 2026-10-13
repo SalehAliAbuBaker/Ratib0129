@@ -1,6 +1,6 @@
 // Ratib 3.1.9: cache identity is unique to this app's scope.
-const CACHE_VERSION='v55-ratib-3.6.27-tree-balances';
-const APP_RELEASE={"version":"3.6.27","changes":["إظهار المدين والدائن وصافي الرصيد لكل حساب تفصيلي داخل الشجرة.","فصل الأرصدة حسب العملة مع دعم الأرصدة الافتتاحية والسندات المركبة.","الحفاظ على موضع الشجرة وترتيبها الرقمي بعد إجراء العمليات."]};
+const CACHE_VERSION='v56-ratib-3.6.28-account-parents-folding';
+const APP_RELEASE={"version":"3.6.28","changes":["تصحيح عرض جميع الحسابات الرئيسية والتجميعية عند الإضافة.","حفظ الحساب تحت فرعه الأصلي المختار دون الانتقال لفرع آخر.","إتاحة طي وتوسيع الحسابات التجميعية والفرعية داخل الشجرة."]};
 const CACHE_PREFIX=`ratib:${self.registration.scope}:`;
 const CACHE_NAME=CACHE_PREFIX+CACHE_VERSION;
 const APP_SHELL=[

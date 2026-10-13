@@ -1997,18 +1997,8 @@ body.ratib-sidebar-open,body.ratib-about-open{overflow:hidden}
           <input type="text" inputmode="email" dir="ltr" id="cloudEmailInput" placeholder="name@gmail.com" style="margin-bottom:8px;">
           <label style="font-weight:700; font-size:0.95rem;">وقت النسخ اليومي</label>
           <input type="time" id="cloudTimeInput" value="21:00" style="margin-bottom:8px;">
-          <label style="font-weight:700; font-size:0.95rem;">معرّف عميل Google (OAuth Client ID)</label>
-          <input type="text" dir="ltr" id="cloudClientIdInput" placeholder="xxxxxxxx.apps.googleusercontent.com" style="margin-bottom:6px;">
-          <details style="margin-bottom:10px; font-size:0.92rem; font-weight:700; color:var(--muted);">
-            <summary style="cursor:pointer; font-weight:700; color:var(--accent);">كيف أحصل على المعرّف؟ (مرة واحدة)</summary>
-            <ol style="margin:6px 18px 0 0; line-height:1.9;">
-              <li>افتح console.cloud.google.com وأنشئ مشروعاً، ثم فعّل "Google Drive API".</li>
-              <li>من "OAuth consent screen" اختر External وأضف بريدك ضمن Test users.</li>
-              <li>من Credentials أنشئ "OAuth client ID" نوع Web application.</li>
-              <li>ضمن Authorized JavaScript origins ضع رابط موقعك بالضبط، مثل: https://اسمك.github.io</li>
-              <li>انسخ الـ Client ID والصقه هنا. لن يعمل الربط إذا فُتح التطبيق كملف محلي أو من واتساب، بل يلزم رابط https.</li>
-            </ol>
-          </details>
+
+          <p style="color:var(--muted);font-weight:700;font-size:0.9rem;margin-bottom:10px;">اربط حساب Google الخاص بك مباشرة؛ لا يلزم إنشاء مشروع أو إدخال معرّف تقني. يتطلب الربط فتح التطبيق من موقع HTTPS.</p>
           <div style="display:flex; gap:8px; flex-wrap:wrap;">
             <button class="btn btn-primary" id="cloudSaveBtn" style="margin-top:0; font-size:1.05rem;">💾 حفظ وتفعيل السحابة</button>
             <button class="btn btn-ghost" id="cloudRunNowBtn" style="margin-top:0; font-size:1.05rem; display:none;">☁️ نسخ الآن</button>
@@ -3525,19 +3515,20 @@ async function refreshAutoBackupUI() {
 
 // ===================== النسخ الاحتياطي السحابي (Google Drive) =====================
 // ملاحظات صريحة: (1) لا يوجد تنفيذ بالخلفية في صفحات الويب؛ الجدولة تعمل أثناء فتح التطبيق
-// وعند فتحه لاحقاً يُنفَّذ ما فاته. (2) يحتاج Client ID خاصاً بحسابك ورابط https مُصرَّحاً به.
+// وعند فتحه لاحقاً يُنفَّذ ما فاته. (2) يستخدم معرّف OAuth المدمج ورابط https مُصرَّحاً به.
 // (3) صلاحية drive.file فقط: يرى التطبيق الملفات التي أنشأها هو، ولا يقرأ بقية Drive.
 const CLOUD_CFG_KEY = 'cloud_backup_cfg';
 const CLOUD_FOLDER_NAME = 'Ratib Backups';
 const CLOUD_FILE_PREFIX = 'ratib-cloud-';
 const DRIVE_SCOPE = 'https://www.googleapis.com/auth/drive.file';
+const RATIB_GOOGLE_CLIENT_ID = '127962228897-k19m5nstjaun38k38348er1c9cf8vemb.apps.googleusercontent.com';
 let _cloudToken = null, _cloudTokenExp = 0, _cloudBusy = false, _gisPromise = null, _cloudNotifiedThisSession = false;
 
 function getCloudCfg() {
-  return Object.assign({ enabled: false, email: '', clientId: '', time: '21:00', lastDate: '', lastTime: '', lastError: '' }, store.get(CLOUD_CFG_KEY, {}) || {});
+  return Object.assign({ enabled: false, email: '', time: '21:00', lastDate: '', lastTime: '', lastError: '' }, store.get(CLOUD_CFG_KEY, {}) || {}, { clientId: RATIB_GOOGLE_CLIENT_ID });
 }
 function saveCloudCfg(patch, silent = false) {
-  const next = Object.assign(getCloudCfg(), patch);
+  const next = Object.assign(getCloudCfg(), patch, { clientId: RATIB_GOOGLE_CLIENT_ID });
   if (silent) store._setSilent(CLOUD_CFG_KEY, next); else store.set(CLOUD_CFG_KEY, next);
   return next;
 }
@@ -3697,7 +3688,7 @@ function refreshCloudBackupUI() {
   const runBtn = $('cloudRunNowBtn'); if (runBtn) runBtn.disabled = _cloudBusy;
   if (document.activeElement !== $('cloudEmailInput')) { const e = $('cloudEmailInput'); if (e) e.value = cfg.email || ''; }
   if (document.activeElement !== $('cloudTimeInput')) { const t = $('cloudTimeInput'); if (t) t.value = cfg.time || '21:00'; }
-  if (document.activeElement !== $('cloudClientIdInput')) { const c = $('cloudClientIdInput'); if (c) c.value = cfg.clientId || ''; }
+
 }
 
 async function openCloudRestoreModal() {
@@ -3744,9 +3735,9 @@ function initCloudBackup() {
   const $ = (id) => document.getElementById(id);
   $('cloudSaveBtn')?.addEventListener('click', async () => {
     const email = ($('cloudEmailInput')?.value || '').trim();
-    const clientId = ($('cloudClientIdInput')?.value || '').trim();
+    const clientId = RATIB_GOOGLE_CLIENT_ID;
     const time = $('cloudTimeInput')?.value || '21:00';
-    if (!clientId || !/\.apps\.googleusercontent\.com$/.test(clientId)) { alert('أدخل معرّف عميل Google صحيحاً (ينتهي بـ apps.googleusercontent.com).'); return; }
+
     if (email && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) { alert('صيغة البريد الإلكتروني غير صحيحة.'); return; }
     _cloudToken = null; _cloudTokenExp = 0;
     saveCloudCfg({ enabled: true, email, clientId, time, lastError: '' });

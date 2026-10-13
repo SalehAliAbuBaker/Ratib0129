@@ -1,6 +1,7 @@
 name: Publish Ratib 3.6.5
 on:
   push:
+    branches: [main]
     paths:
       - tools/patch-cash-v365.py
   workflow_dispatch:
@@ -8,6 +9,7 @@ permissions:
   contents: write
 jobs:
   publish:
+    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4

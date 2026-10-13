@@ -7684,9 +7684,16 @@ function renderAccountsPager(){
   const catalog=getCanonicalCatalog(), balances=getAccountPagerBalances();
   const query=normalizeParentQuery(document.getElementById('accountsPagerSearchInput')?.value||'');
   const matches=(value)=>!query||normalizeParentQuery(value).includes(query);
-  const mains=[...new Map(catalog.map(x=>[x.main,x])).values()].filter(main=>catalog.some(x=>x.main===main.main&&x.details.some(d=>matches(`${d[0]} ${d[1]} ${x.mainCode} ${x.main} ${x.groupCode} ${x.group} ${x.subCode} ${x.sub}`))));
+  // لا تُخفِ الحسابات الرئيسية أو التجميعية التي لم تعد تحتها حسابات تفصيلية.
+  const parentMatches=x=>[x.mainCode,x.main,x.groupCode,x.group,x.subCode,x.sub].some(matches);
+  const mains=[...new Map(catalog.map(x=>[x.main,x])).values()].filter(main=>catalog.some(x=>x.main===main.main&&(parentMatches(x)||x.details.some(d=>matches(`${d[0]} ${d[1]} ${x.mainCode} ${x.main} ${x.groupCode} ${x.group} ${x.subCode} ${x.sub}`)))));
   tabs.innerHTML='';track.innerHTML='';document.getElementById('accountOperationsPanel')?.classList.add('hidden');
-  if(!mains.length){track.innerHTML=`<div class="accounts-empty">${query?'لا توجد حسابات مطابقة لعبارة البحث.':'لا توجد تصنيفات حسابات متاحة.'}</div>`;return;}
+  if(!mains.length){
+    const msg=document.createElement('div');msg.className='accounts-empty';
+    const old=getHistoricalAccountCodeOwners(query);
+    msg.textContent=old.length?'الرقم غير مستخدم في الدليل الحالي، لكنه ظهر في السجل القديم باسم: '+old.map(x=>x.name).join('، ')+'. يمكن إعادة استخدام الرقم إذا لم يكن مخصصاً لحساب نشط.':(query?'لا توجد حسابات نشطة مطابقة للاسم أو الرقم.':'لا توجد تصنيفات حسابات متاحة.');
+    track.appendChild(msg);return;
+  }
   mains.forEach((main,index)=>{
     const tab=document.createElement('button');tab.type='button';tab.role='tab';tab.textContent='#'+main.main;tab.dataset.index=String(index);tab.setAttribute('aria-selected',index===0?'true':'false');
     tab.addEventListener('click',()=>{const slide=track.children[index];slide?.scrollIntoView({behavior:'smooth',inline:'start',block:'nearest'});setAccountsPagerActive(index)});tabs.appendChild(tab);
@@ -7708,6 +7715,30 @@ function renderAccountsPager(){
     accountItems.forEach(a=>{const x=currencyBalance(a.name,a.currency);a.currencyTotal=x.total;a.currencyCount=x.count;a.currencyLast=x.last;});
     accountItems.sort((a,b)=>{const ad=a.currencyLast||'',bd=b.currencyLast||'';return (bd?1:0)-(ad?1:0)||bd.localeCompare(ad)||a.name.localeCompare(b.name,'ar')||a.currency.localeCompare(b.currency);});
     title.innerHTML=`<span>حسابات ${esc(main.main)}</span><small>${accountItems.length} حساب / عملة</small>`;slide.appendChild(title);
+    // في البحث باسم أو رقم الحساب: أظهر المستويات العليا نفسها، لا الحسابات التفصيلية وحدها.
+    if(query){
+      const seenParents=new Set(),parents=[];
+      catalog.filter(x=>x.main===main.main).forEach(x=>{
+        [
+          {kind:'رئيسي',code:x.mainCode,name:x.main,path:x.main},
+          {kind:'تجميعي',code:x.groupCode,name:x.group,path:x.main+' ← '+x.group},
+          {kind:'تجميعي فرعي',code:x.subCode,name:x.sub,path:x.main+' ← '+x.group+' ← '+x.sub}
+        ].forEach(p=>{
+          if(!matches(p.code)&&!matches(p.name))return;
+          const key=p.kind+'|'+p.code+'|'+p.name;
+          if(!seenParents.has(key)){seenParents.add(key);parents.push(p);}
+        });
+      });
+      parents.forEach(p=>{
+        const parentCard=document.createElement('div');
+        parentCard.className='account-sub-card';
+        parentCard.style.cssText='display:block;cursor:default;margin:6px 0;padding:10px 12px';
+        parentCard.textContent='['+p.code+'] '+p.name+' — '+p.kind;
+        const path=document.createElement('small');
+        path.className='account-sub-path';path.style.display='block';path.textContent=p.path;
+        parentCard.appendChild(path);slide.appendChild(parentCard);
+      });
+    }
     if(!accountItems.length){const empty=document.createElement('div');empty.className='accounts-empty';empty.textContent='لا توجد حسابات تفصيلية ضمن هذا التصنيف.';slide.appendChild(empty)}
     accountItems.forEach(account=>{
       const amount=account.currencyTotal,positive=amount>=0,activityCount=account.currencyCount;

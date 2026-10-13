@@ -97,7 +97,7 @@ export default {
         const license = String(body.license_key || '').trim();
         const device = String(body.device_id || '').trim();
         const email = String(body.email || '').trim();
-        if (!/^LIC-[0-9a-f-]{30,50}$/i.test(license) || !/^[a-zA-Z0-9_-]{8,120}$/.test(device)) {
+        if (!/^(?:LIC|TRIAL)-[0-9a-z-]{10,100}$/i.test(license) || !/^[a-zA-Z0-9_-]{8,120}$/.test(device)) {
           return reply({ valid: false, error: 'صيغة الترخيص أو معرّف التثبيت غير صحيحة.' }, 400);
         }
         if (email && !validEmail(email)) return reply({ valid: false, error: 'البريد الإلكتروني غير صحيح.' }, 400);
@@ -105,6 +105,10 @@ export default {
         if (!row) return reply({ valid: false, error: 'رقم الترخيص غير موجود.' }, 404);
         if (row.status !== 'active') return reply({ valid: false, error: 'تم إيقاف الترخيص.' }, 403);
         const expiry = row.expiry_date ? Date.parse(String(row.expiry_date).replace(' ', 'T')+'Z') : null;
+        const start = row.start_date ? Date.parse(String(row.start_date).replace(' ', 'T')+'Z') : null;
+        if (row.start_date && (!Number.isFinite(start) || start > Date.now())) {
+          return reply({ valid: false, error: 'لم تبدأ صلاحية الترخيص بعد.' }, 403);
+        }
         if (row.expiry_date && (!Number.isFinite(expiry) || expiry <= Date.now())) {
           return reply({ valid: false, error: 'انتهت صلاحية الترخيص.' }, 403);
         }
@@ -112,12 +116,12 @@ export default {
           return reply({ valid: false, error: 'البريد الإلكتروني لا يطابق الترخيص.' }, 403);
         }
         const existing = await env.DB.prepare('SELECT status FROM license_devices WHERE license_id=? AND device_id=?').bind(license, device).first();
-        if (existing?.status === 'revoked') return reply({ valid: false, error: 'تم إيقاف هذا الجهاز.' }, 403);
+        if (existing && existing.status !== 'active') return reply({ valid: false, error: 'تم إيقاف هذا الجهاز.' }, 403);
         if (!existing) {
           if (path !== '/api/license/activate') return reply({ valid: false, error: 'لم يُفعّل الترخيص على هذا الجهاز.' }, 403);
           const result = await env.DB.prepare(`INSERT INTO license_devices
-            (id,license_id,device_id,device_name,status,last_seen_at)
-            SELECT ?,?,?,NULL,'active',CURRENT_TIMESTAMP
+            (id,license_id,device_id,device_name,activated_at,last_seen_at,status)
+            SELECT ?,?,?,NULL,CURRENT_TIMESTAMP,CURRENT_TIMESTAMP,'active'
             WHERE (SELECT COUNT(*) FROM license_devices WHERE license_id=? AND status='active') < ?`)
             .bind('DEV-'+crypto.randomUUID(),license,device,license,Number(row.max_devices)).run();
           if (!result.meta?.changes) return reply({ valid: false, error: 'اكتمل عدد الأجهزة المسموح بها.' }, 409);

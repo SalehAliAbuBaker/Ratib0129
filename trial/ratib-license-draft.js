@@ -55,7 +55,13 @@
   }
   function updateTrialCounter(transactions) {
     const node = document.getElementById('ratibTrialCounter');
-    if (node) node.textContent = 'السندات المجانية: ' + Math.min(getUsed(transactions), TRIAL_LIMIT) + ' / ' + TRIAL_LIMIT;
+    if (!node) return;
+    const state = safeRead();
+    const recentlyVerified = !!state.code && Number(state.verifiedAt) > 0 &&
+      Date.now() - Number(state.checkedAt || 0) < CHECK_INTERVAL &&
+      Date.now() >= Number(state.checkedAt || 0) && validExpiry(state.expiryDate);
+    node.textContent = recentlyVerified ? '✅ الترخيص مفعّل — يمكنك حفظ سندات جديدة' :
+      'السندات المجانية: ' + Math.min(getUsed(transactions), TRIAL_LIMIT) + ' / ' + TRIAL_LIMIT;
   }
   function recordCreated() {
     const s = safeRead();
@@ -77,6 +83,7 @@
     Object.assign(s, { code, email, expiryDate: result.expiry_date || null,
       checkedAt: Date.now(), verifiedAt: Date.now() });
     safeWrite(s);
+    updateTrialCounter();
     return result;
   }
   async function licensed() {
@@ -87,10 +94,12 @@
       const result = await verifyLicense({endpoint:API+'verify',code:s.code,email:s.email||''});
       Object.assign(s,{verifiedAt:Date.now(),checkedAt:Date.now(),expiryDate:result.expiry_date||null});
       safeWrite(s);
+      updateTrialCounter();
       return true;
     } catch(err) {
       if (err instanceof TypeError && Date.now()-Number(s.verifiedAt||0) < OFFLINE_GRACE) return true;
       s.verifiedAt=0;s.checkedAt=0;safeWrite(s);
+      updateTrialCounter();
       return false;
     }
   }
@@ -136,7 +145,10 @@
     if (await licensed()) return true;
     showActivation();return false;
   }
-  document.addEventListener('DOMContentLoaded',()=>updateTrialCounter());
+  document.addEventListener('DOMContentLoaded',()=>{
+    updateTrialCounter();
+    if (safeRead().code) licensed().then(()=>updateTrialCounter()).catch(()=>updateTrialCounter());
+  });
   global.RatibLicense = Object.freeze({
     TRIAL_LIMIT,deviceId,requestText,whatsappUrl,recordCreated,used:getUsed,
     remaining:()=>Math.max(0,TRIAL_LIMIT-getUsed()),activate,licensed,beforeCreate,showActivation

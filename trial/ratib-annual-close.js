@@ -1,6 +1,19 @@
 (function annualCloseTrial(){
 "use strict";
-const YEAR_KEY="annual_closures_v1";
+const YEAR_KEY="annual_closures_v1",SESSION_KEY="year_correction_sessions_v1",REVISION_KEY="year_correction_history_v1";
+const getSessions=()=>store.get(SESSION_KEY,{})||{};
+const getRevisionHistory=()=>store.get(REVISION_KEY,[])||[];
+function yearOwnDocument(tx,year){return dateOf(tx).slice(0,4)===year&&!tx?.ratibAnnualClosingYear;}
+function fingerprint(tx){const t=JSON.stringify(tx);let hash=2166136261;for(let i=0;i<t.length;i++){hash^=t.charCodeAt(i);hash=Math.imul(hash,16777619);}return (hash>>>0).toString(16)+":"+t.length;}
+function yearCorrections(year,session){
+ const prev=new Map(Object.entries(session?.original||{})),current=new Map(all().filter(t=>yearOwnDocument(t,year)).map(t=>[String(t.id),t]));
+ const added=[],edited=[],removed=[];
+ for(const [id,original] of prev){const t=current.get(id);if(!t||['reversed','deleted'].includes(t.status))removed.push(id);else if(fingerprint(t)!==original)edited.push(id);}
+ for(const [id,t] of current)if(!prev.has(id)&&!['reversed','deleted'].includes(t.status))added.push(id);
+ return {added:added.length,edited:edited.length,removed:removed.length,addedIds:added,editedIds:edited,removedIds:removed};
+}
+function yearHistory(event,year,details){store.set(REVISION_KEY,[...getRevisionHistory(),{event,year,at:new Date().toISOString(),...details}]);}
+
 const getYears=()=>store.get(YEAR_KEY,{})||{};
 const copy=value=>structuredClone(value);
 const dateOf=tx=>String(tx?.isoDate||tx?.date||"").slice(0,10);
@@ -159,9 +172,14 @@ root.innerHTML=`<button type="button" id="yearToolOpen" class="btn btn-ghost" st
 <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><label>السنة <input type="number" id="yearToolYear" min="2000" max="2100" style="width:115px"></label><button type="button" class="btn btn-ghost" id="yearToolPreview" style="width:auto">معاينة</button></div>
 <div id="yearToolInfo" style="max-height:43vh;overflow:auto;font-size:13px;line-height:1.8"></div>
 <div style="display:flex;gap:7px;flex-wrap:wrap">
-<button type="button" class="btn btn-ghost" id="yearToolBackup" style="width:auto">⬇ تنزيل نسخة أمان</button>
+<button type="button" class="btn btn-ghost" id="yearToolBackup" style="width:auto">⬇ نسخة احتياطية شاملة لجميع السنوات</button>
 <button type="button" class="btn btn-primary" id="yearToolClose" style="width:auto">✓ اعتماد الإغلاق</button>
-<button type="button" class="btn btn-danger" id="yearToolReopen" style="width:auto">↶ إعادة فتح السنة</button>
+<button type="button" class="btn btn-danger" id="yearToolReopen" style="width:auto">✎ إعادة فتح السنة للتصحيح</button>
+</div>
+<div style="padding:9px;border:1px solid var(--border);border-radius:9px;margin:10px 0">
+<label for="yearToolReason" style="display:block;font-size:13px;font-weight:700">سبب إعادة فتح السنة للتعديل (إلزامي)</label>
+<textarea id="yearToolReason" rows="2" placeholder="مثال: تصحيح مبلغ سند صرف رقم 18" style="width:100%;box-sizing:border-box;padding:8px;font:inherit"></textarea>
+<small style="display:block;color:var(--muted);line-height:1.6;margin-top:5px">للسماح بتعديل السنة المغلقة يجب تنزيل نسخة شاملة وذكر السبب وإعادة فتح آخر سنة مغلقة. بعدها عدّل السند، ثم أعِد الإغلاق لتحديث الأرصدة المدورة.</small>
 </div><p id="yearToolMessage" role="status" style="font-size:12px"></p>
 <button type="button" class="btn btn-ghost" id="yearToolDismiss" style="width:auto">رجوع</button>
 </div></div>`;
@@ -185,10 +203,14 @@ function draw(){
   html+="</table></div></details>";
   if(journals.length){html+='<details><summary>معاينة قيود إقفال الأرباح والخسائر</summary>';for(const doc of journals){html+="<p>"+esc(doc.currency)+": "+fmt(doc.debit)+" مدين = "+fmt(doc.credit)+" دائن</p>";for(const l of doc.lines)html+="<div>"+esc(l.account)+" — "+(l.side==="debit"?"مدين":"دائن")+" "+fmt(l.amount)+"</div>";}html+="</details>";}
   if(saved)html+='<p style="color:var(--ok)">'+(saved.simulation?"🧪 محاكاة أُجريت في ":"✓ تاريخ الاعتماد ")+esc(saved.closedAt)+"، المستندات المحمية "+saved.snapshots.length+"</p>";
+ const session=getSessions()[year];
+ if(session)html+='<p style="color:var(--danger);font-weight:700">✎ هذه السنة مفتوحة للتصحيح منذ '+esc(session.reopenedAt)+' — السبب: '+esc(session.reason)+'. أعِد الإغلاق بعد التصحيح.</p>';
+ const history=getRevisionHistory().filter(e=>e.year===year);
+ if(history.length)html+='<details><summary>سجل إجراءات السنة ('+history.length+')</summary>'+history.map(e=>'<p style="border-bottom:1px solid var(--border);padding:4px">'+esc(e.at)+' — '+(e.event==='reopen'?'إعادة فتح':'إعادة إغلاق')+' — '+esc(e.reason||'')+(e.changes?' — جديد: '+e.changes.added+'، تعديل: '+e.changes.edited+'، إلغاء: '+e.changes.removed:'')+'</p>').join('')+'</details>';
  }catch(e){html+='<p style="color:var(--danger)">'+esc(e.message)+"</p>";}
  $("yearToolInfo").innerHTML=html;
  $("yearToolClose").disabled=Boolean(saved)||!eligibleToClose(year)||earlier.length>0;
- $("yearToolClose").textContent=currentYearSimulation(year)?"🧪 تنفيذ محاكاة الإغلاق":"✓ اعتماد الإغلاق";
+ $("yearToolClose").textContent=getSessions()[year]?"✓ إعادة الإغلاق بعد التصحيح":currentYearSimulation(year)?"🧪 تنفيذ محاكاة الإغلاق":"✓ اعتماد الإغلاق";
  $("yearToolReopen").disabled=!saved||closed().some(x=>Number(x.year)>Number(year));
 }
 $("yearToolOpen").onclick=()=>{$("yearToolYear").value=nowDate().slice(0,4);$("yearToolSimulateCurrent").checked=false;$("yearToolOverlay").style.display="flex";hasBackup=false;draw();};
@@ -202,6 +224,8 @@ $("yearToolClose").onclick=async()=>{
  if(!eligibleToClose(year)||getYears()[year]||earlierYears(year).length){message("السنة غير مؤهلة للإغلاق. فعّل وضع محاكاة 2026 التجريبي إذا كانت السنة جارية، أو راجع السنوات السابقة.",true);return;}
  const {info,journals}=closingEntries(year);
  if(!info.eligible.length||info.unknown.length||(journals.length&&!info.retained)){message("راجع الحسابات والأرصدة والتصنيفات قبل الإغلاق.",true);return;}
+ const correction=getSessions()[year]||null;
+ const changes=correction?yearCorrections(year,correction):null;
  const simulation=currentYearSimulation(year);
  const confirmText=(simulation?"محاكاة ":"إغلاق ")+year;
  if(prompt((simulation?"هذا اختبار على بيانات التجريبية فقط. ستنشأ قيود الإقفال بتاريخ 31/12/2026، وستُقفل عمليات 2026 إلى أن تعيد فتحها. ":"سيُقفل راتب قيود السنة ويُنشئ سندات التسوية. ")+"للتأكيد اكتب: "+confirmText)!==confirmText)return;
@@ -215,8 +239,10 @@ $("yearToolClose").onclick=async()=>{
    p.transactions.push(...r.txs);ids.push(r.id);
   });
   store.set("plan",p);
-  const records={...getYears(),[year]:{year,cutoff:info.cutoff,closedAt:new Date().toISOString(),simulation,simulationAsOf:simulation?nowDate():null,journals:ids,snapshots:all().filter(t=>dateOf(t)&&dateOf(t)<=info.cutoff).map(copy)}};
-  store.set(YEAR_KEY,records);saveState();await flushStorage();hasBackup=false;
+  const records={...getYears(),[year]:{year,cutoff:info.cutoff,closedAt:new Date().toISOString(),simulation,simulationAsOf:simulation?nowDate():null,revision:correction?(Number(correction.previousRevision)||0)+1:0,correctionReason:correction?.reason||null,correctionSummary:changes?{added:changes.added,edited:changes.edited,removed:changes.removed}:null,journals:ids,snapshots:all().filter(t=>dateOf(t)&&dateOf(t)<=info.cutoff).map(copy)}};
+  store.set(YEAR_KEY,records);
+   if(correction){const sessions={...getSessions()};delete sessions[year];store.set(SESSION_KEY,sessions);yearHistory("reclose",year,{reason:correction.reason,reopenedAt:correction.reopenedAt,changes,revision:records[year].revision});}
+   saveState();await flushStorage();hasBackup=false;
   if(typeof audit==="function")audit("FINANCIAL_YEAR_CLOSED",year,null,{documents:records[year].snapshots.length,journals:ids});
   if(typeof renderAllData==="function")renderAllData();
   window.dispatchEvent(new Event('ratib:annual-close-changed'));
@@ -228,19 +254,24 @@ $("yearToolClose").onclick=async()=>{
 };
 $("yearToolReopen").onclick=async()=>{
  const year=current(),saved=getYears()[year];if(!saved)return;
- if(!hasBackup){message("حمّل نسخة احتياطية قبل إعادة الفتح.",true);return;}
+ if(!hasBackup){message("حمّل نسخة احتياطية شاملة لكل السنوات قبل إعادة الفتح.",true);return;}
  if(closed().some(c=>Number(c.year)>Number(year))){message("افتح السنوات اللاحقة أولًا.",true);return;}
- if(prompt("إعادة الفتح ستعكس قيود الإقفال، مع بقاء أثرها الرقابي. اكتب: إعادة فتح "+year)!=="إعادة فتح "+year)return;
+ const reason=String($("yearToolReason").value||"").trim();
+ if(reason.length<8){message("اكتب سببًا للتصحيح من 8 أحرف على الأقل قبل إعادة فتح السنة.",true);$("yearToolReason").focus();return;}
+ if(prompt("إعادة الفتح ستعكس قيود الإقفال وتتيح تعديل المستندات، وقد تتغير الأرصدة المدورة بعد التصحيح. اكتب: إعادة فتح "+year)!=="إعادة فتح "+year)return;
  try{
-  const y={...getYears()};delete y[year];store.set(YEAR_KEY,y);
+  const original={};for(const tx of saved.snapshots||[])if(yearOwnDocument(tx,year))original[String(tx.id)]=fingerprint(tx);
+  const sessions={...getSessions(),[year]:{year,reopenedAt:new Date().toISOString(),reason,previousRevision:Number(saved.revision)||0,previousClosedAt:saved.closedAt,original}};
+  const y={...getYears()};delete y[year];store.set(YEAR_KEY,y);store.set(SESSION_KEY,sessions);
   const reverse=tx=>saved.journals.includes(tx.multiVoucherId)?{...tx,status:"reversed",reversedAt:new Date().toISOString(),updatedAt:new Date().toISOString()}:tx;
   const p=store.get("plan",null),h=store.get("history",[]);
   if(p)store.set("plan",{...p,transactions:(p.transactions||[]).map(reverse)});
   store.set("history",h.map(x=>({...x,transactions:(x.transactions||[]).map(reverse)})));
-  await flushStorage();saveState();hasBackup=false;draw();
+  yearHistory("reopen",year,{reason,previousClosedAt:saved.closedAt,previousRevision:Number(saved.revision)||0});
+  await flushStorage();saveState();hasBackup=false;$("yearToolReason").value="";draw();
   window.dispatchEvent(new Event('ratib:annual-close-changed'));
-  if(typeof audit==="function")audit("FINANCIAL_YEAR_REOPENED",year,saved,{});
-  message("✓ أُعيد فتح السنة "+year+" وعُكست قيود الإقفال دون حذف المستندات.");
+  if(typeof audit==="function")audit("FINANCIAL_YEAR_REOPENED",year,{year,closedAt:saved.closedAt,journals:saved.journals?.length||0},{reason});
+  message("✓ أُعيد فتح السنة "+year+" للتصحيح، وسُجل السبب. عدّل السندات ثم أعِد الإغلاق.");
  }catch(e){message("تعذرت إعادة الفتح: "+e.message,true);}
 };
 const oldReport=renderAccountOperations;

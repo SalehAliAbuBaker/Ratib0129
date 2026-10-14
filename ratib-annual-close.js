@@ -195,7 +195,7 @@ function draw(){
  const year=current(),saved=getYears()[year],earlier=earlierYears(year);
  let html="<p>السنة "+year+" — "+(saved?(saved.simulation?"🧪 إغلاق تجريبي لمحاكاة 2026":"🔒 مغلقة"):"مفتوحة")+"</p>";
  if(isCurrentYearTrial(year)){
-  html+='<p style="color:var(--warn)">2026 سنة جارية. لتجربة الإقفال عليها فعّل خيار «محاكاة إغلاق سنة 2026» أعلاه.</p>';
+  html+=IS_TRIAL?'<p style="color:var(--warn)">2026 سنة جارية. لتجربة الإقفال عليها فعّل خيار «محاكاة إغلاق سنة 2026» أعلاه.</p>':'<p style="color:var(--danger)">لا يجوز إغلاق السنة الحالية قبل انتهاء 31 ديسمبر في الرسمية.</p>';
   if(currentYearSimulation(year))html+='<p style="color:var(--ok)">🧪 محاكاة مُفعّلة: ستُغلق السنة افتراضيًا حتى 31/12/2026 على نسخة الاختبار فقط.</p>';
  }else if(!yearIsPast(year))html+='<p style="color:var(--danger)">لا يجوز إقفال سنة مستقبلية، ويمكن إقفال سنة ماضية فقط.</p>';
  if(earlier.length)html+='<p style="color:var(--danger)">يلزم إغلاق السنوات السابقة أولًا: '+earlier.join("، ")+"</p>";
@@ -227,7 +227,7 @@ $("yearToolYear").onchange=()=>{hasBackup=false;draw();};
 $("yearToolBackup").onclick=async()=>{try{await flushStorage();hasBackup=await exportBackupFile();message(hasBackup?"تم تجهيز النسخة الاحتياطية. احتفظ بها.":"تعذر إنشاء النسخة الاحتياطية.",!hasBackup);}catch(e){hasBackup=false;message(e.message,true);}};
 $("yearToolClose").onclick=async()=>{
  const year=current();if(!hasBackup){message("يجب تنزيل نسخة أمان قبل اعتماد الإغلاق.",true);return;}
- if(!eligibleToClose(year)||getYears()[year]||earlierYears(year).length){message("السنة غير مؤهلة للإغلاق. فعّل وضع محاكاة 2026 التجريبي إذا كانت السنة جارية، أو راجع السنوات السابقة.",true);return;}
+ if(!eligibleToClose(year)||getYears()[year]||earlierYears(year).length){message(IS_TRIAL?"السنة غير مؤهلة للإغلاق. فعّل المحاكاة إذا كانت السنة جارية، أو راجع السنوات السابقة.":"السنة غير مؤهلة للإغلاق؛ لا يجوز إغلاق السنة الحالية قبل انتهائها.",true);return;}
  const {info,journals}=closingEntries(year);
  if(!info.eligible.length||info.unknown.length||(journals.length&&!info.retained)){message("راجع الحسابات والأرصدة والتصنيفات قبل الإغلاق.",true);return;}
  const correction=getSessions()[year]||null;
@@ -252,7 +252,7 @@ $("yearToolClose").onclick=async()=>{
   if(typeof audit==="function")audit("FINANCIAL_YEAR_CLOSED",year,null,{documents:records[year].snapshots.length,journals:ids});
   if(typeof renderAllData==="function")renderAllData();
   window.dispatchEvent(new Event('ratib:annual-close-changed'));
-  draw();message(simulation?"🧪 نجحت محاكاة إغلاق "+year+"؛ قيود السنة مقفلة في التجريبية حتى تعيد فتحها. لم تتأثر النسخة الرسمية.":"✓ تم اعتماد الإغلاق للسنة "+year+" في التجريبية فقط.");
+  draw();message(simulation?"🧪 نجحت محاكاة إغلاق "+year+"؛ قيود السنة مقفلة في التجريبية حتى تعيد فتحها. لم تتأثر النسخة الرسمية.":"✓ تم اعتماد الإغلاق للسنة "+year+(IS_TRIAL?" في التجريبية.":" في راتب."));
  }catch(e){
   try{const y={...getYears()};delete y[year];store.set(YEAR_KEY,y);store.set("plan",priorPlan);store.set("history",priorHistory);await flushStorage();}catch(_){}
   message("فشل اعتماد الإغلاق: "+e.message,true);

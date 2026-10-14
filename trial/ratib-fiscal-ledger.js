@@ -114,12 +114,28 @@ function renderOpening(){
  const {balances:rows,unknown}=calculatedOpening(year+"-01-01");
  const printLabel=priorClose.simulation?"محاكاة تدوير أرصدة":"تدوير أرصدة";
  const toptext=`${printLabel} ${priorClose.year} ← ${year} (أرصدة افتتاحية، وليست مستندات جديدة)`;
- const body=rows.length?rows.map(r=>`<tr><td>${esc(r.name)}</td><td>${esc(r.code)}</td><td>${esc(r.currency)}</td><td style="font-weight:700" dir="ltr">${money(Math.abs(r.balance))}</td><td>${r.balance<0?"مدين":"دائن"}</td></tr>`).join(""):`<tr><td colspan="5">لا توجد أرصدة دائمة غير صفرية مُرحّلة.</td></tr>`;
+ const body=rows.length?rows.map((r,i)=>`<tr><td>${esc(r.name)}</td><td>${esc(r.code)}</td><td>${esc(r.currency)}</td><td style="font-weight:700" dir="ltr">${money(Math.abs(r.balance))}</td><td>${r.balance<0?"مدين":"دائن"}</td><td><button type="button" class="btn btn-ghost ratib-rollover-open" data-i="${i}" style="min-height:31px;width:auto;padding:3px 8px;font-size:11px">كشف الحساب</button></td></tr>`).join(""):`<tr><td colspan="6">لا توجد أرصدة دائمة غير صفرية مُرحّلة.</td></tr>`;
  balances.innerHTML=`<details open><summary>↪ ${esc(toptext)} — ${rows.length} حساب</summary>
  <div class="ratib-rollover-total">السندات القديمة محفوظة في أرشيف ${esc(priorClose.year)}. جميع الأرصدة حسب العملة الأصلية، دون جمع عملات مختلفة.</div>
- <div style="overflow:auto"><table class="ratib-rollover-table"><thead><tr><th>الحساب</th><th>الرقم</th><th>العملة</th><th>الرصيد المدور</th><th>الطبيعة</th></tr></thead><tbody>${body}</tbody></table></div>
+ <div style="overflow:auto"><table class="ratib-rollover-table"><thead><tr><th>الحساب</th><th>الرقم</th><th>العملة</th><th>الرصيد المدور</th><th>الطبيعة</th><th>كشف</th></tr></thead><tbody>${body}</tbody></table></div>
  ${unknown.map(x=>`<p class="ratib-rollover-flag">⚠ ${esc(x)}</p>`).join("")}
  </details>`;
+ balances.querySelectorAll('.ratib-rollover-open').forEach(button=>{
+  button.addEventListener('click',()=>{
+   const row=rows[Number(button.dataset.i)];
+   if(!row)return;
+   openAccountFromPager(row.name,[row.name],row.currency);
+   accountOpsState.from=year+'-01-01';
+   accountOpsState.to=year+'-12-31';
+   accountOpsState.filtered=true;
+   accountOpsState.currency=row.currency;
+   accountOpsState.activeCurrency=row.currency;
+   const from=$('accountOpsFromDate'),to=$('accountOpsToDate');
+   if(from)from.value=accountOpsState.from;
+   if(to)to.value=accountOpsState.to;
+   renderAccountOperations(row.name,[row.name]);
+  });
+ });
 }
 function refresh(){
  if(!ledger)return;

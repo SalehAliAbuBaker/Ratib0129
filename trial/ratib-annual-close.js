@@ -63,6 +63,24 @@ if(typeof _replacePersistentData==="function"){
  };
 }
 saveState();
+if(typeof proceedAppInit==='function'){
+ const originalInit=proceedAppInit;
+ proceedAppInit=function(...args){
+  // Refresh the last safe snapshot after the encrypted vault has been unlocked.
+  saveState();
+  const result=originalInit.apply(this,args);
+  saveState();
+  return result;
+ };
+}
+const originalRemove=store.remove;
+store.remove=function(key){
+ if(['plan','history'].includes(key)&&closed().length){
+  const error='لا يمكن حذف دفتر السنة المالية المغلقة. أعد فتحها أولًا.';
+  showToast('🔒 '+error,'error',6000);throw Error(error);
+ }
+ return originalRemove.call(this,key);
+};
 function catalog(){
  const map=new Map();
  for(const group of getCanonicalCatalog())for(const detail of group.details||[])map.set(detail[1],String(detail[0]||""));
@@ -213,6 +231,14 @@ renderAccountOperations=function(...args){
  const output=oldReport.apply(this,args);
  const panel=document.getElementById((args[2]||accountOpsUi)?.panelId||"reportAccountOpsPanel");
  if(panel)for(const page of panel.querySelectorAll(".account-currency-page")){
+  const head=page.querySelector('.account-operations-head');
+  const years=closed().filter(y=>!accountOpsState.from||accountOpsState.from<=y.cutoff);
+  if(head&&years.length){
+   const banner=document.createElement('small');
+   banner.style.cssText='display:block;font-size:11px;color:var(--ok)';
+   banner.textContent='🔒 أعوام معتمدة: '+years.map(y=>y.year).join('، ');
+   head.appendChild(banner);
+  }
   for(const y of closed()){
    const lines=[...page.querySelectorAll(".account-statement-row[data-tx-id]")].filter(row=>row.firstElementChild?.textContent?.trim()===y.cutoff);
    const target=lines.at(-1)?.querySelector(".balance");

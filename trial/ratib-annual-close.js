@@ -219,6 +219,7 @@ $("yearToolClose").onclick=async()=>{
   store.set(YEAR_KEY,records);saveState();await flushStorage();hasBackup=false;
   if(typeof audit==="function")audit("FINANCIAL_YEAR_CLOSED",year,null,{documents:records[year].snapshots.length,journals:ids});
   if(typeof renderAllData==="function")renderAllData();
+  window.dispatchEvent(new Event('ratib:annual-close-changed'));
   draw();message(simulation?"🧪 نجحت محاكاة إغلاق "+year+"؛ قيود السنة مقفلة في التجريبية حتى تعيد فتحها. لم تتأثر النسخة الرسمية.":"✓ تم اعتماد الإغلاق للسنة "+year+" في التجريبية فقط.");
  }catch(e){
   try{const y={...getYears()};delete y[year];store.set(YEAR_KEY,y);store.set("plan",priorPlan);store.set("history",priorHistory);await flushStorage();}catch(_){}
@@ -237,6 +238,7 @@ $("yearToolReopen").onclick=async()=>{
   if(p)store.set("plan",{...p,transactions:(p.transactions||[]).map(reverse)});
   store.set("history",h.map(x=>({...x,transactions:(x.transactions||[]).map(reverse)})));
   await flushStorage();saveState();hasBackup=false;draw();
+  window.dispatchEvent(new Event('ratib:annual-close-changed'));
   if(typeof audit==="function")audit("FINANCIAL_YEAR_REOPENED",year,saved,{});
   message("✓ أُعيد فتح السنة "+year+" وعُكست قيود الإقفال دون حذف المستندات.");
  }catch(e){message("تعذرت إعادة الفتح: "+e.message,true);}

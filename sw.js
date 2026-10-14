@@ -66,7 +66,9 @@ self.addEventListener('fetch',event=>{
   const req=event.request,url=new URL(req.url);
   if(req.method!=='GET'||url.origin!==self.location.origin||!req.url.startsWith(self.registration.scope))return;
   const navigation=req.mode==='navigate';
-  if(!navigation&&!SHELL_URLS.has(req.url))return;
+  // Versioned scripts can reuse precached unversioned assets when offline.
+  const shellBase=url.origin+url.pathname;
+  if(!navigation&&!SHELL_URLS.has(req.url)&&!SHELL_URLS.has(shellBase))return;
   const cachePromise=caches.open(CACHE_NAME);
   const network=(async()=>{
     try{
@@ -88,7 +90,7 @@ self.addEventListener('fetch',event=>{
       const cached=await cache.match(req)||await cache.match(new URL('./index.html',self.registration.scope).href);
       if(cached)return cached;
     }
-    const cached=await cache.match(req);
+    const cached=await cache.match(req)||await cache.match(shellBase);
     if(cached)return cached;
     const response=await network;
     if(response?.ok)return response;

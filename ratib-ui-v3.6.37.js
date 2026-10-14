@@ -171,14 +171,13 @@ function main(){
    bar.append(label,save,clear,status);
    page.querySelector('.account-operations-head')?.insertAdjacentElement('afterend',bar);
    if(stable){
-    const finalBalance=page.querySelector('.account-statement-row.total.final span:last-child');
-    if(finalBalance){const badge=document.createElement('small');badge.className='ratib-match-mark';badge.textContent='✓ مطابقة حتى '+saved.date;finalBalance.appendChild(badge);}
+    // Reconciled evidence belongs only to the verified transaction, not to a later closing balance.
     const rows=Array.from(page.querySelectorAll('.account-statement-row[data-tx-id]'));
     const matching=rows.filter(row=>row.querySelector('span')?.textContent?.trim()===saved.date);
     const last=matching.at(-1);
     if(last){
      const balance=last.querySelector('.balance')||last.lastElementChild;
-     if(balance){const badge=document.createElement('span');badge.className='ratib-match-mark';badge.textContent='✓ مطابقة';badge.title='تمت مطابقة الرصيد حتى '+saved.date;balance.appendChild(badge);}
+     if(balance){const badge=document.createElement('span');badge.className='ratib-match-mark';badge.textContent='✓ مطابق';badge.title='تمت مطابقة الرصيد حتى '+saved.date;badge.style.cssText='display:inline-block;background:#dff2e5;color:#174c34;border:1px solid #6f9c7a;border-radius:4px;padding:2px 5px;font-weight:900';balance.appendChild(badge);}
     }
    }
    save.addEventListener('click',()=>{

@@ -130,6 +130,9 @@ function earlierYears(year){
  return [...new Set(all().filter(t=>!["deleted","reversed"].includes(t.status)&&dateOf(t)&&dateOf(t)<year+"-01-01").map(t=>dateOf(t).slice(0,4)))].filter(y=>!getYears()[y]).sort();
 }
 function yearIsPast(year){return /^\d{4}$/.test(year)&&year<nowDate().slice(0,4);}
+function isCurrentYearTrial(year){return /^\d{4}$/.test(year)&&year===nowDate().slice(0,4);}
+function currentYearSimulation(year){return isCurrentYearTrial(year)&&Boolean(document.getElementById('yearToolSimulateCurrent')?.checked);}
+function eligibleToClose(year){return yearIsPast(year)||currentYearSimulation(year);}
 function writeJournal(year,proposal,index){
  const date=year+"-12-31",id="ratib_year_end_"+year+"_"+proposal.currency+"_"+Date.now()+"_"+index,seq=getNextMultiVoucherNumber()+index;
  const doc={id,mode:"multi-entry",seq,date,baseCurrency:proposal.currency,note:"قيد الإغلاق السنوي "+year,lines:proposal.lines};
@@ -149,6 +152,10 @@ root.innerHTML=`<button type="button" id="yearToolOpen" class="btn btn-ghost" st
 <div class="modal-box" style="width:95vw;max-width:750px;max-height:85vh;overflow:auto;text-align:right">
 <h2>الإغلاق السنوي للحسابات — نسخة اختبار</h2>
 <p class="field-hint">الإغلاق يمنع تعديل القيود التاريخية ويُنشئ قيود إقفال الإيرادات والمصروفات حسب كل عملة. الأرصدة الدائمة تُرحّل إلى السنة التالية في كشوفها تلقائيًا دون تكرار القيد الافتتاحي.</p>
+<div style="padding:10px;background:#fff8e4;border:1px solid #e8bd64;border-radius:10px;color:#663c0b;font-size:13px;line-height:1.7">
+<label style="display:flex;align-items:center;gap:7px;cursor:pointer"><input type="checkbox" id="yearToolSimulateCurrent" style="min-width:20px;width:20px;height:20px;margin:0"> 🧪 السماح بمحاكاة إغلاق سنة 2026 الجارية (النسخة التجريبية فقط)</label>
+<div style="font-size:12px">هذا الاختبار يُنشئ قيود إقفال تجريبية مؤرخة 31/12/2026 ويقفل حركات 2026 في النسخة التجريبية حتى إعادة فتح السنة. <strong>لا يغيّر أي بيانات في التطبيق الرسمي، وليس إقفالًا سنويًا معتمدًا.</strong></div>
+</div>
 <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><label>السنة <input type="number" id="yearToolYear" min="2000" max="2100" style="width:115px"></label><button type="button" class="btn btn-ghost" id="yearToolPreview" style="width:auto">معاينة</button></div>
 <div id="yearToolInfo" style="max-height:43vh;overflow:auto;font-size:13px;line-height:1.8"></div>
 <div style="display:flex;gap:7px;flex-wrap:wrap">
@@ -162,8 +169,11 @@ root.innerHTML=`<button type="button" id="yearToolOpen" class="btn btn-ghost" st
 const $=id=>root.querySelector("#"+id),current=()=>String(Number($("yearToolYear").value)||""),message=(s,bad=false)=>{$("yearToolMessage").textContent=s;$("yearToolMessage").style.color=bad?"var(--danger)":"var(--ok)";};
 function draw(){
  const year=current(),saved=getYears()[year],earlier=earlierYears(year);
- let html="<p>السنة "+year+" — "+(saved?"🔒 مغلقة":"مفتوحة")+"</p>";
- if(!yearIsPast(year))html+='<p style="color:var(--danger)">يمكن إغلاق السنة بعد انقضاء 31 ديسمبر منها فقط.</p>';
+ let html="<p>السنة "+year+" — "+(saved?(saved.simulation?"🧪 إغلاق تجريبي لمحاكاة 2026":"🔒 مغلقة"):"مفتوحة")+"</p>";
+ if(isCurrentYearTrial(year)){
+  html+='<p style="color:var(--warn)">2026 سنة جارية. لتجربة الإقفال عليها فعّل خيار «محاكاة إغلاق سنة 2026» أعلاه.</p>';
+  if(currentYearSimulation(year))html+='<p style="color:var(--ok)">🧪 محاكاة مُفعّلة: ستُغلق السنة افتراضيًا حتى 31/12/2026 على نسخة الاختبار فقط.</p>';
+ }else if(!yearIsPast(year))html+='<p style="color:var(--danger)">لا يجوز إقفال سنة مستقبلية، ويمكن إقفال سنة ماضية فقط.</p>';
  if(earlier.length)html+='<p style="color:var(--danger)">يلزم إغلاق السنوات السابقة أولًا: '+earlier.join("، ")+"</p>";
  try{
   const {info,journals}=closingEntries(year);
@@ -174,22 +184,27 @@ function draw(){
   html+=info.rows.map(r=>"<tr><td>"+esc(r.name)+"</td><td>"+esc(r.currency)+"</td><td dir='ltr'>"+fmt(r.balance)+"</td></tr>").join("");
   html+="</table></div></details>";
   if(journals.length){html+='<details><summary>معاينة قيود إقفال الأرباح والخسائر</summary>';for(const doc of journals){html+="<p>"+esc(doc.currency)+": "+fmt(doc.debit)+" مدين = "+fmt(doc.credit)+" دائن</p>";for(const l of doc.lines)html+="<div>"+esc(l.account)+" — "+(l.side==="debit"?"مدين":"دائن")+" "+fmt(l.amount)+"</div>";}html+="</details>";}
-  if(saved)html+='<p style="color:var(--ok)">✓ تاريخ الاعتماد '+esc(saved.closedAt)+"، المستندات المحمية "+saved.snapshots.length+"</p>";
+  if(saved)html+='<p style="color:var(--ok)">'+(saved.simulation?"🧪 محاكاة أُجريت في ":"✓ تاريخ الاعتماد ")+esc(saved.closedAt)+"، المستندات المحمية "+saved.snapshots.length+"</p>";
  }catch(e){html+='<p style="color:var(--danger)">'+esc(e.message)+"</p>";}
  $("yearToolInfo").innerHTML=html;
- $("yearToolClose").disabled=Boolean(saved)||!yearIsPast(year)||earlier.length>0;
+ $("yearToolClose").disabled=Boolean(saved)||!eligibleToClose(year)||earlier.length>0;
+ $("yearToolClose").textContent=currentYearSimulation(year)?"🧪 تنفيذ محاكاة الإغلاق":"✓ اعتماد الإغلاق";
  $("yearToolReopen").disabled=!saved||closed().some(x=>Number(x.year)>Number(year));
 }
-$("yearToolOpen").onclick=()=>{$("yearToolYear").value=String(Number(nowDate().slice(0,4))-1);$("yearToolOverlay").style.display="flex";hasBackup=false;draw();};
+$("yearToolOpen").onclick=()=>{$("yearToolYear").value=nowDate().slice(0,4);$("yearToolSimulateCurrent").checked=false;$("yearToolOverlay").style.display="flex";hasBackup=false;draw();};
 $("yearToolDismiss").onclick=()=>{$("yearToolOverlay").style.display="none";};
 $("yearToolPreview").onclick=()=>{hasBackup=false;draw();};
+$("yearToolSimulateCurrent").onchange=()=>{hasBackup=false;draw();};
+$("yearToolYear").onchange=()=>{hasBackup=false;draw();};
 $("yearToolBackup").onclick=async()=>{try{await flushStorage();hasBackup=await exportBackupFile();message(hasBackup?"تم تجهيز النسخة الاحتياطية. احتفظ بها.":"تعذر إنشاء النسخة الاحتياطية.",!hasBackup);}catch(e){hasBackup=false;message(e.message,true);}};
 $("yearToolClose").onclick=async()=>{
  const year=current();if(!hasBackup){message("يجب تنزيل نسخة أمان قبل اعتماد الإغلاق.",true);return;}
- if(!yearIsPast(year)||getYears()[year]||earlierYears(year).length){message("السنة غير مؤهلة للإغلاق.",true);return;}
+ if(!eligibleToClose(year)||getYears()[year]||earlierYears(year).length){message("السنة غير مؤهلة للإغلاق. فعّل وضع محاكاة 2026 التجريبي إذا كانت السنة جارية، أو راجع السنوات السابقة.",true);return;}
  const {info,journals}=closingEntries(year);
  if(!info.eligible.length||info.unknown.length||(journals.length&&!info.retained)){message("راجع الحسابات والأرصدة والتصنيفات قبل الإغلاق.",true);return;}
- if(prompt("سيُقفل راتب قيود السنة ويُنشئ سندات التسوية. اكتب: إغلاق "+year)!=="إغلاق "+year)return;
+ const simulation=currentYearSimulation(year);
+ const confirmText=(simulation?"محاكاة ":"إغلاق ")+year;
+ if(prompt((simulation?"هذا اختبار على بيانات التجريبية فقط. ستنشأ قيود الإقفال بتاريخ 31/12/2026، وستُقفل عمليات 2026 إلى أن تعيد فتحها. ":"سيُقفل راتب قيود السنة ويُنشئ سندات التسوية. ")+"للتأكيد اكتب: "+confirmText)!==confirmText)return;
  const priorPlan=copy(store.get("plan",null)),priorHistory=copy(store.get("history",[]));
  try{
   const p=getMasterPlan(),ids=[];
@@ -200,11 +215,11 @@ $("yearToolClose").onclick=async()=>{
    p.transactions.push(...r.txs);ids.push(r.id);
   });
   store.set("plan",p);
-  const records={...getYears(),[year]:{year,cutoff:info.cutoff,closedAt:new Date().toISOString(),journals:ids,snapshots:all().filter(t=>dateOf(t)&&dateOf(t)<=info.cutoff).map(copy)}};
+  const records={...getYears(),[year]:{year,cutoff:info.cutoff,closedAt:new Date().toISOString(),simulation,simulationAsOf:simulation?nowDate():null,journals:ids,snapshots:all().filter(t=>dateOf(t)&&dateOf(t)<=info.cutoff).map(copy)}};
   store.set(YEAR_KEY,records);saveState();await flushStorage();hasBackup=false;
   if(typeof audit==="function")audit("FINANCIAL_YEAR_CLOSED",year,null,{documents:records[year].snapshots.length,journals:ids});
   if(typeof renderAllData==="function")renderAllData();
-  draw();message("✓ تم اعتماد الإغلاق للسنة "+year+" في التجريبية فقط.");
+  draw();message(simulation?"🧪 نجحت محاكاة إغلاق "+year+"؛ قيود السنة مقفلة في التجريبية حتى تعيد فتحها. لم تتأثر النسخة الرسمية.":"✓ تم اعتماد الإغلاق للسنة "+year+" في التجريبية فقط.");
  }catch(e){
   try{const y={...getYears()};delete y[year];store.set(YEAR_KEY,y);store.set("plan",priorPlan);store.set("history",priorHistory);await flushStorage();}catch(_){}
   message("فشل اعتماد الإغلاق: "+e.message,true);
@@ -236,14 +251,14 @@ renderAccountOperations=function(...args){
   if(head&&years.length){
    const banner=document.createElement('small');
    banner.style.cssText='display:block;font-size:11px;color:var(--ok)';
-   banner.textContent='🔒 أعوام معتمدة: '+years.map(y=>y.year).join('، ');
+   banner.textContent='سنوات الإغلاق: '+years.map(y=>y.simulation?'🧪 '+y.year+' (محاكاة)':'🔒 '+y.year).join('، ');
    head.appendChild(banner);
   }
   for(const y of closed()){
    const lines=[...page.querySelectorAll(".account-statement-row[data-tx-id]")].filter(row=>row.firstElementChild?.textContent?.trim()===y.cutoff);
    const target=lines.at(-1)?.querySelector(".balance");
    if(target&&!target.querySelector(".ratib-annual-mark")){
-    const mark=document.createElement("small");mark.className="ratib-annual-mark";mark.style.cssText="display:block;color:var(--ok);font-size:11px";mark.textContent="🔒 السنة "+y.year+" مغلقة";target.append(mark);
+    const mark=document.createElement("small");mark.className="ratib-annual-mark";mark.style.cssText="display:block;color:var(--ok);font-size:11px";mark.textContent=y.simulation?"🧪 محاكاة إغلاق "+y.year:"🔒 السنة "+y.year+" مغلقة";target.append(mark);
    }
   }
  }

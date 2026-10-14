@@ -1,6 +1,6 @@
 // Ratib 3.1.9: cache identity is unique to this app's scope.
-const CACHE_VERSION='v66-ratib-3.6.37-reconciliation';
-const APP_RELEASE={"version":"3.6.37","changes":["الرصيد الحالي حسب العملة أسفل الحساب المختار.","تفقيط المبالغ في سند القيد البسيط والمركب.","زر العودة بجانب قبض وصرف.","حفظ تاريخ مطابقة الحساب وإظهار العلامة في الكشف.","عرض تقرير شامل للحسابات المستوردة القابلة للاستعادة والمتعارضة دون توقف عند أول تعارض.","إدارة حسابات وأرصدة دفعات الاستيراد السابقة انتقائيًا.","إخفاء الحساب المستورد من الشجرة دون حذف قيوده.","استعادة حسابات مستوردة محذوفة إلى مساراتها المحفوظة مع كشف تعارض الأرقام.","منع حذف الأرصدة المستوردة إن كان الحذف يخل بتوازن القيد الافتتاحي.","نسخة احتياطية ومعاينة قبل أي حذف أو تعديل."]};
+const CACHE_VERSION='v67-ratib-3.6.44-unified-fiscal';
+const APP_RELEASE={"version":"3.6.44","changes":["توحيد النسخة الرسمية والتجريبية في الإصدار 3.6.44.","الإغلاق السنوي وأرشيف السنوات وترحيل الأرصدة وإعادة فتح السنوات للتصحيح بسجل مراجعة.","تضمين حركات السنة المالية السابقة في كشف الحساب عند الطلب.","علامة ✓ مطابق وتظليل الرصيد في كشف الحساب والطباعة والاستعراض وPDF.","الرصيد الحالي حسب العملة أسفل الحساب المختار.","تفقيط المبالغ في سند القيد البسيط والمركب.","زر العودة بجانب قبض وصرف.","حفظ تاريخ مطابقة الحساب وإظهار العلامة في الكشف.","عرض تقرير شامل للحسابات المستوردة القابلة للاستعادة والمتعارضة دون توقف عند أول تعارض.","إدارة حسابات وأرصدة دفعات الاستيراد السابقة انتقائيًا.","إخفاء الحساب المستورد من الشجرة دون حذف قيوده.","استعادة حسابات مستوردة محذوفة إلى مساراتها المحفوظة مع كشف تعارض الأرقام.","منع حذف الأرصدة المستوردة إن كان الحذف يخل بتوازن القيد الافتتاحي.","نسخة احتياطية ومعاينة قبل أي حذف أو تعديل."]};
 const CACHE_PREFIX=`ratib:${self.registration.scope}:`;
 const CACHE_NAME=CACHE_PREFIX+CACHE_VERSION;
 const APP_SHELL=[
@@ -15,6 +15,10 @@ const APP_SHELL=[
   "./vendor/tajawal.css",
   "./ratib-license-draft.js",
   "./ratib-ui-v3.6.37.js",
+  "./ratib-annual-close.js",
+  "./ratib-fiscal-ledger.js",
+  "./ratib-statement-prior-year.js",
+  "./ratib-reconciliation-print.js",
   "./ratib-quick-favorites.js",
   "./ratib-import-manager.js",
   "./ratib-unified-output.js",
@@ -62,7 +66,9 @@ self.addEventListener('fetch',event=>{
   const req=event.request,url=new URL(req.url);
   if(req.method!=='GET'||url.origin!==self.location.origin||!req.url.startsWith(self.registration.scope))return;
   const navigation=req.mode==='navigate';
-  if(!navigation&&!SHELL_URLS.has(req.url))return;
+  // Versioned scripts can reuse precached unversioned assets when offline.
+  const shellBase=url.origin+url.pathname;
+  if(!navigation&&!SHELL_URLS.has(req.url)&&!SHELL_URLS.has(shellBase))return;
   const cachePromise=caches.open(CACHE_NAME);
   const network=(async()=>{
     try{
@@ -84,7 +90,7 @@ self.addEventListener('fetch',event=>{
       const cached=await cache.match(req)||await cache.match(new URL('./index.html',self.registration.scope).href);
       if(cached)return cached;
     }
-    const cached=await cache.match(req);
+    const cached=await cache.match(req)||await cache.match(shellBase);
     if(cached)return cached;
     const response=await network;
     if(response?.ok)return response;

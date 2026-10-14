@@ -897,6 +897,7 @@ body.ratib-sidebar-open,body.ratib-about-open{overflow:hidden}
 @media print{@page trialReport{size:A4 landscape;margin:10mm}.trial-print-host{page:trialReport}}
 
 .report-actions .btn{width:auto;flex:0 1 auto}
+@media screen{#pageReports .report-actions{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}#pageReports .report-actions .btn{width:100%;min-width:0;white-space:normal;flex:none}}
 @media(max-width:700px){.report-actions .btn{flex:1 1 95px}}
 </style><script src="./vendor/xlsx.full.min.js"></script>
 <style id="ratib-approved-voucher-style">
@@ -1544,7 +1545,7 @@ body.ratib-sidebar-open,body.ratib-about-open{overflow:hidden}
     <div class="ledger-page-title">📋 سجل العمليات</div>
     <div class="ledger-toolbar">
       <div class="ledger-toolbar-actions">
-        <button type="button" class="ledger-action-btn" id="ledgerBackBtn" title="العودة إلى القائمة السابقة" aria-label="العودة إلى القائمة السابقة">↩️</button>
+        <button type="button" class="ledger-action-btn" id="ledgerBackBtn" title="العودة إلى القائمة السابقة" aria-label="العودة إلى القائمة السابقة">↩️ رجوع</button>
         <button class="btn btn-danger" id="clearAllTxsBtn">🗑️ تصفير</button>
         <span id="ledgerCountBadge" class="ledger-count-btn" aria-label="عدد العمليات المعروضة">0 من 0</span>
         <button class="btn btn-ghost" id="exportCsvBtn">📊 تنزيل Excel</button>
@@ -7661,7 +7662,7 @@ async function shareCurrentAccountOperations(choice=null,currencies=null){
     if(navigator.share&&(!navigator.canShare||navigator.canShare({files:[file]}))){
       await navigator.share({title:`كشف حساب - ${accountOpsState.accountName}`,files:[file]});showToast('تمت مشاركة ملف PDF','success');
     }else{
-      const url=URL.createObjectURL(file),a=document.createElement('a');a.href=url;a.download=file.name;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);showToast('تم إنشاء ملف PDF وتنزيله للمشاركة','success');
+      showToast('المشاركة المباشرة غير مدعومة في هذا المتصفح. استخدم متصفحًا يدعم مشاركة الملفات أو وظيفة تنزيل PDF المنفصلة.','warn',6000);
     }
   }catch(e){if(e.name!=='AbortError'){showToast('تعذر إنشاء ملف PDF، سيتم فتح الطباعة للحفظ كـ PDF','warn');printCurrentAccountOperations(choice,currencies);}}
 }

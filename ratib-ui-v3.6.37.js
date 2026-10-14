@@ -35,9 +35,9 @@ function repaintMultiBalances(){
  if(!card)return;
  const source=card.querySelector('.multi-voucher-source-row'),name=(typeof multiSourceAcc!=='undefined'&&multiSourceAcc?.getValue?.())||'';
  if(!source?.closest('.multi-voucher-grid'))return;
- let hint=source?.nextElementSibling;
- if(!hint?.classList?.contains('ratib-current-balance')){
-  hint=document.createElement('small');hint.className='ratib-current-balance ratib-multi-source-balance';source?.insertAdjacentElement('afterend',hint);
+ let hint=source?.querySelector(':scope > .ratib-multi-source-balance');
+ if(!hint){
+  hint=document.createElement('small');hint.className='ratib-current-balance ratib-multi-source-balance';source?.appendChild(hint);
  }
  const currency=document.getElementById('multiVoucherBaseCurrency')?.value||'YER';
  if(hint){hint.textContent=cash&&name?accountBalance(name,currency)?.label||'':'';hint.hidden=!(cash&&name);}
@@ -68,7 +68,8 @@ function main(){
   const style=document.createElement('style');style.id='ratib-v3637-style';style.textContent=`
   .ratib-current-balance,.ratib-line-tafqit{display:block;font-size:11px!important;line-height:1.45!important;font-weight:500!important;color:var(--muted)!important;direction:rtl;text-align:right;white-space:normal;overflow-wrap:anywhere;margin:3px 1px 0}
   .ratib-current-balance[hidden],.ratib-line-tafqit[hidden]{display:none!important}
-  .ratib-multi-source-balance{grid-column:1/-1;margin:-5px 8px 6px!important}
+  #multiVoucherCard.spend-voucher .multi-voucher-source-row{flex-wrap:wrap!important}
+  .ratib-multi-source-balance{flex:0 0 100%!important;order:5!important;margin:1px 8px 0!important}
   #cashFlowCard #tafqitDisplayBox{font-size:12px!important;font-weight:500!important;line-height:1.6!important;margin:3px 0 9px!important;padding:3px 5px!important;border:0!important;background:none!important;color:var(--muted)!important}
   #multiVoucherCard.spend-voucher #cashDirectionControl{display:flex!important;justify-content:center!important;gap:10px!important;align-items:center!important;flex-wrap:nowrap!important}
   #ratibCashBackBtn{min-height:44px!important;padding:8px 12px!important;white-space:nowrap;font-size:13px!important;margin:0!important}

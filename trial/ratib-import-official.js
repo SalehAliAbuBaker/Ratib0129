@@ -7,7 +7,7 @@ banner.appendChild(action);
 const dialog=document.createElement('div');dialog.style.cssText='display:none;position:fixed;inset:0;z-index:100011;background:#0009;align-items:center;justify-content:center;padding:15px;direction:rtl';
 dialog.innerHTML=`<div style="background:white;color:#1e293b;border-radius:13px;padding:18px;max-width:520px;width:100%;max-height:85vh;overflow:auto;text-align:right">
 <h2 style="font-size:17px;margin:0 0 8px">نسخ بيانات «راتب» الرسمية إلى التجريبية</h2>
-<p style="font-size:13px;line-height:1.8">من التطبيق الرسمي: الإعدادات ← النسخ الاحتياطي ← تنزيل نسخة JSON. اختر الملف هنا لاستيراد الحسابات والسندات وأرصدة البداية إلى <b>التجريبية فقط</b>. لا توجد مزامنة تلقائية، ولا يتغير التطبيق الرسمي. لا تُنقل كلمات المرور أو رموز الترخيص أو إعدادات Google Drive.</p>
+<p style="font-size:13px;line-height:1.8">من التطبيق الرسمي: الإعدادات ← النسخ الاحتياطي ← تنزيل نسخة JSON. اختر الملف هنا لاستيراد الحسابات والسندات وأرصدة البداية إلى <b>التجريبية فقط</b>. لا توجد مزامنة تلقائية، ولا يتغير التطبيق الرسمي. لا تُنقل كلمات المرور أو رموز الترخيص أو إعدادات Google Drive. تدعم الأداة النسخة المشفرة بعد إدخال رمز فك التشفير محليًا.</p>
 <input id="trialImportFile" type="file" accept=".json,application/json" style="max-width:100%;margin:9px 0" aria-label="نسخة بيانات راتب الرسمي">
 <p id="trialImportStatus" style="font-size:13px;line-height:1.6"></p>
 <div style="display:flex;flex-wrap:wrap;gap:8px"><button type="button" id="trialImportBackup" class="btn btn-ghost" style="width:auto">1. نسخة احتياطية للتجريبية</button><button type="button" id="trialImportApply" class="btn btn-primary" style="width:auto">2. نسخ البيانات</button><button type="button" id="trialImportCancel" class="btn btn-ghost" style="width:auto">إغلاق</button></div>
@@ -27,8 +27,17 @@ get('trialImportApply').onclick=async()=>{
  try{
   if(file.size>40*1024*1024)throw Error('الملف أكبر من 40 ميجابايت.');
   const payload=JSON.parse(await file.text());
-  if(payload.app!=='ratib'||payload.encrypted||!payload.data)throw Error('النسخة مشفرة أو ليست نسخة JSON عادية. استخدم نسخة غير مشفرة صادرة من راتب الرسمي، أو اطلب دعم استيراد النسخ المشفرة.');
-  const data=payload.data,plan=data.masar_plan,history=data.masar_history;
+  if(payload.app!=='ratib')throw Error('الملف ليس نسخة احتياطية صادرة من راتب.');
+  let data=payload.data;
+  if(payload.encrypted){
+   const pin=prompt('النسخة الرسمية مشفرة. أدخل رمز الحماية الخاص بها لفك تشفير الملف محليًا على جهازك. لن يُحفظ الرمز أو يُرسل إلى أي خدمة.');
+   if(!pin)throw Error('لم يُدخل رمز حماية النسخة الرسمية.');
+   if(!payload.salt||!payload.blob)throw Error('بيانات تشفير النسخة غير مكتملة.');
+   try{const derived=await deriveVaultKey(pin,payload.salt);data=await decryptVaultBlob(derived.key,payload.blob);}
+   catch(e){throw Error('فشل فك تشفير النسخة. تحقق من رمز الحماية والملف.');}
+  }
+  if(!data||typeof data!=='object')throw Error('ملف البيانات غير سليم.');
+  const plan=data.masar_plan,history=data.masar_history;
   if(!plan||!Array.isArray(plan.transactions)||!Array.isArray(history)||history.some(x=>!Array.isArray(x.transactions)))throw Error('ملف رسمي بلا سجلات سليمة أو أرشيف صالح.');
   const docs=[...plan.transactions,...history.flatMap(h=>h.transactions)];
   const existing=[...(store.get('plan',null)?.transactions||[]),...(store.get('history',[])||[]).flatMap(h=>h.transactions||[])];

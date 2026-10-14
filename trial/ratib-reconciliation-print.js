@@ -41,7 +41,7 @@ function printProof(name,currency,txs){
  if(!evidence)return;
  const banner=document.createElement("div");
  banner.className="ratib-reconciliation-print-proof";
- banner.style.cssText="direction:rtl;text-align:right;font-size:10.5pt;font-weight:700;padding:8px 12px;margin:7px 0 10px;border:1.5px solid #365a4f;background:#eaf5ed;color:#173d35;break-inside:avoid;page-break-inside:avoid";
+ banner.style.cssText="direction:rtl;text-align:right;font-size:10.5pt;font-weight:700;padding:8px 12px;margin:7px 0 10px;border:1.5px solid #365a4f;background:#eaf5ed;color:#173d35;break-inside:avoid;page-break-inside:avoid;print-color-adjust:exact;-webkit-print-color-adjust:exact";
  if(!evidence.stable){
   banner.style.cssText+=";border-color:#b45309;background:#fff7ed;color:#78350f";
   banner.textContent=`⚠ مطابقة مؤرخة ${evidence.date} لم تعد سارية: تغيرت حركات الحساب بعد اعتمادها. يلزم إعادة المطابقة، ولا يُعد الرصيد مطابقًا.`;
@@ -49,7 +49,13 @@ function printProof(name,currency,txs){
   banner.style.cssText+=";background:#f8fafc;border-color:#64748b;color:#334155";
   banner.textContent=`↪ تاريخ المطابقة ${evidence.date} يأتي بعد نهاية فترة الكشف؛ ${evidenceText(evidence)}. هذه المطابقة لا تُثبت رصيد الفترة المعروضة.`;
  }else{
-  banner.innerHTML=`<span style="font-size:12pt;display:block">✓ رصيد مطابق ومعتمد حتى ${evidence.date}</span><span style="font-size:10pt;display:block;margin-top:2px">${evidenceText(evidence)} · إثبات المطابقة محفوظ في راتب بتاريخ ${evidence.date}</span>`;
+  const heading=document.createElement("strong");
+  heading.style.cssText="display:block;font-size:12pt";
+  heading.textContent="✓ رصيد مطابق حتى "+evidence.date;
+  const details=document.createElement("small");
+  details.style.cssText="display:block;font-size:10pt;margin-top:2px";
+  details.textContent=evidenceText(evidence)+" · مؤشر مطابقة محفوظ في راتب بتاريخ "+evidence.date;
+  banner.append(heading,details);
  }
  const table=page.querySelector(".ps-table-wrap");
  if(table)table.before(banner);else page.append(banner);
@@ -64,7 +70,7 @@ function printProof(name,currency,txs){
  if(last>=0){
   const cell=rows[last].cells[rows[last].cells.length-1];
   if(cell){
-   cell.style.background="#e2f2e5";cell.style.color="#173d35";cell.style.fontWeight="900";cell.style.border="2px solid #39784a";
+   cell.style.background="#e2f2e5";cell.style.printColorAdjust="exact";cell.style.color="#173d35";cell.style.fontWeight="900";cell.style.border="2px solid #39784a";
    const mark=document.createElement("small");mark.style.cssText="display:block;font-size:9pt;color:#173d35;font-weight:900";
    mark.textContent="✓ رصيد مطابق حتى "+evidence.date;cell.appendChild(mark);
   }

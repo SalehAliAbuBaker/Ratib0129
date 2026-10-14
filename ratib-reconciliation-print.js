@@ -41,12 +41,12 @@ function printProof(name,currency,txs){
  if(!evidence)return;
  const banner=document.createElement("div");
  banner.className="ratib-reconciliation-print-proof";
- banner.style.cssText="direction:rtl;text-align:right;font-size:10.5pt;font-weight:700;padding:8px 12px;margin:7px 0 10px;border:1.5px solid #365a4f;background:#eaf5ed;color:#173d35;break-inside:avoid;page-break-inside:avoid;print-color-adjust:exact;-webkit-print-color-adjust:exact";
+ banner.style.cssText="direction:rtl;text-align:right;font-size:10.5pt;font-weight:700;padding:6px 0;margin:8px 0;color:inherit;border:0;background:transparent;break-inside:avoid;page-break-inside:avoid";
  if(!evidence.stable){
-  banner.style.cssText+=";border-color:#b45309;background:#fff7ed;color:#78350f";
+  banner.style.cssText+=";color:inherit";
   banner.textContent=`⚠ مطابقة مؤرخة ${evidence.date} لم تعد سارية: تغيرت حركات الحساب بعد اعتمادها. يلزم إعادة المطابقة، ولا يُعد الرصيد مطابقًا.`;
  }else if(evidence.dateAfterPeriod){
-  banner.style.cssText+=";background:#f8fafc;border-color:#64748b;color:#334155";
+  banner.style.cssText+=";color:inherit";
   banner.textContent=`↪ تاريخ المطابقة ${evidence.date} يأتي بعد نهاية فترة الكشف؛ ${evidenceText(evidence)}. هذه المطابقة لا تُثبت رصيد الفترة المعروضة.`;
  }else{
   const heading=document.createElement("strong");
@@ -58,7 +58,7 @@ function printProof(name,currency,txs){
   banner.append(heading,details);
  }
  const table=page.querySelector(".ps-table-wrap");
- if(table)table.before(banner);else page.append(banner);
+ if(table)table.after(banner);else page.append(banner);
  if(!evidence.stable||!evidence.inPeriod||evidence.dateAfterPeriod)return;
  const rows=[...page.querySelectorAll("#psTableBody tr")].filter(tr=>tr.cells?.length>=6&&tr.cells[0]?.colSpan===1&&!tr.classList.contains("ps-total-row"));
  const series=txs.filter(t=>t.debitAccount===name||t.creditAccount===name);

@@ -15,7 +15,7 @@
   function documentIds(transactions) {
     const ids = new Set();
     for (const tx of transactions || []) {
-      if (!tx || tx.status === 'deleted' || tx.status === 'reversed' || tx.isOpeningBalance) continue;
+      if (!tx || tx.status === 'deleted' || tx.status === 'reversed' || tx.isOpeningBalance || tx.ratibAnnualClosingYear) continue;
       const id = tx.multiVoucherId || tx.id;
       if (id != null) ids.add(String(id));
     }
@@ -43,12 +43,15 @@
   const API = 'https://ratib.saleh0129.workers.dev/api/license/';
   const CHECK_INTERVAL = 60 * 60 * 1000;
   const OFFLINE_GRACE = 7 * 24 * 60 * 60 * 1000;
-  // Count previously saved accounting documents the first time this release is used.
+  // Exclude explicit official-to-trial imported documents and automatic annual-closing journals.
   // Do not reset the counter when transactions are deleted or backups are restored.
   function getUsed(transactions) {
     const state = safeRead();
     const recorded = Math.max(0, Number(state.used) || 0);
-    const actual = Array.isArray(transactions) ? documentIds(transactions).size : 0;
+    const imported = new Set(Array.isArray(state.importedDocumentIds) ? state.importedDocumentIds.map(String) : []);
+    const actual = Array.isArray(transactions)
+      ? [...documentIds(transactions)].filter(id => !imported.has(id)).length
+      : 0;
     const count = Math.max(recorded, actual);
     if (count !== recorded) { state.used = count; safeWrite(state); }
     return count;

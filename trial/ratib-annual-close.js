@@ -19,7 +19,7 @@ function validateLocked(p,h){
   const date=dateOf(tx),id=String(tx?.id||"");
   if(!date||date>limit)continue;
   if(!original.has(id))return "لا يجوز تسجيل عملية بتاريخ "+date+" لأن السنة مغلقة.";
-  if(seen.has(id))return "عملية مكررة في سنة مغلقة: "+id;
+  // Month archival briefly holds the same transaction in plan and history; allow this only if identical.
   seen.add(id);
   if(JSON.stringify(tx)!==original.get(id))return "هذا السند يعود لسنة مالية مغلقة، ولا يجوز تعديله أو إلغاؤه.";
  }

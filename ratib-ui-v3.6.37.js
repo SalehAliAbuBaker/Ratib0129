@@ -34,6 +34,7 @@ function repaintMultiBalances(){
  const card=document.getElementById('multiVoucherCard'),cash=card?.classList.contains('spend-voucher');
  if(!card)return;
  const source=card.querySelector('.multi-voucher-source-row'),name=(typeof multiSourceAcc!=='undefined'&&multiSourceAcc?.getValue?.())||'';
+ if(!source?.closest('.multi-voucher-grid'))return;
  let hint=source?.nextElementSibling;
  if(!hint?.classList?.contains('ratib-current-balance')){
   hint=document.createElement('small');hint.className='ratib-current-balance ratib-multi-source-balance';source?.insertAdjacentElement('afterend',hint);
@@ -96,6 +97,12 @@ function main(){
   }
  }
  installCashBack();
+ const oldConfigureVoucherMode=configureVoucherMode;
+ configureVoucherMode=function(...args){
+  const result=oldConfigureVoucherMode.apply(this,args);
+  installCashBack();repaintMultiBalances();
+  return result;
+ };
  const oldSetValue=SearchableSelect.prototype.setValue;
  SearchableSelect.prototype.setValue=function(...args){
   const result=oldSetValue.apply(this,args);
@@ -163,6 +170,8 @@ function main(){
    bar.append(label,save,clear,status);
    page.querySelector('.account-operations-head')?.insertAdjacentElement('afterend',bar);
    if(stable){
+    const finalBalance=page.querySelector('.account-statement-row.total.final span:last-child');
+    if(finalBalance){const badge=document.createElement('small');badge.className='ratib-match-mark';badge.textContent='✓ مطابقة حتى '+saved.date;finalBalance.appendChild(badge);}
     const rows=Array.from(page.querySelectorAll('.account-statement-row[data-tx-id]'));
     const matching=rows.filter(row=>row.querySelector('span')?.textContent?.trim()===saved.date);
     const last=matching.at(-1);

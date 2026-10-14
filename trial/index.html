@@ -1232,7 +1232,7 @@ body.ratib-sidebar-open,body.ratib-about-open{overflow:hidden}
 </style>
 </head>
 <body>
-<div id="ratibTrialBanner" style="position:relative;z-index:99999;background:#fff3cd;color:#643c00;border-bottom:2px solid #db9e15;text-align:center;padding:9px 12px;font-family:Tahoma,sans-serif;font-weight:700;direction:rtl">🧪 نسخة تجريبية مستقلة — الإصدار 3.6.41. يمكن نسخ البيانات الرسمية للتجربة بإذن منك، ولا تنتقل التعديلات التجريبية إلى التطبيق الرسمي. يلزم الاتصال بالإنترنت. <span id="ratibTrialCounter" style="display:inline-block;margin-right:12px;padding:2px 8px;border-radius:10px;background:#fff">السندات المجانية: 0 / 20</span></div>
+<div id="ratibTrialBanner" style="position:relative;z-index:99999;background:#fff3cd;color:#643c00;border-bottom:2px solid #db9e15;text-align:center;padding:9px 12px;font-family:Tahoma,sans-serif;font-weight:700;direction:rtl">🧪 نسخة تجريبية مستقلة — الإصدار 3.6.42. يمكن نسخ البيانات الرسمية للتجربة بإذن منك، ولا تنتقل التعديلات التجريبية إلى التطبيق الرسمي. يلزم الاتصال بالإنترنت. <span id="ratibTrialCounter" style="display:inline-block;margin-right:12px;padding:2px 8px;border-radius:10px;background:#fff">السندات المجانية: 0 / 20</span></div>
 
 <div class="lock-screen" id="lockScreen" style="display:none;">
   <div class="lock-content">
@@ -1261,7 +1261,7 @@ body.ratib-sidebar-open,body.ratib-about-open{overflow:hidden}
     <div class="header-tools"><div class="header-actions">
       <button class="icon-btn" id="themeBtn" title="الوضع الليلي">🌙</button>
       <button class="icon-btn" id="sidebarMenuBtn" aria-haspopup="dialog" aria-controls="appSidebar" aria-expanded="false" title="القائمة الجانبية" aria-label="فتح القائمة الجانبية">☰</button>
-    </div><small id="appVersionLabel" class="app-version">الإصدار 3.6.41 — تجريبي</small></div>
+    </div><small id="appVersionLabel" class="app-version">الإصدار 3.6.42 — تجريبي</small></div>
   </header>
   <div class="summary-toolbar hidden no-print" id="storageFeedback"><span id="persistentSaveStatus" hidden aria-hidden="true">جاهز</span><button type="button" id="retryStorageBtn" class="btn btn-ghost hidden">إعادة محاولة الحفظ</button></div>
 <div class="app-update-banner hidden no-print" id="appUpdateBanner" role="status"><span id="appUpdateMessage">يتوفر تحديث لراتب. هل تريد تطبيقه؟</span><button type="button" class="btn btn-ghost" id="applyAppUpdateBtn">موافق، تطبيق التحديث</button><div id="appUpdateDetails" class="hidden"></div></div>
@@ -1307,7 +1307,7 @@ body.ratib-sidebar-open,body.ratib-about-open{overflow:hidden}
       <img src="Icons/icon-192.png" width="72" height="72" alt="" decoding="async">
       <h2 id="ratibAboutTitle">راتب</h2>
       <p class="ratib-about-subtitle">للتنظيم والتدبير المالي</p>
-      <p class="ratib-about-version">الإصدار 3.6.41 — تجريبي</p>
+      <p class="ratib-about-version">الإصدار 3.6.42 — تجريبي</p>
       <p id="ratibAboutDescription">إدارة الحسابات والسندات والميزانية، ومتابعة العمليات والتقارير المالية، مع حفظ البيانات على جهازك ودعم العمل دون الإنترنت.</p>
       <button type="button" class="btn btn-primary" id="closeRatibAboutBtn">إغلاق</button>
     </div>
@@ -2492,7 +2492,7 @@ body.ratib-sidebar-open,body.ratib-about-open{overflow:hidden}
 // (أو localhost أثناء التطوير) — هذا شرط أساسي من المتصفح نفسه لأي Service Worker.
 let _briefAppNoticeTimer=null;
 let _releaseSummaryDisplayed=false;
-const RATIB_RELEASE={"version":"3.6.41","changes":["نسخة احتياطية شاملة لجميع السنوات مع فتح السنة المالية المغلقة للتصحيح بضوابط: سبب إلزامي، نسخة أمان، تسجيل المراجعات، ثم إعادة الإقفال واحتساب التدوير.","تصحيح الإغلاق السنوي التجريبي: إظهار الرصيد المدور لكل حساب وعملة في بداية السنة الجديدة، وحفظ سندات السنة السابقة في الأرشيف، وفتح سجل السنة الجديدة خاليًا من سندات السنوات المغلقة.","محاكاة إغلاق السنة الحالية 2026 داخل النسخة التجريبية فقط، بعد تفعيل الخيار والتأكيد والنسخ الاحتياطي، مع اختبار القفل وإعادة الفتح.","الإغلاق السنوي التجريبي مع قيد تسوية الإيرادات والمصروفات متعدد العملات وترحيل النتيجة للأرباح المبقاة.","قفل عمليات السنوات المعتمدة، مع إعادة فتح موثقة وإلغاء آثار قيود الإقفال.","معاينة الأرصدة وحركات السنة واشتراط نسخة احتياطية قبل الإغلاق.","استيراد اختياري للبيانات الرسمية إلى التجريبية فقط، بدون مزامنة تلقائية أو نقل بيانات الترخيص.","عرض الرصيد الحالي أسفل الحساب المختار بحسب عملته في سندات الإدخال.","إظهار التفقيط العربي المباشر للمبالغ في القيد البسيط وبنود القيد المركب.","إضافة زر عودة بجانب اختياري القبض والصرف في السطر نفسه.","مطابقة كشف الحساب إلى تاريخ معين مع تذكّر علامة المطابقة والتنبيه عند تعديل حركات سابقة.","تقرير شامل لتعارضات استعادة الحسابات المستوردة مع استثناء غير الصالح منها.","إدارة انتقائية للحسابات والأرصدة المستوردة من دفعات سابقة دون حذف السندات الجديدة.","أرشفة حسابات الاستيراد وإخفاؤها من الشجرة مع بقاء حركاتها.","استعادة الحسابات إلى مساراتها الأصلية عند توفر معلومات المصدر وعدم تعارض أرقامها.","حماية توازن الأرصدة الافتتاحية ومعاينة الحذف قبل تنفيذه.","إنشاء نسخة أمان قبل أي إجراء وتوثيق التغييرات.","إصلاح حجز أرقام الحسابات القديمة وإظهار الحسابات التجميعية عند البحث ولو لم تعد لها حسابات تفصيلية.","توضيح اسم ومسار الحساب الذي يشغل الرقم وحماية الحركات المحاسبية التاريخية.","توحيد فحص أرقام الحسابات مع الدليل المحاسبي الفعلي ومنع حجز الأرقام بواسطة تعاريف قديمة غير موجودة.","توضيح الحسابات المحفوظة في سجل رموز قديم وغير الظاهرة في الشجرة دون حذف بياناتها.","البحث باسم الحساب أو رقمه في الشجرة وكشف الحساب مع الحفاظ على البيانات.","إصلاح تصفية التذكيرات حسب الأولوية دون تغيير القائمة المحفوظة أو مؤشرات التعديل والحذف.","احتساب اليوم ومواعيد الاستحقاق بتاريخ الجهاز المحلي وتحديث لوحة المعلومات فور حفظ التذكير.","البحث برقم الحساب أو اسمه داخل شجرة الحسابات وكشف الحساب، مع دعم الأرقام العربية.","عرض الحسابات المطابقة في الشجرة وتوسيع فروعها دون تغيير البيانات.","اختيار الحساب الأب برقمه أو باسمه، وإعادة طلب الأب وحده إذا لم يوجد.","ربط حساب تجميعي فرعي بحساب تجميعي فرعي آخر، مع منع الارتباط الدائري.","الطي والتوسيع للمجموعات الحسابية الفرعية والتفصيلية.","إظهار كل الحسابات التجميعية والفرعية في قائمة الإضافة بمسارها الكامل.","تثبيت ارتباط الحساب الجديد بالحساب الأب المختار.","إظهار إجمالي المدين والدائن وصافي الرصيد تحت كل حساب تفصيلي في شجرة الحسابات.","عرض كل عملة بمفردها مع مراعاة قيود الرصيد الافتتاحي والسندات المركبة.","الاحتفاظ بتحسينات ترتيب الشجرة وموضعها والضغط المباشر لتحرير الحساب."]};
+const RATIB_RELEASE={"version":"3.6.42","changes":["كشف الحساب الاختياري مع حركات سنة مالية مغلقة سابقة، وتحديد سنة تاريخية أقدم، مع اتساق الرصيد السابق والنتيجة النهائية في الشاشة والطباعة وPDF وCSV دون تكرار التدوير.","نسخة احتياطية شاملة لجميع السنوات مع فتح السنة المالية المغلقة للتصحيح بضوابط: سبب إلزامي، نسخة أمان، تسجيل المراجعات، ثم إعادة الإقفال واحتساب التدوير.","تصحيح الإغلاق السنوي التجريبي: إظهار الرصيد المدور لكل حساب وعملة في بداية السنة الجديدة، وحفظ سندات السنة السابقة في الأرشيف، وفتح سجل السنة الجديدة خاليًا من سندات السنوات المغلقة.","محاكاة إغلاق السنة الحالية 2026 داخل النسخة التجريبية فقط، بعد تفعيل الخيار والتأكيد والنسخ الاحتياطي، مع اختبار القفل وإعادة الفتح.","الإغلاق السنوي التجريبي مع قيد تسوية الإيرادات والمصروفات متعدد العملات وترحيل النتيجة للأرباح المبقاة.","قفل عمليات السنوات المعتمدة، مع إعادة فتح موثقة وإلغاء آثار قيود الإقفال.","معاينة الأرصدة وحركات السنة واشتراط نسخة احتياطية قبل الإغلاق.","استيراد اختياري للبيانات الرسمية إلى التجريبية فقط، بدون مزامنة تلقائية أو نقل بيانات الترخيص.","عرض الرصيد الحالي أسفل الحساب المختار بحسب عملته في سندات الإدخال.","إظهار التفقيط العربي المباشر للمبالغ في القيد البسيط وبنود القيد المركب.","إضافة زر عودة بجانب اختياري القبض والصرف في السطر نفسه.","مطابقة كشف الحساب إلى تاريخ معين مع تذكّر علامة المطابقة والتنبيه عند تعديل حركات سابقة.","تقرير شامل لتعارضات استعادة الحسابات المستوردة مع استثناء غير الصالح منها.","إدارة انتقائية للحسابات والأرصدة المستوردة من دفعات سابقة دون حذف السندات الجديدة.","أرشفة حسابات الاستيراد وإخفاؤها من الشجرة مع بقاء حركاتها.","استعادة الحسابات إلى مساراتها الأصلية عند توفر معلومات المصدر وعدم تعارض أرقامها.","حماية توازن الأرصدة الافتتاحية ومعاينة الحذف قبل تنفيذه.","إنشاء نسخة أمان قبل أي إجراء وتوثيق التغييرات.","إصلاح حجز أرقام الحسابات القديمة وإظهار الحسابات التجميعية عند البحث ولو لم تعد لها حسابات تفصيلية.","توضيح اسم ومسار الحساب الذي يشغل الرقم وحماية الحركات المحاسبية التاريخية.","توحيد فحص أرقام الحسابات مع الدليل المحاسبي الفعلي ومنع حجز الأرقام بواسطة تعاريف قديمة غير موجودة.","توضيح الحسابات المحفوظة في سجل رموز قديم وغير الظاهرة في الشجرة دون حذف بياناتها.","البحث باسم الحساب أو رقمه في الشجرة وكشف الحساب مع الحفاظ على البيانات.","إصلاح تصفية التذكيرات حسب الأولوية دون تغيير القائمة المحفوظة أو مؤشرات التعديل والحذف.","احتساب اليوم ومواعيد الاستحقاق بتاريخ الجهاز المحلي وتحديث لوحة المعلومات فور حفظ التذكير.","البحث برقم الحساب أو اسمه داخل شجرة الحسابات وكشف الحساب، مع دعم الأرقام العربية.","عرض الحسابات المطابقة في الشجرة وتوسيع فروعها دون تغيير البيانات.","اختيار الحساب الأب برقمه أو باسمه، وإعادة طلب الأب وحده إذا لم يوجد.","ربط حساب تجميعي فرعي بحساب تجميعي فرعي آخر، مع منع الارتباط الدائري.","الطي والتوسيع للمجموعات الحسابية الفرعية والتفصيلية.","إظهار كل الحسابات التجميعية والفرعية في قائمة الإضافة بمسارها الكامل.","تثبيت ارتباط الحساب الجديد بالحساب الأب المختار.","إظهار إجمالي المدين والدائن وصافي الرصيد تحت كل حساب تفصيلي في شجرة الحسابات.","عرض كل عملة بمفردها مع مراعاة قيود الرصيد الافتتاحي والسندات المركبة.","الاحتفاظ بتحسينات ترتيب الشجرة وموضعها والضغط المباشر لتحرير الحساب."]};
 function showAppReleaseDetails(release){
   const box=document.getElementById('appUpdateDetails');if(!box)return;box.replaceChildren();
   if(!release||typeof release.version!=='string'||!Array.isArray(release.changes)){box.classList.add('hidden');return;}
@@ -7368,13 +7368,16 @@ function getAccountCurrencies(accountName,scopeNames=null){
 }
 function accountOpsMatchesSearch(t,entry){const q=String(accountOpsState.search||'').trim().toLowerCase();if(!q)return true;const note=entry?.line?.note||t.execution?.[Object.keys(t.execution||{})[0]]?.note||getTransactionDisplayType(t)||'';return [t.seqNum,getAccountOpsDate(t),note,entry?.amount].join(' ').toLowerCase().includes(q);}
 function getAccountOperations(accountName,scopeNames=null,currency=accountOpsState.activeCurrency||'YER'){
-  const scope=Array.isArray(scopeNames)&&scopeNames.length?scopeNames:[accountName],from=accountOpsState.from||'',to=accountOpsState.to||'';
+  const scope=Array.isArray(scopeNames)&&scopeNames.length?scopeNames:[accountName],
+    from=window.ratibStatementEffectiveFrom?.(accountOpsState.from||'')??(accountOpsState.from||''),
+    to=accountOpsState.to||'';
   return getAllTransactions().filter(t=>{const entry=getAccountEntry(t,scope),date=getAccountOpsDate(t);return !!entry&&t.status!=='reversed'&&t.status!=='deleted'&&entry.currency===currency&&(!from||date>=from)&&(!to||date<=to)&&accountOpsMatchesSearch(t,entry);}).sort((a,b)=>{
     const ad=getAccountOpsDate(a),bd=getAccountOpsDate(b);
     return ad.localeCompare(bd)||(Number(a.seqNum)||0)-(Number(b.seqNum)||0)||String(a.id||'').localeCompare(String(b.id||''));
   });
 }
 function getAccountOpeningBalanceForOperations(scopeNames,fromDate,currency=accountOpsState.activeCurrency||'YER'){
+  fromDate=window.ratibStatementEffectiveFrom?.(fromDate||'')??(fromDate||'');
   if(!fromDate)return 0;
   const scope=Array.isArray(scopeNames)&&scopeNames.length?scopeNames:[accountOpsState.accountName];let opening=0;
   getAllTransactions().forEach(t=>{
@@ -7416,12 +7419,13 @@ function renderAccountOperations(accountName,scopeNames=null,ui=null){
   const tabs=document.getElementById(accountOpsUi.tabsId);
   if(tabs){tabs.innerHTML=currencies.length>1?currencies.map((currency,index)=>`<button type="button" role="tab" data-currency="${esc(currency)}" aria-selected="${currency===accountOpsState.activeCurrency}" aria-label="عرض حساب ${esc(accountName)} بعملة ${esc(currency)}">${index+1}. ${currency==='YER'?'ريال يمني':currency==='SAR'?'ريال سعودي':currency==='USD'?'دولار أمريكي':esc(currency)}</button>`).join(''):'';tabs.querySelectorAll('button').forEach(btn=>btn.addEventListener('click',()=>setAccountCurrencyPage(btn.dataset.currency)));}
   panel.innerHTML=`<div class="account-currency-track">${currencies.map(currency=>{
-    const txs=getAccountOperations(accountName,scope,currency),opening=getAccountOpeningBalanceForOperations(scope,accountOpsState.from,currency);
+    const effectiveStart=window.ratibStatementEffectiveFrom?.(accountOpsState.from||'')??(accountOpsState.from||'');
+    const txs=getAccountOperations(accountName,scope,currency),opening=getAccountOpeningBalanceForOperations(scope,effectiveStart,currency);
     let totalDebit=0,totalCredit=0;
     txs.forEach(t=>{const e=getAccountEntry(t,scope),amount=getAccountDisplayAmount(e);if(e.bothSides){totalDebit+=amount;totalCredit+=amount;}else if(e.side==='debit')totalDebit+=amount;else totalCredit+=amount;});
-    const prior=accountOpsState.from?` · الرصيد السابق ${Math.abs(opening).toLocaleString()} ${currency} ${opening>=0?'دائن':'مدين'}`:'';
+    const prior=effectiveStart?` · الرصيد السابق ${Math.abs(opening).toLocaleString()} ${currency} ${opening>=0?'دائن':'مدين'}`:'';
     const head=`<div class="account-operations-head"><span>كشف حركات ${esc(accountName)} — ${esc(currency)}</span><small>${txs.length} عملية · المدين ${totalDebit.toLocaleString()} ${esc(currency)} · الدائن ${totalCredit.toLocaleString()} ${esc(currency)}${prior}</small></div>`;
-    const openingRow=accountOpsState.from?`<div class="account-statement-row opening"><span>${esc(accountOpsState.from)}</span><span>—</span><span>الرصيد السابق قبل بداية الفترة</span><span></span><span></span><span>${Math.abs(opening).toLocaleString()} ${esc(currency)} ${opening>=0?'دائن':'مدين'}</span></div>`:'';
+    const openingRow=effectiveStart?`<div class="account-statement-row opening"><span>${esc(effectiveStart)}</span><span>—</span><span>الرصيد السابق قبل بداية الفترة</span><span></span><span></span><span>${Math.abs(opening).toLocaleString()} ${esc(currency)} ${opening>=0?'دائن':'مدين'}</span></div>`:'';
     const runningBalances=getAccountRunningBalances(txs,scope,opening);
     const closingBal=opening+totalCredit-totalDebit;
     const totalsRows=`<div class="account-statement-row total"><span style="grid-column:1/4">إجمالي العمليات خلال الفترة</span><span class="debit">${totalDebit.toLocaleString()}</span><span class="credit">${totalCredit.toLocaleString()}</span><span>-</span></div><div class="account-statement-row total"><span style="grid-column:1/4">رصيد سابق</span><span class="debit">${opening<0?Math.abs(opening).toLocaleString():'0'}</span><span class="credit">${opening>0?opening.toLocaleString():''}</span><span>-</span></div><div class="account-statement-row total final"><span style="grid-column:1/4">الرصيد الإجمالي</span><span style="grid-column:4/7">${closingBal>=0?'لكم':'عليكم'} : ${Math.abs(closingBal).toLocaleString()} ${esc(currency)}</span></div>`;
@@ -7547,7 +7551,11 @@ function getAccountCurrencyReportData(currency){
   rows.forEach(t=>{const e=getAccountEntry(t,scope),amount=getAccountDisplayAmount(e);if(e.bothSides){totalDebit+=amount;totalCredit+=amount;}else if(e.side==='debit')totalDebit+=amount;else totalCredit+=amount;});
   return {currency,rows,opening,totalDebit,totalCredit,closing:opening+totalCredit-totalDebit};
 }
-function accountPeriodTitle(){return accountOpsState.from&&accountOpsState.to?`من ${accountOpsState.from} إلى ${accountOpsState.to}`:(accountOpsState.from?`من ${accountOpsState.from}`:(accountOpsState.to?`حتى ${accountOpsState.to}`:'كافة العمليات المعروضة'));}
+function accountPeriodTitle(){
+  const from=window.ratibStatementEffectiveFrom?.(accountOpsState.from||'')??(accountOpsState.from||'');
+  const to=accountOpsState.to||'';
+  return from&&to?`من ${from} إلى ${to}`:from?`من ${from}`:to?`حتى ${to}`:'كافة العمليات المعروضة';
+ }
 function wrapCanvasText(ctx,str,maxW){
   str=String(str??'');if(!str)return [''];
   const words=str.split(/\s+/),lines=[];let cur='';
@@ -8295,7 +8303,8 @@ function downloadCsv(rows,name){
 
 function accountExportRows(currency){
   const data=getAccountCurrencyReportData(currency),out=[['التاريخ','المستند','البيان','مدين','دائن','الرصيد','حالة الرصيد','العملة']];let balance=data.opening;
-  if(accountOpsState.from)out.push([accountOpsState.from,'—','الرصيد السابق قبل بداية الفترة','','',Math.abs(balance),balance>=0?'دائن':'مدين',currency]);
+  const effectiveStart=window.ratibStatementEffectiveFrom?.(accountOpsState.from||'')??(accountOpsState.from||'');
+  if(effectiveStart)out.push([effectiveStart,'—','الرصيد السابق قبل بداية الفترة','','',Math.abs(balance),balance>=0?'دائن':'مدين',currency]);
   for(const t of data.rows){const entry=getAccountEntry(t,accountOpsState.scopeNames),amount=getAccountDisplayAmount(entry),debit=entry.side==='debit';balance=roundAccountingAmount(balance+(debit?-amount:amount));out.push([getAccountOpsDate(t),`#${t.seqNum||''} ${getTransactionDisplayType(t)}`,entry.line?.note||t.execution?.[Object.keys(t.execution||{})[0]]?.note||'',debit?amount:'',debit?'':amount,Math.abs(balance),balance>=0?'دائن':'مدين',currency]);}
   out.push(['','','إجمالي العمليات خلال الفترة',data.totalDebit,data.totalCredit,'','',currency],['','','الرصيد الإجمالي','','',Math.abs(data.closing),data.closing>=0?'دائن':'مدين',currency]);return out;
 }
@@ -10372,6 +10381,7 @@ try{currenciesUi();multiEditPrint();sync();}catch(e){console.error('Ratib 3.6.12
 <script src="./trial/ratib-import-manager.js?v=2" defer></script>
 <script src="./trial/ratib-annual-close.js?v=3" defer></script>
 <script src="./trial/ratib-fiscal-ledger.js?v=1" defer></script>
+<script src="./trial/ratib-statement-prior-year.js?v=1" defer></script>
 <script src="./trial/ratib-import-official.js?v=1" defer></script>
 </body>
 </html>

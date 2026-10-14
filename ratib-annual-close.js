@@ -189,7 +189,7 @@ if(!IS_TRIAL){
  const simulator=root.querySelector("#yearToolSimulateCurrent");
  if(simulator){simulator.checked=false;simulator.disabled=true;const wrapper=simulator.closest("div");if(wrapper)wrapper.style.display="none";}
 }
-(document.getElementById("pageReports")||document.getElementById("pageAccountsTree")||document.body).prepend(root);
+(document.getElementById("pageReports")||document.getElementById("pageAccountsTree")||document.body).append(root);
 const $=id=>root.querySelector("#"+id),current=()=>String(Number($("yearToolYear").value)||""),message=(s,bad=false)=>{$("yearToolMessage").textContent=s;$("yearToolMessage").style.color=bad?"var(--danger)":"var(--ok)";};
 function draw(){
  const year=current(),saved=getYears()[year],earlier=earlierYears(year);

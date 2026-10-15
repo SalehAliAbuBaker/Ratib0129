@@ -67,7 +67,7 @@ async function run(){
   await test(variant+': zero the imported records through their editor, then delete only the selected account from the live tree',async()=>{
    const ids=code(w,'getAllTransactions().map(tx=>tx.id)');
    for(const id of ids){
-    w.editId=id;code(w,'openTxModal(getAllTransactions().find(tx=>tx.id===editId))');
+    w.editId=id;code(w,'openImportedRecordEditor(getAllTransactions().find(tx=>tx.id===editId))');
     d.getElementById('importedAmount').value='0';d.getElementById('importedBaseAmount').value='0';d.getElementById('importedRate').value='';
     assert.equal(await code(w,'saveImportedRecordCorrection()'),true);
    }

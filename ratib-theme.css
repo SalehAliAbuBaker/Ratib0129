@@ -26,9 +26,19 @@
  .ratib-ui-original {display:none}
  :is(.main-menu-icon,.voucher-type-icon) .ratib-ui-icon {width:28px;height:28px}
  :is(#accountStatementCard,#budgetReportCard,#trialBalanceCard) :is(h2,h3) {color:var(--text)}
- /* Keep report content on its existing palette. Only its no-print tools receive the new icons. */
- :is(#accountStatementCard,#budgetReportCard,#trialBalanceCard,.print-header-banner) {--accent:#145da0;--accent-strong:#0d477b;--ok:#16794c;--teal:#216e7a;--danger:#b42318;--bg:#f4f7fb;--card:#fff;--text:#172033;--muted:#56657a;--border:#d7e0e9}
- [data-theme="dark"] :is(#accountStatementCard,#budgetReportCard,#trialBalanceCard) {--accent:#62a6d9;--accent-strong:#8ec4eb;--ok:#54c58e;--bg:#111827;--card:#1b2638;--text:#eef3f8;--muted:#a8b5c5;--border:#35445a}
+ /* The same screen palette applies to both account entry points; print styles stay separate. */
+ button {text-align:center!important}
+ :is(.sidebar-nav button,.sidebar-contact-toggle,.sidebar-footer button)>span {text-align:right}
+ :is(h1,h2,h3,label,summary,.settings-accordion-header,.acc-accordion-header) {text-align:right}
+ .ratib-report-menu {display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-bottom:14px}
+ #pageReports .ratib-report-menu>:is(.acc-accordion-header,#yearToolOpen) {display:flex!important;align-items:center;justify-content:center;gap:7px;min-width:0;width:100%!important;min-height:68px;height:100%;margin:0!important;padding:10px!important;border:1px solid var(--border)!important;border-radius:10px!important;background:var(--card)!important;color:var(--accent)!important;font:700 1rem/1.5 'Tajawal',sans-serif!important;text-align:center!important;box-shadow:none;cursor:pointer;overflow-wrap:anywhere}
+ #pageReports .ratib-report-menu>.open {background:color-mix(in srgb,var(--accent) 9%,var(--card))!important;border-color:var(--accent)!important}
+ .ratib-ui-glyph[data-icon="back"] {color:#145da0!important}
+ [data-theme="dark"] .ratib-ui-glyph[data-icon="back"] {color:#8ec4eb!important}
+ .ratib-back-control>svg,.ratib-back-control .ratib-ui-icon {color:#145da0!important;stroke:currentColor!important}
+ [data-theme="dark"] .ratib-back-control>svg,[data-theme="dark"] .ratib-back-control .ratib-ui-icon {color:#8ec4eb!important}
+ .ratib-back-control.ratib-back-icon-only {color:#145da0!important}
+ [data-theme="dark"] .ratib-back-control.ratib-back-icon-only {color:#8ec4eb!important}
  @media(max-width:600px) {.wrap{padding:12px 10px 100px}.card:not(#accountStatementCard,#budgetReportCard,#trialBalanceCard){padding:12px;margin-bottom:12px}.header-actions{gap:6px}.form-group{margin-bottom:10px}.btn{padding:9px 10px}.modal-content{max-width:calc(100vw - 20px)}.multi-voucher-actions{gap:8px}.multi-voucher-actions>.btn{flex:1 1 44%;min-width:0}.main-menu-grid{gap:8px}}
 }
 @media print {.ratib-ui-icon{display:none!important}.ratib-ui-glyph{display:contents!important}.ratib-ui-original{display:inline!important}}

@@ -30,7 +30,7 @@ function inspect(name,currency,from="",to=""){
 }
 window.ratibReconciliationEvidence=inspect;
 const evidenceText=(v)=>`الرصيد ${fmt(Math.abs(v.balance))} ${v.currency} (${v.balance<0?"مدين":"دائن"})`;
-const confirmed=v=>`✓ مطابق — ${evidenceText(v)} · تاريخ المطابقة ${v.date}`;
+const confirmed=()=>`✓ مطابق`;
 function printProof(name,currency,txs){
  const page=document.getElementById("printStatementContainer");
  if(!page||!name||name==="ALL")return;
@@ -52,10 +52,7 @@ function printProof(name,currency,txs){
   const heading=document.createElement("strong");
   heading.style.cssText="display:block;font-size:12pt";
   heading.textContent="✓ مطابق";
-  const details=document.createElement("small");
-  details.style.cssText="display:block;font-size:10pt;margin-top:2px";
-  details.textContent=evidenceText(evidence)+" · مؤشر مطابقة محفوظ في راتب بتاريخ "+evidence.date;
-  banner.append(heading,details);
+  banner.append(heading);
  }
  const table=page.querySelector(".ps-table-wrap");
  if(table)table.after(banner);else page.append(banner);

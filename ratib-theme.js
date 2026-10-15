@@ -32,8 +32,8 @@ const paths={
  wallet:'M3 5h17v16H3ZM3 9h17M15 12h6v5h-6Z'
 };
 const icons=new Map();
-for(const [key,glyphs] of Object.entries({user:'👤👥',sound:'🔊🔉',mute:'🔇',music:'🎵🎶',cloud:'☁️',clock:'⏰🕒',add:'➕＋',save:'💾',delete:'🗑️🗑',edit:'✏️✍️📝',file:'📄📑🧾📋',search:'🔍🔎⌕',print:'🖨️🖨',lock:'🔐🔒🔑',unlock:'🔓',back:'⬅️↩️',refresh:'🔄🔁♻️',bell:'🔔',chart:'📊📈🧮⚖️',folder:'📂📁',check:'✅',close:'❌✖',moon:'🌙',sun:'☀️☀',menu:'☰',settings:'⚙️⚙',share:'📤📥↗',info:'⚡💡📌ℹ️',wallet:'💰💵💳'})){
- for(const g of glyphs.match(/\p{Extended_Pictographic}\uFE0F?|[＋⌕☰]/gu)||[])icons.set(g,key);
+for(const [key,glyphs] of Object.entries({user:'👤👥',sound:'🔊🔉',mute:'🔇',music:'🎵🎶',cloud:'☁️',clock:'⏰🕒',add:'➕＋',save:'💾',delete:'🗑️🗑',edit:'✏️✍️📝',file:'📄📑🧾📋',search:'🔍🔎⌕',print:'🖨️🖨',lock:'🔐🔒🔑',unlock:'🔓',back:'⬅️↩️←↩',refresh:'🔄🔁♻️',bell:'🔔',chart:'📊📈🧮⚖️',folder:'📂📁',check:'✅',close:'❌✖',moon:'🌙',sun:'☀️☀',menu:'☰',settings:'⚙️⚙',share:'📤📥↗',info:'⚡💡📌ℹ️',wallet:'💰💵💳'})){
+ for(const g of glyphs.match(/\p{Extended_Pictographic}\uFE0F?|[＋⌕☰←↩]/gu)||[])icons.set(g,key);
 }
 const pattern=new RegExp([...icons.keys()].sort((a,b)=>b.length-a.length).map(s=>s.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')).join('|'),'gu');
 const target='button,h1,h2,h3,summary,label,.acc-accordion-header,.ledger-page-title,.search-icon,.voucher-type-icon,.main-menu-icon,.open-tasks-cta';
@@ -51,7 +51,7 @@ function decorate(root){
   const fragment=document.createDocumentFragment();let start=0;pattern.lastIndex=0;
   for(const m of n.data.matchAll(pattern)){
    fragment.append(document.createTextNode(n.data.slice(start,m.index)));
-   const span=document.createElement('span');span.className='ratib-ui-glyph';
+   const span=document.createElement('span');span.className='ratib-ui-glyph';span.dataset.icon=icons.get(m[0]);
    const original=document.createElement('span');original.className='ratib-ui-original';original.textContent=m[0];
    const svg=document.createElementNS('http://www.w3.org/2000/svg','svg');svg.setAttribute('class','ratib-ui-icon');svg.setAttribute('viewBox','0 0 24 24');svg.setAttribute('aria-hidden','true');svg.setAttribute('focusable','false');
    const path=document.createElementNS(svg.namespaceURI,'path');path.setAttribute('d',paths[icons.get(m[0])]);svg.append(path);span.append(original,svg);fragment.append(span);start=m.index+m[0].length;

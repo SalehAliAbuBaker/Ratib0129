@@ -93,7 +93,7 @@
     if (!value) return 'غير محدد من خدمة التراخيص';
     const str=String(value),date=new Date(str);
     if (!Number.isFinite(date.getTime())) return str.slice(0,30);
-    return str.length===10&&/^\\d{4}-\\d{2}-\\d{2}$/.test(str)?str:date.toLocaleString('ar',{year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'});
+    return str.length===10&&str[4]==='-'&&str[7]==='-'?str:date.toLocaleString('ar',{year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'});
   }
   async function refreshLicenseStatus(dialog) {
     const title=dialog.querySelector('#ratibLicenseStatusTitle'),details=dialog.querySelector('#ratibLicenseStatusDetails');

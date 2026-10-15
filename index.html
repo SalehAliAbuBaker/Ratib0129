@@ -7920,13 +7920,21 @@ function entryopenMultiVoucherEditor(item){
   // الآن ننتقل مباشرة لنفس شاشة الإدخال بالسند مملوءاً بكل بياناته دفعة واحدة.
   navigateToTab('pageExpenses', true);
   setVoucherFormHistory('multi-entry',false);
-  const groupId=item.multiVoucherId||item.id,txs=getAllTransactions().filter(t=>t.isMultiVoucher&&(t.multiVoucherId===groupId||t.id===groupId)),source=item.multiVoucher||txs[0]?.multiVoucher||{};
+  const groupId=item.multiVoucherId||item.id,txs=getAllTransactions().filter(t=>t.isMultiVoucher&&(t.multiVoucherId===groupId||t.id===groupId)),source={...(item.multiVoucher||txs[0]?.multiVoucher||{})};
+  const sourceSide=source.mode==='income'?'debit':'credit';
+  const sourcePosted=txs.find(t=>(sourceSide==='debit'?t.debitAccount:t.creditAccount)===source.sourceAccount);
+  source.sourceAccountId=source.sourceAccountId||(sourceSide==='debit'?sourcePosted?.debitAccountId:sourcePosted?.creditAccountId)||'';
   document.getElementById('voucherSelectorCard')?.classList.add('hidden');document.getElementById('cashFlowCard')?.classList.add('hidden');document.getElementById('multiVoucherCard')?.classList.remove('hidden');
-  multiVoucherDraftId=groupId;document.getElementById('multiVoucherSeqBadge').textContent=`رقم: ${source.seq||item.seqNum||getNextMultiVoucherNumber()}`;document.getElementById('multiVoucherDate').value=source.date||item.isoDate||multiToday();document.getElementById('multiVoucherBeneficiary').value=source.beneficiary||'';document.getElementById('multiVoucherParty').value=source.party||'';document.getElementById('multiVoucherNote').value=source.note||'';document.getElementById('multiVoucherBaseCurrency').value=source.baseCurrency||item.currency||'YER';multiSourceAcc.setValue(source.sourceAccount||'','');
-  if(Array.isArray(source.lines)&&source.lines.length)multiVoucherLines=source.lines.map(l=>({...newMultiLine(),...l,side:l.side||'debit'}));else multiVoucherLines=txs.map(t=>({...newMultiLine(),side:t.creditAccount?'credit':'debit',account:t.debitAccount||t.creditAccount||'',amount:t.amount,rate:1,base:t.amount,note:t.execution?.general?.note||''}));
-  const hasCredit=multiVoucherLines.some(l=>l.side==='credit');if(source.sourceAccount&&!hasCredit)multiVoucherLines.push({...newMultiLine(),side:'credit',account:source.sourceAccount,amount:source.baseTotal||txs.reduce((n,t)=>n+Number(t.amount||0),0),rate:1,base:source.baseTotal||0,note:'الحساب المرجعي'});renderMultiVoucherLines();showToast('تم فتح سند القيد المركب للتعديل','info');
+  multiVoucherDraftId=groupId;document.getElementById('multiVoucherSeqBadge').textContent=`رقم: ${source.seq||item.seqNum||getNextMultiVoucherNumber()}`;document.getElementById('multiVoucherDate').value=source.date||item.isoDate||multiToday();document.getElementById('multiVoucherBeneficiary').value=source.beneficiary||'';document.getElementById('multiVoucherParty').value=source.party||'';document.getElementById('multiVoucherNote').value=source.note||'';document.getElementById('multiVoucherBaseCurrency').value=source.baseCurrency||item.currency||'YER';multiSourceAcc.setValue(source.sourceAccount||'',source.sourceAccount||'',source.sourceAccountId||'');
+  if(Array.isArray(source.lines)&&source.lines.length)multiVoucherLines=source.lines.map((l,i)=>{
+    const tx=txs.find(t=>String(t.id)===String(groupId)+'_'+i);
+    const restoredId=l.accountId||(l.side==='credit'?tx?.creditAccountId:tx?.debitAccountId)||'';
+    return {...newMultiLine(),...l,side:l.side||'debit',accountId:restoredId};
+  });else multiVoucherLines=txs.map(t=>({...newMultiLine(),side:t.creditAccount?'credit':'debit',account:t.debitAccount||t.creditAccount||'',accountId:t.debitAccountId||t.creditAccountId||'',amount:t.amount,rate:1,base:t.amount,note:t.execution?.general?.note||''}));
+  multiVoucherLines.forEach(line=>{if(line.account)restoreVoucherAccountIdentity(line);});
+  const hasCredit=multiVoucherLines.some(l=>l.side==='credit');if(source.sourceAccount&&!hasCredit)multiVoucherLines.push({...newMultiLine(),side:'credit',account:source.sourceAccount,accountId:source.sourceAccountId||'',amount:source.baseTotal||txs.reduce((n,t)=>n+Number(t.amount||0),0),rate:1,base:source.baseTotal||0,note:'الحساب المرجعي'});renderMultiVoucherLines();showToast('تم فتح سند القيد المركب للتعديل','info');
 }
-function entryloadLatestMultiDraft(){const drafts=store.get('multi_voucher_drafts',[]);const d=Array.isArray(drafts)&&drafts.length?drafts[drafts.length-1]:null;if(!d){showToast('لا توجد مسودة محفوظة لسند قيد مركب','info');return;}multiVoucherDraftId=d.id;document.getElementById('multiVoucherDate').value=d.date||multiToday();document.getElementById('multiVoucherBeneficiary').value=d.beneficiary||'';document.getElementById('multiVoucherParty').value=d.party||'';document.getElementById('multiVoucherNote').value=d.note||'';document.getElementById('multiVoucherBaseCurrency').value=d.baseCurrency||'YER';multiSourceAcc.setValue(d.sourceAccount||'',d.sourceAccount||'');multiVoucherLines=(d.lines||[]).map(l=>({...newMultiLine(),...l}));if(!multiVoucherLines.length)multiVoucherLines.push(newMultiLine());renderMultiVoucherLines();showToast('تم فتح آخر مسودة','success');}
+function entryloadLatestMultiDraft(){const drafts=store.get('multi_voucher_drafts',[]);const d=Array.isArray(drafts)&&drafts.length?drafts[drafts.length-1]:null;if(!d){showToast('لا توجد مسودة محفوظة لسند قيد مركب','info');return;}multiVoucherDraftId=d.id;document.getElementById('multiVoucherDate').value=d.date||multiToday();document.getElementById('multiVoucherBeneficiary').value=d.beneficiary||'';document.getElementById('multiVoucherParty').value=d.party||'';document.getElementById('multiVoucherNote').value=d.note||'';document.getElementById('multiVoucherBaseCurrency').value=d.baseCurrency||'YER';multiSourceAcc.setValue(d.sourceAccount||'',d.sourceAccount||'',d.sourceAccountId||'');multiVoucherLines=(d.lines||[]).map(l=>({...newMultiLine(),...l}));if(!multiVoucherLines.length)multiVoucherLines.push(newMultiLine());renderMultiVoucherLines();showToast('تم فتح آخر مسودة','success');}
 async function saveMultiDraft(){
   const d=buildMultiVoucherData('draft'),drafts=store.get('multi_voucher_drafts',[]).filter(x=>x.id!==d.id);drafts.push(d);store.set('multi_voucher_drafts',drafts);multiVoucherDraftId=d.id;
   try{await flushStorage();showToast('تم حفظ المسودة، ويمكن إكمال بياناتها لاحقاً','success');hasUnsavedChanges=false;}catch(_){showToast('لم يكتمل حفظ المسودة. أعد محاولة الحفظ.','error');}
@@ -8954,7 +8962,10 @@ function validateMultiVoucher(){
 }
 
 function applySpendDocument(d){cashLegacySource=d.legacySource||null;
-  if(d.sourceAccount)multiSourceAcc.setValue(d.sourceAccount,d.sourceAccount,d.sourceAccountId||'');
+  if(d.sourceAccount){
+    const retainedId=d.sourceAccountId||(multiSourceAcc.input.value===d.sourceAccount?multiSourceAcc.getAccountId():'');
+    multiSourceAcc.setValue(d.sourceAccount,d.sourceAccount,retainedId);
+  }
   configureVoucherMode(['income','spend'].includes(d.mode)?d.mode:'multi-entry');
   if(cashVoucherMode()){document.getElementById('spendHeaderBudget').innerHTML=spendBudgetOptions(d.headerBudgetId||'general');multiVoucherLines.forEach(l=>{if(l.budgetManual===undefined)l.budgetManual=true;});}
   renderMultiVoucherLines();
@@ -9159,14 +9170,14 @@ function cashDocumentFromLegacy(tx){
   const candidates=Object.entries(tx.distribution||{}).filter(([id,d])=>!d.excluded&&Number(d.amount)>0&&getCats().some(c=>c.id===id));
   const usable=candidates.length&&spendRound(candidates.reduce((n,[id,d])=>n+Number(d.amount),0))===spendRound(amount);
   const parts=usable?candidates:[['general',{amount}]];
-  return {id:tx.id||'',seq:tx.seqNum||getNextVoucherNumber(mode),date:tx.isoDate||tx.date||multiToday(),mode,baseCurrency:currency,sourceAccount:source||'',beneficiary:tx.recipient||'',note:tx.note||Object.values(tx.execution||{})[0]?.note||'',headerBudgetId:parts[0][0],legacySource:tx.id?cloneData(tx):null,lines:parts.map(([budgetId,d])=>({...newMultiLine(),side:mode==='income'?'credit':'debit',account:counter||'',amount:Number(d.amount),currency,rate:1,base:Number(d.amount),budgetId,budgetManual:true,note:tx.execution?.[budgetId]?.note||tx.note||''}))};
+  return {id:tx.id||'',seq:tx.seqNum||getNextVoucherNumber(mode),date:tx.isoDate||tx.date||multiToday(),mode,baseCurrency:currency,sourceAccount:source||'',sourceAccountId:mode==='income'?(tx.debitAccountId||''):(tx.creditAccountId||''),beneficiary:tx.recipient||'',note:tx.note||Object.values(tx.execution||{})[0]?.note||'',headerBudgetId:parts[0][0],legacySource:tx.id?cloneData(tx):null,lines:parts.map(([budgetId,d])=>({...newMultiLine(),side:mode==='income'?'credit':'debit',account:counter||'',accountId:mode==='income'?(tx.creditAccountId||''):(tx.debitAccountId||''),amount:Number(d.amount),currency,rate:1,base:Number(d.amount),budgetId,budgetManual:true,note:tx.execution?.[budgetId]?.note||tx.note||''}))};
 }
 
 function loadCashDocument(d){
   configureVoucherMode(d.mode);currentVoucherMode=d.mode;cashLegacySource=d.legacySource||null;multiVoucherDraftId=d.id||'';
   document.getElementById('voucherSelectorCard').classList.add('hidden');document.getElementById('cashFlowCard').classList.add('hidden');document.getElementById('multiVoucherCard').classList.remove('hidden');document.getElementById('multiSavedNotice').classList.add('hidden');
   document.getElementById('multiVoucherDate').value=d.date||multiToday();document.getElementById('multiVoucherSeqBadge').textContent=`رقم: ${d.seq||getNextVoucherNumber(d.mode)}`;document.getElementById('multiVoucherBaseCurrency').value=d.baseCurrency||'YER';document.getElementById('multiVoucherBeneficiary').value=d.beneficiary||'';document.getElementById('multiVoucherNote').value=d.note||'';
-  multiSourceAcc.setValue(d.sourceAccount||'',d.sourceAccount||'');multiVoucherLines=cloneData(d.lines||[]);if(!multiVoucherLines.some(l=>!l.autoBalance))multiVoucherLines=[newSpendLine()];applySpendDocument(d);
+  multiSourceAcc.setValue(d.sourceAccount||'',d.sourceAccount||'',d.sourceAccountId||'');multiVoucherLines=cloneData(d.lines||[]);if(!multiVoucherLines.some(l=>!l.autoBalance))multiVoucherLines=[newSpendLine()];applySpendDocument(d);
 }
 
 function openLegacyCashEditor(item){

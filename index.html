@@ -124,7 +124,13 @@ header{display:flex; justify-content:space-between; align-items:center; margin-b
 .account-operations-head-actions .account-inline-actions{flex:1 1 auto;justify-content:flex-start;overflow-x:auto}
 .account-operations-head-actions .account-add-operation-btn{order:2;flex:1 1 100%}
 .accounts-pager-card{border:0;box-shadow:none;overflow:visible;padding:0;margin:0;background:transparent}
-.accounts-pager-search{display:block;margin:0 0 10px;padding:0;background:transparent;border:0;box-shadow:none}
+.accounts-pager-search{display:block;position:relative;margin:0 0 10px;padding:0;background:transparent;border:0;box-shadow:none}
+.accounts-pager-suggestions{position:absolute;inset-inline:0;top:calc(100% + 3px);max-height:275px;overflow:auto;z-index:35;background:var(--card);border:1px solid var(--border);border-radius:9px;box-shadow:0 9px 25px #0002;padding:5px}
+.accounts-pager-suggestions[hidden]{display:none!important}
+.accounts-pager-suggestion{display:block;width:100%;padding:8px 10px;border:0;border-bottom:1px solid var(--border);background:transparent;color:var(--text);text-align:right;line-height:1.6;cursor:pointer;font-family:inherit;font-size:.94rem}
+.accounts-pager-suggestion:last-child{border-bottom:0}
+.accounts-pager-suggestion.active,.accounts-pager-suggestion:hover{background:var(--sidebar-hover,#eef5f1)}
+.accounts-pager-suggestion small{display:block;color:var(--muted);font-size:.76rem}
 .accounts-pager-search input{display:block;width:100%;min-width:0;margin:0;background:var(--card);border:2px solid var(--accent);border-radius:9px;padding:10px 14px;font:900 1rem Tajawal,sans-serif;color:var(--text);outline:none;text-align:right}
 .accounts-pager-search input:focus{border-color:var(--accent);box-shadow:var(--focus-ring)}
 .accounts-pager-tabs{position:sticky;top:0;z-index:20;display:flex;gap:4px;overflow-x:auto;scrollbar-width:thin;padding:8px 2px 7px;border-bottom:2px solid var(--border);background:var(--card);scroll-snap-type:x proximity;direction:rtl}
@@ -1574,7 +1580,8 @@ body.ratib-sidebar-open,body.ratib-about-open{overflow:hidden}
 <div id="pageAccountsTree" class="hidden">
   <div class="accounts-pager-card" id="accountsPagerCard">
     <div class="accounts-pager-search no-print" role="search" aria-label="البحث في الحسابات">
-      <input type="search" id="accountsPagerSearchInput" placeholder="ابحث برقم الحساب أو باسمه..." autocomplete="off" aria-label="ابحث بالاسم أو الرقم في الحسابات ومساراتها">
+      <input type="search" id="accountsPagerSearchInput" placeholder="ابحث برقم الحساب أو باسمه..." autocomplete="off" role="combobox" aria-controls="accountsPagerSuggestions" aria-expanded="false" aria-autocomplete="list" aria-label="ابحث بالاسم أو الرقم في الحسابات ومساراتها">
+       <div class="accounts-pager-suggestions" id="accountsPagerSuggestions" role="listbox" aria-label="الحسابات المطابقة" hidden></div>
     </div>
     <div id="accountsPagerTabs" class="accounts-pager-tabs" role="tablist" aria-label="تصنيفات الحسابات"></div>
     <div id="accountsPagerViewport" class="accounts-pager-viewport">
@@ -7804,7 +7811,63 @@ function renderAccountsPager(){
     track.addEventListener('scroll',()=>{clearTimeout(track._ratibScrollTimer);track._ratibScrollTimer=setTimeout(()=>{const width=track.clientWidth||1;setAccountsPagerActive(Math.round(Math.abs(track.scrollLeft)/width));},120);},{passive:true});
   }
 }
-document.getElementById('accountsPagerSearchInput')?.addEventListener('input',()=>renderAccountsPager());
+// Match account-list suggestions and completion to the accounting selectors.
+function accountsPagerCandidates(query){
+  const q=normalizeParentQuery(query||'');if(!q)return [];
+  const found=[],seen=new Set();
+  getCanonicalCatalog().forEach(parent=>parent.details.forEach(d=>{
+    const code=String(d[0]||''),name=String(d[1]||''),key=code+'|'+name;
+    if(seen.has(key))return;seen.add(key);
+    const group=parent.main+' > '+parent.group+' > '+parent.sub;
+    if([name,code,group].some(x=>normalizeParentQuery(x).includes(q)))found.push({code,name,group});
+  }));
+  return found;
+}
+function initAccountsPagerAutocomplete(){
+  const input=document.getElementById('accountsPagerSearchInput'),popup=document.getElementById('accountsPagerSuggestions');
+  if(!input||!popup||input.dataset.autoBound)return;
+  input.dataset.autoBound='1';let timer=0,visible=[],active=0,composing=false;
+  const hide=()=>{popup.hidden=true;popup.innerHTML='';input.setAttribute('aria-expanded','false');};
+  const choose=item=>{if(!item)return;clearTimeout(timer);input.value=item.name;hide();renderAccountsPager();input.focus();input.setSelectionRange(input.value.length,input.value.length);};
+  const render=()=>{
+    const query=input.value.trim();visible=accountsPagerCandidates(query);active=0;
+    if(!query||!visible.length){hide();return;}
+    popup.innerHTML='';
+    visible.slice(0,10).forEach((item,i)=>{
+      const option=document.createElement('button');option.type='button';option.className='accounts-pager-suggestion'+(i===0?' active':'');option.setAttribute('role','option');option.setAttribute('aria-selected',i===0?'true':'false');
+      option.textContent=item.name+' ['+item.code+']';
+      const meta=document.createElement('small');meta.textContent=item.group;option.appendChild(meta);
+      option.addEventListener('mousedown',e=>e.preventDefault());option.addEventListener('click',()=>choose(item));popup.appendChild(option);
+    });
+    if(visible.length>10){const hint=document.createElement('small');hint.textContent='نتائج أخرى: '+(visible.length-10)+' — واصل كتابة اسم الحساب';hint.style.display='block';hint.style.padding='7px';popup.appendChild(hint);}
+    popup.hidden=false;input.setAttribute('aria-expanded','true');
+  };
+  const highlight=()=>popup.querySelectorAll('.accounts-pager-suggestion').forEach((b,i)=>{b.classList.toggle('active',i===active);b.setAttribute('aria-selected',String(i===active));});
+  input.addEventListener('compositionstart',()=>{composing=true;clearTimeout(timer);});
+  input.addEventListener('compositionend',()=>{composing=false;input.dispatchEvent(new Event('input',{bubbles:true}));});
+  input.addEventListener('input',e=>{
+    clearTimeout(timer);renderAccountsPager();render();
+    const query=input.value.trim(),deleting=String(e.inputType||'').startsWith('delete');
+    if(!query||composing||e.isComposing||deleting)return;
+    timer=setTimeout(()=>{
+      if(input.value.trim()!==query)return;
+      const matches=accountsPagerCandidates(query);
+      if(matches.length!==1)return; // Never insert an ambiguous name.
+      const name=matches[0].name,n=normalizeParentQuery(name),needle=normalizeParentQuery(query);
+      if(!n.startsWith(needle)||name.length<=query.length)return;
+      input.value=name;input.focus();input.setSelectionRange(query.length,name.length);renderAccountsPager();render();
+    },450);
+  });
+  input.addEventListener('focus',render);
+  input.addEventListener('keydown',e=>{
+    if(e.key==='Escape'){clearTimeout(timer);hide();return;}
+    if(!visible.length||popup.hidden)return;
+    if(e.key==='ArrowDown'||e.key==='ArrowUp'){e.preventDefault();active=Math.max(0,Math.min(Math.min(10,visible.length)-1,active+(e.key==='ArrowDown'?1:-1)));highlight();}
+    else if(e.key==='Enter'){e.preventDefault();choose(visible[active]);}
+  });
+  document.addEventListener('click',e=>{if(!input.parentElement.contains(e.target))hide();});
+}
+initAccountsPagerAutocomplete();
 function setAccountsPagerActive(index,remember=true){
   const tabs=document.getElementById('accountsPagerTabs'),track=document.getElementById('accountsPagerTrack');if(!tabs||!track)return;
   const max=Math.max(0,track.children.length-1),safe=Math.max(0,Math.min(index,max));

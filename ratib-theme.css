@@ -1,0 +1,34 @@
+/* Ratib shared visual language. Screen-only: printed accounting output keeps its own styles. */
+@media screen {
+ :root {--accent:#0d5b45;--accent-strong:#0d5b45;--ok:#0d5b45;--teal:#0d5b45;--violet:#0d5b45;--danger:#b42318;--warn:#946c18;--bg:#f5f8f6;--card:#fff;--text:#172d25;--muted:#5b6c64;--border:#d6e2db;--radius:10px;--ui-pad:14px;--ui-control:44px;--ui-gold:#d2b462;--shadow:0 3px 14px rgba(13,91,69,.045)}
+ [data-theme="dark"] {--accent:#9bd7bc;--accent-strong:#9bd7bc;--ok:#9bd7bc;--teal:#9bd7bc;--violet:#9bd7bc;--danger:#ff9b91;--warn:#d8c387;--ui-gold:#d8c387;--bg:#10241c;--card:#193128;--text:#edf5f0;--muted:#afc3b8;--border:#365246;--shadow:0 3px 14px #0002}
+ body,button,input,select,textarea {font-family:'Tajawal',system-ui,sans-serif!important}
+ :is(.btn,.icon-btn,.quick-type,.rpt-btn,.mode-toggle-btn,.back-to-menu-btn,.ledger-action-btn,.dashboard-add-reminder-btn) {font-weight:700;font-size:1rem;line-height:1.45;border-radius:10px;min-height:44px;box-shadow:none}
+ :is(.btn-primary,.btn-success,.dashboard-add-reminder-btn) {background:var(--accent-strong)!important;color:var(--card)!important;border:1px solid var(--accent-strong)!important}
+ .btn-danger {background:var(--danger)!important;color:var(--card)!important;border-color:var(--danger)!important}
+ :is(.btn-ghost,.icon-btn,.ledger-action-btn,.back-to-menu-btn) {background:var(--card);color:var(--accent-strong);border:1px solid var(--border)}
+ :is(.btn,.icon-btn,button,a):focus-visible {outline:2px solid var(--accent);outline-offset:3px}
+ :is(input,select,textarea):not([type=checkbox]):not([type=radio]):not([type=hidden]):not([type=range]):not([type=color]):not([type=file]) {border:1px solid var(--border)!important;border-radius:9px!important;background:var(--card);color:var(--text);font-size:1rem;min-height:44px;line-height:1.5}
+ :is(input,select,textarea):focus {border-color:var(--accent)!important;box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 15%,transparent)}
+ input:is([type=checkbox],[type=radio]) {accent-color:var(--accent)}
+ :is(.card,.modal-content,.lock-content,.carousel-shell):not(#accountStatementCard,#budgetReportCard,#trialBalanceCard) {border-color:var(--border);border-radius:12px;box-shadow:var(--shadow)}
+ :is(h2,h3,.ledger-page-title,.dashboard-section-title,.acc-accordion-header) {font-family:'Tajawal',system-ui,sans-serif;font-weight:700;color:var(--accent-strong)}
+ :is(.acc-accordion-header,summary) {border-color:var(--border);border-radius:10px;line-height:1.5}
+ .acc-accordion-header {background:color-mix(in srgb,var(--accent) 6%,var(--card));padding:12px}
+ :is(.main-menu-btn,.voucher-type-btn,.quick-type) {border:1px solid var(--border);background:var(--card);border-radius:12px;color:var(--text);box-shadow:var(--shadow)}
+ :is(.main-menu-btn,.voucher-type-btn,.quick-type):hover {border-color:var(--accent);background:color-mix(in srgb,var(--accent) 5%,var(--card))}
+ :is(.main-menu-icon,.voucher-type-icon) {color:var(--accent)}
+ :is(.main-menu-icon svg,.sidebar-icon,.ratib-ui-icon) {stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+ :is(.rpt-btn,.mode-toggle-btn,.status-filter-btn,.quick-type).active {background:var(--accent)!important;color:var(--card)!important;border-color:var(--accent)}
+ :is(.modal-content,.lock-content) {border-top:3px solid var(--ui-gold)}
+ .ratib-ui-glyph {display:inline-flex;align-items:center;justify-content:center;vertical-align:middle;line-height:1;margin-inline-end:.25em;pointer-events:none}
+ .ratib-ui-icon {width:20px;height:20px;flex:none;fill:none;stroke:currentColor;vertical-align:middle}
+ .ratib-ui-original {display:none}
+ :is(.main-menu-icon,.voucher-type-icon) .ratib-ui-icon {width:28px;height:28px}
+ :is(#accountStatementCard,#budgetReportCard,#trialBalanceCard) :is(h2,h3) {color:var(--text)}
+ /* Keep report content on its existing palette. Only its no-print tools receive the new icons. */
+ :is(#accountStatementCard,#budgetReportCard,#trialBalanceCard,.print-header-banner) {--accent:#145da0;--accent-strong:#0d477b;--ok:#16794c;--teal:#216e7a;--danger:#b42318;--bg:#f4f7fb;--card:#fff;--text:#172033;--muted:#56657a;--border:#d7e0e9}
+ [data-theme="dark"] :is(#accountStatementCard,#budgetReportCard,#trialBalanceCard) {--accent:#62a6d9;--accent-strong:#8ec4eb;--ok:#54c58e;--bg:#111827;--card:#1b2638;--text:#eef3f8;--muted:#a8b5c5;--border:#35445a}
+ @media(max-width:600px) {.wrap{padding:12px 10px 100px}.card:not(#accountStatementCard,#budgetReportCard,#trialBalanceCard){padding:12px;margin-bottom:12px}.header-actions{gap:6px}.form-group{margin-bottom:10px}.btn{padding:9px 10px}.modal-content{max-width:calc(100vw - 20px)}.multi-voucher-actions{gap:8px}.multi-voucher-actions>.btn{flex:1 1 44%;min-width:0}.main-menu-grid{gap:8px}}
+}
+@media print {.ratib-ui-icon{display:none!important}.ratib-ui-glyph{display:contents!important}.ratib-ui-original{display:inline!important}}

@@ -1319,6 +1319,16 @@ body.ratib-sidebar-open,body.ratib-about-open{overflow:hidden}
 #pageAccountOperations #accountScreenMenu>button .ratib-menu-text{order:1!important;flex:1!important}
 @media print{#ratibToolsOverlay,#pageAccountOperations #accountScreenMenu{display:none!important}}
 </style>
+<style id="ratib-354-drawer-text-repair">
+/* Menu: match navigation sidebar type scale and prevent legacy menu button typography from hiding labels. */
+#pageAccountOperations #accountScreenMenu{font-family:'Tajawal',sans-serif!important;gap:0!important}
+#pageAccountOperations #accountScreenMenu>button[role="menuitem"]{display:flex!important;flex-direction:row!important;align-items:center!important;justify-content:flex-start!important;gap:12px!important;min-height:68px!important;height:auto!important;width:100%!important;padding:12px 10px!important;margin:0!important;background:transparent!important;border:0!important;border-bottom:1px solid var(--border)!important;border-radius:0!important;font-family:'Tajawal',sans-serif!important;font-size:1.08rem!important;text-align:right!important;color:var(--text)!important}
+#pageAccountOperations #accountScreenMenu>button[role="menuitem"]>.ratib-menu-icon{display:inline-flex!important;flex:none!important;width:32px!important;min-width:32px!important;font-size:1.35rem!important;align-items:center!important;justify-content:center!important}
+#pageAccountOperations #accountScreenMenu>button[role="menuitem"]>.ratib-menu-text{display:flex!important;flex-direction:column!important;align-items:flex-start!important;justify-content:center!important;flex:1 1 auto!important;min-width:0!important;font-size:1.08rem!important;font-weight:800!important;line-height:1.45!important;color:var(--text)!important;visibility:visible!important;opacity:1!important}
+#pageAccountOperations #accountScreenMenu>button[role="menuitem"]>.ratib-menu-text>small{display:block!important;font-size:.76rem!important;font-weight:500!important;line-height:1.4!important;color:var(--muted)!important;margin-top:2px!important}
+#pageAccountOperations #accountScreenMenu>button[role="menuitem"]:disabled{opacity:.6!important}
+#pageAccountOperations #accountScreenMenu .ratib-tools-drawer-head strong{font-size:1.2rem!important}
+</style>
 </head>
 <body>
 
@@ -7749,7 +7759,7 @@ function ratibPaperLandscape(){try{return localStorage.getItem('ratib.statementL
 function ratibUpdatePaperOrientation(showNotice=false){
   const landscape=ratibPaperLandscape();
   document.querySelectorAll('#ratibStatementOrientationBtn,#ratibAccountOrientationBtn').forEach(btn=>{
-    if(btn.id==='ratibAccountOrientationBtn')document.getElementById('ratibAccountOrientationLabel').textContent=landscape?'أفقي — اضغط للعمودي':'عمودي — اضغط للأفقي';else btn.textContent=landscape?'A4 أفقي':'A4 عمودي';
+    if(btn.id==='ratibAccountOrientationBtn')(document.getElementById('ratibAccountOrientationLabel')||{}).textContent=landscape?'أفقي — اضغط للعمودي':'عمودي — اضغط للأفقي';else btn.textContent=landscape?'A4 أفقي':'A4 عمودي';
     btn.setAttribute('aria-label',landscape?'الطباعة وPDF بالعرض الأفقي':'الطباعة وPDF بالعرض العمودي');
     btn.setAttribute('aria-pressed',String(landscape));
   });

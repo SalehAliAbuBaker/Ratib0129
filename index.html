@@ -897,7 +897,7 @@ body.ratib-sidebar-open,body.ratib-about-open{overflow:hidden}
 @media print{@page trialReport{size:A4 landscape;margin:10mm}.trial-print-host{page:trialReport}}
 
 .report-actions .btn{width:auto;flex:0 1 auto}
-@media screen{#pageReports .report-actions{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}#pageReports .report-actions .btn{width:100%;min-width:0;white-space:normal;flex:none}}
+@media screen{#pageReports .report-actions{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}#pageReports .report-actions .btn{width:100%;min-width:0;white-space:normal;flex:none}#accountStatementCard>h2>span:last-child{display:grid!important;grid-template-columns:repeat(2,46px)!important;gap:8px!important;align-items:center!important;justify-content:start!important}#accountStatementCard>h2>span:last-child>.icon-btn{width:46px!important;height:46px!important;margin:0!important}}
 @media(max-width:700px){.report-actions .btn{flex:1 1 95px}}
 </style><script src="./vendor/xlsx.full.min.js"></script>
 <style id="ratib-approved-voucher-style">
@@ -7659,12 +7659,8 @@ async function shareCurrentAccountOperations(choice=null,currencies=null){
   if(!choice){requestAccountStatementOutput('pdf');return;}
   try{
     const file=new File([buildAccountOperationsPdf(choice,currencies)],`كشف-${accountOpsState.accountName||'حساب'}-${choice==='ALL'?'جميع-العملات':choice}.pdf`,{type:'application/pdf'});
-    if(navigator.share&&(!navigator.canShare||navigator.canShare({files:[file]}))){
-      await navigator.share({title:`كشف حساب - ${accountOpsState.accountName}`,files:[file]});showToast('تمت مشاركة ملف PDF','success');
-    }else{
-      showToast('المشاركة المباشرة غير مدعومة في هذا المتصفح. استخدم متصفحًا يدعم مشاركة الملفات أو وظيفة تنزيل PDF المنفصلة.','warn',6000);
-    }
-  }catch(e){if(e.name!=='AbortError'){showToast('تعذر إنشاء ملف PDF، سيتم فتح الطباعة للحفظ كـ PDF','warn');printCurrentAccountOperations(choice,currencies);}}
+    if(await shareRatibDocumentFile(file,`كشف حساب - ${accountOpsState.accountName}`))showToast('تمت مشاركة ملف PDF','success');
+  }catch(e){showToast('تعذّر تجهيز كشف الحساب للمشاركة: '+(e?.message||'خطأ غير معروف'),'error');}
 }
 const accountScreenMenuToggle=document.getElementById('accountScreenMenuToggle'),accountScreenMenu=document.getElementById('accountScreenMenu');
 accountScreenMenuToggle?.addEventListener('click',e=>{e.stopPropagation();const open=accountScreenMenu?.classList.toggle('open');accountScreenMenuToggle.setAttribute('aria-expanded',open?'true':'false');});
@@ -7959,7 +7955,11 @@ function entrybuildMultiVoucherPdf(d){
 // إنشاء PDF لميزان المراجعة الحالي (بنفس أسلوب رسم Canvas وتجميع بايتات PDF يدوياً المستخدم
 // في باقي التطبيق)، يعرض نفس المحتوى المجمَّع هرمياً الظاهر على الشاشة بالضبط، لكل عملة على حدة.
 function buildTrialBalancePdf(){const model=trialBuildModel(getAllTransactions(),trialFilters());return buildPdfFromCanvases(renderTrialPdfPages(model),[842,595]);}
-async function shareTrialBalancePdf(){try{downloadFinancialFile(buildTrialBalancePdf(),'راتب-ميزان-المراجعة.pdf');showToast('تم إنشاء ملف PDF وتنزيله.','success');}catch(e){showToast('تعذر إنشاء PDF: '+e.message,'error');}}
+async function shareTrialBalancePdf(){
+  try{const file=new File([buildTrialBalancePdf()],'راتب-ميزان-المراجعة.pdf',{type:'application/pdf'});
+    if(await shareRatibDocumentFile(file,'ميزان المراجعة'))showToast('تمت مشاركة ميزان المراجعة','success');
+  }catch(e){showToast('تعذر إعداد PDF: '+e.message,'error');}
+}
 function buildSingleVoucherPdf(tx) {if(tx?.isOpeningBalance)return legacyOpeningPdf(tx);if(tx?.isMultiVoucher&&['income','spend'].includes(tx.multiVoucher?.mode))return buildMultiVoucherPdf(tx.multiVoucher);
   const cfg = getHeaderConfig();
   const vTitle = tx.voucherMode === 'spend' ? 'سند صرف نقدي' : (tx.voucherMode === 'income' ? 'سند إيراد / قبض' : 'سند قيد وتسوية محاسبية');
@@ -8364,7 +8364,7 @@ function scheduleReminderCheck(){
   checkAndNotifyDueReminders();
   const notified=new Set(getNotifiedReminderKeys()),now=Date.now();let next=Infinity;
   for(const r of getReminders()){if(notified.has(reminderKey(r)))continue;const when=new Date(`${r.date}T${r.time||'09:00'}:00`).getTime();if(Number.isFinite(when)&&when>now)next=Math.min(next,when-now);}
-  if(Number.isFinite(next))_reminderTimer=setTimeout(scheduleReminderCheck,Math.max(1000,Math.min(next,60000)));
+  _reminderTimer=setTimeout(scheduleReminderCheck,Number.isFinite(next)?Math.max(1000,Math.min(next,60000)):60000);
 }
 
 function initCompatibilityImprovements(){
@@ -8378,6 +8378,8 @@ function initCompatibilityImprovements(){
   document.getElementById('cashFlowCard')?.addEventListener('input',saveSingleDraftSoon);document.getElementById('cashFlowCard')?.addEventListener('change',saveSingleDraftSoon);
   document.getElementById('enableReminderNotificationsBtn')?.addEventListener('click',async()=>{if(typeof Notification==='undefined'){showToast('إشعارات النظام غير مدعومة؛ التذكيرات داخل التطبيق تعمل.','info');return;}const permission=await Notification.requestPermission();showToast(permission==='granted'?'تم تفعيل إشعارات التذكيرات':'ستستمر التذكيرات داخل التطبيق',permission==='granted'?'success':'info');scheduleReminderCheck();});
   document.addEventListener('visibilitychange',()=>{if(_appExited)return;if(document.hidden){clearTimeout(_reminderTimer);flushStorage().catch(()=>{});}else{scheduleReminderCheck();updateProDashboard();}});
+   window.addEventListener('focus',()=>{if(!_appExited&&!document.hidden)scheduleReminderCheck();});
+   window.addEventListener('pageshow',()=>{if(!_appExited&&!document.hidden)scheduleReminderCheck();});
   document.addEventListener('keydown',e=>{
     if(_appExited||_exitPromise)return;
     if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='s'&&currentActiveTab==='pageExpenses'){e.preventDefault();if(!document.getElementById('multiVoucherCard').classList.contains('hidden'))saveMultiDraft();else if(!document.getElementById('cashFlowCard').classList.contains('hidden'))document.getElementById('commitVoucherBtn').click();}
@@ -8533,17 +8535,18 @@ function* renderPagedReportTable(title,subtitle,labels,widths,rows){
   yield page.canvas;
 }
 
-async function shareBudgetPdf(){
-  try{
-    runBudgetReport();if(document.fonts)await document.fonts.ready;
-    const blob=buildPdfFromCanvases(renderBudgetCanvases()),file=new File([blob],'تقرير-بنود-الميزانية.pdf',{type:'application/pdf'});
-    if(navigator.share&&(!navigator.canShare||navigator.canShare({files:[file]}))){await navigator.share({title:'تقرير بنود الميزانية',files:[file]});showToast('تمت مشاركة تقرير الميزانية PDF','success');}
-    else{const url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=file.name;a.click();setTimeout(()=>URL.revokeObjectURL(url),1500);showToast('تم إنشاء تقرير الميزانية PDF وتنزيله','success');}
-  }catch(e){if(e.name!=='AbortError')showToast('تعذّر إنشاء PDF لتقرير الميزانية','error');}
+async function shareRatibDocumentFile(file,title){
+  if(typeof navigator.share!=='function'||(navigator.canShare&&!navigator.canShare({files:[file]}))){
+    showToast('المشاركة المباشرة للملفات غير مدعومة في هذه البيئة؛ استخدم زر تنزيل PDF المنفصل.','warn',6000);return false;
+  }
+  try{await navigator.share({title,files:[file]});return true;}
+  catch(e){if(e?.name!=='AbortError'){console.error('Ratib share failed',e);showToast('تعذّر فتح قائمة المشاركة؛ تحقق من المتصفح وصلاحيات المشاركة.','error',6000);}return false;}
 }
-
-
-
+async function shareBudgetPdf(){
+  try{runBudgetReport();const file=new File([buildPdfFromCanvases(renderBudgetCanvases())],'تقرير-بنود-الميزانية.pdf',{type:'application/pdf'});
+    if(await shareRatibDocumentFile(file,'تقرير بنود الميزانية'))showToast('تمت مشاركة تقرير الميزانية','success');
+  }catch(e){showToast('تعذّر إنشاء أو مشاركة PDF لتقرير الميزانية','error');}
+}
 function entrycaptureAppView(){
   const tab=currentActiveTab||'pageDashboard',page=document.getElementById(tab),view={tab,fields:[],selections:[],scrollY:window.scrollY,focusId:document.activeElement?.id};
   view.carousels=Object.fromEntries([...page?.querySelectorAll('.carousel-shell[id]')||[]].map(el=>[el.id,carouselState[el.id]||0]));
@@ -8967,8 +8970,11 @@ function buildMultiVoucherPdf(d){
 
 function printSpendData(d){prepareMultiVoucherPrint(d);document.body.classList.add('printing-voucher');setTimeout(()=>{try{window.print();}finally{document.body.classList.remove('printing-voucher');}},50);}
 
-async function shareSpendData(d){try{if(document.fonts)await document.fonts.ready;const blob=buildMultiVoucherPdf(d),file=new File([blob],`${d.mode==='income'?'سند-قبض':'سند-صرف'}-${d.seq}.pdf`,{type:'application/pdf'});if(navigator.share&&(!navigator.canShare||navigator.canShare({files:[file]})))await navigator.share({title:`${cashVoucherTitle(d.mode)} ${d.seq}`,files:[file]});else{const url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=file.name;a.click();setTimeout(()=>URL.revokeObjectURL(url),1500);showToast('تم تنزيل '+cashVoucherTitle(d.mode)+' PDF','success');}}catch(e){if(e.name!=='AbortError')showToast('تعذر إنشاء أو مشاركة PDF','error');}}
-
+async function shareSpendData(d){
+  try{const blob=buildMultiVoucherPdf(d),file=new File([blob],`${d.mode==='income'?'سند-قبض':'سند-صرف'}-${d.seq}.pdf`,{type:'application/pdf'});
+    if(await shareRatibDocumentFile(file,`${cashVoucherTitle(d.mode)} ${d.seq}`))showToast('تمت مشاركة PDF','success');
+  }catch(e){if(e?.name!=='AbortError')showToast('تعذر إنشاء أو مشاركة PDF','error');}
+}
 function pdfMultiVoucher(){if(!cashVoucherMode())return entrypdfMultiVoucher();const err=validateMultiVoucher();if(err){showToast(err,'warn');return;}return shareSpendData(buildMultiVoucherData('posted'));}
 
 function setupMultiVoucherFeature(){initUnifiedJournalPresentation();

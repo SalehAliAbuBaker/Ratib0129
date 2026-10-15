@@ -1304,6 +1304,21 @@ body.ratib-sidebar-open,body.ratib-about-open{overflow:hidden}
 #pageAccountOperations #accountScreenMenu>button .ratib-menu-text small{display:block!important;visibility:visible!important;opacity:1!important;color:var(--muted)!important;font-size:.7rem!important;font-weight:500!important;margin-top:3px!important}
 #pageAccountOperations #accountScreenMenu>button::before,#pageAccountOperations #accountScreenMenu>button::after{content:none!important;display:none!important}
 </style>
+<style id="ratib-354-drawer-matched-sidebar">
+/* Account tools uses the same sliding right-side navigation pattern as the main sidebar. */
+#ratibToolsOverlay{position:fixed!important;inset:0!important;z-index:7998!important;background:rgba(10,26,22,.38)!important;opacity:0!important;visibility:hidden!important;pointer-events:none!important;transition:opacity .22s ease,visibility .22s}
+#ratibToolsOverlay.show{opacity:1!important;visibility:visible!important;pointer-events:auto!important}
+#pageAccountOperations #accountScreenMenu{display:flex!important;flex-direction:column!important;position:fixed!important;top:0!important;bottom:0!important;right:0!important;left:auto!important;width:min(340px,88vw)!important;min-width:0!important;max-width:min(340px,88vw)!important;height:100dvh!important;max-height:100dvh!important;z-index:7999!important;border:0!important;border-left:1px solid var(--border)!important;border-radius:16px 0 0 16px!important;box-shadow:-8px 0 24px rgba(10,45,35,.2)!important;padding:0 14px 18px!important;overflow-y:auto!important;overflow-x:hidden!important;transform:translateX(105%)!important;opacity:1!important;visibility:hidden!important;pointer-events:none!important;transition:transform .22s ease,visibility 0s .22s!important;direction:rtl!important;gap:5px!important;background:var(--card)!important}
+#pageAccountOperations #accountScreenMenu.open{transform:translateX(0)!important;visibility:visible!important;pointer-events:auto!important;transition:transform .22s ease!important}
+#pageAccountOperations #accountScreenMenu .ratib-tools-drawer-head{display:flex!important;flex:0 0 auto!important;align-items:center!important;justify-content:space-between!important;position:sticky!important;top:0!important;background:var(--card)!important;border-bottom:1px solid var(--border)!important;padding:16px 2px 12px!important;margin-bottom:6px!important;min-height:78px!important;z-index:1!important}
+#pageAccountOperations #accountScreenMenu .ratib-tools-drawer-head strong{color:var(--accent)!important;font-size:1.18rem!important}
+#pageAccountOperations #accountScreenMenu #accountToolsCloseBtn{width:49px!important;min-width:49px!important;height:49px!important;min-height:49px!important;border:1px solid var(--accent)!important;border-radius:12px!important;background:var(--card)!important;color:var(--accent)!important;font-size:1.7rem!important;display:flex!important;align-items:center!important;justify-content:center!important;padding:0!important}
+#pageAccountOperations #accountScreenMenu>button:not(#accountToolsCloseBtn){display:flex!important;align-items:center!important;width:100%!important;height:auto!important;min-height:66px!important;padding:11px 10px!important;margin:0!important;border:1px solid transparent!important;border-bottom:1px solid var(--border)!important;border-radius:8px!important;background:transparent!important;box-shadow:none!important}
+#pageAccountOperations #accountScreenMenu>button:hover{background:var(--bg)!important}
+#pageAccountOperations #accountScreenMenu>button .ratib-menu-icon{order:0!important;flex:0 0 30px!important}
+#pageAccountOperations #accountScreenMenu>button .ratib-menu-text{order:1!important;flex:1!important}
+@media print{#ratibToolsOverlay,#pageAccountOperations #accountScreenMenu{display:none!important}}
+</style>
 </head>
 <body>
 
@@ -1658,6 +1673,7 @@ body.ratib-sidebar-open,body.ratib-about-open{overflow:hidden}
   </div>
 </div>
 
+<div id="ratibToolsOverlay" class="ratib-tools-overlay no-print" aria-hidden="true"></div>
 <div id="pageAccountOperations" class="hidden">
   <div class="account-operations-screen">
     <div class="account-operations-screen-head">
@@ -1668,6 +1684,7 @@ body.ratib-sidebar-open,body.ratib-about-open{overflow:hidden}
         <div class="account-screen-menu-wrap">
           <button type="button" class="account-screen-menu-toggle" id="accountScreenMenuToggle" aria-label="المزيد من أدوات كشف الحساب" aria-expanded="false" aria-controls="accountScreenMenu">••• <span>المزيد</span></button>
           <div class="account-screen-menu" id="accountScreenMenu" role="menu" aria-label="أدوات كشف الحساب">
+            <div class="ratib-tools-drawer-head"><strong>أدوات كشف الحساب</strong><button type="button" id="accountToolsCloseBtn" aria-label="إغلاق قائمة المزيد">×</button></div>
             <button type="button" role="menuitem" data-account-action="advanced"><span class="ratib-menu-icon">🔍</span><span class="ratib-menu-text">بحث متقدم<small>التاريخ والعملة</small></span></button>
             <button type="button" role="menuitem" data-account-action="share"><span class="ratib-menu-icon">↗️</span><span class="ratib-menu-text">مشاركة<small>إرسال الكشف</small></span></button>
             <button type="button" role="menuitem" data-account-action="pdfDownload"><span class="ratib-menu-icon">📄</span><span class="ratib-menu-text">تصدير PDF<small>حفظ الكشف</small></span></button>
@@ -7563,7 +7580,7 @@ document.getElementById('accountQuickSpendBtn')?.addEventListener('click',()=>cr
 document.getElementById('accountQuickVoucherCancelBtn')?.addEventListener('click',closeQuickVoucherForCurrentAccount);
 document.getElementById('accountQuickVoucherModal')?.addEventListener('click',e=>{if(e.target===e.currentTarget)closeQuickVoucherForCurrentAccount();});
 function setAccountReportActionsEnabled(enabled=true){['print','share','documentQuery'].forEach(action=>{document.querySelectorAll(`[data-account-action="${action}"]`).forEach(btn=>{btn.disabled=!enabled;});});}
-function closeAccountScreenMenu(){const menu=document.getElementById('accountScreenMenu');const toggle=document.getElementById('accountScreenMenuToggle');menu?.classList.remove('open');toggle?.setAttribute('aria-expanded','false');}
+function closeAccountScreenMenu(){const menu=document.getElementById('accountScreenMenu');const toggle=document.getElementById('accountScreenMenuToggle');menu?.classList.remove('open');document.getElementById('ratibToolsOverlay')?.classList.remove('show');toggle?.setAttribute('aria-expanded','false');}
 function exportCurrentAccountOperationsExcel(){
   const currency=accountOpsState.activeCurrency||'YER';downloadCsv(accountExportRows(currency),`كشف-${accountOpsState.accountName||'حساب'}-${currency}.csv`);showToast('تم تصدير كشف مطابق للعملة والفترة المعروضة، ويُفتح في Excel','success');
 }
@@ -7767,9 +7784,10 @@ async function shareCurrentAccountOperations(choice=null,currencies=null){
   }catch(e){showToast('تعذّر تجهيز كشف الحساب للمشاركة: '+(e?.message||'خطأ غير معروف'),'error');}
 }
 const accountScreenMenuToggle=document.getElementById('accountScreenMenuToggle'),accountScreenMenu=document.getElementById('accountScreenMenu');
-accountScreenMenuToggle?.addEventListener('click',e=>{e.stopPropagation();const open=accountScreenMenu?.classList.toggle('open');accountScreenMenuToggle.setAttribute('aria-expanded',open?'true':'false');});
+document.getElementById('ratibToolsOverlay')?.addEventListener('click',closeAccountScreenMenu);
+accountScreenMenuToggle?.addEventListener('click',e=>{e.stopPropagation();const open=accountScreenMenu?.classList.toggle('open');document.getElementById('ratibToolsOverlay')?.classList.toggle('show',!!open);accountScreenMenuToggle.setAttribute('aria-expanded',open?'true':'false');});
 function runAccountAction(action){if(!action)return;if(action==='advanced'){const panel=document.getElementById('accountAdvancedSearchPanel');const opening=panel?.classList.contains('hidden');panel?.classList.toggle('hidden');if(opening){const today=getLocalTodayISO?getLocalTodayISO():getLocalTodayISO(),from=document.getElementById('accountOpsFromDate'),to=document.getElementById('accountOpsToDate');if(from&&!from.value)from.value=today;if(to&&!to.value)to.value=today;}}else if(action==='print')requestAccountStatementOutput('print');else if(action==='share')requestAccountStatementOutput('pdf');else if(action==='pdfDownload'){const currencies=printableAccountCurrencies();const currency=accountOpsState.activeCurrency||currencies[0]||'YER';try{const pdf=buildAccountOperationsPdf(currency,currencies);const url=URL.createObjectURL(pdf);const a=document.createElement('a');a.href=url;a.download='كشف-'+(accountOpsState.accountName||'حساب')+'-'+currency+'.pdf';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1500);}catch(e){showToast('تعذر تصدير PDF','error');}}else if(action==='preview')requestAccountStatementOutput('print');else if(action==='documentQuery')openGlobalSearch();else if(action==='close'){return goBackInApp();}}
-accountScreenMenu?.addEventListener('click',e=>{e.stopPropagation();const btn=e.target.closest('button');if(!btn||btn.disabled)return;closeAccountScreenMenu();if(btn.dataset.accountAction)runAccountAction(btn.dataset.accountAction);});
+accountScreenMenu?.addEventListener('click',e=>{e.stopPropagation();const btn=e.target.closest('button');if(!btn||btn.disabled)return;if(btn.id==='accountToolsCloseBtn'){closeAccountScreenMenu();return;}closeAccountScreenMenu();if(btn.dataset.accountAction)runAccountAction(btn.dataset.accountAction);});
 document.querySelector('.account-inline-actions')?.addEventListener('click',e=>{const btn=e.target.closest('button');if(!btn||btn.disabled)return;runAccountAction(btn.dataset.accountAction);});
 // استبدلنا حقلي التاريخ من type="date" إلى نص عادي بصيغة سنة-شهر-يوم: بعض متصفحات
 // التطبيقات المدمجة (مثل متصفح واتساب الداخلي) لا تُفعّل منتقي التاريخ الأصلي بشكل

@@ -70,7 +70,7 @@
     const result = await verifyLicense({ endpoint: API+'activate', code, email });
     const s = safeRead();
     Object.assign(s, { code, email, expiryDate: result.expiry_date || null,
-      checkedAt: Date.now(), verifiedAt: Date.now() });
+      activatedAt: Date.now(), checkedAt: Date.now(), verifiedAt: Date.now() });
     safeWrite(s);
     return result;
   }
@@ -89,6 +89,49 @@
       return false;
     }
   }
+  function licenseDate(value) {
+    if (!value) return 'غير محدد من خدمة التراخيص';
+    const str=String(value),date=new Date(str);
+    if (!Number.isFinite(date.getTime())) return str.slice(0,30);
+    return str.length===10&&str[4]==='-'&&str[7]==='-'?str:date.toLocaleString('ar',{year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'});
+  }
+  async function refreshLicenseStatus(dialog) {
+    const title=dialog.querySelector('#ratibLicenseStatusTitle'),details=dialog.querySelector('#ratibLicenseStatusDetails');
+    if(!title||!details)return;
+    const panel=dialog.querySelector('#ratibLicenseStatusPanel');
+    const generation=Number(dialog.dataset.statusGeneration||0)+1;
+    dialog.dataset.statusGeneration=String(generation);
+    panel.hidden=false;panel.style.display='block';
+    const init=safeRead();
+    if(!init.code){
+      title.textContent='الجهاز غير مفعل حتى الآن';
+      details.textContent='يمكنك إدخال كود ترخيص صالح دون انتظار انتهاء العمليات المجانية.';
+      return;
+    }
+    title.textContent='جارٍ التحقق من حالة تفعيل الجهاز...';
+    details.textContent='';
+    let active=false;
+    try{active=await licensed();}catch(_){active=false;}
+    if(dialog.style.display==='none'||dialog.dataset.statusGeneration!==String(generation))return;
+    const s=safeRead(),expired=!!s.code&&!validExpiry(s.expiryDate);
+    const offlineGrace=active&&Number(s.verifiedAt||0)>0&&Date.now()-Number(s.checkedAt||0)>=CHECK_INTERVAL;
+    const lines=[
+      'معرّف الجهاز: '+deviceId(),
+      'كود الترخيص: '+(s.code?'•••• '+String(s.code).slice(-4):'غير مسجل'),
+      ...(s.email?['البريد المرتبط: '+s.email]:[]),
+      'تاريخ التفعيل: '+(s.activatedAt?licenseDate(new Date(s.activatedAt).toISOString()):'غير مسجل للتراخيص السابقة'),
+      'تاريخ الانتهاء: '+licenseDate(s.expiryDate),
+      'آخر تحقق ناجح: '+(s.verifiedAt?licenseDate(new Date(s.verifiedAt).toISOString()):'غير متاح')
+    ];
+    if(s.expiryDate&&Number.isFinite(Date.parse(s.expiryDate))){
+      lines.push('المدة المتبقية: '+Math.max(0,Math.ceil((Date.parse(s.expiryDate)-Date.now())/86400000))+' يوم');
+    }else if(!s.expiryDate){
+      lines.push('لم يحدد الخادم مدة انتهاء؛ وهذا لا يعني أن الترخيص دائم.');
+    }
+    title.textContent=active?(offlineGrace?'✓ الجهاز مفعل — مهلة تحقق دون اتصال':'✓ الجهاز مفعل — الترخيص سارٍ'):(expired?'انتهت صلاحية ترخيص الجهاز':'تعذر تأكيد تفعيل الجهاز');
+    details.textContent=lines.join(String.fromCharCode(10));
+    panel.style.borderColor=active?'var(--ok,#168653)':'var(--border,#94a3b8)';
+  }
   function showActivation(options={}) {
     let dlg = document.getElementById('ratibLicenseDialog');
     if (!dlg) {
@@ -98,6 +141,7 @@
       dlg.innerHTML = '<div style="background:var(--card,#fff);color:var(--text,#111);padding:20px;border-radius:14px;max-width:440px;width:100%;max-height:95vh;overflow:auto;font-family:inherit;text-align:right">'
       +'<h2 style="margin:0 0 12px">🔐 تفعيل تطبيق راتب</h2>'
       +'<p id="ratibLicenseIntro" style="line-height:1.8">اكتملت العشرون عملية المجانية دون حد زمني. ستبقى بياناتك وتقاريرك متاحة. لإنشاء عملية جديدة أدخل رقم الترخيص.</p>'
+      +'<section id="ratibLicenseStatusPanel" aria-live="polite" style="display:none;border:1px solid var(--border,#94a3b8);border-radius:9px;padding:10px 12px;margin:10px 0;background:var(--bg,#fff)"><strong id="ratibLicenseStatusTitle" style="display:block;margin-bottom:5px"></strong><div id="ratibLicenseStatusDetails" style="white-space:pre-line;font-size:.88rem;line-height:1.85;overflow-wrap:anywhere"></div></section>'
       +'<label style="display:block;margin:12px 0 5px">رقم الترخيص</label><input id="ratibLicenseCode" dir="ltr" placeholder="LIC-..." style="width:100%;padding:11px;border:1px solid #aaa;border-radius:8px;background:var(--bg,#fff);color:inherit;font:inherit">'
       +'<label style="display:block;margin:12px 0 5px">الاسم (اختياري)</label><input id="ratibLicenseName" placeholder="الاسم" style="width:100%;padding:11px;border:1px solid #aaa;border-radius:8px;background:var(--bg,#fff);color:inherit;font:inherit">'
       +'<label style="display:block;margin:12px 0 5px">البريد الإلكتروني (اختياري إلا عند ربط الترخيص بالبريد)</label><input id="ratibLicenseEmail" type="email" dir="ltr" placeholder="name@gmail.com" style="width:100%;padding:11px;border:1px solid #aaa;border-radius:8px;background:var(--bg,#fff);color:inherit;font:inherit">'
@@ -113,8 +157,10 @@
         if(btn.disabled)return;btn.disabled=true;msg.textContent='جارٍ التحقق من الترخيص...';
         try {
           await activate($('ratibLicenseCode').value,$('ratibLicenseEmail').value.trim());
-          msg.style.color='var(--ok,#168653)';msg.textContent='تم التفعيل؛ يمكنك الآن حفظ العملية.';
-          setTimeout(()=>{dlg.style.display='none';msg.textContent='';msg.style.color='var(--danger,#b91c1c)'},1000);
+          msg.style.color='var(--ok,#168653)';msg.textContent='تم التفعيل بنجاح.';
+          $('ratibLicenseCode').value='';
+          await refreshLicenseStatus(dlg);
+          if(dlg.dataset.manual!=='1')setTimeout(()=>{dlg.style.display='none';msg.textContent='';msg.style.color='var(--danger,#b91c1c)'},1000);
         } catch(e) { msg.textContent=e.message||'تعذر التفعيل.'; } finally {btn.disabled=false;}
       });
       $('ratibLicenseWhatsapp').addEventListener('click',()=>{
@@ -123,6 +169,7 @@
       $('ratibLicenseClose').addEventListener('click',()=>{dlg.style.display='none';});
     }
     const manual=options?.manual===true;
+    dlg.dataset.manual=manual?'1':'0';
     const intro=dlg.querySelector('#ratibLicenseIntro');
     if(intro)intro.textContent=manual
       ?'يمكنك إدخال كود التفعيل الآن دون انتظار انتهاء العمليات المجانية. سيُتحقق من الكود عبر خدمة التراخيص الحالية.'
@@ -130,7 +177,9 @@
     const feedback=dlg.querySelector('#ratibLicenseFeedback');
     if(feedback){feedback.textContent='';feedback.style.color='var(--danger,#b91c1c)';}
     dlg.querySelector('#ratibLicenseDevice').textContent=deviceId();
-    dlg.style.display='flex';dlg.querySelector('#ratibLicenseCode').focus();
+    dlg.style.display='flex';
+    void refreshLicenseStatus(dlg);
+    dlg.querySelector('#ratibLicenseCode').focus();
   }
   async function beforeCreate(transactions) {
     if (getUsed(transactions) < TRIAL_LIMIT) return true;

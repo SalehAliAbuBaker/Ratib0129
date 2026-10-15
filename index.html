@@ -1366,6 +1366,7 @@ body.ratib-sidebar-open,body.ratib-about-open{overflow:hidden}
             <div class="card no-print">
               <h2><span>🔔 التذكيرات والمهام</span><button class="btn btn-ghost" id="openAddReminderModalBtn" style="width:auto; margin-top:0; padding:4px 10px; font-size:0.95rem;">➕ إضافة تذكير</button></h2>
               <button type="button" class="btn btn-ghost" id="enableReminderNotificationsBtn">تفعيل إشعارات التذكيرات</button>
+              <small style="display:block;color:var(--muted);margin:6px 0 10px;line-height:1.5">تنبيهات نسخة الويب تعمل أثناء فتح التطبيق. الإشعارات بعد إغلاق المتصفح تتطلب خدمة إشعارات خلفية مستقلة؛ لا تغني عنها هذه الخاصية.</small>
               <div class="interactive-orbit reminders-orbit" aria-label="ملخص دائري للمهام والتذكيرات">
                 <div class="orbit-center"><strong id="remindersTotalCount">0</strong><small>إجمالي المهام</small></div>
                 <button class="orbit-node orbit-normal" onclick="filterRemindersByPriority('عادية')">عادية</button>
@@ -9005,7 +9006,7 @@ async function shareSpendData(d){
     if(await shareRatibDocumentFile(file,`${cashVoucherTitle(d.mode)} ${d.seq}`))showToast('تمت مشاركة PDF','success');
   }catch(e){if(e?.name!=='AbortError')showToast('تعذر إنشاء أو مشاركة PDF','error');}
 }
-function pdfMultiVoucher(){if(!cashVoucherMode())return entrypdfMultiVoucher();const err=validateMultiVoucher();if(err){showToast(err,'warn');return;}return shareSpendData(buildMultiVoucherData('posted'));}
+function pdfMultiVoucher(){if(!cashVoucherMode())return entrypdfMultiVoucher();const err=validateMultiVoucher();if(err){showToast(err,'warn');return;}try{const d=buildMultiVoucherData('draft');downloadFinancialFile(buildMultiVoucherPdf(d),`${d.mode==='income'?'سند-قبض':'سند-صرف'}-${d.seq}.pdf`);showToast('تم تنزيل ملف PDF','success');}catch(e){console.error(e);showToast('تعذر تنزيل ملف PDF','error');}}
 
 function setupMultiVoucherFeature(){initUnifiedJournalPresentation();
   const card=document.getElementById('multiVoucherCard'),grid=card.querySelector('.multi-voucher-grid'),source=card.querySelector('.multi-voucher-source-row');grid.append(source);

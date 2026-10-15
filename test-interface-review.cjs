@@ -44,7 +44,7 @@ async function test(name,fn){await fn();results.push({name,status:'passed'});con
 async function run(){
  const f=makeFixture({seed:{'ratib.quickFavorites.v1':JSON.stringify(['pageExpenses','pageReports','pageSettings','pageLedger'])}});await boot(f);const w=f.win,d=w.document;
  const load=name=>w.eval(fs.readFileSync(require('node:path').join(__dirname,name),'utf8'));
- for(const name of ['ratib-annual-close.js','ratib-quick-favorites.js','ratib-theme.js','ratib-interface-review.js'])load(name);
+ for(const name of ['ratib-annual-close.js','ratib-favorites-v3.js','ratib-theme.js','ratib-navigation-v3.js'])load(name);
  await pause(20);
  await test('Report grid reuses the four original controls; annual dialog remains functional',async()=>{
   assert.equal(d.querySelectorAll('#ratibReportMenu>*').length,4);code(w,"navigateToTab('pageReports',true);closeAllReportsSections()");
@@ -73,6 +73,14 @@ async function run(){
    const anchor=d.getElementById(id.slice(8));const card=anchor.closest('.settings-accordion-card');assert(card.querySelector('.settings-accordion-body').classList.contains('open'),id);
    open();d.querySelector(`[data-remove="${id}"]`).click();assert(!JSON.parse(w.localStorage.getItem('ratib.quickFavorites.v2')).includes(id));assert(d.querySelector(`[data-add="${id}"]`));
   }
+ });
+ await test('Favorites search, category filtering, and current-function pinning',async()=>{
+  code(w,"navigateToTab('pageExpenses',true);selectMultiVoucherType()");open();
+  const pin=d.getElementById('ratibPinCurrent');assert(!pin.hidden);assert.equal(pin.dataset.pin,'multi-entry');
+  const before=JSON.parse(w.localStorage.getItem('ratib.quickFavorites.v2'));pin.click();const after=JSON.parse(w.localStorage.getItem('ratib.quickFavorites.v2'));assert.notEqual(before.includes('multi-entry'),after.includes('multi-entry'));
+  const search=d.getElementById('ratibFavSearch');search.value='العملات';search.dispatchEvent(new w.Event('input',{bubbles:true}));
+  assert([...d.querySelectorAll('[data-add]')].every(b=>b.textContent.includes('العملات')));assert(d.querySelectorAll('[data-add]').length>=1);
+  search.value='';search.dispatchEvent(new w.Event('input',{bubbles:true}));const group=d.getElementById('ratibFavGroup');group.value='التقارير';group.dispatchEvent(new w.Event('change',{bubbles:true}));assert([...d.querySelectorAll('.fav-choice-group h3')].every(el=>el.textContent==='التقارير'));
  });
  await test('Back controls are marked; existing text and command handlers remain',async()=>{assert(d.getElementById('ledgerBackBtn').classList.contains('ratib-back-control'));assert(d.getElementById('backToMenuBtn').querySelector('[data-icon="back"]'));assert.equal(d.getElementById('backToMenuBtn').getAttribute('onclick'),'goBackInApp()');});
  assert.deepEqual(f.errors,[]);fixtures.forEach(x=>x.dom.window.close());

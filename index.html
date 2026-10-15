@@ -1277,6 +1277,7 @@ body.ratib-sidebar-open,body.ratib-about-open{overflow:hidden}
       <section class="sidebar-group" aria-labelledby="sidebarManageTitle">
         <h3 class="sidebar-caption" id="sidebarManageTitle">التنقّل والإدارة</h3>
         <button type="button" data-sidebar-action="home"><svg class="sidebar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="m3 10 9-7 9 7M5 9v11h5v-6h4v6h5V9"/></svg><span>الرئيسية</span></button>
+        <button type="button" data-sidebar-action="statement" title="فتح كشف الحساب"><svg class="sidebar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><rect x="4" y="2" width="16" height="20" rx="2"/><path d="M8 7h8M8 12h8M8 17h5"/></svg><span>كشف الحساب</span></button>
         <button type="button" data-sidebar-action="accounts"><svg class="sidebar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><rect x="9" y="3" width="6" height="5" rx="1"/><path d="M12 8v5M5 13h14M5 13v3M19 13v3"/><rect x="2" y="16" width="6" height="5" rx="1"/><rect x="16" y="16" width="6" height="5" rx="1"/></svg><span>شجرة الحسابات</span></button>
         <button type="button" data-sidebar-action="settings"><svg class="sidebar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="m9 3-.6 3-2.6 1.5-2.8-1L1.5 9l2.2 2v3l-2.2 2L3 18.5l2.8-1L8.4 19l.6 3h3l.6-3 2.6-1.5 2.8 1 1.5-2.5-2.2-2v-3l2.2-2L18 6.5l-2.8 1L12.6 6 12 3Z" transform="translate(1 0) scale(1 .95)"/><circle cx="11.5" cy="12" r="3"/></svg><span>الإعدادات</span></button>
       </section>
@@ -7613,16 +7614,7 @@ function renderAccountCurrencyCanvas(data){
   totalRow(y,'إجمالي العمليات خلال الفترة',fmtN(totalDebit),fmtN(totalCredit),'-','#f1f5f9');y+=minRowH;
   totalRow(y,'رصيد سابق',opening<0?fmtN(Math.abs(opening)):'0',opening>0?fmtN(opening):'','-','#f1f5f9');y+=minRowH;
   cell(xBody,xR,y,'الرصيد الإجمالي','#e2e8f0',18);cell(xBal,xBody,y,`${closing>=0?'لكم':'عليكم'} : ${fmtN(Math.abs(closing))} ${accountCurrencyLabel(currency)}`,'#e2e8f0',18);y+=minRowH+34;
-  if(proof){
-    const valid=proof.stable&&proof.inPeriod&&!proof.dateAfterPeriod;
-    const proofLine=valid
-      ?'✓ مطابق'
-      :proof.stable?`↪ المطابقة بتاريخ ${proof.date} خارج الفترة المعروضة؛ لا تثبت رصيد هذا الكشف.`
-      :`⚠ تغيّرت الحركات بعد مطابقة ${proof.date}؛ يلزم إعادة المطابقة.`;
-    // Plain reconciliation footnote after statement totals; no frame or shaded background.
-    text(proofLine,width-margin-12,y,16,'#000','bold');
-    y+=57;
-  }
+  // Reconciliation is indicated solely inside the matched balance cell.
   text(`${closing>=0?'لكم':'عليكم'} : ${tafqitAccountCurrency(Math.abs(closing),currency)}`,width-margin-8,y,18,'#000','bold');
   return canvas;
 }
@@ -8722,7 +8714,7 @@ const _appSavedViews=new Map();
 let _appHistorySession=Date.now().toString(36)+'-'+Math.random().toString(36).slice(2),_appCurrentHistoryDepth=0,_appHistoryPending=null,_appReplayDepth=null,_appHomeReset=false;
 
 function syncSidebarCurrentPage(){
-  const pages={home:'pageDashboard',accounts:'pageAccountsTree',settings:'pageSettings'};
+  const pages={home:'pageDashboard',statement:'pageReports',accounts:'pageAccountsTree',settings:'pageSettings'};
   document.querySelectorAll('#appSidebar [data-sidebar-action]').forEach(button=>{const selected=pages[button.dataset.sidebarAction]===currentActiveTab;button.classList.toggle('is-active',selected);if(selected)button.setAttribute('aria-current','page');else button.removeAttribute('aria-current');});
 }
 
@@ -8799,6 +8791,7 @@ function initRatibSidebar(){
     if(_appExited||_exitPromise||button.disabled)return;
     const action=button.dataset.sidebarAction;closeRatibSidebar();
     if(action==='home')navigateToTab('pageDashboard',true);
+    else if(action==='statement'){navigateToTab('pageReports',true);openAccountStatementSearch(false);}
     else if(action==='accounts')navigateToTab('pageAccountsTree',true);
     else if(action==='settings'){if(currentActiveTab!=='pageSettings')navigateToTab('pageSettings',true);}
     else if(action==='drive')openRatibCloudSettings();
@@ -9653,13 +9646,17 @@ const renderVoucherRowsWithoutSearch=renderMultiVoucherLines;
 function voucherAccountItems(){return getMultiAccountItems();}
 function resolveVoucherAccount(name,id=''){
   const items=voucherAccountItems(),code=String(id||'').trim(),label=String(name||'').trim();
-  if(code){
-    const byCode=items.filter(i=>String(i.accountId||'').trim()===code);
-    if(byCode.length===1)return byCode[0]; // Original ID survives a renamed account.
-    if(byCode.length>1)return null; // An ambiguous ID must not be guessed.
+  // The actual account named in the saved posting must never be replaced silently
+  // by a different catalog name merely because an older code is inconsistent.
+  const byName=label?items.filter(i=>String(i.id||'').trim()===label):[];
+  if(byName.length===1)return byName[0];
+  if(byName.length>1){
+    const candidates=byName.filter(i=>code&&String(i.accountId||'').trim()===code);
+    return candidates.length===1?candidates[0]:null;
   }
-  const byName=items.filter(i=>String(i.id||'').trim()===label);
-  return byName.length===1?byName[0]:null;
+  if(label)return null; // Unknown/renamed name requires explicit user review.
+  const byCode=code?items.filter(i=>String(i.accountId||'').trim()===code):[];
+  return byCode.length===1?byCode[0]:null;
 }
 function setExistingAccountForEdit(selector,name,id=''){
   if(!selector)return;

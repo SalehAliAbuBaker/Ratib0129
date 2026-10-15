@@ -166,7 +166,7 @@ function main(){
    const status=document.createElement('small');status.className='ratib-reconcile-status';
    if(saved){
     status.dataset.state=stable?'matched':'changed';
-    status.textContent=stable?`✓ تمت المطابقة حتى ${saved.date} — الرصيد ${FORMAT(Math.abs(saved.balance))} ${currency} (${saved.balance<0?'مدين':'دائن'})`:`⚠ تغيّرت حركات الحساب حتى ${saved.date} بعد المطابقة؛ راجع الرصيد وثبّت المطابقة مجددًا.`;
+    status.textContent=stable?'':`⚠ تغيّرت حركات الحساب حتى ${saved.date} بعد المطابقة؛ راجع الرصيد وثبّت المطابقة مجددًا.`;status.hidden=!!stable;
    }else status.textContent='لا توجد مطابقة محفوظة. اختر تاريخ المطابقة بعد مراجعة كشف الحساب.';
    bar.append(label,save,clear,status);
    page.querySelector('.account-operations-head')?.insertAdjacentElement('afterend',bar);

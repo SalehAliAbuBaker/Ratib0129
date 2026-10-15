@@ -7912,19 +7912,31 @@ function entryopenMultiVoucherEditor(item){
   // الآن ننتقل مباشرة لنفس شاشة الإدخال بالسند مملوءاً بكل بياناته دفعة واحدة.
   navigateToTab('pageExpenses', true);
   setVoucherFormHistory('multi-entry',false);
-  const groupId=item.multiVoucherId||item.id,txs=getAllTransactions().filter(t=>t.isMultiVoucher&&(t.multiVoucherId===groupId||t.id===groupId)),source={...(item.multiVoucher||txs[0]?.multiVoucher||{})};
-  const sourceSide=source.mode==='income'?'debit':'credit';
-  const sourcePosted=txs.find(t=>(sourceSide==='debit'?t.debitAccount:t.creditAccount)===source.sourceAccount);
-  source.sourceAccountId=source.sourceAccountId||(sourceSide==='debit'?sourcePosted?.debitAccountId:sourcePosted?.creditAccountId)||'';
+  const groupId=item.multiVoucherId||item.id,txs=getAllTransactions().filter(t=>t.isMultiVoucher&&t.status!=='deleted'&&t.status!=='reversed'&&(t.multiVoucherId===groupId||t.id===groupId)),source={...(item.multiVoucher||txs[0]?.multiVoucher||{})};
+  const sourceMode=source.mode||item.voucherMode||'multi-entry',cash=['income','spend'].includes(sourceMode);
+  const sourceSide=source.ratibHeaderSide|| (sourceMode==='income'?'debit':'credit');
+  if(cash&&txs.length){
+    const key=sourceSide==='debit'?'debitAccount':'creditAccount',idKey=sourceSide==='debit'?'debitAccountId':'creditAccountId';
+    const eligible=txs.filter(t=>!!t[key]),same=eligible.filter(t=>t[key]===source.sourceAccount);
+    const postedSource=same.length===1?same[0]:(eligible.length===1?eligible[0]:null);
+    source.sourceAccount=postedSource?.[key]||'';source.sourceAccountId=postedSource?.[idKey]||'';
+  }else if(txs.length&&source.sourceAccount&&!txs.some(t=>t.debitAccount===source.sourceAccount||t.creditAccount===source.sourceAccount)){
+    // A reference absent from posted movements is not an account in the voucher.
+    source.sourceAccount='';source.sourceAccountId='';
+  }
   document.getElementById('voucherSelectorCard')?.classList.add('hidden');document.getElementById('cashFlowCard')?.classList.add('hidden');document.getElementById('multiVoucherCard')?.classList.remove('hidden');
   multiVoucherDraftId=groupId;document.getElementById('multiVoucherSeqBadge').textContent=`رقم: ${source.seq||item.seqNum||getNextMultiVoucherNumber()}`;document.getElementById('multiVoucherDate').value=source.date||item.isoDate||multiToday();document.getElementById('multiVoucherBeneficiary').value=source.beneficiary||'';document.getElementById('multiVoucherParty').value=source.party||'';document.getElementById('multiVoucherNote').value=source.note||'';document.getElementById('multiVoucherBaseCurrency').value=source.baseCurrency||item.currency||'YER';setSavedVoucherSource(source.sourceAccount||'',source.sourceAccountId||'');
   if(Array.isArray(source.lines)&&source.lines.length)multiVoucherLines=source.lines.map((l,i)=>{
     const tx=txs.find(t=>String(t.id)===String(groupId)+'_'+i);
-    const restoredId=l.accountId||(l.side==='credit'?tx?.creditAccountId:tx?.debitAccountId)||'';
-    return {...newMultiLine(),...l,side:l.side||'debit',accountId:restoredId};
-  });else multiVoucherLines=txs.map(t=>({...newMultiLine(),side:t.creditAccount?'credit':'debit',account:t.debitAccount||t.creditAccount||'',accountId:t.debitAccountId||t.creditAccountId||'',amount:t.amount,rate:1,base:t.amount,note:t.execution?.general?.note||''}));
+    if(txs.length&&!tx)return null; // Do not insert snapshot-only ghost rows.
+    const side=tx?(tx.creditAccount?'credit':'debit'):(l.side||'debit');
+    const name=tx?(side==='credit'?tx.creditAccount:tx.debitAccount):(l.account||'');
+    const id=tx?(side==='credit'?tx.creditAccountId:tx.debitAccountId):(l.accountId||'');
+    return {...newMultiLine(),...l,side,account:name||'',accountId:id||(name===l.account?l.accountId||'':'')};
+  }).filter(Boolean);else multiVoucherLines=txs.map(t=>({...newMultiLine(),side:t.creditAccount?'credit':'debit',account:t.debitAccount||t.creditAccount||'',accountId:t.debitAccountId||t.creditAccountId||'',amount:t.amount,rate:1,base:t.amount,note:t.execution?.general?.note||''}));
   multiVoucherLines.forEach(line=>{if(line.account)restoreVoucherAccountIdentity(line);});
-  const hasCredit=multiVoucherLines.some(l=>l.side==='credit');if(source.sourceAccount&&!hasCredit)multiVoucherLines.push({...newMultiLine(),side:'credit',account:source.sourceAccount,accountId:source.sourceAccountId||'',amount:source.baseTotal||txs.reduce((n,t)=>n+Number(t.amount||0),0),rate:1,base:source.baseTotal||0,note:'الحساب المرجعي'});renderMultiVoucherLines();showToast('تم فتح سند القيد المركب للتعديل','info');
+  const hasCredit=multiVoucherLines.some(l=>l.side==='credit');if(source.sourceAccount&&!hasCredit&&!txs.length)multiVoucherLines.push({...newMultiLine(),side:'credit',account:source.sourceAccount,accountId:source.sourceAccountId||'',amount:source.baseTotal||txs.reduce((n,t)=>n+Number(t.amount||0),0),rate:1,base:source.baseTotal||0,note:'الحساب المرجعي'});renderMultiVoucherLines();showToast('تم فتح السند للتعديل بعد مطابقة حساباته مع الحركات المحفوظة','info');
+  return source;
 }
 function entryloadLatestMultiDraft(){const drafts=store.get('multi_voucher_drafts',[]);const d=Array.isArray(drafts)&&drafts.length?drafts[drafts.length-1]:null;if(!d){showToast('لا توجد مسودة محفوظة لسند قيد مركب','info');return;}multiVoucherDraftId=d.id;document.getElementById('multiVoucherDate').value=d.date||multiToday();document.getElementById('multiVoucherBeneficiary').value=d.beneficiary||'';document.getElementById('multiVoucherParty').value=d.party||'';document.getElementById('multiVoucherNote').value=d.note||'';document.getElementById('multiVoucherBaseCurrency').value=d.baseCurrency||'YER';setSavedVoucherSource(d.sourceAccount||'',d.sourceAccountId||'');multiVoucherLines=(d.lines||[]).map(l=>({...newMultiLine(),...l}));if(!multiVoucherLines.length)multiVoucherLines.push(newMultiLine());renderMultiVoucherLines();showToast('تم فتح آخر مسودة','success');}
 async function saveMultiDraft(){
@@ -8965,10 +8977,9 @@ function applySpendDocument(d){cashLegacySource=d.legacySource||null;
 }
 
 function openMultiVoucherEditor(item){
-  configureVoucherMode(['income','spend'].includes(item.multiVoucher?.mode)?item.multiVoucher.mode:'multi-entry');entryopenMultiVoucherEditor(item);
-  const saved={...(item.multiVoucher||{})};
-  if(saved.sourceAccount&&!saved.sourceAccountId)saved.sourceAccountId=multiSourceAcc.getAccountId()||'';
-  applySpendDocument(saved);
+  configureVoucherMode(['income','spend'].includes(item.multiVoucher?.mode)?item.multiVoucher.mode:'multi-entry');
+  const restored=entryopenMultiVoucherEditor(item);
+  applySpendDocument(restored||{});
 }
 
 function loadLatestMultiDraft(){

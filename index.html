@@ -4175,7 +4175,28 @@ function exportTransactionsCsv() {
   const rows=[['رقم السند','التاريخ','النوع','المدين','الدائن','المبلغ','العملة','الحالة','البيان']];
   getAllTransactions().forEach(t=>rows.push([t.seqNum||'',t.isoDate||t.date||'',getTransactionDisplayType(t)||'',t.debitAccount||'',t.creditAccount||'',t.amount||0,t.currency||'',t.status||'posted',Object.values(t.execution||{})[0]?.note||'']));
   const table=`<table dir="rtl" border="1"><thead><tr>${rows[0].map(h=>`<th>${String(h)}</th>`).join('')}</tr></thead><tbody>${rows.slice(1).map(r=>`<tr>${r.map(v=>`<td>${String(v??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}</td>`).join('')}</tr>`).join('')}</tbody></table>`;
-  const blob=new Blob([`\ufeff<html><head><meta charset="utf-8"></head><body>${table}</body></html>`],{type:'application/vnd.ms-excel;charset=utf-8'});
+  const blob=new Blob([`\ufeff<html><head><meta charset="utf-8"></head><body>${table}
+<style id="ratib-354-account-toolbar-css-only">
+/* Scoped UI correction only. No script, event handlers, or navigation changes. */
+#pageAccountOperations .account-operations-screen-head{display:flex!important;flex-direction:column!important;align-items:stretch!important;overflow:visible!important;gap:8px!important}
+#pageAccountOperations .account-operations-head-actions{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;grid-template-rows:64px!important;gap:7px!important;align-items:stretch!important;width:100%!important;max-width:100%!important;min-width:0!important;flex:none!important;flex-wrap:nowrap!important;direction:rtl!important;overflow:visible!important;padding:0!important;margin:0!important}
+#pageAccountOperations .account-operations-head-actions>.account-inline-actions{display:flex!important;grid-column:1!important;grid-row:1!important;min-width:0!important;width:100%!important;max-width:100%!important;flex:initial!important;overflow:visible!important;order:0!important;margin:0!important;padding:0!important}
+#pageAccountOperations .account-operations-head-actions>#accountAddOperationBtn{grid-column:2!important;grid-row:1!important;min-width:0!important;width:100%!important;max-width:100%!important;flex:initial!important;order:0!important;margin:0!important;padding:0!important}
+#pageAccountOperations .account-operations-head-actions>.account-screen-menu-wrap{display:block!important;grid-column:3!important;grid-row:1!important;min-width:0!important;width:100%!important;max-width:100%!important;flex:initial!important;order:0!important;position:relative!important;margin:0!important;padding:0!important}
+#pageAccountOperations .account-operations-head-actions .account-inline-back,
+#pageAccountOperations .account-operations-head-actions>#accountAddOperationBtn,
+#pageAccountOperations .account-operations-head-actions #accountScreenMenuToggle{display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;gap:3px!important;height:64px!important;min-height:64px!important;max-height:64px!important;min-width:0!important;width:100%!important;max-width:100%!important;margin:0!important;padding:4px 2px!important;white-space:normal!important;line-height:1.1!important;border-radius:12px!important;font-size:clamp(.76rem,2.5vw,.98rem)!important}
+#pageAccountOperations .account-operations-head-actions .account-inline-back span,
+#pageAccountOperations .account-operations-head-actions #accountScreenMenuToggle span{font-size:.84rem!important}
+#pageAccountOperations .account-screen-menu{position:absolute!important;top:calc(100% + 5px)!important;right:auto!important;left:0!important;z-index:80!important;max-width:min(300px,calc(100vw - 30px))!important;min-width:min(240px,calc(100vw - 30px))!important;max-height:65vh!important;overflow-y:auto!important;white-space:normal!important}
+#pageAccountOperations .account-screen-menu.open{display:block!important}
+#pageAccountOperations .account-screen-menu:not(.open){display:none!important}
+#pageAccountOperations .account-screen-menu button{display:block!important;width:100%!important;height:auto!important;min-height:44px!important;white-space:normal!important;text-align:right!important;line-height:1.35!important;padding:7px 10px!important}
+#pageAccountOperations .account-screen-menu button small{display:block!important;font-size:.78rem!important}
+#pageAccountOperations #ratibAccountOrientationBtn{width:100%!important;min-width:0!important;text-align:right!important;font-size:.94rem!important}
+@media print{#pageAccountOperations .account-operations-head-actions{display:none!important}}
+</style>
+</body></html>`],{type:'application/vnd.ms-excel;charset=utf-8'});
   const a=document.createElement('a');a.download=`Ratib_transactions_${monthKey()}.xls`;a.href=URL.createObjectURL(blob);a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000);showToast('تم تنزيل سجل العمليات بصيغة Excel','success');
 }
 

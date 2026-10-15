@@ -48,6 +48,8 @@ function printProof(name,currency,txs){
  }else if(evidence.dateAfterPeriod){
   banner.style.cssText+=";color:inherit";
   banner.textContent=`↪ تاريخ المطابقة ${evidence.date} يأتي بعد نهاية فترة الكشف؛ ${evidenceText(evidence)}. هذه المطابقة لا تُثبت رصيد الفترة المعروضة.`;
+ }else if(!evidence.inPeriod){
+  banner.textContent="↪ المطابقة المحفوظة خارج الفترة المعروضة؛ لا تُثبت رصيد هذا الكشف.";
  }else{
   const heading=document.createElement("strong");
   heading.style.cssText="display:block;font-size:12pt";
@@ -104,6 +106,8 @@ renderAccountOperations=function(name,scope=null,ui=null){
    banner.textContent=`⚠ المطابقة السابقة بتاريخ ${proof.date} تحتاج مراجعة؛ تغيّرت حركات الحساب ولا يُعد الرصيد مطابقًا.`;
   }else if(proof.dateAfterPeriod){
    banner.textContent=`↪ مطابقة سابقة حتى ${proof.date}، لكنها بعد تاريخ نهاية الكشف المعروض؛ لا تُثبت رصيد هذه الفترة.`;
+  }else if(!proof.inPeriod){
+   banner.textContent="↪ المطابقة المحفوظة خارج الفترة المعروضة؛ لا تُثبت رصيد هذا الكشف.";
   }else{
    banner.textContent=confirmed(proof);
    if(proof.inPeriod){

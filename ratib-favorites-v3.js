@@ -148,4 +148,4 @@ window.RatibQuickFavorites={open,close};
 })();
 
 /* Load the approved unified output UI without touching accounting logic. */
-(()=>{if(document.querySelector('script[data-ratib-unified-output]'))return;const s=document.createElement('script');s.src='./ratib-unified-output.js?v=13';s.defer=true;s.dataset.ratibUnifiedOutput='1';document.head.appendChild(s);})();
+(()=>{if(document.querySelector('script[data-ratib-unified-output]'))return;const s=document.createElement('script');s.src='./ratib-unified-output.js?v=14';s.defer=true;s.dataset.ratibUnifiedOutput='1';document.head.appendChild(s);})();

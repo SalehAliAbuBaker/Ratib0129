@@ -3,7 +3,7 @@
   "private": true,
   "version": "3.6.10",
   "scripts": {
-    "test": "node test-theme.cjs && node test-interface-review.cjs && node test-account-autocomplete.cjs && node test-imported-record-edit.cjs"
+    "test": "node test-theme.cjs && node test-interface-review.cjs && node test-ui-cache.cjs && node test-account-autocomplete.cjs && node test-imported-record-edit.cjs"
   },
   "engines": {
     "node": ">=24"

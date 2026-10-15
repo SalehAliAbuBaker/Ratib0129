@@ -23,6 +23,20 @@ addChoice('ledger','سجل العمليات','📋',()=>page('pageLedger'));
 addChoice('account-tree','شجرة الحسابات','📁',()=>page('pageAccountsTree'));
 addChoice('new-reminder','إضافة تذكير','🔔',()=>window.openReminderModal?.(-1));
 for(const [id,label,action] of [['license','إدخال كود التفعيل وحالته','license'],['backup-file','إنشاء نسخة احتياطية','backup'],['restore-file','استعادة نسخة من ملف','restore'],['cloud-backup','النسخ عبر Google Drive','drive'],['about','حول التطبيق','about']])addChoice(id,label,'⚙️',sidebar(action));
+async function settingsControl(id){
+ if(!await page('pageSettings'))return;
+ const control=document.getElementById(id);if(!control)return;
+ const card=control.closest('.settings-accordion-card'),heading=card?.querySelector('.settings-accordion-header');
+ if(card&&!card.querySelector('.settings-accordion-body')?.classList.contains('open'))heading?.click();
+ control.click();
+}
+addChoice('add-account','إضافة حساب جديد','➕',()=>settingsControl('openAddAccountDialogBtn'));
+addChoice('add-budget-item','إضافة بند ميزانية','➕',()=>settingsControl('addCatBtn'));
+addChoice('legacy-import','استيراد من نظام آخر','📥',()=>document.getElementById('legacyImportSidebarBtn')?.click());
+addChoice('import-management','إدارة الحسابات والأرصدة المستوردة','📁',()=>{
+ const launcher=[...document.querySelectorAll('#pageSettings button')].find(b=>b.textContent.trim()==='إدارة الحسابات المستوردة');launcher?.click();
+});
+addChoice('reminders-list','قائمة التذكيرات والمهام','🔔',async()=>{if(await page('pageDashboard'))document.getElementById('openAddReminderModalBtn')?.closest('.card')?.scrollIntoView({block:'start'});});
 function discoverSettings(){
  document.querySelectorAll('#pageSettings .settings-accordion-card').forEach(card=>{
   const heading=card.querySelector('.settings-accordion-header');
@@ -53,20 +67,57 @@ const css=document.createElement('style');css.textContent=`
 table{border-collapse:collapse}thead{display:table-header-group}tr{break-inside:avoid;page-break-inside:avoid}
 .no-print{display:none!important}}
 `;document.head.appendChild(css);
+let filterText='',filterGroup='';
 const panel=document.createElement('div');panel.id='ratibFavoritesPanel';panel.className='no-print';panel.setAttribute('role','dialog');panel.setAttribute('aria-modal','true');panel.setAttribute('aria-label','المفضلة السريعة');
-panel.innerHTML='<div class="fav-box"><div class="fav-head"><strong>⭐ المفضلة السريعة</strong><button type="button" class="fav-small" data-close aria-label="إغلاق">✕ إغلاق</button></div><div id="ratibFavItems"></div><div class="fav-section">إضافة اختصار لوظيفة محددة</div><div id="ratibFavOptions" class="fav-grid"></div></div>';
+panel.innerHTML='<div class="fav-box"><div class="fav-head"><strong>المفضلة — وظائف مباشرة</strong><button type="button" class="fav-small" data-close aria-label="إغلاق">✕ إغلاق</button></div><div id="ratibFavItems"></div><button type="button" class="btn btn-ghost" id="ratibPinCurrent" hidden></button><div class="fav-section">تخصيص الاختصارات</div><label for="ratibFavSearch">ابحث عن الوظيفة المطلوبة</label><input id="ratibFavSearch" type="search" placeholder="مثل: قيد متعدد، عملات، ترويسة…"><label for="ratibFavGroup">القسم</label><select id="ratibFavGroup"><option value="">جميع الوظائف</option><option>السندات</option><option>التقارير</option><option>الحسابات والاستيراد</option><option>الإعدادات</option><option>النسخ والتفعيل</option><option>التذكيرات</option></select><p id="ratibFavCount" role="status" class="field-hint"></p><div id="ratibFavOptions"></div></div>';
 document.body.appendChild(panel);
 const escapeHtml=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 function render(){
 document.getElementById('ratibFavItems').innerHTML=selected.length?'<div class="fav-grid">'+selected.map((id,i)=>{const a=byId[id];return '<div class="fav-item"><button type="button" class="fav-item" style="width:100%" data-go="'+id+'">'+a[2]+' '+escapeHtml(a[1])+'</button><div class="fav-row"><button class="fav-small" data-up="'+id+'" '+(i===0?'disabled':'')+'>↑</button><button class="fav-small" data-down="'+id+'" '+(i===selected.length-1?'disabled':'')+'>↓</button><button class="fav-small" data-remove="'+id+'">حذف</button></div></div>';}).join('')+'</div>':'<p>لا توجد مفضلة بعد. اختر من الوظائف أدناه.</p>';
-document.getElementById('ratibFavOptions').innerHTML=choices.filter(x=>!selected.includes(x[0])).map(x=>'<button type="button" class="fav-item" data-add="'+x[0]+'">'+x[2]+' '+escapeHtml(x[1])+' ＋</button>').join('')||'<p>أضفت جميع الاختصارات المتاحة.</p>';
+renderOptions();renderCurrent();
 }
+function groupOf(id){
+ if(['receipt','payment','simple-entry','multi-entry'].includes(id))return 'السندات';
+ if(['statement','trial-balance','budget-analysis','annual-close'].includes(id))return 'التقارير';
+ if(id.startsWith('setting:')||id==='add-budget-item')return 'الإعدادات';
+ if(['account-tree','add-account','ledger','legacy-import','import-management'].includes(id))return 'الحسابات والاستيراد';
+ if(['new-reminder','reminders-list'].includes(id))return 'التذكيرات';
+ return 'النسخ والتفعيل';
+}
+function normalized(value){return value.normalize('NFKC').replace(/[أإآ]/g,'ا').replace(/[\u064B-\u065F\u0670]/g,'').trim().toLowerCase();}
+function renderOptions(){
+ const available=choices.filter(x=>!selected.includes(x[0])&&(!filterGroup||groupOf(x[0])===filterGroup)&&normalized(x[1]).includes(normalized(filterText)));
+ const groups=[...new Set(available.map(x=>groupOf(x[0])))];
+ document.getElementById('ratibFavOptions').innerHTML=groups.map(group=>'<section class="fav-choice-group"><h3>'+escapeHtml(group)+'</h3><div class="fav-grid">'+available.filter(x=>groupOf(x[0])===group).map(x=>'<button type="button" class="fav-item" data-add="'+x[0]+'" aria-label="إضافة '+escapeHtml(x[1])+' إلى المفضلة">'+x[2]+' '+escapeHtml(x[1])+' ＋</button>').join('')+'</div></section>').join('')||'<p>لا توجد وظائف أخرى مطابقة للبحث.</p>';
+ document.getElementById('ratibFavCount').textContent=choices.length+' وظيفة متاحة للتخصيص — '+selected.length+' في المفضلة';
+}
+function currentChoice(){
+ const visible=id=>{const el=document.getElementById(id);return el&&!el.classList.contains('hidden');};
+ if(visible('pageExpenses')){
+  if(visible('multiVoucherCard'))return typeof multiVoucherMode!=='undefined'?({income:'receipt',spend:'payment','multi-entry':'multi-entry'}[multiVoucherMode]):null;
+  if(visible('cashFlowCard'))return 'simple-entry';
+ }
+ if(visible('pageReports'))for(const [id,key] of [['reportsGroupStatementHeader','statement'],['reportsGroupBudgetHeader','budget-analysis'],['reportsGroupTrialHeader','trial-balance']])if(document.getElementById(id)?.classList.contains('open'))return key;
+ if(visible('pageSettings')){
+  const active=[...document.querySelectorAll('#pageSettings .settings-accordion-card')].find(card=>card.querySelector('.settings-accordion-body.open'));
+  if(active)return 'setting:'+(active.id||active.querySelector('[id]')?.id);
+ }
+ return null;
+}
+function renderCurrent(){
+ const id=currentChoice(),button=document.getElementById('ratibPinCurrent');
+ button.hidden=!byId[id];if(!byId[id])return;
+ button.textContent=(selected.includes(id)?'إزالة من المفضلة: ':'إضافة هذه الوظيفة: ')+byId[id][1];button.dataset.pin=id;
+}
+document.getElementById('ratibFavSearch').addEventListener('input',e=>{filterText=e.target.value;renderOptions();});
+document.getElementById('ratibFavGroup').addEventListener('change',e=>{filterGroup=e.target.value;renderOptions();});
 function close(){panel.classList.remove('open');}
-function open(){discoverSettings();render();panel.classList.add('open');panel.querySelector('[data-close]').focus();}
+function open(){discoverSettings();filterText='';filterGroup='';document.getElementById('ratibFavSearch').value='';document.getElementById('ratibFavGroup').value='';render();panel.classList.add('open');panel.querySelector('[data-close]').focus();}
 panel.addEventListener('click',e=>{if(e.target===panel){close();return;}const b=e.target.closest('button');if(!b)return;const d=b.dataset;
 if('close'in d){close();return;}
 if(d.go){close();Promise.resolve().then(()=>byId[d.go]?.run()).catch(error=>{console.error('Ratib favorite',error);window.showToast?.('تعذر فتح الاختصار؛ حاول مرة أخرى.','warn');});return;}
-if(d.add){selected.push(d.add);}
+if(d.pin){if(selected.includes(d.pin))selected=selected.filter(x=>x!==d.pin);else selected.push(d.pin);}
+if(d.add&&byId[d.add]&&!selected.includes(d.add)){selected.push(d.add);}
 if(d.remove){selected=selected.filter(x=>x!==d.remove);}
 if(d.up||d.down){const id=d.up||d.down,i=selected.indexOf(id),j=i+(d.up?-1:1);if(j>=0&&j<selected.length)[selected[i],selected[j]]=[selected[j],selected[i]];}
 save();render();

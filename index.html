@@ -7860,6 +7860,7 @@ function entryupdateMultiLineFromDom(el,shouldSync=true){
   const i=Number(el.dataset.index),line=multiVoucherLines[i];if(!line)return;
   const key=el.classList.contains('multi-line-side')?'side':el.classList.contains('multi-line-account')?'account':el.classList.contains('multi-line-budget')?'budgetId':el.classList.contains('multi-line-note')?'note':el.classList.contains('multi-line-currency')?'currency':el.classList.contains('multi-line-amount')?'amount':el.classList.contains('multi-line-rate')?'rate':'notes';
   if(line.autoBalance&&['side','currency','amount','rate'].includes(key))return;
+  if(key==='account'&&line.account!==el.value)line.accountId='';
   line[key]=el.value;const base=document.getElementById('multiVoucherBaseCurrency')?.value||'YER';
   if(line.currency===base)line.rate='1';const value=getCleanNumber(line.amount)*multiLineRate(line,base);line.base=Number.isFinite(value)?roundAccountingAmount(value):0;
   const row=el.closest('tr'),rate=row?.querySelector('.multi-line-rate');if(rate){rate.readOnly=!!line.autoBalance||line.currency===base;if(line.currency===base)rate.value='1';}
@@ -8912,7 +8913,7 @@ function syncMultiAutoBalance(){
   if(!cashVoucherMode())return entrysyncMultiAutoBalance();
   const lines=multiVoucherLines.filter(l=>!l.autoBalance);let total=0;
   for(const line of lines){line.side=cashCounterSide();if(line.currency===spendBase())line.rate=1;const value=spendAmount(line);line.base=Number.isFinite(value)?value:0;line.equivalentAmount=line.base;line.equivalentCurrency=spendBase();if(value>0)total=spendRound(total+value);}
-  multiVoucherLines=[...lines,{...newMultiLine(),autoBalance:true,side:multiVoucherMode==='income'?'debit':'credit',currency:spendBase(),account:multiSourceAcc.getValue(),amount:total,rate:1,base:total,budgetId:'general',note:document.getElementById('multiVoucherNote').value.trim()||cashSourceLabel()}];
+  multiVoucherLines=[...lines,{...newMultiLine(),autoBalance:true,side:multiVoucherMode==='income'?'debit':'credit',currency:spendBase(),account:multiSourceAcc.getValue(),accountId:multiSourceAcc.getAccountId()||'',amount:total,rate:1,base:total,budgetId:'general',note:document.getElementById('multiVoucherNote').value.trim()||cashSourceLabel()}];
 }
 
 function updateMultiVoucherSummary(){
@@ -9637,13 +9638,27 @@ let voucherRowSelectors=[];
 const renderVoucherRowsWithoutSearch=renderMultiVoucherLines;
 function voucherAccountItems(){return getMultiAccountItems();}
 function resolveVoucherAccount(name,id=''){
-  const matches=voucherAccountItems().filter(i=>i.id===name&&(!id||i.accountId===id));
-  return matches.length===1?matches[0]:null;
+  const items=voucherAccountItems(),code=String(id||'').trim(),label=String(name||'').trim();
+  if(code){
+    const byCode=items.filter(i=>String(i.accountId||'').trim()===code);
+    if(byCode.length===1)return byCode[0]; // Original ID survives a renamed account.
+    if(byCode.length>1)return null; // An ambiguous ID must not be guessed.
+  }
+  const byName=items.filter(i=>String(i.id||'').trim()===label);
+  return byName.length===1?byName[0]:null;
+}
+function restoreVoucherAccountIdentity(line){
+  if(!line?.account)return null;
+  const match=resolveVoucherAccount(line.account,line.accountId||'');
+  if(match){line.account=match.id;line.accountId=match.accountId||'';line.accountQuery=match.text;}
+  return match;
 }
 renderMultiVoucherLines=function(){
   const active=voucherRowSelectors.find(x=>x.selector.input===document.activeElement);
   const focus=active?{id:active.line.id,start:active.selector.input.selectionStart,end:active.selector.input.selectionEnd}:null;
   voucherRowSelectors.forEach(x=>x.selector.destroy());voucherRowSelectors=[];
+  // Resolve original account identities before rendering saved voucher rows.
+  multiVoucherLines.forEach(restoreVoucherAccountIdentity);
   renderVoucherRowsWithoutSearch();
   document.querySelectorAll('#multiVoucherLinesBody select.multi-line-account').forEach(select=>{
     const line=multiVoucherLines[Number(select.dataset.index)],key='voucherAccount_'+line.id;
@@ -9659,8 +9674,8 @@ renderMultiVoucherLines=function(){
     selector.setItems(voucherAccountItems());
     const saved=resolveVoucherAccount(line.account,line.accountId||'');
     selector.setValue(saved?.id||'',saved?.text||'',saved?.accountId||'');
-    if(saved)line.accountId=saved.accountId;
-    if(!saved&&line.accountQuery)input.value=line.accountQuery;
+    if(saved){line.account=saved.id;line.accountId=saved.accountId||'';}
+    if(!saved&&(line.accountQuery||line.account))input.value=line.accountQuery||line.account;
     // Portaling prevents a table's scrolling container from clipping suggestions.
     document.body.append(drop);selector.portaled=true;
     input.setAttribute('role','combobox');input.setAttribute('aria-autocomplete','list');input.setAttribute('aria-controls',drop.id);
@@ -9671,7 +9686,7 @@ renderMultiVoucherLines=function(){
 const validateVoucherAccountsWithoutSearch=validateMultiVoucher;
 validateMultiVoucher=function(){
   if(cashVoucherMode()&&!multiSourceAcc.getValue())return 'اختر حساب القبض أو الصرف من الدليل.';
-  for(const line of multiVoucherLines){if(!line.account&&!String(line.amount??'').trim())continue;const match=resolveVoucherAccount(line.account,line.accountId||'');if(!match)return 'اختر حسابًا موجودًا من الاقتراحات لكل سطر؛ لا يُنشأ حساب من النص المكتوب.';line.accountId=match.accountId;}
+  for(const line of multiVoucherLines){if(!line.account&&!String(line.amount??'').trim())continue;const match=restoreVoucherAccountIdentity(line);if(!match)return 'اختر حسابًا موجودًا من الاقتراحات لكل سطر؛ لا يُنشأ حساب من النص المكتوب.';}
   return validateVoucherAccountsWithoutSearch();
 };
 const buildVoucherAccountsWithoutSearch=buildMultiVoucherData;

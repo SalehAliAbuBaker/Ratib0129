@@ -7618,9 +7618,8 @@ function renderAccountCurrencyCanvas(data){
       ?`✓ مطابق — تاريخ المطابقة ${proof.date}: ${Math.abs(proof.balance).toLocaleString()} ${currency} (${proof.balance<0?'مدين':'دائن'})`
       :proof.stable?`↪ المطابقة بتاريخ ${proof.date} أحدث من الفترة المعروضة؛ لا تثبت رصيد هذا الكشف.`
       :`⚠ تغيّرت الحركات بعد مطابقة ${proof.date}؛ يلزم إعادة المطابقة.`;
-    ctx.fillStyle=valid?'#dff2e5':'#fff3da';
-    ctx.fillRect(margin,y-28,width-2*margin,42);ctx.strokeStyle=valid?'#39784a':'#c58e2e';ctx.strokeRect(margin,y-28,width-2*margin,42);
-    text(proofLine,width-margin-12,y,16,valid?'#164d32':'#78350f','bold');
+    // Plain reconciliation footnote after statement totals; no frame or shaded background.
+    text(proofLine,width-margin-12,y,16,'#000','bold');
     y+=57;
   }
   text(`${closing>=0?'لكم':'عليكم'} : ${tafqitAccountCurrency(Math.abs(closing),currency)}`,width-margin-8,y,18,'#000','bold');
@@ -10425,8 +10424,7 @@ function multiEditPrint(){
  pdf.onclick=async()=>{
   const d=prepare();if(!d)return;
   try{if(document.fonts)await document.fonts.ready;const blob=buildMultiVoucherPdf(d),file=new File([blob],'قيد-مركب-'+d.seq+'-معاينة.pdf',{type:'application/pdf'});
-   if(navigator.share&&(!navigator.canShare||navigator.canShare({files:[file]})))await navigator.share({files:[file],title:'معاينة قيد مركب'});
-   else{const url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=file.name;a.click();setTimeout(()=>URL.revokeObjectURL(url),1500);}
+   if(await shareRatibDocumentFile(file,'معاينة قيد مركب'))showToast('تمت مشاركة القيد المركب','success');
   }catch(e){if(e.name!=='AbortError'){console.error(e);showToast('تعذر مشاركة PDF','error');}}
  };
  const visibility=()=>{bar.style.display=multiVoucherMode==='multi-entry'?'flex':'none';};

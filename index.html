@@ -5818,8 +5818,8 @@ let editVoucherCatStates = {}, editVoucherSplitMode = 'pct';
 function openTxModal(item) {if(item&&!item.isOpeningBalance&&['income','spend'].includes(item.voucherMode)&&!item.isMultiVoucher)return openLegacyCashEditor(item);if(item?.isOpeningBalance)return openImportedRecordEditor(item);
   activeEditingTx = item; lastPrintedTx = item; preparePrintVoucherTemplate(item);
   document.getElementById('modalSubtitle').textContent = `📅 تاريخ السند: ${item.date} | رقم السند: #${item.seqNum || '-'}`;
-  selEditDebitAcc.setValue(item.debitAccount, item.debitAccount,item.debitAccountId);
-  selEditCreditAcc.setValue(item.creditAccount, item.creditAccount,item.creditAccountId);
+  setExistingAccountForEdit(selEditDebitAcc,item.debitAccount,item.debitAccountId);
+  setExistingAccountForEdit(selEditCreditAcc,item.creditAccount,item.creditAccountId);
   document.getElementById('editVoucherAmount').value = Number(item.amount || 0).toLocaleString('en-US');
   document.getElementById('editVoucherCurrency').value = item.currency || 'YER';
   document.getElementById('editVoucherDate').value = item.isoDate || item.date || getLocalTodayISO();
@@ -9660,6 +9660,12 @@ function resolveVoucherAccount(name,id=''){
   }
   const byName=items.filter(i=>String(i.id||'').trim()===label);
   return byName.length===1?byName[0]:null;
+}
+function setExistingAccountForEdit(selector,name,id=''){
+  if(!selector)return;
+  const found=resolveVoucherAccount(name,id);
+  if(found)selector.setValue(found.id,found.text,found.accountId||'');
+  else selector.setValue(name||'',name||'',id||''); // Keep unresolved accounts visible for explicit correction.
 }
 function setSavedVoucherSource(name,id=''){
   const found=resolveVoucherAccount(name,id);

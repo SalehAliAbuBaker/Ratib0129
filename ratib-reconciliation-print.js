@@ -30,7 +30,7 @@ function inspect(name,currency,from="",to=""){
 }
 window.ratibReconciliationEvidence=inspect;
 const evidenceText=(v)=>`الرصيد ${fmt(Math.abs(v.balance))} ${v.currency} (${v.balance<0?"مدين":"دائن"})`;
-const confirmed=v=>`✓ مطابق — ${evidenceText(v)} · تاريخ المطابقة ${v.date}`;
+const confirmed=()=>`✓ مطابق`;
 function printProof(name,currency,txs){
  const page=document.getElementById("printStatementContainer");
  if(!page||!name||name==="ALL")return;
@@ -48,14 +48,13 @@ function printProof(name,currency,txs){
  }else if(evidence.dateAfterPeriod){
   banner.style.cssText+=";color:inherit";
   banner.textContent=`↪ تاريخ المطابقة ${evidence.date} يأتي بعد نهاية فترة الكشف؛ ${evidenceText(evidence)}. هذه المطابقة لا تُثبت رصيد الفترة المعروضة.`;
+ }else if(!evidence.inPeriod){
+  banner.textContent="↪ المطابقة المحفوظة خارج الفترة المعروضة؛ لا تُثبت رصيد هذا الكشف.";
  }else{
   const heading=document.createElement("strong");
   heading.style.cssText="display:block;font-size:12pt";
   heading.textContent="✓ مطابق";
-  const details=document.createElement("small");
-  details.style.cssText="display:block;font-size:10pt;margin-top:2px";
-  details.textContent=evidenceText(evidence)+" · مؤشر مطابقة محفوظ في راتب بتاريخ "+evidence.date;
-  banner.append(heading,details);
+  banner.append(heading);
  }
  const table=page.querySelector(".ps-table-wrap");
  if(table)table.after(banner);else page.append(banner);
@@ -107,6 +106,8 @@ renderAccountOperations=function(name,scope=null,ui=null){
    banner.textContent=`⚠ المطابقة السابقة بتاريخ ${proof.date} تحتاج مراجعة؛ تغيّرت حركات الحساب ولا يُعد الرصيد مطابقًا.`;
   }else if(proof.dateAfterPeriod){
    banner.textContent=`↪ مطابقة سابقة حتى ${proof.date}، لكنها بعد تاريخ نهاية الكشف المعروض؛ لا تُثبت رصيد هذه الفترة.`;
+  }else if(!proof.inPeriod){
+   banner.textContent="↪ المطابقة المحفوظة خارج الفترة المعروضة؛ لا تُثبت رصيد هذا الكشف.";
   }else{
    banner.textContent=confirmed(proof);
    if(proof.inPeriod){

@@ -1261,7 +1261,7 @@ body.ratib-sidebar-open,body.ratib-about-open{overflow:hidden}
     <div class="header-tools"><div class="header-actions">
       <button class="icon-btn" id="themeBtn" title="الوضع الليلي">🌙</button>
       <button class="icon-btn" id="sidebarMenuBtn" aria-haspopup="dialog" aria-controls="appSidebar" aria-expanded="false" title="القائمة الجانبية" aria-label="فتح القائمة الجانبية">☰</button>
-    </div><small id="appVersionLabel" class="app-version">الإصدار 3.6.46</small></div>
+    </div><small id="appVersionLabel" class="app-version">الإصدار 3.6.47</small></div>
   </header>
   <div class="summary-toolbar hidden no-print" id="storageFeedback"><span id="persistentSaveStatus" hidden aria-hidden="true">جاهز</span><button type="button" id="retryStorageBtn" class="btn btn-ghost hidden">إعادة محاولة الحفظ</button></div>
 <div class="app-update-banner hidden no-print" id="appUpdateBanner" role="status"><span id="appUpdateMessage">يتوفر تحديث لراتب. هل تريد تطبيقه؟</span><button type="button" class="btn btn-ghost" id="applyAppUpdateBtn">موافق، تطبيق التحديث</button><div id="appUpdateDetails" class="hidden"></div></div>
@@ -1307,7 +1307,7 @@ body.ratib-sidebar-open,body.ratib-about-open{overflow:hidden}
       <img src="Icons/icon-192.png" width="72" height="72" alt="" decoding="async">
       <h2 id="ratibAboutTitle">راتب</h2>
       <p class="ratib-about-subtitle">للتنظيم والتدبير المالي</p>
-      <p class="ratib-about-version">الإصدار 3.6.46</p>
+      <p class="ratib-about-version">الإصدار 3.6.47</p>
       <p id="ratibAboutDescription">إدارة الحسابات والسندات والميزانية، ومتابعة العمليات والتقارير المالية، مع حفظ البيانات على جهازك ودعم العمل دون الإنترنت.</p>
       <button type="button" class="btn btn-primary" id="closeRatibAboutBtn">إغلاق</button>
     </div>
@@ -2494,7 +2494,7 @@ body.ratib-sidebar-open,body.ratib-about-open{overflow:hidden}
 // (أو localhost أثناء التطوير) — هذا شرط أساسي من المتصفح نفسه لأي Service Worker.
 let _briefAppNoticeTimer=null;
 let _releaseSummaryDisplayed=false;
-const RATIB_RELEASE={"version":"3.6.46","changes":["تحسين ترتيب التقارير بوضع الإغلاق السنوي في الأسفل وترتيب إجراءات كشف الحساب 2×2.","إظهار زر رجوع في سجل العمليات وتوضيح اتجاه A4 العمودي والأفقي للكشف والطباعة وPDF.","عرض إثبات مطابقة الرصيد تحت جدول العمليات دون إطار أو خلفية ملونة، مع إبقاء ✓ مطابق داخل الرصيد.","فصل مشاركة PDF عن تنزيله لكشوف الحساب وميزان المراجعة والميزانية والسندات، مع تنبيه واضح عند عدم دعم المشاركة.","تحسين فحص التذكيرات أثناء فتح الويب وعند العودة إليه، مع توضيح حدود إشعارات الخلفية.","الإصدار الموحّد 3.6.45 للنسختين؛ تظهر «تجريبي» في التجريبية فقط.","نقل وظائف الأرشيف والإغلاق والمراجعة وكشوف السنوات السابقة إلى الرسمية مع فصل بيانات النسختين.","تظليل خانة الرصيد ووضع علامة ✓ مطابق في الكشف والاستعراض والطباعة وPDF.","إظهار علامة مطابقة الرصيد المؤكدة بتاريخها وقيمتها في كشف الحساب واستعراض الطباعة والنسخة الورقية وملف PDF، مع تظليل الرصيد المطابق وتحذير إذا تغيّرت الحركات.","كشف الحساب الاختياري مع حركات سنة مالية مغلقة سابقة، وتحديد سنة تاريخية أقدم، مع اتساق الرصيد السابق والنتيجة النهائية في الشاشة والطباعة وPDF وCSV دون تكرار التدوير.","نسخة احتياطية شاملة لجميع السنوات مع فتح السنة المالية المغلقة للتصحيح بضوابط: سبب إلزامي، نسخة أمان، تسجيل المراجعات، ثم إعادة الإقفال واحتساب التدوير.","تصحيح الإغلاق السنوي التجريبي: إظهار الرصيد المدور لكل حساب وعملة في بداية السنة الجديدة، وحفظ سندات السنة السابقة في الأرشيف، وفتح سجل السنة الجديدة خاليًا من سندات السنوات المغلقة.","محاكاة إغلاق السنة الحالية 2026 داخل النسخة التجريبية فقط، بعد تفعيل الخيار والتأكيد والنسخ الاحتياطي، مع اختبار القفل وإعادة الفتح.","الإغلاق السنوي التجريبي مع قيد تسوية الإيرادات والمصروفات متعدد العملات وترحيل النتيجة للأرباح المبقاة.","قفل عمليات السنوات المعتمدة، مع إعادة فتح موثقة وإلغاء آثار قيود الإقفال.","معاينة الأرصدة وحركات السنة واشتراط نسخة احتياطية قبل الإغلاق.","استيراد اختياري للبيانات الرسمية إلى التجريبية فقط، بدون مزامنة تلقائية أو نقل بيانات الترخيص.","عرض الرصيد الحالي أسفل الحساب المختار بحسب عملته في سندات الإدخال.","إظهار التفقيط العربي المباشر للمبالغ في القيد البسيط وبنود القيد المركب.","إضافة زر عودة بجانب اختياري القبض والصرف في السطر نفسه.","مطابقة كشف الحساب إلى تاريخ معين مع تذكّر علامة المطابقة والتنبيه عند تعديل حركات سابقة.","تقرير شامل لتعارضات استعادة الحسابات المستوردة مع استثناء غير الصالح منها.","إدارة انتقائية للحسابات والأرصدة المستوردة من دفعات سابقة دون حذف السندات الجديدة.","أرشفة حسابات الاستيراد وإخفاؤها من الشجرة مع بقاء حركاتها.","استعادة الحسابات إلى مساراتها الأصلية عند توفر معلومات المصدر وعدم تعارض أرقامها.","حماية توازن الأرصدة الافتتاحية ومعاينة الحذف قبل تنفيذه.","إنشاء نسخة أمان قبل أي إجراء وتوثيق التغييرات.","إصلاح حجز أرقام الحسابات القديمة وإظهار الحسابات التجميعية عند البحث ولو لم تعد لها حسابات تفصيلية.","توضيح اسم ومسار الحساب الذي يشغل الرقم وحماية الحركات المحاسبية التاريخية.","توحيد فحص أرقام الحسابات مع الدليل المحاسبي الفعلي ومنع حجز الأرقام بواسطة تعاريف قديمة غير موجودة.","توضيح الحسابات المحفوظة في سجل رموز قديم وغير الظاهرة في الشجرة دون حذف بياناتها.","البحث باسم الحساب أو رقمه في الشجرة وكشف الحساب مع الحفاظ على البيانات.","إصلاح تصفية التذكيرات حسب الأولوية دون تغيير القائمة المحفوظة أو مؤشرات التعديل والحذف.","احتساب اليوم ومواعيد الاستحقاق بتاريخ الجهاز المحلي وتحديث لوحة المعلومات فور حفظ التذكير.","البحث برقم الحساب أو اسمه داخل شجرة الحسابات وكشف الحساب، مع دعم الأرقام العربية.","عرض الحسابات المطابقة في الشجرة وتوسيع فروعها دون تغيير البيانات.","اختيار الحساب الأب برقمه أو باسمه، وإعادة طلب الأب وحده إذا لم يوجد.","ربط حساب تجميعي فرعي بحساب تجميعي فرعي آخر، مع منع الارتباط الدائري.","الطي والتوسيع للمجموعات الحسابية الفرعية والتفصيلية.","إظهار كل الحسابات التجميعية والفرعية في قائمة الإضافة بمسارها الكامل.","تثبيت ارتباط الحساب الجديد بالحساب الأب المختار.","إظهار إجمالي المدين والدائن وصافي الرصيد تحت كل حساب تفصيلي في شجرة الحسابات.","عرض كل عملة بمفردها مع مراعاة قيود الرصيد الافتتاحي والسندات المركبة.","الاحتفاظ بتحسينات ترتيب الشجرة وموضعها والضغط المباشر لتحرير الحساب."]};
+const RATIB_RELEASE={"version":"3.6.47","changes":["اختصار إثبات المطابقة أسفل كشف الحساب في الشاشة والطباعة وPDF إلى «✓ مطابق» فقط، دون شرح إضافي عند صحة المطابقة.","استعادة الحسابات المحفوظة بمعرّفاتها الأصلية في تعديل سندات القبض والصرف والقيود البسيطة والمركبة؛ اعتماد الاسم فقط عند التطابق الفريد ومنع اختيار حساب ملتبس.","تحسين ترتيب التقارير بوضع الإغلاق السنوي في الأسفل وترتيب إجراءات كشف الحساب 2×2.","إظهار زر رجوع في سجل العمليات وتوضيح اتجاه A4 العمودي والأفقي للكشف والطباعة وPDF.","عرض إثبات مطابقة الرصيد تحت جدول العمليات دون إطار أو خلفية ملونة، مع إبقاء ✓ مطابق داخل الرصيد.","فصل مشاركة PDF عن تنزيله لكشوف الحساب وميزان المراجعة والميزانية والسندات، مع تنبيه واضح عند عدم دعم المشاركة.","تحسين فحص التذكيرات أثناء فتح الويب وعند العودة إليه، مع توضيح حدود إشعارات الخلفية.","الإصدار الموحّد 3.6.45 للنسختين؛ تظهر «تجريبي» في التجريبية فقط.","نقل وظائف الأرشيف والإغلاق والمراجعة وكشوف السنوات السابقة إلى الرسمية مع فصل بيانات النسختين.","تظليل خانة الرصيد ووضع علامة ✓ مطابق في الكشف والاستعراض والطباعة وPDF.","إظهار علامة مطابقة الرصيد المؤكدة بتاريخها وقيمتها في كشف الحساب واستعراض الطباعة والنسخة الورقية وملف PDF، مع تظليل الرصيد المطابق وتحذير إذا تغيّرت الحركات.","كشف الحساب الاختياري مع حركات سنة مالية مغلقة سابقة، وتحديد سنة تاريخية أقدم، مع اتساق الرصيد السابق والنتيجة النهائية في الشاشة والطباعة وPDF وCSV دون تكرار التدوير.","نسخة احتياطية شاملة لجميع السنوات مع فتح السنة المالية المغلقة للتصحيح بضوابط: سبب إلزامي، نسخة أمان، تسجيل المراجعات، ثم إعادة الإقفال واحتساب التدوير.","تصحيح الإغلاق السنوي التجريبي: إظهار الرصيد المدور لكل حساب وعملة في بداية السنة الجديدة، وحفظ سندات السنة السابقة في الأرشيف، وفتح سجل السنة الجديدة خاليًا من سندات السنوات المغلقة.","محاكاة إغلاق السنة الحالية 2026 داخل النسخة التجريبية فقط، بعد تفعيل الخيار والتأكيد والنسخ الاحتياطي، مع اختبار القفل وإعادة الفتح.","الإغلاق السنوي التجريبي مع قيد تسوية الإيرادات والمصروفات متعدد العملات وترحيل النتيجة للأرباح المبقاة.","قفل عمليات السنوات المعتمدة، مع إعادة فتح موثقة وإلغاء آثار قيود الإقفال.","معاينة الأرصدة وحركات السنة واشتراط نسخة احتياطية قبل الإغلاق.","استيراد اختياري للبيانات الرسمية إلى التجريبية فقط، بدون مزامنة تلقائية أو نقل بيانات الترخيص.","عرض الرصيد الحالي أسفل الحساب المختار بحسب عملته في سندات الإدخال.","إظهار التفقيط العربي المباشر للمبالغ في القيد البسيط وبنود القيد المركب.","إضافة زر عودة بجانب اختياري القبض والصرف في السطر نفسه.","مطابقة كشف الحساب إلى تاريخ معين مع تذكّر علامة المطابقة والتنبيه عند تعديل حركات سابقة.","تقرير شامل لتعارضات استعادة الحسابات المستوردة مع استثناء غير الصالح منها.","إدارة انتقائية للحسابات والأرصدة المستوردة من دفعات سابقة دون حذف السندات الجديدة.","أرشفة حسابات الاستيراد وإخفاؤها من الشجرة مع بقاء حركاتها.","استعادة الحسابات إلى مساراتها الأصلية عند توفر معلومات المصدر وعدم تعارض أرقامها.","حماية توازن الأرصدة الافتتاحية ومعاينة الحذف قبل تنفيذه.","إنشاء نسخة أمان قبل أي إجراء وتوثيق التغييرات.","إصلاح حجز أرقام الحسابات القديمة وإظهار الحسابات التجميعية عند البحث ولو لم تعد لها حسابات تفصيلية.","توضيح اسم ومسار الحساب الذي يشغل الرقم وحماية الحركات المحاسبية التاريخية.","توحيد فحص أرقام الحسابات مع الدليل المحاسبي الفعلي ومنع حجز الأرقام بواسطة تعاريف قديمة غير موجودة.","توضيح الحسابات المحفوظة في سجل رموز قديم وغير الظاهرة في الشجرة دون حذف بياناتها.","البحث باسم الحساب أو رقمه في الشجرة وكشف الحساب مع الحفاظ على البيانات.","إصلاح تصفية التذكيرات حسب الأولوية دون تغيير القائمة المحفوظة أو مؤشرات التعديل والحذف.","احتساب اليوم ومواعيد الاستحقاق بتاريخ الجهاز المحلي وتحديث لوحة المعلومات فور حفظ التذكير.","البحث برقم الحساب أو اسمه داخل شجرة الحسابات وكشف الحساب، مع دعم الأرقام العربية.","عرض الحسابات المطابقة في الشجرة وتوسيع فروعها دون تغيير البيانات.","اختيار الحساب الأب برقمه أو باسمه، وإعادة طلب الأب وحده إذا لم يوجد.","ربط حساب تجميعي فرعي بحساب تجميعي فرعي آخر، مع منع الارتباط الدائري.","الطي والتوسيع للمجموعات الحسابية الفرعية والتفصيلية.","إظهار كل الحسابات التجميعية والفرعية في قائمة الإضافة بمسارها الكامل.","تثبيت ارتباط الحساب الجديد بالحساب الأب المختار.","إظهار إجمالي المدين والدائن وصافي الرصيد تحت كل حساب تفصيلي في شجرة الحسابات.","عرض كل عملة بمفردها مع مراعاة قيود الرصيد الافتتاحي والسندات المركبة.","الاحتفاظ بتحسينات ترتيب الشجرة وموضعها والضغط المباشر لتحرير الحساب."]};
 function showAppReleaseDetails(release){
   const box=document.getElementById('appUpdateDetails');if(!box)return;box.replaceChildren();
   if(!release||typeof release.version!=='string'||!Array.isArray(release.changes)){box.classList.add('hidden');return;}
@@ -5818,8 +5818,8 @@ let editVoucherCatStates = {}, editVoucherSplitMode = 'pct';
 function openTxModal(item) {if(item&&!item.isOpeningBalance&&['income','spend'].includes(item.voucherMode)&&!item.isMultiVoucher)return openLegacyCashEditor(item);if(item?.isOpeningBalance)return openImportedRecordEditor(item);
   activeEditingTx = item; lastPrintedTx = item; preparePrintVoucherTemplate(item);
   document.getElementById('modalSubtitle').textContent = `📅 تاريخ السند: ${item.date} | رقم السند: #${item.seqNum || '-'}`;
-  selEditDebitAcc.setValue(item.debitAccount, item.debitAccount,item.debitAccountId);
-  selEditCreditAcc.setValue(item.creditAccount, item.creditAccount,item.creditAccountId);
+  setExistingAccountForEdit(selEditDebitAcc,item.debitAccount,item.debitAccountId);
+  setExistingAccountForEdit(selEditCreditAcc,item.creditAccount,item.creditAccountId);
   document.getElementById('editVoucherAmount').value = Number(item.amount || 0).toLocaleString('en-US');
   document.getElementById('editVoucherCurrency').value = item.currency || 'YER';
   document.getElementById('editVoucherDate').value = item.isoDate || item.date || getLocalTodayISO();
@@ -7614,10 +7614,10 @@ function renderAccountCurrencyCanvas(data){
   totalRow(y,'رصيد سابق',opening<0?fmtN(Math.abs(opening)):'0',opening>0?fmtN(opening):'','-','#f1f5f9');y+=minRowH;
   cell(xBody,xR,y,'الرصيد الإجمالي','#e2e8f0',18);cell(xBal,xBody,y,`${closing>=0?'لكم':'عليكم'} : ${fmtN(Math.abs(closing))} ${accountCurrencyLabel(currency)}`,'#e2e8f0',18);y+=minRowH+34;
   if(proof){
-    const valid=proof.stable&&!proof.dateAfterPeriod;
+    const valid=proof.stable&&proof.inPeriod&&!proof.dateAfterPeriod;
     const proofLine=valid
-      ?`✓ مطابق — تاريخ المطابقة ${proof.date}: ${Math.abs(proof.balance).toLocaleString()} ${currency} (${proof.balance<0?'مدين':'دائن'})`
-      :proof.stable?`↪ المطابقة بتاريخ ${proof.date} أحدث من الفترة المعروضة؛ لا تثبت رصيد هذا الكشف.`
+      ?'✓ مطابق'
+      :proof.stable?`↪ المطابقة بتاريخ ${proof.date} خارج الفترة المعروضة؛ لا تثبت رصيد هذا الكشف.`
       :`⚠ تغيّرت الحركات بعد مطابقة ${proof.date}؛ يلزم إعادة المطابقة.`;
     // Plain reconciliation footnote after statement totals; no frame or shaded background.
     text(proofLine,width-margin-12,y,16,'#000','bold');
@@ -7860,6 +7860,7 @@ function entryupdateMultiLineFromDom(el,shouldSync=true){
   const i=Number(el.dataset.index),line=multiVoucherLines[i];if(!line)return;
   const key=el.classList.contains('multi-line-side')?'side':el.classList.contains('multi-line-account')?'account':el.classList.contains('multi-line-budget')?'budgetId':el.classList.contains('multi-line-note')?'note':el.classList.contains('multi-line-currency')?'currency':el.classList.contains('multi-line-amount')?'amount':el.classList.contains('multi-line-rate')?'rate':'notes';
   if(line.autoBalance&&['side','currency','amount','rate'].includes(key))return;
+  if(key==='account'&&line.account!==el.value)line.accountId='';
   line[key]=el.value;const base=document.getElementById('multiVoucherBaseCurrency')?.value||'YER';
   if(line.currency===base)line.rate='1';const value=getCleanNumber(line.amount)*multiLineRate(line,base);line.base=Number.isFinite(value)?roundAccountingAmount(value):0;
   const row=el.closest('tr'),rate=row?.querySelector('.multi-line-rate');if(rate){rate.readOnly=!!line.autoBalance||line.currency===base;if(line.currency===base)rate.value='1';}
@@ -7919,13 +7920,21 @@ function entryopenMultiVoucherEditor(item){
   // الآن ننتقل مباشرة لنفس شاشة الإدخال بالسند مملوءاً بكل بياناته دفعة واحدة.
   navigateToTab('pageExpenses', true);
   setVoucherFormHistory('multi-entry',false);
-  const groupId=item.multiVoucherId||item.id,txs=getAllTransactions().filter(t=>t.isMultiVoucher&&(t.multiVoucherId===groupId||t.id===groupId)),source=item.multiVoucher||txs[0]?.multiVoucher||{};
+  const groupId=item.multiVoucherId||item.id,txs=getAllTransactions().filter(t=>t.isMultiVoucher&&(t.multiVoucherId===groupId||t.id===groupId)),source={...(item.multiVoucher||txs[0]?.multiVoucher||{})};
+  const sourceSide=source.mode==='income'?'debit':'credit';
+  const sourcePosted=txs.find(t=>(sourceSide==='debit'?t.debitAccount:t.creditAccount)===source.sourceAccount);
+  source.sourceAccountId=source.sourceAccountId||(sourceSide==='debit'?sourcePosted?.debitAccountId:sourcePosted?.creditAccountId)||'';
   document.getElementById('voucherSelectorCard')?.classList.add('hidden');document.getElementById('cashFlowCard')?.classList.add('hidden');document.getElementById('multiVoucherCard')?.classList.remove('hidden');
-  multiVoucherDraftId=groupId;document.getElementById('multiVoucherSeqBadge').textContent=`رقم: ${source.seq||item.seqNum||getNextMultiVoucherNumber()}`;document.getElementById('multiVoucherDate').value=source.date||item.isoDate||multiToday();document.getElementById('multiVoucherBeneficiary').value=source.beneficiary||'';document.getElementById('multiVoucherParty').value=source.party||'';document.getElementById('multiVoucherNote').value=source.note||'';document.getElementById('multiVoucherBaseCurrency').value=source.baseCurrency||item.currency||'YER';multiSourceAcc.setValue(source.sourceAccount||'','');
-  if(Array.isArray(source.lines)&&source.lines.length)multiVoucherLines=source.lines.map(l=>({...newMultiLine(),...l,side:l.side||'debit'}));else multiVoucherLines=txs.map(t=>({...newMultiLine(),side:t.creditAccount?'credit':'debit',account:t.debitAccount||t.creditAccount||'',amount:t.amount,rate:1,base:t.amount,note:t.execution?.general?.note||''}));
-  const hasCredit=multiVoucherLines.some(l=>l.side==='credit');if(source.sourceAccount&&!hasCredit)multiVoucherLines.push({...newMultiLine(),side:'credit',account:source.sourceAccount,amount:source.baseTotal||txs.reduce((n,t)=>n+Number(t.amount||0),0),rate:1,base:source.baseTotal||0,note:'الحساب المرجعي'});renderMultiVoucherLines();showToast('تم فتح سند القيد المركب للتعديل','info');
+  multiVoucherDraftId=groupId;document.getElementById('multiVoucherSeqBadge').textContent=`رقم: ${source.seq||item.seqNum||getNextMultiVoucherNumber()}`;document.getElementById('multiVoucherDate').value=source.date||item.isoDate||multiToday();document.getElementById('multiVoucherBeneficiary').value=source.beneficiary||'';document.getElementById('multiVoucherParty').value=source.party||'';document.getElementById('multiVoucherNote').value=source.note||'';document.getElementById('multiVoucherBaseCurrency').value=source.baseCurrency||item.currency||'YER';setSavedVoucherSource(source.sourceAccount||'',source.sourceAccountId||'');
+  if(Array.isArray(source.lines)&&source.lines.length)multiVoucherLines=source.lines.map((l,i)=>{
+    const tx=txs.find(t=>String(t.id)===String(groupId)+'_'+i);
+    const restoredId=l.accountId||(l.side==='credit'?tx?.creditAccountId:tx?.debitAccountId)||'';
+    return {...newMultiLine(),...l,side:l.side||'debit',accountId:restoredId};
+  });else multiVoucherLines=txs.map(t=>({...newMultiLine(),side:t.creditAccount?'credit':'debit',account:t.debitAccount||t.creditAccount||'',accountId:t.debitAccountId||t.creditAccountId||'',amount:t.amount,rate:1,base:t.amount,note:t.execution?.general?.note||''}));
+  multiVoucherLines.forEach(line=>{if(line.account)restoreVoucherAccountIdentity(line);});
+  const hasCredit=multiVoucherLines.some(l=>l.side==='credit');if(source.sourceAccount&&!hasCredit)multiVoucherLines.push({...newMultiLine(),side:'credit',account:source.sourceAccount,accountId:source.sourceAccountId||'',amount:source.baseTotal||txs.reduce((n,t)=>n+Number(t.amount||0),0),rate:1,base:source.baseTotal||0,note:'الحساب المرجعي'});renderMultiVoucherLines();showToast('تم فتح سند القيد المركب للتعديل','info');
 }
-function entryloadLatestMultiDraft(){const drafts=store.get('multi_voucher_drafts',[]);const d=Array.isArray(drafts)&&drafts.length?drafts[drafts.length-1]:null;if(!d){showToast('لا توجد مسودة محفوظة لسند قيد مركب','info');return;}multiVoucherDraftId=d.id;document.getElementById('multiVoucherDate').value=d.date||multiToday();document.getElementById('multiVoucherBeneficiary').value=d.beneficiary||'';document.getElementById('multiVoucherParty').value=d.party||'';document.getElementById('multiVoucherNote').value=d.note||'';document.getElementById('multiVoucherBaseCurrency').value=d.baseCurrency||'YER';multiSourceAcc.setValue(d.sourceAccount||'',d.sourceAccount||'');multiVoucherLines=(d.lines||[]).map(l=>({...newMultiLine(),...l}));if(!multiVoucherLines.length)multiVoucherLines.push(newMultiLine());renderMultiVoucherLines();showToast('تم فتح آخر مسودة','success');}
+function entryloadLatestMultiDraft(){const drafts=store.get('multi_voucher_drafts',[]);const d=Array.isArray(drafts)&&drafts.length?drafts[drafts.length-1]:null;if(!d){showToast('لا توجد مسودة محفوظة لسند قيد مركب','info');return;}multiVoucherDraftId=d.id;document.getElementById('multiVoucherDate').value=d.date||multiToday();document.getElementById('multiVoucherBeneficiary').value=d.beneficiary||'';document.getElementById('multiVoucherParty').value=d.party||'';document.getElementById('multiVoucherNote').value=d.note||'';document.getElementById('multiVoucherBaseCurrency').value=d.baseCurrency||'YER';setSavedVoucherSource(d.sourceAccount||'',d.sourceAccountId||'');multiVoucherLines=(d.lines||[]).map(l=>({...newMultiLine(),...l}));if(!multiVoucherLines.length)multiVoucherLines.push(newMultiLine());renderMultiVoucherLines();showToast('تم فتح آخر مسودة','success');}
 async function saveMultiDraft(){
   const d=buildMultiVoucherData('draft'),drafts=store.get('multi_voucher_drafts',[]).filter(x=>x.id!==d.id);drafts.push(d);store.set('multi_voucher_drafts',drafts);multiVoucherDraftId=d.id;
   try{await flushStorage();showToast('تم حفظ المسودة، ويمكن إكمال بياناتها لاحقاً','success');hasUnsavedChanges=false;}catch(_){showToast('لم يكتمل حفظ المسودة. أعد محاولة الحفظ.','error');}
@@ -8912,7 +8921,7 @@ function syncMultiAutoBalance(){
   if(!cashVoucherMode())return entrysyncMultiAutoBalance();
   const lines=multiVoucherLines.filter(l=>!l.autoBalance);let total=0;
   for(const line of lines){line.side=cashCounterSide();if(line.currency===spendBase())line.rate=1;const value=spendAmount(line);line.base=Number.isFinite(value)?value:0;line.equivalentAmount=line.base;line.equivalentCurrency=spendBase();if(value>0)total=spendRound(total+value);}
-  multiVoucherLines=[...lines,{...newMultiLine(),autoBalance:true,side:multiVoucherMode==='income'?'debit':'credit',currency:spendBase(),account:multiSourceAcc.getValue(),amount:total,rate:1,base:total,budgetId:'general',note:document.getElementById('multiVoucherNote').value.trim()||cashSourceLabel()}];
+  multiVoucherLines=[...lines,{...newMultiLine(),autoBalance:true,side:multiVoucherMode==='income'?'debit':'credit',currency:spendBase(),account:multiSourceAcc.getValue(),accountId:multiSourceAcc.getAccountId()||'',amount:total,rate:1,base:total,budgetId:'general',note:document.getElementById('multiVoucherNote').value.trim()||cashSourceLabel()}];
 }
 
 function updateMultiVoucherSummary(){
@@ -8953,14 +8962,20 @@ function validateMultiVoucher(){
 }
 
 function applySpendDocument(d){cashLegacySource=d.legacySource||null;
-  if(d.sourceAccount)multiSourceAcc.setValue(d.sourceAccount,d.sourceAccount,d.sourceAccountId||'');
+  if(d.sourceAccount){
+    const retainedId=d.sourceAccountId||(multiSourceAcc.getValue()===d.sourceAccount?multiSourceAcc.getAccountId():'');
+    setSavedVoucherSource(d.sourceAccount,retainedId);
+  }
   configureVoucherMode(['income','spend'].includes(d.mode)?d.mode:'multi-entry');
   if(cashVoucherMode()){document.getElementById('spendHeaderBudget').innerHTML=spendBudgetOptions(d.headerBudgetId||'general');multiVoucherLines.forEach(l=>{if(l.budgetManual===undefined)l.budgetManual=true;});}
   renderMultiVoucherLines();
 }
 
 function openMultiVoucherEditor(item){
-  configureVoucherMode(['income','spend'].includes(item.multiVoucher?.mode)?item.multiVoucher.mode:'multi-entry');entryopenMultiVoucherEditor(item);applySpendDocument(item.multiVoucher||{});
+  configureVoucherMode(['income','spend'].includes(item.multiVoucher?.mode)?item.multiVoucher.mode:'multi-entry');entryopenMultiVoucherEditor(item);
+  const saved={...(item.multiVoucher||{})};
+  if(saved.sourceAccount&&!saved.sourceAccountId)saved.sourceAccountId=multiSourceAcc.getAccountId()||'';
+  applySpendDocument(saved);
 }
 
 function loadLatestMultiDraft(){
@@ -9158,14 +9173,14 @@ function cashDocumentFromLegacy(tx){
   const candidates=Object.entries(tx.distribution||{}).filter(([id,d])=>!d.excluded&&Number(d.amount)>0&&getCats().some(c=>c.id===id));
   const usable=candidates.length&&spendRound(candidates.reduce((n,[id,d])=>n+Number(d.amount),0))===spendRound(amount);
   const parts=usable?candidates:[['general',{amount}]];
-  return {id:tx.id||'',seq:tx.seqNum||getNextVoucherNumber(mode),date:tx.isoDate||tx.date||multiToday(),mode,baseCurrency:currency,sourceAccount:source||'',beneficiary:tx.recipient||'',note:tx.note||Object.values(tx.execution||{})[0]?.note||'',headerBudgetId:parts[0][0],legacySource:tx.id?cloneData(tx):null,lines:parts.map(([budgetId,d])=>({...newMultiLine(),side:mode==='income'?'credit':'debit',account:counter||'',amount:Number(d.amount),currency,rate:1,base:Number(d.amount),budgetId,budgetManual:true,note:tx.execution?.[budgetId]?.note||tx.note||''}))};
+  return {id:tx.id||'',seq:tx.seqNum||getNextVoucherNumber(mode),date:tx.isoDate||tx.date||multiToday(),mode,baseCurrency:currency,sourceAccount:source||'',sourceAccountId:mode==='income'?(tx.debitAccountId||''):(tx.creditAccountId||''),beneficiary:tx.recipient||'',note:tx.note||Object.values(tx.execution||{})[0]?.note||'',headerBudgetId:parts[0][0],legacySource:tx.id?cloneData(tx):null,lines:parts.map(([budgetId,d])=>({...newMultiLine(),side:mode==='income'?'credit':'debit',account:counter||'',accountId:mode==='income'?(tx.creditAccountId||''):(tx.debitAccountId||''),amount:Number(d.amount),currency,rate:1,base:Number(d.amount),budgetId,budgetManual:true,note:tx.execution?.[budgetId]?.note||tx.note||''}))};
 }
 
 function loadCashDocument(d){
   configureVoucherMode(d.mode);currentVoucherMode=d.mode;cashLegacySource=d.legacySource||null;multiVoucherDraftId=d.id||'';
   document.getElementById('voucherSelectorCard').classList.add('hidden');document.getElementById('cashFlowCard').classList.add('hidden');document.getElementById('multiVoucherCard').classList.remove('hidden');document.getElementById('multiSavedNotice').classList.add('hidden');
   document.getElementById('multiVoucherDate').value=d.date||multiToday();document.getElementById('multiVoucherSeqBadge').textContent=`رقم: ${d.seq||getNextVoucherNumber(d.mode)}`;document.getElementById('multiVoucherBaseCurrency').value=d.baseCurrency||'YER';document.getElementById('multiVoucherBeneficiary').value=d.beneficiary||'';document.getElementById('multiVoucherNote').value=d.note||'';
-  multiSourceAcc.setValue(d.sourceAccount||'',d.sourceAccount||'');multiVoucherLines=cloneData(d.lines||[]);if(!multiVoucherLines.some(l=>!l.autoBalance))multiVoucherLines=[newSpendLine()];applySpendDocument(d);
+  setSavedVoucherSource(d.sourceAccount||'',d.sourceAccountId||'');multiVoucherLines=cloneData(d.lines||[]);if(!multiVoucherLines.some(l=>!l.autoBalance))multiVoucherLines=[newSpendLine()];applySpendDocument(d);
 }
 
 function openLegacyCashEditor(item){
@@ -9637,13 +9652,37 @@ let voucherRowSelectors=[];
 const renderVoucherRowsWithoutSearch=renderMultiVoucherLines;
 function voucherAccountItems(){return getMultiAccountItems();}
 function resolveVoucherAccount(name,id=''){
-  const matches=voucherAccountItems().filter(i=>i.id===name&&(!id||i.accountId===id));
-  return matches.length===1?matches[0]:null;
+  const items=voucherAccountItems(),code=String(id||'').trim(),label=String(name||'').trim();
+  if(code){
+    const byCode=items.filter(i=>String(i.accountId||'').trim()===code);
+    if(byCode.length===1)return byCode[0]; // Original ID survives a renamed account.
+    if(byCode.length>1)return null; // An ambiguous ID must not be guessed.
+  }
+  const byName=items.filter(i=>String(i.id||'').trim()===label);
+  return byName.length===1?byName[0]:null;
+}
+function setExistingAccountForEdit(selector,name,id=''){
+  if(!selector)return;
+  const found=resolveVoucherAccount(name,id);
+  if(found)selector.setValue(found.id,found.text,found.accountId||'');
+  else selector.setValue(name||'',name||'',id||''); // Keep unresolved accounts visible for explicit correction.
+}
+function setSavedVoucherSource(name,id=''){
+  const found=resolveVoucherAccount(name,id);
+  multiSourceAcc.setValue(found?.id||name||'',found?.text||name||'',found?.accountId||id||'');
+}
+function restoreVoucherAccountIdentity(line){
+  if(!line?.account)return null;
+  const match=resolveVoucherAccount(line.account,line.accountId||'');
+  if(match){line.account=match.id;line.accountId=match.accountId||'';line.accountQuery=match.text;}
+  return match;
 }
 renderMultiVoucherLines=function(){
   const active=voucherRowSelectors.find(x=>x.selector.input===document.activeElement);
   const focus=active?{id:active.line.id,start:active.selector.input.selectionStart,end:active.selector.input.selectionEnd}:null;
   voucherRowSelectors.forEach(x=>x.selector.destroy());voucherRowSelectors=[];
+  // Resolve original account identities before rendering saved voucher rows.
+  multiVoucherLines.forEach(restoreVoucherAccountIdentity);
   renderVoucherRowsWithoutSearch();
   document.querySelectorAll('#multiVoucherLinesBody select.multi-line-account').forEach(select=>{
     const line=multiVoucherLines[Number(select.dataset.index)],key='voucherAccount_'+line.id;
@@ -9659,8 +9698,8 @@ renderMultiVoucherLines=function(){
     selector.setItems(voucherAccountItems());
     const saved=resolveVoucherAccount(line.account,line.accountId||'');
     selector.setValue(saved?.id||'',saved?.text||'',saved?.accountId||'');
-    if(saved)line.accountId=saved.accountId;
-    if(!saved&&line.accountQuery)input.value=line.accountQuery;
+    if(saved){line.account=saved.id;line.accountId=saved.accountId||'';}
+    if(!saved&&(line.accountQuery||line.account))input.value=line.accountQuery||line.account;
     // Portaling prevents a table's scrolling container from clipping suggestions.
     document.body.append(drop);selector.portaled=true;
     input.setAttribute('role','combobox');input.setAttribute('aria-autocomplete','list');input.setAttribute('aria-controls',drop.id);
@@ -9671,7 +9710,7 @@ renderMultiVoucherLines=function(){
 const validateVoucherAccountsWithoutSearch=validateMultiVoucher;
 validateMultiVoucher=function(){
   if(cashVoucherMode()&&!multiSourceAcc.getValue())return 'اختر حساب القبض أو الصرف من الدليل.';
-  for(const line of multiVoucherLines){if(!line.account&&!String(line.amount??'').trim())continue;const match=resolveVoucherAccount(line.account,line.accountId||'');if(!match)return 'اختر حسابًا موجودًا من الاقتراحات لكل سطر؛ لا يُنشأ حساب من النص المكتوب.';line.accountId=match.accountId;}
+  for(const line of multiVoucherLines){if(!line.account&&!String(line.amount??'').trim())continue;const match=restoreVoucherAccountIdentity(line);if(!match)return 'اختر حسابًا موجودًا من الاقتراحات لكل سطر؛ لا يُنشأ حساب من النص المكتوب.';}
   return validateVoucherAccountsWithoutSearch();
 };
 const buildVoucherAccountsWithoutSearch=buildMultiVoucherData;

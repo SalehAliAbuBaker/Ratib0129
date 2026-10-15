@@ -61,7 +61,12 @@ function normalizeVoucher(){const card=document.getElementById('multiVoucherCard
  ['modalPrintDocBtn','confirmPrintDocBtn','printSavedSpendBtn'].forEach(id=>setKind(document.getElementById(id),'print','طباعة'));
  ['modalPdfDocBtn','confirmPdfDocBtn'].forEach(id=>setKind(document.getElementById(id),'pdf','PDF'));
  setKind(document.getElementById('shareSavedSpendBtn'),'share','مشاركة PDF');}
-function genericIcons(){document.querySelectorAll('button').forEach(b=>{if(b.dataset.ratibKind)return;const k=classify(b);if(k)setKind(b,k,b.title||b.getAttribute('aria-label')||'');});}
+function genericIcons(){document.querySelectorAll('button').forEach(b=>{
+ // Account drawer entries already have icons, labels and descriptions. Keep their
+ // markup intact: icon-only conversion removes labels and the orientation hint.
+ if(b.closest('#accountScreenMenu')||b.dataset.ratibKind)return;
+ const k=classify(b);if(k)setKind(b,k,b.title||b.getAttribute('aria-label')||'');
+});}
 function cleanUi(){const home=document.getElementById('dashboardHomeContent');if(home)[...home.children].forEach(el=>{if(el.matches('button.btn.btn-ghost.no-print')&&/المفضلة السريعة/.test(el.textContent))el.style.display='none';});const label=document.querySelector('#filterAccountSelectBox>label');if(label)label.style.display='none';}
 function run(){addStyle();restorePaper();normalizeHeader();normalizeAccountToolbar();normalizeReports();normalizeVoucher();genericIcons();cleanUi();}
 let pending=false;const observer=new MutationObserver(()=>{if(pending)return;pending=true;requestAnimationFrame(()=>{pending=false;run();});});

@@ -83,6 +83,35 @@ async function run(){
   search.value='';search.dispatchEvent(new w.Event('input',{bubbles:true}));const group=d.getElementById('ratibFavGroup');group.value='التقارير';group.dispatchEvent(new w.Event('change',{bubbles:true}));assert([...d.querySelectorAll('.fav-choice-group h3')].every(el=>el.textContent==='التقارير'));
  });
  await test('Back controls are marked; existing text and command handlers remain',async()=>{assert(d.getElementById('ledgerBackBtn').classList.contains('ratib-back-control'));assert(d.getElementById('backToMenuBtn').querySelector('[data-icon="back"]'));assert.equal(d.getElementById('backToMenuBtn').getAttribute('onclick'),'goBackInApp()');});
+ await test('Account tools retain labels, icons and orientation controls after output normalization',async()=>{
+  const menu=d.getElementById('accountScreenMenu');
+  const items=[...menu.querySelectorAll('button[role="menuitem"]')];
+  const markup=items.map(b=>b.innerHTML);
+  const orientationLabel=d.getElementById('ratibAccountOrientationLabel');
+  load('ratib-unified-output.js');await pause(30);
+  for(let pass=0;pass<3;pass++)w.RatibUnifiedOutput.refresh();
+  items.forEach((b,i)=>{
+   assert.equal(b.innerHTML,markup[i],b.dataset.accountAction||b.id);
+   assert(b.querySelector('.ratib-menu-icon'));
+   assert(b.querySelector('.ratib-menu-text').textContent.trim());
+   assert(!b.classList.contains('ratib-output-icon'));
+  });
+  assert(d.getElementById('printMultiVoucherBtn').classList.contains('ratib-output-icon'),'ordinary output toolbar still uses icons');
+  const toggle=d.getElementById('accountScreenMenuToggle');toggle.click();
+  assert(menu.classList.contains('open'));assert.equal(toggle.getAttribute('aria-expanded'),'true');
+  const originalOrientation=code(w,'ratibPaperLandscape()');
+  d.getElementById('ratibAccountOrientationBtn').click();await pause(25);
+  assert.equal(code(w,'ratibPaperLandscape()'),!originalOrientation);
+  assert.equal(d.getElementById('ratibAccountOrientationLabel'),orientationLabel);
+  assert(orientationLabel.textContent.includes(originalOrientation?'عمودي':'أفقي'));
+  w.RatibUnifiedOutput.refresh();
+  d.getElementById('ratibAccountOrientationBtn').click();
+  assert.equal(code(w,'ratibPaperLandscape()'),originalOrientation);
+  toggle.click();menu.querySelector('[data-account-action="advanced"]').click();
+  assert(!menu.classList.contains('open'));assert.equal(toggle.getAttribute('aria-expanded'),'false');
+  assert(!d.getElementById('accountAdvancedSearchPanel').classList.contains('hidden'));
+  toggle.click();d.getElementById('accountToolsCloseBtn').click();assert(!menu.classList.contains('open'));
+ });
  assert.deepEqual(f.errors,[]);fixtures.forEach(x=>x.dom.window.close());
 }
 run().then(()=>process.exit(0)).catch(e=>{console.error(e.stack);process.exit(1)});

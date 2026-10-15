@@ -89,7 +89,7 @@
       return false;
     }
   }
-  function showActivation() {
+  function showActivation(options={}) {
     let dlg = document.getElementById('ratibLicenseDialog');
     if (!dlg) {
       dlg = document.createElement('div');dlg.id='ratibLicenseDialog';
@@ -97,7 +97,7 @@
       dlg.style.cssText='position:fixed;inset:0;z-index:999999;display:none;align-items:center;justify-content:center;padding:12px;background:rgba(15,23,42,.8);direction:rtl';
       dlg.innerHTML = '<div style="background:var(--card,#fff);color:var(--text,#111);padding:20px;border-radius:14px;max-width:440px;width:100%;max-height:95vh;overflow:auto;font-family:inherit;text-align:right">'
       +'<h2 style="margin:0 0 12px">🔐 تفعيل تطبيق راتب</h2>'
-      +'<p style="line-height:1.8">اكتملت العشرون عملية المجانية دون حد زمني. ستبقى بياناتك وتقاريرك متاحة. لإنشاء عملية جديدة أدخل رقم الترخيص.</p>'
+      +'<p id="ratibLicenseIntro" style="line-height:1.8">اكتملت العشرون عملية المجانية دون حد زمني. ستبقى بياناتك وتقاريرك متاحة. لإنشاء عملية جديدة أدخل رقم الترخيص.</p>'
       +'<label style="display:block;margin:12px 0 5px">رقم الترخيص</label><input id="ratibLicenseCode" dir="ltr" placeholder="LIC-..." style="width:100%;padding:11px;border:1px solid #aaa;border-radius:8px;background:var(--bg,#fff);color:inherit;font:inherit">'
       +'<label style="display:block;margin:12px 0 5px">الاسم (اختياري)</label><input id="ratibLicenseName" placeholder="الاسم" style="width:100%;padding:11px;border:1px solid #aaa;border-radius:8px;background:var(--bg,#fff);color:inherit;font:inherit">'
       +'<label style="display:block;margin:12px 0 5px">البريد الإلكتروني (اختياري إلا عند ربط الترخيص بالبريد)</label><input id="ratibLicenseEmail" type="email" dir="ltr" placeholder="name@gmail.com" style="width:100%;padding:11px;border:1px solid #aaa;border-radius:8px;background:var(--bg,#fff);color:inherit;font:inherit">'
@@ -122,6 +122,13 @@
       });
       $('ratibLicenseClose').addEventListener('click',()=>{dlg.style.display='none';});
     }
+    const manual=options?.manual===true;
+    const intro=dlg.querySelector('#ratibLicenseIntro');
+    if(intro)intro.textContent=manual
+      ?'يمكنك إدخال كود التفعيل الآن دون انتظار انتهاء العمليات المجانية. سيُتحقق من الكود عبر خدمة التراخيص الحالية.'
+      :'اكتملت العشرون عملية المجانية دون حد زمني. ستبقى بياناتك وتقاريرك متاحة. لإنشاء عملية جديدة أدخل رقم الترخيص.';
+    const feedback=dlg.querySelector('#ratibLicenseFeedback');
+    if(feedback){feedback.textContent='';feedback.style.color='var(--danger,#b91c1c)';}
     dlg.querySelector('#ratibLicenseDevice').textContent=deviceId();
     dlg.style.display='flex';dlg.querySelector('#ratibLicenseCode').focus();
   }

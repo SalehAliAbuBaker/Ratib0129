@@ -1,6 +1,29 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
+<style id="ratib-compact-actions-style">
+/* Ratib: three-action account statement toolbar, with all secondary actions preserved. */
+#pageAccountOperations .account-operations-screen-head{overflow:visible!important;z-index:30}
+#pageAccountOperations .account-operations-head-actions{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr));width:100%;gap:8px;direction:rtl;overflow:visible!important;white-space:normal}
+#pageAccountOperations .account-operations-head-actions>.account-inline-actions,
+#pageAccountOperations .account-operations-head-actions>.account-add-operation-btn,
+#pageAccountOperations .account-operations-head-actions>.account-screen-menu-wrap{order:unset!important;width:100%!important;min-width:0;flex:none!important}
+#pageAccountOperations .account-operations-head-actions>.account-inline-actions{display:block!important;overflow:visible!important}
+#pageAccountOperations .account-inline-back,
+#pageAccountOperations .account-add-operation-btn,
+#pageAccountOperations .account-screen-menu-toggle{display:flex;align-items:center;justify-content:center;flex-direction:column;width:100%!important;height:62px;min-width:0!important;margin:0!important;padding:7px 3px!important;border-radius:11px;font:800 clamp(.72rem,2.8vw,.98rem) Tajawal,sans-serif;gap:2px;white-space:normal}
+#pageAccountOperations .account-inline-back{color:var(--accent);border:1px solid var(--border);background:var(--card);font-size:1.25rem}
+#pageAccountOperations .account-inline-back span,
+#pageAccountOperations .account-screen-menu-toggle span{display:block;font-size:.85rem}
+#pageAccountOperations .account-add-operation-btn{background:var(--accent);color:white}
+#pageAccountOperations .account-screen-menu-toggle{font-size:1.25rem;border:1px solid var(--border)}
+#pageAccountOperations .account-screen-menu-wrap{position:relative}
+#pageAccountOperations .account-screen-menu{right:auto!important;left:0!important;top:calc(100% + 5px);max-width:min(290px,calc(100vw - 42px));min-width:min(250px,calc(100vw - 42px));white-space:normal;z-index:99;max-height:min(70vh,520px);overflow-y:auto}
+#pageAccountOperations .account-screen-menu button{min-height:44px}
+#pageAccountOperations .account-operations-screen-head #accountOperationsScreenTitle{line-height:1.4;font-size:clamp(.98rem,3.7vw,1.18rem)}
+@media(min-width:760px){#pageAccountOperations .account-operations-head-actions{max-width:600px;margin-inline:auto}}
+@media print{#pageAccountOperations .account-operations-head-actions{display:none!important}}
+</style>
 <style id="ratib-version-visibility">#appVersionLabel{display:inline-flex!important;visibility:visible!important;opacity:1!important;white-space:nowrap!important;align-items:center!important;font-weight:700!important;}</style>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
@@ -1269,7 +1292,7 @@ body.ratib-sidebar-open,body.ratib-about-open{overflow:hidden}
     <div class="header-tools"><div class="header-actions">
       <button class="icon-btn" id="themeBtn" title="الوضع الليلي">🌙</button>
       <button class="icon-btn" id="sidebarMenuBtn" aria-haspopup="dialog" aria-controls="appSidebar" aria-expanded="false" title="القائمة الجانبية" aria-label="فتح القائمة الجانبية">☰</button>
-    </div><small id="appVersionLabel" class="app-version">الإصدار 3.6.53</small></div>
+    </div><small id="appVersionLabel" class="app-version">الإصدار 3.6.54 تجريبي</small></div>
   </header>
   <div class="summary-toolbar hidden no-print" id="storageFeedback"><span id="persistentSaveStatus" hidden aria-hidden="true">جاهز</span><button type="button" id="retryStorageBtn" class="btn btn-ghost hidden">إعادة محاولة الحفظ</button></div>
 <div class="app-update-banner hidden no-print" id="appUpdateBanner" role="status"><span id="appUpdateMessage">يتوفر تحديث لراتب. هل تريد تطبيقه؟</span><button type="button" class="btn btn-ghost" id="applyAppUpdateBtn">موافق، تطبيق التحديث</button><div id="appUpdateDetails" class="hidden"></div></div>
@@ -1598,11 +1621,16 @@ body.ratib-sidebar-open,body.ratib-about-open{overflow:hidden}
     <div class="account-operations-screen-head">
       <strong id="accountOperationsScreenTitle">عمليات الحساب</strong>
       <div class="account-operations-head-actions">
-        <button type="button" class="btn btn-primary account-add-operation-btn" id="accountAddOperationBtn">＋ إضافة عملية</button><div class="account-inline-actions" aria-label="إجراءات الحساب"><button type="button" class="account-inline-action account-quick-voucher-btn" id="accountQuickVoucherBtn" title="إضافة سند قبض أو صرف لهذا الحساب" aria-label="إضافة سند قبض أو صرف لهذا الحساب">＋</button><button type="button" class="account-inline-action" data-account-action="advanced" title="بحث متقدم">⌕<span>بحث</span></button><button type="button" class="account-inline-action" data-account-action="print" disabled title="طباعة بعد الفلترة">🖨<span>طباعة</span></button><button type="button" class="account-inline-action" data-account-action="share" title="مشاركة PDF">↗<span>PDF</span></button><button type="button" class="account-inline-action" data-account-action="documentQuery" disabled title="استفسار عن المستند">⌕<span>استفسار</span></button><button type="button" class="account-inline-action account-inline-back" data-account-action="close" title="العودة إلى الشاشة السابقة">←<span>رجوع</span></button></div>
-        <div class="account-screen-menu-wrap hidden">
-          <button type="button" class="account-screen-menu-toggle" id="accountScreenMenuToggle" aria-label="قائمة كشف الحساب" aria-expanded="false">☰</button>
-          <div class="account-screen-menu" id="accountScreenMenu" role="menu">
-            <div class="account-menu-section">تصفية وعرض</div><button type="button" data-account-action="advanced">⌕ بحث متقدم <small>تحديد الفترة والعملة</small></button><button type="button" data-account-action="print" disabled>🖨 طباعة <small>بعد تطبيق الفلترة</small></button><div class="account-menu-section">تصدير ومشاركة</div><button type="button" data-account-action="share">↗ مشاركة PDF <small>العمليات المعروضة</small></button><div class="account-menu-section">المستند</div><button type="button" data-account-action="documentQuery" disabled>⌕ استفسار عن المستند <small>البحث في المستندات</small></button><button type="button" data-account-action="close" class="account-menu-close">← عودة / إغلاق</button>
+        <div class="account-inline-actions" aria-label="العودة من كشف الحساب"><button type="button" class="account-inline-action account-inline-back" data-account-action="close" title="العودة إلى الشاشة السابقة" aria-label="رجوع">↪️ <span>رجوع</span></button></div>
+        <button type="button" class="btn btn-primary account-add-operation-btn" id="accountAddOperationBtn">＋ <span>إضافة عملية</span></button>
+        <div class="account-screen-menu-wrap">
+          <button type="button" class="account-screen-menu-toggle" id="accountScreenMenuToggle" aria-label="المزيد من أدوات كشف الحساب" aria-expanded="false" aria-controls="accountScreenMenu">••• <span>المزيد</span></button>
+          <div class="account-screen-menu" id="accountScreenMenu" role="menu" aria-label="أدوات كشف الحساب">
+            <button type="button" role="menuitem" data-account-action="advanced">🔍 بحث متقدم <small>التصفية بحسب التاريخ والعملة</small></button>
+            <button type="button" role="menuitem" data-account-action="share">↗ مشاركة PDF <small>مشاركة كشف الحساب</small></button>
+            <button type="button" role="menuitem" data-account-action="print" disabled>🖨️ طباعة <small>بعد تطبيق الفلترة</small></button>
+            <button type="button" role="menuitem" data-account-action="documentQuery" disabled>🔍 استفسار عن المستند <small>البحث في المستندات</small></button>
+            <button type="button" role="menuitem" class="account-quick-voucher-btn" id="accountQuickVoucherBtn" title="إضافة سند قبض أو صرف لهذا الحساب">＋ إضافة سند قبض أو صرف</button>
           </div>
         </div>
       </div>
@@ -7670,7 +7698,7 @@ function ratibTogglePaperOrientation(){
 }
 function ratibInitPaperOrientation(){
   document.getElementById('ratibStatementOrientationBtn')?.addEventListener('click',ratibTogglePaperOrientation);
-  const host=document.querySelector('#pageAccountOperations .account-inline-actions');
+  const host=document.querySelector('#accountScreenMenu');
   if(host&&!document.getElementById('ratibAccountOrientationBtn')){
     const btn=document.createElement('button');btn.type='button';btn.id='ratibAccountOrientationBtn';btn.className='btn btn-ghost';btn.title='اتجاه صفحة الطباعة وملف PDF';btn.style.cssText='width:auto;min-width:76px;padding:7px 8px';btn.addEventListener('click',ratibTogglePaperOrientation);host.appendChild(btn);
   }
@@ -7698,7 +7726,7 @@ async function shareCurrentAccountOperations(choice=null,currencies=null){
 const accountScreenMenuToggle=document.getElementById('accountScreenMenuToggle'),accountScreenMenu=document.getElementById('accountScreenMenu');
 accountScreenMenuToggle?.addEventListener('click',e=>{e.stopPropagation();const open=accountScreenMenu?.classList.toggle('open');accountScreenMenuToggle.setAttribute('aria-expanded',open?'true':'false');});
 function runAccountAction(action){if(!action)return;if(action==='advanced'){const panel=document.getElementById('accountAdvancedSearchPanel');const opening=panel?.classList.contains('hidden');panel?.classList.toggle('hidden');if(opening){const today=getLocalTodayISO?getLocalTodayISO():getLocalTodayISO(),from=document.getElementById('accountOpsFromDate'),to=document.getElementById('accountOpsToDate');if(from&&!from.value)from.value=today;if(to&&!to.value)to.value=today;}}else if(action==='print')requestAccountStatementOutput('print');else if(action==='share')requestAccountStatementOutput('pdf');else if(action==='documentQuery')openGlobalSearch();else if(action==='close'){return goBackInApp();}}
-accountScreenMenu?.addEventListener('click',e=>{e.stopPropagation();const btn=e.target.closest('button');if(!btn||btn.disabled)return;closeAccountScreenMenu();runAccountAction(btn.dataset.accountAction);});
+accountScreenMenu?.addEventListener('click',e=>{e.stopPropagation();const btn=e.target.closest('button');if(!btn||btn.disabled)return;closeAccountScreenMenu();if(btn.dataset.accountAction)runAccountAction(btn.dataset.accountAction);});
 document.querySelector('.account-inline-actions')?.addEventListener('click',e=>{const btn=e.target.closest('button');if(!btn||btn.disabled)return;runAccountAction(btn.dataset.accountAction);});
 // استبدلنا حقلي التاريخ من type="date" إلى نص عادي بصيغة سنة-شهر-يوم: بعض متصفحات
 // التطبيقات المدمجة (مثل متصفح واتساب الداخلي) لا تُفعّل منتقي التاريخ الأصلي بشكل

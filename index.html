@@ -1729,6 +1729,7 @@ body.ratib-sidebar-open,body.ratib-about-open{overflow:hidden}
       <span id="statementHeaderTitle">📑 كشف حساب العملاء والصناديق</span>
       <span style="display:flex;gap:6px;"><button class="icon-btn no-print" id="reportQuickVoucherBtn" title="إضافة سند قبض أو صرف للحساب المحدد" aria-label="إضافة سند قبض أو صرف للحساب المحدد" style="width:42px; height:42px;">＋</button><button class="icon-btn no-print" id="reportAdvToggleBtn" title="بحث متقدم (الفترة والعملة)" style="width:42px; height:42px;">⌕</button><button class="icon-btn no-print" id="shareStatementPdfBtn" title="مشاركة PDF" style="width:42px; height:42px;">📄</button><button class="icon-btn no-print" id="printStatementBtn" title="طباعة مباشرة" style="width:42px; height:42px;">🖨️</button></span>
     </h2>
+    <div class="no-print" style="display:flex;align-items:center;gap:9px;flex-wrap:wrap;margin-bottom:8px"><button type="button" class="btn btn-ghost" id="ratibStatementOrientationBtn" style="width:auto;margin:0;padding:6px 12px" title="تغيير اتجاه صفحة الطباعة وملف PDF">A4 عمودي</button><small style="color:var(--muted)">اتجاه الطباعة وPDF (لا يدوّر شاشة الهاتف)</small></div>
     <div class="search-box">
       <span class="search-icon">🔍</span>
       <input type="search" id="statementSearchInput" placeholder="بحث داخل كشف الحساب (بالبيان، الطرف، أو السند)...">
@@ -7650,10 +7651,40 @@ function buildPdfFromCanvases(canvases,pageSize=[595,842]){
   for(let i=1;i<count;i++)add(String(offsets[i]).padStart(10,'0')+' 00000 n \n');
   add(`trailer\n<< /Size ${count} /Root 1 0 R >>\nstartxref\n${xref}\n%%EOF`);return new Blob(parts,{type:'application/pdf'});
 }
+
+function ratibPaperLandscape(){try{return localStorage.getItem('ratib.statementLandscape')==='1';}catch(_){return false;}}
+function ratibUpdatePaperOrientation(showNotice=false){
+  const landscape=ratibPaperLandscape();
+  document.querySelectorAll('#ratibStatementOrientationBtn,#ratibAccountOrientationBtn').forEach(btn=>{
+    btn.textContent=landscape?'A4 أفقي':'A4 عمودي';
+    btn.setAttribute('aria-label',landscape?'الطباعة وPDF بالعرض الأفقي':'الطباعة وPDF بالعرض العمودي');
+    btn.setAttribute('aria-pressed',String(landscape));
+  });
+  if(showNotice)showToast(landscape?'تم اختيار A4 أفقي للطباعة وPDF':'تم اختيار A4 عمودي للطباعة وPDF','info');
+}
+function ratibTogglePaperOrientation(){
+  try{localStorage.setItem('ratib.statementLandscape',ratibPaperLandscape()?'0':'1');}catch(e){showToast('تعذر حفظ تفضيل اتجاه الصفحة','warn');}
+  ratibUpdatePaperOrientation(true);
+}
+function ratibInitPaperOrientation(){
+  document.getElementById('ratibStatementOrientationBtn')?.addEventListener('click',ratibTogglePaperOrientation);
+  const host=document.querySelector('#pageAccountOperations .account-inline-actions');
+  if(host&&!document.getElementById('ratibAccountOrientationBtn')){
+    const btn=document.createElement('button');btn.type='button';btn.id='ratibAccountOrientationBtn';btn.className='btn btn-ghost';btn.title='اتجاه صفحة الطباعة وملف PDF';btn.style.cssText='width:auto;min-width:76px;padding:7px 8px';btn.addEventListener('click',ratibTogglePaperOrientation);host.appendChild(btn);
+  }
+  ratibUpdatePaperOrientation();
+  // Unlike WebView screen orientation, this controls the PDF and printed paper.
+  const style=document.createElement('style');style.id='ratibStatementPrintPageStyle';document.head.appendChild(style);
+  window.addEventListener('beforeprint',()=>{
+    const statement=document.body.classList.contains('printing-statement')||document.body.classList.contains('account-print-mode');
+    style.textContent=statement?('@page{size:A4 '+(ratibPaperLandscape()?'landscape':'portrait')+';margin:3mm}'):'';
+  });
+  window.addEventListener('afterprint',()=>{style.textContent='';});
+}
 function buildAccountOperationsPdf(choice,currencies){
   const selected=choice==='ALL'?(currencies||printableAccountCurrencies()):[choice];
   function* pages(){const data=selected.map(getAccountCurrencyReportData);for(const item of data)yield* renderAccountCurrencyCanvases(item);if(choice==='ALL'&&data.length>1)yield renderAccountCurrencySummaryCanvas(data);}
-  return buildPdfFromCanvases(pages());
+  return buildPdfFromCanvases(pages(),ratibPaperLandscape()?[842,595]:[595,842]);
 }
 async function shareCurrentAccountOperations(choice=null,currencies=null){
   if(!choice){requestAccountStatementOutput('pdf');return;}
@@ -8368,7 +8399,7 @@ function scheduleReminderCheck(){
 }
 
 function initCompatibilityImprovements(){
-  initExitButton();initExitDialog();initRatibSidebar();initNestedNavigation();
+  initExitButton();initExitDialog();initRatibSidebar();initNestedNavigation();ratibInitPaperOrientation();
   const currency=document.getElementById('currency');if(currency){currency.value=store.get('preferred_currency','YER');if(!KNOWN_CURRENCIES.has(currency.value))currency.value='YER';currency.addEventListener('change',()=>{store.set('preferred_currency',currency.value);ledgerVisibleLimit=50;updateProDashboard();if(activeReportTab==='budget')runBudgetReport();});}
   const budgetCurrency=document.getElementById('budgetReportCurrency');if(budgetCurrency){const preferred=store.get('budget_report_currency',getGlobalCurrency());budgetCurrency.value=KNOWN_CURRENCIES.has(preferred)?preferred:getGlobalCurrency();budgetCurrency.addEventListener('change',()=>{store.set('budget_report_currency',getBudgetReportCurrency());runBudgetReport();});}
   document.getElementById('dashboardPeriod')?.addEventListener('change',updateProDashboard);

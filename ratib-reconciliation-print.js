@@ -39,25 +39,7 @@ function printProof(name,currency,txs){
  const to=accountOpsState.to||"";
  const evidence=inspect(name,currency,from,to);
  if(!evidence)return;
- const banner=document.createElement("div");
- banner.className="ratib-reconciliation-print-proof";
- banner.style.cssText="direction:rtl;text-align:right;font-size:10.5pt;font-weight:700;padding:6px 0;margin:8px 0;color:inherit;border:0;background:transparent;break-inside:avoid;page-break-inside:avoid";
- if(!evidence.stable){
-  banner.style.cssText+=";color:inherit";
-  banner.textContent=`⚠ مطابقة مؤرخة ${evidence.date} لم تعد سارية: تغيرت حركات الحساب بعد اعتمادها. يلزم إعادة المطابقة، ولا يُعد الرصيد مطابقًا.`;
- }else if(evidence.dateAfterPeriod){
-  banner.style.cssText+=";color:inherit";
-  banner.textContent=`↪ تاريخ المطابقة ${evidence.date} يأتي بعد نهاية فترة الكشف؛ ${evidenceText(evidence)}. هذه المطابقة لا تُثبت رصيد الفترة المعروضة.`;
- }else if(!evidence.inPeriod){
-  banner.textContent="↪ المطابقة المحفوظة خارج الفترة المعروضة؛ لا تُثبت رصيد هذا الكشف.";
- }else{
-  const heading=document.createElement("strong");
-  heading.style.cssText="display:block;font-size:12pt";
-  heading.textContent="✓ مطابق";
-  banner.append(heading);
- }
- const table=page.querySelector(".ps-table-wrap");
- if(table)table.after(banner);else page.append(banner);
+ // Only the reconciled balance cell is marked; no separate footer or banner.
  if(!evidence.stable||!evidence.inPeriod||evidence.dateAfterPeriod)return;
  const rows=[...page.querySelectorAll("#psTableBody tr")].filter(tr=>tr.cells?.length>=6&&tr.cells[0]?.colSpan===1&&!tr.classList.contains("ps-total-row"));
  const series=txs.filter(t=>t.debitAccount===name||t.creditAccount===name);
@@ -99,18 +81,7 @@ renderAccountOperations=function(name,scope=null,ui=null){
   const currency=page.dataset.currency,proof=currency?inspect(name,currency,from,to):null;
   page.querySelectorAll(".ratib-reconciliation-screen-proof").forEach(el=>el.remove());
   if(!proof)return;
-  const banner=document.createElement("div");banner.className="ratib-reconciliation-screen-proof";
-  banner.style.cssText="margin:9px 0;padding:5px 0;font-size:12px;line-height:1.7;border:0;background:transparent;color:inherit";
-  if(!proof.stable){
-   banner.style.cssText+=";color:inherit";
-   banner.textContent=`⚠ المطابقة السابقة بتاريخ ${proof.date} تحتاج مراجعة؛ تغيّرت حركات الحساب ولا يُعد الرصيد مطابقًا.`;
-  }else if(proof.dateAfterPeriod){
-   banner.textContent=`↪ مطابقة سابقة حتى ${proof.date}، لكنها بعد تاريخ نهاية الكشف المعروض؛ لا تُثبت رصيد هذه الفترة.`;
-  }else if(!proof.inPeriod){
-   banner.textContent="↪ المطابقة المحفوظة خارج الفترة المعروضة؛ لا تُثبت رصيد هذا الكشف.";
-  }else{
-   banner.textContent=confirmed(proof);
-   if(proof.inPeriod){
+  if(proof.stable&&proof.inPeriod&&!proof.dateAfterPeriod){
     const rows=[...page.querySelectorAll(".account-statement-row[data-tx-id]")];
     const group=getAccountOperations(name,scope,currency);
     let last=-1;
@@ -120,15 +91,12 @@ renderAccountOperations=function(name,scope=null,ui=null){
      if(cell){
       cell.style.background="#e1f1e5";cell.style.color="#24513c";cell.style.fontWeight="900";
       cell.querySelectorAll(".ratib-match-mark").forEach(e=>e.remove());
-      const marker=document.createElement("small");marker.className="ratib-reconciliation-screen-proof";
+      const marker=document.createElement("small");marker.className="ratib-reconciliation-screen-proof ratib-match-mark";
       marker.style.cssText="display:block;font-weight:900;font-size:11px";marker.textContent="✓ مطابق";
       cell.appendChild(marker);
      }
     }
-   }
   }
-  const table=page.querySelector(".account-statement-table");
-  if(table)table.insertAdjacentElement("afterend",banner);else page.appendChild(banner);
  });
  return out;
 };

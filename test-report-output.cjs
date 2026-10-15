@@ -2,7 +2,7 @@ const fs=require('fs');
 const assert=require('assert/strict');
 const vm=require('vm');
 const {webcrypto}=require('crypto');
-const {JSDOM,VirtualConsole}=require('jsdom');
+const {JSDOM,VirtualConsole,ResourceLoader}=require('jsdom');
 const {IDBFactory}=require('fake-indexeddb');
 const html=fs.readFileSync(require('node:path').join(__dirname,'index.html'),'utf8');
 const results=[],fixtures=[];
@@ -11,10 +11,18 @@ function workerFixture(waiting){const listeners=new Map(),messages=[];const add=
 async function waitFor(fn,label,ms=5000){const deadline=Date.now()+ms;while(Date.now()<deadline){if(fn())return;await pause(10);}throw Error('Timeout: '+label);}
 function code(win,script){if(script.includes('goBackInApp()')||script.includes("runAccountAction('close')"))return win.eval('(async()=>{'+script.replaceAll('goBackInApp()','await goBackInApp()').replaceAll("runAccountAction('close')","await runAccountAction('close')")+'})()');return win.eval(script);}
 function localSnapshot(win){return Object.fromEntries(Object.keys(win.localStorage).map(k=>[k,win.localStorage.getItem(k)]));}
-function makeFixture({idb=new IDBFactory(),seed={},blockLocal=false,blockIDB=false,serviceWorker=null,historySetup=[]}={}){
+class LocalScripts extends ResourceLoader{
+ fetch(address){
+  const url=new URL(address);if(url.origin!=='https://ratib.test'||!url.pathname.startsWith('/Ratib0129/'))return null;
+  const path=require('node:path'),root=path.resolve(__dirname),file=path.resolve(root,url.pathname.slice('/Ratib0129/'.length));
+  if(!file.startsWith(root+path.sep)||!fs.existsSync(file)||!file.match(/\.(js|css)$/))return null;
+  return Promise.resolve(fs.readFileSync(file));
+ }
+}
+function makeFixture({idb=new IDBFactory(),seed={},blockLocal=false,blockIDB=false,serviceWorker=null,historySetup=[],loadResources=false}={}){
   const errors=[],downloads=[],canvasText=[],logs=[],permissions={requests:0},faults={local:false,idb:false};
   const virtualConsole=new VirtualConsole();virtualConsole.on('jsdomError',e=>errors.push(e.message));virtualConsole.on('error',(...e)=>logs.push(e.map(v=>v?.stack||String(v)).join(' ')));virtualConsole.on('warn',(...e)=>logs.push(e.map(v=>v?.stack||String(v)).join(' ')));
-  const dom=new JSDOM(html,{url:'https://ratib.test/Ratib0129/',runScripts:'dangerously',pretendToBeVisual:true,virtualConsole,beforeParse(win){
+  const dom=new JSDOM(html,{url:'https://ratib.test/Ratib0129/',runScripts:'dangerously',pretendToBeVisual:true,virtualConsole,...(loadResources?{resources:new LocalScripts()}:{}),beforeParse(win){
     historySetup.forEach((entry,index)=>{if(index)win.history.pushState(entry.state||{},'',entry.path);else win.history.replaceState(entry.state||{},'',entry.path);});
     for(const [k,v] of Object.entries(seed))win.localStorage.setItem(k,v);
     faults.local=blockLocal;faults.idb=blockIDB;
@@ -171,6 +179,58 @@ async function run(){
   d.getElementById('printSavedSpendBtn').click();assert.equal(prints.length,count+1);finishPrint();
   d.getElementById('downloadSavedSpendBtn').click();assert.equal(f.downloads.length,downloads+1);
   let shared=0;w.navigator.share=async()=>{shared++;};d.getElementById('shareSavedSpendBtn').click();await pause(20);assert.equal(shared,1);
+ });
+ await test('Voucher output glyphs recover after legacy startup replaces an initialized button',async()=>{
+  const button=d.getElementById('printMultiVoucherBtn'),pdf=d.getElementById('pdfMultiVoucherBtn');
+  button.textContent='🖨';pdf.textContent='▤';
+  assert.equal(button.dataset.ratibKind,'print');assert.equal(button.dataset.ratibGlyph,'1');
+  await pause(50);
+  const svg=button.querySelector(':scope>svg[data-ratib-output-icon="print"]');assert(svg);assert.equal(w.getComputedStyle(svg).display,'block');assert.equal(w.getComputedStyle(svg).visibility,'visible');
+  assert.equal(pdf.textContent,'PDF');
+  assert.equal(d.querySelectorAll('#multiVoucherCard .ratib-icon-tools,#ratibMultiEditPrint').length,0);
+  const markup=button.innerHTML;for(let pass=0;pass<3;pass++)w.RatibUnifiedOutput.refresh();assert.equal(button.innerHTML,markup);
+ });
+ await test('Simple journal preview, print, PDF, share and A4 use the unsaved form without posting or changing its number',async()=>{
+  code(w,`selectVoucherTypeDirect('entry');selDebitAcc.setValue(outputAccount,outputAccount);selCreditAcc.setValue(outputCounterpart,outputCounterpart);document.getElementById('voucherAmountInput').value='175';document.getElementById('voucherCurrencySelect').value='YER';document.getElementById('voucherDateInput').value='2026-10-05';document.getElementById('voucherNoteInput').value='معاينة القيد البسيط';isVoucherSplitActive=false;`);
+  const next=code(w,"getNextVoucherNumber('entry')"),count=prints.length,downloads=f.downloads.length,snapshot=code(w,'JSON.stringify(captureSingleDraft())');
+  const share=[];w.navigator.share=async data=>share.push(data);
+  assert.equal(d.querySelectorAll('#ratibSimpleVoucherTools button').length,5);
+  d.getElementById('ratibSimpleVoucherPreviewBtn').click();assert(d.getElementById('printPreviewModal').classList.contains('show'));assert.equal(prints.length,count);assert(d.getElementById('printPreviewBody').textContent.includes('معاينة القيد البسيط'));assert(d.getElementById('printPreviewBody').textContent.includes('175'));
+  d.getElementById('printPreviewCancelBtn').click();d.getElementById('ratibSimpleVoucherPrintBtn').click();assert.equal(prints.length,count+1);finishPrint();
+  d.getElementById('ratibSimpleVoucherPdfBtn').click();assert.equal(f.downloads.length,downloads+1);assert(f.downloads.at(-1).blob.size>100);
+  d.getElementById('ratibSimpleVoucherShareBtn').click();await pause(20);assert.equal(share.length,1);assert(share[0].files[0].name.includes('قيد'));
+  d.getElementById('ratibSimpleVoucherA4Btn').click();assert.equal(code(w,'ratibPaperLandscape()'),true);d.getElementById('ratibSimpleVoucherPdfBtn').click();assert((await f.downloads.at(-1).blob.text()).includes('/MediaBox [0 0 842 595]'));
+  assert.equal(code(w,"getNextVoucherNumber('entry')"),next);
+  const before=JSON.parse(snapshot),after=JSON.parse(code(w,'JSON.stringify(captureSingleDraft())'));delete before.savedAt;delete after.savedAt;assert.deepEqual(after,before);
+  code(w,"document.getElementById('voucherAmountInput').value='0'");
+  d.getElementById('ratibSimpleVoucherPrintBtn').click();d.getElementById('ratibSimpleVoucherPdfBtn').click();d.getElementById('ratibSimpleVoucherShareBtn').click();await pause(20);
+  assert.equal(prints.length,count+1);assert.equal(f.downloads.length,downloads+2);assert.equal(share.length,1);
+ });
+ await test('Deferred script startup preserves visible print icons and one output toolbar through voucher mode switches',async()=>{
+  const live=makeFixture({loadResources:true});await boot(live);const win=live.win,doc=win.document;
+  await waitFor(()=>win.RatibUnifiedOutput,'deferred output script');await pause(50);
+  const trialTools=doc.querySelector('#trialBalanceCard .report-actions');
+  assert.equal(win.getComputedStyle(trialTools).display,'flex');assert.equal(win.getComputedStyle(trialTools).flexWrap,'wrap');
+  assert.equal(win.getComputedStyle(doc.getElementById('trialExcelBtn')).width,'auto');
+  assert.deepEqual([...trialTools.children].map(b=>b.id),['ratib-trialBalanceCard-a4','trialPreviewBtn','printTrialBalanceBtn','ratibTrialPdfBtn','shareTrialBalancePdfBtn','trialExcelBtn']);
+  for(const mode of ['spend','income','multi-entry','entry','spend']){
+   win.outputMode=mode;code(win,'selectVoucherTypeDirect(outputMode)');await pause(30);
+   const button=doc.getElementById(mode==='entry'?'ratibSimpleVoucherPrintBtn':'printMultiVoucherBtn');
+   const svg=button.querySelector(':scope>svg[data-ratib-output-icon="print"]');assert(svg,mode);assert.equal(win.getComputedStyle(svg).display,'block');
+   assert.equal(doc.querySelectorAll('#multiVoucherCard .ratib-icon-tools,#ratibMultiEditPrint').length,0);
+   const card=doc.getElementById(mode==='entry'?'cashFlowCard':'multiVoucherCard');assert.equal(card.querySelectorAll('button[data-ratib-kind="share"]').length,1);
+  }
+  assert.deepEqual(live.errors,[]);
+ });
+ await test('Simple journal save retains validation, posting and numbering after sharing its document builder with output',async()=>{
+  const saved=makeFixture();await boot(saved);const win=saved.win,doc=win.document;let licenses=0,created=0;
+  win.RatibLicense={beforeCreate:async()=>{licenses++;return true;},recordCreated(){created++;}};
+  code(win,`selectVoucherTypeDirect('entry');const names=getCanonicalCatalog().flatMap(r=>r.details.map(x=>x[1]));selDebitAcc.setValue(names[0],names[0]);selCreditAcc.setValue(names[1],names[1]);document.getElementById('voucherAmountInput').value='175';document.getElementById('voucherCurrencySelect').value='YER';document.getElementById('voucherDateInput').value='2026-10-05';document.getElementById('voucherNoteInput').value='قيد اختباري';isVoucherSplitActive=true;voucherCatStates={general:{enabled:true,amount:100}};`);
+  const next=code(win,"getNextVoucherNumber('entry')");
+  doc.getElementById('commitVoucherBtn').click();await pause(20);assert.equal(licenses,0);assert.equal(code(win,'getAllTransactions().length'),0);
+  code(win,'isVoucherSplitActive=false;voucherCatStates.general.amount=175');doc.getElementById('commitVoucherBtn').click();
+  await waitFor(()=>!doc.getElementById('commitVoucherBtn').disabled&&code(win,'getAllTransactions().length')===1,'simple journal save');await flush(saved);
+  const tx=code(win,'getAllTransactions()[0]');assert.equal(tx.amount,175);assert.equal(tx.currency,'YER');assert.equal(tx.isoDate,'2026-10-05');assert.equal(tx.status,'posted');assert.equal(tx.seqNum,next);assert.equal(tx.distribution.general.amount,175);assert.equal(tx.execution.general.note,'قيد اختباري');assert.equal(licenses,1);assert.equal(created,1);assert.equal(code(win,"getNextVoucherNumber('entry')"),next+1);assert.deepEqual(saved.errors,[]);
  });
  assert.equal(code(w,'JSON.stringify(getAllTransactions())'),transactions);
  assert.deepEqual(f.errors,[]);fixtures.forEach(x=>x.dom.window.close());

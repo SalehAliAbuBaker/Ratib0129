@@ -1,4 +1,4 @@
-/* Ratib unified output system — v3.6.55
+/* Ratib unified output system — v3.6.56
    Presentation/output only. No accounting calculations are changed here. */
 (()=>{'use strict';
 const STYLE_ID='ratibUnifiedOutputStyleV3613';
@@ -14,7 +14,7 @@ function iconMarkup(kind){return '<svg viewBox="0 0 24 24" width="21" height="21
 function addStyle(){if(document.getElementById(STYLE_ID))return;const s=document.createElement('style');s.id=STYLE_ID;s.textContent=`
 .ratib-output-toolbar{display:flex!important;direction:ltr!important;align-items:center!important;justify-content:flex-start!important;gap:7px!important;flex-wrap:nowrap!important;overflow-x:auto!important;scrollbar-width:thin;padding:2px 0!important}
 .ratib-output-icon{width:46px!important;height:46px!important;min-width:46px!important;min-height:46px!important;padding:0!important;margin:0!important;border-radius:11px!important;display:inline-flex!important;align-items:center!important;justify-content:center!important;font:900 18px/1 Tajawal,system-ui,sans-serif!important;box-shadow:none!important;flex:0 0 46px!important}
-.ratib-output-icon svg{pointer-events:none}.ratib-output-icon span,.ratib-output-icon small{display:none!important}
+.ratib-output-icon>svg{display:block!important;visibility:visible!important;opacity:1!important;width:21px;height:21px;flex:none;pointer-events:none}.ratib-output-icon span,.ratib-output-icon small{display:none!important}
 .ratib-output-icon[data-ratib-kind]{background:transparent!important;border-color:var(--border)!important;color:var(--accent)!important}
 .ratib-output-icon[data-ratib-kind]:hover{background:color-mix(in srgb,var(--accent) 7%,transparent)!important;border-color:var(--accent)!important}
 .ratib-output-icon[data-ratib-kind="pdf"],.ratib-output-icon[data-ratib-kind="a4"]{font-size:13px!important;letter-spacing:.2px}
@@ -31,6 +31,10 @@ function addStyle(){if(document.getElementById(STYLE_ID))return;const s=document
 .multi-voucher-actions.ratib-voucher-actions .voucher-savebar{order:20!important;flex:1 1 100%!important;direction:rtl!important}
 .multi-voucher-actions.ratib-voucher-actions .btn-danger{order:21!important;flex:1 1 100%!important}
 .spend-notice-actions{gap:7px!important}.spend-notice-actions .ratib-output-icon{display:inline-flex!important}
+@media screen{
+ #trialBalanceCard .report-actions.ratib-output-toolbar{flex-wrap:wrap!important;direction:rtl!important;overflow:visible!important;gap:8px!important;margin:12px 0!important}
+ #trialBalanceCard #trialExcelBtn{width:auto!important;flex:0 0 auto!important;min-height:46px;margin:0!important;padding:9px 14px;white-space:normal}
+}
 header .header-actions{direction:ltr!important}
 #dashboardHomeContent>.btn.btn-ghost.no-print{display:none!important}
 #filterAccountSelectBox>label{display:none!important}
@@ -48,10 +52,16 @@ function setKind(btn,kind,title){
  if(changed)btn.dataset.ratibKind=kind;
  if(title&&btn.title!==title)btn.title=title;
  if(title&&btn.getAttribute('aria-label')!==title)btn.setAttribute('aria-label',title);
- if(changed||!btn.dataset.ratibGlyph){
+ const usesSvg=kind==='share'||Boolean(iconPaths[kind]);
+ const svgReady=[...btn.children].some(el=>el.localName==='svg'&&el.getAttribute('data-ratib-output-icon')===kind);
+ const textReady=btn.textContent===(kind==='pdf'?'PDF':'A4');
+ // Form startup can replace button contents after the deferred UI script runs.
+ // Check the rendered structure, rather than trusting a stale initialization flag.
+ if(changed||!btn.dataset.ratibGlyph||(usesSvg?!svgReady:!textReady)){
   if(kind==='share')btn.innerHTML=SHARE_SVG;
   else if(iconPaths[kind])btn.innerHTML=iconMarkup(kind);
   else btn.textContent=kind==='pdf'?'PDF':'A4';
+  if(usesSvg)btn.firstElementChild.setAttribute('data-ratib-output-icon',kind);
   btn.dataset.ratibGlyph='1';
  }
  return btn;
@@ -78,6 +88,7 @@ function normalizeReportToolbar(cardId,printId,shareId,pdfId,pdfBuilder,pdfName,
  const host=cardId==='trialBalanceCard'?card?.querySelector('.report-actions'):card?.querySelector('h2>span:last-child');
  if(!host)return;
  host.classList.add('ratib-output-toolbar');
+ if(cardId==='trialBalanceCard'){host.setAttribute('role','group');host.setAttribute('aria-label','أدوات ميزان المراجعة');}
  const print=document.getElementById(printId),share=document.getElementById(shareId);
  setKind(print,'print','طباعة');setKind(share,'share','مشاركة PDF');
  const preview=ensureButton(host,previewId,'preview','معاينة قبل الطباعة',previewHandler);
@@ -119,6 +130,9 @@ function normalizeVoucher(){
  const share=ensureButton(host,'ratibMultiVoucherShareBtn','share','مشاركة PDF',async()=>{const d=currentVoucherData();if(d)await directShare(voucherBlob(d),voucherName(d),d.mode==='income'?'سند قبض':d.mode==='spend'?'سند صرف':'سند قيد');});
  const a4=ensureButton(host,'ratibMultiVoucherA4Btn','a4','A4 / اتجاه الصفحة',togglePaper);
  orderGroup(host,[a4,preview,print,pdf,share,draft,load]);
+ // Also handle an older cached HTML page loading this newer script: first move
+ // the existing controls into the unified toolbar, then remove redundant rows.
+ document.querySelectorAll('#multiVoucherCard .ratib-icon-tools,#ratibMultiEditPrint').forEach(el=>el.remove());
  for(const [printId,previewId,handler] of [
   ['modalPrintDocBtn','ratibModalVoucherPreviewBtn',()=>window.previewEditingVoucher()],
   ['confirmPrintDocBtn','ratibConfirmedVoucherPreviewBtn',()=>window.previewLastVoucher()],
@@ -130,8 +144,17 @@ function normalizeVoucher(){
  ['modalPdfDocBtn','confirmPdfDocBtn','downloadSavedSpendBtn'].forEach(id=>setKind(document.getElementById(id),'pdf','تنزيل PDF'));
  setKind(document.getElementById('shareSavedSpendBtn'),'share','مشاركة PDF');
 }
+function normalizeSimpleVoucher(){
+ const host=document.getElementById('ratibSimpleVoucherTools');if(!host)return;
+ const a4=ensureButton(host,'ratibSimpleVoucherA4Btn','a4','A4 / اتجاه الصفحة',togglePaper);
+ const preview=ensureButton(host,'ratibSimpleVoucherPreviewBtn','preview','معاينة قبل الطباعة',()=>window.outputCurrentSimpleVoucher('preview'));
+ const print=ensureButton(host,'ratibSimpleVoucherPrintBtn','print','طباعة',()=>window.outputCurrentSimpleVoucher('print'));
+ const pdf=ensureButton(host,'ratibSimpleVoucherPdfBtn','pdf','تنزيل PDF',()=>window.outputCurrentSimpleVoucher('download'));
+ const share=ensureButton(host,'ratibSimpleVoucherShareBtn','share','مشاركة PDF',()=>window.outputCurrentSimpleVoucher('share'));
+ orderGroup(host,[a4,preview,print,pdf,share]);
+}
 function cleanUi(){const home=document.getElementById('dashboardHomeContent');if(home)[...home.children].forEach(el=>{if(el.matches('button.btn.btn-ghost.no-print')&&/المفضلة السريعة/.test(el.textContent))el.style.display='none';});const label=document.querySelector('#filterAccountSelectBox>label');if(label)label.style.display='none';}
-function run(){addStyle();normalizeHeader();normalizeAccountToolbar();normalizeReports();normalizeVoucher();cleanUi();restorePaper();}
+function run(){addStyle();normalizeHeader();normalizeAccountToolbar();normalizeReports();normalizeVoucher();normalizeSimpleVoucher();cleanUi();restorePaper();}
 let pending=false;const observer=new MutationObserver(()=>{if(pending)return;pending=true;requestAnimationFrame(()=>{pending=false;run();});});
 function start(){run();observer.observe(document.body,{childList:true,subtree:true});}
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else start();

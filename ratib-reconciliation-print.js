@@ -101,9 +101,9 @@ renderAccountOperations=function(name,scope=null,ui=null){
   page.querySelectorAll(".ratib-reconciliation-screen-proof").forEach(el=>el.remove());
   if(!proof)return;
   const banner=document.createElement("div");banner.className="ratib-reconciliation-screen-proof";
-  banner.style.cssText="margin:7px 0;padding:8px 10px;font-size:12px;line-height:1.7;border:1.5px solid #6a9582;border-radius:8px;background:#e7f4e9;color:#24513c";
+  banner.style.cssText="margin:9px 0;padding:5px 0;font-size:12px;line-height:1.7;border:0;background:transparent;color:inherit";
   if(!proof.stable){
-   banner.style.cssText+=";border-color:#d99b40;background:#fff7ed;color:#713f12";
+   banner.style.cssText+=";color:inherit";
    banner.textContent=`⚠ المطابقة السابقة بتاريخ ${proof.date} تحتاج مراجعة؛ تغيّرت حركات الحساب ولا يُعد الرصيد مطابقًا.`;
   }else if(proof.dateAfterPeriod){
    banner.textContent=`↪ مطابقة سابقة حتى ${proof.date}، لكنها بعد تاريخ نهاية الكشف المعروض؛ لا تُثبت رصيد هذه الفترة.`;
@@ -126,7 +126,8 @@ renderAccountOperations=function(name,scope=null,ui=null){
     }
    }
   }
-  page.querySelector(".account-operations-head")?.insertAdjacentElement("afterend",banner);
+  const table=page.querySelector(".account-statement-table");
+  if(table)table.insertAdjacentElement("afterend",banner);else page.appendChild(banner);
  });
  return out;
 };

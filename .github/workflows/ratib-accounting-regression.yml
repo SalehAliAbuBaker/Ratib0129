@@ -20,3 +20,14 @@ jobs:
         run: node test-accounting-3.6.59.cjs
       - name: Run regression suite
         run: npm test
+  statement-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Install test dependencies
+        run: npm install --ignore-scripts --no-audit --no-fund
+      - name: Verify statement balances, print, and PDF
+        run: node test-statement-3.6.60.cjs

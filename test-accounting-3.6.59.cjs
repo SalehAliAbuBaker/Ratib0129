@@ -25,7 +25,7 @@ const context=[
  "function getGlobalCurrency(){return 'YER';}",
  "function getAccountOpsDate(t){return t.isoDate||'';}",
  "function getCanonicalCatalog(){return [{main:'الأصول',group:'الذمم',sub:'العملاء',details:[[3102,'شركة المشقاص']]}];}",
- "function getCurrentAccountBalance(){}function computeAccountTreeBalanceSummary(){}function runAllAccountsSummaryReport(){}",
+ "function getCurrentAccountBalance(){}function computeAccountTreeBalanceSummary(){}function runAllAccountsSummaryReport(){}function preparePrintStatementTemplate(){}function getHeaderConfig(){return {show:false};}",
  "function completeFinancialSave(callback){callback();}",
  "function openMultiVoucherEditor(){}function openDocumentDetailsModal(){}",
  "function CustomEvent(type){this.type=type;}"

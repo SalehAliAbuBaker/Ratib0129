@@ -16,5 +16,7 @@ jobs:
           node-version: '24'
       - name: Install testing dependencies
         run: npm install --ignore-scripts --no-audit --no-fund
+      - name: Run targeted accounting regression first
+        run: node test-accounting-3.6.59.cjs
       - name: Run regression suite
         run: npm test

@@ -46,6 +46,8 @@ await test('Unique exact input adopts existing account code without click',async
 await test('Contains search, duplicate exact names require deliberate choice',async()=>{w.__items=[{id:'محمد',text:'محمد',accountId:'201',group:'الصناديق'},{id:'محمد',text:'محمد',accountId:'202',group:'البنوك'}];code(w,'selDebitAcc.setItems(__items)');input(d.getElementById('inpDebitAcc'),'محمد');assert.equal(code(w,'selDebitAcc.getValue()'),'');code(w,'selDebitAcc.choose(__items[1])');assert.equal(code(w,'selDebitAcc.getAccountId()'),'202');});
 await test('Backspace and unknown input clear identity and never create accounts',async()=>{const before=code(w,'JSON.stringify(getCanonicalCatalog())');input(d.getElementById('inpDebitAcc'),'محم','deleteContentBackward');assert.equal(code(w,'selDebitAcc.getAccountId()'),'');assert.equal(d.getElementById('inpDebitAcc').value,'محم');input(d.getElementById('inpDebitAcc'),'اسم غير موجود');assert.equal(code(w,'selDebitAcc.getValue()'),'');assert.equal(code(w,'JSON.stringify(getCanonicalCatalog())'),before);});
 code(w,'updateSearchableData()');
+// jsdom does not load the external licensing script; enable saves only in this test fixture.
+w.RatibLicense={beforeCreate:async()=>true,recordCreated(){}};
 for(const mode of ['spend','income','multi-entry'])await test('Searchable repeated accounts and saved IDs in '+mode,async()=>{
 code(w,'multiVoucherLines=[];multiVoucherDraftId="";'+(mode==='multi-entry'?'selectMultiVoucherType()':'selectVoucherTypeDirect('+JSON.stringify(mode)+')')+';');
 const name=code(w,'getMultiAccountItems()[0].text'),id=code(w,'getMultiAccountItems()[0].accountId');

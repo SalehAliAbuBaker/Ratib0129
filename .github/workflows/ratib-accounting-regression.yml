@@ -1,0 +1,22 @@
+name: Ratib accounting regression
+on:
+  push:
+    branches:
+      - fix/ratib-3.6.59-accounting-refresh-clone
+  pull_request:
+    branches:
+      - main
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Install testing dependencies
+        run: npm install --ignore-scripts --no-audit --no-fund
+      - name: Run targeted accounting regression first
+        run: node test-accounting-3.6.59.cjs
+      - name: Run regression suite
+        run: npm test

@@ -67,6 +67,36 @@ runAllAccountsSummaryReport=function(targetTxs){
  const net=round(gCredit-gDebit);
  if(b)b.textContent=display(Math.abs(net))+" "+selectedCurrency+" ("+(net<0?"صافي مدين":"صافي دائن")+")";
 };
+// The all-accounts print/preview must count actual debit/credit legs.
+// The previous template counted every compound line as both debit and credit.
+const oldStatementPrint=preparePrintStatementTemplate;
+preparePrintStatementTemplate=function(accountName,transactions,opening,periodTitle,currencyLabel){
+ if(accountName!=="ALL")return oldStatementPrint.apply(this,arguments);
+ const currency=reportAdv.active&&reportAdv.currency!=="ALL"?reportAdv.currency:getGlobalCurrency();
+ const visible=legs(transactions).filter(leg=>leg.currency===currency),cfg=getHeaderConfig();
+ const set=(id,value)=>{const element=document.getElementById(id);if(element)element.textContent=value;};
+ set("psOrgName",cfg.show?cfg.name||"":"");set("psOrgDetails",cfg.show?cfg.details||"":"");
+ set("psStatementTitle","كشف أرصدة كافة الحسابات — "+currency);
+ set("psStatementPeriod",periodTitle||"-");set("psGeneratedDate",new Date().toLocaleDateString("en-CA"));
+ set("psTxCount",String(visible.length));
+ const tbody=document.getElementById("psTableBody");
+ let debit=0,credit=0;
+ if(tbody){
+  tbody.replaceChildren();
+  for(const leg of visible){
+   const tr=document.createElement("tr"),tx=leg.tx||{};
+   const note=leg.meta?.note||Object.values(tx.execution||{})[0]?.note||"";
+   const values=[leg.date,String(tx.seqNum||"—"),leg.account+(note?" — "+note:""),leg.debit?round(leg.debit).toLocaleString("en-US",{maximumFractionDigits:6}):"",leg.credit?round(leg.credit).toLocaleString("en-US",{maximumFractionDigits:6}):"",""];
+   for(const value of values){const td=document.createElement("td");td.textContent=value;tr.append(td);}
+   tbody.append(tr);debit+=Number(leg.debit);credit+=Number(leg.credit);
+  }
+ }
+ const net=round(credit-debit),fmt=n=>round(n).toLocaleString("en-US",{maximumFractionDigits:6});
+ set("psTotAlaykom",fmt(debit));set("psTotLakam",fmt(credit));
+ set("psNetBal",fmt(Math.abs(net))+" "+(net<0?"مدين":"دائن"));
+ set("psTafqitText","فروق تجميع القيود "+currency+": "+fmt(Math.abs(net))+" "+(net<0?"مدين":"دائن"));
+ const sum=document.getElementById("psSummaryBlock");if(sum)sum.style.display="";
+};
 // Independent comparison between the detailed statement rows and trial-balance postings.
 // This is diagnostic only; discrepancies NEVER create balancing vouchers.
 window.ratibDiagnoseBalanceDifferences=function(transactions=getAllTransactions()){

@@ -137,4 +137,4 @@ async function main(){
  for(const message of recorded)console.log('PASS',message);
  console.log('PASS Ratib statement 3.6.60: '+recorded.length+' checks');
 }
-main().catch(e=>{console.error(e);process.exitCode=1;}).finally(()=>{dom.window.close();});
+main().then(()=>{dom.window.close();process.exit(0);},error=>{console.error(error);dom.window.close();process.exit(1);});

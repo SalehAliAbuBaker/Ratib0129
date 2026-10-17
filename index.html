@@ -3604,10 +3604,10 @@ async function refreshAutoBackupUI() {
 // وعند فتحه لاحقاً يُنفَّذ ما فاته. (2) يستخدم معرّف OAuth المدمج ورابط https مُصرَّحاً به.
 // (3) صلاحية drive.file فقط: يرى التطبيق الملفات التي أنشأها هو، ولا يقرأ بقية Drive.
 const CLOUD_CFG_KEY = 'cloud_backup_cfg';
-const CLOUD_FOLDER_NAME = 'Ratib Backups';
-const CLOUD_FILE_PREFIX = 'ratib-cloud-';
+const CLOUD_FOLDER_NAME = 'Ratib Trial Backups';
+const CLOUD_FILE_PREFIX = 'ratib-trial-cloud-';
 const DRIVE_SCOPE = 'https://www.googleapis.com/auth/drive.file';
-const RATIB_GOOGLE_CLIENT_ID = '127962228897-k19m5nstjaun38k38348er1c9cf8vemb.apps.googleusercontent.com';
+const RATIB_GOOGLE_CLIENT_ID = '127962228897-qmia501m05ikjfajldb1lus689qupbml.apps.googleusercontent.com';
 let _cloudToken = null, _cloudTokenExp = 0, _cloudBusy = false, _gisPromise = null, _cloudNotifiedThisSession = false;
 
 function getCloudCfg() {

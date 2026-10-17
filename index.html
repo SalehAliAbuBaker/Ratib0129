@@ -7869,7 +7869,6 @@ function renderAccountCurrencyCanvas(data){
   // Reconciliation is indicated solely inside the matched balance cell.
   const footerLines=wrapCanvasText(measure,`الرصيد النهائي (${closing===0?'صفر':closing>0?'دائن':'مدين'}): ${tafqitAccountCurrency(Math.abs(closing),currency)}`,width-2*margin-36);
    const footerHeight=footerLines.length*lineH+38;
-   ctx.fillStyle='#f8fafc';ctx.fillRect(margin,y,width-2*margin,footerHeight);ctx.strokeStyle='#94a3b8';ctx.lineWidth=1;ctx.strokeRect(margin,y,width-2*margin,footerHeight);
    footerLines.forEach((line,i)=>text(line,width-margin-12,y+25+i*lineH,18,'#000','bold'));
    text('يرجى مراجعة الكشف خلال 14 يومًا من تاريخه.',width-margin-12,y+footerHeight+24,17,'#000','bold');
   return canvas;
@@ -8937,8 +8936,6 @@ function* renderAccountCurrencyCanvases(data){
   const footer=drawFooter();
   if(footer.previous)yield footer.previous;
   const fy=page.y+12;
-  page.ctx.fillStyle='#f1f5f9';page.ctx.fillRect(90,fy,1050,footer.footerH);
-  page.ctx.strokeStyle='#94a3b8';page.ctx.strokeRect(90,fy,1050,footer.footerH);
   footer.lines.forEach((line,i)=>page.text(line,1120,fy+28+i*27,18,'700'));
   page.text(notice,1120,fy+footer.lines.length*27+27,17,'700');
   yield page.canvas;

@@ -100,11 +100,20 @@ async function run(){
   const before=f.downloads.length;action('pdfDownload');choose('ALL');assert.equal(f.downloads.length,before+1);
   const file=f.downloads.at(-1);assert(file.name.includes('جميع-العملات'));assert(file.blob.size>100);assert((await file.blob.text()).startsWith('%PDF-1.4'));
  });
- await test('Account sharing invokes native file sharing once and unsupported sharing never downloads',async()=>{
+ await test('Account sharing uses native sharing, downloads unsupported PDF, and honors cancellation',async()=>{
   const shared=[];w.navigator.canShare=()=>true;w.navigator.share=async data=>shared.push(data);
-  const before=f.downloads.length;action('share');choose('USD');await pause(20);assert.equal(shared.length,1);assert(shared[0].files[0].name.includes('USD'));assert.equal(f.downloads.length,before);
-  delete w.navigator.share;action('share');choose('YER');await pause(20);assert.equal(f.downloads.length,before);
-  w.navigator.share=async()=>{throw new w.DOMException('cancelled','AbortError');};action('share');choose('YER');await pause(20);assert.equal(f.downloads.length,before);
+  const before=f.downloads.length;action('share');choose('USD');await pause(20);
+  assert.equal(shared.length,1);assert(shared[0].files[0].name.includes('USD'));assert.equal(f.downloads.length,before);
+  delete w.navigator.share;action('share');choose('YER');await pause(20);
+  assert.equal(f.downloads.length,before+1,'Unsupported sharing downloads the prepared PDF');
+  assert(f.downloads.at(-1).name.includes('YER'));
+  w.navigator.share=async()=>{throw new w.DOMException('cancelled','AbortError');};
+  action('share');choose('YER');await pause(20);
+  assert.equal(f.downloads.length,before+1,'Cancelled sharing must not download');
+  w.navigator.share=async()=>{throw new w.DOMException('denied','NotAllowedError');};
+  action('share');choose('YER');await pause(20);
+  assert.equal(f.downloads.length,before+2,'Browser rejection falls back to PDF download');
+  w.navigator.share=async()=>{};
  });
  await test('Budget and trial balance each expose distinct working preview, print, download and share controls',async()=>{
   const shared=[];w.navigator.share=async data=>shared.push(data);

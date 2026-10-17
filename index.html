@@ -8877,7 +8877,11 @@ function drawReportTableRow(page,layout,widths,bg='#fff',matchedBalance=false){
 }
 
 function* renderAccountCurrencyCanvases(data){
-  const widths=[128,188,360,132,132,150],labels=['التاريخ','المستند','البيان','مدين','دائن','الرصيد'];
+  const options=ratibStatementSettings();
+  const labels=['التاريخ',...(options.document?['رقم القيد / المستند']:[]),'البيان',...(options.counterpart?['الحساب المقابل']:[]),'مدين','دائن','الرصيد'];
+  const weights=[128,...(options.document?[188]:[]),360,...(options.counterpart?[195]:[]),132,132,150];
+  const widths=weights.map(w=>w*1090/weights.reduce((sum,n)=>sum+n,0));
+  const balanceIndex=labels.length-1;
   let pageNumber=1,page=reportCanvasPage(`كشف حساب: ${ratibStatementText(accountOpsState.accountName,'حساب غير محدد')}`,`${accountPeriodTitle()} — ${accountCurrencyLabel(data.currency)}`,pageNumber);
   const header=()=>drawReportTableRow(page,reportTableLayout(page.ctx,labels,widths,19),widths,'#e2e8f0');header();
   let running=data.opening;
@@ -8889,17 +8893,17 @@ function* renderAccountCurrencyCanvases(data){
   const balanceLabel=n=>`${Math.abs(n).toLocaleString()} ${n===0?'صفر':n>0?'دائن':'مدين'}`;
   const statementFrom=window.ratibStatementEffectiveFrom?.(accountOpsState.from||'')??(accountOpsState.from||'');
   function* rows(){
-    if(statementFrom&&data.opening!==0){const previousRow=[statementFrom,'—','الرصيد السابق قبل بداية الفترة','','',balanceLabel(data.opening)];previousRow._ratibOpening=true;yield previousRow;}
+    if(statementFrom&&data.opening!==0){const previousRow=[statementFrom,...(options.document?['—']:[]),'الرصيد السابق قبل بداية الفترة',...(options.counterpart?['']:[]),'','',balanceLabel(data.opening)];previousRow._ratibOpening=true;yield previousRow;}
     for(const [i,t] of data.rows.entries()){
       const entry=getAccountEntry(t,accountOpsState.scopeNames),amount=getAccountDisplayAmount(entry),debit=entry.side==='debit',credit=entry.side==='credit'||entry.bothSides;
       running=roundAccountingAmount(running+(entry.bothSides?0:debit?-amount:amount));
-      const values=[ratibStatementText(getAccountOpsDate(t),'—'),`#${ratibStatementText(t.seqNum,'-')} ${ratibStatementText(getTransactionDisplayType(t),'قيد يومي')}`,ratibStatementText(entry.line?.note||t.execution?.[Object.keys(t.execution||{})[0]]?.note,'بدون بيان'),debit?amount.toLocaleString():'',credit?amount.toLocaleString():'',balanceLabel(running)];
-      if(confirmed&&i===matchedIndex){values[5]+='  ✓ مطابق';values._ratibMatched=true;}
+      const values=[ratibStatementText(getAccountOpsDate(t),'—'),...(options.document?[`#${ratibStatementText(t.seqNum,'-')} ${ratibStatementText(getTransactionDisplayType(t),'قيد يومي')}`]:[]),ratibStatementText(entry.line?.note||t.execution?.[Object.keys(t.execution||{})[0]]?.note,'بدون بيان'),...(options.counterpart?[ratibResolveCounterpart(t,accountOpsState.scopeNames)]:[]),debit?amount.toLocaleString():'',credit?amount.toLocaleString():'',balanceLabel(running)];
+      if(confirmed&&i===matchedIndex){values[balanceIndex]+='  ✓ مطابق';values._ratibMatched=true;}
       yield values;
     }
-    const closingRow=['','',ratibStatementTotalsTitle(statementFrom,accountOpsState.to),data.totalDebit.toLocaleString(),data.totalCredit.toLocaleString(),balanceLabel(data.closing)];
+    const closingRow=['',...(options.document?['']:[]),ratibStatementTotalsTitle(statementFrom,accountOpsState.to),...(options.counterpart?['']:[]),data.totalDebit.toLocaleString(),data.totalCredit.toLocaleString(),balanceLabel(data.closing)];
     closingRow._ratibTotal=true;
-    if(confirmed&&matchedIndex<0&&data.rows.length===0){closingRow[5]+='  ✓ مطابق';closingRow._ratibMatched=true;}
+    if(confirmed&&matchedIndex<0&&data.rows.length===0){closingRow[balanceIndex]+='  ✓ مطابق';closingRow._ratibMatched=true;}
     yield closingRow;
   }
   const reportRows=Array.from(rows());

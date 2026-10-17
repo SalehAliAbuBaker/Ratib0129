@@ -9942,12 +9942,13 @@ function trialDiagnosisBuild(txs,filters){
       add(g.native,String(leg.currency||'?'),leg.debit,leg.credit);
       add(g.valuation,String(leg.baseCurrency||leg.currency||'?'),leg.baseDebit,leg.baseCredit);
       const eq=trialEquivalent(leg,filters.base,filters.fxMethod||'entry'),noRate=!eq;
+      const conversion=noRate?trialFxRateEvidence(leg,filters.base,filters.fxMethod||'entry'):null;
       if(noRate){
         g.missingCount++;
-        missing.push({ident:g.ident,date:leg.date,account:String(leg.account||''),currency:String(leg.currency||''),valuationCurrency:String(leg.baseCurrency||''),target:filters.base,groupKey:key,reason:trialFxRateEvidence(leg,filters.base,filters.fxMethod||'entry').reason});
+        missing.push({ident:g.ident,date:leg.date,account:String(leg.account||''),currency:String(leg.currency||''),valuationCurrency:String(leg.baseCurrency||''),target:filters.base,groupKey:key,reason:conversion?.reason||'تعذر تقييم الطرف بالمعلومات المحفوظة'});
       }else{g.target.debit+=eq.debit;g.target.credit+=eq.credit;}
       g.lines.push({date:leg.date,account:String(leg.account||''),currency:String(leg.currency||''),debit:leg.debit,credit:leg.credit,
-        valuationCurrency:String(leg.baseCurrency||leg.currency||''),baseDebit:leg.baseDebit,baseCredit:leg.baseCredit,noRate,txIndex:i});
+        valuationCurrency:String(leg.baseCurrency||leg.currency||''),baseDebit:leg.baseDebit,baseCredit:leg.baseCredit,noRate,conversionReason:conversion?.reason||'',txIndex:i});
     }
   }
   const differences=map=>[...map].map(([currency,v])=>({currency,debit:v.debit,credit:v.credit,difference:v.debit-v.credit}));
@@ -10021,8 +10022,8 @@ function trialDiagnosisOpen(index){
   dest.innerHTML='<div style="border:1px solid var(--border);border-radius:10px;margin:12px 0;padding:10px">'
     +'<h4>تفاصيل المستند — عرض للقراءة فقط</h4><p><strong>'+esc(row.label)+'</strong> | '+esc(row.date)+'</p>'
     +'<p><strong>حالة المستند:</strong> '+esc(row.status)+' | الأطراف: '+row.lines.length+' | أطراف تحتاج سعر تحويل للتقرير: '+row.missingCount+' | فرق المعادل '+esc(filters.base)+': '+(row.targetDifference===null?'غير مكتمل':num(row.targetDifference))+'</p>'
-    +'<div style="overflow-x:auto"><table class="trial-table"><thead><tr><th>الحساب</th><th>العملة الأصلية</th><th>مدين</th><th>دائن</th><th>عملة التقييم المحفوظة</th><th>مدين تقييم</th><th>دائن تقييم</th><th>التحويل إلى '+esc(filters.base)+'</th></tr></thead><tbody>'
-    +row.lines.map(l=>'<tr><td>'+esc(l.account)+'</td><td>'+esc(l.currency)+'</td><td>'+num(l.debit)+'</td><td>'+num(l.credit)+'</td><td>'+esc(l.valuationCurrency)+'</td><td>'+num(l.baseDebit)+'</td><td>'+num(l.baseCredit)+'</td><td>'+(l.noRate?'غير متاح لعملة التقرير':'متاح')+'</td></tr>').join('')
+    +'<div style="overflow-x:auto"><table class="trial-table"><thead><tr><th>الحساب</th><th>العملة الأصلية</th><th>مدين</th><th>دائن</th><th>عملة التقييم المحفوظة</th><th>مدين تقييم</th><th>دائن تقييم</th><th>التحويل إلى '+esc(filters.base)+'</th><th>سبب عدم الاكتمال</th></tr></thead><tbody>'
+    +row.lines.map(l=>'<tr><td>'+esc(l.account)+'</td><td>'+esc(l.currency)+'</td><td>'+num(l.debit)+'</td><td>'+num(l.credit)+'</td><td>'+esc(l.valuationCurrency)+'</td><td>'+num(l.baseDebit)+'</td><td>'+num(l.baseCredit)+'</td><td>'+(l.noRate?'غير متاح لعملة التقرير':'متاح')+'</td><td>'+esc(l.conversionReason||'—')+'</td></tr>').join('')
     +'</tbody></table></div><p style="font-size:.83rem;color:var(--muted)">المبالغ وأسعار الصرف المحفوظة لا تتغير بمجرد عرض هذه التفاصيل.</p>'
     +'<button type="button" class="btn btn-ghost no-print" onclick="trialDiagnosisOpenSource('+index+')">📄 فتح نافذة المستند الأصلي (تتضمن أدوات التعديل)</button>'
     +'</div>';

@@ -25,6 +25,18 @@
 @media print{#pageAccountOperations .account-operations-head-actions{display:none!important}}
 </style>
 <style id="ratib-trial-diagnosis-layout">
+#trialDiagnosisResults .trial-diag-results-list{display:grid;grid-template-columns:1fr;gap:10px;margin-top:12px;min-width:0}
+#trialDiagnosisResults .trial-diag-result{border:1px solid var(--border);background:var(--card);border-radius:10px;padding:12px;min-width:0;overflow-wrap:anywhere}
+#trialDiagnosisResults .trial-diag-result-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap;margin-bottom:8px}
+#trialDiagnosisResults .trial-diag-result-head strong{font-size:.97rem;overflow-wrap:anywhere;min-width:0}
+#trialDiagnosisResults .trial-diag-result-head span{color:var(--muted);white-space:nowrap}
+#trialDiagnosisResults .trial-diag-result-status{margin:8px 0;padding:8px 10px;border-radius:7px;background:var(--bg);overflow-wrap:anywhere}
+#trialDiagnosisResults .trial-diag-result-data{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px 16px;font-size:.91rem}
+#trialDiagnosisResults .trial-diag-result-data>div{min-width:0;overflow-wrap:anywhere}
+#trialDiagnosisResults .trial-diag-result-data>div:first-child{grid-column:1/-1}
+#trialDiagnosisResults .trial-diag-result-actions{display:flex;justify-content:flex-start;margin-top:10px}
+@media(max-width:650px){#trialDiagnosisResults .trial-diag-result-data{grid-template-columns:1fr}#trialDiagnosisResults .trial-diag-result-data>div:first-child{grid-column:auto}}
+
 #trialDiagnosisResults .trial-diagnosis-open-btn{display:inline-flex!important;align-items:center;justify-content:center;min-width:96px!important;width:auto!important;min-height:40px;padding:6px 10px!important;white-space:nowrap!important;word-break:keep-all!important;overflow-wrap:normal!important}
 #trialDiagnosisResults .trial-table{min-width:920px}
 #trialDiagnosisResults .trial-table th,#trialDiagnosisResults .trial-table td{vertical-align:middle}
@@ -1379,7 +1391,7 @@ body.ratib-sidebar-open,body.ratib-about-open{overflow:hidden}
     <div class="header-tools"><div class="header-actions">
       <button class="icon-btn" id="themeBtn" title="الوضع الليلي">🌙</button>
       <button class="icon-btn" id="sidebarMenuBtn" aria-haspopup="dialog" aria-controls="appSidebar" aria-expanded="false" title="القائمة الجانبية" aria-label="فتح القائمة الجانبية">☰</button>
-    </div><small id="appVersionLabel" class="app-version">الإصدار 3.6.65 <span style="color:#c66b00;font-weight:900">(تجريبية)</span></small></div>
+    </div><small id="appVersionLabel" class="app-version">الإصدار 3.6.66 <span style="color:#c66b00;font-weight:900">(تجريبية)</span></small></div>
   </header>
   <div class="summary-toolbar hidden no-print" id="storageFeedback"><span id="persistentSaveStatus" hidden aria-hidden="true">جاهز</span><button type="button" id="retryStorageBtn" class="btn btn-ghost hidden">إعادة محاولة الحفظ</button></div>
 <div class="app-update-banner hidden no-print" id="appUpdateBanner" role="status"><span id="appUpdateMessage">يتوفر تحديث لراتب. هل تريد تطبيقه؟</span><button type="button" class="btn btn-ghost" id="applyAppUpdateBtn">موافق، تطبيق التحديث</button><div id="appUpdateDetails" class="hidden"></div></div>
@@ -9877,16 +9889,23 @@ function trialDiagnosisRender(report,filters){
   const money=v=>Number.isFinite(v)?trialNumber(v):'غير متاح';
   const diffText=a=>a.map(x=>esc(x.currency)+': '+money(x.difference)).join(' | ')||'—';
   const limit=150;
-  return '<section style="border:1px solid var(--border);border-radius:10px;padding:12px;margin:10px 0;overflow-wrap:anywhere">'
+  return '<section class="trial-diagnosis-section" style="border:1px solid var(--border);border-radius:10px;padding:12px;margin:10px 0;overflow-wrap:anywhere">'
     +'<h3>🔍 تشخيص ميزان المراجعة — تجميع حسب المستند</h3>'
     +'<p style="font-size:.88rem;color:var(--muted)">كل سند متعدد الأطراف والقيد الافتتاحي المستورد يُفحص كوحدة واحدة. اختلاف العملات الأصلية ليس حكمًا باختلال القيد؛ لا يمكن اعتماد المعادل بوجود أسعار تقييم ناقصة. الفحص لا يعدّل البيانات.</p>'
     +'<p><strong>المستندات المفحوصة:</strong> '+report.groupCount+' | <strong>المتوازنة في عملات التقييم المحفوظة:</strong> '+report.statusCounts.valuationBalanced+' | <strong>تنتظر تحويلًا إلى '+esc(filters.base)+':</strong> '+report.statusCounts.missingConversionDocuments+' | <strong>أطراف دون تحويل:</strong> '+report.missing.length+'</p>'
     +'<p><strong>صافي الحركة بالعملات الأصلية (للمعلومة، وليس للمطابقة):</strong> '+diffText(report.totals)+'</p>'
     +'<p class="trial-diagnostic"><strong>مهم:</strong> التوازن بعملة المستند حكم مستقل عن عرض المعادل بالريال اليمني. لا نُسوي القيد لمجرد غياب سعر التحويل؛ ولا نعتمد الإجمالي بالريال اليمني قبل توثيق الأسعار.</p>'
     +'<button type="button" class="btn btn-ghost no-print" onclick="trialDiagnosisDownload()">⬇️ تنزيل تقرير المستندات والأطراف CSV</button>'
-    +'<div style="overflow-x:auto;margin-top:10px"><table class="trial-table"><thead><tr><th>التاريخ</th><th>المستند</th><th>حالة التوازن</th><th>الملاحظات</th><th>اختلاف العملات الأصلية</th><th>فرق المعادل '+esc(filters.base)+'</th><th class="no-print">الإجراء</th></tr></thead><tbody>'
-    +report.rows.slice(0,limit).map((r,i)=>'<tr><td>'+esc(r.date)+'</td><td>'+esc(r.label)+'</td><td>'+esc(r.status)+'</td><td>'+esc(r.reasons.join('؛ '))+'</td><td>'+diffText(r.nativeDifferences)+'</td><td>'+(r.targetDifference===null?'غير مكتمل':money(r.targetDifference))+'</td><td class="no-print"><button type="button" class="btn btn-ghost trial-diagnosis-open-btn" onclick="trialDiagnosisOpen('+i+')">🔎 الأطراف</button></td></tr>').join('')
-    +'</tbody></table></div>'+(report.rows.length>limit?'<p>عُرض أول '+limit+' مستندًا؛ جميع التفاصيل في CSV.</p>':'')
+    +'<div class="trial-diag-results-list">'
+    +report.rows.slice(0,limit).map((r,i)=>'<article class="trial-diag-result">'
+      +'<div class="trial-diag-result-head"><strong>'+esc(r.label)+'</strong><span>'+esc(r.date)+'</span></div>'
+      +'<div class="trial-diag-result-status"><strong>حالة التوازن:</strong> '+esc(r.status)+'</div>'
+      +'<div class="trial-diag-result-data"><div><strong>الملاحظات:</strong> '+esc(r.reasons.join('؛ '))+'</div>'
+      +'<div><strong>اختلاف العملات الأصلية:</strong> '+diffText(r.nativeDifferences)+'</div>'
+      +'<div><strong>فرق المعادل '+esc(filters.base)+':</strong> '+(r.targetDifference===null?'غير مكتمل':money(r.targetDifference))+'</div></div>'
+      +'<div class="trial-diag-result-actions"><button type="button" class="btn btn-ghost trial-diagnosis-open-btn" onclick="trialDiagnosisOpen('+i+')">🔎 الأطراف</button></div>'
+      +'</article>').join('')
+    +'</div>'+(report.rows.length>limit?'<p>عُرض أول '+limit+' مستندًا؛ جميع التفاصيل في CSV.</p>':'')
     +'<div id="trialDiagnosisDocumentDetails" aria-live="polite"></div>'
     +(report.invalid.length?'<p>سجلات بتاريخ غير صالح أو بدون أطراف: '+esc(report.invalid.slice(0,25).map(r=>r.ident).join('، '))+'</p>':'')
     +'</section>';

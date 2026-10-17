@@ -1,0 +1,100 @@
+name: Build Ratib 3.6.61 Android APK
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - '.github/workflows/android-release-3.6.61.yml'
+permissions:
+  contents: read
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - name: Checkout verified official web release
+        uses: actions/checkout@v4
+        with:
+          ref: 1d3553127276facbfa8fbd3a6aa10bbff6d0d9de
+          fetch-depth: 0
+      - name: Download verified Android build-6 source
+        run: |
+          set -euo pipefail
+          curl -fL --retry 3 -o /tmp/ratib-android-build6.zip 'https://github.com/SalehAliAbuBaker/Ratib0129/releases/download/v3.6.58-android.6/Ratib-Android-build6-source.zip'
+          echo '7b8009d09560dcf89e3406a676f1d643945a730637e5fe131bf343a5c52e2c93  /tmp/ratib-android-build6.zip' | sha256sum --check
+          mkdir -p /tmp/ratib-base
+          unzip -q /tmp/ratib-android-build6.zip -d /tmp/ratib-base
+          base="$(find /tmp/ratib-base -name settings.gradle -path '*/android/settings.gradle' -print -quit)"
+          test -n "$base"
+          cp -a "$(dirname "$base")" ./android
+          test -f android/tools/bundle-web.cjs
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: android-actions/setup-android@v3
+      - name: Install Android SDK requirements
+        run: sdkmanager 'platforms;android-36' 'build-tools;36.0.0'
+      - name: Set Android update number
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+          p=Path('android/app/build.gradle')
+          s=p.read_text(encoding='utf-8')
+          s,n=re.subn(r'\bversionCode\s+\d+', 'versionCode 7',s,count=1)
+          assert n==1,'Missing versionCode'
+          s,n=re.subn(r'\bversionName\s+[\x27\x22][^\x27\x22]*[\x27\x22]', "versionName '3.6.61-android.7'",s,count=1)
+          assert n==1,'Missing versionName'
+          assert "applicationId 'dev.ratib.android'" in s,'Unexpected Android package'
+          p.write_text(s,encoding='utf-8')
+          PY
+      - name: Install dependencies and run official regression checks
+        run: |
+          npm install --ignore-scripts
+          npm test
+          node android/tests/native-bridge.cjs
+          node android/tests/bundle-integrity.cjs
+          node android/tests/restore-license-services.cjs
+      - name: Build APK
+        working-directory: android
+        run: |
+          chmod +x gradlew
+          ./gradlew --no-daemon assembleRelease
+      - name: Normalize and sign, if original signing key is connected
+        env:
+          RATIB_KEYSTORE_BASE64: ${{ secrets.RATIB_KEYSTORE_BASE64 }}
+          RATIB_KEYSTORE_PASSWORD: ${{ secrets.RATIB_KEYSTORE_PASSWORD }}
+        run: |
+          set -euo pipefail
+          mkdir -p android/build/delivery
+          cp android/app/build/outputs/apk/release/app-release-unsigned.apk android/build/delivery/unsigned.apk
+          python3 android/tools/normalize-apk-assets.py android/build/delivery/unsigned.apk
+          "$ANDROID_HOME/build-tools/36.0.0/zipalign" -f -p 4 android/build/delivery/unsigned.apk android/build/delivery/aligned.apk
+          if [[ -n "$RATIB_KEYSTORE_BASE64" && -n "$RATIB_KEYSTORE_PASSWORD" ]]; then
+            umask 077
+            printf '%s' "$RATIB_KEYSTORE_BASE64" | base64 --decode > "$RUNNER_TEMP/ratib-release.jks"
+            printf '%s' "$RATIB_KEYSTORE_PASSWORD" > "$RUNNER_TEMP/ratib-pass.txt"
+            "$ANDROID_HOME/build-tools/36.0.0/apksigner" sign --ks "$RUNNER_TEMP/ratib-release.jks" --ks-key-alias ratib --ks-pass "file:$RUNNER_TEMP/ratib-pass.txt" --out android/build/delivery/Ratib-3.6.61-Android-build7.apk android/build/delivery/aligned.apk
+            "$ANDROID_HOME/build-tools/36.0.0/apksigner" verify --verbose --print-certs android/build/delivery/Ratib-3.6.61-Android-build7.apk | tee android/build/delivery/signature.txt
+            grep -qi '8bc51811b9794092f62e7d525fb80e1ece889281' android/build/delivery/signature.txt
+            rm "$RUNNER_TEMP/ratib-release.jks" "$RUNNER_TEMP/ratib-pass.txt"
+          else
+            cp android/build/delivery/aligned.apk android/build/delivery/Ratib-3.6.61-Android-build7-UNSIGNED.apk
+            echo 'Original release signing secrets not available. UNSIGNED is NOT installable or a safe update.' | tee android/build/delivery/NOTICE.txt
+          fi
+          for apk in android/build/delivery/Ratib-3.6.61-Android-*.apk; do python3 android/tests/apk-integrity.py "$apk"; done
+          sha256sum android/build/delivery/Ratib-3.6.61-Android-*.apk > android/build/delivery/SHA256SUMS.txt
+      - name: Preserve outputs without automatically publishing a release
+        uses: actions/upload-artifact@v4
+        with:
+          name: ratib-3.6.61-android-build7
+          path: |
+            android/build/delivery/Ratib-3.6.61-Android-*.apk
+            android/build/delivery/SHA256SUMS.txt
+            android/build/delivery/NOTICE.txt
+            android/build/delivery/signature.txt
+          if-no-files-found: error
+          retention-days: 30

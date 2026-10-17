@@ -3,6 +3,7 @@ on:
   push:
     branches:
       - fix/ratib-3.6.59-accounting-refresh-clone
+      - trial
   pull_request:
     branches:
       - main
@@ -30,4 +31,4 @@ jobs:
       - name: Install test dependencies
         run: npm install --ignore-scripts --no-audit --no-fund
       - name: Verify statement balances, print, and PDF
-        run: node test-statement-3.6.60.cjs
+        run: node test-statement-3.6.60.cjs && node test-statement-3.6.79.cjs

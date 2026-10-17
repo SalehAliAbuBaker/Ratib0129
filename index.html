@@ -1288,13 +1288,47 @@ body.ratib-sidebar-open,body.ratib-about-open{overflow:hidden}
 </style>
 <style id="ratib-v3611">
 @media screen {
-#ratibCurrencyManager .ratib-currency-item{display:grid;grid-template-columns:minmax(65px,85px) minmax(110px,1.4fr) auto minmax(145px,1fr) auto;gap:10px;align-items:center;border:1px solid var(--border);border-right:4px solid var(--accent);border-radius:11px;padding:12px;margin:10px 0;background:var(--card)}
+/* Compact currency cards: identity + active state, then rate + its save action. */
+#ratibCurrencyManager .ratib-currency-item{
+ display:grid;grid-template-columns:minmax(42px,65px) minmax(0,1fr) auto;
+ grid-template-areas:"code name enabled" "reference reference save";
+ column-gap:8px;row-gap:8px;align-items:center;
+ border:1px solid var(--border);border-right:4px solid var(--accent);
+ border-radius:11px;padding:10px;margin:7px 0;background:var(--card);min-width:0;
+}
 #ratibCurrencyManager .ratib-currency-item:nth-child(even){background:color-mix(in srgb,var(--accent) 5%,var(--card))}
-#ratibCurrencyManager .ratib-currency-item label{min-width:0}
-#ratibCurrencyManager .ratib-currency-item label input[data-reference-currency]{width:100%;max-width:180px;min-height:38px;flex:none}
-#ratibCurrencyManager .ratib-currency-item>button{min-width:110px;white-space:nowrap}
-@media(max-width:650px){#ratibCurrencyManager .ratib-currency-item{grid-template-columns:90px minmax(0,1fr);gap:8px}#ratibCurrencyManager .ratib-currency-item>label:has(input[data-reference-currency]){grid-column:1/-1}#ratibCurrencyManager .ratib-currency-item>button{grid-column:1/-1;justify-self:stretch}}
-#ratibCurrencyManager .ratib-currency-item input:not([type=checkbox]){flex:1 1 135px;min-width:0}
+#ratibCurrencyManager .ratib-currency-item>strong{grid-area:code;white-space:nowrap;min-width:0}
+#ratibCurrencyManager .ratib-currency-item>input:not([type=checkbox]){
+ grid-area:name;min-width:0;width:100%;max-width:100%;height:42px;flex:none;
+}
+#ratibCurrencyManager .ratib-currency-item>label:first-of-type{
+ grid-area:enabled;display:inline-flex;align-items:center;gap:4px;
+ min-width:0;white-space:nowrap;justify-self:start;font-size:.88rem;
+}
+#ratibCurrencyManager .ratib-currency-item>label:first-of-type input[type=checkbox]{
+ width:19px;height:19px;flex:none;margin:0;
+}
+#ratibCurrencyManager .ratib-currency-item>label:last-of-type{
+ grid-area:reference;display:flex;flex-direction:column;align-items:flex-start;
+ min-width:0;width:100%;max-width:none!important;gap:4px;line-height:1.35;font-size:.9rem;
+}
+#ratibCurrencyManager .ratib-currency-item input[data-reference-currency]{
+ width:min(100%,160px)!important;max-width:160px!important;min-width:0;
+ height:40px;min-height:40px;flex:none;margin:0;
+}
+#ratibCurrencyManager .ratib-currency-item [data-saved-rate-currency]{
+ font-size:.8rem;line-height:1.35;margin-top:2px!important;overflow-wrap:anywhere;
+}
+#ratibCurrencyManager .ratib-currency-item>button{
+ grid-area:save;justify-self:start;align-self:center;min-height:40px;
+ min-width:92px!important;max-width:118px;width:auto!important;
+ padding:8px 10px!important;margin:0!important;font-size:.9rem;white-space:nowrap;
+}
+@media(max-width:410px){
+ #ratibCurrencyManager .ratib-currency-item{grid-template-columns:42px minmax(0,1fr) auto;column-gap:6px;padding:9px}
+ #ratibCurrencyManager .ratib-currency-item>label:first-of-type{font-size:.8rem;gap:3px}
+ #ratibCurrencyManager .ratib-currency-item>button{min-width:78px!important;padding:8px 5px!important;font-size:.84rem}
+}
 #ratibCurrencyManager .ratib-currency-inputs{display:grid;grid-template-columns:1fr 2fr 70px auto;gap:8px;margin:12px 0}
 #ratibCurrencyManager .ratib-currency-inputs input{min-width:0;width:100%}
 }

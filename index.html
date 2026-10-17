@@ -1410,7 +1410,7 @@ body.ratib-sidebar-open,body.ratib-about-open{overflow:hidden}
     <div class="header-tools"><div class="header-actions">
       <button class="icon-btn" id="themeBtn" title="الوضع الليلي">🌙</button>
       <button class="icon-btn" id="sidebarMenuBtn" aria-haspopup="dialog" aria-controls="appSidebar" aria-expanded="false" title="القائمة الجانبية" aria-label="فتح القائمة الجانبية">☰</button>
-    </div><small id="appVersionLabel" class="app-version">الإصدار 3.6.74 <span style="color:#c66b00;font-weight:900">(تجريبية)</span></small></div>
+    </div><small id="appVersionLabel" class="app-version">الإصدار 3.6.75 <span style="color:#c66b00;font-weight:900">(تجريبية)</span></small></div>
   </header>
   <div class="summary-toolbar hidden no-print" id="storageFeedback"><span id="persistentSaveStatus" hidden aria-hidden="true">جاهز</span><button type="button" id="retryStorageBtn" class="btn btn-ghost hidden">إعادة محاولة الحفظ</button></div>
 <div class="app-update-banner hidden no-print" id="appUpdateBanner" role="status"><span id="appUpdateMessage">يتوفر تحديث لراتب. هل تريد تطبيقه؟</span><button type="button" class="btn btn-ghost" id="applyAppUpdateBtn">موافق، تطبيق التحديث</button><div id="appUpdateDetails" class="hidden"></div></div>
@@ -9700,7 +9700,7 @@ function openFinancialCalculator(input){if(!input||input.readOnly||input.disable
 function closeFinancialCalculator(){const modal=document.getElementById('financialCalculatorModal');releaseRatibOverlay(modal);modal.classList.remove('show');financialCalculatorFocus?.focus({preventScroll:true});financialCalculatorTarget=null;}
 
 function enhanceFinancialFields(root=document){
-  root.querySelectorAll('input[inputmode="decimal"],input[type="number"]').forEach(input=>{if(input.id==='externalHeaderRow'||input.closest('#financialCalculatorModal')||input.dataset.calculatorReady||input.readOnly||input.disabled)return;
+  root.querySelectorAll('input[inputmode="decimal"],input[type="number"]').forEach(input=>{if(input.id==='externalHeaderRow'||input.dataset.skipCalculator==='1'||input.closest('#financialCalculatorModal')||input.dataset.calculatorReady||input.readOnly||input.disabled)return;
     input.dataset.calculatorReady='1';input.autocomplete='off';input.setAttribute('name','financial_'+(input.id||input.classList[0]||'amount'));input.setAttribute('data-form-type','other');input.spellcheck=false;
     const wrap=document.createElement('span');wrap.className='financial-number-field';input.before(wrap);wrap.append(input);const btn=document.createElement('button');btn.type='button';btn.className='financial-calc-trigger no-print';btn.textContent='▦';btn.setAttribute('aria-label','حاسبة '+(input.getAttribute('aria-label')||input.placeholder||'الحقل'));btn.title='فتح الحاسبة';btn.onclick=()=>openFinancialCalculator(input);wrap.append(btn);
   });
@@ -11313,6 +11313,17 @@ const accountField=el=>el?.matches?.('input')&&!el.readOnly&&!el.disabled&&
 document.addEventListener('focusin',e=>{const el=e.target;if(accountField(el))try{el.select();}catch(_){}},true);
 document.addEventListener('pointerdown',e=>{const el=e.target;if(accountField(el)&&document.activeElement!==el)el.dataset.ratibSelectNext='1';},true);
 document.addEventListener('click',e=>{const el=e.target;if(accountField(el)&&el.dataset.ratibSelectNext==='1'){delete el.dataset.ratibSelectNext;try{el.select();}catch(_){}}},true);
+function currencyReferenceNumber(raw){
+ const value=String(raw??'').trim()
+   .replace(/[٠-٩]/g,c=>String(c.charCodeAt(0)-0x660))
+   .replace(/[۰-۹]/g,c=>String(c.charCodeAt(0)-0x6f0))
+   .replace(/٫/g,'.').replace(/٬/g,',').replace(/\u00a0/g,' ').replace(/\u200e|\u200f/g,'');
+ if(!value)return null;
+ const normalized=value.replace(/\s+/g,'');
+ if(!/^(?:\d+(?:\.\d+)?|\.\d+)$/.test(normalized))return NaN;
+ const rate=Number(normalized);
+ return Number.isFinite(rate)&&rate>0&&rate<=1e9?rate:NaN;
+}
 function currenciesUi(){
  const settings=get('pageSettings');if(!settings||get('ratibCurrencyManager'))return;
  const card=document.createElement('div');card.id='ratibCurrencyManager';card.className='card settings-accordion-card';
@@ -11331,7 +11342,7 @@ function currenciesUi(){
    const label=document.createElement('label');label.append(active,document.createTextNode(' متاحة'));
    const reference=document.createElement('label');reference.style.cssText='display:flex;flex-direction:column;gap:2px;min-width:120px;flex:1 1 135px';
    reference.textContent='سعر مرجعي: 1 '+c.code+' = (YER)';
-   const rate=document.createElement('input');rate.type='number';rate.inputMode='decimal';rate.min='0';rate.step='any';
+   const rate=document.createElement('input');rate.type='text';rate.inputMode='decimal';rate.dir='ltr';rate.dataset.skipCalculator='1';rate.autocomplete='off';
    rate.value=c.code==='YER'?'1':String(c.reportRateYer??'');
    rate.disabled=c.code==='YER';rate.placeholder='اختياري';rate.setAttribute('aria-label','سعر تقييم مرجعي لعملة '+c.code+' مقابل YER');
    rate.dataset.referenceCurrency=c.code;
@@ -11344,21 +11355,25 @@ function currenciesUi(){
    const btn=document.createElement('button');btn.type='button';btn.className='btn btn-ghost';btn.textContent='حفظ';
    btn.onclick=async()=>{
     if(btn.disabled)return;
-    const value=name.value.trim(),raw=rate.value.trim(),n=Number(raw);
+    const value=name.value.trim(),raw=rate.value.trim(),n=currencyReferenceNumber(raw);
     if(!value){showToast('اكتب اسم العملة','warn');return;}
-    if(c.code!=='YER'&&raw!==''&&(!Number.isFinite(n)||n<=0||n>1e9)){showToast('السعر المرجعي يجب أن يكون موجبًا وصحيحًا أو يُترك فارغًا','warn');return;}
+    if(c.code!=='YER'&&raw===''){showToast('خانة السعر فارغة؛ لم يُحذف السعر المحفوظ. أدخل رقمًا مثل 412','warn');return;}
+    if(c.code!=='YER'&&(!Number.isFinite(n)||n<=0)){showToast('اكتب السعر بالأرقام العربية أو الإنجليزية، مثل 412','warn');rate.focus();return;}
     const all=catalog(),item=all.find(x=>x.code===c.code);if(!item)return;
     item.name=value;item.active=c.code==='YER'?true:active.checked;
     if(c.code!=='YER'){
-      if(raw===''){delete item.reportRateYer;delete item.reportRateYerUpdatedAt;}
-      else if(Number(item.reportRateYer)!==n){item.reportRateYer=n;item.reportRateYerUpdatedAt=new Date().toISOString();}
+      if(Number(item.reportRateYer)!==n){item.reportRateYer=n;item.reportRateYerUpdatedAt=new Date().toISOString();}
     }
     btn.disabled=true;btn.textContent='جارٍ الحفظ…';
     const saved=await saveCatalog(all);
     if(saved){
       sync();render();
       const check=catalog().find(x=>x.code===c.code);
-      showToast('تم حفظ '+c.code+'؛ السعر المرجعي '+(check?.reportRateYer??'غير محدد')+' YER — لا يعتمد لأي مستند تلقائيًا','success');
+      if(c.code!=='YER'&&Number(check?.reportRateYer)!==n){
+        showToast('لم تتطابق القيمة المحفوظة بعد الحفظ؛ لم تُعتمد أي تسوية','error');
+      }else{
+        showToast('تم حفظ سعر '+c.code+': '+(check?.reportRateYer??1)+' ريال يمني لكل وحدة — للتقارير فقط','success');
+      }
     }else{btn.disabled=false;btn.textContent='إعادة الحفظ';}
    };
    row.append(symbol,name,label,reference,btn);list.append(row);

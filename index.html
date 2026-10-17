@@ -9758,7 +9758,7 @@ function trialFxApprovedRateFor(leg,target){
   return Number(record.rate);
 }
 
-function trialApprovedPair(leg,target,method='entry'){
+function trialApprovedPair(leg,target,method='approved'){
   const from=leg.baseCurrency;if(from===target)return 1;
   const doc=leg.tx.multiVoucher,lines=doc?.lines||[];
   for(const l of lines){const def=spendFxDefinition(l,doc.baseCurrency);if(def&&Number(def.quote)>0){if(def.unit===from&&def.counter===target)return Number(def.quote);if(def.unit===target&&def.counter===from)return 1/Number(def.quote);}
@@ -9766,7 +9766,7 @@ function trialApprovedPair(leg,target,method='entry'){
   return method==='approved'?trialFxApprovedRateFor(leg,target):null;
 }
 
-function trialEquivalent(leg,target,method='entry'){
+function trialEquivalent(leg,target,method='approved'){
   if(!leg.debit&&!leg.credit&&!leg.baseDebit&&!leg.baseCredit)return {debit:0,credit:0};
   if(target===leg.baseCurrency)return {debit:leg.baseDebit,credit:leg.baseCredit};
   if(target===leg.currency)return {debit:leg.debit,credit:leg.credit};

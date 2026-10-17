@@ -1444,7 +1444,7 @@ body.ratib-sidebar-open,body.ratib-about-open{overflow:hidden}
     <div class="header-tools"><div class="header-actions">
       <button class="icon-btn" id="themeBtn" title="الوضع الليلي">🌙</button>
       <button class="icon-btn" id="sidebarMenuBtn" aria-haspopup="dialog" aria-controls="appSidebar" aria-expanded="false" title="القائمة الجانبية" aria-label="فتح القائمة الجانبية">☰</button>
-    </div><small id="appVersionLabel" class="app-version">الإصدار 3.6.79 <span style="color:#c66b00;font-weight:900">(تجريبية)</span></small></div>
+    </div><small id="appVersionLabel" class="app-version">الإصدار 3.6.80 <span style="color:#c66b00;font-weight:900">(تجريبية)</span></small></div>
   </header>
   <div class="summary-toolbar hidden no-print" id="storageFeedback"><span id="persistentSaveStatus" hidden aria-hidden="true">جاهز</span><button type="button" id="retryStorageBtn" class="btn btn-ghost hidden">إعادة محاولة الحفظ</button></div>
 <div class="app-update-banner hidden no-print" id="appUpdateBanner" role="status"><span id="appUpdateMessage">يتوفر تحديث لراتب. هل تريد تطبيقه؟</span><button type="button" class="btn btn-ghost" id="applyAppUpdateBtn">موافق، تطبيق التحديث</button><div id="appUpdateDetails" class="hidden"></div></div>
@@ -7803,13 +7803,15 @@ function renderAccountCurrencyCanvas(data){
   drawRow(tableY,headL,18,'#e2e8f0');let y=tableY+headL.h;
   bodyRows.forEach(r=>{drawRow(y,r,r.size,'#fff',!!r.match);y+=r.h;});
   // إجمالي واحد يجمع المدين والدائن والرصيد الختامي بلا صفوف مكررة.
-  const fmtN=n=>Number(n).toLocaleString(),xR=col[col.length-1],xBody=col[3],xDebit=col[2],xCredit=col[1],xBal=col[0];
-  const cell=(x1,x2,yy,str,bg,size=17)=>{ctx.fillStyle=bg;ctx.fillRect(x1,yy,x2-x1,minRowH);ctx.strokeStyle='#000';ctx.lineWidth=1.5;ctx.strokeRect(x1,yy,x2-x1,minRowH);if(str!==''&&str!==undefined)text(str,x2-10,yy+38,size,'#000','bold');};
+  // Use the actual, optional-column-aware grid; do not assume fixed debit/credit positions.
+  const fmtN=n=>Number(n).toLocaleString();
   const totalsTitle=ratibStatementTotalsTitle(proofFrom,accountOpsState.to);
-  cell(xBody,xR,y,totalsTitle,'#e2e8f0',18);
-  cell(xDebit,xBody,y,fmtN(totalDebit),'#e2e8f0');
-  cell(xCredit,xDebit,y,fmtN(totalCredit),'#e2e8f0');
-  cell(xBal,xCredit,y,`${fmtN(Math.abs(closing))} ${closing===0?'صفر':closing>0?'دائن':'مدين'}`,'#e2e8f0');
+  const totalCells=[totalsTitle,...(opt.document?['']:[]),'',...(opt.counterpart?['']:[]),
+    fmtN(totalDebit),fmtN(totalCredit),`${fmtN(Math.abs(closing))} ${closing===0?'صفر':closing>0?'دائن':'مدين'}`];
+  const totalLayout=layout(totalCells,17);
+  // Leave the heading in the first cell, with a highlighted full row and ending balance in its column.
+  drawRow(y,totalLayout,17,'#e2e8f0');
+  y+=totalLayout.h-minRowH;
   y+=minRowH+34;
   // Reconciliation is indicated solely inside the matched balance cell.
   text(`${closing>=0?'لكم':'عليكم'} : ${tafqitAccountCurrency(Math.abs(closing),currency)}`,width-margin-8,y,18,'#000','bold');

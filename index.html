@@ -10098,7 +10098,7 @@ function trialFxSettingsSuggestion(candidate){
   if(!Number.isFinite(rate)||rate<=0||rate>1e9)return null;
   const stamp=from.updatedAt||target.updatedAt||'تاريخ غير محدد';
   return {rate,label:'السعر المرجعي من إعدادات العملات (للمراجعة فقط)',
-    source:'مرجع إعدادات العملات '+candidate.from+' → '+candidate.target+'؛ آخر تحديث '+stamp+'؛ تم التحقق من ملاءمته لتاريخ المستند '+candidate.date,
+    source:'مرجع إعدادات العملات '+candidate.from+' → '+candidate.target+'؛ آخر تحديث '+stamp+'؛ يجب التحقق من ملاءمته لتاريخ المستند '+candidate.date,
     settingsRate:true};
 }
 /* Rate references from same-date vouchers or settings are only suggested.

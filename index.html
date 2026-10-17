@@ -9895,6 +9895,7 @@ function trialDiagnosisOpenSource(index){
   if(tx.isOpeningBalance&&typeof openImportedOpeningVoucher==='function')openImportedOpeningVoucher(tx);
   else openDocumentDetailsModal(tx);
 }
+let lastTrialDiagnosis=null;
 function runTrialBalanceDiagnosis(){
   const out=document.getElementById('trialDiagnosisResults');if(!out)return;
   try{

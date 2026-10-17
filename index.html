@@ -7573,8 +7573,7 @@ function getAccountEntry(t,scope){if(t?.isOpeningBalance&&t.openingBalance){cons
 function getAccountDisplayAmount(entry){return Number(entry?.foreignAmount??entry?.amount??0);}
 function tafqitAccountCurrency(amount,currency='YER'){
   try{const info=currencyWordInfo(currency),digits=Math.max(0,Math.min(6,Number(info.digits)||0));
-    // Quantize presentation to the currency's minor units before converting to words.
-    // Binary floating-point artifacts such as 901832.8499999999 must not become huge fractions.
+    // Quantize only for display: avoid binary floating-point tails in Arabic words.
     const numeric=Number(amount);
     if(!Number.isFinite(numeric))throw Error('مبلغ غير صالح.');
     const raw=numeric.toFixed(digits),negative=raw.startsWith('-'),[whole,f='']=raw.replace(/^[+-]/,'').split('.'),fraction=f.replace(/0+$/,'');

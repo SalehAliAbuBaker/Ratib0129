@@ -7602,7 +7602,7 @@ function getAccountEntry(t,scope){if(t?.isOpeningBalance&&t.openingBalance){cons
     }
     if(!line)line=t.multiVoucher.lines.find(l=>l.account===(isDebit?t.debitAccount:t.creditAccount)&&l.side===side)||null;
   }
-  return {side,bothSides:isDebit&&isCredit&&t.debitAccount===t.creditAccount,amount:Number(t.amount||0),foreignAmount:Number(line?.amount??t.amount??0),currency:line?.currency||t.currency||'YER',line};
+  return {side,bothSides:isDebit&&isCredit&&(t.debitAccount===t.creditAccount||(accountOpsState.aggregate&&scope===accountOpsState.scopeNames)),amount:Number(t.amount||0),foreignAmount:Number(line?.amount??t.amount??0),currency:line?.currency||t.currency||'YER',line};
 }
 function getAccountDisplayAmount(entry){return Number(entry?.foreignAmount??entry?.amount??0);}
 function tafqitAccountCurrency(amount,currency='YER'){
@@ -7668,7 +7668,8 @@ function renderAccountOperations(accountName,scopeNames=null,ui=null){
   const panel=document.getElementById(accountOpsUi.panelId);if(!panel)return;
   const scope=Array.isArray(scopeNames)&&scopeNames.length?scopeNames:[accountName];
   const title=document.getElementById('accountOperationsScreenTitle');
-  if(title)title.textContent=`عمليات الحساب — ${ratibStatementText(accountName,'حساب غير محدد')}`;
+  if(title)title.textContent=`${accountOpsState.aggregate?'كشف تجميعي':'عمليات الحساب'} — ${ratibStatementText(accountName,'حساب غير محدد')}`;
+   const add=document.getElementById('accountAddOperationBtn');if(add){add.classList.toggle('hidden',!!accountOpsState.aggregate);add.disabled=!!accountOpsState.aggregate;}
   const currencies=accountOpsState.currency==='ALL'?getAccountCurrencies(accountName,scope):[accountOpsState.currency];
   const requested=accountOpsState.activeCurrency;
   accountOpsState.activeCurrency=currencies.includes(requested)?requested:currencies[0];
@@ -7687,7 +7688,8 @@ function renderAccountOperations(accountName,scopeNames=null,ui=null){
     const closingFooter=`<div class="ratib-statement-closing-note" style="padding:10px 12px;line-height:1.8;font-size:.88rem;"><div><strong>الرصيد النهائي (${closingType}):</strong> ${esc(tafqitAccountCurrency(Math.abs(closingBal),currency))}</div><div>يرجى مراجعة الكشف خلال 14 يومًا من تاريخه.</div></div>`;
      const rows=txs.map(t=>{
       const entry=getAccountEntry(t,scope),amount=getAccountDisplayAmount(entry),debit=entry.side==='debit',balance=runningBalances.get(t);
-      const note=ratibStatementText(entry.line?.note||t.execution?.[Object.keys(t.execution||{})[0]]?.note||getTransactionDisplayType(t),'بدون بيان');
+      const rawNote=ratibStatementText(entry.line?.note||t.execution?.[Object.keys(t.execution||{})[0]]?.note||getTransactionDisplayType(t),'بدون بيان');
+       const owner=ratibAggregateOwner(t),note=owner?'['+owner+'] '+rawNote:rawNote;
       const mode=t.voucherMode==='spend'?'سند صرف':t.voucherMode==='income'?'سند إيراد':t.voucherMode==='multi-entry'?'سند قيد مركب':t.isOpeningBalance?'رصيد افتتاحي':'قيد يومي';
       return `<div class="account-statement-row" data-tx-id="${esc(t.id)}" title="عرض تفاصيل السند"><span>${esc(getAccountOpsDate(t)||'-')}</span><span>#${esc(ratibStatementText(t.seqNum,'-'))} · ${mode}</span><span>${esc(note)}</span><span class="debit">${debit?amount.toLocaleString():''}</span><span class="credit">${debit&&!entry.bothSides?'':amount.toLocaleString()}</span><span class="balance">${Math.abs(balance).toLocaleString()} ${esc(currency)}</span></div>`;
     }).join('');
@@ -7708,24 +7710,24 @@ function renderAccountOperations(accountName,scopeNames=null,ui=null){
   }
   setAccountCurrencyPage(accountOpsState.activeCurrency,false);
 }
-function openAccountFromPager(accountName, scopeNames=null, currency=null){
+function openAccountFromPager(accountName, scopeNames=null, currency=null, aggregate=false){
   if(!accountName)return;
   /* تبديل الحساب داخل شاشة الحسابات لا يضيف زيارة مكررة */
   accountOperationsReturnTab=currentActiveTab==='pageAccountOperations'?'pageAccountsTree':(currentActiveTab||'pageAccountsTree');
-  const sameAccount=accountOpsState.accountName===accountName;
+  const sameAccount=accountOpsState.accountName===accountName&&!!accountOpsState.aggregate===!!aggregate;
   const previous={from:accountOpsState.from||'',to:accountOpsState.to||'',filtered:Boolean(accountOpsState.filtered),currency:accountOpsState.currency||'ALL'};
-  accountOpsState={accountName,scopeNames:Array.isArray(scopeNames)&&scopeNames.length?scopeNames:[accountName],from:sameAccount?previous.from:'',to:sameAccount?previous.to:'',filtered:sameAccount?previous.filtered:false,currency:currency||'ALL',activeCurrency:currency&&currency!=='ALL'?currency:'YER'};
+  accountOpsState={accountName,scopeNames:Array.isArray(scopeNames)&&scopeNames.length?scopeNames:[accountName],aggregate:!!aggregate,from:sameAccount?previous.from:'',to:sameAccount?previous.to:'',filtered:sameAccount?previous.filtered:false,currency:currency||'ALL',activeCurrency:currency&&currency!=='ALL'?currency:'YER'};
   const from=document.getElementById('accountOpsFromDate'),to=document.getElementById('accountOpsToDate'),currencySel=document.getElementById('accountOpsCurrencyFilter'),today=getLocalTodayISO?getLocalTodayISO():getLocalTodayISO();
   if(from&&!from.value)from.value=sameAccount?previous.from:today;if(to&&!to.value)to.value=sameAccount?previous.to:today;if(currencySel)currencySel.value=accountOpsState.currency;
   setAccountReportActionsEnabled(true);
   document.getElementById('accountAdvancedSearchPanel')?.classList.add('hidden');
-  preferredDebitAccountForNewVoucher=accountName;
-  navigateToTab('pageAccountOperations',true);
+  preferredDebitAccountForNewVoucher=aggregate?'':accountName;
+   navigateToTab('pageAccountOperations',true);
   renderAccountOperations(accountName,accountOpsState.scopeNames);
 }
-function openQuickVoucherForCurrentAccount(){const name=accountOpsState.accountName;if(!name){showToast('اختر حساباً محدداً أولاً','warn');return;}if(!quickVoucherOrigin)rememberQuickVoucherOrigin(currentActiveTab);closeQuickVoucherForCurrentAccount();preferredDebitAccountForNewVoucher=name;multiVoucherReturnTab=quickVoucherOrigin?.tab||'pageAccountOperations';navigateToTab('pageExpenses',true);selectVoucherTypeDirect('spend');if(multiVoucherLines?.length){multiVoucherLines[0].account=name;renderMultiVoucherLines();}requestAnimationFrame(()=>document.getElementById('cashDirectionSwitch')?.focus());}
+function openQuickVoucherForCurrentAccount(){if(accountOpsState.aggregate){showToast('السندات تُسجل في الحسابات التفصيلية فقط.','warn');return;}const name=accountOpsState.accountName;if(!name){showToast('اختر حساباً محدداً أولاً','warn');return;}if(!quickVoucherOrigin)rememberQuickVoucherOrigin(currentActiveTab);closeQuickVoucherForCurrentAccount();preferredDebitAccountForNewVoucher=name;multiVoucherReturnTab=quickVoucherOrigin?.tab||'pageAccountOperations';navigateToTab('pageExpenses',true);selectVoucherTypeDirect('spend');if(multiVoucherLines?.length){multiVoucherLines[0].account=name;renderMultiVoucherLines();}requestAnimationFrame(()=>document.getElementById('cashDirectionSwitch')?.focus());}
 function closeQuickVoucherForCurrentAccount(){document.getElementById('accountQuickVoucherModal')?.classList.remove('show');}
-function createVoucherFromCurrentAccount(mode){const name=accountOpsState.accountName;if(!name)return;if(!quickVoucherOrigin)rememberQuickVoucherOrigin(currentActiveTab);closeQuickVoucherForCurrentAccount();preferredDebitAccountForNewVoucher=name;multiVoucherReturnTab=quickVoucherOrigin?.tab||'pageAccountOperations';navigateToTab('pageExpenses',true);selectVoucherTypeDirect(mode);if(mode==='income')multiSourceAcc?.setValue(name,name);else if(multiVoucherLines?.length){multiVoucherLines[0].account=name;renderMultiVoucherLines();}}
+function createVoucherFromCurrentAccount(mode){if(accountOpsState.aggregate){showToast('اختر حسابًا تفصيليًا لإضافة سند.','warn');return;}const name=accountOpsState.accountName;if(!name)return;if(!quickVoucherOrigin)rememberQuickVoucherOrigin(currentActiveTab);closeQuickVoucherForCurrentAccount();preferredDebitAccountForNewVoucher=name;multiVoucherReturnTab=quickVoucherOrigin?.tab||'pageAccountOperations';navigateToTab('pageExpenses',true);selectVoucherTypeDirect(mode);if(mode==='income')multiSourceAcc?.setValue(name,name);else if(multiVoucherLines?.length){multiVoucherLines[0].account=name;renderMultiVoucherLines();}}
 document.getElementById('accountQuickVoucherBtn')?.addEventListener('click',openQuickVoucherForCurrentAccount);
 document.getElementById('accountQuickIncomeBtn')?.addEventListener('click',()=>createVoucherFromCurrentAccount('income'));
 document.getElementById('accountQuickSpendBtn')?.addEventListener('click',()=>createVoucherFromCurrentAccount('spend'));
@@ -7866,7 +7868,7 @@ function renderAccountCurrencyCanvas(data){
   const measure=document.createElement('canvas').getContext('2d');
   const runningBalances=getAccountRunningBalances(rows,scope,opening);
   const proofFrom=window.ratibStatementEffectiveFrom?.(accountOpsState.from||'')??(accountOpsState.from||'');
-  const proof=window.ratibReconciliationEvidence?.(accountOpsState.accountName,currency,proofFrom,accountOpsState.to||'')||null;
+  const proof=accountOpsState.aggregate?null:window.ratibReconciliationEvidence?.(accountOpsState.accountName,currency,proofFrom,accountOpsState.to||'')||null;
   const bodyRows=[];let lastMatchedRow=-1;
   if(proofFrom&&opening!==0)bodyRows.push({vals:[proofFrom,...(opt.document?['—']:[]),'الرصيد السابق قبل بداية الفترة',...(opt.counterpart?['']:[]),'','',`${Math.abs(opening).toLocaleString()} ${opening>0?'دائن':'مدين'}`],size:17});
   rows.forEach(t=>{const entry=getAccountEntry(t,scope),debit=entry.side==='debit',amount=getAccountDisplayAmount(entry),d=debit?amount:0,c=debit?0:amount,balance=runningBalances.get(t),note=entry.line?.note||t.execution?.[Object.keys(t.execution||{})[0]]?.note||getTransactionDisplayType(t)||'',other=ratibResolveCounterpart(t,scope),doc=`${t.voucherMode==='spend'?'سند صرف':t.voucherMode==='income'?'سند إيراد':t.voucherMode==='multi-entry'?'سند قيد مركب':t.isOpeningBalance?'رصيد افتتاحي':'قيد يومي'} #${t.seqNum||'-'}`;
@@ -8079,12 +8081,48 @@ document.getElementById('applyAccountOpsFilterBtn')?.addEventListener('click',()
   showToast(`تم تطبيق الفترة (${rangeText}${currencyText}) — ${count} عملية`, 'success');
 });
 document.getElementById('clearAccountOpsFilterBtn')?.addEventListener('click',()=>{accountOpsState.from='';accountOpsState.to='';accountOpsState.currency='ALL';accountOpsState.activeCurrency='YER';const from=document.getElementById('accountOpsFromDate'),to=document.getElementById('accountOpsToDate'),currencySel=document.getElementById('accountOpsCurrencyFilter');if(from)from.value='';if(to)to.value='';if(currencySel)currencySel.value='ALL';renderAccountOperations(accountOpsState.accountName,accountOpsState.scopeNames);accountOpsState.filtered=false;setAccountReportActionsEnabled(true);document.getElementById('accountAdvancedSearchPanel')?.classList.add('hidden');});
-document.getElementById('accountAddOperationBtn')?.addEventListener('click',()=>{preferredDebitAccountForNewVoucher=accountOpsState.accountName||'';navigateToTab('pageExpenses',true);});
+document.getElementById('accountAddOperationBtn')?.addEventListener('click',()=>{if(accountOpsState.aggregate){showToast('اختر حسابًا تفصيليًا لإضافة سند.','warn');return;}preferredDebitAccountForNewVoucher=accountOpsState.accountName||'';navigateToTab('pageExpenses',true);});
 // Search account number, account name or any combination of hierarchy words.
 function ratibAccountSearchMatch(value,query){
   const terms=normalizeParentQuery(query||'').split(/\s+/).filter(Boolean);
   const haystack=normalizeParentQuery(String(value||''));
   return terms.every(term=>haystack.includes(term));
+}
+// Aggregated statements are strictly read-only; never post to parent accounts.
+function ratibAggregateScope(p){
+ const cat=getCanonicalCatalog(),links=getSubgroupParents();
+ const childCodes=p.kind==='تجميعي فرعي'?new Set([String(p.code),...subgroupDescendants(p.code,links)]):null;
+ const rows=cat.filter(x=>p.kind==='رئيسي'?String(x.mainCode)===String(p.code):p.kind==='تجميعي'?String(x.mainCode)===String(p.mainCode)&&String(x.groupCode)===String(p.code):String(x.mainCode)===String(p.mainCode)&&childCodes.has(String(x.subCode)));
+ const names=[...new Set(rows.flatMap(x=>x.details.map(d=>String(d[1]||'')).filter(Boolean)))];
+ const duplicates=names.filter(name=>cat.some(x=>!rows.includes(x)&&x.details.some(d=>String(d[1])===name)));
+ return {names,duplicates};
+}
+function ratibAggregateParents(cat,main){
+ const result=[],seen=new Set();
+ for(const x of cat.filter(x=>String(x.mainCode)===String(main.mainCode)))
+  for(const p of [{kind:'رئيسي',code:x.mainCode,name:x.main},{kind:'تجميعي',code:x.groupCode,name:x.group},{kind:'تجميعي فرعي',code:x.subCode,name:x.sub}]){
+   const key=p.kind+'|'+p.code;
+   if(!seen.has(key)){seen.add(key);result.push({...p,mainCode:x.mainCode});}
+  }
+ return result;
+}
+function ratibOpenAggregate(p){
+ const group=ratibAggregateScope(p);
+ if(!group.names.length){showToast('لا توجد حسابات تفصيلية تابعة لهذا التجميع.','warn');return;}
+ if(group.duplicates.length){showToast('اسم حساب تفصيلي مكرر في مسارات مختلفة، ولا يمكن ضمان دقة هذا الكشف: '+group.duplicates.slice(0,3).join('، '),'warn',7000);return;}
+ openAccountFromPager(p.name,group.names,null,true);
+}
+function ratibAggregateCard(p){
+ const row=document.createElement('div');row.className='account-sub-card';
+ row.style.cssText='display:flex;align-items:center;gap:7px;flex-wrap:wrap;padding:9px;margin:6px 0';
+ const title=document.createElement('span');title.style.cssText='flex:1 1 130px;min-width:0';title.textContent='['+p.code+'] '+p.name+' — '+p.kind;
+ const open=document.createElement('button');open.type='button';open.className='btn btn-ghost';open.textContent='كشف تجميعي';open.style.cssText='width:auto!important;min-height:40px;padding:6px 9px;margin:0';open.onclick=()=>ratibOpenAggregate(p);
+ const children=document.createElement('button');children.type='button';children.className='btn btn-ghost';children.textContent='الحسابات التابعة';children.style.cssText='width:auto!important;min-height:40px;padding:6px 9px;margin:0';children.onclick=()=>{const input=document.getElementById('accountsPagerSearchInput');if(input){input.value=String(p.code);renderAccountsPager();input.focus();}};
+ row.append(title,open,children);return row;
+}
+function ratibAggregateOwner(t){
+ if(!accountOpsState.aggregate)return '';
+ return [...new Set([t.debitAccount,t.creditAccount].filter(name=>name&&accountOpsState.scopeNames.includes(name)))].join(' / ');
 }
 function renderAccountsPager(){
   const tabs=document.getElementById('accountsPagerTabs'),track=document.getElementById('accountsPagerTrack');
@@ -8123,6 +8161,7 @@ function renderAccountsPager(){
     accountItems.forEach(a=>{const x=currencyBalance(a.name,a.currency);a.currencyTotal=x.total;a.currencyCount=x.count;a.currencyLast=x.last;});
     accountItems.sort((a,b)=>{const ad=a.currencyLast||'',bd=b.currencyLast||'';return (bd?1:0)-(ad?1:0)||bd.localeCompare(ad)||a.name.localeCompare(b.name,'ar')||a.currency.localeCompare(b.currency);});
     title.innerHTML=`<span>حسابات ${esc(main.main)}</span><small>${accountItems.length} حساب / عملة</small>`;slide.appendChild(title);
+    if(!query){const picker=document.createElement('details');picker.style.cssText='margin:8px 0;padding:9px;border:1px solid var(--border);border-radius:10px';const label=document.createElement('summary');label.textContent='كشوف الحسابات الرئيسية والتجميعية والفرعية';label.style.cssText='cursor:pointer;font-weight:700';picker.append(label);ratibAggregateParents(catalog,main).forEach(p=>picker.append(ratibAggregateCard(p)));slide.append(picker);}
     // في البحث باسم أو رقم الحساب: أظهر المستويات العليا نفسها، لا الحسابات التفصيلية وحدها.
     if(query){
       const seenParents=new Set(),parents=[];
@@ -8137,15 +8176,7 @@ function renderAccountsPager(){
           if(!seenParents.has(key)){seenParents.add(key);parents.push(p);}
         });
       });
-      parents.forEach(p=>{
-        const parentCard=document.createElement('div');
-        parentCard.className='account-sub-card';
-        parentCard.style.cssText='display:block;cursor:default;margin:6px 0;padding:10px 12px';
-        parentCard.textContent='['+p.code+'] '+p.name+' — '+p.kind;
-        const path=document.createElement('small');
-        path.className='account-sub-path';path.style.display='block';path.textContent=p.path;
-        parentCard.appendChild(path);slide.appendChild(parentCard);
-      });
+      parents.forEach(p=>slide.appendChild(ratibAggregateCard({...p,mainCode:main.mainCode})));
     }
     if(!accountItems.length){const empty=document.createElement('div');empty.className='accounts-empty';empty.textContent='لا توجد حسابات تفصيلية ضمن هذا التصنيف.';slide.appendChild(empty)}
     accountItems.forEach(account=>{
@@ -8927,7 +8958,7 @@ function* renderAccountCurrencyCanvases(data){
   let running=data.opening;
   const proofFrom=window.ratibStatementEffectiveFrom?.(accountOpsState.from||'')??(accountOpsState.from||'');
   const proof=window.ratibReconciliationEvidence?.(accountOpsState.accountName,data.currency,proofFrom,accountOpsState.to||'')||null;
-  const confirmed=!!(proof?.stable&&proof.inPeriod&&!proof.dateAfterPeriod);
+  const confirmed=!accountOpsState.aggregate&&!!(proof?.stable&&proof.inPeriod&&!proof.dateAfterPeriod);
   let matchedIndex=-1;
   if(confirmed)data.rows.forEach((t,i)=>{if(getAccountOpsDate(t)<=proof.date)matchedIndex=i;});
   const balanceLabel=n=>`${Math.abs(n).toLocaleString()} ${n===0?'صفر':n>0?'دائن':'مدين'}`;
@@ -8937,7 +8968,7 @@ function* renderAccountCurrencyCanvases(data){
     for(const [i,t] of data.rows.entries()){
       const entry=getAccountEntry(t,accountOpsState.scopeNames),amount=getAccountDisplayAmount(entry),debit=entry.side==='debit',credit=entry.side==='credit'||entry.bothSides;
       running=roundAccountingAmount(running+(entry.bothSides?0:debit?-amount:amount));
-      const values=[ratibStatementText(getAccountOpsDate(t),'—'),...(options.document?[`#${ratibStatementText(t.seqNum,'-')} ${ratibStatementText(getTransactionDisplayType(t),'قيد يومي')}`]:[]),ratibStatementText(entry.line?.note||t.execution?.[Object.keys(t.execution||{})[0]]?.note,'بدون بيان'),...(options.counterpart?[ratibResolveCounterpart(t,accountOpsState.scopeNames)]:[]),debit?amount.toLocaleString():'',credit?amount.toLocaleString():'',balanceLabel(running)];
+      const values=[ratibStatementText(getAccountOpsDate(t),'—'),...(options.document?[`#${ratibStatementText(t.seqNum,'-')} ${ratibStatementText(getTransactionDisplayType(t),'قيد يومي')}`]:[]),ratibStatementText([ratibAggregateOwner(t),entry.line?.note||t.execution?.[Object.keys(t.execution||{})[0]]?.note||'بدون بيان'].filter(Boolean).join(' — '),'بدون بيان'),...(options.counterpart?[ratibResolveCounterpart(t,accountOpsState.scopeNames)]:[]),debit?amount.toLocaleString():'',credit?amount.toLocaleString():'',balanceLabel(running)];
       if(confirmed&&i===matchedIndex){values[balanceIndex]+='  ✓ مطابق';values._ratibMatched=true;}
       yield values;
     }

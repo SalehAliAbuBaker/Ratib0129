@@ -1373,7 +1373,7 @@ body.ratib-sidebar-open,body.ratib-about-open{overflow:hidden}
     <div class="header-tools"><div class="header-actions">
       <button class="icon-btn" id="themeBtn" title="الوضع الليلي">🌙</button>
       <button class="icon-btn" id="sidebarMenuBtn" aria-haspopup="dialog" aria-controls="appSidebar" aria-expanded="false" title="القائمة الجانبية" aria-label="فتح القائمة الجانبية">☰</button>
-    </div><small id="appVersionLabel" class="app-version">الإصدار 3.6.60</small></div>
+    </div><small id="appVersionLabel" class="app-version">الإصدار 3.6.60 <span style="color:#c66b00;font-weight:900">(تجريبية)</span></small></div>
   </header>
   <div class="summary-toolbar hidden no-print" id="storageFeedback"><span id="persistentSaveStatus" hidden aria-hidden="true">جاهز</span><button type="button" id="retryStorageBtn" class="btn btn-ghost hidden">إعادة محاولة الحفظ</button></div>
 <div class="app-update-banner hidden no-print" id="appUpdateBanner" role="status"><span id="appUpdateMessage">يتوفر تحديث لراتب. هل تريد تطبيقه؟</span><button type="button" class="btn btn-ghost" id="applyAppUpdateBtn">موافق، تطبيق التحديث</button><div id="appUpdateDetails" class="hidden"></div></div>
@@ -1421,7 +1421,7 @@ body.ratib-sidebar-open,body.ratib-about-open{overflow:hidden}
       <img src="Icons/icon-192.png" width="72" height="72" alt="" decoding="async">
       <h2 id="ratibAboutTitle">راتب</h2>
       <p class="ratib-about-subtitle">للتنظيم والتدبير المالي</p>
-      <p class="ratib-about-version">الإصدار 3.6.60</p>
+      <p class="ratib-about-version">الإصدار 3.6.60 (تجريبية)</p>
       <p id="ratibAboutDescription">إدارة الحسابات والسندات والميزانية، ومتابعة العمليات والتقارير المالية، مع حفظ البيانات على جهازك ودعم العمل دون الإنترنت.</p>
       <button type="button" class="btn btn-primary" id="closeRatibAboutBtn">إغلاق</button>
     </div>
@@ -2128,6 +2128,9 @@ body.ratib-sidebar-open,body.ratib-about-open{overflow:hidden}
           <input type="time" id="cloudTimeInput" value="21:00" style="margin-bottom:8px;">
 
           <p style="color:var(--muted);font-weight:700;font-size:0.9rem;margin-bottom:10px;">اربط حساب Google الخاص بك مباشرة؛ لا يلزم إنشاء مشروع أو إدخال معرّف تقني. يتطلب الربط فتح التطبيق من موقع HTTPS.</p>
+          <label for="cloudUploadDestination" style="font-weight:700;">مجلد رفع النسخة اليدوية</label>
+          <select id="cloudUploadDestination" style="margin-bottom:8px;"><option value="trial">Ratib Trial Backups — التجريبية (الافتراضي)</option><option value="official">Ratib Backups — الرسمية (إذا سمحت الصلاحيات)</option></select>
+          <p style="font-size:.8rem;color:var(--muted);margin-bottom:8px;">النسخ التلقائي يُحفظ في مجلد التجريبية فقط. النسخ الموجودة لن تُستبدل.</p>
           <div style="display:flex; gap:8px; flex-wrap:wrap;">
             <button class="btn btn-primary" id="cloudSaveBtn" style="margin-top:0; font-size:1.05rem;">💾 حفظ وتفعيل السحابة</button>
             <button class="btn btn-ghost" id="cloudRunNowBtn" style="margin-top:0; font-size:1.05rem; display:none;">☁️ نسخ الآن</button>
@@ -3605,6 +3608,8 @@ async function refreshAutoBackupUI() {
 // (3) صلاحية drive.file فقط: يرى التطبيق الملفات التي أنشأها هو، ولا يقرأ بقية Drive.
 const CLOUD_CFG_KEY = 'cloud_backup_cfg';
 const CLOUD_FOLDER_NAME = 'Ratib Trial Backups';
+const CLOUD_LEGACY_FOLDER_NAME = 'Ratib Backups';
+const CLOUD_LEGACY_PREFIX = 'ratib-cloud-';
 const CLOUD_FILE_PREFIX = 'ratib-trial-cloud-';
 const DRIVE_SCOPE = 'https://www.googleapis.com/auth/drive.file';
 const RATIB_GOOGLE_CLIENT_ID = '127962228897-qmia501m05ikjfajldb1lus689qupbml.apps.googleusercontent.com';
@@ -3666,10 +3671,16 @@ async function driveFetch(url, opts = {}, token) {
   return res;
 }
 
+async function findDriveFolder(token, name) {
+  const query = "name='" + name.replace(/'/g, "\\'") + "' and mimeType='application/vnd.google-apps.folder' and trashed=false";
+  const q = encodeURIComponent(query);
+  const r = await (await driveFetch(`https://www.googleapis.com/drive/v3/files?q=${q}&fields=nextPageToken,files(id,name)&pageSize=100`, {}, token)).json();
+  return (r.files || []).find(f => f.name === name)?.id || null;
+}
+
 async function ensureDriveFolder(token) {
-  const q = encodeURIComponent(`name='${CLOUD_FOLDER_NAME}' and mimeType='application/vnd.google-apps.folder' and trashed=false`);
-  const r = await (await driveFetch(`https://www.googleapis.com/drive/v3/files?q=${q}&fields=files(id,name)&pageSize=10`, {}, token)).json();
-  if (r.files && r.files.length) return r.files[0].id;
+  const existing = await findDriveFolder(token, CLOUD_FOLDER_NAME);
+  if (existing) return existing;
   const c = await (await driveFetch('https://www.googleapis.com/drive/v3/files?fields=id', {
     method: 'POST', headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ name: CLOUD_FOLDER_NAME, mimeType: 'application/vnd.google-apps.folder' })
@@ -3677,24 +3688,35 @@ async function ensureDriveFolder(token) {
   return c.id;
 }
 
-async function listCloudBackups(token, folderId) {
-  const q = encodeURIComponent(`'${folderId}' in parents and trashed=false and name contains '${CLOUD_FILE_PREFIX}'`);
-  const r = await (await driveFetch(`https://www.googleapis.com/drive/v3/files?q=${q}&fields=files(id,name,size)&orderBy=name&pageSize=1000`, {}, token)).json();
-  return (r.files || []).filter(f => f.name && f.name.startsWith(CLOUD_FILE_PREFIX)); // الأقدم أولاً (الاسم يحمل التاريخ والزمن)
+async function listCloudBackups(token, folderId, origin = 'trial') {
+  if (!folderId) return [];
+  const q = encodeURIComponent(`'${folderId}' in parents and trashed=false`);
+  let pageToken = '', results = [];
+  do {
+    const url = `https://www.googleapis.com/drive/v3/files?q=${q}&fields=nextPageToken,files(id,name,size,createdTime)&pageSize=1000` + (pageToken ? '&pageToken=' + encodeURIComponent(pageToken) : '');
+    const r = await (await driveFetch(url, {}, token)).json();
+    results.push(...(r.files || []).filter(f => f.name && /^ratib-(?:trial-)?cloud-.*\\.json$/i.test(f.name)).map(f => ({ ...f, origin })));
+    pageToken = r.nextPageToken || '';
+  } while (pageToken);
+  return results.sort((a,b) => a.name.localeCompare(b.name));
+}
+
+async function listBothCloudBackups(token) {
+  const trialId = await findDriveFolder(token, CLOUD_FOLDER_NAME);
+  const officialId = await findDriveFolder(token, CLOUD_LEGACY_FOLDER_NAME);
+  const trialFiles = await listCloudBackups(token, trialId, 'trial');
+  const officialFiles = await listCloudBackups(token, officialId, 'official');
+  return { files: [...trialFiles, ...officialFiles].sort((a,b) => (b.createdTime || b.name).localeCompare(a.createdTime || a.name)), officialVisible: !!officialId };
 }
 
 async function pruneCloudBackups(token, folderId) {
-  const files = await listCloudBackups(token, folderId);
-  const excess = files.length - BACKUP_MAX_FILES;
-  for (let i = 0; i < excess; i++) {
-    try { await driveFetch(`https://www.googleapis.com/drive/v3/files/${files[i].id}`, { method: 'DELETE' }, token); } catch (e) { console.warn('تعذّر حذف نسخة سحابية قديمة', e); }
-  }
+  // لا يحذف راتب التجريبي أي نسخ سحابية قائمة؛ الحذف التلقائي القديم عُطّل لأمان البيانات.
 }
 
 async function uploadCloudBackup(token, folderId, name, content) {
   const boundary = 'ratibB' + Math.random().toString(36).slice(2);
   const meta = JSON.stringify({ name, parents: [folderId], mimeType: 'application/json' });
-  const body = `--${boundary}\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n${meta}\r\n--${boundary}\r\nContent-Type: application/json\r\n\r\n${content}\r\n--${boundary}--`;
+  const body = `--${boundary}\\r\\nContent-Type: application/json; charset=UTF-8\\r\\n\\r\\n${meta}\\r\\n--${boundary}\\r\\nContent-Type: application/json\\r\\n\\r\\n${content}\\r\\n--${boundary}--`;
   return (await driveFetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id,name', {
     method: 'POST', headers: { 'Content-Type': `multipart/related; boundary=${boundary}` }, body
   }, token)).json();
@@ -3707,18 +3729,25 @@ async function runCloudBackup(interactive) {
   _cloudBusy = true; refreshCloudBackupUI();
   try {
     const token = await getDriveToken(interactive);
-    const folderId = await ensureDriveFolder(token);
+    const dest = interactive ? (document.getElementById('cloudUploadDestination')?.value || 'trial') : 'trial';
+    let folderId;
+    if (dest === 'official') {
+      folderId = await findDriveFolder(token, CLOUD_LEGACY_FOLDER_NAME);
+      if (!folderId) throw new Error('لم يمنح Google للتجريبية صلاحية الوصول إلى مجلد الرسمية. لا يمكن الرفع إليه بهذه الصلاحية؛ اختر مجلد التجريبية.');
+      if (!confirm('سترفع نسخة جديدة إلى مجلد الرسمية دون استبدال نسخ موجودة. متابعة؟')) return false;
+    } else folderId = await ensureDriveFolder(token);
     const now = new Date();
     const payload = await buildBackupPayload();
-    await uploadCloudBackup(token, folderId, `${CLOUD_FILE_PREFIX}${backupStamp(now)}.json`, JSON.stringify(payload));
-    await pruneCloudBackups(token, folderId);
-    // تنبيه إن كان الحساب الذي سُجّل به الدخول يختلف عن البريد المُدخل
+    const prefix = dest === 'official' ? CLOUD_LEGACY_PREFIX : CLOUD_FILE_PREFIX;
+    const baseName = `${prefix}${backupStamp(now)}`;
+    const files = await listCloudBackups(token, folderId);
+    let name = baseName + '.json', suffix = 1;
+    while (files.some(f => f.name === name)) name = `${baseName}-${suffix++}.json`;
+    await uploadCloudBackup(token, folderId, name, JSON.stringify(payload));
     try {
       const about = await (await driveFetch('https://www.googleapis.com/drive/v3/about?fields=user(emailAddress)', {}, token)).json();
       const actual = (about.user && about.user.emailAddress || '').toLowerCase();
-      if (cfg.email && actual && actual !== cfg.email.trim().toLowerCase()) {
-        showToast(`تنبيه: رُفعت النسخة إلى حساب ${actual} وهو يختلف عن البريد المُدخل`, 'warn', 7000);
-      }
+      if (cfg.email && actual && actual !== cfg.email.trim().toLowerCase()) showToast(`تنبيه: رُفعت النسخة إلى حساب ${actual} وهو يختلف عن البريد المُدخل`, 'warn', 7000);
     } catch (e) {}
     saveCloudCfg({ lastDate: _todayStr(now), lastTime: now.toISOString(), lastError: '' }, true);
     if (interactive) showToast('تم رفع النسخة السحابية بنجاح', 'success');
@@ -3784,29 +3813,40 @@ async function openCloudRestoreModal() {
   modal.classList.add('show'); pushAppHistoryState();
   try {
     const token = await getDriveToken(true);
-    const folderId = await ensureDriveFolder(token);
-    const files = (await listCloudBackups(token, folderId)).reverse(); // الأحدث أولاً
-    if (!files.length) { list.innerHTML = '<div style="text-align:center; padding:12px; color:var(--muted); font-weight:700;">لا توجد نسخ سحابية بعد.</div>'; return; }
+    const { files, officialVisible } = await listBothCloudBackups(token);
     list.innerHTML = '';
-    files.slice(0, 40).forEach(f => {
+    if (!officialVisible) {
+      const warn = document.createElement('p');
+      warn.style.cssText = 'color:var(--muted);line-height:1.7;font-size:.9rem;';
+      warn.textContent = 'مجلد Ratib Backups القديم غير ظاهر لهذا التطبيق بصلاحية Google الحالية (drive.file). هذا لا يعني أن ملفاتك حُذفت. يمكنك تنزيل نسخة من Google Drive يدويًا واستيرادها من خيار الاستعادة المحلية، أو منح الوصول للملفات بطريقة يدعمها Google.';
+      list.appendChild(warn);
+    }
+    if (!files.length) {
+      const empty = document.createElement('p');
+      empty.textContent = 'لا توجد نسخ متاحة للتجريبية ضمن صلاحيات Google الحالية.';
+      list.appendChild(empty); return;
+    }
+    files.slice(0,80).forEach(f => {
       const d = backupNameToDate(f.name);
       const row = document.createElement('div');
       row.style.cssText = 'display:flex; justify-content:space-between; align-items:center; gap:8px; padding:10px 0; border-bottom:1px dashed var(--border);';
       const label = document.createElement('span');
-      label.style.fontWeight = '900';
-      label.textContent = d ? d.toLocaleString('ar-EG') : f.name;
+      label.style.fontWeight = '700';
+      label.style.overflowWrap = 'anywhere';
+      const size = f.size ? ' · ' + (Number(f.size)/1024).toFixed(1) + ' KB' : '';
+      label.textContent = (d ? d.toLocaleString('ar-EG') : f.name) + size + (f.origin === 'official' ? ' · الرسمية' : ' · التجريبية');
       const btn = document.createElement('button');
       btn.className = 'btn btn-ghost'; btn.style.cssText = 'margin-top:0; padding:6px 12px;'; btn.textContent = 'استعادة';
       btn.addEventListener('click', async () => {
         btn.disabled = true;
         try {
           const res = await driveFetch(`https://www.googleapis.com/drive/v3/files/${f.id}?alt=media`, {}, token);
-          const text = await res.text();
+          const content = await res.text();
           modal.classList.remove('show');
-          await importBackupFile(new File([text], f.name, { type: 'application/json' }));
+          await importBackupFile(new File([content], f.name, { type: 'application/json' }));
         } catch (e) { showToast('تعذّر تنزيل النسخة: ' + (e.message || e), 'error', 6000); btn.disabled = false; }
       });
-      row.appendChild(label); row.appendChild(btn); list.appendChild(row);
+      row.append(label, btn); list.appendChild(row);
     });
   } catch (e) {
     list.innerHTML = '';

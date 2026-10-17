@@ -60,6 +60,23 @@
 #trialDiagnosisResults .trial-table{min-width:920px}
 #trialDiagnosisResults .trial-table th,#trialDiagnosisResults .trial-table td{vertical-align:middle}
 #trialDiagnosisResults .trial-table td:last-child{white-space:nowrap}
+
+/* Compact default summary; diagnostics only on explicit request. */
+.trial-overview{border:1px solid var(--border);border-radius:12px;padding:12px;margin:12px 0;background:var(--card)}
+.trial-overview h3{font-size:1rem;margin:0 0 8px;color:var(--text)}
+.trial-overview-status{margin:0 0 10px;font-weight:700}
+.trial-overview-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:7px}
+.trial-overview-item{padding:8px;border:1px solid var(--border);border-radius:8px;min-width:0}
+.trial-overview-item span,.trial-overview-item strong{display:block;overflow-wrap:anywhere}
+.trial-overview-item span{font-size:.81rem;color:var(--muted);margin-bottom:5px}
+.trial-overview-item strong{font-size:.94rem;color:var(--text)}
+.trial-overview-note{margin:10px 0 0;font-size:.82rem;color:var(--muted)}
+.trial-detail-section{margin-top:12px}
+.trial-detail-section>details,.trial-overview-issues{border:1px solid var(--border);border-radius:9px;margin:8px 0;padding:10px}
+.trial-detail-section summary,.trial-overview-issues summary{font-weight:800;cursor:pointer}
+.trial-detail-section details>div,.trial-overview-issues>div{padding-top:10px}
+.trial-detail-section p,.trial-overview-issues p{margin:5px 0}
+@media print{.trial-overview{break-inside:avoid}.trial-overview-issues{display:none!important}.trial-detail-section details{break-inside:avoid}}
 </style>
 <style id="ratib-version-visibility">#appVersionLabel{display:inline-flex!important;visibility:visible!important;opacity:1!important;white-space:nowrap!important;align-items:center!important;font-weight:700!important;}</style>
 <meta charset="UTF-8">
@@ -1410,7 +1427,7 @@ body.ratib-sidebar-open,body.ratib-about-open{overflow:hidden}
     <div class="header-tools"><div class="header-actions">
       <button class="icon-btn" id="themeBtn" title="الوضع الليلي">🌙</button>
       <button class="icon-btn" id="sidebarMenuBtn" aria-haspopup="dialog" aria-controls="appSidebar" aria-expanded="false" title="القائمة الجانبية" aria-label="فتح القائمة الجانبية">☰</button>
-    </div><small id="appVersionLabel" class="app-version">الإصدار 3.6.76 <span style="color:#c66b00;font-weight:900">(تجريبية)</span></small></div>
+    </div><small id="appVersionLabel" class="app-version">الإصدار 3.6.77 <span style="color:#c66b00;font-weight:900">(تجريبية)</span></small></div>
   </header>
   <div class="summary-toolbar hidden no-print" id="storageFeedback"><span id="persistentSaveStatus" hidden aria-hidden="true">جاهز</span><button type="button" id="retryStorageBtn" class="btn btn-ghost hidden">إعادة محاولة الحفظ</button></div>
 <div class="app-update-banner hidden no-print" id="appUpdateBanner" role="status"><span id="appUpdateMessage">يتوفر تحديث لراتب. هل تريد تطبيقه؟</span><button type="button" class="btn btn-ghost" id="applyAppUpdateBtn">موافق، تطبيق التحديث</button><div id="appUpdateDetails" class="hidden"></div></div>
@@ -10295,9 +10312,9 @@ async function trialFxRevoke(index){
   }catch(e){showToast(e.message,'warn');}
 }
 
-function trialFilters(){const value=id=>document.getElementById(id)?.value||'';return {fxMethod:value('trialFxMethod')||'entry',from:value('trialFrom'),to:value('trialTo'),costCenter:value('trialCostCenter'),project:value('trialProject'),budget:value('trialBudget')||'general',base:value('trialBase')||'YER',mode:value('trialMode')||'original',currency:value('trialCurrency')||'YER',level:value('trialLevel'),compact:document.getElementById('trialCompact')?.checked||false};}
+function trialFilters(){const value=id=>document.getElementById(id)?.value||'';return {fxMethod:value('trialFxMethod')||'entry',from:value('trialFrom'),to:value('trialTo'),costCenter:value('trialCostCenter'),project:value('trialProject'),budget:value('trialBudget')||'general',base:value('trialBase')||'YER',mode:value('trialMode')||'original',currency:value('trialCurrency')||'YER',level:value('trialLevel'),compact:document.getElementById('trialCompact')?.checked||false,presentation:value('trialPresentationMode')==='detailed'?'detailed':'brief'};}
 
-function trialFilterCaption(f){const text=id=>document.getElementById(id)?.selectedOptions[0]?.textContent||'';return [`الفترة: ${f.from||'البداية'} — ${f.to||'النهاية'}`,`مركز التكلفة: ${text('trialCostCenter')}`,`المشروع: ${text('trialProject')}`,`بند الميزانية: ${text('trialBudget')}`,`عملة العرض: ${f.base}`,`طريقة المعادلة: ${f.fxMethod==='approved'?'حسب أسعار التقييم المعتمدة':'حسب قيم الإدخال المحفوظة'}`,`طريقة العرض: ${text('trialMode')}`,`مستوى الحسابات: ${text('trialLevel')}`];}
+function trialFilterCaption(f){const text=id=>document.getElementById(id)?.selectedOptions[0]?.textContent||'';return [`الفترة: ${f.from||'البداية'} — ${f.to||'النهاية'}`,`مركز التكلفة: ${text('trialCostCenter')}`,`المشروع: ${text('trialProject')}`,`بند الميزانية: ${text('trialBudget')}`,`عملة العرض: ${f.base}`,`طريقة المعادلة: ${f.fxMethod==='approved'?'حسب أسعار التقييم المعتمدة':'حسب قيم الإدخال المحفوظة'}`,`طريقة العرض: ${text('trialMode')}`,`مستوى الحسابات: ${text('trialLevel')}`,`تنسيق التقرير: ${f.presentation==='detailed'?'تفصيلي':'مختصر'}`];}
 
 function trialColumns(f){const fields=f.compact?['closingDebit','closingCredit']:['openingDebit','openingCredit','periodDebit','periodCredit','closingDebit','closingCredit'];const names={openingDebit:'افتتاحي مدين',openingCredit:'افتتاحي دائن',periodDebit:'حركة مدين',periodCredit:'حركة دائن',closingDebit:'ختامي مدين',closingCredit:'ختامي دائن'};const kind=f.mode==='equivalent'?'equivalent':'native';let cols=fields.map(key=>({key,kind,label:names[key]+(kind==='equivalent'?' ('+f.base+')':'')}));if(f.mode==='dual')cols.push(...fields.map(key=>({key,kind:'equivalent',label:names[key]+' — معادل '+f.base})));return cols;}
 
@@ -10308,7 +10325,92 @@ function trialReportRows(model){const cols=trialColumns(model.filters),rows=[];i
   if(['dual','equivalent'].includes(model.filters.mode))rows.push({highlight:true,values:['','إجمالي المعادل',model.filters.base,...cols.map(c=>c.kind==='equivalent'?(model.base.missing?'غير مكتمل':trialNumber(model.base[c.key])):'')]});return rows;
 }
 
-function trialReportHtml(model){const columns=trialColumns(model.filters),labels=['رمز الحساب','اسم الحساب','العملة',...columns.map(c=>c.label)];return `<h1>راتب — ميزان المراجعة</h1><div class="trial-caption">${trialFilterCaption(model.filters).map(s=>`<p>${esc(s)}</p>`).join('')}</div><div class="trial-table-wrap"><table class="trial-table ${model.filters.compact?'trial-compact':''}"><thead><tr>${labels.map(l=>`<th>${esc(l)}</th>`).join('')}</tr></thead><tbody>${trialReportRows(model).map(r=>`<tr class="${r.highlight?'trial-account-heading':''}">${r.values.map(v=>`<td>${esc(v)}</td>`).join('')}</tr>`).join('')||`<tr><td colspan="${labels.length}">لا توجد حركات ضمن المرشحات المحددة.</td></tr>`}</tbody></table></div><div class="trial-total-cards">${model.documentProof?.checked? `<article><strong>فحص توازن المستندات حسب التقييم المحفوظ</strong><p>متوازنة: ${model.documentProof.balanced} من ${model.documentProof.checked} مستندًا</p><p>${model.documentProof.allBalanced?'جميع المستندات المفحوصة متوازنة حسب عملات تقييمها المحفوظة.':'توجد مستندات تحتاج مراجعة التوازن أو بيانات غير صالحة.'}</p><p>${model.documentProof.missingLegs?'معادل عملة العرض غير مكتمل: '+model.documentProof.missingLegs+' طرفًا في '+model.documentProof.missingDocuments+' مستندات تحتاج تقييمًا. لا يجوز اعتبار مجموع المدين والدائن المحوّل مكتملاً.':'معادلات المستندات المتاحة مشمولة بالفحص.'}</p><p>النتيجة تخص المستندات التي شملها التشخيص، ولا تعني توازن كل فترة أو مرشح مستقل.</p></article>`:''}${model.totals.map(t=>`<article><strong>${esc(t.currency)} — عملة أصلية</strong><p>مدين ختامي: ${trialNumber(t.closingDebit)}</p><p>دائن ختامي: ${trialNumber(t.closingCredit)}</p><p>صافي اختلاف العملة الأصلية (ليس بالضرورة خطأ): ${trialNumber(t.difference)}</p></article>`).join('')}${['dual','equivalent'].includes(model.filters.mode)?`<article><strong>المعادل ${esc(model.filters.base)}</strong><p>${model.base.missing?'غير مكتمل':`مدين: ${trialNumber(model.base.closingDebit)} — دائن: ${trialNumber(model.base.closingCredit)} — الفرق: ${trialNumber(model.base.difference)}`}</p></article>`:''}</div>${trialBalanceBreakdownHtml(model)}${model.warnings.map(w=>`<p class="trial-diagnostic">${esc(w)}</p>`).join('')}${model.base.missing?`<p class="trial-diagnostic no-print"><strong>تفاصيل الأطراف غير المكتملة:</strong> استخدم «تشخيص الفروقات» أسفل التقرير لعرض رقم كل مستند وحسابه وعملته، أو لتنزيل ملف CSV. لا تُغيّر أرصدة السندات لمجرد نقص سعر تقييم التقرير.</p>`:''}`;}
+
+/* Ratib 3.6.77: concise accounting outcome on screen, print and PDF.
+   The model, entries, exchange rates and balance arithmetic remain unchanged. */
+function trialBalanceSummaryState(model){
+ const f=model.filters||{},b=model.base||{},p=model.documentProof||{};
+ const partial=Boolean(f.from||f.to||f.costCenter||f.project||(f.budget&&f.budget!=='all'));
+ const missing=Boolean(b.missing||p.missingLegs);
+ const docsProblem=Boolean(p.notBalanced||p.invalid);
+ const financialDifference=!missing&&!model.balancedBase;
+ const extraReview=Boolean(model.reviewAccounts?.length||model.requiresReview||docsProblem);
+ const needsAttention=missing||financialDifference||extraReview;
+ let label=missing?'غير مكتمل — تحويلات ناقصة'
+   :financialDifference?(partial?'توجد فروق ضمن المرشحات':'توجد فروق تحتاج مراجعة')
+   :extraReview?'متوازن حسابيًا — مع ملاحظات للمراجعة'
+   :partial?'متوازن ضمن الفترة والمرشحات':'متوازن وفق أسعار التقييم';
+ return {label,missing,partial,needsAttention,docsProblem,financialDifference};
+}
+function trialBalanceSummaryLines(model){
+ const s=trialBalanceSummaryState(model),b=model.base,p=model.documentProof||{},cur=model.filters.base||'YER';
+ return [
+  'حالة معادل '+cur+': '+s.label,
+  s.missing?'إجمالي المعادل غير مكتمل ولا يجوز اعتماده.':'المدين الختامي '+cur+': '+trialNumber(b.closingDebit)+' | الدائن الختامي '+cur+': '+trialNumber(b.closingCredit)+' | الفرق: '+trialNumber(trialBalanceDifference(b.difference)),
+  p.checked?'المستندات المتوازنة حسب التقييم: '+p.balanced+' من '+p.checked : 'لم تُسجل مستندات مفحوصة ضمن المرشحات.',
+  s.missing?'تقييم العملات: غير مكتمل — أطراف دون تحويل: '+(b.missing||p.missingLegs||0):'تقييم العملات: مكتمل للمعادل المعروض.',
+  'هذه النتيجة تخص الفترة والمرشحات المعروضة فقط.'
+ ];
+}
+function trialBalanceSummaryHtml(model){
+ const state=trialBalanceSummaryState(model),b=model.base,p=model.documentProof||{},cur=esc(model.filters.base||'YER');
+ const cell=(name,value)=>'<div class="trial-overview-item"><span>'+esc(name)+'</span><strong>'+esc(String(value))+'</strong></div>';
+ const total=state.missing?'غير مكتمل':'';
+ return '<section class="trial-overview" aria-label="خلاصة ميزان المراجعة">'
+  +'<h3>خلاصة ميزان المراجعة — المعادل '+cur+'</h3>'
+  +'<p class="trial-overview-status"><strong>الحالة:</strong> '+esc(state.label)+'</p>'
+  +'<div class="trial-overview-grid">'
+  +cell('إجمالي المدين الختامي',state.missing?total:trialNumber(b.closingDebit)+' '+cur)
+  +cell('إجمالي الدائن الختامي',state.missing?total:trialNumber(b.closingCredit)+' '+cur)
+  +cell('الفرق',state.missing?total:trialNumber(trialBalanceDifference(b.difference))+' '+cur)
+  +cell('المستندات المتوازنة',p.checked?p.balanced+' من '+p.checked:'لا توجد مستندات مفحوصة')
+  +cell('تقييم العملات',state.missing?'ناقص — '+(b.missing||p.missingLegs||0)+' طرفًا':'مكتمل للمعادل')
+  +'</div><p class="trial-overview-note">الحالة تخص الفترة والمرشحات المختارة فقط؛ وتوازن المعادل لا يعني بالضرورة تطابق أرصدة كل عملة أصلية.</p></section>';
+}
+function trialBalanceDetailsHtml(model){
+ const p=model.documentProof||{},state=trialBalanceSummaryState(model);
+ const proof=p.checked?'<p>متوازنة: '+p.balanced+' من '+p.checked+' مستندًا</p>'
+   +'<p>'+(p.allBalanced?'جميع المستندات المفحوصة متوازنة بحسب تقييمها المحفوظ.':'يوجد ما يحتاج مراجعة في بعض المستندات.')+'</p>'
+   +'<p>'+(p.missingLegs?'هناك '+p.missingLegs+' طرفًا بلا تحويل في '+p.missingDocuments+' مستندات.':'التقييمات اللازمة للمعادل المعروض مكتملة.')+'</p>'
+   :'<p>لا توجد مستندات مفحوصة ضمن المرشحات الحالية.</p>';
+ const native=model.totals.map(t=>'<article><strong>'+esc(t.currency)+' — عملة أصلية</strong>'
+  +'<p>مدين ختامي: '+trialNumber(t.closingDebit)+'</p>'
+  +'<p>دائن ختامي: '+trialNumber(t.closingCredit)+'</p>'
+  +'<p>صافي اختلاف العملة الأصلية (ليس بالضرورة خطأ): '+trialNumber(t.difference)+'</p></article>').join('');
+ const base=['dual','equivalent'].includes(model.filters.mode)
+  ?trialBalanceBreakdownHtml(model):'<p>اختر «المعادل بالعملة الأساسية» أو «الأصلية والمعادل» لعرض تفصيل مطابقة المعادل في الجدول.</p>';
+ const alerts=model.warnings.map(w=>'<p class="trial-diagnostic">'+esc(w)+'</p>').join('')
+  +(model.base.missing?'<p>للاطلاع على الأطراف الناقصة استخدم «تشخيص الفروقات» أسفل التقرير. لا تعدّل السندات لمجرد نقص تقييم التقرير.</p>':'');
+ return '<section class="trial-detail-section" aria-label="تفاصيل الفحص">'
+  +'<details open><summary>فحص توازن المستندات</summary><div>'+proof+'<p>نتيجة الفحص تخص المستندات المشمولة بالتشخيص، ولا تثبت بالضرورة توازن كل مرشح مستقل.</p></div></details>'
+  +'<details open><summary>فروقات العملات الأصلية</summary><div class="trial-total-cards">'+native+'</div></details>'
+  +'<details open><summary>مطابقة الافتتاحي والحركة والختامي</summary><div>'+base+'</div></details>'
+  +'<details '+(state.needsAttention?'open':'')+'><summary>التنبيهات والملاحظات ('+model.warnings.length+')</summary><div>'+alerts+'</div></details>'
+  +'</section>';
+}
+function trialBalanceIssuesHtml(model){
+ const state=trialBalanceSummaryState(model);
+ if(!state.needsAttention)return '';
+ const p=model.documentProof||{};
+ const explain=(state.missing?'<p>التحويل ناقص: '+(model.base.missing||p.missingLegs||0)+' طرفًا بلا تقييم معتمد.</p>':'')
+  +(state.financialDifference?trialBalanceBreakdownHtml(model):'')
+  +(state.docsProblem?'<p>مستندات غير متوازنة: '+(p.notBalanced||0)+'؛ سجلات غير صالحة: '+(p.invalid||0)+'.</p>':'')
+  +model.warnings.filter(w=>!/رغم اختلاف العملات الأصلية|فروق العملات الأصلية: قد تنتج/.test(w)).map(w=>'<p>'+esc(w)+'</p>').join('');
+ return '<details class="trial-overview-issues no-print"><summary>عرض سبب الفرق أو الملاحظات</summary><div>'+explain
+  +'<p>لفحص المستندات بالتفصيل استخدم «تشخيص الفروقات» أسفل الميزان.</p></div></details>';
+}
+function trialReportHtml(model){
+ const columns=trialColumns(model.filters),labels=['رمز الحساب','اسم الحساب','العملة',...columns.map(c=>c.label)];
+ const rows=trialReportRows(model);
+ const table='<div class="trial-table-wrap"><table class="trial-table '+(model.filters.compact?'trial-compact':'')+'"><thead><tr>'
+   +labels.map(l=>'<th>'+esc(l)+'</th>').join('')+'</tr></thead><tbody>'
+   +(rows.length?rows.map(r=>'<tr class="'+(r.highlight?'trial-account-heading':'')+'">'+r.values.map(v=>'<td>'+esc(v)+'</td>').join('')+'</tr>').join(''):'<tr><td colspan="'+labels.length+'">لا توجد حركات ضمن المرشحات المحددة.</td></tr>')
+   +'</tbody></table></div>';
+ return '<h1>راتب — ميزان المراجعة</h1>'
+  +'<div class="trial-caption">'+trialFilterCaption(model.filters).map(s=>'<p>'+esc(s)+'</p>').join('')+'</div>'
+  +trialBalanceSummaryHtml(model)+table
+  +(model.filters.presentation==='detailed'?trialBalanceDetailsHtml(model):trialBalanceIssuesHtml(model));
+}
 
 function refreshTrialDimensions(){const legs=getAllTransactions().flatMap(trialTransactionLegs);for(const [id,key,storeKey,all] of [['trialCostCenter','costCenter','cost_centers','جميع مراكز التكلفة'],['trialProject','project','projects','جميع المشاريع']]){const select=document.getElementById(id);if(!select)continue;const selected=select.value,items=new Map();const definitions=store.get(storeKey,[]);for(const obj of Array.isArray(definitions)?definitions:Object.values(definitions))items.set(String(obj?.id??obj?.name??obj),String(obj?.name??obj));for(const leg of legs){const v=trialDimension(leg,key);if(v&&!items.has(v))items.set(v,v);}select.innerHTML=`<option value="">${all}</option>`+[...items].map(([v,n])=>`<option value="${esc(v)}">${esc(n)}</option>`).join('');if(items.has(selected))select.value=selected;select.title=items.size?'':'لا توجد بيانات مسجلة لهذا المرشح.';}
   const select=document.getElementById('trialBudget'),selected=select?.value||'general';if(select){select.innerHTML='<option value="all">جميع البنود</option>'+getCats().map(c=>`<option value="${esc(c.id)}">${esc(c.name)}</option>`).join('');select.value=[...select.options].some(o=>o.value===selected)?selected:'general';}
@@ -10331,14 +10433,14 @@ function* renderTrialPdfPages(model){
   const proofMessages=proof?.checked?['فحص توازن المستندات بالتقييم المحفوظ: '+proof.balanced+' من '+proof.checked+' مستندًا',
     proof.missingLegs?'المعادل غير مكتمل: '+proof.missingLegs+' طرفًا يحتاج تحويلًا في '+proof.missingDocuments+' مستندات؛ لا يعني نقص سعر العرض اختلال قيد محفوظًا.':'',
     'التوازن المعروض يخص المستندات المشمولة بالتشخيص وليس بالضرورة كل مرشح أو فترة مستقلة.'].filter(Boolean):[];
-  const messages=[...proofMessages,...(['dual','equivalent'].includes(model.filters.mode)?trialBalanceBreakdownText(model):[]),...model.totals.map(t=>'فرق '+t.currency+': '+trialNumber(t.difference)),...(['dual','equivalent'].includes(model.filters.mode)?['فرق المعادل '+model.filters.base+': '+(model.base.missing?'غير مكتمل':trialNumber(model.base.difference))]:[]),...model.warnings];page.ctx.font='500 17px Tajawal,Arial,sans-serif';for(const msg of messages){for(const line of wrapCanvasText(page.ctx,msg,1584)){if(page.y+30>1095){yield page.canvas;page=create();header();}page.text(line,1634,page.y+24,17);page.y+=28;}}yield page.canvas;
+  const messages=model.filters.presentation==='detailed'?[...trialBalanceSummaryLines(model),...proofMessages,...(['dual','equivalent'].includes(model.filters.mode)?trialBalanceBreakdownText(model):[]),...model.totals.map(t=>'فرق '+t.currency+': '+trialNumber(t.difference)),...(['dual','equivalent'].includes(model.filters.mode)?['فرق المعادل '+model.filters.base+': '+(model.base.missing?'غير مكتمل':trialNumber(model.base.difference))]:[]),...model.warnings]:trialBalanceSummaryLines(model);page.ctx.font='500 17px Tajawal,Arial,sans-serif';for(const msg of messages){for(const line of wrapCanvasText(page.ctx,msg,1584)){if(page.y+30>1095){yield page.canvas;page=create();header();}page.text(line,1634,page.y+24,17);page.y+=28;}}yield page.canvas;
 }
 
 function downloadFinancialFile(blob,name){const url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(url),2000);}
 
 function exportTrialExcel(){try{const model=trialBuildModel(getAllTransactions(),trialFilters()),rows=[['راتب — ميزان المراجعة'],...trialFilterCaption(model.filters).map(s=>[s]),['فحص توازن المستندات بالتقييم المحفوظ',model.documentProof.balanced+' / '+model.documentProof.checked],['أطراف تحتاج تحويلًا للمعادل',model.documentProof.missingLegs],['حالة إجمالي المعادل',trialBalanceComponentStatus(model)],...(['dual','equivalent'].includes(model.filters.mode)?trialBalanceBreakdownText(model).map(x=>[x]):[]),[],['رمز الحساب','اسم الحساب','العملة',...trialColumns(model.filters).map(c=>c.label)],...trialReportRows(model).map(r=>r.values.map((v,i)=>i>2&&v!==''&&v!=='غير متاح'&&v!=='غير مكتمل'?Number(String(v).replace(/,/g,'')):v)),[],...model.totals.map(t=>['فرق '+t.currency,t.difference]),...model.warnings.map(w=>[w])];const sheet=XLSX.utils.aoa_to_sheet(rows),book=XLSX.utils.book_new();sheet['!cols']=[{wch:15},{wch:32},{wch:12},...trialColumns(model.filters).map(()=>({wch:20}))];book.Workbook={Views:[{RTL:true}]};XLSX.utils.book_append_sheet(book,sheet,'ميزان المراجعة');downloadFinancialFile(new Blob([XLSX.write(book,{bookType:'xlsx',type:'array'})],{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'}),'راتب-ميزان-المراجعة.xlsx');}catch(e){showToast('تعذر تصدير Excel: '+e.message,'error');}}
 
-function initTrialMulticurrency(){const card=document.getElementById('trialBalanceCard'),existing=card.querySelector('h2');const description=existing.nextElementSibling;if(description?.tagName==='P')description.textContent='يعرض الأرصدة الافتتاحية وحركة الفترة والأرصدة الختامية حسب المرشحات، مع فصل العملات وإظهار المعادل المتاح.';existing.querySelector('#printTrialBalanceBtn')?.remove();existing.querySelector('#shareTrialBalancePdfBtn')?.remove();const block=document.createElement('div');block.innerHTML=`<div class="report-actions no-print"><button type="button" class="btn btn-ghost" id="trialPreviewBtn">معاينة</button><button type="button" class="btn btn-ghost" id="printTrialBalanceBtn">طباعة</button><button type="button" class="btn btn-ghost" id="shareTrialBalancePdfBtn">تصدير PDF</button><button type="button" class="btn btn-primary" id="trialExcelBtn">تصدير Excel</button></div><div class="trial-filters no-print"><label>من تاريخ<input type="date" id="trialFrom"></label><label>إلى تاريخ<input type="date" id="trialTo"></label><label>مركز التكلفة<select id="trialCostCenter"></select></label><label>المشروع<select id="trialProject"></select></label><label>بند الميزانية<select id="trialBudget"></select></label><label>العملة الأساسية للعرض<select id="trialBase"></select></label><label>طريقة معادلة العملات<select id="trialFxMethod"><option value="entry">حسب قيم الإدخال المحفوظة في السندات</option><option value="approved">حسب الإدخال ثم أسعار التقييم المعتمدة عند الحاجة</option></select></label><label>طريقة عرض العملات<select id="trialMode"><option value="original">جميع العملات الأصلية</option><option value="specific">عملة محددة</option><option value="equivalent">المعادل بالعملة الأساسية</option><option value="dual">الأصلية والمعادل</option></select></label><label>مستوى الحسابات<select id="trialLevel"><option value="">جميع الحسابات</option><option value="1">التصنيف الرئيسي</option><option value="2">المجموعة</option><option value="3">المجموعة الفرعية</option><option value="4">الحساب التفصيلي</option></select></label><label id="trialCurrencyField" class="hidden">العملة المحددة<select id="trialCurrency"></select></label><label><span>عرض مختصر</span><input type="checkbox" id="trialCompact"></label></div>`;existing.after(block);document.getElementById('trialFrom').value=monthKey()+'-01';document.getElementById('trialTo').value=getLocalTodayISO();refreshTrialDimensions();document.getElementById('trialBase').value='YER';document.getElementById('trialBudget').value='general';block.querySelectorAll('input,select').forEach(el=>el.onchange=runTrialBalanceReport);document.getElementById('trialPreviewBtn').onclick=trialPreview;document.getElementById('printTrialBalanceBtn').onclick=printTrialReport;document.getElementById('shareTrialBalancePdfBtn').onclick=shareTrialBalancePdf;document.getElementById('trialExcelBtn').onclick=exportTrialExcel;document.getElementById('trialPreviewClose').onclick=closeTrialPreview;window.addEventListener('afterprint',()=>document.body.classList.remove('trial-printing'));}
+function initTrialMulticurrency(){const card=document.getElementById('trialBalanceCard'),existing=card.querySelector('h2');const description=existing.nextElementSibling;if(description?.tagName==='P')description.textContent='يعرض الأرصدة الافتتاحية وحركة الفترة والأرصدة الختامية حسب المرشحات، مع فصل العملات وإظهار المعادل المتاح.';existing.querySelector('#printTrialBalanceBtn')?.remove();existing.querySelector('#shareTrialBalancePdfBtn')?.remove();const block=document.createElement('div');block.innerHTML=`<div class="report-actions no-print"><button type="button" class="btn btn-ghost" id="trialPreviewBtn">معاينة</button><button type="button" class="btn btn-ghost" id="printTrialBalanceBtn">طباعة</button><button type="button" class="btn btn-ghost" id="shareTrialBalancePdfBtn">تصدير PDF</button><button type="button" class="btn btn-primary" id="trialExcelBtn">تصدير Excel</button></div><div class="trial-filters no-print"><label>من تاريخ<input type="date" id="trialFrom"></label><label>إلى تاريخ<input type="date" id="trialTo"></label><label>مركز التكلفة<select id="trialCostCenter"></select></label><label>المشروع<select id="trialProject"></select></label><label>بند الميزانية<select id="trialBudget"></select></label><label>العملة الأساسية للعرض<select id="trialBase"></select></label><label>طريقة معادلة العملات<select id="trialFxMethod"><option value="entry">حسب قيم الإدخال المحفوظة في السندات</option><option value="approved">حسب الإدخال ثم أسعار التقييم المعتمدة عند الحاجة</option></select></label><label>طريقة عرض العملات<select id="trialMode"><option value="original">جميع العملات الأصلية</option><option value="specific">عملة محددة</option><option value="equivalent">المعادل بالعملة الأساسية</option><option value="dual">الأصلية والمعادل</option></select></label><label>طريقة عرض التقرير<select id="trialPresentationMode" aria-label="طريقة عرض التقرير"><option value="brief" selected>مختصر — الخلاصة فقط</option><option value="detailed">تفصيلي — كافة الفحوص</option></select></label><label>مستوى الحسابات<select id="trialLevel"><option value="">جميع الحسابات</option><option value="1">التصنيف الرئيسي</option><option value="2">المجموعة</option><option value="3">المجموعة الفرعية</option><option value="4">الحساب التفصيلي</option></select></label><label id="trialCurrencyField" class="hidden">العملة المحددة<select id="trialCurrency"></select></label><label><span>اختصار أعمدة الأرصدة</span><input type="checkbox" id="trialCompact"></label></div>`;existing.after(block);document.getElementById('trialFrom').value=monthKey()+'-01';document.getElementById('trialTo').value=getLocalTodayISO();refreshTrialDimensions();document.getElementById('trialBase').value='YER';document.getElementById('trialBudget').value='general';block.querySelectorAll('input,select').forEach(el=>el.onchange=runTrialBalanceReport);document.getElementById('trialPreviewBtn').onclick=trialPreview;document.getElementById('printTrialBalanceBtn').onclick=printTrialReport;document.getElementById('shareTrialBalancePdfBtn').onclick=shareTrialBalancePdf;document.getElementById('trialExcelBtn').onclick=exportTrialExcel;document.getElementById('trialPreviewClose').onclick=closeTrialPreview;window.addEventListener('afterprint',()=>document.body.classList.remove('trial-printing'));}
 
 const EXTERNAL_IMPORT_FIELDS={ignore:'تجاهل',code:'رمز الحساب',name:'اسم الحساب',parent:'رمز الحساب الأب',type:'نوع الحساب',currency:'العملة',debit:'الرصيد الافتتاحي المدين',credit:'الرصيد الافتتاحي الدائن',baseDebit:'مدين بالتقييم (اختياري)',baseCredit:'دائن بالتقييم (اختياري)'};
 

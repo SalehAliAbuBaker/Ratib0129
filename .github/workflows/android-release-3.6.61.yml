@@ -1,21 +1,26 @@
 name: Build Ratib 3.6.61 Android APK
+
 on:
   workflow_dispatch:
   push:
     paths:
       - '.github/workflows/android-release-3.6.61.yml'
+
 permissions:
   contents: read
+
 jobs:
   build:
     runs-on: ubuntu-latest
     timeout-minutes: 40
+
     steps:
       - name: Checkout verified official web release
         uses: actions/checkout@v4
         with:
           ref: 1d3553127276facbfa8fbd3a6aa10bbff6d0d9de
           fetch-depth: 0
+
       - name: Download verified Android build-6 source
         run: |
           set -euo pipefail
@@ -27,22 +32,26 @@ jobs:
           test -n "$base"
           cp -a "$(dirname "$base")" ./android
           test -f android/tools/bundle-web.cjs
+
       - uses: actions/setup-node@v4
         with:
           node-version: '24'
+
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: '17'
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+
       - name: Install Android SDK requirements
         run: |
           set -euo pipefail
-          SDK=/usr/local/lib/android/sdk
-          echo "ANDROID_HOME=$SDK" >> "$GITHUB_ENV"
-          echo "ANDROID_SDK_ROOT=$SDK" >> "$GITHUB_ENV"
-          manager="$(find "$SDK/cmdline-tools" -type f -name sdkmanager -print -quit)"
+          manager="$(find "$ANDROID_HOME/cmdline-tools" -type f -name sdkmanager -print -quit)"
           test -n "$manager"
           "$manager" 'platforms;android-36' 'build-tools;36.0.0'
+
       - name: Set Android update number
         run: |
           python3 - <<'PY'
@@ -57,6 +66,7 @@ jobs:
           assert "applicationId 'dev.ratib.android'" in s,'Unexpected Android package'
           p.write_text(s,encoding='utf-8')
           PY
+
       - name: Install dependencies and run official regression checks
         run: |
           npm install --ignore-scripts
@@ -64,11 +74,13 @@ jobs:
           node android/tests/native-bridge.cjs
           node android/tests/bundle-integrity.cjs
           node android/tests/restore-license-services.cjs
+
       - name: Build APK
         working-directory: android
         run: |
           chmod +x gradlew
           ./gradlew --no-daemon assembleRelease
+
       - name: Normalize and sign, if original signing key is connected
         env:
           RATIB_KEYSTORE_BASE64: ${{ secrets.RATIB_KEYSTORE_BASE64 }}
@@ -93,6 +105,7 @@ jobs:
           fi
           for apk in android/build/delivery/Ratib-3.6.61-Android-*.apk; do python3 android/tests/apk-integrity.py "$apk"; done
           sha256sum android/build/delivery/Ratib-3.6.61-Android-*.apk > android/build/delivery/SHA256SUMS.txt
+
       - name: Preserve outputs without automatically publishing a release
         uses: actions/upload-artifact@v4
         with:

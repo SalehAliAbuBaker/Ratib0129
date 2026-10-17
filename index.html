@@ -1373,7 +1373,7 @@ body.ratib-sidebar-open,body.ratib-about-open{overflow:hidden}
     <div class="header-tools"><div class="header-actions">
       <button class="icon-btn" id="themeBtn" title="الوضع الليلي">🌙</button>
       <button class="icon-btn" id="sidebarMenuBtn" aria-haspopup="dialog" aria-controls="appSidebar" aria-expanded="false" title="القائمة الجانبية" aria-label="فتح القائمة الجانبية">☰</button>
-    </div><small id="appVersionLabel" class="app-version">الإصدار 3.6.60 <span style="color:#c66b00;font-weight:900">(تجريبية)</span></small></div>
+    </div><small id="appVersionLabel" class="app-version">الإصدار 3.6.61 <span style="color:#c66b00;font-weight:900">(تجريبية)</span></small></div>
   </header>
   <div class="summary-toolbar hidden no-print" id="storageFeedback"><span id="persistentSaveStatus" hidden aria-hidden="true">جاهز</span><button type="button" id="retryStorageBtn" class="btn btn-ghost hidden">إعادة محاولة الحفظ</button></div>
 <div class="app-update-banner hidden no-print" id="appUpdateBanner" role="status"><span id="appUpdateMessage">يتوفر تحديث لراتب. هل تريد تطبيقه؟</span><button type="button" class="btn btn-ghost" id="applyAppUpdateBtn">موافق، تطبيق التحديث</button><div id="appUpdateDetails" class="hidden"></div></div>
@@ -1955,6 +1955,7 @@ body.ratib-sidebar-open,body.ratib-about-open{overflow:hidden}
     </h2>
     <p style="color:var(--muted); font-weight:800; font-size:0.9rem; margin-bottom:10px;">يسرد إجمالي الحركة المدينة والدائنة لكل حساب مُجمَّعة حسب التصنيف الرئيسي، للتحقق من توازن القيود (إجمالي المدين = إجمالي الدائن) — يشمل كل الحركات المسجلة.</p>
     <div id="trialBalanceSections"></div>
+    <div class="no-print" style="margin:12px 0"><button type="button" class="btn btn-ghost" id="trialDiagnosisBtn" onclick="runTrialBalanceDiagnosis()" style="width:100%;min-height:44px">🔍 تشخيص الفروقات المحاسبية (قراءة فقط)</button></div><div id="trialDiagnosisResults" class="no-print" aria-live="polite"></div>
   </div>
   </div>
 </div>
@@ -9782,6 +9783,87 @@ function trialBuildModel(transactions,filters){
   if(base.missing)warnings.add('تعذر تقييم '+base.missing+' طرفًا بعملة '+filters.base+'؛ لا يوجد سعر معتمد في المستند. المعادل غير مكتمل ولا يُعرض كمجموع نهائي.');
   if(invalidDates)warnings.add('استُبعدت '+invalidDates+' حركة دون تاريخ صالح من التقرير.');
   return {filters,accounts:accounts.map(account=>({...account,currencies:[...account.currencies.values()]})),totals:resultTotals,base:{...base,difference:base.closingDebit-base.closingCredit},warnings:[...warnings],omittedDeletedAccounts,reviewAccounts,balanceChecks,baseBalanceCheck,balancedNative,balancedBase,balanced,requiresReview:Boolean(reviewAccounts.length||invalidDates||!balanced&&!partial)};
+}
+
+
+/* Read-only trial balance diagnosis: never mutates store, transactions or accounting entries. */
+function trialDiagnosisBuild(txs,filters){
+  const rows=[],totalByCurrency=new Map(),missing=[],invalid=[],excluded=[];
+  const add=(map,c,d,cr)=>{const r=map.get(c)||{debit:0,credit:0};r.debit+=d;r.credit+=cr;map.set(c,r)};
+  const tolerance=0.005;
+  for(let ix=0;ix<txs.length;ix++){
+    const tx=txs[ix];if(!tx||['deleted','reversed'].includes(tx.status))continue;
+    const legs=trialTransactionLegs(tx),date=getAccountOpsDate(tx)||String(tx.date||'').slice(0,10);
+    const ident=String(tx.documentNumber||tx.voucherNumber||tx.number||tx.no||tx.id||('سجل '+(ix+1)));
+    if(!legs.length){invalid.push({ident,date,why:'لا توجد أطراف محاسبية صالحة أو تاريخ صالح'});continue;}
+    const native=new Map(),base=new Map();let affected=0,missingCount=0,badNumber=false;
+    for(const leg of legs){
+      if(filters.to&&leg.date>filters.to)continue;
+      if(filters.costCenter&&trialDimension(leg,'costCenter')!==filters.costCenter||filters.project&&trialDimension(leg,'project')!==filters.project)continue;
+      const budgets=trialBudget(leg);
+      if(filters.budget&&filters.budget!=='all'&&!budgets.includes(filters.budget))continue;
+      affected++;
+      const vals=[leg.debit,leg.credit,leg.baseDebit,leg.baseCredit];
+      if(vals.some(v=>!Number.isFinite(v))){badNumber=true;continue;}
+      add(native,String(leg.currency||'?'),leg.debit,leg.credit);
+      add(base,String(leg.baseCurrency||leg.currency||'?'),leg.baseDebit,leg.baseCredit);
+      const equivalent=trialEquivalent(leg,filters.base);
+      if(!equivalent){missingCount++;missing.push({ident,date,account:String(leg.account||''),currency:String(leg.currency||''),valuationCurrency:String(leg.baseCurrency||''),target:filters.base});}
+    }
+    if(!affected)continue;
+    const nativeDifferences=[...native].map(([currency,v])=>({currency,debit:v.debit,credit:v.credit,difference:v.debit-v.credit}));
+    const baseDifferences=[...base].map(([currency,v])=>({currency,debit:v.debit,credit:v.credit,difference:v.debit-v.credit}));
+    for(const [c,v] of native)add(totalByCurrency,c,v.debit,v.credit);
+    const baseNonzero=baseDifferences.some(v=>Math.abs(v.difference)>tolerance);
+    const nativeNonzero=nativeDifferences.some(v=>Math.abs(v.difference)>tolerance);
+    if(badNumber||baseNonzero||nativeNonzero||missingCount||tx.isOpeningBalance){
+      const reasons=[];
+      if(badNumber)reasons.push('قيم غير رقمية');
+      if(baseNonzero)reasons.push('فرق في طرفَي المستند بعملة التقييم');
+      if(nativeNonzero)reasons.push('اختلاف العملات الأصلية (ليس دليلًا كافيًا على خطأ القيد)');
+      if(missingCount)reasons.push('نقص أسعار الصرف للمعادل '+filters.base);
+      if(tx.isOpeningBalance)reasons.push('بند افتتاحي فردي؛ يُراجع ضمن مجموعة الافتتاح');
+      rows.push({ident,date,txId:String(tx.id??''),nativeDifferences,baseDifferences,missingCount,reasons});
+    }
+  }
+  rows.sort((a,b)=>(b.reasons.includes('فرق في طرفَي المستند بعملة التقييم')?1:0)-(a.reasons.includes('فرق في طرفَي المستند بعملة التقييم')?1:0));
+  return {rows,missing,invalid,excluded,totals:[...totalByCurrency].map(([currency,v])=>({currency,...v,difference:v.debit-v.credit})),count:txs.length};
+}
+function trialDiagnosisRender(report,filters){
+  const money=v=>Number.isFinite(v)?trialNumber(v):'غير صالح';
+  const diffText=a=>a.map(x=>esc(x.currency)+': '+money(x.difference)).join(' | ')||'—';
+  const limit=150;
+  return '<section style="border:1px solid var(--border);border-radius:10px;padding:12px;margin:10px 0;overflow-wrap:anywhere">'
+    +'<h3>🔍 تقرير تشخيص ميزان المراجعة — للقراءة فقط</h3>'
+    +'<p style="font-size:.88rem;color:var(--muted)">الفحص يستخدم مرشحات الميزان الحالية ولا يُنشئ قيودًا أو يعدّل أرصدة. فرق العملات الأصلية لا يعني بالضرورة اختلال القيد متعدد العملات. بنود الافتتاح الفردية قد تتوازن كمجموعة.</p>'
+    +'<p><strong>المستندات التي تستلزم المراجعة:</strong> '+report.rows.length+' | <strong>الأطراف التي تعذّر تحويلها:</strong> '+report.missing.length+' | <strong>سجلات دون أطراف/تاريخ صالح:</strong> '+report.invalid.length+'</p>'
+    +'<p><strong>مقارنة مجاميع الحركة الأصلية من الأطراف:</strong> '+diffText(report.totals)+'</p>'
+    +'<button type="button" class="btn btn-ghost no-print" onclick="trialDiagnosisDownload()">⬇️ تنزيل تفاصيل الفحص CSV</button>'
+    +'<div style="overflow-x:auto;margin-top:10px"><table class="trial-table"><thead><tr><th>التاريخ</th><th>رقم المستند/المعرّف</th><th>سبب المراجعة</th><th>فرق العملة الأصلية</th><th>فرق عملة التقييم</th></tr></thead><tbody>'
+    +report.rows.slice(0,limit).map(r=>'<tr><td>'+esc(r.date)+'</td><td>'+esc(r.ident)+'</td><td>'+esc(r.reasons.join('؛ '))+'</td><td>'+diffText(r.nativeDifferences)+'</td><td>'+diffText(r.baseDifferences)+'</td></tr>').join('')
+    +'</tbody></table></div>'+(report.rows.length>limit?'<p>عُرض أول '+limit+' مستندًا؛ ملف CSV يحتوي جميع النتائج.</p>':'')
+    +(report.missing.length?'<h4>الأطراف التي تفتقد سعر صرف معتمدًا</h4><div style="overflow-x:auto"><table class="trial-table"><thead><tr><th>المستند</th><th>الحساب</th><th>العملة</th><th>عملة التقييم</th></tr></thead><tbody>'+report.missing.slice(0,100).map(r=>'<tr><td>'+esc(r.ident)+'</td><td>'+esc(r.account)+'</td><td>'+esc(r.currency)+'</td><td>'+esc(r.target)+'</td></tr>').join('')+'</tbody></table></div>':'')
+    +(report.invalid.length?'<p>سجلات دون أطراف صالحة أو بتاريخ غير صالح: '+esc(report.invalid.slice(0,25).map(r=>r.ident).join('، '))+'</p>':'')
+    +'</section>';
+}
+let lastTrialDiagnosis=null;
+function runTrialBalanceDiagnosis(){
+  const out=document.getElementById('trialDiagnosisResults');if(!out)return;
+  try{
+    const filters=trialFilters(),report=trialDiagnosisBuild(getAllTransactions(),filters);
+    lastTrialDiagnosis={report,filters};out.innerHTML=trialDiagnosisRender(report,filters);
+    out.scrollIntoView({behavior:'smooth',block:'nearest'});
+  }catch(err){out.textContent='تعذر إجراء التشخيص: '+err.message;}
+}
+function trialDiagnosisDownload(){
+  if(!lastTrialDiagnosis){showToast('شغّل التشخيص أولًا','warn');return;}
+  const {report}=lastTrialDiagnosis,lines=[['النوع','التاريخ','المستند','الحساب','العملة','المدين','الدائن','الفرق','التوضيح']];
+  for(const r of report.rows){for(const x of r.nativeDifferences)lines.push(['مستند - أصلي',r.date,r.ident,'',x.currency,x.debit,x.credit,x.difference,r.reasons.join('؛ ')]);for(const x of r.baseDifferences)lines.push(['مستند - تقييم',r.date,r.ident,'',x.currency,x.debit,x.credit,x.difference,r.reasons.join('؛ ')]);}
+  for(const r of report.missing)lines.push(['سعر صرف ناقص',r.date,r.ident,r.account,r.currency,'','','','عملة التقييم: '+r.target]);
+  for(const r of report.invalid)lines.push(['بيانات غير صالحة',r.date,r.ident,'','','','','',r.why]);
+  const csv='\uFEFF'+lines.map(row=>row.map(v=>'"'+String(v??'').replace(/"/g,'""')+'"').join(',')).join('\r\n');
+  const url=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'}));const a=document.createElement('a');
+  a.href=url;a.download='راتب-تشخيص-ميزان-المراجعة.csv';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);
 }
 
 function trialFilters(){const value=id=>document.getElementById(id)?.value||'';return {from:value('trialFrom'),to:value('trialTo'),costCenter:value('trialCostCenter'),project:value('trialProject'),budget:value('trialBudget')||'general',base:value('trialBase')||'YER',mode:value('trialMode')||'original',currency:value('trialCurrency')||'YER',level:value('trialLevel'),compact:document.getElementById('trialCompact')?.checked||false};}

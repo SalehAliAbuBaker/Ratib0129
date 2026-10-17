@@ -3695,7 +3695,7 @@ async function listCloudBackups(token, folderId, origin = 'trial') {
   do {
     const url = `https://www.googleapis.com/drive/v3/files?q=${q}&fields=nextPageToken,files(id,name,size,createdTime)&pageSize=1000` + (pageToken ? '&pageToken=' + encodeURIComponent(pageToken) : '');
     const r = await (await driveFetch(url, {}, token)).json();
-    results.push(...(r.files || []).filter(f => f.name && /^ratib-(?:trial-)?cloud-.*\\.json$/i.test(f.name)).map(f => ({ ...f, origin })));
+    results.push(...(r.files || []).filter(f => f.name && /^ratib-(?:trial-)?cloud-.*\.json$/i.test(f.name)).map(f => ({ ...f, origin })));
     pageToken = r.nextPageToken || '';
   } while (pageToken);
   return results.sort((a,b) => a.name.localeCompare(b.name));
@@ -3716,7 +3716,7 @@ async function pruneCloudBackups(token, folderId) {
 async function uploadCloudBackup(token, folderId, name, content) {
   const boundary = 'ratibB' + Math.random().toString(36).slice(2);
   const meta = JSON.stringify({ name, parents: [folderId], mimeType: 'application/json' });
-  const body = `--${boundary}\\r\\nContent-Type: application/json; charset=UTF-8\\r\\n\\r\\n${meta}\\r\\n--${boundary}\\r\\nContent-Type: application/json\\r\\n\\r\\n${content}\\r\\n--${boundary}--`;
+  const body = `--${boundary}\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n${meta}\r\n--${boundary}\r\nContent-Type: application/json\r\n\r\n${content}\r\n--${boundary}--`;
   return (await driveFetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id,name', {
     method: 'POST', headers: { 'Content-Type': `multipart/related; boundary=${boundary}` }, body
   }, token)).json();

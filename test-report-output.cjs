@@ -91,9 +91,9 @@ async function run(){
  });
  await test('Account preview waits for confirmation; print executes once and persists until afterprint',async()=>{
   action('preview');choose('YER');assert.equal(prints.length,0);assert(d.getElementById('printPreviewModal').classList.contains('show'));
-  assert(d.getElementById('printPreviewBody').textContent.includes(w.outputAccount));
+  assert(d.querySelector('#printPreviewBody .ratib-statement-unified-page img')?.alt.includes(w.outputAccount),'Preview shows the selected account as a rendered PDF-equivalent page');
   d.getElementById('printPreviewConfirmBtn').click();assert.equal(prints.length,1);assert(d.body.classList.contains('printing-statement'));finishPrint();assert(!d.body.classList.contains('printing-statement'));
-  action('print');choose('ALL');assert.equal(prints.length,2);assert(!d.getElementById('printPreviewModal').classList.contains('show'));assert(d.getElementById('printStatementContainer').textContent.includes('خلاصة كشف الحساب متعدد العملات'));finishPrint();
+  action('print');choose('ALL');assert.equal(prints.length,2);assert(!d.getElementById('printPreviewModal').classList.contains('show'));assert.equal(d.querySelectorAll('#printStatementContainer .ratib-statement-unified-page img').length,3,'Printed all-currency statement includes two account pages and one summary');assert(d.querySelector('#printStatementContainer .ratib-statement-unified-page:last-child img')?.alt.includes('خلاصة كشف الحساب متعدد العملات'));finishPrint();
   assert.equal(code(w,'JSON.stringify(accountOpsState)'),filters);
  });
  await test('Account PDF export asks for currencies and downloads the selected PDF without sharing',async()=>{

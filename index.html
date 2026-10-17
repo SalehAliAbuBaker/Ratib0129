@@ -7769,7 +7769,7 @@ function ratibPrepareUnifiedStatementForPrint(choice,currencies){
     const section=document.createElement('section');
     section.className='ratib-statement-unified-page';
     const img=document.createElement('img');
-    img.alt='كشف حساب — صفحة '+(i+1);
+    img.alt=(choice==='ALL'&&i===pages.length-1&&pages.length>(currencies||printableAccountCurrencies()).length?'خلاصة كشف الحساب متعدد العملات — ':'كشف حساب: ')+ratibStatementText(accountOpsState.accountName,'حساب غير محدد')+' — صفحة '+(i+1);
     img.src=pages[i].toDataURL('image/jpeg',.9);
     section.append(img);fragment.append(section);
     if(pages[i]._ratibTemporary){pages[i].width=1;pages[i].height=1;}
@@ -7777,12 +7777,11 @@ function ratibPrepareUnifiedStatementForPrint(choice,currencies){
   source.replaceChildren(fragment);
   return [...source.querySelectorAll('.ratib-statement-unified-page img')];
 }
-async function printCurrentAccountOperations(currency=null,currencies=null,preview=false){
+function printCurrentAccountOperations(currency=null,currencies=null,preview=false){
   try{
     if(!currency){requestAccountStatementOutput('print');return;}
-    const imgs=ratibPrepareUnifiedStatementForPrint(currency,currencies||printableAccountCurrencies());
-    // Decoding before preview/print prevents blank pages on mobile.
-    await Promise.all(imgs.map(img=>typeof img.decode==='function'?img.decode():Promise.resolve()));
+    ratibPrepareUnifiedStatementForPrint(currency,currencies||printableAccountCurrencies());
+    // Pages have already been rendered into local image data URLs; preview opens immediately.
     if(preview)openPrintPreview('printStatementContainer','printing-statement');
     else printRatibDocument('printing-statement');
   }catch(e){showToast('تعذّر تجهيز طباعة كشف الحساب: '+(e.message||'خطأ غير معروف'),'error',6000);}

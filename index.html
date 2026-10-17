@@ -78,6 +78,18 @@
 .trial-detail-section p,.trial-overview-issues p{margin:5px 0}
 @media print{.trial-overview{break-inside:avoid}.trial-overview-issues{display:none!important}.trial-detail-section details{break-inside:avoid}}
 </style>
+<style id="ratib-unified-account-output-style">
+/* Screen preview and print share the PDF renderer's exact page images. */
+#printStatementContainer .ratib-statement-unified-page{display:block;width:100%;max-width:100%;margin:0 auto 12px;background:#fff;break-inside:avoid;page-break-inside:avoid;}
+#printStatementContainer .ratib-statement-unified-page img{display:block;width:100%;height:auto;max-width:100%;object-fit:contain;}
+#printPreviewBody .ratib-statement-unified-page{display:block;margin:0 auto 12px;max-width:100%;background:#fff;}
+#printPreviewBody .ratib-statement-unified-page img{display:block;width:100%;height:auto;max-width:100%;object-fit:contain;}
+@media print{
+  body.printing-statement #printStatementContainer .ratib-statement-unified-page{display:flex!important;align-items:flex-start;justify-content:center;margin:0!important;padding:0!important;break-before:auto!important;page-break-before:auto!important;break-after:page!important;page-break-after:always!important;break-inside:avoid!important;page-break-inside:avoid!important;}
+  body.printing-statement #printStatementContainer .ratib-statement-unified-page:last-child{break-after:auto!important;page-break-after:auto!important;}
+  body.printing-statement #printStatementContainer .ratib-statement-unified-page img{display:block!important;max-width:100%!important;width:auto!important;height:auto!important;max-height:calc(100vh - 1mm)!important;object-fit:contain!important;margin:0 auto!important;}
+}
+</style>
 <style id="ratib-version-visibility">#appVersionLabel{display:inline-flex!important;visibility:visible!important;opacity:1!important;white-space:nowrap!important;align-items:center!important;font-weight:700!important;}</style>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
@@ -1444,7 +1456,7 @@ body.ratib-sidebar-open,body.ratib-about-open{overflow:hidden}
     <div class="header-tools"><div class="header-actions">
       <button class="icon-btn" id="themeBtn" title="الوضع الليلي">🌙</button>
       <button class="icon-btn" id="sidebarMenuBtn" aria-haspopup="dialog" aria-controls="appSidebar" aria-expanded="false" title="القائمة الجانبية" aria-label="فتح القائمة الجانبية">☰</button>
-    </div><small id="appVersionLabel" class="app-version">الإصدار 3.6.81 <span style="color:#c66b00;font-weight:900">(تجريبية)</span></small></div>
+    </div><small id="appVersionLabel" class="app-version">الإصدار 3.6.82 <span style="color:#c66b00;font-weight:900">(تجريبية)</span></small></div>
   </header>
   <div class="summary-toolbar hidden no-print" id="storageFeedback"><span id="persistentSaveStatus" hidden aria-hidden="true">جاهز</span><button type="button" id="retryStorageBtn" class="btn btn-ghost hidden">إعادة محاولة الحفظ</button></div>
 <div class="app-update-banner hidden no-print" id="appUpdateBanner" role="status"><span id="appUpdateMessage">يتوفر تحديث لراتب. هل تريد تطبيقه؟</span><button type="button" class="btn btn-ghost" id="applyAppUpdateBtn">موافق، تطبيق التحديث</button><div id="appUpdateDetails" class="hidden"></div></div>
@@ -7728,20 +7740,46 @@ function requestAccountStatementOutput(kind){
   document.addEventListener('keydown',onKey,true);
   requestAnimationFrame(()=>options.querySelector('button')?.focus());
 }
-function printCurrentAccountOperations(currency=null,currencies=null,preview=false){try{
-  if(!currency){requestAccountStatementOutput('print');return;}
-  if(currency==='ALL'){preparePrintAllAccountCurrencies(currencies||printableAccountCurrencies(),preview);return;}
-  const scope=accountOpsState.scopeNames, data=getAccountCurrencyReportData(currency);
-  const printSource=document.getElementById('printStatementContainer');
-  if(printSource?.dataset.accountPrintTemplate)printSource.innerHTML=printSource.dataset.accountPrintTemplate;
-  // Shared report postings are passed as-is for the HTML print template.
-  const periodTitle=accountPeriodTitle()+' — '+accountCurrencyLabel(currency);
-  preparePrintStatementTemplate(accountOpsState.accountName,data.rows,data.opening,periodTitle,accountCurrencyLabel(currency),data);
-  document.getElementById('psStatementTitle').textContent='كشف حساب: '+ratibStatementText(accountOpsState.accountName,'حساب غير محدد')+' — '+accountCurrencyLabel(currency);
-  document.getElementById('psTafqitText').textContent=(data.closing>=0?'لكم':'عليكم')+' : '+tafqitAccountCurrency(Math.abs(data.closing),currency);
-  if(preview)openPrintPreview('printStatementContainer','printing-statement');
-  else printRatibDocument('printing-statement');
-}catch(e){showToast('تعذّر تجهيز طباعة كشف الحساب: '+(e.message||'خطأ غير معروف'),'error',6000);}}
+/* Keep the printed and on-screen preview pages identical to the PDF shared/downloaded:
+   the existing canvas statement renderer is the only output document source. */
+function ratibUnifiedStatementPageCanvases(choice,currencies){
+  const selected=choice==='ALL'?(currencies||printableAccountCurrencies()):[choice];
+  const data=selected.map(getAccountCurrencyReportData);
+  const pages=[];
+  for(const item of data)for(const canvas of renderAccountCurrencyCanvases(item))
+    for(const page of pdfSizedPages(canvas))pages.push(page);
+  if(choice==='ALL'&&data.length>1)
+    for(const page of pdfSizedPages(renderAccountCurrencySummaryCanvas(data)))pages.push(page);
+  return pages;
+}
+function ratibPrepareUnifiedStatementForPrint(choice,currencies){
+  const source=document.getElementById('printStatementContainer');
+  if(!source)throw Error('قالب طباعة كشف الحساب غير موجود');
+  const pages=ratibUnifiedStatementPageCanvases(choice,currencies);
+  if(!pages.length)throw Error('لم يتم إنشاء صفحات كشف الحساب');
+  const fragment=document.createDocumentFragment();
+  for(let i=0;i<pages.length;i++){
+    const section=document.createElement('section');
+    section.className='ratib-statement-unified-page';
+    const img=document.createElement('img');
+    img.alt='كشف حساب — صفحة '+(i+1);
+    img.src=pages[i].toDataURL('image/jpeg',.9);
+    section.append(img);fragment.append(section);
+    if(pages[i]._ratibTemporary){pages[i].width=1;pages[i].height=1;}
+  }
+  source.replaceChildren(fragment);
+  return [...source.querySelectorAll('.ratib-statement-unified-page img')];
+}
+async function printCurrentAccountOperations(currency=null,currencies=null,preview=false){
+  try{
+    if(!currency){requestAccountStatementOutput('print');return;}
+    const imgs=ratibPrepareUnifiedStatementForPrint(currency,currencies||printableAccountCurrencies());
+    // Decoding before preview/print prevents blank pages on mobile.
+    await Promise.all(imgs.map(img=>typeof img.decode==='function'?img.decode():Promise.resolve()));
+    if(preview)openPrintPreview('printStatementContainer','printing-statement');
+    else printRatibDocument('printing-statement');
+  }catch(e){showToast('تعذّر تجهيز طباعة كشف الحساب: '+(e.message||'خطأ غير معروف'),'error',6000);}
+}
 function accountCurrencyLabel(currency){return (typeof ratibCurrencyName==='function'&&ratibCurrencyName(currency))||(currency==='YER'?'ريال يمني':currency==='SAR'?'ريال سعودي':currency==='USD'?'دولار أمريكي':currency);}
 function getAccountCurrencyReportData(currency){
   const scope=accountOpsState.scopeNames, rows=getAccountOperations(accountOpsState.accountName,scope,currency), opening=getAccountOpeningBalanceForOperations(scope,accountOpsState.from,currency);
@@ -7930,9 +7968,9 @@ function ratibInitPaperOrientation(){
   window.addEventListener('afterprint',()=>{style.textContent='';});
 }
 function buildAccountOperationsPdf(choice,currencies){
-  const selected=choice==='ALL'?(currencies||printableAccountCurrencies()):[choice];
-  function* pages(){const data=selected.map(getAccountCurrencyReportData);for(const item of data)yield* renderAccountCurrencyCanvases(item);if(choice==='ALL'&&data.length>1)yield renderAccountCurrencySummaryCanvas(data);}
-  return buildPdfFromCanvases(pages(),ratibPaperLandscape()?[842,595]:[595,842]);
+  // PDF uses exactly the same source pages as HTML preview and browser printing.
+  return buildPdfFromCanvases(ratibUnifiedStatementPageCanvases(choice,currencies),
+    ratibPaperLandscape()?[842,595]:[595,842]);
 }
 async function shareCurrentAccountOperations(choice=null,currencies=null){
   if(!choice){requestAccountStatementOutput('pdf');return;}

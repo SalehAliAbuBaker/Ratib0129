@@ -1410,7 +1410,7 @@ body.ratib-sidebar-open,body.ratib-about-open{overflow:hidden}
     <div class="header-tools"><div class="header-actions">
       <button class="icon-btn" id="themeBtn" title="الوضع الليلي">🌙</button>
       <button class="icon-btn" id="sidebarMenuBtn" aria-haspopup="dialog" aria-controls="appSidebar" aria-expanded="false" title="القائمة الجانبية" aria-label="فتح القائمة الجانبية">☰</button>
-    </div><small id="appVersionLabel" class="app-version">الإصدار 3.6.71 <span style="color:#c66b00;font-weight:900">(تجريبية)</span></small></div>
+    </div><small id="appVersionLabel" class="app-version">الإصدار 3.6.72 <span style="color:#c66b00;font-weight:900">(تجريبية)</span></small></div>
   </header>
   <div class="summary-toolbar hidden no-print" id="storageFeedback"><span id="persistentSaveStatus" hidden aria-hidden="true">جاهز</span><button type="button" id="retryStorageBtn" class="btn btn-ghost hidden">إعادة محاولة الحفظ</button></div>
 <div class="app-update-banner hidden no-print" id="appUpdateBanner" role="status"><span id="appUpdateMessage">يتوفر تحديث لراتب. هل تريد تطبيقه؟</span><button type="button" class="btn btn-ghost" id="applyAppUpdateBtn">موافق، تطبيق التحديث</button><div id="appUpdateDetails" class="hidden"></div></div>
@@ -9758,12 +9758,57 @@ function trialFxApprovedRateFor(leg,target){
   return Number(record.rate);
 }
 
+/* FX quotations are document-specific. The original amounts are authoritative;
+   neither a global current rate nor a rate from another voucher is silently applied. */
+function trialSavedFxEvidence(leg,target){
+  const from=String(leg.baseCurrency||'');
+  if(!from||!target)return {rate:null,reason:'عملة التقييم أو العرض غير محددة'};
+  if(from===target)return {rate:1,source:'عملة التقييم المحفوظة'};
+  const doc=leg.tx?.multiVoucher;
+  const lines=Array.isArray(doc?.lines)&&doc.baseCurrency===from?doc.lines:[];
+  const quotes=[],issues=[];
+  const add=(rate,source)=>{
+    if(Number.isFinite(rate)&&rate>0&&rate<=1e9)quotes.push({rate,source});
+  };
+  for(let i=0;i<lines.length;i++){
+    const l=lines[i];if(!l||typeof l!=='object')continue;
+    const source='بند '+(i+1)+' من المستند';
+    if(l.currency===target){
+      const amount=Number(l.amount);
+      const baseAmount=Number(l.equivalentCurrency===from?l.equivalentAmount:l.base);
+      const derived=Number.isFinite(amount)&&amount>0&&Number.isFinite(baseAmount)&&baseAmount>0?amount/baseAmount:null;
+      const def=spendFxDefinition(l,from),quote=Number(def?.quote);
+      const quoted=Number.isFinite(quote)&&quote>0
+        ?(def.unit===from&&def.counter===target?quote:def.unit===target&&def.counter===from?1/quote:null):null;
+      if(derived!==null&&quoted!==null&&Math.abs(derived-quoted)>Math.max(.000001,Math.abs(derived)*.0001)){
+        issues.push('تعارض سعر الصرف مع قيمة المعادل في '+source);continue;
+      }
+      if(derived!==null)add(derived,'المبلغ والمعادل المحفوظان في '+source);
+      else if(quoted!==null)add(quoted,'سعر الصرف المحفوظ في '+source);
+    }else if(l.currency===from&&l.equivalentCurrency===target){
+      const amount=Number(l.amount),equivalent=Number(l.equivalentAmount);
+      if(Number.isFinite(amount)&&amount>0&&Number.isFinite(equivalent)&&equivalent>0)
+        add(equivalent/amount,'المبلغ والمعادل المحفوظان في '+source);
+    }
+  }
+  if(issues.length)return {rate:null,reason:issues.join('؛ ')};
+  if(!quotes.length)return {rate:null,reason:'لم يُحفظ تحويل من '+from+' إلى '+target+' في المستند نفسه'};
+  const first=quotes[0];
+  if(quotes.some(q=>Math.abs(q.rate-first.rate)>Math.max(.000001,Math.abs(first.rate)*.0001)))
+    return {rate:null,reason:'أسعار تحويل مختلفة داخل المستند؛ لا يمكن اعتماد سعر موحد تلقائيًا'};
+  return first;
+}
+function trialFxRateEvidence(leg,target,method='approved'){
+  const saved=trialSavedFxEvidence(leg,target);
+  if(saved.rate!==null)return saved;
+  if(method==='approved'&&!String(saved.reason||'').includes('تعارض')&&!String(saved.reason||'').includes('مختلفة')){
+    const approved=trialFxApprovedRateFor(leg,target);
+    if(approved!==null)return {rate:approved,source:'سعر تقييم تقرير معتمد لهذا المستند'};
+  }
+  return saved;
+}
 function trialApprovedPair(leg,target,method='approved'){
-  const from=leg.baseCurrency;if(from===target)return 1;
-  const doc=leg.tx.multiVoucher,lines=doc?.lines||[];
-  for(const l of lines){const def=spendFxDefinition(l,doc.baseCurrency);if(def&&Number(def.quote)>0){if(def.unit===from&&def.counter===target)return Number(def.quote);if(def.unit===target&&def.counter===from)return 1/Number(def.quote);}
-    if(l.currency===target&&doc.baseCurrency===from&&Number(l.rate)>0)return 1/Number(l.rate);}
-  return method==='approved'?trialFxApprovedRateFor(leg,target):null;
+  return trialFxRateEvidence(leg,target,method).rate;
 }
 
 function trialEquivalent(leg,target,method='approved'){
@@ -9899,7 +9944,7 @@ function trialDiagnosisBuild(txs,filters){
       const eq=trialEquivalent(leg,filters.base,filters.fxMethod||'entry'),noRate=!eq;
       if(noRate){
         g.missingCount++;
-        missing.push({ident:g.ident,date:leg.date,account:String(leg.account||''),currency:String(leg.currency||''),valuationCurrency:String(leg.baseCurrency||''),target:filters.base,groupKey:key});
+        missing.push({ident:g.ident,date:leg.date,account:String(leg.account||''),currency:String(leg.currency||''),valuationCurrency:String(leg.baseCurrency||''),target:filters.base,groupKey:key,reason:trialFxRateEvidence(leg,filters.base,filters.fxMethod||'entry').reason});
       }else{g.target.debit+=eq.debit;g.target.credit+=eq.credit;}
       g.lines.push({date:leg.date,account:String(leg.account||''),currency:String(leg.currency||''),debit:leg.debit,credit:leg.credit,
         valuationCurrency:String(leg.baseCurrency||leg.currency||''),baseDebit:leg.baseDebit,baseCredit:leg.baseCredit,noRate,txIndex:i});
@@ -10010,7 +10055,7 @@ function trialDiagnosisDownload(){
       lines.push(['طرف - تقييم محفوظ',l.date,r.ident,l.account,l.valuationCurrency,l.baseDebit,l.baseCredit,l.baseDebit-l.baseCredit,l.noRate?'معادل '+filters.base+' غير مكتمل':'']);
     }
   }
-  for(const r of report.missing)lines.push(['تحويل عملة التقرير غير متاح',r.date,r.ident,r.account,r.currency,'','','','مطلوب تحويل من '+r.valuationCurrency+' إلى '+r.target]);
+  for(const r of report.missing)lines.push(['تحويل عملة التقرير غير متاح',r.date,r.ident,r.account,r.currency,'','','',r.reason||('مطلوب تحويل من '+r.valuationCurrency+' إلى '+r.target)]);
   for(const r of report.invalid)lines.push(['سجل غير قابل للتحليل',r.date,r.ident,'','','','','',r.why]);
   const csv='\uFEFF'+lines.map(row=>row.map(v=>{
     const value=String(v??'');return '"'+(/^[=+@\t\r]/.test(value)?"'"+value:value).replace(/"/g,'""')+'"';

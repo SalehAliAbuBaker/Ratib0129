@@ -4644,6 +4644,11 @@ function preparePrintBudgetTemplate() {
 function ratibStatementText(value,fallback=''){const text=String(value??'').trim();return text&&!/^(undefined|null|nan)$/i.test(text)?text:fallback;}
 function ratibStatementTotalsTitle(from='',to=''){return from||to?'إجمالي عمليات الفترة':'إجمالي العمليات';}
 function preparePrintStatementTemplate(accountName, targetTxs, openingBalance, periodTitle, currencyLabel, statementData=null) {
+  // Restore the original HTML template when switching from a unified account printout
+  // to other report modes, without changing saved transactions or the PDF renderer.
+  const statementSource=document.getElementById('printStatementContainer');
+  if(statementSource?.dataset.accountPrintTemplate&&!statementSource.querySelector('#psOrgName'))
+    statementSource.innerHTML=statementSource.dataset.accountPrintTemplate;
   // Printing reuses the original account posting rows; values are never recalculated from an adjusted clone.
   targetTxs=statementData?statementData.rows:targetTxs.map(legacyNativeTransaction);
   openingBalance=Number(statementData?statementData.opening:openingBalance)||0;
@@ -7755,6 +7760,8 @@ function ratibUnifiedStatementPageCanvases(choice,currencies){
 function ratibPrepareUnifiedStatementForPrint(choice,currencies){
   const source=document.getElementById('printStatementContainer');
   if(!source)throw Error('قالب طباعة كشف الحساب غير موجود');
+  if(!source.dataset.accountPrintTemplate&&source.querySelector('#psOrgName'))
+    source.dataset.accountPrintTemplate=source.innerHTML;
   const pages=ratibUnifiedStatementPageCanvases(choice,currencies);
   if(!pages.length)throw Error('لم يتم إنشاء صفحات كشف الحساب');
   const fragment=document.createDocumentFragment();

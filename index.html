@@ -1410,7 +1410,7 @@ body.ratib-sidebar-open,body.ratib-about-open{overflow:hidden}
     <div class="header-tools"><div class="header-actions">
       <button class="icon-btn" id="themeBtn" title="الوضع الليلي">🌙</button>
       <button class="icon-btn" id="sidebarMenuBtn" aria-haspopup="dialog" aria-controls="appSidebar" aria-expanded="false" title="القائمة الجانبية" aria-label="فتح القائمة الجانبية">☰</button>
-    </div><small id="appVersionLabel" class="app-version">الإصدار 3.6.73 <span style="color:#c66b00;font-weight:900">(تجريبية)</span></small></div>
+    </div><small id="appVersionLabel" class="app-version">الإصدار 3.6.74 <span style="color:#c66b00;font-weight:900">(تجريبية)</span></small></div>
   </header>
   <div class="summary-toolbar hidden no-print" id="storageFeedback"><span id="persistentSaveStatus" hidden aria-hidden="true">جاهز</span><button type="button" id="retryStorageBtn" class="btn btn-ghost hidden">إعادة محاولة الحفظ</button></div>
 <div class="app-update-banner hidden no-print" id="appUpdateBanner" role="status"><span id="appUpdateMessage">يتوفر تحديث لراتب. هل تريد تطبيقه؟</span><button type="button" class="btn btn-ghost" id="applyAppUpdateBtn">موافق، تطبيق التحديث</button><div id="appUpdateDetails" class="hidden"></div></div>
@@ -11252,14 +11252,23 @@ function catalog(){
  }catch(e){console.warn('Currency catalog read error',e);return base.map(x=>({...x}));}
 }
 window.ratibCurrencyName=code=>catalog().find(x=>x.code===code)?.name||'';
-function saveCatalog(list){
+async function saveCatalog(list){
  try{
   store.set('currency_catalog_v1',list);
   const imported=new Set(store.get('import_currencies',[]));
   for(const x of list){imported.add(x.code);KNOWN_CURRENCIES.add(x.code);}
   store.set('import_currencies',[...imported]);
+  // Never indicate success before the encrypted vault or local persistence commits.
+  await flushStorage();
+  const saved=store.get('currency_catalog_v1',[]);
+  const complete=Array.isArray(saved)&&list.every(expected=>{
+    const actual=saved.find(row=>row?.code===expected.code);
+    return actual&&actual.name===expected.name
+      &&String(actual.reportRateYer??'')===String(expected.reportRateYer??'');
+  });
+  if(!complete)throw new Error('تعذّر التحقق من بيانات العملات بعد الحفظ.');
   return true;
- }catch(e){console.error('Currency catalog save error',e);showToast('تعذر حفظ العملات','error');return false;}
+ }catch(e){console.error('Currency catalog save error',e);showToast('لم يكتمل حفظ العملات؛ أبقِ الصفحة مفتوحة وأعد المحاولة','error',6000);return false;}
 }
 function sync(){
  try{
@@ -11323,11 +11332,18 @@ function currenciesUi(){
    const reference=document.createElement('label');reference.style.cssText='display:flex;flex-direction:column;gap:2px;min-width:120px;flex:1 1 135px';
    reference.textContent='سعر مرجعي: 1 '+c.code+' = (YER)';
    const rate=document.createElement('input');rate.type='number';rate.inputMode='decimal';rate.min='0';rate.step='any';
-   rate.value=c.code==='YER'?'1':c.reportRateYer??'';
+   rate.value=c.code==='YER'?'1':String(c.reportRateYer??'');
    rate.disabled=c.code==='YER';rate.placeholder='اختياري';rate.setAttribute('aria-label','سعر تقييم مرجعي لعملة '+c.code+' مقابل YER');
-   reference.append(rate);
+   rate.dataset.referenceCurrency=c.code;
+   const savedLabel=document.createElement('small');
+   const savedRate=c.code==='YER'?1:c.reportRateYer;
+   savedLabel.style.cssText='display:block;white-space:normal;font-weight:700;color:var(--muted);margin-top:3px';
+   savedLabel.textContent=savedRate!==undefined&&savedRate!==null&&savedRate!==''?'المحفوظ: '+savedRate+' YER لكل 1 '+c.code:'لم يُحفظ سعر مرجعي بعد';
+   savedLabel.dataset.savedRateCurrency=c.code;
+   reference.append(rate,savedLabel);
    const btn=document.createElement('button');btn.type='button';btn.className='btn btn-ghost';btn.textContent='حفظ';
-   btn.onclick=()=>{
+   btn.onclick=async()=>{
+    if(btn.disabled)return;
     const value=name.value.trim(),raw=rate.value.trim(),n=Number(raw);
     if(!value){showToast('اكتب اسم العملة','warn');return;}
     if(c.code!=='YER'&&raw!==''&&(!Number.isFinite(n)||n<=0||n>1e9)){showToast('السعر المرجعي يجب أن يكون موجبًا وصحيحًا أو يُترك فارغًا','warn');return;}
@@ -11337,16 +11353,22 @@ function currenciesUi(){
       if(raw===''){delete item.reportRateYer;delete item.reportRateYerUpdatedAt;}
       else if(Number(item.reportRateYer)!==n){item.reportRateYer=n;item.reportRateYerUpdatedAt=new Date().toISOString();}
     }
-    if(saveCatalog(all)){sync();render();showToast('تم حفظ بيانات العملة؛ السعر المرجعي اقتراح غير معتمد لأي مستند','success');}
+    btn.disabled=true;btn.textContent='جارٍ الحفظ…';
+    const saved=await saveCatalog(all);
+    if(saved){
+      sync();render();
+      const check=catalog().find(x=>x.code===c.code);
+      showToast('تم حفظ '+c.code+'؛ السعر المرجعي '+(check?.reportRateYer??'غير محدد')+' YER — لا يعتمد لأي مستند تلقائيًا','success');
+    }else{btn.disabled=false;btn.textContent='إعادة الحفظ';}
    };
    row.append(symbol,name,label,reference,btn);list.append(row);
   }
  }
- get('ratibAddCurrency').onclick=()=>{
+ get('ratibAddCurrency').onclick=async()=>{
   const code=get('ratibCurrencyCode').value.trim().toUpperCase(),name=get('ratibCurrencyName').value.trim(),decimals=Number(get('ratibCurrencyDecimals').value);
   if(!/^[A-Z]{3}$/.test(code)||!name||!Number.isInteger(decimals)||decimals<0||decimals>4){showToast('أدخل رمزًا من ثلاثة أحرف واسمًا ومنازل عشرية صحيحة','warn');return;}
   const all=catalog();if(all.some(x=>x.code===code)){showToast('هذه العملة موجودة','warn');return;}
-  all.push({code,name,decimals,active:true});if(saveCatalog(all)){get('ratibCurrencyCode').value='';get('ratibCurrencyName').value='';sync();render();showToast('تمت إضافة العملة','success');}
+  all.push({code,name,decimals,active:true});if(await saveCatalog(all)){get('ratibCurrencyCode').value='';get('ratibCurrencyName').value='';sync();render();showToast('تمت إضافة العملة','success');}
  };
  render();sync();
 }

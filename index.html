@@ -25,6 +25,10 @@
 @media print{#pageAccountOperations .account-operations-head-actions{display:none!important}}
 </style>
 <style id="ratib-trial-diagnosis-layout">
+.trial-fx-suggestions{margin:7px 0 12px;padding:9px 10px;border:1px dashed var(--border);border-radius:8px}
+.trial-fx-suggestions p{font-size:.84rem;margin:0 0 8px}
+.trial-fx-suggestions .btn{display:inline-flex;align-items:center;justify-content:center;width:auto!important;max-width:100%;white-space:normal;min-height:38px;margin:2px;font-size:.85rem}
+
 
 .trial-fx-toolbar .btn{width:auto!important;flex:1 1 220px;min-height:44px;white-space:normal}
 .trial-fx-panel{border:1px solid var(--border);border-radius:12px;padding:14px;margin:12px 0;background:var(--card);overflow-wrap:anywhere}
@@ -1406,7 +1410,7 @@ body.ratib-sidebar-open,body.ratib-about-open{overflow:hidden}
     <div class="header-tools"><div class="header-actions">
       <button class="icon-btn" id="themeBtn" title="الوضع الليلي">🌙</button>
       <button class="icon-btn" id="sidebarMenuBtn" aria-haspopup="dialog" aria-controls="appSidebar" aria-expanded="false" title="القائمة الجانبية" aria-label="فتح القائمة الجانبية">☰</button>
-    </div><small id="appVersionLabel" class="app-version">الإصدار 3.6.67 <span style="color:#c66b00;font-weight:900">(تجريبية)</span></small></div>
+    </div><small id="appVersionLabel" class="app-version">الإصدار 3.6.68 <span style="color:#c66b00;font-weight:900">(تجريبية)</span></small></div>
   </header>
   <div class="summary-toolbar hidden no-print" id="storageFeedback"><span id="persistentSaveStatus" hidden aria-hidden="true">جاهز</span><button type="button" id="retryStorageBtn" class="btn btn-ghost hidden">إعادة محاولة الحفظ</button></div>
 <div class="app-update-banner hidden no-print" id="appUpdateBanner" role="status"><span id="appUpdateMessage">يتوفر تحديث لراتب. هل تريد تطبيقه؟</span><button type="button" class="btn btn-ghost" id="applyAppUpdateBtn">موافق، تطبيق التحديث</button><div id="appUpdateDetails" class="hidden"></div></div>
@@ -10023,12 +10027,54 @@ function trialFxCandidates(report,filters,txs){
       debit:r.baseDifferences[0].debit,credit:r.baseDifferences[0].credit};
   }).filter(Boolean);
 }
+/* FX rate references recorded on the SAME voucher date.
+   Suggestions never post entries and never count as approval by themselves. */
+function trialFxRateSuggestions(candidate,txs){
+  const found=new Map(),seen=new Set();
+  for(const tx of txs){
+    if(!tx||['deleted','reversed'].includes(tx.status)||!tx.isMultiVoucher)continue;
+    const date=getAccountOpsDate(tx)||String(tx.date||'').slice(0,10);
+    if(date!==candidate.date)continue;
+    const doc=tx.multiVoucher,documentKey=trialFxDocKey(tx);
+    if(!doc||!Array.isArray(doc.lines)||seen.has(documentKey)||documentKey===candidate.key)continue;
+    seen.add(documentKey);
+    for(const line of doc.lines){
+      const definition=spendFxDefinition(line,doc.baseCurrency);
+      const quote=Number(definition?.quote);
+      if(!Number.isFinite(quote)||quote<=0)continue;
+      const same=definition.unit===candidate.from&&definition.counter===candidate.target;
+      const inverse=definition.unit===candidate.target&&definition.counter===candidate.from;
+      if(!same&&!inverse)continue;
+      const rate=same?quote:1/quote;
+      if(!Number.isFinite(rate)||rate<=0||rate>1e9)continue;
+      const key=rate.toPrecision(12);
+      if(!found.has(key)){
+        const seq=tx.seqNum||doc.seq||'—';
+        const label='سند رقم '+seq+' بتاريخ '+date;
+        found.set(key,{rate,label,source:'مرجع سعر محفوظ: '+label+'؛ يُراجع قبل الاعتماد'});
+      }
+    }
+  }
+  return [...found.values()].slice(0,4);
+}
+function trialFxUseSuggestion(candidateIndex,suggestionIndex){
+  const entry=trialFxPending?.candidates[candidateIndex],suggestion=trialFxPending?.suggestions?.[candidateIndex]?.[suggestionIndex];
+  if(!entry||!suggestion)return;
+  const rate=document.getElementById('trialFxRate'+candidateIndex),source=document.getElementById('trialFxSource'+candidateIndex);
+  if(!rate||!source)return;
+  rate.value=String(suggestion.rate);source.value=suggestion.source;
+  if(trialFxPending)trialFxPending.preview=null;
+  const output=document.getElementById('trialFxPreviewResults');
+  if(output)output.textContent='تم ملء سعر مقترح ومصدره. تأكد من صحته ومن ملاءمته للعملية، ثم اضغط معاينة قبل الاعتماد.';
+  showToast('سعر مقترح فقط؛ لم يتم اعتماده أو تغيير أي قيد','info');
+}
+
 function trialFxOpenPanel(){
   const out=document.getElementById('trialFxMatchResults');if(!out)return;
   try{
     const filters=trialFilters(),txs=getAllTransactions(),report=trialDiagnosisBuild(txs,filters);
     const candidates=trialFxCandidates(report,filters,txs);
-    trialFxPending={filters,candidates,createdAt:Date.now()};
+    trialFxPending={filters,candidates,suggestions:candidates.map(c=>trialFxRateSuggestions(c,txs)),createdAt:Date.now()};
     const approved=trialFxStoredRates();
     const missingIneligible=report.missing.length-candidates.reduce((n,c)=>n+c.missingCount,0);
     out.innerHTML='<section class="trial-fx-panel">'
@@ -10036,12 +10082,15 @@ function trialFxOpenPanel(){
       +'<p><strong>فُحص '+report.groupCount+' مستندًا.</strong> مستندات متوازنة بعملة التقييم: '+report.statusCounts.valuationBalanced
       +'، مستندات تحتاج تحويلًا موثقًا: '+report.statusCounts.missingConversionDocuments
       +'، أطراف دون تحويل: '+report.missing.length+'.</p>'
-      +'<p>لا يتم تعديل أرصدة الحسابات أو بنود السندات. هذه أسعار إضافية لمعادلات التقارير فقط، وتُحفظ منفصلة مع مصدرها. لا تُطبَّق أسعار مستنتجة من سندات أخرى تلقائيًا.</p>'
+      +'<p>لا يتم تعديل أرصدة الحسابات أو بنود السندات. هذه أسعار إضافية لمعادلات التقارير فقط، وتُحفظ منفصلة مع مصدرها. قد تظهر أسعار مرجعية من سندات محفوظة في التاريخ نفسه؛ لا يجوز اعتمادها إلا بعد التحقق منها.</p>'
       +(candidates.length?'<p><strong>المستندات المتوازنة والمؤهلة لإدخال سعر تقييم التقرير:</strong> '+candidates.length+'</p>'
         +candidates.map((c,i)=>'<div class="trial-fx-approval-card">'
         +'<strong>'+esc(c.label)+'</strong><p>'+esc(c.date)+' — '+esc(c.from)+' → '+esc(c.target)
         +' | المدين '+trialNumber(c.debit)+' | الدائن '+trialNumber(c.credit)
         +' | أطراف دون تحويل '+c.missingCount+'</p>'
+        +(trialFxPending.suggestions[i]?.length?'<div class="trial-fx-suggestions"><p><strong>أسعار محفوظة في سندات بتاريخ العملية نفسه — اقتراحات للمراجعة فقط:</strong></p>'
+          +trialFxPending.suggestions[i].map((p,j)=>'<button type="button" class="btn btn-ghost" onclick="trialFxUseSuggestion('+i+','+j+')">'+trialNumber(p.rate)+' '+esc(c.target)+' / '+esc(c.from)+' — '+esc(p.label)+'</button>').join('')
+          +'</div>':'')
         +'<div class="trial-fx-inputs"><label>سعر 1 '+esc(c.from)+' مقابل '+esc(c.target)
         +'<input id="trialFxRate'+i+'" type="number" inputmode="decimal" min="0.000001" step="any" placeholder="أدخل السعر الموثق (بدون افتراض)" autocomplete="off"></label>'
         +'<label>مصدر السعر أو مرجعه<input id="trialFxSource'+i+'" type="text" maxlength="240" placeholder="مثل: كشف الصراف بتاريخ العملية" autocomplete="off"></label></div>'

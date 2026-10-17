@@ -7572,7 +7572,12 @@ function getAccountEntry(t,scope){if(t?.isOpeningBalance&&t.openingBalance){cons
 }
 function getAccountDisplayAmount(entry){return Number(entry?.foreignAmount??entry?.amount??0);}
 function tafqitAccountCurrency(amount,currency='YER'){
-  try{const raw=financialDecimalText(amount),negative=raw.startsWith('-'),[whole,f='']=raw.replace(/^[+-]/,'').split('.'),fraction=f.replace(/0+$/,''),info=currencyWordInfo(currency);
+  try{const info=currencyWordInfo(currency),digits=Math.max(0,Math.min(6,Number(info.digits)||0));
+    // Quantize presentation to the currency's minor units before converting to words.
+    // Binary floating-point artifacts such as 901832.8499999999 must not become huge fractions.
+    const numeric=Number(amount);
+    if(!Number.isFinite(numeric))throw Error('مبلغ غير صالح.');
+    const raw=numeric.toFixed(digits),negative=raw.startsWith('-'),[whole,f='']=raw.replace(/^[+-]/,'').split('.'),fraction=f.replace(/0+$/,'');
     let words=(negative?'سالب ':'')+arabicIntegerWords(BigInt(whole))+' '+info.major;
     if(fraction){if(info.minor&&fraction.length<=info.digits){const part=BigInt(fraction.padEnd(info.digits,'0'));words+=' و'+arabicIntegerWords(part,!!info.feminine)+' '+info.minor;}
       else{const denominator=10n**BigInt(fraction.length);words+=' و'+arabicIntegerWords(BigInt(fraction))+' جزء من '+arabicIntegerWords(denominator)+' من '+info.major;}}

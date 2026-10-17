@@ -1775,7 +1775,7 @@ body.ratib-sidebar-open,body.ratib-about-open{overflow:hidden}
 <div id="pageAccountsTree" class="hidden">
   <div class="accounts-pager-card" id="accountsPagerCard">
     <div class="accounts-pager-search no-print" role="search" aria-label="البحث في الحسابات">
-      <input type="search" id="accountsPagerSearchInput" placeholder="ابحث برقم الحساب أو باسمه..." autocomplete="off" role="combobox" aria-controls="accountsPagerSuggestions" aria-expanded="false" aria-autocomplete="list" aria-label="ابحث بالاسم أو الرقم في الحسابات ومساراتها">
+      <input type="search" id="accountsPagerSearchInput" placeholder="ابحث بالرقم أو الاسم أو عدة كلمات..." autocomplete="off" role="combobox" aria-controls="accountsPagerSuggestions" aria-expanded="false" aria-autocomplete="list" aria-label="ابحث بالاسم أو الرقم في الحسابات ومساراتها">
        <div class="accounts-pager-suggestions" id="accountsPagerSuggestions" role="listbox" aria-label="الحسابات المطابقة" hidden></div>
     </div>
     <div id="accountsPagerTabs" class="accounts-pager-tabs" role="tablist" aria-label="تصنيفات الحسابات"></div>
@@ -1822,8 +1822,8 @@ body.ratib-sidebar-open,body.ratib-about-open{overflow:hidden}
 </div>
 
 <div id="pageReports" class="hidden">
-  <div class="acc-accordion-header no-print" id="reportsGroupStatementHeader" style="cursor:pointer;">📑 كشف الحساب وما يتعلق به</div>
-  <div class="acc-accordion-body" id="reportsGroupStatementBody">
+  <div class="acc-accordion-header no-print hidden" id="reportsGroupStatementHeader" style="display:none!important;cursor:pointer;">📑 كشف الحساب وما يتعلق به</div>
+  <div class="acc-accordion-body hidden" id="reportsGroupStatementBody" style="display:none!important;">
   <div class="report-type-switch no-print hidden">
     <button class="rpt-btn active" id="btnRptBudget">📊 تحليل الميزانية</button>
     <button class="rpt-btn" id="btnRptAccounts">👤 كشف الحسابات</button>
@@ -8046,12 +8046,18 @@ document.getElementById('applyAccountOpsFilterBtn')?.addEventListener('click',()
 });
 document.getElementById('clearAccountOpsFilterBtn')?.addEventListener('click',()=>{accountOpsState.from='';accountOpsState.to='';accountOpsState.currency='ALL';accountOpsState.activeCurrency='YER';const from=document.getElementById('accountOpsFromDate'),to=document.getElementById('accountOpsToDate'),currencySel=document.getElementById('accountOpsCurrencyFilter');if(from)from.value='';if(to)to.value='';if(currencySel)currencySel.value='ALL';renderAccountOperations(accountOpsState.accountName,accountOpsState.scopeNames);accountOpsState.filtered=false;setAccountReportActionsEnabled(true);document.getElementById('accountAdvancedSearchPanel')?.classList.add('hidden');});
 document.getElementById('accountAddOperationBtn')?.addEventListener('click',()=>{preferredDebitAccountForNewVoucher=accountOpsState.accountName||'';navigateToTab('pageExpenses',true);});
+// Search account number, account name or any combination of hierarchy words.
+function ratibAccountSearchMatch(value,query){
+  const terms=normalizeParentQuery(query||'').split(/\s+/).filter(Boolean);
+  const haystack=normalizeParentQuery(String(value||''));
+  return terms.every(term=>haystack.includes(term));
+}
 function renderAccountsPager(){
   const tabs=document.getElementById('accountsPagerTabs'),track=document.getElementById('accountsPagerTrack');
   if(!tabs||!track)return;
   const catalog=getCanonicalCatalog(), balances=getAccountPagerBalances();
   const query=normalizeParentQuery(document.getElementById('accountsPagerSearchInput')?.value||'');
-  const matches=(value)=>!query||normalizeParentQuery(value).includes(query);
+  const matches=(value)=>ratibAccountSearchMatch(value,query);
   // لا تُخفِ الحسابات الرئيسية أو التجميعية التي لم تعد تحتها حسابات تفصيلية.
   const parentMatches=x=>[x.mainCode,x.main,x.groupCode,x.group,x.subCode,x.sub].some(matches);
   const mains=[...new Map(catalog.map(x=>[x.main,x])).values()].filter(main=>catalog.some(x=>x.main===main.main&&(parentMatches(x)||x.details.some(d=>matches(`${d[0]} ${d[1]} ${x.mainCode} ${x.main} ${x.groupCode} ${x.group} ${x.subCode} ${x.sub}`)))));
@@ -8133,7 +8139,7 @@ function accountsPagerCandidates(query){
     const code=String(d[0]||''),name=String(d[1]||''),key=code+'|'+name;
     if(seen.has(key))return;seen.add(key);
     const group=parent.main+' > '+parent.group+' > '+parent.sub;
-    if([name,code,group].some(x=>normalizeParentQuery(x).includes(q)))found.push({code,name,group});
+    if(ratibAccountSearchMatch([name,code,group].join(' '),q))found.push({code,name,group});
   }));
   return found;
 }
@@ -8147,13 +8153,13 @@ function initAccountsPagerAutocomplete(){
     const query=input.value.trim();visible=accountsPagerCandidates(query);active=0;
     if(!query||!visible.length){hide();return;}
     popup.innerHTML='';
-    visible.slice(0,10).forEach((item,i)=>{
+    visible.slice(0,20).forEach((item,i)=>{
       const option=document.createElement('button');option.type='button';option.className='accounts-pager-suggestion'+(i===0?' active':'');option.setAttribute('role','option');option.setAttribute('aria-selected',i===0?'true':'false');
       option.textContent=item.name+' ['+item.code+']';
       const meta=document.createElement('small');meta.textContent=item.group;option.appendChild(meta);
       option.addEventListener('mousedown',e=>e.preventDefault());option.addEventListener('click',()=>choose(item));popup.appendChild(option);
     });
-    if(visible.length>10){const hint=document.createElement('small');hint.textContent='نتائج أخرى: '+(visible.length-10)+' — واصل كتابة اسم الحساب';hint.style.display='block';hint.style.padding='7px';popup.appendChild(hint);}
+    if(visible.length>20){const hint=document.createElement('small');hint.textContent='نتائج أخرى: '+(visible.length-20)+' — يمكن البحث بالاسم أو الرقم أو كلمات من مسار الحساب';hint.style.display='block';hint.style.padding='7px';popup.appendChild(hint);}
     popup.hidden=false;input.setAttribute('aria-expanded','true');
   };
   const highlight=()=>popup.querySelectorAll('.accounts-pager-suggestion').forEach((b,i)=>{b.classList.toggle('active',i===active);b.setAttribute('aria-selected',String(i===active));});
@@ -8176,7 +8182,7 @@ function initAccountsPagerAutocomplete(){
   input.addEventListener('keydown',e=>{
     if(e.key==='Escape'){clearTimeout(timer);hide();return;}
     if(!visible.length||popup.hidden)return;
-    if(e.key==='ArrowDown'||e.key==='ArrowUp'){e.preventDefault();active=Math.max(0,Math.min(Math.min(10,visible.length)-1,active+(e.key==='ArrowDown'?1:-1)));highlight();}
+    if(e.key==='ArrowDown'||e.key==='ArrowUp'){e.preventDefault();active=Math.max(0,Math.min(Math.min(20,visible.length)-1,active+(e.key==='ArrowDown'?1:-1)));highlight();}
     else if(e.key==='Enter'){e.preventDefault();choose(visible[active]);}
   });
   document.addEventListener('click',e=>{if(!input.parentElement.contains(e.target))hide();});

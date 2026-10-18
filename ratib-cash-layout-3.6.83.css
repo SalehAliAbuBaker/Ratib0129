@@ -1,0 +1,131 @@
+/* Ratib 3.6.83 (trial): approved compact cash receipt/payment layout.
+   Presentation-only; no accounting calculations, form names, or saved data change. */
+@media screen {
+  #multiVoucherCard.spend-voucher .multi-voucher-grid > .ratib-approved-head-row {
+    grid-column:1/-1!important; grid-row:2!important; display:flex!important;
+    align-items:center!important; flex-flow:row nowrap!important;
+    direction:rtl; gap:6px!important; width:100%!important; min-width:0!important;
+    box-sizing:border-box; margin:0!important; padding:6px!important;
+    background:color-mix(in srgb,var(--accent) 5%,var(--card));
+    border:1px solid var(--border); border-radius:12px;
+  }
+  #multiVoucherCard.spend-voucher .ratib-approved-head-row > .ratib-side-choice {
+    display:flex!important; order:0; align-items:center!important; gap:5px!important;
+    flex:0 0 auto!important; margin:0!important; min-width:0!important;
+    flex-wrap:nowrap!important;
+  }
+  #multiVoucherCard.spend-voucher .ratib-approved-head-row #ratibHeaderSide {
+    flex:0 0 44px!important; width:44px!important; min-width:44px!important;
+    height:44px!important; padding:3px!important; font-size:15px!important;
+    box-sizing:border-box!important;
+  }
+  #multiVoucherCard.spend-voucher .ratib-approved-head-row #ratibReverseSide {
+    flex:0 0 42px!important; width:42px!important; min-width:42px!important;
+    height:44px!important; padding:3px!important; line-height:1!important;
+    font-size:22px!important; box-sizing:border-box!important;
+  }
+  #multiVoucherCard.spend-voucher .ratib-approved-head-row > #ratibHeaderMoney {
+    display:block!important; order:1; flex:1 1 0%!important; width:0!important;
+    min-width:0!important; margin:0!important; padding:0!important;
+  }
+  #multiVoucherCard.spend-voucher .ratib-approved-head-row .ratib-money-row {
+    display:flex!important; flex-direction:row!important; direction:rtl;
+    align-items:center!important; gap:5px!important; min-width:0!important;
+    height:44px!important; margin:0!important;
+  }
+  #multiVoucherCard.spend-voucher .ratib-approved-head-row .ratib-money-row > input {
+    display:block!important; order:0; flex:1 1 0%!important; width:0!important;
+    min-width:0!important; max-width:none!important; height:44px!important;
+    box-sizing:border-box!important; font-size:17px!important;
+    padding:7px 9px!important; direction:ltr!important; text-align:right!important;
+  }
+  #multiVoucherCard.spend-voucher .ratib-approved-head-row .ratib-money-row > button {
+    order:1; flex:0 0 40px!important; width:40px!important;
+    min-width:40px!important; height:44px!important; min-height:44px!important;
+    border-radius:9px!important; padding:3px!important;
+  }
+  #multiVoucherCard.spend-voucher .multi-voucher-grid > .multi-voucher-source-row {
+    grid-column:1/-1!important; grid-row:3!important; display:flex!important;
+    align-items:center!important; flex-flow:row nowrap!important;
+    gap:6px!important; margin:0!important; padding:6px!important;
+    width:100%!important; min-width:0!important; min-height:0!important;
+    border-radius:12px!important; box-sizing:border-box!important;
+    background:color-mix(in srgb,var(--accent) 5%,var(--card))!important;
+  }
+  #multiVoucherCard.spend-voucher .multi-voucher-source-row > label {
+    position:absolute!important; width:1px!important; height:1px!important;
+    overflow:hidden!important; clip-path:inset(50%)!important;
+  }
+  #multiVoucherCard.spend-voucher .multi-voucher-source-row > .searchable-select-wrap {
+    order:0!important; flex:1 1 0%!important; width:0!important;
+    min-width:0!important; max-width:none!important;
+  }
+  #multiVoucherCard.spend-voucher .multi-voucher-source-row > #ratibLockSource {
+    order:1!important; flex:0 0 38px!important; width:38px!important;
+    min-width:38px!important; max-width:38px!important; height:44px!important;
+  }
+  #multiVoucherCard.spend-voucher .multi-voucher-grid > #spendTafqit {
+    grid-column:1/-1!important; grid-row:4!important; display:block!important;
+    box-sizing:border-box!important; min-width:0!important;
+    width:100%!important; margin:0!important; padding:0 5px!important;
+    font-size:12px!important; line-height:1.5!important;
+    text-align:right!important; color:var(--muted)!important;
+    border:0!important; background:transparent!important; box-shadow:none!important;
+    overflow-wrap:anywhere;
+  }
+  #multiVoucherCard.spend-voucher .multi-voucher-grid > #spendTafqit:empty,
+  #multiVoucherCard.spend-voucher .multi-voucher-grid > #spendTafqit.hidden {display:none!important}
+  #multiVoucherCard.spend-voucher .multi-voucher-grid > label:has(#multiVoucherBaseCurrency),
+  #multiVoucherCard.spend-voucher .multi-voucher-grid > #ratibHeaderFx,
+  #multiVoucherCard.spend-voucher .multi-voucher-grid > .spend-budget-header {grid-row:5!important}
+  /* Amount above account selector and lock for every counterpart entry. */
+  #multiVoucherCard.spend-voucher .multi-voucher-table tbody tr {
+    row-gap:7px!important; padding:9px!important; overflow:visible!important;
+  }
+  #multiVoucherCard.spend-voucher .multi-voucher-table tbody td:nth-child(3) {
+    grid-column:1/-1!important; grid-row:1!important; min-width:0!important;
+  }
+  #multiVoucherCard.spend-voucher .multi-voucher-table tbody td:nth-child(2) {
+    grid-column:1/-1!important; grid-row:2!important; min-width:0!important;
+    display:flex!important; align-items:center!important; flex-wrap:nowrap!important;
+    gap:6px!important;
+  }
+  #multiVoucherCard.spend-voucher .multi-voucher-table tbody td:nth-child(2) > .multi-line-account {
+    flex:1 1 0%!important; width:0!important; min-width:0!important; max-width:none!important;
+  }
+  #multiVoucherCard.spend-voucher .multi-voucher-table tbody td:nth-child(2) > #ratibLockCounter {
+    flex:0 0 38px!important; width:38px!important; min-width:38px!important;
+    max-width:38px!important; height:44px!important;
+  }
+  #multiVoucherCard.spend-voucher .multi-voucher-table tbody td:nth-child(3) .ratib-money-row {
+    display:flex!important; direction:rtl!important; flex-wrap:nowrap!important;
+    gap:6px!important; width:100%!important; min-width:0!important;
+  }
+  #multiVoucherCard.spend-voucher .multi-voucher-table tbody td:nth-child(3) .ratib-money-row > input {
+    order:0; flex:1 1 0%!important; width:0!important; min-width:0!important;
+    height:44px!important; box-sizing:border-box!important; font-size:17px!important;
+    padding:7px 10px!important;
+  }
+  #multiVoucherCard.spend-voucher .multi-voucher-table tbody td:nth-child(3) .ratib-money-row > button {
+    order:1; flex:0 0 40px!important; width:40px!important;
+    min-width:40px!important; height:44px!important; min-height:44px!important;
+  }
+  #multiVoucherCard.spend-voucher .ratib-approved-general-note > #multiVoucherNote {
+    min-height:68px!important; height:72px!important; padding:9px 11px!important;
+    box-sizing:border-box!important; font-size:16px!important;
+  }
+  #multiVoucherCard.spend-voucher .multi-line-note {
+    min-height:42px!important; padding:7px 10px!important;
+  }
+  @media (max-width:380px) {
+    #multiVoucherCard.spend-voucher .ratib-approved-head-row #ratibHeaderSide {
+      flex-basis:39px!important; width:39px!important; min-width:39px!important;
+    }
+    #multiVoucherCard.spend-voucher .ratib-approved-head-row #ratibReverseSide {
+      flex-basis:38px!important; width:38px!important; min-width:38px!important;
+    }
+    #multiVoucherCard.spend-voucher .ratib-approved-head-row .ratib-money-row > button {
+      flex-basis:36px!important; width:36px!important; min-width:36px!important;
+    }
+  }
+}

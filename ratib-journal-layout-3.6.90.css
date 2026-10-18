@@ -78,6 +78,7 @@
    font-size:12px!important;margin:3px 0!important;width:100%!important;
  }
  #cashFlowCard.simple-journal .ratib-budget-detail-btn[hidden]{display:none!important}
+ #multiVoucherCard.spend-voucher #ratibCompoundAmountReadout{display:none!important}
  /* The compound header displays the computed amount directly below date, beside base currency. */
  #multiVoucherCard.unified-voucher:not(.spend-voucher){padding:10px!important;min-width:0!important}
  #multiVoucherCard.unified-voucher:not(.spend-voucher)>.multi-voucher-grid{
@@ -145,6 +146,9 @@
   }
   #multiVoucherCard.unified-voucher:not(.spend-voucher) .multi-voucher-table tbody .searchable-select-wrap{width:100%!important;min-width:0!important}
   #multiVoucherCard.unified-voucher:not(.spend-voucher) .multi-voucher-table tbody .searchable-input{width:100%!important}
+  #multiVoucherCard.unified-voucher:not(.spend-voucher) .multi-voucher-table tbody select.multi-line-account[hidden]{
+    display:none!important;
+  }
   #multiVoucherCard.unified-voucher:not(.spend-voucher) .multi-voucher-table tbody .multi-line-base{
     padding:10px 8px!important;min-height:44px!important;border:1px solid var(--border)!important;
     border-radius:8px!important;background:var(--bg)!important;line-height:1.4!important;

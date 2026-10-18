@@ -1,4 +1,4 @@
-/* Ratib trial 3.6.90: compact journal layout for mobile and desktop without ledger changes. */
+/* Ratib trial 3.6.91 (updated from 3.6.90): compact journal layout for mobile and desktop without ledger changes. */
 @media screen {
  #cashFlowCard.simple-journal{padding:10px!important;border-inline-start:3px solid var(--accent)!important}
  #cashFlowCard.simple-journal h2{gap:7px!important;margin:0 0 10px!important}
@@ -168,5 +168,127 @@
     padding:5px!important;margin:0!important;
   }
   #multiVoucherCard.unified-voucher:not(.spend-voucher) .multi-voucher-actions{gap:6px!important}
+ }
+}
+
+
+/* Trial 3.6.91: one stable money/currency row, with tafqit outside its grid columns. */
+@media screen {
+ #cashFlowCard.simple-journal{
+   min-width:0!important;overflow:visible!important;padding:9px!important;
+ }
+ #cashFlowCard.simple-journal .simple-journal-grid{
+   display:grid!important;grid-template-columns:minmax(0,1fr)!important;
+   grid-template-rows:none!important;align-content:start!important;
+   gap:6px!important;margin:0 0 6px!important;
+ }
+ #cashFlowCard.simple-journal .simple-journal-grid>.form-group:has(#voucherDateInput){
+   grid-column:1!important;grid-row:1!important;align-self:start!important;
+ }
+ #cashFlowCard.simple-journal .simple-journal-grid>#ratibJournalAmountCurrencyRow{
+   grid-column:1!important;grid-row:2!important;
+   display:grid!important;grid-template-columns:minmax(0,1.65fr) minmax(0,1fr)!important;
+   align-items:end!important;gap:7px!important;min-width:0!important;
+   width:100%!important;box-sizing:border-box!important;
+   padding:0!important;margin:0!important;min-height:0!important;
+ }
+ #cashFlowCard.simple-journal #ratibJournalAmountCurrencyRow>div{
+   display:flex!important;flex-direction:column!important;flex:initial!important;
+   align-items:stretch!important;justify-content:flex-start!important;
+   gap:3px!important;min-width:0!important;width:100%!important;
+   margin:0!important;padding:0!important;box-sizing:border-box!important;
+ }
+ #cashFlowCard.simple-journal #ratibJournalAmountCurrencyRow label{
+   display:block!important;flex:initial!important;width:100%!important;
+   font-size:12px!important;line-height:1.35!important;margin:0!important;
+ }
+ #cashFlowCard.simple-journal #ratibJournalAmountCurrencyRow :is(#voucherAmountInput,#voucherCurrencySelect){
+   display:block!important;position:static!important;width:100%!important;
+   min-width:0!important;max-width:100%!important;height:44px!important;
+   min-height:44px!important;box-sizing:border-box!important;margin:0!important;
+   padding:7px 9px!important;font-size:16px!important;line-height:1.25!important;
+   overflow:hidden!important;white-space:nowrap!important;box-shadow:none!important;
+ }
+ #cashFlowCard.simple-journal .simple-journal-grid>#tafqitDisplayBox{
+   display:block!important;grid-column:1!important;grid-row:3!important;
+   min-width:0!important;width:100%!important;min-height:0!important;
+   height:auto!important;padding:0 3px!important;margin:-2px 0 3px!important;
+   box-sizing:border-box!important;background:transparent!important;
+   border:0!important;outline:0!important;box-shadow:none!important;
+   color:var(--muted)!important;font-size:11px!important;line-height:1.45!important;
+   text-align:right!important;overflow-wrap:anywhere!important;
+ }
+ #cashFlowCard.simple-journal .simple-journal-grid>.journal-account-field:has(#wrapDebitAcc){
+   grid-column:1!important;grid-row:4!important;
+ }
+ #cashFlowCard.simple-journal .simple-journal-grid>.journal-account-field:has(#wrapCreditAcc){
+   grid-column:1!important;grid-row:5!important;
+ }
+ #cashFlowCard.simple-journal .simple-journal-grid>.form-group:has(#voucherNoteInput){
+   grid-column:1!important;grid-row:6!important;
+ }
+ #cashFlowCard.simple-journal .simple-journal-grid>#ratibSimpleExtraBtn{
+   grid-column:1!important;grid-row:7!important;
+ }
+ #cashFlowCard.simple-journal .simple-journal-grid>#voucherRecipientGroup{
+   grid-column:1!important;grid-row:8!important;
+ }
+ #cashFlowCard.simple-journal .simple-journal-grid>.journal-swap-row:empty{display:none!important}
+ #cashFlowCard.simple-journal .simple-journal-grid>.form-group,
+ #cashFlowCard.simple-journal .simple-journal-grid>.journal-account-field{
+   margin:0!important;padding:0!important;min-width:0!important;min-height:0!important;
+ }
+ #cashFlowCard.simple-journal :is(#wrapDebitAcc,#wrapCreditAcc){
+   flex:1 1 0%!important;min-width:0!important;width:0!important;
+ }
+ #cashFlowCard.simple-journal :is(#wrapDebitAcc,#wrapCreditAcc)>.searchable-input{
+   width:100%!important;max-width:100%!important;min-width:0!important;
+ }
+ #cashFlowCard.simple-journal #ratibSimpleCurrencyDisclosure{
+   width:100%!important;min-width:0!important;box-sizing:border-box!important;
+   border:1px dashed var(--border)!important;border-radius:9px!important;
+   margin:2px 0 7px!important;padding:5px 8px!important;font-size:11px!important;
+   color:var(--muted)!important;background:transparent!important;
+ }
+ #cashFlowCard.simple-journal #ratibSimpleCurrencyDisclosure>summary{cursor:pointer;line-height:1.4}
+ #cashFlowCard.simple-journal #ratibSimpleCurrencyDisclosure #entryCurrencyConvertHint{
+   margin:6px 0!important;padding:6px!important;border:0!important;
+   background:transparent!important;min-height:0!important;font-size:12px!important;
+ }
+ #cashFlowCard.simple-journal #ratibSimpleCurrencyDisclosure #entryCurrencyConvertHint>.btn{
+   min-height:36px!important;padding:5px!important;font-size:12px!important;
+ }
+ #cashFlowCard.simple-journal .voucher-split-box.ratib-budget-collapsed{
+   display:none!important;
+ }
+ #cashFlowCard.simple-journal>.simple-journal-grid~div:has(>#toggleSplitBoxBtn){
+   display:flex!important;align-items:center!important;flex-wrap:nowrap!important;
+   justify-content:space-between!important;gap:7px!important;
+   padding:7px 8px!important;margin:5px 0!important;
+   min-height:0!important;border:1px solid var(--border)!important;
+   border-radius:9px!important;
+ }
+ #cashFlowCard.simple-journal>.simple-journal-grid~div:has(>#toggleSplitBoxBtn)>div{
+   flex:1 1 auto!important;min-width:0!important;
+ }
+ #cashFlowCard.simple-journal>.simple-journal-grid~div:has(>#toggleSplitBoxBtn)>div>div:first-child{
+   font-size:13px!important;line-height:1.3!important;
+ }
+ #cashFlowCard.simple-journal>.simple-journal-grid~div:has(>#toggleSplitBoxBtn)>div>div:nth-child(2){
+   font-size:11px!important;line-height:1.4!important;
+ }
+ #cashFlowCard.simple-journal .ratib-simple-budget-overview{
+   padding:2px 3px!important;margin:2px 0!important;font-size:11px!important;
+ }
+ #cashFlowCard.simple-journal .ratib-budget-detail-btn{
+   margin:2px 0 7px!important;
+ }
+ @media(max-width:360px){
+  #cashFlowCard.simple-journal #ratibJournalAmountCurrencyRow{
+    grid-template-columns:minmax(0,1.45fr) minmax(0,1fr)!important;gap:5px!important;
+  }
+  #cashFlowCard.simple-journal #ratibJournalAmountCurrencyRow :is(input,select){
+    padding:6px!important;font-size:14px!important;
+  }
  }
 }

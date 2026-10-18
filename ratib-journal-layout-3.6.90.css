@@ -538,7 +538,7 @@
   }
   #cashFlowCard.simple-journal > #ratibSimpleTopControls {
     display:grid!important;
-    grid-template-columns:minmax(0,1.3fr) minmax(0,1.12fr) 42px!important;
+    grid-template-columns:42px minmax(0,1.12fr) minmax(0,1.3fr)!important;
     align-items:end!important;
     column-gap:6px!important;
     direction:rtl!important;
@@ -562,6 +562,17 @@
     padding:0!important;
     margin:0!important;
     gap:3px!important;
+  }
+  /* RTL: calculator at the right, currency centered, date at the left
+     exactly where the removed 'change type' control used to be. */
+  #cashFlowCard.simple-journal #ratibSimpleTopControls > .form-group:has(#voucherDateInput) {
+    grid-column:3!important;
+  }
+  #cashFlowCard.simple-journal #ratibSimpleTopControls > div:has(#voucherCurrencySelect) {
+    grid-column:2!important;
+  }
+  #cashFlowCard.simple-journal #ratibSimpleTopControls > #ratibSimpleHeaderCalculator {
+    grid-column:1!important;
   }
   #cashFlowCard.simple-journal #ratibSimpleTopControls label {
     display:block!important;
@@ -701,7 +712,7 @@
   }
   @media(max-width:355px) {
     #cashFlowCard.simple-journal > #ratibSimpleTopControls {
-      grid-template-columns:minmax(0,1.25fr) minmax(0,1.13fr) 40px!important;
+      grid-template-columns:40px minmax(0,1.13fr) minmax(0,1.25fr)!important;
       column-gap:5px!important;
     }
     #cashFlowCard.simple-journal #ratibSimpleTopControls :is(#voucherDateInput,#voucherCurrencySelect) {

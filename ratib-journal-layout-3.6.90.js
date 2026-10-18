@@ -13,16 +13,16 @@
     const note=el('voucherNoteInput')?.closest('.form-group');
     const party=el('voucherRecipientGroup');
     if(!grid||!date||!input||!currency||!debit||!credit||!note||!party)return false;
-    // Make one concrete, stable row containing THE ORIGINAL amount and currency controls.
-    // Do not depend on the inherited voucher wrapper, whose children can be rearranged
-    // by older cash-entry scripts. Their names, values and input event listeners stay.
-    // Core input is wrapped by .financial-number-field when calculator support starts.
-    // Move the ENTIRE field (label + input + calculator) rather than just the wrapper.
+    // The original inputs keep their IDs, listeners and values. The header replaces
+    // "change type" with a one-line date + currency + calculator control strip.
     const moneyField=input.closest('.financial-number-field')?.parentElement||input.parentElement;
     const currencyField=currency.parentElement;
     const oldMoneyRow=moneyField?.parentElement;
     const oldCurrencyRow=currencyField?.parentElement;
-    if(!moneyField||!currencyField)return false;
+    const header=card.querySelector(':scope > h2');
+    const calculator=input.closest('.financial-number-field')?.querySelector('.financial-calc-trigger')
+      ||el('ratibSimpleHeaderCalculator');
+    if(!moneyField||!currencyField||!header)return false;
     // The inherited guardrail adds a long .field-hint next to the amount input.
     // After the calculator wraps that input, the hint becomes a flex item and
     // compresses the numeric field. Keep the guidance as a native tooltip only.
@@ -38,14 +38,33 @@
       currency.addEventListener('change',updateCurrencyTitle);
     }
     updateCurrencyTitle();
+    // Do not depend on a cramped button at the left of the title.
+    for(const btn of header.querySelectorAll('button')){
+      if(btn.textContent.includes('تغيير النوع'))btn.remove();
+    }
+    let top=el('ratibSimpleTopControls');
+    if(!top){
+      top=document.createElement('div');
+      top.id='ratibSimpleTopControls';
+      top.className='ratib-journal-top-controls';
+    }
+    header.after(top);
+    top.append(date,currencyField);
+    if(calculator){
+      calculator.id='ratibSimpleHeaderCalculator';
+      calculator.type='button';
+      calculator.setAttribute('aria-label','فتح حاسبة مبلغ السند');
+      calculator.title='فتح حاسبة مبلغ السند';
+      top.append(calculator);
+    }
     let row=el('ratibJournalAmountCurrencyRow');
     if(!row){row=document.createElement('div');row.id='ratibJournalAmountCurrencyRow';row.className='journal-amount-row';}
-    row.append(moneyField,currencyField);
+    row.append(moneyField);
     for(const possible of [oldMoneyRow,oldCurrencyRow]){
       if(possible&&possible!==row&&possible!==grid&&!possible.children.length&&possible.parentElement===grid)possible.remove();
     }
-    for(const node of [date,row,debit,credit,note,party])grid.append(node);
-    // TAFQIT is textual feedback, never a field occupying the currency column.
+    for(const node of [row,debit,credit,note,party])grid.append(node);
+    // TAFQIT follows the full-width amount input (not the top controls).
     const tafqit=el('tafqitDisplayBox');
     if(tafqit)row.after(tafqit);
     const information=el('entryCurrencyConvertHint');
@@ -79,7 +98,7 @@
     arrangeSimpleExtras(card,note,party);
     const extra=el('ratibSimpleExtraBtn');
     if(extra&&extra.previousElementSibling!==note)note.after(extra);
-    // Idempotent order: date, money/currency, tafqit, debit, credit, note.
+    // Idempotent order: header(date/currency/calculator), amount, tafqit, debit, credit, note.
     if(tafqit&&tafqit.previousElementSibling!==row)row.after(tafqit);
     return true;
   }

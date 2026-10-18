@@ -20,7 +20,7 @@ if(index.includes('ratib-journal-layout-3.6.90.js')){
 const fixture=`<!DOCTYPE html><html lang="ar" dir="rtl"><head></head><body>
  <div id="voucherSelectorCard"></div>
  <div id="cashFlowCard" class="unified-voucher simple-journal">
- <h2>سند قيد بسيط</h2>
+ <h2><div><span id="voucherHeaderTitle">سند قيد بسيط</span><span id="voucherSeqNumBadge">3</span></div><button type="button">🔄 تغيير النوع</button></h2>
  <div class="simple-journal-grid">
  <div class="form-group journal-account-field"><label>مدين</label><div style="display: flex"><div id="wrapDebitAcc" class="searchable-select-wrap"><input></div><button id="lockDebitAccBtn">🔓</button><button id="addNewDebitAccBtn">＋</button></div></div>
  <div class="form-group journal-account-field"><label id="lblCreditAcc">دائن</label><div style="display: flex"><div id="wrapCreditAcc" class="searchable-select-wrap"><input></div><button id="lockCreditAccBtn">🔓</button><button id="addNewCreditAccBtn">＋</button></div></div>
@@ -54,27 +54,30 @@ async function main(){
  w.eval(js);d.dispatchEvent(new w.Event('DOMContentLoaded',{bubbles:true}));
  await new Promise(r=>setTimeout(r,0));
  const grid=d.querySelector('.simple-journal-grid');
- const first=[...grid.children].slice(0,4);
 
- assert(first[0].contains(d.getElementById('voucherDateInput')),'Date must be first');
- assert(first[1].contains(d.getElementById('voucherAmountInput')),'Amount/currency must immediately follow date');
- assert.equal(grid.children[1].id,'ratibJournalAmountCurrencyRow','Amount and currency share a dedicated stable row');
- assert.equal(grid.children[1].querySelector('label[for="voucherAmountInput"]')?.textContent,'إجمالي مبلغ السند:','Amount LABEL must move with input');
- assert.equal(grid.children[1].querySelector('label[for="voucherCurrencySelect"]')?.textContent,'العملة:','Currency LABEL must move with select');
- assert.equal(grid.children[1].querySelectorAll('.financial-number-field > .financial-calc-trigger').length,1,'Calculator button must remain next to amount input');
- assert.equal(d.querySelector('#ratibJournalAmountCurrencyRow .financial-number-field')?.parentElement?.querySelector('label[for="voucherAmountInput"]')?.textContent,'إجمالي مبلغ السند:','Field label and enhanced calculator wrapper must share parent');
- assert.match(css,/\#cashFlowCard\.simple-journal \#ratibJournalAmountCurrencyRow \.financial-number-field>\.financial-calc-trigger/,'Calculator button has dedicated width in amount row');
- assert.equal(d.getElementById('voucherAmountInput').closest('#ratibJournalAmountCurrencyRow'),grid.children[1],'Amount is not detached below the accounts');
- assert.equal(d.getElementById('voucherCurrencySelect').closest('#ratibJournalAmountCurrencyRow'),grid.children[1],'Currency must share the same row as amount');
- assert.equal(grid.children[2].id,'tafqitDisplayBox','Tafqit must directly follow money/currency');
- assert.equal(d.querySelectorAll('#voucherAmountInput').length,1,'Input not duplicated');
+ const header=d.querySelector('#cashFlowCard > h2');
+ assert.equal(header.querySelector('#voucherHeaderTitle')?.textContent,'سند قيد بسيط','Header title retained');
+ assert.equal(header.querySelector('#voucherSeqNumBadge')?.textContent,'3','Voucher number displayed compactly');
+ assert.equal(header.children[2].querySelector('#voucherDateInput')?.value,'2026-10-18','Date placed in the heading row');
+ assert.equal(header.children[3].id,'swapAccountsBtn','Account swap is the fourth heading control');
+ assert.equal(header.querySelectorAll('button').length,1,'Change type removed');
+ assert.equal(grid.children[0].id,'ratibJournalAmountCurrencyRow','Amount/currency/calculator share second row');
+ assert.equal(grid.children[0].querySelector('label[for="voucherAmountInput"]')?.textContent,'إجمالي مبلغ السند:','Amount label accessible');
+ assert.equal(grid.children[0].querySelector('label[for="voucherCurrencySelect"]')?.textContent,'العملة:','Currency label accessible');
+ assert.equal(grid.children[0].querySelectorAll('#ratibSimpleHeaderCalculator').length,1,'Calculator placed beside currency');
+ assert.equal(d.getElementById('voucherAmountInput').closest('#ratibJournalAmountCurrencyRow'),grid.children[0],'Amount in second row');
+ assert.equal(d.getElementById('voucherCurrencySelect').closest('#ratibJournalAmountCurrencyRow'),grid.children[0],'Currency in second row');
+ assert.equal(grid.children[1].id,'tafqitDisplayBox','Tafqit beneath second row');
+ assert.equal(d.querySelectorAll('#voucherAmountInput').length,1,'Amount input not duplicated');
  assert.equal(d.querySelectorAll('#voucherCurrencySelect').length,1,'Currency input not duplicated');
+ assert.match(css,/#cashFlowCard\\.simple-journal > h2 > #swapAccountsBtn/,'Heading account swap styled');
+ assert.match(css,/#ratibJournalAmountCurrencyRow > #ratibSimpleHeaderCalculator/,'Money row calculator styled');
  assert.equal(d.getElementById('voucherAmountInput').value,'200');
  assert.equal(d.getElementById('voucherDateInput').value,'2026-10-18');
  assert.equal(d.getElementById('voucherCurrencySelect').value,'YER');
  assert.equal(d.getElementById('voucherNoteInput').value,'أمانة');
  assert(d.getElementById('addNewDebitAccBtn').hidden&&d.getElementById('addNewCreditAccBtn').hidden,'+ buttons removed from simple entry UI');
- assert.equal(d.querySelector('.ratib-simple-account-heading #swapAccountsBtn')?.textContent,'⇄','Original swap button must stay in credit account heading');
+ assert.equal(header.querySelector('#swapAccountsBtn')?.textContent,'⇄','Original swap button remains active in header');
  assert(d.getElementById('voucherRecipientGroup').classList.contains('ratib-simple-recipient-collapsed'),'Empty optional recipient starts collapsed');
  d.getElementById('ratibSimpleExtraBtn').click();
  assert(!d.getElementById('voucherRecipientGroup').classList.contains('ratib-simple-recipient-collapsed'));
@@ -99,12 +102,12 @@ async function main(){
  assert.match(css,/#multiVoucherCard\.spend-voucher #ratibCompoundAmountReadout\{display:none!important\}/,'Readout hidden for cash vouchers');
  assert.match(css,/tbody select\.multi-line-account\[hidden\]/,'Autocomplete backing select remains hidden');
  assert.match(css,/\.multi-voucher-table tbody tr\{/,'Compound cards styled on mobile');
- assert.match(css,/grid-row:2!important/,'Amount must be second visual row after date');
+ assert.match(css,/grid-row:2!important/,'Tafqit stays below the money row');
  d.getElementById('voucherSelectorCard').click();
  await new Promise(r=>setTimeout(r,0));
- assert.equal(d.querySelectorAll('.ratib-simple-account-heading').length,1,'Rerender must not duplicate controls');
+ assert.equal(d.querySelectorAll('#cashFlowCard > h2 #swapAccountsBtn').length,1,'Rerender must not duplicate controls');
  assert.equal(d.querySelectorAll('#ratibJournalAmountCurrencyRow').length,1,'Rerender must not create a second money row');
- assert.equal(d.getElementById('voucherAmountInput').closest('#ratibJournalAmountCurrencyRow'),grid.children[1],'Rerender retains money under date');
+ assert.equal(d.getElementById('voucherAmountInput').closest('#ratibJournalAmountCurrencyRow'),grid.children[0],'Rerender retains money row under heading');
  dom.window.close();
  console.log('PASS 3.6.90 simple/compound journal field order, original values, budget, row cards and mode isolation');
 }

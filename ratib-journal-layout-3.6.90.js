@@ -1,4 +1,4 @@
-/* Ratib trial 3.6.90: compact simple/compound journal presentation.
+/* Ratib trial 3.6.95: compact simple/compound journal presentation.
    Moves existing DOM nodes only. No posting or accounting math is replaced. */
 (function(){
   'use strict';
@@ -38,28 +38,41 @@
       currency.addEventListener('change',updateCurrencyTitle);
     }
     updateCurrencyTitle();
-    // Do not depend on a cramped button at the left of the title.
+    // Approved compact heading: title, voucher number, date and the original account-swap control.
     for(const btn of header.querySelectorAll('button')){
       if(btn.textContent.includes('تغيير النوع'))btn.remove();
     }
-    let top=el('ratibSimpleTopControls');
-    if(!top){
-      top=document.createElement('div');
-      top.id='ratibSimpleTopControls';
-      top.className='ratib-journal-top-controls';
+    const title=el('voucherHeaderTitle'),badge=el('voucherSeqNumBadge');
+    if(title&&badge){
+      header.append(title,badge);
+      for(const child of [...header.children]){
+        if(child.tagName==='DIV'&&!child.children.length)child.remove();
+      }
     }
-    header.after(top);
-    top.append(date,currencyField);
+    date.classList.add('ratib-header-date');
+    el('voucherDateInput')?.setAttribute('aria-label','تاريخ السند');
+    header.append(date);
+    const swap=el('swapAccountsBtn');
+    if(swap){
+      swap.textContent='⇄';
+      swap.title='تبديل الحسابات (عكس المدين والدائن)';
+      swap.setAttribute('aria-label',swap.title);
+      header.append(swap);
+    }
+    el('ratibSimpleTopControls')?.remove();
+    // Second row: original amount, currency, calculator; no extra labels or containers.
+    let row=el('ratibJournalAmountCurrencyRow');
+    if(!row){
+      row=document.createElement('div');row.id='ratibJournalAmountCurrencyRow';row.className='journal-amount-row';
+    }
+    row.append(moneyField,currencyField);
     if(calculator){
       calculator.id='ratibSimpleHeaderCalculator';
       calculator.type='button';
       calculator.setAttribute('aria-label','فتح حاسبة مبلغ السند');
       calculator.title='فتح حاسبة مبلغ السند';
-      top.append(calculator);
+      row.append(calculator);
     }
-    let row=el('ratibJournalAmountCurrencyRow');
-    if(!row){row=document.createElement('div');row.id='ratibJournalAmountCurrencyRow';row.className='journal-amount-row';}
-    row.append(moneyField);
     for(const possible of [oldMoneyRow,oldCurrencyRow]){
       if(possible&&possible!==row&&possible!==grid&&!possible.children.length&&possible.parentElement===grid)possible.remove();
     }
@@ -79,17 +92,6 @@
       disclosure.append(information);
       grid.after(disclosure);
     }
-    const swap=el('swapAccountsBtn');
-    if(swap&&!credit.querySelector('.ratib-simple-account-heading')){
-      const label=credit.querySelector('#lblCreditAcc')||credit.querySelector('label');
-      if(label){
-        const heading=document.createElement('div');heading.className='ratib-simple-account-heading';
-        label.before(heading);heading.append(label,swap);
-        swap.textContent='⇄';
-        swap.title='تبديل الحسابات (عكس المدين والدائن)';
-        swap.setAttribute('aria-label',swap.title);
-      }
-    }
     const oldSwap=grid.querySelector('.journal-swap-row');
     if(oldSwap&&!oldSwap.children.length)oldSwap.remove();
     for(const id of ['addNewDebitAccBtn','addNewCreditAccBtn']){
@@ -98,7 +100,7 @@
     arrangeSimpleExtras(card,note,party);
     const extra=el('ratibSimpleExtraBtn');
     if(extra&&extra.previousElementSibling!==note)note.after(extra);
-    // Idempotent order: header(date/currency/calculator), amount, tafqit, debit, credit, note.
+    // Idempotent order: header(title/number/date/swap), amount/currency/calculator, tafqit, accounts, note.
     if(tafqit&&tafqit.previousElementSibling!==row)row.after(tafqit);
     return true;
   }

@@ -75,6 +75,9 @@ jobs:
           npm install --ignore-scripts --no-audit --no-fund
           npm ls --depth=0
           npm test
+          # The native asset bundler copies HTML/CSS/JS but omits the linked web manifest.
+          mkdir -p android/app/src/main/assets/www
+          install -m 0644 manifest.json android/app/src/main/assets/www/manifest.json
           node android/tests/native-bridge.cjs
           node android/tests/bundle-integrity.cjs
           node android/tests/restore-license-services.cjs

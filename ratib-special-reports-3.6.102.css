@@ -1,0 +1,42 @@
+/* Trial 3.6.102 — account movement and financial position reports */
+.ratib-special-card{padding:14px;margin:8px 0 15px}
+.ratib-special-filters{display:flex;align-items:end;flex-wrap:wrap;gap:8px;margin-bottom:12px}
+.ratib-special-filters label{font-size:.82rem;font-weight:800;display:flex;flex:1 1 130px;min-width:0;flex-direction:column;gap:4px}
+.ratib-special-filters select,.ratib-special-filters input{font:inherit;display:block;box-sizing:border-box;width:100%;min-width:0;height:42px;padding:5px 7px;border:1px solid var(--border);border-radius:8px;background:var(--card);color:var(--text)}
+.ratib-special-actions{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;margin:5px 0 13px}
+.ratib-special-actions button{font:800 clamp(.68rem,2.4vw,.88rem) Tajawal,sans-serif;min-height:44px!important;min-width:0!important;width:100%!important;margin:0!important;padding:5px 2px!important;white-space:nowrap!important;word-break:keep-all!important;background:var(--card);color:var(--accent);border:1px solid var(--border);border-radius:9px}
+.ratib-special-card h2{text-align:center;margin:8px 0 4px;font-size:1.16rem}
+.ratib-special-caption{text-align:center;font-size:.8rem;color:var(--muted);margin:6px 0 11px}
+.ratib-special-scroll{max-width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch}
+.ratib-special-table{direction:rtl;border-collapse:collapse;min-width:1050px;width:100%;table-layout:auto}
+.ratib-special-table th,.ratib-special-table td{border:1px solid var(--border);padding:7px 8px;font-size:.82rem;text-align:center;white-space:nowrap!important;word-break:normal!important}
+.ratib-special-table thead th{background:#dde8e2;color:#173e31;font-weight:800}
+.ratib-special-table tbody th{text-align:right;min-width:170px;white-space:normal!important}
+.ratib-special-table tbody th small{display:block;font-size:.68rem;color:var(--muted)}
+.ratib-special-number{display:inline-block!important;white-space:nowrap!important;word-break:keep-all!important;direction:ltr!important;unicode-bidi:isolate;font-family:Arial,Tajawal,sans-serif;font-variant-numeric:tabular-nums}
+.ratib-special-total{background:var(--bg);font-weight:800}
+.ratib-special-position{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}
+.ratib-special-position>section{min-width:0;border:1px solid var(--border);border-radius:9px;overflow:hidden}
+.ratib-special-position h3{margin:0;padding:9px 4px;text-align:center;background:#095941;color:white;font-size:.91rem}
+.ratib-special-position h4{margin:0;padding:9px 6px;background:var(--bg);font-size:.85rem}
+.ratib-special-item{display:flex;align-items:center;justify-content:space-between;gap:6px;padding:8px 6px;border-top:1px solid var(--border);font-size:.8rem}
+.ratib-special-item span{min-width:0;overflow-wrap:anywhere}
+.ratib-special-item b{flex:none;max-width:65%;font-size:.8rem}
+.ratib-special-sum{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;padding:8px 6px;border-top:2px solid var(--accent);background:var(--bg);font-weight:800;font-size:.82rem}
+.ratib-special-sum b{margin-inline-start:auto}
+.ratib-special-empty{font-size:.77rem;padding:8px;color:var(--muted)}
+.ratib-special-check{padding:10px;margin:9px 0;text-align:center;font-weight:800;border:1px solid var(--border);border-radius:8px}
+.ratib-special-bad{color:var(--danger)}
+.ratib-special-unknown{margin:10px 0;padding:7px;border:1px dashed var(--danger);border-radius:8px}
+.ratib-special-issues{margin-top:10px;border:1px solid var(--border);border-radius:8px;padding:10px;font-size:.78rem}
+.ratib-special-issues summary{cursor:pointer;font-weight:800}
+.ratib-special-issues p{margin:7px 0}
+#ratibSpecialPrintHost{display:none}
+@media(max-width:390px){.ratib-special-actions{gap:3px}.ratib-special-actions button{font-size:.65rem!important;padding:4px 1px!important}.ratib-special-position{gap:4px}.ratib-special-item{padding:7px 3px;gap:3px;font-size:.72rem}.ratib-special-item b{font-size:.68rem}}
+@media print{@page{size:A4 landscape;margin:8mm}
+body.ratib-special-print > :not(#ratibSpecialPrintHost){display:none!important}
+body.ratib-special-print #ratibSpecialPrintHost{display:block!important;color:#1f2937;background:white;margin:0!important;position:static!important}
+body.ratib-special-print .ratib-special-table{min-width:0!important}
+body.ratib-special-print .ratib-special-table th,body.ratib-special-print .ratib-special-table td{font-size:9px!important;padding:4px 3px!important}
+body.ratib-special-print .ratib-special-item{font-size:10px}
+}

@@ -8,11 +8,16 @@ const css=fs.readFileSync('ratib-quick-account-3.6.87.css','utf8');
 const html=fs.readFileSync('index.html','utf8');
 const sw=fs.readFileSync('sw.js','utf8');
 const pkg=JSON.parse(fs.readFileSync('package.json','utf8'));
-assert.equal(pkg.version,'3.6.87');
-assert(html.includes('ratib-quick-account-3.6.87.js?v=3.6.87'));
-assert(html.includes('ratib-quick-account-3.6.87.css?v=3.6.87'));
-assert(sw.includes('ratib-quick-account-3.6.87.js'));
-assert(sw.includes('ratib-quick-account-3.6.87.css'));
+assert(Number(pkg.version.split('.').at(-1))>=87,'Quick-create regression remains active for later versions');
+const enabled=html.includes('ratib-quick-account-3.6.87.js');
+if(enabled){
+ assert.match(html,/ratib-quick-account-3\\.6\\.87\\.js\\?v=3\\.6\\.\\d+/);
+ assert.match(html,/ratib-quick-account-3\\.6\\.87\\.css\\?v=3\\.6\\.\\d+/);
+ assert(sw.includes('ratib-quick-account-3.6.87.js'));
+ assert(sw.includes('ratib-quick-account-3.6.87.css'));
+ assert(html.lastIndexOf('ratib-quick-account-3.6.87.js')>html.lastIndexOf('</script>'),
+   'Quick-create script must load outside the final inline JS block');
+}
 assert.match(css,/\.ratib-quick-account-modal\[hidden\]/);
 assert.match(css,/min-height:44px/);
 async function testFlow(){

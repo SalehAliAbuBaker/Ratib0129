@@ -55,8 +55,6 @@ async function main(){
  await new Promise(r=>setTimeout(r,0));
  const grid=d.querySelector('.simple-journal-grid');
  const first=[...grid.children].slice(0,4);
- console.log('Journal diagnostic',JSON.stringify([...grid.children].map(x=>({className:x.className,html:x.outerHTML.slice(0,130)}))));
- console.log('Date parent',d.getElementById('voucherDateInput').closest('.form-group')?.parentElement?.className,'swap parent',d.getElementById('swapAccountsBtn').parentElement.className);
 
  assert(first[0].contains(d.getElementById('voucherDateInput')),'Date must be first');
  assert(first[1].contains(d.getElementById('voucherAmountInput')),'Amount/currency must immediately follow date');

@@ -23,6 +23,21 @@
     const oldMoneyRow=moneyField?.parentElement;
     const oldCurrencyRow=currencyField?.parentElement;
     if(!moneyField||!currencyField)return false;
+    // The inherited guardrail adds a long .field-hint next to the amount input.
+    // After the calculator wraps that input, the hint becomes a flex item and
+    // compresses the numeric field. Keep the guidance as a native tooltip only.
+    for(const hint of moneyField.querySelectorAll('.field-hint')){
+      if(!input.title)input.title=hint.textContent.trim();
+      hint.remove();
+    }
+    const updateCurrencyTitle=()=>{
+      currency.title=currency.selectedOptions?.[0]?.textContent?.trim()||'';
+    };
+    if(!currency.dataset.ratibCurrencyTitleReady){
+      currency.dataset.ratibCurrencyTitleReady='1';
+      currency.addEventListener('change',updateCurrencyTitle);
+    }
+    updateCurrencyTitle();
     let row=el('ratibJournalAmountCurrencyRow');
     if(!row){row=document.createElement('div');row.id='ratibJournalAmountCurrencyRow';row.className='journal-amount-row';}
     row.append(moneyField,currencyField);

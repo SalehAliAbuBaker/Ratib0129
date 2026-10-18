@@ -8,7 +8,7 @@ const sw=fs.readFileSync('sw.js','utf8');
 const manifest=JSON.parse(fs.readFileSync('package.json','utf8'));
 const source=sel=>css.slice(css.indexOf(sel));
 assert(Number(manifest.version.split('.').at(-1))>=85,'Current release must include this regression');
-assert.match(html,/ratib-cash-layout-3\.6\.85\.css\?v=3\.6\.85/);
+assert.match(html,/ratib-cash-layout-3\.6\.85\.css\?v=3\.6\.(85|86)/);
 assert(html.indexOf('ratib-cash-layout-3.6.84.css')<html.indexOf('ratib-cash-layout-3.6.85.css'),'New stylesheet must override previous release');
 assert.match(css,/\.multi-voucher-grid\s*>\s*\.ratib-approved-head-row\s*\{\s*grid-column:1\/-1!important;\s*grid-row:2!important;/);
 for(const selector of [

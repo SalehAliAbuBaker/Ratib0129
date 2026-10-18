@@ -1,10 +1,10 @@
-name: Build Ratib 3.6.61 Android APK
+name: Build Ratib 3.6.100 Android APK
 
 on:
   workflow_dispatch:
   push:
     paths:
-      - '.github/workflows/android-release-3.6.61.yml'
+      - '.github/workflows/android-release-3.6.100.yml'
 
 permissions:
   contents: read
@@ -61,9 +61,9 @@ jobs:
           import re
           p=Path('android/app/build.gradle')
           s=p.read_text(encoding='utf-8')
-          s,count=re.subn(r'(\bversionCode\s+)\d+', r'\g<1>7', s, count=1)
+          s,count=re.subn(r'(\bversionCode\s+)\d+', r'\g<1>8', s, count=1)
           assert count==1, 'Missing versionCode'
-          s,n=re.subn(r'(\bversionName\s*=\s*[\x27\x22])([^\x27\x22]+)([\x27\x22])', r'\g<1>3.6.61-android.7\g<3>', s, count=1)
+          s,n=re.subn(r'(\bversionName\s*=\s*[\x27\x22])([^\x27\x22]+)([\x27\x22])', r'\g<1>3.6.100-android.7\g<3>', s, count=1)
           assert n==1, 'Missing versionName'
           assert 'applicationId "dev.ratib.android"' in s, 'Unexpected Android package'
           p.write_text(s, encoding='utf-8')
@@ -96,15 +96,15 @@ jobs:
             umask 077
             printf '%s' "$RATIB_KEYSTORE_BASE64" | base64 --decode > "$RUNNER_TEMP/ratib-release.jks"
             printf '%s' "$RATIB_KEYSTORE_PASSWORD" > "$RUNNER_TEMP/ratib-release.txt"
-            "$ANDROID_HOME/build-tools/36.0.0/apksigner" sign --ks "$RUNNER_TEMP/ratib-release.jks" --ks-key-alias ratib --ks-pass "file:$RUNNER_TEMP/ratib-release.txt" --out android/build/delivery/Ratib-3.6.61-Android-build7.apk android/build/delivery/aligned.apk
-            "$ANDROID_HOME/build-tools/36.0.0/apksigner" verify --verbose android/build/delivery/Ratib-3.6.61-Android-build7.apk | tee android/build/delivery/signature.txt
+            "$ANDROID_HOME/build-tools/36.0.0/apksigner" sign --ks "$RUNNER_TEMP/ratib-release.jks" --ks-key-alias ratib --ks-pass "file:$RUNNER_TEMP/ratib-release.txt" --out android/build/delivery/Ratib-3.6.100-Android-build8.apk android/build/delivery/aligned.apk
+            "$ANDROID_HOME/build-tools/36.0.0/apksigner" verify --verbose android/build/delivery/Ratib-3.6.100-Android-build8.apk | tee android/build/delivery/signature.txt
             grep -qi '8bc51811b9794092f62e7d525fb80e1ece889281' android/build/delivery/signature.txt
             rm "$RUNNER_TEMP/ratib-release.jks" "$RUNNER_TEMP/ratib-release.txt"
           else
-            cp android/build/delivery/aligned.apk android/build/delivery/Ratib-3.6.61-Android-build7-UNSIGNED.apk
+            cp android/build/delivery/aligned.apk android/build/delivery/Ratib-3.6.100-Android-build8-UNSIGNED.apk
             echo 'Original release signing secrets not available. UNVERIFIED UNSIGNED BUILD IS NOT installable or a safe update.' | tee android/build/delivery/NOTICE.txt
           fi
-          for apk in android/build/delivery/Ratib-3.6.61-Android-*.apk; do
+          for apk in android/build/delivery/Ratib-3.6.100-Android-*.apk; do
             [ -f "$apk" ] || continue
             sha256sum "$apk" >> android/build/delivery/SHA256SUMS.txt
           done
@@ -112,9 +112,9 @@ jobs:
       - name: Preserve outputs without automatically publishing a release
         uses: actions/upload-artifact@v4
         with:
-          name: ratib-3.6.61-android-build7
+          name: ratib-3.6.100-android-build8
           path: |
-            android/build/delivery/Ratib-3.6.61-Android-*.apk
+            android/build/delivery/Ratib-3.6.100-Android-*.apk
             android/build/delivery/SHA256SUMS.txt
             android/build/delivery/NOTICE.txt
             android/build/delivery/signature.txt

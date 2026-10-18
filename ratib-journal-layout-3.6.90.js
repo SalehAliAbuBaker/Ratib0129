@@ -1,4 +1,4 @@
-/* Ratib trial 3.6.95: compact simple/compound journal presentation.
+/* Ratib trial 3.6.96: compact simple and compound journal presentation.
    Moves existing DOM nodes only. No posting or accounting math is replaced. */
 (function(){
   'use strict';
@@ -166,20 +166,71 @@
     detail.setAttribute('aria-expanded',String(enabled&&!panel.classList.contains('ratib-budget-collapsed')));
     detail.textContent=panel.classList.contains('ratib-budget-collapsed')?'تفاصيل التوزيع ▾':'إخفاء تفاصيل التوزيع ▴';
   }
+  // The compound voucher shares its DOM with cash vouchers. Restore every native
+  // field to its original grid position when cash mode becomes active.
+  const compoundSlots=new Map();
+  function rememberCompoundSlot(node){
+    if(!node||compoundSlots.has(node))return;
+    const marker=document.createComment('ratib-compound-field-position');
+    node.before(marker);
+    compoundSlots.set(node,marker);
+  }
+  function restoreCompoundSlots(){
+    for(const [node,marker] of compoundSlots){
+      if(marker.parentNode){marker.after(node);marker.remove();}
+    }
+    compoundSlots.clear();
+    el('ratibCompoundMoneyRow')?.remove();
+  }
   function arrangeCompound(){
     const card=el('multiVoucherCard'),grid=card?.querySelector('.multi-voucher-grid');
+    const header=card?.querySelector(':scope > h2');
     const date=el('multiVoucherDate')?.closest('label');
     const base=el('multiVoucherBaseCurrency')?.closest('label');
-    if(!grid||!date||!base)return;
+    if(!grid||!header||!date||!base)return;
     let amount=el('ratibCompoundAmountReadout');
     if(!amount){
-      amount=document.createElement('div');amount.id='ratibCompoundAmountReadout';
+      amount=document.createElement('div');
+      amount.id='ratibCompoundAmountReadout';
       amount.className='ratib-compound-amount-readout';
       amount.setAttribute('role','status');
       amount.innerHTML='<span>إجمالي المدين (محسوب)</span><output id="ratibCompoundAmountValue">0.00</output>';
       date.after(amount);
     }
-    if(base.previousElementSibling!==amount)amount.after(base);
+    const badge=el('multiVoucherSeqBadge');
+    const shortenNumber=()=>{
+      if(!badge)return;
+      const match=badge.textContent.match(/\d+/);
+      badge.dataset.journalSeq=match?match[0]:'—';
+      badge.setAttribute('aria-label','رقم السند '+badge.dataset.journalSeq);
+    };
+    if(badge&&!badge.dataset.ratibJournalNumberReady){
+      badge.dataset.ratibJournalNumberReady='1';
+      const badgeObserver=new MutationObserver(shortenNumber);
+      badgeObserver.observe(badge,{subtree:true,childList:true,characterData:true});
+    }
+    shortenNumber();
+    if(card.classList.contains('spend-voucher')){
+      restoreCompoundSlots();
+      return;
+    }
+    if(!compoundSlots.has(date)){
+      // Preserve DOM identities, field values and original handlers.
+      for(const node of [date,amount,base])rememberCompoundSlot(node);
+    }
+    header.append(date);
+    date.classList.add('ratib-compound-header-date');
+    el('multiVoucherDate')?.setAttribute('aria-label','تاريخ سند القيد المركب');
+    let money=el('ratibCompoundMoneyRow');
+    if(!money){
+      money=document.createElement('div');
+      money.id='ratibCompoundMoneyRow';
+      money.className='ratib-compound-money-row';
+    }
+    if(money.previousElementSibling!==header)header.after(money);
+    money.append(amount,base);
+    // The computed total is read-only; editable amounts/calculators remain in
+    // their respective journal lines. Nothing in ledger calculations changes.
     const summary=el('multiVoucherBalance');
     const sync=()=>{
       if(card.classList.contains('spend-voucher'))return;
@@ -200,6 +251,11 @@
     if(selector&&!selector.dataset.ratibJournalArrange){
       selector.dataset.ratibJournalArrange='1';
       selector.addEventListener('click',()=>queueMicrotask(()=>{arrangeSimple();arrangeCompound();}));
+    }
+    const compoundCard=el('multiVoucherCard');
+    if(compoundCard&&!compoundCard.dataset.ratibCompoundModeWatch){
+      compoundCard.dataset.ratibCompoundModeWatch='1';
+      new MutationObserver(()=>arrangeCompound()).observe(compoundCard,{attributes:true,attributeFilter:['class']});
     }
     window.addEventListener('pageshow',()=>{arrangeSimple();arrangeCompound();});
   }

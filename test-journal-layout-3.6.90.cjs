@@ -39,7 +39,7 @@ const fixture=`<!DOCTYPE html><html lang="ar" dir="rtl"><head></head><body>
  </div>
  </div>
  <div id="multiVoucherCard" class="unified-voucher">
- <h2>قيد مركب</h2>
+ <h2><span>🧾 سند قيد مركب</span><span id="multiVoucherSeqBadge">رقم: 3</span><button type="button">تغيير النوع</button></h2>
  <div class="multi-voucher-grid">
  <label><input id="multiVoucherDate" type="date" value="2026-10-18"></label>
  <label><input id="multiVoucherBeneficiary"></label>
@@ -90,19 +90,39 @@ async function main(){
  await new Promise(r=>setTimeout(r,0));
  assert(!d.getElementById('voucherSplitContainer').classList.contains('ratib-budget-collapsed'),'Imbalanced budget must expand');
  assert(summary.textContent.includes('المتبقي: 15'));
+
  const compound=d.querySelector('#multiVoucherCard > .multi-voucher-grid');
- assert(compound.children[0].contains(d.getElementById('multiVoucherDate')),'Compound date first');
- assert.equal(compound.children[1].id,'ratibCompoundAmountReadout','Read-only compound total follows date');
- assert(compound.children[2].contains(d.getElementById('multiVoucherBaseCurrency')),'Base currency directly follows displayed total');
- assert.equal(d.getElementById('ratibCompoundAmountValue').textContent,'100');
+ const compoundCard=d.getElementById('multiVoucherCard');
+ const compoundHeader=compoundCard.querySelector(':scope > h2');
+ const originalDate=d.getElementById('multiVoucherDate');
+ const originalCurrency=d.getElementById('multiVoucherBaseCurrency');
+ assert.equal(compoundHeader.querySelector('.ratib-compound-header-date #multiVoucherDate'),originalDate,'Compound date is in top heading row');
+ assert.equal(compoundHeader.querySelector('#multiVoucherSeqBadge').dataset.journalSeq,'3','Compound sequence is compact');
+ const moneyRow=d.getElementById('ratibCompoundMoneyRow');
+ assert.equal(moneyRow.previousElementSibling,compoundHeader,'Compound money row directly follows title/date');
+ assert.equal(moneyRow.children[0].id,'ratibCompoundAmountReadout','Computed amount is first money control');
+ assert.equal(moneyRow.children[1].querySelector('#multiVoucherBaseCurrency'),originalCurrency,'Base currency shares money row');
+ assert.equal(d.getElementById('ratibCompoundAmountValue').textContent,'100','Computed amount follows summary');
+ assert.equal(compound.querySelector('label input#multiVoucherBeneficiary')?.value,'','Beneficiary remains in the detail area');
+ assert.equal(d.querySelectorAll('#multiVoucherDate').length,1,'Date is not duplicated');
+ assert.equal(d.querySelectorAll('#multiVoucherBaseCurrency').length,1,'Currency is not duplicated');
  d.getElementById('multiVoucherBalance').dataset.base='350.5';
  await new Promise(r=>setTimeout(r,0));
- assert.equal(d.getElementById('ratibCompoundAmountValue').textContent,'350.5','Readout follows actual ledger summary');
- d.getElementById('multiVoucherCard').classList.add('spend-voucher');
+ assert.equal(d.getElementById('ratibCompoundAmountValue').textContent,'350.5','Readout follows real ledger summary');
+ compoundCard.classList.add('spend-voucher');
+ await new Promise(r=>setTimeout(r,0));
+ assert.equal(compound.children[0].querySelector('#multiVoucherDate'),originalDate,'Cash voucher restores original date field');
+ assert.equal(compound.querySelector('#multiVoucherBaseCurrency'),originalCurrency,'Cash voucher restores currency');
+ assert.equal(d.getElementById('ratibCompoundMoneyRow'),null,'Cash vouchers have no new compound money row');
+ compoundCard.classList.remove('spend-voucher');
+ await new Promise(r=>setTimeout(r,0));
+ assert.equal(compoundHeader.querySelector('#multiVoucherDate'),originalDate,'Compound header is idempotent after cash mode');
+ assert.equal(d.getElementById('ratibCompoundMoneyRow').querySelector('#multiVoucherBaseCurrency'),originalCurrency,'Compound currency is idempotent');
  assert.match(css,/#multiVoucherCard\.spend-voucher #ratibCompoundAmountReadout\{display:none!important\}/,'Readout hidden for cash vouchers');
  assert.match(css,/tbody select\.multi-line-account\[hidden\]/,'Autocomplete backing select remains hidden');
  assert.match(css,/\.multi-voucher-table tbody tr\{/,'Compound cards styled on mobile');
  assert.match(css,/grid-row:2!important/,'Tafqit stays below the money row');
+ assert.match(css,/Trial 3\\.6\\.96/,'Compound geometry stylesheet is included');
  d.getElementById('voucherSelectorCard').click();
  await new Promise(r=>setTimeout(r,0));
  assert.equal(d.querySelectorAll('#cashFlowCard > h2 #swapAccountsBtn').length,1,'Rerender must not duplicate controls');

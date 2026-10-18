@@ -25,7 +25,7 @@ const fixture=`<!DOCTYPE html><html lang="ar" dir="rtl"><head></head><body>
  <div class="form-group journal-account-field"><label>مدين</label><div style="display: flex"><div id="wrapDebitAcc" class="searchable-select-wrap"><input></div><button id="lockDebitAccBtn">🔓</button><button id="addNewDebitAccBtn">＋</button></div></div>
  <div class="form-group journal-account-field"><label id="lblCreditAcc">دائن</label><div style="display: flex"><div id="wrapCreditAcc" class="searchable-select-wrap"><input></div><button id="lockCreditAccBtn">🔓</button><button id="addNewCreditAccBtn">＋</button></div></div>
  <div class="journal-swap-row"><button id="swapAccountsBtn">تبديل الحسابات</button></div>
- <div class="journal-amount-row"><div><input id="voucherAmountInput" value="200"></div><div><select id="voucherCurrencySelect"><option value="YER">ريال يمني</option></select></div></div>
+ <div class="journal-amount-row"><div><label for="voucherAmountInput">إجمالي مبلغ السند:</label><span class="financial-number-field"><input id="voucherAmountInput" value="200" inputmode="decimal"><button type="button" class="financial-calc-trigger">▦</button></span></div><div><label for="voucherCurrencySelect">العملة:</label><select id="voucherCurrencySelect"><option value="YER">ريال يمني</option></select></div></div>
  <div class="form-group"><input type="date" id="voucherDateInput" value="2026-10-18"></div>
  <div class="form-group"><input id="voucherNoteInput" value="أمانة"></div>
  <div id="voucherRecipientGroup" class="form-group"><input id="voucherRecipientInput"></div>
@@ -59,6 +59,11 @@ async function main(){
  assert(first[0].contains(d.getElementById('voucherDateInput')),'Date must be first');
  assert(first[1].contains(d.getElementById('voucherAmountInput')),'Amount/currency must immediately follow date');
  assert.equal(grid.children[1].id,'ratibJournalAmountCurrencyRow','Amount and currency share a dedicated stable row');
+ assert.equal(grid.children[1].querySelector('label[for="voucherAmountInput"]')?.textContent,'إجمالي مبلغ السند:','Amount LABEL must move with input');
+ assert.equal(grid.children[1].querySelector('label[for="voucherCurrencySelect"]')?.textContent,'العملة:','Currency LABEL must move with select');
+ assert.equal(grid.children[1].querySelectorAll('.financial-number-field > .financial-calc-trigger').length,1,'Calculator button must remain next to amount input');
+ assert.equal(d.querySelector('#ratibJournalAmountCurrencyRow .financial-number-field')?.parentElement?.querySelector('label[for="voucherAmountInput"]')?.textContent,'إجمالي مبلغ السند:','Field label and enhanced calculator wrapper must share parent');
+ assert.match(css,/\#cashFlowCard\.simple-journal \#ratibJournalAmountCurrencyRow \.financial-number-field>\.financial-calc-trigger/,'Calculator button has dedicated width in amount row');
  assert.equal(d.getElementById('voucherAmountInput').closest('#ratibJournalAmountCurrencyRow'),grid.children[1],'Amount is not detached below the accounts');
  assert.equal(d.getElementById('voucherCurrencySelect').closest('#ratibJournalAmountCurrencyRow'),grid.children[1],'Currency must share the same row as amount');
  assert.equal(grid.children[2].id,'tafqitDisplayBox','Tafqit must directly follow money/currency');

@@ -58,6 +58,12 @@ async function main(){
 
  assert(first[0].contains(d.getElementById('voucherDateInput')),'Date must be first');
  assert(first[1].contains(d.getElementById('voucherAmountInput')),'Amount/currency must immediately follow date');
+ assert.equal(grid.children[1].id,'ratibJournalAmountCurrencyRow','Amount and currency share a dedicated stable row');
+ assert.equal(d.getElementById('voucherAmountInput').closest('#ratibJournalAmountCurrencyRow'),grid.children[1],'Amount is not detached below the accounts');
+ assert.equal(d.getElementById('voucherCurrencySelect').closest('#ratibJournalAmountCurrencyRow'),grid.children[1],'Currency must share the same row as amount');
+ assert.equal(grid.children[2].id,'tafqitDisplayBox','Tafqit must directly follow money/currency');
+ assert.equal(d.querySelectorAll('#voucherAmountInput').length,1,'Input not duplicated');
+ assert.equal(d.querySelectorAll('#voucherCurrencySelect').length,1,'Currency input not duplicated');
  assert.equal(d.getElementById('voucherAmountInput').value,'200');
  assert.equal(d.getElementById('voucherDateInput').value,'2026-10-18');
  assert.equal(d.getElementById('voucherCurrencySelect').value,'YER');
@@ -71,6 +77,7 @@ async function main(){
  const summary=d.getElementById('ratibSimpleBudgetOverview');
  assert(summary.textContent.includes('المتبقي: 0'),'Budget state is visible when collapsed');
  assert(d.getElementById('voucherSplitContainer').classList.contains('ratib-budget-collapsed'));
+ assert.match(css,/\.voucher-split-box\.ratib-budget-collapsed\{[\s\S]*?display:none!important;/,'Collapsed budget must not consume the screen');
  d.getElementById('voucherRemainingSum').textContent='15';
  await new Promise(r=>setTimeout(r,0));
  assert(!d.getElementById('voucherSplitContainer').classList.contains('ratib-budget-collapsed'),'Imbalanced budget must expand');
@@ -91,6 +98,8 @@ async function main(){
  d.getElementById('voucherSelectorCard').click();
  await new Promise(r=>setTimeout(r,0));
  assert.equal(d.querySelectorAll('.ratib-simple-account-heading').length,1,'Rerender must not duplicate controls');
+ assert.equal(d.querySelectorAll('#ratibJournalAmountCurrencyRow').length,1,'Rerender must not create a second money row');
+ assert.equal(d.getElementById('voucherAmountInput').closest('#ratibJournalAmountCurrencyRow'),grid.children[1],'Rerender retains money under date');
  dom.window.close();
  console.log('PASS 3.6.90 simple/compound journal field order, original values, budget, row cards and mode isolation');
 }

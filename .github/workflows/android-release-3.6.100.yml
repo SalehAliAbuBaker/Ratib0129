@@ -71,6 +71,8 @@ jobs:
 
       - name: Install dependencies and run official regression checks
         run: |
+          set -euo pipefail
+          npm install --ignore-scripts --no-audit --no-fund
           npm test
           node android/tests/native-bridge.cjs
           node android/tests/bundle-integrity.cjs
@@ -97,7 +99,7 @@ jobs:
             printf '%s' "$RATIB_KEYSTORE_BASE64" | base64 --decode > "$RUNNER_TEMP/ratib-release.jks"
             printf '%s' "$RATIB_KEYSTORE_PASSWORD" > "$RUNNER_TEMP/ratib-release.txt"
             "$ANDROID_HOME/build-tools/36.0.0/apksigner" sign --ks "$RUNNER_TEMP/ratib-release.jks" --ks-key-alias ratib --ks-pass "file:$RUNNER_TEMP/ratib-release.txt" --out android/build/delivery/Ratib-3.6.100-Android-build8.apk android/build/delivery/aligned.apk
-            "$ANDROID_HOME/build-tools/36.0.0/apksigner" verify --verbose android/build/delivery/Ratib-3.6.100-Android-build8.apk | tee android/build/delivery/signature.txt
+            "$ANDROID_HOME/build-tools/36.0.0/apksigner" verify --verbose --print-certs android/build/delivery/Ratib-3.6.100-Android-build8.apk | tee android/build/delivery/signature.txt
             grep -qi '8bc51811b9794092f62e7d525fb80e1ece889281' android/build/delivery/signature.txt
             rm "$RUNNER_TEMP/ratib-release.jks" "$RUNNER_TEMP/ratib-release.txt"
           else

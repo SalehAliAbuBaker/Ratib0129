@@ -32,6 +32,9 @@
       const btn=el(id);if(btn){btn.hidden=true;btn.setAttribute('aria-hidden','true');btn.tabIndex=-1;}
     }
     arrangeSimpleExtras(card,note,party);
+    // Keep optional-section control anchored after the note even after a rerender.
+    const extra=el('ratibSimpleExtraBtn');
+    if(extra&&extra.previousElementSibling!==note)note.after(extra);
     return true;
   }
   function arrangeSimpleExtras(card,note,party){

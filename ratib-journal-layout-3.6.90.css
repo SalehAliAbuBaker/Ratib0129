@@ -1,0 +1,168 @@
+/* Ratib trial 3.6.90: compact journal layout for mobile and desktop without ledger changes. */
+@media screen {
+ #cashFlowCard.simple-journal{padding:10px!important;border-inline-start:3px solid var(--accent)!important}
+ #cashFlowCard.simple-journal h2{gap:7px!important;margin:0 0 10px!important}
+ #cashFlowCard.simple-journal .simple-journal-grid{
+   display:grid!important;grid-template-columns:minmax(0,1fr) minmax(0,1fr)!important;
+   gap:8px!important;margin:0 0 9px!important;align-items:start!important;
+ }
+ #cashFlowCard.simple-journal .simple-journal-grid>.form-group:has(#voucherDateInput){
+   grid-column:1/-1!important;grid-row:1!important;margin:0!important;
+ }
+ #cashFlowCard.simple-journal .simple-journal-grid>.journal-amount-row{
+   display:grid!important;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr)!important;
+   grid-column:1/-1!important;grid-row:2!important;gap:7px!important;margin:0!important;
+ }
+ #cashFlowCard.simple-journal .simple-journal-grid>.journal-account-field:has(#wrapDebitAcc){
+   grid-column:1/-1!important;grid-row:3!important;
+ }
+ #cashFlowCard.simple-journal .simple-journal-grid>.journal-account-field:has(#wrapCreditAcc){
+   grid-column:1/-1!important;grid-row:4!important;
+ }
+ #cashFlowCard.simple-journal .simple-journal-grid>.form-group:has(#voucherNoteInput){
+   grid-column:1/-1!important;grid-row:5!important;
+ }
+ #cashFlowCard.simple-journal .simple-journal-grid>#ratibSimpleExtraBtn{
+   grid-column:1/-1!important;grid-row:6!important;
+ }
+ #cashFlowCard.simple-journal .simple-journal-grid>#voucherRecipientGroup{
+   grid-column:1/-1!important;grid-row:7!important;
+ }
+ #cashFlowCard.simple-journal #voucherRecipientGroup.ratib-simple-recipient-collapsed{display:none!important}
+ #cashFlowCard.simple-journal .simple-journal-grid>.form-group,
+ #cashFlowCard.simple-journal .journal-amount-row>div{min-width:0!important;margin:0!important}
+ #cashFlowCard.simple-journal .simple-journal-grid>.form-group>label,
+ #cashFlowCard.simple-journal .journal-amount-row label{font-size:12px!important;line-height:1.3!important;margin:0 0 3px!important}
+ #cashFlowCard.simple-journal .simple-journal-grid :is(input,select){
+   box-sizing:border-box!important;min-width:0!important;min-height:44px!important;
+   height:44px!important;padding:7px 8px!important;font-size:15px!important;
+ }
+ #cashFlowCard.simple-journal .journal-account-field>div[style*="display: flex"]{
+   display:flex!important;align-items:center!important;flex-wrap:nowrap!important;gap:6px!important;width:100%!important;min-width:0!important;
+ }
+ #cashFlowCard.simple-journal .journal-account-field .searchable-select-wrap{flex:1 1 0%!important;width:0!important;min-width:0!important}
+ #cashFlowCard.simple-journal :is(#lockDebitAccBtn,#lockCreditAccBtn){
+   flex:0 0 40px!important;min-width:40px!important;width:40px!important;max-width:40px!important;
+   min-height:44px!important;height:44px!important;margin:0!important;padding:0!important;
+ }
+ #cashFlowCard.simple-journal :is(#addNewDebitAccBtn,#addNewCreditAccBtn){display:none!important}
+ #cashFlowCard.simple-journal .ratib-simple-account-heading{
+   display:flex;align-items:center;justify-content:space-between;gap:8px;min-height:27px;
+ }
+ #cashFlowCard.simple-journal .ratib-simple-account-heading>#lblCreditAcc{margin:0!important;min-width:0}
+ #cashFlowCard.simple-journal .ratib-simple-account-heading>#swapAccountsBtn{
+   flex:0 0 36px!important;width:36px!important;min-width:36px!important;min-height:32px!important;height:32px!important;
+   padding:2px!important;margin:0!important;border-radius:8px!important;
+   font-size:19px!important;line-height:1!important;
+ }
+ #cashFlowCard.simple-journal #tafqitDisplayBox{
+   font-size:12px!important;padding:0 4px!important;margin:2px 0 5px!important;
+   background:transparent!important;border:0!important;border-radius:0!important;line-height:1.5!important;
+ }
+ #cashFlowCard.simple-journal .ratib-simple-extra-toggle{
+   display:block!important;min-height:32px!important;width:100%!important;text-align:right!important;
+   padding:5px 9px!important;margin:0!important;font-size:12px!important;
+   background:transparent!important;color:var(--muted)!important;border:1px dashed var(--border)!important;
+ }
+ #cashFlowCard.simple-journal #voucherNoteInput{width:100%!important}
+ #cashFlowCard.simple-journal #voucherSplitContainer{padding:8px!important;margin:4px 0 8px!important}
+ #cashFlowCard.simple-journal #voucherSplitContainer.ratib-budget-collapsed>*:not(:last-child){display:none!important}
+ #cashFlowCard.simple-journal #voucherSplitContainer.ratib-budget-collapsed>*:last-child{
+   margin:0!important;padding:0!important;border:0!important;font-size:12px!important;
+ }
+ #cashFlowCard.simple-journal #toggleSplitBoxBtn{min-height:36px!important;padding:5px 8px!important;font-size:13px!important}
+ #cashFlowCard.simple-journal .ratib-simple-budget-overview{font-size:12px!important;line-height:1.5!important;margin:3px 0!important;color:var(--muted)!important}
+ #cashFlowCard.simple-journal .ratib-simple-budget-overview.ratib-budget-warning{color:var(--danger)!important;font-weight:700}
+ #cashFlowCard.simple-journal .ratib-budget-detail-btn{
+   display:block!important;min-height:32px!important;padding:4px 10px!important;
+   font-size:12px!important;margin:3px 0!important;width:100%!important;
+ }
+ #cashFlowCard.simple-journal .ratib-budget-detail-btn[hidden]{display:none!important}
+ /* The compound header displays the computed amount directly below date, beside base currency. */
+ #multiVoucherCard.unified-voucher:not(.spend-voucher){padding:10px!important;min-width:0!important}
+ #multiVoucherCard.unified-voucher:not(.spend-voucher)>.multi-voucher-grid{
+   display:grid!important;grid-template-columns:minmax(0,1.45fr) minmax(0,1fr)!important;
+   gap:7px!important;align-items:end!important;margin:5px 0 8px!important;
+ }
+ #multiVoucherCard.unified-voucher:not(.spend-voucher)>.multi-voucher-grid>label:has(#multiVoucherDate){
+   grid-column:1/-1!important;grid-row:1!important;
+ }
+ #multiVoucherCard.unified-voucher:not(.spend-voucher)>.multi-voucher-grid>#ratibCompoundAmountReadout{
+   grid-column:1!important;grid-row:2!important;
+ }
+ #multiVoucherCard.unified-voucher:not(.spend-voucher)>.multi-voucher-grid>label:has(#multiVoucherBaseCurrency){
+   grid-column:2!important;grid-row:2!important;
+ }
+ #multiVoucherCard.unified-voucher:not(.spend-voucher)>.multi-voucher-grid>label:has(#multiVoucherBeneficiary){
+   grid-column:1/-1!important;grid-row:3!important;
+ }
+ #multiVoucherCard.unified-voucher:not(.spend-voucher)>.multi-voucher-grid>label:has(#multiVoucherParty){grid-column:1/-1!important;grid-row:4!important}
+ #multiVoucherCard.unified-voucher:not(.spend-voucher) .ratib-compound-amount-readout{
+   display:flex;flex-direction:column;justify-content:center;min-width:0;min-height:44px;
+   gap:3px;padding:4px 9px;background:var(--card);border:1px solid var(--border);border-radius:9px;
+ }
+ #multiVoucherCard.unified-voucher:not(.spend-voucher) .ratib-compound-amount-readout>span{font-size:11px!important;color:var(--muted);line-height:1.2}
+ #multiVoucherCard.unified-voucher:not(.spend-voucher) .ratib-compound-amount-readout output{font-size:16px;font-weight:700;direction:ltr;text-align:right}
+ #multiVoucherCard.unified-voucher:not(.spend-voucher)>.multi-voucher-grid label{min-width:0!important;margin:0!important;font-size:12px!important;gap:3px!important}
+ #multiVoucherCard.unified-voucher:not(.spend-voucher)>.multi-voucher-grid input,
+ #multiVoucherCard.unified-voucher:not(.spend-voucher)>.multi-voucher-grid select{min-width:0!important;height:44px!important;min-height:44px!important;box-sizing:border-box!important;padding:6px 8px!important}
+ #multiVoucherCard.unified-voucher:not(.spend-voucher)>label:has(#multiVoucherNote){font-size:12px!important}
+ #multiVoucherCard.unified-voucher:not(.spend-voucher) #multiVoucherNote{min-height:52px!important;height:54px!important;box-sizing:border-box!important}
+ @media(max-width:700px) {
+  #multiVoucherCard.unified-voucher:not(.spend-voucher) .multi-voucher-table-wrap{
+    width:100%!important;overflow:visible!important;max-width:100%!important;border:0!important;margin:4px 0!important;
+  }
+  #multiVoucherCard.unified-voucher:not(.spend-voucher) .multi-voucher-table{
+    display:block!important;width:100%!important;max-width:100%!important;
+    min-width:0!important;table-layout:auto!important;border:0!important;background:transparent!important;
+  }
+  #multiVoucherCard.unified-voucher:not(.spend-voucher) .multi-voucher-table thead{display:none!important}
+  #multiVoucherCard.unified-voucher:not(.spend-voucher) .multi-voucher-table tbody{display:block!important;width:100%!important}
+  #multiVoucherCard.unified-voucher:not(.spend-voucher) .multi-voucher-table tbody tr{
+    display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr))!important;
+    gap:7px!important;padding:9px!important;margin:0 0 8px!important;
+    border:1px solid var(--border)!important;border-radius:12px!important;
+    background:color-mix(in srgb,var(--accent) 4%,var(--card))!important;
+    min-width:0!important;max-width:100%!important;width:100%!important;box-sizing:border-box!important;
+  }
+  #multiVoucherCard.unified-voucher:not(.spend-voucher) .multi-voucher-table tbody td{
+    display:block!important;box-sizing:border-box!important;width:100%!important;min-width:0!important;
+    border:0!important;padding:0!important;margin:0!important;white-space:normal!important;
+  }
+  #multiVoucherCard.unified-voucher:not(.spend-voucher) .multi-voucher-table tbody td:nth-child(1){grid-column:4!important;grid-row:1!important}
+  #multiVoucherCard.unified-voucher:not(.spend-voucher) .multi-voucher-table tbody td:nth-child(6){grid-column:1/4!important;grid-row:1!important}
+  #multiVoucherCard.unified-voucher:not(.spend-voucher) .multi-voucher-table tbody td:nth-child(5){grid-column:1/3!important;grid-row:2!important}
+  #multiVoucherCard.unified-voucher:not(.spend-voucher) .multi-voucher-table tbody td:nth-child(3){grid-column:3/5!important;grid-row:2!important}
+  #multiVoucherCard.unified-voucher:not(.spend-voucher) .multi-voucher-table tbody td:nth-child(7){grid-column:1/3!important;grid-row:3!important}
+  #multiVoucherCard.unified-voucher:not(.spend-voucher) .multi-voucher-table tbody td:nth-child(8){grid-column:3/5!important;grid-row:3!important}
+  #multiVoucherCard.unified-voucher:not(.spend-voucher) .multi-voucher-table tbody td:nth-child(2){grid-column:1/-1!important;grid-row:4!important}
+  #multiVoucherCard.unified-voucher:not(.spend-voucher) .multi-voucher-table tbody td:nth-child(4){grid-column:1/-1!important;grid-row:5!important}
+  #multiVoucherCard.unified-voucher:not(.spend-voucher) .multi-voucher-table tbody td:nth-child(9){grid-column:1/4!important;grid-row:6!important}
+  #multiVoucherCard.unified-voucher:not(.spend-voucher) .multi-voucher-table tbody td:nth-child(10){grid-column:4!important;grid-row:6!important}
+  #multiVoucherCard.unified-voucher:not(.spend-voucher) .multi-voucher-table tbody :is(input,select){
+    display:block!important;box-sizing:border-box!important;width:100%!important;min-width:0!important;
+    min-height:44px!important;height:44px!important;font-size:15px!important;padding:6px 8px!important;
+  }
+  #multiVoucherCard.unified-voucher:not(.spend-voucher) .multi-voucher-table tbody .searchable-select-wrap{width:100%!important;min-width:0!important}
+  #multiVoucherCard.unified-voucher:not(.spend-voucher) .multi-voucher-table tbody .searchable-input{width:100%!important}
+  #multiVoucherCard.unified-voucher:not(.spend-voucher) .multi-voucher-table tbody .multi-line-base{
+    padding:10px 8px!important;min-height:44px!important;border:1px solid var(--border)!important;
+    border-radius:8px!important;background:var(--bg)!important;line-height:1.4!important;
+    font-size:13px!important;
+  }
+  #multiVoucherCard.unified-voucher:not(.spend-voucher) .multi-voucher-table tbody td:nth-child(7):before{
+    content:'سعر الصرف';display:block;color:var(--muted);font-size:11px;line-height:1.3;
+  }
+  #multiVoucherCard.unified-voucher:not(.spend-voucher) .multi-voucher-table tbody td:nth-child(8):before{
+    content:'المعادل';display:block;color:var(--muted);font-size:11px;line-height:1.3;
+  }
+  #multiVoucherCard.unified-voucher:not(.spend-voucher) .multi-voucher-table tbody td:nth-child(6):before{
+    content:'المبلغ';display:block;color:var(--muted);font-size:11px;line-height:1.3;
+  }
+  #multiVoucherCard.unified-voucher:not(.spend-voucher) .multi-voucher-table tbody tr .multi-remove-line{
+    display:block!important;min-width:0!important;width:100%!important;min-height:44px!important;height:44px!important;
+    padding:5px!important;margin:0!important;
+  }
+  #multiVoucherCard.unified-voucher:not(.spend-voucher) .multi-voucher-actions{gap:6px!important}
+ }
+}

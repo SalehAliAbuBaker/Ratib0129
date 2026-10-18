@@ -315,3 +315,182 @@
   }
  }
 }
+
+
+/* Ratib trial 3.6.93 — controlled mobile journal geometry; no ledger or event changes.
+   The guardrails hint was injected INTO .financial-number-field and squeezed the amount to zero.
+   Hide the verbose instruction only in the simple-journal amount field. */
+@media screen {
+  #cashFlowCard.simple-journal .simple-journal-grid {
+    display:grid!important;
+    grid-template-columns:minmax(0,1fr)!important;
+    grid-auto-rows:max-content!important;
+    align-items:start!important;
+    row-gap:7px!important;
+    min-width:0!important;
+    overflow:visible!important;
+  }
+  #cashFlowCard.simple-journal #ratibJournalAmountCurrencyRow {
+    display:grid!important;
+    grid-template-columns:minmax(0,1.7fr) minmax(0,1fr)!important;
+    align-items:end!important;
+    gap:8px!important;
+    min-width:0!important;
+    width:100%!important;
+    margin:0!important;
+    padding:0!important;
+  }
+  #cashFlowCard.simple-journal #ratibJournalAmountCurrencyRow > div {
+    display:flex!important;
+    flex-direction:column!important;
+    align-items:stretch!important;
+    justify-content:flex-start!important;
+    min-width:0!important;
+    width:100%!important;
+    gap:4px!important;
+    padding:0!important;
+    margin:0!important;
+  }
+  #cashFlowCard.simple-journal #ratibJournalAmountCurrencyRow .field-hint {
+    display:none!important;
+  }
+  #cashFlowCard.simple-journal #ratibJournalAmountCurrencyRow .financial-number-field {
+    display:flex!important;
+    flex-direction:row!important;
+    flex-wrap:nowrap!important;
+    align-items:stretch!important;
+    justify-content:flex-start!important;
+    gap:5px!important;
+    width:100%!important;
+    height:44px!important;
+    min-height:44px!important;
+    min-width:0!important;
+    box-sizing:border-box!important;
+  }
+  #cashFlowCard.simple-journal #ratibJournalAmountCurrencyRow .financial-number-field > #voucherAmountInput {
+    display:block!important;
+    flex:1 1 0%!important;
+    width:0!important;
+    min-width:0!important;
+    max-width:100%!important;
+    height:44px!important;
+    box-sizing:border-box!important;
+    margin:0!important;
+    padding:7px 9px!important;
+    text-align:right!important;
+    direction:ltr!important;
+    font-size:16px!important;
+    text-overflow:clip!important;
+  }
+  #cashFlowCard.simple-journal #ratibJournalAmountCurrencyRow .financial-number-field > .financial-calc-trigger {
+    display:inline-flex!important;
+    flex:0 0 38px!important;
+    width:38px!important;
+    min-width:38px!important;
+    max-width:38px!important;
+    height:44px!important;
+    min-height:44px!important;
+    align-items:center!important;
+    justify-content:center!important;
+    padding:0!important;
+    margin:0!important;
+    box-sizing:border-box!important;
+  }
+  #cashFlowCard.simple-journal #ratibJournalAmountCurrencyRow #voucherCurrencySelect {
+    display:block!important;
+    box-sizing:border-box!important;
+    width:100%!important;
+    min-width:0!important;
+    max-width:100%!important;
+    height:44px!important;
+    min-height:44px!important;
+    margin:0!important;
+    padding:6px 5px!important;
+    font-size:13px!important;
+    text-overflow:ellipsis!important;
+    white-space:nowrap!important;
+    overflow:hidden!important;
+  }
+  #cashFlowCard.simple-journal .simple-journal-grid > #tafqitDisplayBox {
+    display:block!important;
+    min-height:0!important;
+    height:auto!important;
+    margin:-1px 0 2px!important;
+    padding:0 3px!important;
+    font-size:11px!important;
+    line-height:1.5!important;
+    white-space:normal!important;
+    overflow-wrap:anywhere!important;
+  }
+  #cashFlowCard.simple-journal .journal-account-field {
+    min-height:0!important;
+    margin:0!important;
+  }
+  #cashFlowCard.simple-journal .journal-account-field > div[style*="display: flex"] {
+    display:flex!important;
+    flex-wrap:nowrap!important;
+    align-items:center!important;
+    gap:7px!important;
+    width:100%!important;
+    min-width:0!important;
+  }
+  #cashFlowCard.simple-journal .journal-account-field .searchable-select-wrap {
+    position:relative!important;
+    flex:1 1 0%!important;
+    width:0!important;
+    min-width:0!important;
+    max-width:100%!important;
+  }
+  #cashFlowCard.simple-journal :is(#lockDebitAccBtn,#lockCreditAccBtn) {
+    flex:0 0 42px!important;
+    min-width:42px!important;
+    max-width:42px!important;
+    width:42px!important;
+    height:44px!important;
+    min-height:44px!important;
+    margin:0!important;
+  }
+  #cashFlowCard.simple-journal .ratib-simple-account-heading {
+    display:flex!important;
+    flex-wrap:nowrap!important;
+    align-items:center!important;
+    justify-content:space-between!important;
+    gap:7px!important;
+    min-height:32px!important;
+    margin:0 0 3px!important;
+  }
+  #cashFlowCard.simple-journal .ratib-simple-account-heading > #swapAccountsBtn {
+    display:inline-flex!important;
+    flex:0 0 36px!important;
+    width:36px!important;
+    min-width:36px!important;
+    min-height:32px!important;
+    height:32px!important;
+    align-items:center!important;
+    justify-content:center!important;
+    margin:0!important;
+    padding:0!important;
+    position:static!important;
+  }
+  #cashFlowCard.simple-journal :is(#ratibSimpleExtraBtn,#ratibSimpleCurrencyDisclosure) {
+    box-sizing:border-box!important;
+    min-height:0!important;
+    margin:2px 0!important;
+    padding:6px 9px!important;
+    font-size:12px!important;
+    line-height:1.45!important;
+  }
+  #cashFlowCard.simple-journal #ratibSimpleCurrencyDisclosure #entryCurrencyConvertHint {
+    flex-wrap:wrap!important;
+    gap:6px!important;
+  }
+  @media (max-width:365px) {
+    #cashFlowCard.simple-journal #ratibJournalAmountCurrencyRow {
+      grid-template-columns:minmax(0,1.6fr) minmax(0,1fr)!important;
+      gap:6px!important;
+    }
+    #cashFlowCard.simple-journal #ratibJournalAmountCurrencyRow #voucherCurrencySelect {
+      font-size:12px!important;
+    }
+  }
+}

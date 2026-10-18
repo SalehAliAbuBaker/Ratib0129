@@ -16,7 +16,10 @@
     // Make one concrete, stable row containing THE ORIGINAL amount and currency controls.
     // Do not depend on the inherited voucher wrapper, whose children can be rearranged
     // by older cash-entry scripts. Their names, values and input event listeners stay.
-    const moneyField=input.parentElement,currencyField=currency.parentElement;
+    // Core input is wrapped by .financial-number-field when calculator support starts.
+    // Move the ENTIRE field (label + input + calculator) rather than just the wrapper.
+    const moneyField=input.closest('.financial-number-field')?.parentElement||input.parentElement;
+    const currencyField=currency.parentElement;
     const oldMoneyRow=moneyField?.parentElement;
     const oldCurrencyRow=currencyField?.parentElement;
     if(!moneyField||!currencyField)return false;

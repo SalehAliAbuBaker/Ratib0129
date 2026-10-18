@@ -42,7 +42,8 @@
   // Activation is deliberately tied to the EXISTING Worker, not to the admin secret.
   const API = 'https://ratib.saleh0129.workers.dev/api/license/';
   const CHECK_INTERVAL = 60 * 60 * 1000;
-  const OFFLINE_GRACE = 7 * 24 * 60 * 60 * 1000;
+  // A previously verified license remains locally valid through its expiry,
+  // even after extended periods without connectivity.
   // Count previously saved accounting documents the first time this release is used.
   // Do not reset the counter when transactions are deleted or backups are restored.
   function getUsed(transactions) {
@@ -78,13 +79,15 @@
     const s = safeRead();
     if (!s.code || !validExpiry(s.expiryDate)) return false;
     if (s.verifiedAt && Date.now()-s.checkedAt < CHECK_INTERVAL) return true;
+    // Never block an activated device merely because it is offline.
+    if (global.navigator?.onLine === false) return Number(s.verifiedAt||0) > 0;
     try {
       const result = await verifyLicense({endpoint:API+'verify',code:s.code,email:s.email||''});
       Object.assign(s,{verifiedAt:Date.now(),checkedAt:Date.now(),expiryDate:result.expiry_date||null});
       safeWrite(s);
       return true;
     } catch(err) {
-      if (err instanceof TypeError && Date.now()-Number(s.verifiedAt||0) < OFFLINE_GRACE) return true;
+      if (err instanceof TypeError && Number(s.verifiedAt||0)>0) return true;
       s.verifiedAt=0;s.checkedAt=0;safeWrite(s);
       return false;
     }

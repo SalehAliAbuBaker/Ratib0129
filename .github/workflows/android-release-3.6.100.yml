@@ -73,6 +73,7 @@ jobs:
         run: |
           set -euo pipefail
           npm install --ignore-scripts --no-audit --no-fund
+          npm ls --depth=0
           npm test
           node android/tests/native-bridge.cjs
           node android/tests/bundle-integrity.cjs

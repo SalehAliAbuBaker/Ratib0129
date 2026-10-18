@@ -17,7 +17,7 @@ async function request(source,path,{offline=false}={}){
  try{old=cp.execFileSync('git',['show','cd69a262cb77477f157a5001cb3d6d882c10a1a4:sw.js'],{encoding:'utf8',stdio:['ignore','pipe','pipe']});}
  catch(error){console.warn('SKIP historical worker comparison: original sw.js is absent from that commit');}
  if(old)for(const file of ['ratib-favorites-v3.js','ratib-navigation-v3.js','ratib-navigation-v3.css'])assert.equal(await request(old,file+'?v=3.6.53'),null,'old worker must let new asset names reach network');
- assert.equal(await request(current,'ratib-favorites-v3.js?v=3.6.53'),'fresh-script');
+ assert.equal(await request(current,'ratib-favorites-v3.js?v=3.6.53'),'cached-script','installed assets must work with no network on regular opens');
  assert.equal(await request(current,'ratib-favorites-v3.js?v=3.6.53',{offline:true}),'cached-script');
- console.log('PASS new UI bypasses legacy asset cache; versioned scripts prefer online content and retain offline fallback');
+ console.log('PASS new UI bypasses legacy asset cache; installed app shell is local-first online and offline');
 })();

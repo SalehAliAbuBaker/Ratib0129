@@ -13,10 +13,10 @@
   function inputCurrency(selector){
     const field=selector?.input;
     const row=field?.closest('#multiVoucherLinesBody tr');
-    return row?.querySelector('.multi-line-currency')?.value ||
-      (field?.id.startsWith('inpEdit')?document.getElementById('editVoucherCurrency')?.value:'') ||
-      document.getElementById('multiVoucherBaseCurrency')?.value ||
-      document.getElementById('voucherCurrencySelect')?.value ||
+    if(row)return row.querySelector('.multi-line-currency')?.value||'YER';
+    if(field?.closest('#cashFlowCard'))return document.getElementById('voucherCurrencySelect')?.value||'YER';
+    if(field?.id.startsWith('inpEdit'))return document.getElementById('editVoucherCurrency')?.value||'YER';
+    return document.getElementById('multiVoucherBaseCurrency')?.value||
       (typeof getGlobalCurrency==='function'?getGlobalCurrency():'YER');
   }
   function accountExists(name){

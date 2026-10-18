@@ -70,7 +70,7 @@ async function main(){
  assert.equal(grid.children[1].id,'tafqitDisplayBox','Tafqit beneath second row');
  assert.equal(d.querySelectorAll('#voucherAmountInput').length,1,'Amount input not duplicated');
  assert.equal(d.querySelectorAll('#voucherCurrencySelect').length,1,'Currency input not duplicated');
- assert.match(css,/#cashFlowCard\\.simple-journal > h2 > #swapAccountsBtn/,'Heading account swap styled');
+ assert.match(css,/#cashFlowCard\.simple-journal > h2 > #swapAccountsBtn/,'Heading account swap styled');
  assert.match(css,/#ratibJournalAmountCurrencyRow > #ratibSimpleHeaderCalculator/,'Money row calculator styled');
  assert.equal(d.getElementById('voucherAmountInput').value,'200');
  assert.equal(d.getElementById('voucherDateInput').value,'2026-10-18');
@@ -122,7 +122,7 @@ async function main(){
  assert.match(css,/tbody select\.multi-line-account\[hidden\]/,'Autocomplete backing select remains hidden');
  assert.match(css,/\.multi-voucher-table tbody tr\{/,'Compound cards styled on mobile');
  assert.match(css,/grid-row:2!important/,'Tafqit stays below the money row');
- assert.match(css,/Trial 3\\.6\\.96/,'Compound geometry stylesheet is included');
+ assert.match(css,/Trial 3\.6\.96/,'Compound geometry stylesheet is included');
  d.getElementById('voucherSelectorCard').click();
  await new Promise(r=>setTimeout(r,0));
  assert.equal(d.querySelectorAll('#cashFlowCard > h2 #swapAccountsBtn').length,1,'Rerender must not duplicate controls');

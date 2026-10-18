@@ -4391,7 +4391,6 @@ function exportTransactionsCsv() {
   const table=`<table dir="rtl" border="1"><thead><tr>${rows[0].map(h=>`<th>${String(h)}</th>`).join('')}</tr></thead><tbody>${rows.slice(1).map(r=>`<tr>${r.map(v=>`<td>${String(v??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}</td>`).join('')}</tr>`).join('')}</tbody></table>`;
   const blob=new Blob([`\ufeff<html><head><meta charset="utf-8"></head><body>${table}
 
-<script src="./ratib-quick-account-3.6.87.js?v=3.6.87" defer></script>
 </body></html>`],{type:'application/vnd.ms-excel;charset=utf-8'});
   const a=document.createElement('a');a.download=`Ratib_transactions_${monthKey()}.xls`;a.href=URL.createObjectURL(blob);a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000);showToast('تم تنزيل سجل العمليات بصيغة Excel','success');
 }
@@ -11754,5 +11753,6 @@ try{currenciesUi();sync();}catch(e){console.error('Ratib 3.6.12 initialization',
 <script src="./ratib-navigation-v3.js?v=3.6.53" defer></script>
 <script src="./ratib-accounting-3.6.59.js?v=3.6.59" defer></script>
 <script src="./ratib-cash-layout-3.6.83.js?v=3.6.83" defer></script>
+<script src="./ratib-quick-account-3.6.87.js?v=3.6.87" defer></script>
 </body>
 </html>

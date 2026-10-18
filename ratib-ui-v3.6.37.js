@@ -168,7 +168,10 @@ function main(){
     status.dataset.state=stable?'matched':'changed';
     status.textContent=stable?'':`⚠ تغيّرت حركات الحساب حتى ${saved.date} بعد المطابقة؛ راجع الرصيد وثبّت المطابقة مجددًا.`;status.hidden=!!stable;
    }else status.textContent='لا توجد مطابقة محفوظة. اختر تاريخ المطابقة بعد مراجعة كشف الحساب.';
-   bar.append(label,save,clear,status);
+   const help=document.createElement('details');help.className='ratib-reconcile-help';
+   const tip=document.createElement('summary');tip.textContent='ⓘ';tip.title='معلومات مطابقة الرصيد';tip.setAttribute('aria-label','شرح مطابقة الرصيد');
+   const explanation=document.createElement('small');explanation.textContent='المطابقة تسجل مراجعة الرصيد حتى التاريخ المحدد، ولا تغير أي قيد أو سند.';
+   help.append(tip,explanation);bar.append(label,save,clear,help,status);
    page.querySelector('.account-operations-head')?.insertAdjacentElement('afterend',bar);
    if(stable){
     // Reconciled evidence belongs only to the verified transaction, not to a later closing balance.

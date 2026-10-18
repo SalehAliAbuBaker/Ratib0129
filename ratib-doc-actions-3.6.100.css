@@ -1,0 +1,101 @@
+/* Ratib trial 3.6.100 — compact actions in transaction-details dialog only. */
+#longPressConfirmModal .ratib-doc-actions{
+  display:grid!important;
+  grid-template-columns:repeat(4,minmax(0,1fr))!important;
+  direction:rtl;
+  align-items:stretch;
+  justify-items:stretch;
+  gap:6px!important;
+  width:100%;
+  min-width:0;
+  margin-top:5px;
+}
+#longPressConfirmModal .ratib-doc-actions.ratib-doc-actions-three{
+  grid-template-columns:repeat(3,minmax(0,1fr))!important;
+}
+#longPressConfirmModal .ratib-doc-actions>.ratib-doc-action{
+  display:flex!important;
+  flex:none!important;
+  flex-direction:column!important;
+  align-items:center!important;
+  justify-content:center!important;
+  gap:5px!important;
+  box-sizing:border-box!important;
+  width:100%!important;
+  min-width:0!important;
+  max-width:100%!important;
+  height:69px!important;
+  min-height:61px!important;
+  margin:0!important;
+  padding:6px 2px!important;
+  border:1px solid var(--border)!important;
+  border-radius:10px!important;
+  background:var(--card)!important;
+  box-shadow:none!important;
+  white-space:nowrap!important;
+  word-break:keep-all!important;
+  overflow-wrap:normal!important;
+  text-align:center!important;
+  line-height:1.15!important;
+  font-family:inherit!important;
+  cursor:pointer;
+}
+#longPressConfirmModal .ratib-doc-actions>.ratib-doc-action[hidden]{
+  display:none!important;
+}
+#longPressConfirmModal .ratib-doc-action .ratib-doc-action-icon{
+  display:flex!important;
+  justify-content:center!important;
+  align-items:center!important;
+  line-height:1!important;
+  flex:none!important;
+  width:23px!important;
+  height:23px!important;
+}
+#longPressConfirmModal .ratib-doc-action .ratib-doc-action-icon svg{
+  display:block;
+  width:21px;
+  height:21px;
+  stroke:currentColor;
+  stroke-width:2.15;
+  fill:none;
+  stroke-linecap:round;
+  stroke-linejoin:round;
+}
+#longPressConfirmModal .ratib-doc-action .ratib-doc-action-label{
+  display:block!important;
+  max-width:100%;
+  white-space:nowrap!important;
+  word-break:keep-all!important;
+  overflow-wrap:normal!important;
+  font-size:clamp(.69rem,2.6vw,.82rem)!important;
+  font-weight:800!important;
+  line-height:1.25!important;
+  letter-spacing:0!important;
+}
+#longPressConfirmModal .ratib-doc-action-edit{color:var(--text)!important}
+#longPressConfirmModal .ratib-doc-action-clone{color:var(--accent)!important}
+#longPressConfirmModal .ratib-doc-action-delete{
+  color:var(--danger)!important;
+  border-color:var(--danger)!important;
+}
+#longPressConfirmModal .ratib-doc-action-ok{color:var(--ok,var(--accent))!important}
+#longPressConfirmModal .ratib-doc-action:focus-visible{
+  outline:2px solid var(--accent)!important;
+  outline-offset:2px!important;
+}
+@media(max-width:375px){
+  #longPressConfirmModal .ratib-doc-actions{gap:4px!important}
+  #longPressConfirmModal .ratib-doc-actions>.ratib-doc-action{
+    height:62px!important;
+    min-height:60px!important;
+    gap:3px!important;
+    padding:5px 1px!important;
+    border-radius:8px!important;
+  }
+  #longPressConfirmModal .ratib-doc-action .ratib-doc-action-icon svg{width:19px;height:19px}
+  #longPressConfirmModal .ratib-doc-action .ratib-doc-action-label{font-size:.68rem!important}
+}
+@media print{
+  #longPressConfirmModal .ratib-doc-actions{display:none!important}
+}

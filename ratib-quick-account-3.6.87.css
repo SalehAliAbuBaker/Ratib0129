@@ -1,0 +1,47 @@
+/* Ratib 3.6.87: voucher-only quick-account creation, mobile-first and RTL. */
+.ratib-quick-account-choice {padding:6px 7px;border-top:1px solid var(--border);background:var(--card)}
+.ratib-quick-create-action {
+  display:block!important;width:100%!important;min-height:42px!important;
+  padding:8px 11px!important;margin:0!important;
+  border:1px solid var(--accent)!important;border-radius:9px!important;
+  background:color-mix(in srgb,var(--accent) 9%,var(--card))!important;
+  color:var(--accent)!important;text-align:right!important;direction:rtl!important;
+  white-space:normal!important;overflow-wrap:anywhere!important;
+  font:700 14px Tajawal,sans-serif!important;cursor:pointer
+}
+.ratib-quick-account-modal[hidden]{display:none!important}
+.ratib-quick-account-modal{
+  position:fixed!important;inset:0!important;z-index:18000!important;
+  display:flex!important;align-items:center;justify-content:center;
+  box-sizing:border-box;padding:12px!important;background:rgba(0,0,0,.53)!important;
+  direction:rtl!important;overflow:auto
+}
+.ratib-quick-account-panel{
+  box-sizing:border-box;width:min(100%,510px);max-height:min(90dvh,750px);
+  overflow-y:auto;background:var(--card);color:var(--text);
+  border:1px solid var(--border);border-radius:15px;padding:14px;
+  box-shadow:0 14px 40px rgba(0,0,0,.2)
+}
+.ratib-quick-account-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px}
+.ratib-quick-account-heading h3{font-size:1.1rem;line-height:1.5;margin:0;color:var(--accent)}
+.ratib-quick-close{flex:0 0 36px!important;min-width:36px!important;height:36px;
+  border:1px solid var(--border);border-radius:9px;background:var(--card);
+  color:var(--text);font-size:24px;cursor:pointer}
+#ratibQuickAccountForm{display:grid;grid-template-columns:minmax(0,1fr);gap:10px;min-width:0}
+#ratibQuickAccountForm label{display:flex;flex-direction:column;gap:4px;font-size:14px;font-weight:700;min-width:0}
+#ratibQuickAccountForm input,#ratibQuickAccountForm select{
+  box-sizing:border-box;display:block;width:100%;min-width:0;min-height:44px;height:44px;
+  border-radius:9px;border:1px solid var(--border);background:var(--card);color:var(--text);
+  padding:8px 10px;font:600 16px Tajawal,sans-serif;direction:rtl
+}
+#ratibQuickAccountForm input[dir="ltr"]{direction:ltr;text-align:left}
+.ratib-quick-account-duo{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:8px;min-width:0}
+.ratib-quick-account-hint{font-size:12px;color:var(--muted);line-height:1.5}
+.ratib-quick-similar{font-size:12px;color:var(--muted);line-height:1.5}
+.ratib-quick-similar:empty{display:none}
+.ratib-quick-similar p{margin:0}
+.ratib-quick-account-status{font-size:13px;min-height:0;margin:0;white-space:pre-wrap;line-height:1.55}
+.ratib-quick-account-status[data-warning="true"]{color:var(--danger)}
+.ratib-quick-account-actions{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,2fr);gap:8px}
+.ratib-quick-account-actions .btn{margin:0!important;min-height:44px;font-size:14px;white-space:normal}
+@media(max-width:390px){.ratib-quick-account-panel{padding:10px}.ratib-quick-account-duo{gap:6px}}

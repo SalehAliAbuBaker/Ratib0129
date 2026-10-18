@@ -195,10 +195,36 @@ if(editButton){
  cloneButton.textContent="⧉ استنساخ القيد";
  editButton.after(cloneButton);
  cloneButton.onclick=()=>cloneVoucher(pendingLongPressTx);
+
+ // Keep the original buttons and their click handlers intact; only reflow their presentation.
+ const detailActions=editButton.parentElement;
+ if(detailActions){
+  detailActions.classList.add("ratib-doc-actions");
+  const shapes={
+   edit:'<path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L9 17l-4 1 1-4Z"/>',
+   clone:'<rect x="8" y="8" width="13" height="13" rx="2"/><path d="M16 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h3"/>',
+   delete:'<path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="M19 6l-1 15H6L5 6"/><path d="M10 11v6M14 11v6"/>',
+   ok:'<circle cx="12" cy="12" r="9"/><path d="m8 12 3 3 5-6"/>'
+  };
+  const spec=[
+   [editButton,"edit","تعديل"],
+   [cloneButton,"clone","استنساخ"],
+   [document.getElementById("deleteDocBtn"),"delete","حذف"],
+   [document.getElementById("cancelEditDocBtn"),"ok","موافق"]
+  ];
+  for(const [button,kind,label] of spec){
+   if(!button)continue;
+   button.classList.add("ratib-doc-action","ratib-doc-action-"+kind);
+   button.innerHTML='<span class="ratib-doc-action-icon" aria-hidden="true"><svg viewBox="0 0 24 24" aria-hidden="true">'+shapes[kind]+'</svg></span><span class="ratib-doc-action-label">'+label+'</span>';
+   button.setAttribute("aria-label",kind==="clone"?"استنساخ القيد":label);
+   button.title=kind==="clone"?"استنساخ القيد":label;
+  }
+ }
  const previousOpen=openDocumentDetailsModal;
  openDocumentDetailsModal=function(item){
   previousOpen.call(this,item);
   cloneButton.hidden=!canClone(item);
+  detailActions?.classList.toggle("ratib-doc-actions-three",cloneButton.hidden);
  };
 }
 })();

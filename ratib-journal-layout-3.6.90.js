@@ -7,14 +7,41 @@
   function arrangeSimple(){
     const card=el('cashFlowCard'),grid=card?.querySelector('.simple-journal-grid');
     const date=el('voucherDateInput')?.closest('.form-group');
-    const amount=el('voucherAmountInput')?.parentElement?.parentElement;
+    const input=el('voucherAmountInput'),currency=el('voucherCurrencySelect');
     const debit=el('wrapDebitAcc')?.closest('.form-group');
     const credit=el('wrapCreditAcc')?.closest('.form-group');
     const note=el('voucherNoteInput')?.closest('.form-group');
     const party=el('voucherRecipientGroup');
-    if(!grid||!date||!amount||!debit||!credit||!note||!party)return false;
-    // Date first and existing amount/currency immediately below. Input and event handlers stay intact.
-    for(const node of [date,amount,debit,credit,note,party])grid.append(node);
+    if(!grid||!date||!input||!currency||!debit||!credit||!note||!party)return false;
+    // Make one concrete, stable row containing THE ORIGINAL amount and currency controls.
+    // Do not depend on the inherited voucher wrapper, whose children can be rearranged
+    // by older cash-entry scripts. Their names, values and input event listeners stay.
+    const moneyField=input.parentElement,currencyField=currency.parentElement;
+    const oldMoneyRow=moneyField?.parentElement;
+    const oldCurrencyRow=currencyField?.parentElement;
+    if(!moneyField||!currencyField)return false;
+    let row=el('ratibJournalAmountCurrencyRow');
+    if(!row){row=document.createElement('div');row.id='ratibJournalAmountCurrencyRow';row.className='journal-amount-row';}
+    row.append(moneyField,currencyField);
+    for(const possible of [oldMoneyRow,oldCurrencyRow]){
+      if(possible&&possible!==row&&possible!==grid&&!possible.children.length&&possible.parentElement===grid)possible.remove();
+    }
+    for(const node of [date,row,debit,credit,note,party])grid.append(node);
+    // TAFQIT is textual feedback, never a field occupying the currency column.
+    const tafqit=el('tafqitDisplayBox');
+    if(tafqit)row.after(tafqit);
+    const information=el('entryCurrencyConvertHint');
+    if(information&&information.parentElement===card){
+      let disclosure=el('ratibSimpleCurrencyDisclosure');
+      if(!disclosure){
+        disclosure=document.createElement('details');disclosure.id='ratibSimpleCurrencyDisclosure';
+        const summary=document.createElement('summary');
+        summary.textContent='القيد البسيط بعملة واحدة • تعليمات العملات المتعددة';
+        disclosure.append(summary);
+      }
+      disclosure.append(information);
+      grid.after(disclosure);
+    }
     const swap=el('swapAccountsBtn');
     if(swap&&!credit.querySelector('.ratib-simple-account-heading')){
       const label=credit.querySelector('#lblCreditAcc')||credit.querySelector('label');
@@ -24,17 +51,18 @@
         swap.textContent='⇄';
         swap.title='تبديل الحسابات (عكس المدين والدائن)';
         swap.setAttribute('aria-label',swap.title);
-        const oldRow=grid.querySelector('.journal-swap-row');
-        if(oldRow&&!oldRow.children.length)oldRow.remove();
       }
     }
+    const oldSwap=grid.querySelector('.journal-swap-row');
+    if(oldSwap&&!oldSwap.children.length)oldSwap.remove();
     for(const id of ['addNewDebitAccBtn','addNewCreditAccBtn']){
       const btn=el(id);if(btn){btn.hidden=true;btn.setAttribute('aria-hidden','true');btn.tabIndex=-1;}
     }
     arrangeSimpleExtras(card,note,party);
-    // Keep optional-section control anchored after the note even after a rerender.
     const extra=el('ratibSimpleExtraBtn');
     if(extra&&extra.previousElementSibling!==note)note.after(extra);
+    // Idempotent order: date, money/currency, tafqit, debit, credit, note.
+    if(tafqit&&tafqit.previousElementSibling!==row)row.after(tafqit);
     return true;
   }
   function arrangeSimpleExtras(card,note,party){

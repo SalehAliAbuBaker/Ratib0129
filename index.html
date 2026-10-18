@@ -11071,7 +11071,12 @@ document.addEventListener('scroll',e=>{if(!e.target.closest?.('.searchable-dropd
       const l=locks();if(l.counter){persist('counter','');return;}
       if(!valid(select.value)){showToast('اختر الحساب المقابل قبل تثبيته','warn');return;}
       persist('counter',select.value);
-    };select.after(b);
+    };
+    // The hidden select is inside .searchable-select-wrap. The lock must be
+    // a sibling of that wrapper (like the main-account lock), not its child.
+    const cell=select.closest('td'),searchWrap=select.closest('.searchable-select-wrap');
+    if(searchWrap&&searchWrap.parentElement===cell)searchWrap.after(b);
+    else if(cell)cell.append(b);
   }
   paint();return result;
  };

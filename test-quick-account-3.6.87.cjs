@@ -11,12 +11,16 @@ const pkg=JSON.parse(fs.readFileSync('package.json','utf8'));
 assert(Number(pkg.version.split('.').at(-1))>=87,'Quick-create regression remains active for later versions');
 const enabled=html.includes('ratib-quick-account-3.6.87.js');
 if(enabled){
- assert.match(html,/ratib-quick-account-3\\.6\\.87\\.js\\?v=3\\.6\\.\\d+/);
- assert.match(html,/ratib-quick-account-3\\.6\\.87\\.css\\?v=3\\.6\\.\\d+/);
+ assert(html.includes('<script src="./ratib-quick-account-3.6.87.js?v=3.6.'),'Versioned JS asset must be linked');
+ assert(html.includes('<link rel="stylesheet" href="./ratib-quick-account-3.6.87.css?v=3.6.'),'Versioned CSS asset must be linked');
  assert(sw.includes('ratib-quick-account-3.6.87.js'));
  assert(sw.includes('ratib-quick-account-3.6.87.css'));
- assert(html.lastIndexOf('ratib-quick-account-3.6.87.js')>html.lastIndexOf('</script>'),
-   'Quick-create script must load outside the final inline JS block');
+ const scriptAt=html.lastIndexOf('<script src="./ratib-quick-account-3.6.87.js');
+ const cssAt=html.indexOf('<link rel="stylesheet" href="./ratib-quick-account-3.6.87.css');
+ assert(scriptAt>html.length-1700&&scriptAt<html.lastIndexOf('</body>'),
+   'Quick-create script must load at the real document end, outside Excel export templates');
+ assert(cssAt>0&&cssAt<html.indexOf('</head>'),
+   'Quick-create CSS must load in the real document head');
 }
 assert.match(css,/\.ratib-quick-account-modal\[hidden\]/);
 assert.match(css,/min-height:44px/);

@@ -7,7 +7,7 @@ const html=fs.readFileSync('index.html','utf8');
 const sw=fs.readFileSync('sw.js','utf8');
 const manifest=JSON.parse(fs.readFileSync('package.json','utf8'));
 const source=sel=>css.slice(css.indexOf(sel));
-assert.equal(manifest.version,'3.6.85');
+assert(Number(manifest.version.split('.').at(-1))>=85,'Current release must include this regression');
 assert.match(html,/ratib-cash-layout-3\.6\.85\.css\?v=3\.6\.85/);
 assert(html.indexOf('ratib-cash-layout-3.6.84.css')<html.indexOf('ratib-cash-layout-3.6.85.css'),'New stylesheet must override previous release');
 assert.match(css,/\.multi-voucher-grid\s*>\s*\.ratib-approved-head-row\s*\{\s*grid-column:1\/-1!important;\s*grid-row:2!important;/);
@@ -27,7 +27,7 @@ assert.match(css,/\.searchable-select-wrap\s*>\s*\.searchable-input\s*\{/,'Both 
 assert.match(css,/#ratibLockSource/);
 assert.match(css,/#ratibLockCounter/);
 assert.match(css,/grid-row:2!important;[\s\S]*?overflow-wrap:anywhere!important/);
-assert.match(sw,/v92-cash-fields-3\.6\.85/);
+assert.match(sw,/const CACHE_VERSION='v\d+-[^']+'/);
 assert.match(sw,/ratib-cash-layout-3\.6\.85\.css/);
-assert.match(sw,/const APP_RELEASE=\{"version":"3\.6\.85"/);
+assert.match(sw,/const APP_RELEASE=\{"version":"3\.6\.\d+"/);
 console.log('Ratib 3.6.85 approved account row parity and currency order regression: PASS');

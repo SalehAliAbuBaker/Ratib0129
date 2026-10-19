@@ -88,6 +88,9 @@ console.log('PASS voice activation, caret insertion, favorites settings, persist
  assert(menu.querySelector('[data-center-fav="ledger"]').textContent.includes('💰'));
  d.querySelector('#ratibFavoritesSettingsCard [data-remove-fav="ledger"]').click();
  assert.equal(menu.querySelector('[data-center-fav="ledger"]'),null);
+ // Settings buttons are outside the popup, so they correctly close it.
+ if(menu.hidden)button.click();
+ assert.equal(menu.hidden,false,'reopen popup before checking its inactivity timer');
  const initialId=[...timers.keys()].at(-1);
  assert(initialId,'five-second auto-close timer must be scheduled');
  menu.dispatchEvent(new w.Event('pointerdown',{bubbles:true}));

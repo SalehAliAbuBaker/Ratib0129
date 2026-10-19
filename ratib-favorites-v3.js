@@ -132,9 +132,8 @@ save();render();
 });
 document.addEventListener('keydown',e=>{if(e.key==='Escape'&&panel.classList.contains('open'))close();});
 const actions=document.querySelector('header .header-actions');
-let star=null, exit=null;
+let exit=null;
 if(actions){
-star=document.createElement('button');star.type='button';star.className='icon-btn ratib-quick-btn';star.textContent='☆';star.title='المفضلة السريعة';star.setAttribute('aria-label','فتح المفضلة السريعة');star.addEventListener('click',open);actions.prepend(star);
 exit=document.createElement('button');exit.type='button';exit.className='icon-btn ratib-quick-btn';exit.textContent='🚪';exit.title='الخروج';exit.setAttribute('aria-label','الخروج من التطبيق');exit.addEventListener('click',event=>{
  event.preventDefault();
  if(typeof window.RatibExitNow==='function')window.RatibExitNow();
@@ -228,15 +227,32 @@ intersectionCSS.textContent=[
 ].join('\n');
 document.head.appendChild(intersectionCSS);
 const fourTiles=document.querySelector('#dashboardHomeContent .main-menu-grid');
-let centerButton=null,centerMenu=null;
+let centerButton=null,centerMenu=null,centerIdleTimer=null;
+const CENTER_IDLE_MS=5000;
+function armCenterAutoClose(){
+ if(centerIdleTimer!==null){window.clearTimeout(centerIdleTimer);centerIdleTimer=null;}
+ if(centerMenu&&!centerMenu.hidden){
+  centerIdleTimer=window.setTimeout(()=>{centerIdleTimer=null;closeCenterFavorites();},CENTER_IDLE_MS);
+ }
+}
 function renderShortcutBar(){if(!centerMenu)return;centerMenu.innerHTML='<strong>⭐ اختصاراتي</strong>'+(selected.length?selected.filter(id=>byId[id]).map(id=>'<button type="button" data-center-fav="'+escapeHtml(id)+'">'+escapeHtml(byId[id][2]+' '+byId[id][1])+'</button>').join(''):'<button type="button" data-center-settings>⚙️ اختر الاختصارات من الإعدادات</button>');}
-function closeCenterFavorites(){if(centerMenu)centerMenu.hidden=true;if(centerButton)centerButton.setAttribute('aria-expanded','false');}
+function closeCenterFavorites(){
+ if(centerIdleTimer!==null){window.clearTimeout(centerIdleTimer);centerIdleTimer=null;}
+ if(centerMenu)centerMenu.hidden=true;
+ if(centerButton)centerButton.setAttribute('aria-expanded','false');
+}
 if(fourTiles){
 fourTiles.classList.add('ratib-favorites-cross');
 centerButton=document.createElement('button');centerButton.type='button';centerButton.id='ratibCenterFavorites';centerButton.className='no-print';centerButton.textContent='★';centerButton.title='اختصاراتي';centerButton.setAttribute('aria-label','فتح قائمة اختصاراتي');centerButton.setAttribute('aria-expanded','false');
 centerMenu=document.createElement('div');centerMenu.id='ratibCenterFavoritesMenu';centerMenu.className='no-print';centerMenu.hidden=true;
 fourTiles.append(centerButton,centerMenu);renderShortcutBar();
-centerButton.addEventListener('click',()=>{centerMenu.hidden=!centerMenu.hidden;centerButton.setAttribute('aria-expanded',String(!centerMenu.hidden));});
+centerButton.addEventListener('click',()=>{
+ if(!centerMenu.hidden){closeCenterFavorites();return;}
+ centerMenu.hidden=false;centerButton.setAttribute('aria-expanded','true');armCenterAutoClose();
+});
+for(const type of ['pointerdown','touchstart','keydown','focusin','scroll']){
+ centerMenu.addEventListener(type,armCenterAutoClose,{passive:type==='touchstart'||type==='scroll'});
+}
 centerMenu.addEventListener('click',e=>{const button=e.target.closest('button');if(!button)return;if(button.hasAttribute('data-center-settings')){closeCenterFavorites();openFavoritesSettings();return;}const id=button.dataset.centerFav;if(!id||!byId[id])return;closeCenterFavorites();Promise.resolve().then(()=>byId[id].run()).catch(error=>{console.error(error);window.showToast?.('تعذر فتح الاختصار','warn');});});
 document.addEventListener('click',e=>{if(!fourTiles.contains(e.target))closeCenterFavorites();});
 document.addEventListener('keydown',e=>{if(e.key==='Escape')closeCenterFavorites();});
@@ -246,8 +262,6 @@ const menuBtn=document.getElementById('sidebarMenuBtn');
 if(menuBtn){menuBtn.onclick=(e)=>{e.preventDefault();e.stopImmediatePropagation();if(typeof window.openRatibSidebar==='function')window.openRatibSidebar();};}
 const themeBtn=document.getElementById('themeBtn');
 if(themeBtn){themeBtn.onclick=(e)=>{e.preventDefault();e.stopImmediatePropagation();const root=document.documentElement,next=root.dataset.theme==='dark'?'light':'dark';root.dataset.theme=next;try{localStorage.setItem('theme',JSON.stringify(next));}catch(_){}themeBtn.textContent=next==='dark'?'☀️':'🌙';};}
-if(star){star.onclick=(e)=>{e.preventDefault();e.stopImmediatePropagation();open();};}
-
 window.RatibQuickFavorites={open,close};
 })();
 

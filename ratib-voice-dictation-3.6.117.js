@@ -33,22 +33,28 @@ document.addEventListener('keyup',e=>{if(eligible(e.target))remember(e.target);}
 document.addEventListener('mouseup',e=>{if(eligible(e.target))remember(e.target);},true);
 const css=document.createElement('style');
 css.textContent=[
-'#ratibVoiceButton{position:fixed;left:12px;bottom:78px;z-index:2147483000;display:flex;align-items:center;justify-content:center;gap:7px;min-height:47px;padding:8px 12px;border-radius:24px;border:1px solid #14532d;background:#14532d;color:#fff;font-family:inherit;font-size:14px;font-weight:700;box-shadow:0 5px 16px #0003;cursor:pointer;max-width:calc(100vw - 24px)}',
-'#ratibVoiceButton[data-listening="true"]{background:#a12727;border-color:#a12727}',
+'#ratibVoiceButton{position:static!important;left:auto!important;bottom:auto!important;z-index:auto!important;display:inline-flex;flex:none;align-items:center;justify-content:center;width:40px;height:40px;min-width:40px;min-height:40px;padding:6px;border-radius:12px;border:1px solid var(--border,#cbd5e1);background:var(--card,#fff);color:var(--text,#0f172a);font-family:inherit;font-size:20px;line-height:1;cursor:pointer;box-shadow:none;margin:0}',
+'#ratibVoiceButton[data-listening="true"]{background:#a12727;color:#fff;border-color:#a12727}',
 '#ratibVoiceButton:focus-visible{outline:3px solid #fbbf24;outline-offset:2px}',
-'#ratibVoiceStatus{position:fixed;left:12px;bottom:132px;z-index:2147483000;max-width:min(300px,calc(100vw - 24px));padding:9px 12px;border-radius:9px;background:#14532d;color:#fff;font-family:inherit;font-size:13px;font-weight:700;box-shadow:0 4px 14px #0003}',
+'#ratibVoiceStatus{position:absolute!important;width:1px!important;height:1px!important;overflow:hidden!important;clip-path:inset(50%)!important;white-space:nowrap!important;padding:0!important;margin:-1px!important;border:0!important}',
 '#ratibVoiceSettingsCard .ratib-voice-hint{font-size:.89rem;line-height:1.7;color:var(--muted)}',
 '@media print{#ratibVoiceButton,#ratibVoiceStatus,#ratibVoiceSettingsCard{display:none!important}}'
 ].join('\n');
 document.head.appendChild(css);
 const button=document.createElement('button');
-button.type='button';button.id='ratibVoiceButton';button.className='no-print';
-button.textContent='🎙️ إملاء صوتي';button.setAttribute('aria-label','ابدأ الكتابة بالصوت في الحقل المحدد');
+button.type='button';button.id='ratibVoiceButton';button.className='icon-btn no-print';
+button.textContent='🎙️';button.title='الإملاء الصوتي في الحقل المحدد';button.setAttribute('aria-label','ابدأ الكتابة بالصوت في الحقل المحدد');
 button.setAttribute('aria-pressed','false');button.dataset.listening='false';
 const status=document.createElement('div');
 status.id='ratibVoiceStatus';status.className='no-print';status.hidden=true;
 status.setAttribute('role','status');status.setAttribute('aria-live','polite');
-document.body.append(button,status);
+const headerActions=document.querySelector('header .header-actions');
+const sidebarToggle=document.getElementById('sidebarMenuBtn');
+if(headerActions&&sidebarToggle&&sidebarToggle.parentElement===headerActions)
+ headerActions.insertBefore(button,sidebarToggle.nextSibling);
+else if(headerActions)headerActions.append(button);
+else document.body.append(button);
+document.body.append(status);
 function applyVoiceVisibility(){button.hidden=!visible;button.style.display=visible?'flex':'none';if(!visible&&listening)stop();}
 applyVoiceVisibility();
 function notify(message,kind='info'){
@@ -57,7 +63,9 @@ function notify(message,kind='info'){
 }
 function active(value){
  listening=value;button.dataset.listening=String(value);button.setAttribute('aria-pressed',String(value));
- button.textContent=value?'⏹️ إيقاف الإملاء':'🎙️ إملاء صوتي';
+ button.textContent=value?'⏹️':'🎙️';
+ button.title=value?'إيقاف الإملاء الصوتي':'ابدأ الإملاء الصوتي في الحقل المحدد';
+ button.setAttribute('aria-label',button.title);
  status.hidden=!value;status.textContent=value?'🎙️ جارٍ الاستماع… تحدث الآن':'';
 }
 function parseNumber(spoken){

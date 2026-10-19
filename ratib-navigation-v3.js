@@ -49,7 +49,7 @@ new MutationObserver(()=>{if(pending)return;pending=true;queueMicrotask(()=>{pen
 /* Ratib trial 3.6.118: guard unsaved voucher inputs and style success toasts. */
 (function ratibTrialBackAndToast116(){
  'use strict';
- const VERSION='3.6.119';
+ const VERSION='3.6.120';
  const originals=new Map();
  const editor='#cashFlowCard,#multiVoucherCard';
  const backButtons='button.ratib-back-control,#ratibCashBackBtn,#backToMenuBtn,#ledgerBackBtn,button.back-to-menu-btn,[data-account-action="close"]';

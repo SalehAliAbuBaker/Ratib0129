@@ -141,6 +141,30 @@ function output(kind,action){
   downloadFinancialFile(file,file.name);
  }catch(e){showToast('تعذر إخراج التقرير: '+e.message,'error');}
 }
+/* Preview the exact canvas pages used for PDF, without printing or editing accounts. */
+function preview(kind){
+ const r=generate(kind);if(!r)return;
+ try{
+  const pages=canvases(kind,r);
+  let dialog=el('ratibSpecialPreview');
+  if(!dialog){
+   dialog=document.createElement('div');
+   dialog.id='ratibSpecialPreview';dialog.className='ratib-special-preview-overlay';dialog.hidden=true;
+   dialog.setAttribute('role','dialog');dialog.setAttribute('aria-modal','true');dialog.setAttribute('aria-label','معاينة التقرير');
+   dialog.innerHTML='<div class="ratib-special-preview-panel"><header class="ratib-special-preview-head"><strong id="ratibSpecialPreviewTitle">معاينة</strong><div><button type="button" id="ratibSpecialPreviewPrint">🖨️ طباعة</button><button type="button" id="ratibSpecialPreviewClose">إغلاق ×</button></div></header><div class="ratib-special-preview-pages" id="ratibSpecialPreviewPages"></div></div>';
+   document.body.append(dialog);
+   const close=()=>{dialog.hidden=true;document.body.classList.remove('ratib-special-preview-open');};
+   el('ratibSpecialPreviewClose').addEventListener('click',close);
+   dialog.addEventListener('click',e=>{if(e.target===dialog)close();});
+   document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!dialog.hidden)close();});
+  }
+  el('ratibSpecialPreviewTitle').textContent='معاينة '+r.title+' — '+pages.length+' صفحة';
+  el('ratibSpecialPreviewPages').replaceChildren(...pages);
+  el('ratibSpecialPreviewPrint').onclick=()=>{el('ratibSpecialPreviewClose').click();output(kind,'print');};
+  dialog.hidden=false;document.body.classList.add('ratib-special-preview-open');
+  el('ratibSpecialPreviewClose').focus();
+ }catch(e){showToast('تعذرت المعاينة: '+e.message,'error');}
+}
 function hideNew(){['reportsGroupMovementBody','reportsGroupMovementHeader','reportsGroupPositionBody','reportsGroupPositionHeader'].forEach(x=>el(x)?.classList.remove('open'));}
 function toggle(kind){
  const name=kind==='movement'?'Movement':'Position',body=el('reportsGroup'+name+'Body'),head=el('reportsGroup'+name+'Header'),open=body.classList.contains('open');
@@ -157,7 +181,10 @@ function init(){
  for(const k of ['movement','position']){
   const pre=k==='movement'?'ratibMovement':'ratibPosition';
   el(k==='movement'?'reportsGroupMovementHeader':'reportsGroupPositionHeader').addEventListener('click',()=>toggle(k));
-  for(const [action,id] of [['run','RunBtn'],['print','PrintBtn'],['pdf','PdfBtn'],['share','ShareBtn']])el(pre+id).addEventListener('click',()=>action==='run'?generate(k):output(k,action));
+  const previewButton=document.createElement('button');
+  previewButton.id=pre+'PreviewBtn';previewButton.type='button';previewButton.textContent='👁️ معاينة';
+  el(pre+'PrintBtn').before(previewButton);
+  for(const [action,id] of [['run','RunBtn'],['preview','PreviewBtn'],['print','PrintBtn'],['pdf','PdfBtn'],['share','ShareBtn']])el(pre+id).addEventListener('click',()=>action==='run'?generate(k):action==='preview'?preview(k):output(k,action));
  }
  for(const id of ['reportsGroupBudgetHeader','reportsGroupStatementHeader','reportsGroupTrialHeader'])el(id)?.addEventListener('click',hideNew,true);
 }

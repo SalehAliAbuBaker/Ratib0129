@@ -185,7 +185,7 @@ async function run(){
   code(w,"showMultiSavedNotice(buildMultiVoucherData('draft'))");await pause(30);
   const count=prints.length,downloads=f.downloads.length;
   d.getElementById('ratibSavedVoucherPreviewBtn').click();assert(d.getElementById('printPreviewModal').classList.contains('show'));assert.equal(prints.length,count);d.getElementById('printPreviewCancelBtn').click();
-  d.getElementById('printSavedSpendBtn').click();assert.equal(prints.length,count+1);finishPrint();
+  d.getElementById('printSavedSpendBtn').click();await waitFor(()=>prints.length===count+1,'saved voucher print');finishPrint();
   d.getElementById('downloadSavedSpendBtn').click();await waitFor(()=>f.downloads.length===downloads+1,'saved voucher PDF');
   let shared=0;w.navigator.share=async()=>{shared++;};d.getElementById('shareSavedSpendBtn').click();await waitFor(()=>shared===1,'saved voucher share');
  });

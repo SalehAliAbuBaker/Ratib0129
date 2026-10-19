@@ -30,11 +30,11 @@ function decodePhoto(file){
   img.src=url;
  });
 }
-function compressed(canvas){
+function compressed(canvas,keepAlpha){
  const png=canvas.toDataURL('image/png');
  const webp=canvas.toDataURL('image/webp',0.81);
  const jpg=canvas.toDataURL('image/jpeg',0.82);
- const options=[webp,png,jpg].filter(x=>/^data:image\/(?:png|jpeg|webp);base64,/.test(x));
+ const options=(keepAlpha?[webp,png]:[webp,jpg,png]).filter(x=>/^data:image\/(?:png|jpeg|webp);base64,/.test(x));
  const size=url=>Math.ceil((url.length-url.indexOf(',')-1)*.75);
  return options.sort((a,b)=>size(a)-size(b))[0]||png;
 }
@@ -51,7 +51,7 @@ async function optimize(file){
   if(!ctx)throw Error('تعذر تجهيز الصورة على هذا الجهاز.');
   ctx.imageSmoothingEnabled=true;ctx.imageSmoothingQuality='high';
   ctx.clearRect(0,0,canvas.width,canvas.height);ctx.drawImage(img,0,0,canvas.width,canvas.height);
-  const data=compressed(canvas),bytes=Math.ceil((data.length-data.indexOf(',')-1)*.75);
+  const data=compressed(canvas,file.type!=='image/jpeg'),bytes=Math.ceil((data.length-data.indexOf(',')-1)*.75);
   canvas.width=1;canvas.height=1;
   if(bytes<=MAX_SAVED)return {data,bytes,width:Math.round(img.naturalWidth*factor),height:Math.round(img.naturalHeight*factor)};
   side=Math.max(80,Math.round(side*.72));
@@ -64,6 +64,7 @@ function syncRoot(root,position='header'){
  const item=refreshAsset();
  const desired=item&&item.enabled!==false?item.data:'';
  let img=root.querySelector(':scope > .ratib-user-print-logo');
+ if(position==='special'&&root.querySelector('.ps-header .ratib-user-print-logo,.pv-header .ratib-user-print-logo')){if(img)img.remove();return;}
  if(!desired){if(img)img.remove();return;}
  if(!img){img=printLogoNode();root.insertBefore(img,root.firstChild);}
  if(img.src!==desired)img.src=desired;

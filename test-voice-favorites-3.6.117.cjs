@@ -6,9 +6,9 @@ const fav=fs.readFileSync('ratib-favorites-v3.js','utf8');
 const sw=fs.readFileSync('sw.js','utf8');
 for(const [file,source] of [['voice',voice],['favorites',fav],['worker',sw]])assert.doesNotThrow(()=>new vm.Script(source),file+' must parse');
 assert.match(html,/ratib-voice-dictation-3\.6\.117\.js\?v=3\.6\.117/);
-assert.match(html,/ratib-favorites-v3\.js\?v=3\.6\.117/);
-assert.match(html,/الإصدار 3\.6\.117/);
-assert.match(sw,/v124-trial-voice-favorites-3\.6\.117/);
+assert.match(html,/ratib-favorites-v3\.js\?v=3\.6\.118/);
+assert.match(html,/الإصدار 3\.6\.118/);
+assert.match(sw,/v125-trial-quick-icons-3\.6\.118/);
 assert.match(sw,/ratib-voice-dictation-3\.6\.117\.js/);
 assert.match(voice,/button\.addEventListener\('click'/); // speech starts only by user click
 assert.match(voice,/const Recognition=window\.SpeechRecognition\|\|window\.webkitSpeechRecognition/);
@@ -48,4 +48,34 @@ console.log('PASS voice activation, caret insertion, favorites settings, persist
  assert(d.getElementById('ratibVoiceSettingsCard'),'voice options must be in Settings');
  dom.window.close();
  console.log('PASS mock browser voice typing at cursor, numeric digits and user-controlled microphone');
+})().catch(error=>{console.error(error);process.exitCode=1;});
+
+
+(async()=>{
+ const {JSDOM}=require('jsdom');
+ const dom=new JSDOM('<!doctype html><html><head></head><body><header><div class="header-actions"></div><button id="themeBtn"></button><button id="sidebarMenuBtn"></button></header><div id="dashboardHomeContent"></div><div id="pageSettings"></div><div id="pageLedger"></div><div id="pageAccountsTree"></div></body></html>',{url:'https://ratib.test/',runScripts:'outside-only',pretendToBeVisual:true});
+ const w=dom.window,d=w.document;
+ w.localStorage.setItem('ratib.quickFavorites.v2',JSON.stringify(['ledger','account-tree','receipt','payment','multi-entry']));
+ w.localStorage.setItem('ratib.quickFavorites.icons.v1',JSON.stringify({'ledger':'📊'}));
+ const visited=[];w.navigateToTab=(page)=>{visited.push(page);};
+ w.eval(fav);
+ const bar=d.getElementById('ratibFavoritesShortcutBar');assert(bar,'quick icon strip must be placed on dashboard');
+ assert.equal(bar.querySelectorAll('.ratib-fav-shortcuts [data-fav-direct]').length,4,'show four quick icons');
+ assert.equal(bar.querySelectorAll('[data-fav-overflow] [data-fav-direct]').length,1,'remaining favorites belong in overflow');
+ assert(bar.querySelector('[data-fav-direct="ledger"]').textContent.includes('📊'),'persisted custom icon displays immediately');
+ const more=bar.querySelector('[data-fav-more]');more.click();
+ assert.equal(more.getAttribute('aria-expanded'),'true');
+ assert.equal(bar.querySelector('[data-fav-overflow]').hidden,false);
+ bar.querySelector('[data-fav-overflow] [data-fav-direct]').click();
+ await new Promise(resolve=>setTimeout(resolve,10));
+ assert.equal(bar.querySelector('[data-fav-overflow]').hidden,true,'overflow closes on selection');
+ const select=d.querySelector('#ratibFavoritesSettingsCard select[data-fav-icon="ledger"]');
+ assert(select,'settings must expose favorite icon selection');
+ select.value='💰';select.dispatchEvent(new w.Event('change',{bubbles:true}));
+ assert(bar.querySelector('[data-fav-direct="ledger"]').textContent.includes('💰'),'changing icon in settings repaints the home shortcut');
+ assert.equal(JSON.parse(w.localStorage.getItem('ratib.quickFavorites.icons.v1')).ledger,'💰');
+ d.querySelector('#ratibFavoritesSettingsCard [data-remove-fav="ledger"]').click();
+ assert.equal(bar.querySelector('[data-fav-direct="ledger"]'),null,'removing shortcut in settings updates bar');
+ dom.window.close();
+ console.log('PASS favorite icon strip, four-button overflow, settings customization and persistence');
 })().catch(error=>{console.error(error);process.exitCode=1;});

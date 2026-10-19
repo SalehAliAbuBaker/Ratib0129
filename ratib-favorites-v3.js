@@ -81,7 +81,7 @@ document.body.appendChild(panel);
 const escapeHtml=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 function render(){
 document.getElementById('ratibFavItems').innerHTML=selected.length?'<div class="fav-grid">'+selected.map((id,i)=>{const a=byId[id];return '<div class="fav-item"><button type="button" class="fav-item" style="width:100%" data-go="'+id+'">'+a[2]+' '+escapeHtml(a[1])+'</button><div class="fav-row"><button class="fav-small" data-up="'+id+'" '+(i===0?'disabled':'')+'>↑</button><button class="fav-small" data-down="'+id+'" '+(i===selected.length-1?'disabled':'')+'>↓</button><button class="fav-small" data-remove="'+id+'">حذف</button></div></div>';}).join('')+'</div>':'<p>لا توجد مفضلة بعد. اختر من الوظائف أدناه.</p>';
-renderOptions();renderCurrent();renderSettings();
+renderOptions();renderCurrent();renderSettings();renderShortcutBar();
 }
 function groupOf(id){
  if(['receipt','payment','simple-entry','multi-entry'].includes(id))return 'السندات';
@@ -214,8 +214,65 @@ function installFavoritesSettings(){
  renderSettings();
 }
 installFavoritesSettings();
+
+/* Ratib 3.6.118: direct quick-access icons with a mobile-friendly overflow menu. */
+const shortStyle=document.createElement('style');
+shortStyle.textContent=[
+'#ratibFavoritesShortcutBar{position:relative;border:1px solid var(--border,#d8e2dd);border-radius:12px;padding:9px;margin:8px 0;background:var(--card,#fff);box-shadow:0 2px 9px #00000009}',
+'#ratibFavoritesShortcutBar .ratib-fav-heading{font-size:13px;color:var(--muted,#555);font-weight:800;margin-bottom:7px}',
+'#ratibFavoritesShortcutBar .ratib-fav-shortcuts{display:flex;gap:7px;overflow-x:auto;scrollbar-width:thin;overscroll-behavior-x:contain}',
+'#ratibFavoritesShortcutBar .ratib-fav-action{display:flex;flex:1 0 66px;max-width:132px;min-width:64px;align-items:center;justify-content:center;flex-direction:column;gap:3px;text-align:center;padding:7px 4px;background:var(--bg,#f4f8fc);color:var(--text,#123);border:1px solid var(--border,#ddd);border-radius:10px;min-height:68px;cursor:pointer}',
+'#ratibFavoritesShortcutBar .ratib-fav-glyph{font-size:22px;line-height:1.15;display:block}',
+'#ratibFavoritesShortcutBar .ratib-fav-title{font-size:11px;line-height:1.4;font-weight:750;display:block;overflow-wrap:anywhere}',
+'#ratibFavoritesShortcutBar button:focus-visible{outline:2px solid var(--accent,#14532d);outline-offset:2px}',
+'#ratibFavoritesShortcutBar .ratib-fav-overflow{position:absolute;inset-inline-end:8px;top:calc(100% - 3px);min-width:min(255px,calc(100vw - 30px));max-height:45vh;overflow-y:auto;display:grid;gap:2px;z-index:9500;background:var(--card,#fff);border:1px solid var(--border,#ddd);box-shadow:0 10px 27px #0003;border-radius:10px;padding:7px}',
+'#ratibFavoritesShortcutBar .ratib-fav-overflow[hidden]{display:none!important}',
+'#ratibFavoritesShortcutBar .ratib-fav-overflow button{font:700 13px/1.5 inherit;background:transparent;color:var(--text,#123);text-align:right;border:0;border-radius:7px;padding:9px;min-height:38px;cursor:pointer}',
+'#ratibFavoritesShortcutBar .ratib-fav-overflow button:hover{background:var(--bg,#eef6f1)}',
+'#ratibFavoritesShortcutBar .ratib-fav-empty{font-size:13px;color:var(--muted,#555);line-height:1.6;padding:9px}',
+'@media print{#ratibFavoritesShortcutBar{display:none!important}}'
+].join('\n');
+document.head.appendChild(shortStyle);
+function renderShortcutBar(){
+ const bar=document.getElementById('ratibFavoritesShortcutBar');if(!bar)return;
+ const actions=selected.filter(id=>byId[id]);
+ const primary=actions.slice(0,4),extra=actions.slice(4);
+ if(!actions.length){bar.innerHTML='<div class="ratib-fav-empty">لا توجد اختصارات بعد. <button type="button" class="btn btn-ghost" data-fav-config>اختر المفضلة من الإعدادات</button></div>';return;}
+ const item=id=>{const c=byId[id];
+  return '<button type="button" class="ratib-fav-action" data-fav-direct="'+escapeHtml(id)+'" title="'+escapeHtml(c[1])+'" aria-label="افتح '+escapeHtml(c[1])+'"><span class="ratib-fav-glyph" aria-hidden="true">'+escapeHtml(c[2])+'</span><span class="ratib-fav-title">'+escapeHtml(c[1])+'</span></button>';};
+ bar.innerHTML='<div class="ratib-fav-heading">⭐ اختصاراتي</div><div class="ratib-fav-shortcuts">'+primary.map(item).join('')+
+  (extra.length?'<button type="button" class="ratib-fav-action" data-fav-more aria-expanded="false" aria-controls="ratibFavoritesOverflow"><span class="ratib-fav-glyph" aria-hidden="true">⋮</span><span class="ratib-fav-title">المزيد ('+extra.length+')</span></button>':'')+'</div>'+
+  (extra.length?'<div id="ratibFavoritesOverflow" class="ratib-fav-overflow" data-fav-overflow role="menu" hidden>'+
+  extra.map(id=>'<button type="button" role="menuitem" data-fav-direct="'+escapeHtml(id)+'">'+escapeHtml(byId[id][2]+' '+byId[id][1])+'</button>').join('')+'</div>':'');
+}
+function closeShortcutOverflow(){
+ const bar=document.getElementById('ratibFavoritesShortcutBar');
+ const menu=bar?.querySelector('[data-fav-overflow]'),trigger=bar?.querySelector('[data-fav-more]');
+ if(menu)menu.hidden=true;
+ if(trigger)trigger.setAttribute('aria-expanded','false');
+}
+const shortcutBar=document.createElement('section');
+shortcutBar.id='ratibFavoritesShortcutBar';shortcutBar.className='no-print';
+shortcutBar.setAttribute('aria-label','اختصارات المفضلة');
+shortcutBar.addEventListener('click',event=>{
+ const button=event.target.closest('button');if(!button)return;
+ if(button.hasAttribute('data-fav-config')){openFavoritesSettings();return;}
+ if(button.hasAttribute('data-fav-more')){
+  const menu=shortcutBar.querySelector('[data-fav-overflow]');if(!menu)return;
+  menu.hidden=!menu.hidden;button.setAttribute('aria-expanded',String(!menu.hidden));return;
+ }
+ const id=button.getAttribute('data-fav-direct');if(!id||!byId[id])return;
+ closeShortcutOverflow();
+ Promise.resolve().then(()=>byId[id].run()).catch(error=>{
+  console.error('Ratib favorite shortcut',error);
+  window.showToast?.('تعذر فتح الاختصار؛ حاول مرة أخرى.','warn');
+ });
+});
+document.addEventListener('click',event=>{if(!shortcutBar.contains(event.target))closeShortcutOverflow();});
+document.addEventListener('keydown',event=>{if(event.key==='Escape')closeShortcutOverflow();});
+
 const home=document.querySelector('#dashboardHomeContent');
-if(home){const b=document.createElement('button');b.type='button';b.className='btn btn-ghost no-print';b.style.cssText='width:100%;margin:10px 0';b.textContent='⭐ المفضلة السريعة';b.onclick=open;home.prepend(b);}
+if(home){home.prepend(shortcutBar);renderShortcutBar();}
 
 // Desktop-safe direct bindings: do not depend on the deferred application init chain.
 const menuBtn=document.getElementById('sidebarMenuBtn');

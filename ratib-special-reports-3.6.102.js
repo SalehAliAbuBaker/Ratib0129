@@ -22,22 +22,50 @@ function movement(from,to,currency){
 }
 function position(to,currency){
  if(!to)throw Error('حدد تاريخ المركز المالي');
- if(currency==='ALL')throw Error('حدد عملة واحدة للمركز المالي');
- const base=calculate('',to,currency,3),groups={assets:[],liabilities:[],equity:[],revenue:[],expenses:[],unknown:[]};
+ if(currency==='ALL'||!currency)throw Error('حدد العملة الأساسية لعرض المركز المالي');
+ // Reuse the existing audited valuation engine without changing vouchers or
+ // applying a new market rate retrospectively. Unlike the old 'specific' mode,
+ // equivalent mode includes every account, irrespective of its native currency.
+ const base=trialBuildModel(getAllTransactions(),{from:'',to,currency,base:currency,
+  mode:'equivalent',level:'3',costCenter:'',project:'',budget:'all',
+  fxMethod:'approved',presentation:'brief',compact:false});
+ const groups={assets:[],liabilities:[],equity:[],revenue:[],expenses:[],unknown:[]};
  const kinds={'الأصول':'assets','الالتزامات':'liabilities','حقوق الملكية':'equity','الإيرادات':'revenue','المصروفات':'expenses'};
  for(const account of base.accounts){
-  const c=account.currencies.find(x=>x.currency===currency);if(!c)continue;
-  const dr=val(c.native.closingDebit)-val(c.native.closingCredit),type=kinds[account.main]||'unknown';
+  const dr=account.currencies.reduce((sum,row)=>sum+val(row.equivalent.closingDebit)-val(row.equivalent.closingCredit),0);
+  const type=kinds[account.main]||'unknown';
   if(zero(dr))continue;
   groups[type].push({name:account.name,value:['assets','expenses','unknown'].includes(type)?dr:-dr});
  }
  const sum=name=>groups[name].reduce((a,x)=>a+x.value,0);
- const assets=sum('assets'),liabilities=sum('liabilities'),equity=sum('equity'),profit=sum('revenue')-sum('expenses'),other=sum('unknown');
+ const assets=sum('assets'),liabilities=sum('liabilities'),equity=sum('equity');
+ const profit=sum('revenue')-sum('expenses'),other=sum('unknown');
  const total=liabilities+equity+profit,difference=assets-total;
- const warnings=[...base.warnings];
- if(!zero(difference))warnings.unshift('يوجد فرق في المركز المالي بقيمة '+fmt(difference)+' '+currency+'، ولا تتم تسويته تلقائيًا');
- if(groups.unknown.length)warnings.unshift('توجد حسابات ذات أرصدة خارج دليل التصنيف؛ تُعرض مستقلة للمراجعة');
- return {to,currency,groups,assets,liabilities,equity,profit,other,total,difference,warnings,title:'المركز المالي'};
+ const missing=base.base.missing||0;
+ const complete=!missing&&!base.reviewAccounts.length&&!groups.unknown.length&&!base.requiresReview;
+ const balanced=complete&&zero(difference);
+ // A partial converted statement must never be called 'balanced' or passed as
+ // a final financial position just because its known amounts happen to cancel.
+ const status=!complete?'incomplete':balanced?'balanced':'difference';
+ const warnings=[];
+ if(missing)warnings.push('المعادل بالعملة '+currency+' غير مكتمل: '+missing+' طرفًا بلا سعر تقييم موثق. الأرقام المعروضة جزئية ولا يجوز اعتبارها مركزًا ماليًا معتمدًا.');
+ if(base.reviewAccounts.length||groups.unknown.length)warnings.push('توجد حسابات غير مصنفة في دليل الحسابات؛ لا يعتمد المركز المالي قبل مراجعتها.');
+ if(base.requiresReview&&!missing&&!base.reviewAccounts.length&&!groups.unknown.length)warnings.push('توجد ملاحظات محاسبية في البيانات الأصلية تستلزم المراجعة قبل اعتماد المركز المالي.');
+ if(status==='difference')warnings.push('فرق فعلي في المركز المالي بعد تقييم الأطراف المتاحة: '+fmt(difference)+' '+currency+'، لا تتم تسويته تلقائيًا.');
+ if(missing) {
+  const affected=new Map();
+  for(const tx of getAllTransactions()){
+   for(const leg of trialTransactionLegs(tx)){
+    if(leg.date>to||trialEquivalent(leg,currency,'approved')!==null)continue;
+    const key=typeof trialFxDocKey==='function'?trialFxDocKey(tx):String(tx.id||'');
+    if(!affected.has(key))affected.set(key,{date:leg.date,count:0,ref:String(tx.seqNum||tx.documentNumber||tx.voucherNumber||tx.number||tx.id||'غير محدد')});
+    affected.get(key).count++;
+   }
+  }
+  if(affected.size)warnings.push('مستندات ينقصها تقييم موثق ('+affected.size+'): '+[...affected.values()].slice(0,12).map(x=>x.ref+' بتاريخ '+x.date+' ('+x.count+' طرف)').join('؛ ')+(affected.size>12?'؛ وغيرها':'')+'. يمكن مراجعتها عبر أداة التشخيص الموجودة مسبقًا.');
+ }
+ return {to,currency,groups,assets,liabilities,equity,profit,other,total,difference,
+  missing,complete,balanced,status,warnings,title:'المركز المالي'};
 }
 const numeric=x=>'<b class="ratib-special-number" dir="ltr">'+safe(fmt(x))+'</b>';
 const issues=notes=>notes?.length?'<details class="ratib-special-issues"><summary>⚠ ملاحظات التقرير ('+notes.length+')</summary>'+notes.map(s=>'<p>'+safe(s)+'</p>').join('')+'</details>':'';
@@ -50,11 +78,14 @@ function movementHtml(r){
 function positionHtml(r){
  const rows=k=>r.groups[k].map(a=>'<div class="ratib-special-item"><span>'+safe(a.name)+'</span>'+numeric(a.value)+'</div>').join('')||'<p class="ratib-special-empty">لا توجد أرصدة</p>';
  const sect=(heading,group)=>'<h4>'+heading+'</h4>'+rows(group);
- return '<h2>المركز المالي</h2><p class="ratib-special-caption">كما في '+safe(r.to)+' — '+safe(r.currency)+'</p>'+
+ const statusText=r.status==='incomplete'
+  ?'⚠ المركز المالي غير مكتمل: '+r.missing+' طرفًا دون سعر تقييم موثق. الأرقام المعروضة جزئية.'
+  :r.status==='balanced'?'✓ المركز المالي متوازن بالعملة الأساسية':'⚠ فرق يحتاج مراجعة: '+fmt(r.difference)+' '+r.currency;
+ return '<h2>المركز المالي</h2><p class="ratib-special-caption">كما في '+safe(r.to)+' — المعادل بالعملة الأساسية '+safe(r.currency)+' (جميع العملات الأصلية)</p>'+
  '<div class="ratib-special-position"><section><h3>الأصول</h3>'+sect('الأصول','assets')+'<div class="ratib-special-sum">إجمالي الأصول '+numeric(r.assets)+'</div></section>'+
  '<section><h3>الالتزامات وحقوق الملكية</h3>'+sect('الالتزامات','liabilities')+sect('حقوق الملكية','equity')+
  '<div class="ratib-special-item"><span>نتيجة النشاط (ربح / خسارة)</span>'+numeric(r.profit)+'</div><div class="ratib-special-sum">الإجمالي '+numeric(r.total)+'</div></section></div>'+
- '<p class="ratib-special-check '+(zero(r.difference)?'':'ratib-special-bad')+'">'+(zero(r.difference)?'✓ تساوي الطرفين':'⚠ فرق يحتاج مراجعة: '+fmt(r.difference))+' '+safe(r.currency)+'</p>'+
+ '<p class="ratib-special-check '+(r.status==='balanced'?'':'ratib-special-bad')+'">'+safe(statusText)+'</p>'+
  (r.groups.unknown.length?'<section class="ratib-special-unknown"><h4>حسابات غير مصنفة — للمراجعة</h4>'+rows('unknown')+'</section>':'')+issues(r.warnings);
 }
 function pdfGrid(kind,r){
@@ -64,7 +95,7 @@ function pdfGrid(kind,r){
  b.push(['نتيجة النشاط',fmt(r.profit)]);
  const rows=Array.from({length:Math.max(a.length,b.length)},(_,i)=>[...(a[i]||['','']),...(b[i]||['',''])]);
  rows.push(['إجمالي الأصول',fmt(r.assets),'إجمالي الالتزامات والملكية والنتيجة',fmt(r.total)]);
- rows.push(['الفرق',fmt(r.difference),'الحالة',zero(r.difference)?'متوازن':'غير متوازن']);
+ rows.push(['فرق المعادل',r.status==='incomplete'?'غير مكتمل':fmt(r.difference),'الحالة',r.status==='incomplete'?'غير مكتمل — أسعار تقييم ناقصة':r.status==='balanced'?'متوازن':'غير متوازن']);
  if(r.groups.unknown.length)for(const row of r.groups.unknown)rows.push([row.name,fmt(row.value),'حساب غير مصنف','للمراجعة']);
  return {heads:['الأصول','المبلغ','الالتزامات والملكية','المبلغ'],widths:[540,250,540,250],rows};
 }
@@ -86,7 +117,7 @@ function canvases(kind,r){
    });
   }
   draw(t.heads,top,true);t.rows.slice(offset,offset+per).forEach((a,i)=>draw(a,top+(i+1)*rowHeight,false));
-  ctx.fillStyle='#64748b';ctx.textAlign='center';ctx.font='18px Tajawal,Arial';ctx.fillText('صفحة '+(pages.length+1)+' — الأرقام حسب عملتها الأصلية',W/2,H-45);pages.push(c);
+  ctx.fillStyle='#64748b';ctx.textAlign='center';ctx.font='18px Tajawal,Arial';ctx.fillText('صفحة '+(pages.length+1)+(kind==='movement'?' — الأرقام حسب عملتها الأصلية':' — المركز المالي بمعادل '+r.currency+(r.status==='incomplete'?' — غير مكتمل':'')),W/2,H-45);pages.push(c);
  }
  return pages;
 }
@@ -120,7 +151,7 @@ function init(){
  if(!el('reportsGroupMovementHeader'))return;
  const currencies=[...new Set(['YER','SAR','USD',...getAllTransactions().flatMap(trialTransactionLegs).map(x=>x.currency).filter(Boolean)])];
  for(const [id,all] of [['ratibMovementCurrency',true],['ratibPositionCurrency',false]]){
-  el(id).innerHTML=(all?'<option value="ALL">جميع العملات منفصلة</option>':'')+currencies.map(x=>'<option value="'+safe(x)+'">'+safe(x)+'</option>').join('');el(id).value=all?'ALL':'YER';
+  el(id).innerHTML=(all?'<option value="ALL">جميع العملات منفصلة</option>':'')+currencies.map(x=>'<option value="'+safe(x)+'">'+safe(x)+'</option>').join('');el(id).value=all?'ALL':(typeof getGlobalCurrency==='function'&&currencies.includes(getGlobalCurrency())?getGlobalCurrency():'YER');
  }
  const ds=getAllTransactions().flatMap(trialTransactionLegs).map(x=>x.date).filter(Boolean).sort();el('ratibPositionDate').value=ds.at(-1)||new Date().toISOString().slice(0,10);
  for(const k of ['movement','position']){

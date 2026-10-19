@@ -177,7 +177,7 @@ async function run(){
   const count=prints.length,downloads=f.downloads.length;
   d.getElementById('ratibModalVoucherPreviewBtn').click();assert(d.getElementById('printPreviewModal').classList.contains('show'));assert.equal(prints.length,count);d.getElementById('printPreviewConfirmBtn').click();assert.equal(prints.length,count+1);finishPrint();
   d.getElementById('modalPrintDocBtn').click();assert.equal(prints.length,count+2);finishPrint();
-  d.getElementById('modalPdfDocBtn').click();assert.equal(f.downloads.length,downloads+1);
+  d.getElementById('modalPdfDocBtn').click();await waitFor(()=>f.downloads.length===downloads+1,'stored voucher PDF');
   d.getElementById('ratibConfirmedVoucherPreviewBtn').click();assert(d.getElementById('printPreviewModal').classList.contains('show'));d.getElementById('printPreviewCancelBtn').click();
   d.getElementById('confirmPrintDocBtn').click();assert.equal(prints.length,count+3);finishPrint();
  });
@@ -186,8 +186,8 @@ async function run(){
   const count=prints.length,downloads=f.downloads.length;
   d.getElementById('ratibSavedVoucherPreviewBtn').click();assert(d.getElementById('printPreviewModal').classList.contains('show'));assert.equal(prints.length,count);d.getElementById('printPreviewCancelBtn').click();
   d.getElementById('printSavedSpendBtn').click();assert.equal(prints.length,count+1);finishPrint();
-  d.getElementById('downloadSavedSpendBtn').click();assert.equal(f.downloads.length,downloads+1);
-  let shared=0;w.navigator.share=async()=>{shared++;};d.getElementById('shareSavedSpendBtn').click();await pause(20);assert.equal(shared,1);
+  d.getElementById('downloadSavedSpendBtn').click();await waitFor(()=>f.downloads.length===downloads+1,'saved voucher PDF');
+  let shared=0;w.navigator.share=async()=>{shared++;};d.getElementById('shareSavedSpendBtn').click();await waitFor(()=>shared===1,'saved voucher share');
  });
  await test('Voucher output glyphs recover after legacy startup replaces an initialized button',async()=>{
   const button=d.getElementById('printMultiVoucherBtn'),pdf=d.getElementById('pdfMultiVoucherBtn');
@@ -206,9 +206,9 @@ async function run(){
   assert.equal(d.querySelectorAll('#ratibSimpleVoucherTools button').length,5);
   d.getElementById('ratibSimpleVoucherPreviewBtn').click();assert(d.getElementById('printPreviewModal').classList.contains('show'));assert.equal(prints.length,count);assert(d.getElementById('printPreviewBody').textContent.includes('معاينة القيد البسيط'));assert(d.getElementById('printPreviewBody').textContent.includes('175'));
   d.getElementById('printPreviewCancelBtn').click();d.getElementById('ratibSimpleVoucherPrintBtn').click();assert.equal(prints.length,count+1);finishPrint();
-  d.getElementById('ratibSimpleVoucherPdfBtn').click();assert.equal(f.downloads.length,downloads+1);assert(f.downloads.at(-1).blob.size>100);
+  d.getElementById('ratibSimpleVoucherPdfBtn').click();await waitFor(()=>f.downloads.length===downloads+1,'simple voucher PDF');assert(f.downloads.at(-1).blob.size>100);
   d.getElementById('ratibSimpleVoucherShareBtn').click();await pause(20);assert.equal(share.length,1);assert(share[0].files[0].name.includes('قيد'));
-  d.getElementById('ratibSimpleVoucherA4Btn').click();assert.equal(code(w,'ratibPaperLandscape()'),true);d.getElementById('ratibSimpleVoucherPdfBtn').click();assert((await f.downloads.at(-1).blob.text()).includes('/MediaBox [0 0 842 595]'));
+  d.getElementById('ratibSimpleVoucherA4Btn').click();assert.equal(code(w,'ratibPaperLandscape()'),true);d.getElementById('ratibSimpleVoucherPdfBtn').click();await waitFor(()=>f.downloads.length===downloads+2,'landscape simple PDF');assert((await f.downloads.at(-1).blob.text()).includes('/MediaBox [0 0 842 595]'));
   assert.equal(code(w,"getNextVoucherNumber('entry')"),next);
   const before=JSON.parse(snapshot),after=JSON.parse(code(w,'JSON.stringify(captureSingleDraft())'));delete before.savedAt;delete after.savedAt;assert.deepEqual(after,before);
   code(w,"document.getElementById('voucherAmountInput').value='0'");

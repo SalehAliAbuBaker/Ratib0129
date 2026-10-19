@@ -141,6 +141,7 @@ function addOptions(){
   try{store.remove(KEY);if(typeof flushStorage==='function')await flushStorage();cachedSource='';refreshAsset();syncPrint();repaint();}
   catch(e){if(typeof showToast==='function')showToast('تعذّر حذف الشعار','error');}
  });
+ card.querySelector('.settings-accordion-header')?.addEventListener('click',()=>queueMicrotask(repaint));
  repaint();
 }
 function init(){

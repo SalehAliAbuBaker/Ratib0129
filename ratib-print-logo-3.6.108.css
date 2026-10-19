@@ -1,3 +1,7 @@
+/* Ratib 3.6.110 — legacy print header is never an on-screen page element.
+   Actual printed vouchers and reports render their own dedicated headers. */
+#printHeaderBanner {display:none!important}
+
 /* Ratib 3.6.108 — lightweight report/document logo; print & preview only. */
 #ratibPrintLogoOptions{border-top:1px solid var(--border);padding-top:12px;margin:13px 0 12px}
 #ratibPrintLogoOptions>strong{font-weight:900;font-size:.95rem;color:var(--text)}

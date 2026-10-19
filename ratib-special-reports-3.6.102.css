@@ -40,3 +40,19 @@ body.ratib-special-print .ratib-special-table{min-width:0!important}
 body.ratib-special-print .ratib-special-table th,body.ratib-special-print .ratib-special-table td{font-size:9px!important;padding:4px 3px!important}
 body.ratib-special-print .ratib-special-item{font-size:10px}
 }
+/* 3.6.113 — true PDF-page preview on mobile and desktop. */
+#ratibSpecialPreview[hidden]{display:none!important}
+body.ratib-special-preview-open{overflow:hidden!important}
+#ratibSpecialPreview.ratib-special-preview-overlay{
+ position:fixed;inset:0;z-index:2147483000;background:rgba(10,24,32,.78);
+ display:flex;align-items:stretch;justify-content:center;overflow:auto;padding:12px;box-sizing:border-box
+}
+.ratib-special-preview-panel{width:min(100%,1150px);min-height:0;height:fit-content;margin:auto;background:#f2f4f7;border-radius:12px;overflow:hidden;direction:rtl;box-shadow:0 12px 50px #0004}
+.ratib-special-preview-head{position:sticky;top:0;z-index:2;display:flex;justify-content:space-between;align-items:center;gap:9px;padding:11px 12px;background:#fff;color:#18342b;border-bottom:1px solid #d3dde0}
+.ratib-special-preview-head strong{font-size:.95rem;font-weight:800}
+.ratib-special-preview-head>div{display:flex;gap:7px;flex:none}
+.ratib-special-preview-head button{border:1px solid #9cafa6;background:#fff;color:#14533e;border-radius:7px;min-height:37px;padding:7px 10px;font-weight:800;cursor:pointer}
+.ratib-special-preview-pages{padding:12px;display:flex;flex-direction:column;align-items:center;gap:14px}
+.ratib-special-preview-pages canvas{display:block;width:100%;max-width:1000px;height:auto;background:#fff;box-shadow:0 1px 8px #0003}
+@media(max-width:460px){#ratibSpecialPreview.ratib-special-preview-overlay{padding:4px}.ratib-special-preview-head{padding:9px 6px}.ratib-special-preview-head strong{font-size:.73rem}.ratib-special-preview-head button{font-size:.75rem;padding:6px}.ratib-special-preview-pages{padding:5px;gap:7px}}
+@media print{#ratibSpecialPreview{display:none!important}}

@@ -3,6 +3,7 @@
 const Recognition=window.SpeechRecognition||window.webkitSpeechRecognition;
 const LANG_KEY='ratib.voice.language.v1',LANGUAGES=['ar-SA','ar-YE','ar-EG'];
 let language='ar-SA';
+const VISIBLE_KEY='ratib.voice.visible.v1';let visible=false;try{visible=localStorage.getItem(VISIBLE_KEY)==='true';}catch(_){}
 try{const saved=localStorage.getItem(LANG_KEY);if(LANGUAGES.includes(saved))language=saved;}catch(_){}
 let lastTarget=null,lastSelection=null,engine=null,listening=false,lastResult=-1;
 function eligible(el){
@@ -32,10 +33,10 @@ document.addEventListener('keyup',e=>{if(eligible(e.target))remember(e.target);}
 document.addEventListener('mouseup',e=>{if(eligible(e.target))remember(e.target);},true);
 const css=document.createElement('style');
 css.textContent=[
-'#ratibVoiceButton{position:fixed;left:12px;bottom:78px;z-index:9900;display:flex;align-items:center;justify-content:center;gap:7px;min-height:47px;padding:8px 12px;border-radius:24px;border:1px solid #14532d;background:#14532d;color:#fff;font-family:inherit;font-size:14px;font-weight:700;box-shadow:0 5px 16px #0003;cursor:pointer;max-width:calc(100vw - 24px)}',
+'#ratibVoiceButton{position:fixed;left:12px;bottom:78px;z-index:2147483000;display:flex;align-items:center;justify-content:center;gap:7px;min-height:47px;padding:8px 12px;border-radius:24px;border:1px solid #14532d;background:#14532d;color:#fff;font-family:inherit;font-size:14px;font-weight:700;box-shadow:0 5px 16px #0003;cursor:pointer;max-width:calc(100vw - 24px)}',
 '#ratibVoiceButton[data-listening="true"]{background:#a12727;border-color:#a12727}',
 '#ratibVoiceButton:focus-visible{outline:3px solid #fbbf24;outline-offset:2px}',
-'#ratibVoiceStatus{position:fixed;left:12px;bottom:132px;z-index:9900;max-width:min(300px,calc(100vw - 24px));padding:9px 12px;border-radius:9px;background:#14532d;color:#fff;font-family:inherit;font-size:13px;font-weight:700;box-shadow:0 4px 14px #0003}',
+'#ratibVoiceStatus{position:fixed;left:12px;bottom:132px;z-index:2147483000;max-width:min(300px,calc(100vw - 24px));padding:9px 12px;border-radius:9px;background:#14532d;color:#fff;font-family:inherit;font-size:13px;font-weight:700;box-shadow:0 4px 14px #0003}',
 '#ratibVoiceSettingsCard .ratib-voice-hint{font-size:.89rem;line-height:1.7;color:var(--muted)}',
 '@media print{#ratibVoiceButton,#ratibVoiceStatus,#ratibVoiceSettingsCard{display:none!important}}'
 ].join('\n');
@@ -48,6 +49,8 @@ const status=document.createElement('div');
 status.id='ratibVoiceStatus';status.className='no-print';status.hidden=true;
 status.setAttribute('role','status');status.setAttribute('aria-live','polite');
 document.body.append(button,status);
+function applyVoiceVisibility(){button.hidden=!visible;button.style.display=visible?'flex':'none';if(!visible&&listening)stop();}
+applyVoiceVisibility();
 function notify(message,kind='info'){
  if(typeof window.showToast==='function')window.showToast(message,kind,4500);
  else{status.hidden=false;status.textContent=message;setTimeout(()=>{if(!listening)status.hidden=true;},3500);}
@@ -126,11 +129,12 @@ function settings(){
  const parent=document.getElementById('pageSettings');
  if(!parent||document.getElementById('ratibVoiceSettingsCard'))return;
  const card=document.createElement('div');card.id='ratibVoiceSettingsCard';card.className='card settings-accordion-card no-print';
- card.innerHTML='<div class="settings-accordion-header" role="button" tabindex="0" aria-expanded="false"><span>🎙️ الإملاء الصوتي</span><span class="accordion-arrow">▼</span></div><div class="settings-accordion-body"><p class="ratib-voice-hint">حدد حقل الكتابة ثم اضغط زر الميكروفون. الإملاء يضيف النص عند المؤشر فقط ولا يحفظ السند تلقائيًا.</p><label for="ratibVoiceLanguage">لغة التعرف على الصوت</label><select id="ratibVoiceLanguage"><option value="ar-SA">العربية</option><option value="ar-YE">العربية — اليمن</option><option value="ar-EG">العربية — مصر</option></select><p class="ratib-voice-hint">قد يحتاج التعرف على الصوت إلى الإنترنت وخدمة المتصفح. لا يتم تشغيل الميكروفون تلقائيًا، وقد تُعالج الخدمة الصوت وفق سياسة المتصفح.</p></div>';
+ card.innerHTML='<div class="settings-accordion-header" role="button" tabindex="0" aria-expanded="false"><span>🎙️ الإملاء الصوتي</span><span class="accordion-arrow">▼</span></div><div class="settings-accordion-body"><label style="display:flex;align-items:center;justify-content:space-between;gap:10px"><span>إظهار زر الإملاء الصوتي</span><input type="checkbox" id="ratibVoiceVisible" style="width:22px;height:22px"></label><p class="ratib-voice-hint">حدد حقل الكتابة ثم اضغط زر الميكروفون. الإملاء يضيف النص عند المؤشر فقط ولا يحفظ السند تلقائيًا.</p><label for="ratibVoiceLanguage">لغة التعرف على الصوت</label><select id="ratibVoiceLanguage"><option value="ar-SA">العربية</option><option value="ar-YE">العربية — اليمن</option><option value="ar-EG">العربية — مصر</option></select><p class="ratib-voice-hint">قد يحتاج التعرف على الصوت إلى الإنترنت وخدمة المتصفح. لا يتم تشغيل الميكروفون تلقائيًا، وقد تُعالج الخدمة الصوت وفق سياسة المتصفح.</p></div>';
  parent.prepend(card);
  const head=card.querySelector('.settings-accordion-header'),body=card.querySelector('.settings-accordion-body');
  const toggle=()=>{const opened=body.classList.toggle('open');head.setAttribute('aria-expanded',String(opened));head.querySelector('.accordion-arrow').textContent=opened?'▲':'▼';};
  head.addEventListener('click',toggle);head.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();toggle();}});
+ const visibility=card.querySelector('#ratibVoiceVisible');visibility.checked=visible;visibility.addEventListener('change',()=>{visible=visibility.checked;try{localStorage.setItem(VISIBLE_KEY,String(visible));}catch(_){}applyVoiceVisibility();});
  const select=card.querySelector('select');select.value=language;select.addEventListener('change',e=>{
   if(!LANGUAGES.includes(e.target.value))return;
   language=e.target.value;try{localStorage.setItem(LANG_KEY,language);}catch(_){}

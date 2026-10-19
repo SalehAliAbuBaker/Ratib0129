@@ -8,11 +8,14 @@ const tilePaths={
  reportsGroupPositionHeader:'M3 21h18M4 10h16M5 10v9M10 10v9M14 10v9M19 10v9M3 10l9-7 9 7',
  yearToolOpen:'M5 10h14v11H5ZM8 10V7a4 4 0 0 1 8 0v3M12 14v3'
 };
+const titles={reportsGroupStatementHeader:'كشف الحساب',reportsGroupBudgetHeader:'بنود الميزانية',reportsGroupTrialHeader:'ميزان المراجعة',reportsGroupMovementHeader:'حركة الحسابات',reportsGroupPositionHeader:'المركز المالي',yearToolOpen:'الإغلاق السنوي'};
 function tile(el){
  if(el.dataset.ratibTile)return;
  el.dataset.ratibTile='1';el.classList.add('main-menu-btn','ratib-report-tile');
  const label=document.createElement('span');label.className='ratib-report-label';
- while(el.firstChild)label.append(el.firstChild);
+ label.textContent=titles[el.id]||el.textContent.trim();
+ el.setAttribute('aria-label',label.textContent);
+ el.replaceChildren();
  const icon=document.createElement('span');icon.className='main-menu-icon ratib-report-icon';icon.setAttribute('aria-hidden','true');
  const svg=document.createElementNS('http://www.w3.org/2000/svg','svg');
  for(const [k,v] of Object.entries({viewBox:'0 0 24 24',fill:'none',stroke:'currentColor','stroke-width':'1.7','stroke-linecap':'round','stroke-linejoin':'round'}))svg.setAttribute(k,v);

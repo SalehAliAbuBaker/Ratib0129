@@ -1,11 +1,11 @@
 /* Approved corrections: home-style report tiles, filled back controls and precise favorites. */
 @media screen {
  #ratibReportMenu {display:grid;grid-template-columns:repeat(2,minmax(0,1fr));grid-auto-rows:1fr;gap:12px;direction:rtl}
- #ratibReportMenu>.ratib-report-tile {display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;min-height:96px!important;gap:6px!important;padding:14px 6px!important;font-size:1rem!important;line-height:1.45!important;text-align:center!important;height:auto!important;border:1px solid var(--border)!important;border-radius:var(--radius)!important;box-shadow:none!important}
+ #ratibReportMenu>.ratib-report-tile {display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;min-height:106px!important;min-width:0!important;width:100%!important;gap:8px!important;padding:13px 6px!important;font-size:.95rem!important;line-height:1.4!important;text-align:center!important;height:auto!important;border:1px solid var(--border)!important;border-radius:12px!important;box-shadow:none!important;background:var(--card)!important;color:var(--text)!important}
  #ratibReportMenu .ratib-report-label {display:block!important;flex:0 0 auto!important;width:100%;min-width:0;max-width:100%;margin:0;text-align:center!important;line-height:1.45}
  #ratibReportMenu .ratib-report-label .ratib-ui-glyph {display:none!important}
- #ratibReportMenu .ratib-report-icon {display:block!important;flex:none!important;width:32px;height:32px;margin:0!important}
- #ratibReportMenu .ratib-report-icon svg {display:block!important;width:32px;height:32px;color:var(--accent)}
+ #ratibReportMenu .ratib-report-icon {display:block!important;flex:none!important;width:25px;height:25px;margin:0!important}
+ #ratibReportMenu .ratib-report-icon svg {display:block!important;width:25px;height:25px;color:var(--accent)}
  :is(button.ratib-back-control,button.back-to-menu-btn,#ledgerBackBtn,#ratibCashBackBtn,[data-account-action="close"]) {background:#0d5b45!important;border-color:#0d5b45!important;color:#fff!important;box-shadow:none!important}
  :is(button.ratib-back-control,button.back-to-menu-btn,#ledgerBackBtn,#ratibCashBackBtn,[data-account-action="close"]) :is(span,svg,.ratib-ui-glyph,.ratib-ui-icon) {color:#fff!important}
  :is(button.ratib-back-control,button.back-to-menu-btn,#ledgerBackBtn,#ratibCashBackBtn,[data-account-action="close"]):hover {background:#094533!important}
@@ -16,4 +16,16 @@
  #ratibFavoritesPanel #ratibPinCurrent[hidden]{display:none!important}
  #ratibFavoritesPanel #ratibPinCurrent{border-color:var(--accent);color:var(--accent)}
  #ratibFavoritesPanel .fav-head strong{font-size:1.05rem}
+}
+
+
+/* Ratib trial 3.6.116: accessible green success feedback; warnings/errors unchanged. */
+@media screen {
+ :is(.toast.success,.toast.toast-success,.toast[data-type="success"],.toast[data-kind="success"],.toast[data-status="success"],#toast.success,#toast[data-type="success"],.notification.success,.notification[data-type="success"],.ratib-success-toast-116){
+  background:#14532d!important;color:#fff!important;border:1px solid #166534!important;
+  font-size:14px!important;font-weight:700!important;line-height:1.65!important;
+  padding:11px 15px!important;border-radius:10px!important;
+  opacity:1!important;box-shadow:0 8px 22px rgba(0,0,0,.22)!important;z-index:99999!important;
+ }
+ :is(.toast.success,.toast.toast-success,.toast[data-type="success"],.toast[data-kind="success"],#toast.success,#toast[data-type="success"],.notification.success,.notification[data-type="success"],.ratib-success-toast-116) :is(span,p,small,strong,i,svg){color:#fff!important}
 }

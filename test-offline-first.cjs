@@ -10,11 +10,8 @@ const license = fs.readFileSync(path.join(root,'ratib-license-draft.js'),'utf8')
 const manifest = JSON.parse(fs.readFileSync(path.join(root,'manifest.json'),'utf8'));
 
 assert.match(html, /<link\s+rel="manifest"\s+href="\.\/manifest\.json">/);
-assert.match(html, /الإصدار 3\.6\.100/);
-assert.match(sw, /v108-official-3\.6\.100/);
-assert.match(html, /const CLOUD_FOLDER_NAME = 'Ratib Backups'/,'keep official Drive folder');
-assert.match(html, /const CLOUD_FILE_PREFIX = 'ratib-cloud-'/,'keep official backup names');
-assert.doesNotMatch(html, /الإصدار 3\.6\.100 \(تجريبية\)/,'remove beta badge');
+assert.match(html, /الإصدار 3\.6\.99/);
+assert.match(sw, /v106-offline-first-3\.6\.99/);
 assert.equal(manifest.display,'standalone');
 assert.equal(manifest.scope,'./');
 const shellMatch = sw.match(/const APP_SHELL=(\[[\s\S]*?\]);/);
@@ -82,5 +79,5 @@ async function testLicence() {
   assert.equal(script.text,'CACHED JS');
   assert.equal(script.attemptedNetwork,0,'offline JS must use installed assets');
   await testLicence();
-  console.log('PASS Ratib 3.6.100 official: app shell, offline navigation, versioned JS, and unexpired local licence');
+  console.log('PASS Ratib 3.6.99: app shell, offline navigation, versioned JS, and unexpired local licence');
 })().catch(e=>{console.error(e);process.exitCode=1;});

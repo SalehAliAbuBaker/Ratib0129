@@ -1,0 +1,78 @@
+/* Ratib trial 3.6.106 — Reports screen layout, without altering actions/printing. */
+@media screen {
+ #pageReports > .acc-accordion-header.ratib-report-icon-heading {
+  min-height:50px;display:flex!important;align-items:center;justify-content:flex-start;
+  gap:10px!important;padding:10px 13px;margin:7px 0;border:1px solid var(--border);
+  border-radius:11px;background:var(--card);color:var(--text);font-size:.94rem;font-weight:800;
+ }
+ #pageReports > .acc-accordion-header.ratib-report-icon-heading.open {
+  border-color:var(--accent);background:color-mix(in srgb,var(--accent) 7%,var(--card));
+ }
+ #pageReports > .acc-accordion-header.ratib-report-icon-heading svg {
+  width:18px!important;height:18px!important;min-width:18px;flex:0 0 auto;color:var(--accent);
+ }
+ #pageReports > .acc-accordion-header.ratib-report-icon-heading > span {
+  font:800 .94rem/1.4 Tajawal,sans-serif;min-width:0;flex:1;text-align:right;
+ }
+ #pageReports .ratib-special-actions,
+ #pageReports #trialBalanceCard .report-actions {
+  display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr))!important;
+  gap:7px!important;margin:9px 0 12px!important;align-items:stretch;
+ }
+ #pageReports .ratib-special-actions{
+  grid-template-columns:repeat(5,minmax(0,1fr))!important;
+ }
+ #pageReports .trial-fx-toolbar {
+  display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  gap:8px!important;align-items:stretch;margin:10px 0!important;
+ }
+ #pageReports .ratib-report-action {
+  box-sizing:border-box;display:flex!important;flex-direction:column!important;
+  align-items:center!important;justify-content:center!important;gap:4px!important;
+  width:100%!important;min-width:0!important;min-height:62px!important;height:auto!important;
+  margin:0!important;padding:8px 3px!important;border:1px solid var(--border)!important;
+  background:var(--card)!important;color:var(--text)!important;border-radius:10px!important;
+  box-shadow:none!important;white-space:normal!important;text-align:center!important;
+  font:800 .72rem/1.3 Tajawal,sans-serif!important;overflow-wrap:normal;word-break:keep-all;
+ }
+ #pageReports .ratib-report-action svg {
+  width:19px!important;height:19px!important;min-width:19px;max-height:19px;
+  stroke:var(--accent)!important;flex:0 0 auto;
+ }
+ #pageReports .ratib-report-action-label {
+  display:block;font:inherit;text-align:center;line-height:1.25;white-space:normal;
+ }
+ #pageReports .ratib-report-action:hover {
+  border-color:var(--accent)!important;background:color-mix(in srgb,var(--accent) 5%,var(--card))!important;
+ }
+ #pageReports .ratib-report-action:focus-visible,
+ #pageReports .ratib-report-shortcut:focus-visible,
+ #pageReports > .acc-accordion-header.ratib-report-icon-heading:focus-visible {
+  outline:2px solid var(--accent)!important;outline-offset:2px!important;
+ }
+ #pageReports #budgetReportCard > h2 {
+  display:flex;flex-direction:column;align-items:stretch;justify-content:center;gap:8px;
+ }
+ #pageReports .ratib-report-budget-actions {
+  display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:7px!important;align-items:stretch;width:100%;
+ }
+ #pageReports .budget-shortcut-grid {gap:7px;}
+ #pageReports .ratib-report-shortcut {
+  background:var(--card);color:var(--text);border:1px solid var(--border);
+  border-radius:10px;min-height:70px!important;padding:8px 3px!important;gap:4px!important;
+  box-shadow:none!important;font:800 .75rem/1.3 Tajawal,sans-serif!important;
+ }
+ #pageReports .ratib-report-shortcut svg {
+  width:19px!important;height:19px!important;stroke:var(--accent);flex:none;
+ }
+}
+@media screen and (max-width:390px) {
+ #pageReports .ratib-special-actions,#pageReports #trialBalanceCard .report-actions {gap:4px!important;}
+ #pageReports .ratib-report-action {font-size:.68rem!important;min-height:60px!important;padding:7px 2px!important;}
+ #pageReports .ratib-report-action svg {width:18px!important;height:18px!important;min-width:18px;}
+}
+@media print {
+ #pageReports .ratib-special-actions,#pageReports .ratib-report-budget-actions,
+ #pageReports #trialBalanceCard .report-actions,#pageReports .trial-fx-toolbar {display:none!important;}
+}

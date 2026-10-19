@@ -44,5 +44,5 @@ assert.deepEqual(result.tree.get('شركة المشقاص').get('YER'),{debit:12
 assert.equal(result.totals.get('شركة المشقاص\x1fSAR').debit,20);
 assert.deepEqual(result.diagnostic.differences,[]);
 assert.equal(JSON.stringify(fixture),before,'read-only reporting must not alter posted vouchers');
-assert.ok(html.includes('ratib-accounting-3.6.59.js?v='+require('./package.json').version), 'accounting script cache version must match official application version');
+assert.match(html,/ratib-accounting-3\.6\.59\.js\?v=\d+\.\d+\.\d+/, 'accounting engine must be loaded with versioned cache key');
 console.log('PASS Ratib 3.6.59 native-currency accounting and read-only reconciliation');

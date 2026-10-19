@@ -15,7 +15,7 @@ const sidebar=action=>()=>document.querySelector('[data-sidebar-action="'+action
 for(const [id,label,mode] of [['receipt','سند قبض','income'],['payment','سند صرف','spend'],['simple-entry','سند قيد بسيط','entry'],['multi-entry','سند قيد متعدد','multi-entry']]){
  addChoice(id,label,'🧾',async()=>{if(!await page('pageExpenses'))return;if(mode==='multi-entry')window.selectMultiVoucherType?.();else window.selectVoucherTypeDirect?.(mode);});
 }
-for(const [id,label,target] of [['statement','كشف الحساب','reportsGroupStatementHeader'],['budget-analysis','تحليل بنود الميزانية','reportsGroupBudgetHeader'],['trial-balance','ميزان المراجعة','reportsGroupTrialHeader']]){
+for(const [id,label,target] of [['budget-analysis','تحليل بنود الميزانية','reportsGroupBudgetHeader'],['trial-balance','ميزان المراجعة','reportsGroupTrialHeader']]){
  addChoice(id,label,'📑',async()=>{if(!await page('pageReports'))return;const button=document.getElementById(target);if(button&&!button.classList.contains('open'))button.click();});
 }
 addChoice('annual-close','الإغلاق السنوي','🔒',async()=>{if(await page('pageReports'))document.getElementById('yearToolOpen')?.click();});
@@ -48,7 +48,7 @@ function discoverSettings(){
  });
 }
 discoverSettings();
-const migrated={pageLedger:'ledger',pageAccountsTree:'account-tree',pageAccountOperations:'statement'};
+const migrated={pageLedger:'ledger',pageAccountsTree:'account-tree'};
 let selected=[];
 try{const saved=localStorage.getItem(KEY);const v=JSON.parse(saved??localStorage.getItem(oldKey)??'[]');if(Array.isArray(v))selected=[...new Set(v.map(id=>saved?id:migrated[id]).filter(id=>byId[id]))];}catch(_){}
 const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(selected));}catch(e){console.warn('تعذر حفظ المفضلة',e);}};
@@ -78,7 +78,7 @@ renderOptions();renderCurrent();
 }
 function groupOf(id){
  if(['receipt','payment','simple-entry','multi-entry'].includes(id))return 'السندات';
- if(['statement','trial-balance','budget-analysis','annual-close'].includes(id))return 'التقارير';
+ if(['trial-balance','budget-analysis','annual-close'].includes(id))return 'التقارير';
  if(id.startsWith('setting:')||id==='add-budget-item')return 'الإعدادات';
  if(['account-tree','add-account','ledger','legacy-import','import-management'].includes(id))return 'الحسابات والاستيراد';
  if(['new-reminder','reminders-list'].includes(id))return 'التذكيرات';
@@ -97,7 +97,7 @@ function currentChoice(){
   if(visible('multiVoucherCard'))return typeof multiVoucherMode!=='undefined'?({income:'receipt',spend:'payment','multi-entry':'multi-entry'}[multiVoucherMode]):null;
   if(visible('cashFlowCard'))return 'simple-entry';
  }
- if(visible('pageReports'))for(const [id,key] of [['reportsGroupStatementHeader','statement'],['reportsGroupBudgetHeader','budget-analysis'],['reportsGroupTrialHeader','trial-balance']])if(document.getElementById(id)?.classList.contains('open'))return key;
+ if(visible('pageReports'))for(const [id,key] of [['reportsGroupBudgetHeader','budget-analysis'],['reportsGroupTrialHeader','trial-balance']])if(document.getElementById(id)?.classList.contains('open'))return key;
  if(visible('pageSettings')){
   const active=[...document.querySelectorAll('#pageSettings .settings-accordion-card')].find(card=>card.querySelector('.settings-accordion-body.open'));
   if(active)return 'setting:'+(active.id||active.querySelector('[id]')?.id);
@@ -127,11 +127,10 @@ const actions=document.querySelector('header .header-actions');
 let star=null, exit=null;
 if(actions){
 star=document.createElement('button');star.type='button';star.className='icon-btn ratib-quick-btn';star.textContent='☆';star.title='المفضلة السريعة';star.setAttribute('aria-label','فتح المفضلة السريعة');star.addEventListener('click',open);actions.prepend(star);
-exit=document.createElement('button');exit.type='button';exit.className='icon-btn ratib-quick-btn';exit.textContent='🚪';exit.title='الخروج';exit.setAttribute('aria-label','الخروج من التطبيق');exit.addEventListener('click',()=>{
-if(!confirm('هل تريد الخروج من التطبيق؟ تأكد من حفظ التعديلات أولاً.'))return;
-const editing=[...document.querySelectorAll('input,textarea,select')].some(el=>el.matches(':focus')&&!el.disabled);
-if(editing&&!confirm('قد تكون هناك تعديلات لم تُحفظ. هل تريد المتابعة؟'))return;
-close();const screen=document.createElement('div');screen.style.cssText='position:fixed;inset:0;z-index:999999;background:var(--bg,#fff);color:var(--text,#111);display:flex;align-items:center;justify-content:center;text-align:center;padding:24px';screen.innerHTML='<div><h2>تم الخروج من واجهة راتب</h2><p style="margin:16px 0">يمكنك إغلاق علامة التبويب أو العودة إلى التطبيق.</p><button id="ratibResumeApp" class="btn btn-primary" type="button">العودة إلى التطبيق</button></div>';document.body.appendChild(screen);screen.querySelector('button').onclick=()=>screen.remove();
+exit=document.createElement('button');exit.type='button';exit.className='icon-btn ratib-quick-btn';exit.textContent='🚪';exit.title='الخروج';exit.setAttribute('aria-label','الخروج من التطبيق');exit.addEventListener('click',event=>{
+ event.preventDefault();
+ if(typeof window.RatibExitNow==='function')window.RatibExitNow();
+ else window.showToast?.('تعذر بدء الخروج؛ يرجى تحديث الصفحة.','error');
 });actions.append(exit);
 }
 const home=document.querySelector('#dashboardHomeContent');
@@ -143,7 +142,7 @@ if(menuBtn){menuBtn.onclick=(e)=>{e.preventDefault();e.stopImmediatePropagation(
 const themeBtn=document.getElementById('themeBtn');
 if(themeBtn){themeBtn.onclick=(e)=>{e.preventDefault();e.stopImmediatePropagation();const root=document.documentElement,next=root.dataset.theme==='dark'?'light':'dark';root.dataset.theme=next;try{localStorage.setItem('theme',JSON.stringify(next));}catch(_){}themeBtn.textContent=next==='dark'?'☀️':'🌙';};}
 if(star){star.onclick=(e)=>{e.preventDefault();e.stopImmediatePropagation();open();};}
-if(exit){exit.onclick=(e)=>{e.preventDefault();e.stopImmediatePropagation();if(typeof window.showExitModal==='function'){window.showExitModal();return;}if(!confirm('هل تريد الخروج من التطبيق؟'))return;location.reload();};}
+
 window.RatibQuickFavorites={open,close};
 })();
 

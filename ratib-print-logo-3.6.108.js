@@ -7,7 +7,7 @@ if(window.RatibPrintLogo)return;
 const KEY='user_print_logo_v1',MAX_UPLOAD=8*1024*1024,MAX_SAVED=185*1024,MAX_SIDE=360;
 const $=id=>document.getElementById(id);
 const safeGet=()=>{try{const v=store.get(KEY,null);return v&&typeof v==='object'&&typeof v.data==='string'&&/^data:image\/(?:png|jpeg|webp);base64,/.test(v.data)?v:null;}catch(_){return null;}};
-let cachedSource='',cachedImage=null,loaded=false,active=null;
+let cachedSource='',cachedImage=null,loaded=false,active=null,pendingReady=Promise.resolve(false);
 function refreshAsset(){
  const item=safeGet();
  active=item;
@@ -15,10 +15,13 @@ function refreshAsset(){
  if(source===cachedSource)return item;
  cachedSource=source;cachedImage=null;loaded=false;
  if(source){
-  const image=new Image();image.onload=()=>{if(cachedSource===source){cachedImage=image;loaded=true;}};
-  image.onerror=()=>{if(cachedSource===source){cachedImage=null;loaded=false;}};
-  image.src=source;
- }
+  const image=new Image();
+  pendingReady=new Promise(resolve=>{
+   image.onload=()=>{if(cachedSource===source){cachedImage=image;loaded=true;}resolve(true);};
+   image.onerror=()=>{if(cachedSource===source){cachedImage=null;loaded=false;}resolve(false);};
+   image.src=source;
+  });
+ }else pendingReady=Promise.resolve(false);
  return item;
 }
 function status(){const obj=refreshAsset();return {configured:!!obj,enabled:!!obj&&obj.enabled!==false,bytes:obj?.bytes||0,ready:loaded};}
@@ -94,7 +97,7 @@ function drawCanvas(canvas){
 async function persist(item){
  store.set(KEY,item);
  if(typeof flushStorage==='function')await flushStorage();
- cachedSource='';refreshAsset();syncPrint();
+ cachedSource='';refreshAsset();await pendingReady;syncPrint();
 }
 function addOptions(){
  if($('ratibPrintLogoOptions'))return;

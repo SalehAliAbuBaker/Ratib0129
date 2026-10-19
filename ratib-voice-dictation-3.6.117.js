@@ -33,7 +33,7 @@ document.addEventListener('keyup',e=>{if(eligible(e.target))remember(e.target);}
 document.addEventListener('mouseup',e=>{if(eligible(e.target))remember(e.target);},true);
 const css=document.createElement('style');
 css.textContent=[
-'#ratibVoiceButton{position:static!important;left:auto!important;bottom:auto!important;z-index:auto!important;display:inline-flex;flex:none;align-items:center;justify-content:center;width:40px;height:40px;min-width:40px;min-height:40px;padding:6px;border-radius:12px;border:1px solid var(--border,#cbd5e1);background:var(--card,#fff);color:var(--text,#0f172a);font-family:inherit;font-size:20px;line-height:1;cursor:pointer;box-shadow:none;margin:0}',
+'#ratibVoiceButton{position:fixed;left:0;top:0;right:auto;bottom:auto;z-index:9200;display:flex;align-items:center;justify-content:center;width:32px;height:32px;min-width:32px;min-height:32px;padding:3px;border-radius:10px;border:1px solid var(--border,#cbd5e1);background:var(--card,#fff);color:var(--text,#0f172a);font-family:inherit;font-size:17px;line-height:1;cursor:pointer;box-shadow:0 2px 8px #0002;margin:0}',
 '#ratibVoiceButton[data-listening="true"]{background:#a12727;color:#fff;border-color:#a12727}',
 '#ratibVoiceButton:focus-visible{outline:3px solid #fbbf24;outline-offset:2px}',
 '#ratibVoiceStatus{position:absolute!important;width:1px!important;height:1px!important;overflow:hidden!important;clip-path:inset(50%)!important;white-space:nowrap!important;padding:0!important;margin:-1px!important;border:0!important}',
@@ -48,14 +48,61 @@ button.setAttribute('aria-pressed','false');button.dataset.listening='false';
 const status=document.createElement('div');
 status.id='ratibVoiceStatus';status.className='no-print';status.hidden=true;
 status.setAttribute('role','status');status.setAttribute('aria-live','polite');
-const headerActions=document.querySelector('header .header-actions');
-const sidebarToggle=document.getElementById('sidebarMenuBtn');
-if(headerActions&&sidebarToggle&&sidebarToggle.parentElement===headerActions)
- headerActions.insertBefore(button,sidebarToggle.nextSibling);
-else if(headerActions)headerActions.append(button);
-else document.body.append(button);
-document.body.append(status);
-function applyVoiceVisibility(){button.hidden=!visible;button.style.display=visible?'flex':'none';if(!visible&&listening)stop();}
+document.body.append(button,status);
+const MIC_SIZE=32,MIC_GAP=6;
+let positioning=false;
+function micTarget(){
+ const current=eligible(document.activeElement);
+ if(!current)return null;
+ if(current.closest('#ratibVoiceSettingsCard,#ratibFavoritesPanel,#ratibCenterFavoritesMenu,[role="dialog"],[aria-modal="true"]'))return null;
+ if(current.closest('.hidden,[hidden],[inert]'))return null;
+ return current;
+}
+function updateVoicePosition(){
+ const target=micTarget();
+ if(!visible||!target){
+  button.hidden=true;button.style.display='none';
+  return;
+ }
+ const rect=target.getBoundingClientRect();
+ const width=window.innerWidth||document.documentElement.clientWidth||360;
+ const height=window.visualViewport?.height||window.innerHeight||720;
+ if(rect.width<12||rect.height<12||rect.bottom<0||rect.top>height||rect.right<0||rect.left>width){
+  button.hidden=true;button.style.display='none';return;
+ }
+ let x,y;
+ const preferRight=window.getComputedStyle(target).direction!=='ltr';
+ if(preferRight&&rect.right+MIC_GAP+MIC_SIZE<=width-4)x=rect.right+MIC_GAP;
+ else if(rect.left-MIC_SIZE-MIC_GAP>=4)x=rect.left-MIC_SIZE-MIC_GAP;
+ else if(rect.right+MIC_GAP+MIC_SIZE<=width-4)x=rect.right+MIC_GAP;
+ else x=Math.max(4,Math.min(width-MIC_SIZE-4,preferRight?rect.right-MIC_SIZE:rect.left));
+ // Outside the input and above its dropdown whenever possible.
+ if(rect.left-MIC_SIZE-MIC_GAP<4&&rect.right+MIC_GAP+MIC_SIZE>width-4){
+  if(rect.top>=MIC_SIZE+MIC_GAP+4)y=rect.top-MIC_SIZE-MIC_GAP;
+  else y=rect.bottom+MIC_GAP;
+ }else y=rect.top+Math.max(0,(rect.height-MIC_SIZE)/2);
+ y=Math.max(4,Math.min(height-MIC_SIZE-4,y));
+ button.style.left=Math.round(x)+'px';
+ button.style.top=Math.round(y)+'px';
+ button.hidden=false;button.style.display='flex';
+}
+function scheduleVoicePosition(){
+ if(positioning)return;
+ positioning=true;
+ const raf=window.requestAnimationFrame||((fn)=>window.setTimeout(fn,0));
+ raf(()=>{positioning=false;updateVoicePosition();});
+}
+function applyVoiceVisibility(){
+ if(!visible&&listening)stop();
+ if(!visible){button.hidden=true;button.style.display='none';}
+ else scheduleVoicePosition();
+}
+document.addEventListener('focusin',scheduleVoicePosition,true);
+document.addEventListener('focusout',scheduleVoicePosition,true);
+document.addEventListener('scroll',scheduleVoicePosition,true);
+window.addEventListener('resize',scheduleVoicePosition);
+window.visualViewport?.addEventListener?.('resize',scheduleVoicePosition);
+window.visualViewport?.addEventListener?.('scroll',scheduleVoicePosition);
 applyVoiceVisibility();
 function notify(message,kind='info'){
  if(typeof window.showToast==='function')window.showToast(message,kind,4500);
@@ -64,6 +111,7 @@ function notify(message,kind='info'){
 function active(value){
  listening=value;button.dataset.listening=String(value);button.setAttribute('aria-pressed',String(value));
  button.textContent=value?'⏹️':'🎙️';
+ scheduleVoicePosition();
  button.title=value?'إيقاف الإملاء الصوتي':'ابدأ الإملاء الصوتي في الحقل المحدد';
  button.setAttribute('aria-label',button.title);
  status.hidden=!value;status.textContent=value?'🎙️ جارٍ الاستماع… تحدث الآن':'';
@@ -115,12 +163,13 @@ function stop(){
 }
 button.addEventListener('pointerdown',e=>{
  if(eligible(document.activeElement))remember(document.activeElement);
- e.preventDefault(); // retains the caret in the currently edited field
+ e.preventDefault(); // Keep the target field's caret while tapping the adjacent mic.
 });
+button.addEventListener('mousedown',e=>e.preventDefault());
 button.addEventListener('click',()=>{
  if(listening){stop();return;}
  if(!Recognition){notify('متصفحك لا يدعم الإملاء الصوتي؛ يمكن استخدام ميكروفون لوحة المفاتيح.','warn');return;}
- if(!eligible(document.activeElement)&&!eligible(lastTarget)){notify('حدد حقل كتابة ثم اضغط زر الميكروفون.','warn');return;}
+ if(!micTarget()){notify('حدد حقل كتابة ثم اضغط زر الميكروفون.','warn');return;}
  if(eligible(document.activeElement))remember(document.activeElement);
  engine=new Recognition();
  engine.lang=language;engine.continuous=true;engine.interimResults=false;engine.maxAlternatives=1;lastResult=-1;

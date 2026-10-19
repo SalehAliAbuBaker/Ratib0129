@@ -23,7 +23,7 @@ console.log('PASS voice activation, caret insertion, favorites settings, persist
 
 (async()=>{
  const {JSDOM}=require('jsdom');
- const dom=new JSDOM('<!doctype html><html><body><header><div class="header-actions"><button id="sidebarMenuBtn"></button></div></header><div id="pageSettings"></div><textarea id="memo">مسودة</textarea><input id="amount" type="number"></body></html>',{url:'https://ratib.test/',runScripts:'outside-only',pretendToBeVisual:true});
+ const dom=new JSDOM('<!doctype html><html><body><header><div class="header-actions"><button id="sidebarMenuBtn"></button></div></header><div id="pageSettings"></div><textarea id="memo">مسودة</textarea><input id="amount" type="number"><button id="elsewhere">إغلاق</button></body></html>',{url:'https://ratib.test/',runScripts:'outside-only',pretendToBeVisual:true});
  const win=dom.window,d=win.document;let recognizer,starts=0;
  class SpeechMock{
   start(){starts++;}
@@ -34,29 +34,41 @@ console.log('PASS voice activation, caret insertion, favorites settings, persist
  const mic=d.getElementById('ratibVoiceButton'),memo=d.getElementById('memo');
  assert(mic,'voice control is present');
  assert.equal(starts,0,'microphone must not activate at page load');
- assert.equal(mic.parentElement.className,'header-actions','microphone belongs in header');
- assert.equal(mic.previousElementSibling.id,'sidebarMenuBtn','microphone must be directly next to the sidebar icon');
+ assert.equal(mic.parentElement,d.body,'microphone must float beside the selected field, not in header');
+ assert.equal(d.querySelector('header #ratibVoiceButton'),null,'no microphone remains in header');
  const voiceToggle=d.getElementById('ratibVoiceVisible');
  assert(voiceToggle&&!voiceToggle.checked&&mic.hidden,'voice control must start hidden by default');
  voiceToggle.checked=true;voiceToggle.dispatchEvent(new win.Event('change',{bubbles:true}));
- assert(!mic.hidden&&mic.style.display==='flex','voice control must appear after enabling it');
+ assert(mic.hidden,'no microphone appears until an editable field has focus');
  assert.equal(win.localStorage.getItem('ratib.voice.visible.v1'),'true');
+ memo.getBoundingClientRect=()=>({left:40,right:250,top:100,bottom:145,width:210,height:45});
+ const amount=d.getElementById('amount');
+ amount.getBoundingClientRect=()=>({left:40,right:250,top:200,bottom:245,width:210,height:45});
  memo.focus();memo.setSelectionRange(0,0);
+ await new Promise(r=>win.setTimeout(r,35));
+ assert(!mic.hidden&&mic.style.display==='flex','microphone appears beside focused field');
+ assert.equal(mic.style.top,'107px','microphone aligns vertically beside active input');
  mic.click();assert.equal(starts,1,'mic starts from user click');
  let inputs=0;memo.addEventListener('input',()=>inputs++);
  recognizer.onresult({resultIndex:0,results:[{0:{transcript:'مرحبا '},isFinal:true}]});
  assert.equal(memo.value,'مرحبا مسودة','dictation inserts at the saved caret and keeps remaining input');
  assert.equal(inputs,1,'native input listeners should be notified');
  mic.click();
- const amount=d.getElementById('amount');amount.focus();mic.click();
+ amount.focus();
+ await new Promise(r=>win.setTimeout(r,35));
+ assert.equal(mic.style.top,'207px','microphone follows cursor focus to the next input');
+ mic.click();
  recognizer.onresult({resultIndex:0,results:[{0:{transcript:'١٢٣'},isFinal:true}]});
  assert.equal(amount.value,'123','Arabic digits must normalize into numeric amount fields');
  mic.click();
+ d.getElementById('elsewhere').focus();
+ await new Promise(r=>win.setTimeout(r,35));
+ assert(mic.hidden,'microphone disappears when leaving editable fields');
  assert(d.getElementById('ratibVoiceSettingsCard'),'voice options must be in Settings');
  voiceToggle.checked=false;voiceToggle.dispatchEvent(new win.Event('change',{bubbles:true}));
  assert(mic.hidden,'turning voice toggle off must hide header microphone');
  dom.window.close();
- console.log('PASS mock browser voice typing at cursor, numeric digits and user-controlled microphone');
+ console.log('PASS voice typing at cursor, repositioning beside focused inputs, hide on blur and numeric digits');
 })().catch(error=>{console.error(error);process.exitCode=1;});
 
 

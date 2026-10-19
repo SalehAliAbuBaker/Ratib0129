@@ -204,7 +204,7 @@ function icons(){
   ['reportsGroupTrialHeader','ميزان المراجعة','<path d="M12 3v18M3 7h18M7 7l-4 7h8l-4-7M17 7l-4 7h8l-4-7M8 21h8"/>']
  ];
  for(const [id,title,paths] of items){
-  const e=el(id);if(!e)continue;
+  const e=el(id);if(!e||e.closest('#ratibReportMenu'))continue;
   e.classList.add('ratib-report-icon-heading');
   e.innerHTML='<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+paths+'</svg><span>'+title+'</span>';
  }

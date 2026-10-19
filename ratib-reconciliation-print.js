@@ -40,7 +40,7 @@ function printProof(name,currency,txs){
  const evidence=inspect(name,currency,from,to);
  if(!evidence)return;
  // Only the reconciled balance cell is marked; no separate footer or banner.
- if(!evidence.stable||!evidence.inPeriod||evidence.dateAfterPeriod)return;
+ if(window.ratibStatementSettings?.().reconciliation===false||!evidence.stable||!evidence.inPeriod||evidence.dateAfterPeriod)return;
  const rows=[...page.querySelectorAll("#psTableBody tr")].filter(tr=>tr.cells?.length>=6&&tr.cells[0]?.colSpan===1&&!tr.classList.contains("ps-total-row"));
  const series=txs.filter(t=>t.debitAccount===name||t.creditAccount===name);
  let last=-1;
@@ -81,7 +81,7 @@ renderAccountOperations=function(name,scope=null,ui=null){
   const currency=page.dataset.currency,proof=currency?inspect(name,currency,from,to):null;
   page.querySelectorAll(".ratib-reconciliation-screen-proof").forEach(el=>el.remove());
   if(!proof)return;
-  if(proof.stable&&proof.inPeriod&&!proof.dateAfterPeriod){
+  if(window.ratibStatementSettings?.().reconciliation!==false&&proof.stable&&proof.inPeriod&&!proof.dateAfterPeriod){
     const rows=[...page.querySelectorAll(".account-statement-row[data-tx-id]")];
     const group=getAccountOperations(name,scope,currency);
     let last=-1;

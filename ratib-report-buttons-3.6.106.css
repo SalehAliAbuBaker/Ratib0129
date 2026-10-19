@@ -19,6 +19,9 @@
   display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr))!important;
   gap:7px!important;margin:9px 0 12px!important;align-items:stretch;
  }
+ #pageReports .ratib-special-actions{
+  grid-template-columns:repeat(5,minmax(0,1fr))!important;
+ }
  #pageReports .trial-fx-toolbar {
   display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;
   gap:8px!important;align-items:stretch;margin:10px 0!important;

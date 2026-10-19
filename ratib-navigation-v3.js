@@ -44,3 +44,73 @@ function refresh(){reportsMenu();backIcons();}
 refresh();let pending=false;
 new MutationObserver(()=>{if(pending)return;pending=true;queueMicrotask(()=>{pending=false;refresh();});}).observe(document.body,{childList:true,subtree:true});
 })();
+
+
+/* Ratib trial 3.6.116: guard unsaved voucher inputs and style success toasts. */
+(function ratibTrialBackAndToast116(){
+ 'use strict';
+ const VERSION='3.6.116';
+ const originals=new Map();
+ const editor='#cashFlowCard,#multiVoucherCard';
+ const backButtons='button.ratib-back-control,#ratibCashBackBtn,#backToMenuBtn,#ledgerBackBtn,button.back-to-menu-btn,[data-account-action="close"]';
+ function trackable(el){
+  return !!el?.closest?.(editor) && !el.closest('.hidden,[hidden]') &&
+    !el.disabled&&!el.readOnly&&/^(INPUT|SELECT|TEXTAREA)$/.test(el.tagName)&&
+    !/^(hidden|button|submit|checkbox|radio|file)$/.test(el.type||'');
+ }
+ function hasChanges(){
+  for(const [el,initial] of originals){
+   if(!el.isConnected||!trackable(el)){originals.delete(el);continue;}
+   if(el.value!==initial)return true;
+  }
+  return false;
+ }
+ document.addEventListener('focusin',e=>{
+  const el=e.target;
+  if(trackable(el)&&!originals.has(el))originals.set(el,el.value);
+ },true);
+ document.addEventListener('input',e=>{
+  if(!e.isTrusted)return;
+  const el=e.target;
+  if(trackable(el)&&!originals.has(el))originals.set(el,el.defaultValue??'');
+ },true);
+ document.addEventListener('click',e=>{
+  const button=e.target?.closest?.(backButtons);
+  if(!button||!hasChanges())return;
+  if(!window.confirm('هناك تغييرات في السند لم تُحفظ. هل تريد الرجوع دون حفظها؟')){
+   e.preventDefault();e.stopImmediatePropagation();e.stopPropagation();return;
+  }
+  originals.clear();
+ },true);
+ function successStyle(message){
+  const value=String(message??'').trim();if(!value)return;
+  for(const el of document.querySelectorAll('#toast,.toast,.toast-message,#toastNotification,#appToast,.app-toast,.notification,.toast-notification,[role="status"]')){
+   if(!(el.textContent||'').trim().includes(value))continue;
+   (el.closest('.toast,.app-toast,.notification,.toast-notification')||el).classList.add('ratib-success-toast-116');
+  }
+ }
+ function hookToast(){
+  const old=window.showToast;
+  if(typeof old!=='function'||old.__ratibToast116)return;
+  function enhanced(message,kind,...args){
+   if(kind!=='success')document.querySelectorAll('.ratib-success-toast-116').forEach(el=>el.classList.remove('ratib-success-toast-116'));
+   const result=old.apply(this,[message,kind,...args]);
+   if(kind==='success'){
+    const msg=String(message||'');
+    if(/حفظ|تسجيل|إضافة/.test(msg)&&/سند|قيد|عملية/.test(msg))originals.clear();
+    queueMicrotask(()=>successStyle(message));setTimeout(()=>successStyle(message),60);
+   }
+   return result;
+  }
+  enhanced.__ratibToast116=true;window.showToast=enhanced;
+ }
+ function version(){
+  const el=document.getElementById('appVersionLabel');
+  if(el&&!el.dataset.version116){el.dataset.version116='1';el.innerHTML='الإصدار '+VERSION+' <span style="color:#c66b00;font-weight:900">(تجريبية)</span>';}
+  document.querySelectorAll('.ratib-about-version').forEach(el=>{if(!el.dataset.version116){el.dataset.version116='1';el.textContent='الإصدار '+VERSION+' (تجريبية)';}});
+  try{if(typeof RATIB_RELEASE==='object'&&RATIB_RELEASE)RATIB_RELEASE.version=VERSION;}catch(_){}
+ }
+ hookToast();version();
+ let pending=false;
+ new MutationObserver(()=>{if(pending)return;pending=true;queueMicrotask(()=>{pending=false;hookToast();version();});}).observe(document.body,{childList:true,subtree:true});
+})();

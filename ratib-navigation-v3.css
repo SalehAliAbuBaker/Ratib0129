@@ -17,3 +17,15 @@
  #ratibFavoritesPanel #ratibPinCurrent{border-color:var(--accent);color:var(--accent)}
  #ratibFavoritesPanel .fav-head strong{font-size:1.05rem}
 }
+
+
+/* Ratib trial 3.6.116: accessible green success feedback; warnings/errors unchanged. */
+@media screen {
+ :is(.toast.success,.toast.toast-success,.toast[data-type="success"],.toast[data-kind="success"],.toast[data-status="success"],#toast.success,#toast[data-type="success"],.notification.success,.notification[data-type="success"],.ratib-success-toast-116){
+  background:#14532d!important;color:#fff!important;border:1px solid #166534!important;
+  font-size:14px!important;font-weight:700!important;line-height:1.65!important;
+  padding:11px 15px!important;border-radius:10px!important;
+  opacity:1!important;box-shadow:0 8px 22px rgba(0,0,0,.22)!important;z-index:99999!important;
+ }
+ :is(.toast.success,.toast.toast-success,.toast[data-type="success"],.toast[data-kind="success"],#toast.success,#toast[data-type="success"],.notification.success,.notification[data-type="success"],.ratib-success-toast-116) :is(span,p,small,strong,i,svg){color:#fff!important}
+}

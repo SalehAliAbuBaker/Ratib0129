@@ -232,7 +232,7 @@ const CENTER_IDLE_MS=5000;
 function armCenterAutoClose(){
  if(centerIdleTimer!==null){window.clearTimeout(centerIdleTimer);centerIdleTimer=null;}
  if(centerMenu&&!centerMenu.hidden){
-  centerIdleTimer=window.setTimeout(()=>{centerIdleTimer=null;closeCenterFavorites();},CENTER_IDLE_MS);
+  centerIdleTimer=window.setTimeout(()=>{closeCenterFavorites();},CENTER_IDLE_MS);
  }
 }
 function renderShortcutBar(){if(!centerMenu)return;centerMenu.innerHTML='<strong>⭐ اختصاراتي</strong>'+(selected.length?selected.filter(id=>byId[id]).map(id=>'<button type="button" data-center-fav="'+escapeHtml(id)+'">'+escapeHtml(byId[id][2]+' '+byId[id][1])+'</button>').join(''):'<button type="button" data-center-settings>⚙️ اختر الاختصارات من الإعدادات</button>');}

@@ -17,7 +17,7 @@ function refreshAsset(){
  if(source){
   const image=new Image();
   pendingReady=new Promise(resolve=>{
-   image.onload=()=>{if(cachedSource===source){cachedImage=image;loaded=true;}resolve(true);};
+   image.onload=()=>{if(cachedSource===source){cachedImage=image;loaded=!!image.naturalWidth;syncPrint();}resolve(!!image.naturalWidth);};
    image.onerror=()=>{if(cachedSource===source){cachedImage=null;loaded=false;}resolve(false);};
    image.src=source;
   });
@@ -83,9 +83,12 @@ function syncPrint(){
  ];
  for(const [selector,kind] of roots)syncRoot(document.querySelector(selector),kind);
 }
+function whenReady(){refreshAsset();return pendingReady.then(ok=>Boolean(ok&&loaded));}
 function drawCanvas(canvas){
  const item=refreshAsset();
- if(!item||item.enabled===false||!loaded||!cachedImage?.naturalWidth)return false;
+ if(!item||item.enabled===false)return false;
+ if(!loaded&&cachedImage?.complete&&cachedImage.naturalWidth)loaded=true;
+ if(!loaded||!cachedImage?.naturalWidth)throw Error('شعار المستخدم قيد التحميل؛ انتظر لحظة ثم أعد إنشاء ملف PDF.');
  const ctx=canvas?.getContext?.('2d');if(!ctx)return false;
  if(canvas.__ratibLogoDrawn===cachedSource)return true;
  const side=Math.max(55,Math.min(105,Math.round(Math.min(canvas.width,canvas.height)*.12)));
@@ -155,6 +158,6 @@ function init(){
  document.addEventListener('pointerdown',()=>{if(!loaded)refreshAsset();},{passive:true});
  document.addEventListener('visibilitychange',()=>{if(!document.hidden){refreshAsset();syncPrint();}});
 }
-window.RatibPrintLogo={drawCanvas,syncPrint,refreshAsset,status,compress:optimize};
+window.RatibPrintLogo={drawCanvas,syncPrint,refreshAsset,status,whenReady,compress:optimize};
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();
 })();

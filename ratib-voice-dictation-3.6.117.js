@@ -90,7 +90,8 @@ function insert(spoken){
    const start=typeof target.selectionStart==='number'?target.selectionStart:(selected?.start??target.value.length);
    const end=typeof target.selectionEnd==='number'?target.selectionEnd:(selected?.end??start);
    const spacer=start>0&&/[\p{L}\p{N}]$/u.test(target.value.slice(0,start))?' ':'';
-   target.setRangeText(spacer+content,start,end,'end');
+   const trailing=end<target.value.length&&/[\p{L}\p{N}]/u.test(target.value.charAt(end))?' ':'';
+   target.setRangeText(spacer+content+trailing,start,end,'end');
    lastSelection=selectionAt(target);
   }
   lastTarget=target;

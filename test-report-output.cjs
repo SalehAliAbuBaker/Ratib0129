@@ -153,7 +153,7 @@ async function run(){
   const count=prints.length,before=f.downloads.length;
   d.getElementById('ratibMultiVoucherPreviewBtn').click();assert.equal(prints.length,count);assert(d.getElementById('printPreviewModal').classList.contains('show'));d.getElementById('printPreviewCancelBtn').click();
   d.getElementById('printMultiVoucherBtn').click();assert.equal(prints.length,count+1);assert(d.body.classList.contains('printing-voucher'));finishPrint();
-  d.getElementById('pdfMultiVoucherBtn').click();assert.equal(f.downloads.length,before+1);
+  d.getElementById('pdfMultiVoucherBtn').click();await waitFor(()=>f.downloads.length===before+1,'compound voucher PDF');
   code(w,"multiVoucherLines[0].amount='0';renderMultiVoucherLines()");
   d.getElementById('printMultiVoucherBtn').click();assert.equal(prints.length,count+1);
   d.getElementById('ratibMultiVoucherPreviewBtn').click();assert(!d.getElementById('printPreviewModal').classList.contains('show'));
@@ -168,7 +168,7 @@ async function run(){
    const count=prints.length,downloads=f.downloads.length,shares=shared.length;
    d.getElementById('ratibMultiVoucherPreviewBtn').click();assert(d.getElementById('printPreviewModal').classList.contains('show'));assert.equal(prints.length,count);d.getElementById('printPreviewCancelBtn').click();
    d.getElementById('printMultiVoucherBtn').click();assert.equal(prints.length,count+1);finishPrint();
-   d.getElementById('pdfMultiVoucherBtn').click();assert.equal(f.downloads.length,downloads+1);
+   d.getElementById('pdfMultiVoucherBtn').click();await waitFor(()=>f.downloads.length===downloads+1,'receipt/payment PDF');
    d.getElementById('ratibMultiVoucherShareBtn').click();await pause(20);assert.equal(shared.length,shares+1);
   }
  });

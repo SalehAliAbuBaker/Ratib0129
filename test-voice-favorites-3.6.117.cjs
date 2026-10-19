@@ -5,10 +5,10 @@ const voice=fs.readFileSync('ratib-voice-dictation-3.6.117.js','utf8');
 const fav=fs.readFileSync('ratib-favorites-v3.js','utf8');
 const sw=fs.readFileSync('sw.js','utf8');
 for(const [file,source] of [['voice',voice],['favorites',fav],['worker',sw]])assert.doesNotThrow(()=>new vm.Script(source),file+' must parse');
-assert.match(html,/ratib-voice-dictation-3\.6\.117\.js\?v=3\.6\.120/);
-assert.match(html,/ratib-favorites-v3\.js\?v=3\.6\.120/);
-assert.match(html,/الإصدار 3\.6\.120/);
-assert.match(sw,/v127-trial-favorites-idle-voice-header-3\.6\.120/);
+assert.match(html,/ratib-voice-dictation-3\.6\.117\.js\?v=3\.6\.121/);
+assert.match(html,/ratib-favorites-v3\.js\?v=3\.6\.121/);
+assert.match(html,/الإصدار 3\.6\.121/);
+assert.match(sw,/v128-trial-voice-field-3\.6\.121/);
 assert.match(sw,/ratib-voice-dictation-3\.6\.117\.js/);
 assert.match(voice,/button\.addEventListener\('click'/); // speech starts only by user click
 assert.match(voice,/const Recognition=window\.SpeechRecognition\|\|window\.webkitSpeechRecognition/);

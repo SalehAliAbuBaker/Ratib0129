@@ -11,7 +11,7 @@ function parseRate(raw){
    if(v.lastIndexOf('.')>v.lastIndexOf(',')){if(!/^\d{1,3}(,\d{3})+(\.\d+)?$/.test(v))return NaN;v=v.replace(/,/g,'');}
    else {if(!/^\d{1,3}(\.\d{3})+(,\d+)?$/.test(v))return NaN;v=v.replace(/\./g,'').replace(',','.');}
  }else if(v.includes(',')){
-   if(/^\d{1,3},\d{3}$/.test(v))return NaN; // ambiguous: use a dot or Arabic decimal mark
+   if(/^[1-9]\d{0,2},\d{3}$/.test(v))return NaN; // ambiguous: use a dot or Arabic decimal mark
    if((v.match(/,/g)||[]).length>1){if(!/^\d{1,3}(,\d{3})+$/.test(v))return NaN;v=v.replace(/,/g,'');}
    else v=v.replace(',','.');
  }
@@ -99,6 +99,7 @@ function draw(kind){
   rate.addEventListener('input',()=>{item.rate=rate.value;if(kind==='multi')syncLines(code,rate.value);});
   source.addEventListener('input',()=>{item.source=source.value;});
   rateBox.append(rate);sourceBox.append(source);row.append(label,rateBox,sourceBox);panel.append(row);
+  if(kind==='multi'&&item.rate)syncLines(code,item.rate);
  }
 }
 function setup(){
@@ -188,7 +189,7 @@ function accounting(){
  // Rate inputs only; amount inputs retain existing accounting behavior.
  document.addEventListener('blur',event=>{
   const input=event.target;
-  if(!(input instanceof HTMLInputElement)||!input.matches('.multi-line-rate,[data-reference-currency],#spendFxQuote,[id^="trialFxRate"]'))return;
+  if(!(input instanceof HTMLInputElement)||!input.matches('.multi-line-rate,[data-reference-currency],#spendFxRate,[id^="trialFxRate"]'))return;
   const n=parseRate(input.value);
   if(Number.isFinite(n)&&input.value!==String(n)){
    input.value=String(n);input.dispatchEvent(new Event('input',{bubbles:true}));

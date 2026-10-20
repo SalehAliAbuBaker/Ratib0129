@@ -9,7 +9,7 @@ const labels=[
 ];
 const markup='<html lang="ar"><head></head><body>'+
  '<button id="sidebarMenuBtn">☰</button><button id="backToMenuBtn"><span>الرجوع إلى الشاشة السابقة</span></button>'+
- '<aside id="appSidebar"><div class="sidebar-nav"></div></aside><section id="pageSettings"></section></body></html>';
+ '<aside id="appSidebar"><div class="sidebar-nav"><button data-sidebar-action="exit"><span>خروج</span></button></div></aside><section id="pageSettings"></section></body></html>';
 const dom=new JSDOM(markup,{runScripts:'outside-only',url:'https://ratib.test/',pretendToBeVisual:true});
 const w=dom.window,doc=w.document;
 w.HTMLElement.prototype.scrollIntoView=function(){};

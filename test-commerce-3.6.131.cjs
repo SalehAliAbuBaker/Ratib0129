@@ -1,13 +1,13 @@
 const fs=require('node:fs'),path=require('node:path'),vm=require('node:vm'),assert=require('node:assert/strict');
-const source=fs.readFileSync(path.join(__dirname,'ratib-commerce-3.6.131.js'),'utf8'),mark="window.RatibCommerce={open,render:paint,version:'3.6.136'};";
+const source=fs.readFileSync(path.join(__dirname,'ratib-commerce-3.6.131.js'),'utf8'),mark="window.RatibCommerce={open,render:paint,version:'3.6.137'};";
 assert(source.includes(mark));assert(source.includes("['pdf','PDF'],['share','المشاركة']"));
-const code=source.replace(mark,"window.__test={data,products,guideMarkup,documentHtml,productOutput,productGuideCanvases,filteredCatalogProducts,setCatalogFilter:(term,group)=>{catalogSearch=term;catalogGroup=group;},nextNumber,invoice,currentDraftDocument,draftOutput,commerceSignatureLabels,commerceCanvasPage,commerceInvoiceRecipientLabel,commerceInvoiceRecipientRow,commerceProductLabel,commerceFindProduct,commerceAmountWords,saveInvoice,setInbound:()=>{mode='in';view='new';draft=null;},setOutbound:()=>{mode='out';view='new';draft=null;},setDraft:x=>{draft=x;}};"+mark);
+const code=source.replace(mark,"window.__test={data,products,guideMarkup,documentHtml,productOutput,productGuideCanvases,filteredCatalogProducts,setCatalogFilter:(term,group)=>{catalogSearch=term;catalogGroup=group;},nextNumber,invoice,currentDraftDocument,draftOutput,commerceSignatureLabels,commerceCanvasPage,commerceInvoiceRecipientLabel,commerceInvoiceRecipientRow,commerceProductLabel,commerceFindProduct,commerceAmountWords,commerceBaseTotal,commerceValidFx,makeJournal,openFavorite,saveInvoice,setInbound:()=>{mode='in';view='new';draft=null;},setOutbound:()=>{mode='out';view='new';draft=null;},setDraft:x=>{draft=x;}};"+mark);
 const memory={},store={get:(k,d)=>memory[k]??d,set:(k,v)=>memory[k]=v},capture=[],rows=[],headerDraws=[];
 const window={RatibPrintLogo:{whenReady:async()=>true,syncPrint(){},drawCanvas(){return true;}}},document={readyState:'loading',addEventListener(){},getElementById(){return null;}};
 class File{constructor(parts,name,opts){this.name=name;this.type=opts.type;}}
 const state={
  window,document,File,store,console,
- getCanonicalCatalog:()=>[{details:[['1','مخزون']]}],
+ getCanonicalCatalog:()=>[{details:[['1','مخزون'],['2','صندوق'],['3','عملاء'],['4','موردون'],['5','مبيعات'],['6','تكلفة'],['7','تسويات']]}],
  getNextMultiVoucherNumber:()=>1,getAllTransactions:()=>[],getMasterPlan:()=>({transactions:[]}),
  APP_SCHEMA_VERSION:3,flushStorage:async()=>{},showToast(){},audit(){},renderAllData(){},updateProDashboard(){},navigateToTab(){},
  getHeaderConfig:()=>({name:'الجهة من إعدادات الترويسة',details:'العنوان من الإعدادات',show:true}),
@@ -154,7 +154,49 @@ d.warehouses=[{id:'main',name:'المخزن الرئيسي'}];store.set('commerc
  assert(!css.includes('border:2px solid #dc2626'),'no red recipient frame');
  assert(css.includes('.rc-type-switch')&&css.includes('repeat(3,minmax(0,1fr))'));
  assert(css.includes('.rc-invoice-card .rc-grid')&&css.includes('repeat(2,minmax(0,1fr))'));
- const doc=T.documentHtml(d,{kind:'purchase',title:'فاتورة مشتريات',number:'IN-1',date:'2026-10-20',warehouse:'main',partyName:'مورد',total:10,lines:[]});
+ // Foreign currency accounting: carry the original amount on financial journal lines,
+ // with all debit and credit postings balanced by YER equivalent and purchase costs in YER.
+ const accounts={cash:'صندوق',receivable:'عملاء',payable:'موردون',inventory:'مخزون',
+  sales:'مبيعات',cogs:'تكلفة',adjust:'تسويات'};
+ Object.assign(d.accounts,accounts);
+ const originalSale={id:'sale-fx-1',kind:'sale',title:'فاتورة مبيعات',number:'SI-00044',
+  date:'2026-10-20',warehouse:'main',partyName:'عميل',payment:'credit',
+  currency:'SAR',exchangeRate:410,total:100,baseTotal:41000,cost:17000,
+  note:'عملية اختبار سعر الصرف',lines:[{product:'a',unit:'حبة',qty:10,price:10,subtotal:100,cost:17000}]};
+ const saleJournal=T.makeJournal(originalSale,d);
+ assert.equal(saleJournal.length,4,'sale journal has customer, sales, cost and inventory');
+ assert.equal(saleJournal.filter(t=>t.debitAccount).reduce((v,t)=>v+t.amount,0),58000);
+ assert.equal(saleJournal.filter(t=>t.creditAccount).reduce((v,t)=>v+t.amount,0),58000);
+ assert.equal(saleJournal[0].multiVoucher.lines[0].currency,'SAR');
+ assert.equal(saleJournal[0].multiVoucher.lines[0].amount,100);
+ assert.equal(saleJournal[0].multiVoucher.lines[0].base,41000);
+ assert.equal(saleJournal[0].multiVoucher.lines[0].rate,410);
+ assert.equal(saleJournal[2].multiVoucher.lines[2].currency,'YER','cost line remains YER');
+ assert.equal(saleJournal[0].currency,'YER','transaction amounts are YER equivalent for reports');
+ const originalPurchase={id:'purchase-fx-1',kind:'purchase',title:'فاتورة مشتريات',number:'PI-00044',
+  date:'2026-10-20',warehouse:'main',partyName:'مورد',payment:'credit',
+  currency:'USD',exchangeRate:2150,total:20,baseTotal:43000,cost:43000,
+  note:'اختبار',lines:[{product:'a',unit:'حبة',qty:2,price:10,subtotal:20,cost:43000}]};
+ const purchaseJournal=T.makeJournal(originalPurchase,d);
+ assert.equal(purchaseJournal.length,2);
+ assert.equal(purchaseJournal[0].amount,43000);
+ assert.equal(purchaseJournal[1].amount,43000);
+ assert.equal(purchaseJournal[0].multiVoucher.lines[0].currency,'YER','inventory in YER');
+ assert.equal(purchaseJournal[0].multiVoucher.lines[1].currency,'USD','supplier account in USD');
+ assert.equal(purchaseJournal[0].multiVoucher.lines[1].amount,20);
+ assert.equal(T.commerceBaseTotal(100,'SAR',410),41000);
+ assert.throws(()=>T.commerceValidFx('USD',0),/سعر الصرف/);
+ assert.throws(()=>T.commerceValidFx('USD',''),/سعر الصرف/);
+ assert.throws(()=>T.makeJournal({...originalSale,baseTotal:100},d),/المعادل اليمني/);
+ const journalHTML=T.documentHtml(d,originalPurchase);
+ assert(journalHTML.includes('20 دولار أمريكي')||journalHTML.includes('20')&&journalHTML.includes('دولار أمريكي'));
+ assert(journalHTML.includes('43,000')&&journalHTML.includes('المعادل اليمني'),'FX print equivalent');
+ const savedCount=T.data().invoices.length;
+ assert.equal(T.data().invoices.length,savedCount,'pure journal must not post data');
+ // Favorite navigation should accept only approved sections/types.
+ assert.throws(()=>T.openFavorite('sale','new:أمر توريد'),/نوع المستند/);
+ assert.throws(()=>T.openFavorite('unknown','records'),/قسم/);
+const doc=T.documentHtml(d,{kind:'purchase',title:'فاتورة مشتريات',number:'IN-1',date:'2026-10-20',warehouse:'main',partyName:'مورد',total:10,lines:[]});
  assert(doc.includes('الجهة من إعدادات الترويسة')&&doc.includes('فاتورة مشتريات'));
  assert(doc.includes('عملة المستند')&&doc.includes('ريال يمني'),'currency explicit on invoice');
  assert(doc.includes('التفقيط:')&&doc.includes('تفقيط 10 YER'),'amount words printed');
@@ -175,5 +217,5 @@ d.warehouses=[{id:'main',name:'المخزن الرئيسي'}];store.set('commerc
  assert.equal(headerDraws.filter(t=>t==='ملاحظات:').length,1,'long PDF note has single heading');
  assert(headerDraws.some(t=>t.includes('التفقيط:')),'Arabic amount spelling in PDF');
  assert(!rows.some(r=>r.includes('ملاحظات')),'notes are not repeated table rows');
- console.log('PASS 3.6.136: one continuous note, total words, optional print name, smart product search, YER currency and invoice output');
+ console.log('PASS 3.6.137: FX journal SAR/USD YER base, print equivalent, favorite routes, optional print name, notes and smart search');
 })().catch(error=>{console.error(error);process.exitCode=1;});

@@ -163,22 +163,71 @@ async function saveInvoice(){
  const doc={id:id(),kind:v.kind,number:prefix+'-'+String(db.invoices.filter(x=>x.kind===v.kind).length+1).padStart(5,'0'),date:v.date,warehouse:v.warehouse,party:returning?src.party:v.party,payment:returning?src.payment:v.payment,partyName:returning?src.partyName:(db.people.find(x=>x.id===v.party)?.name||''),origin:returning?src.id:'',total,cost,lines:[{product:p.id,qty:q,price,cost}],status:'posted'};
  await persistDoc(doc,db);
 }
+async function saveMovement(){
+ const db=data(),transfer=view==='transfer',product=$('rc-product')?.value,warehouse=$('rc-warehouse')?.value,to=$('rc-target')?.value,direction=$('rc-direction')?.value,units=n($('rc-qty')?.value),dateValue=$('rc-date')?.value;
+ if(!db.products.some(p=>p.id===product)||!db.warehouses.some(w=>w.id===warehouse))throw Error('اختر صنفًا ومخزنًا.');
+ if(!/^\d{4}-\d{2}-\d{2}$/.test(dateValue)||!Number.isFinite(Date.parse(dateValue)))throw Error('التاريخ غير صحيح.');
+ positive(units,'الكمية');
+ if(transfer&&(!to||to===warehouse||!db.warehouses.some(w=>w.id===to)))throw Error('المخزن الهدف غير صالح.');
+ if((transfer||direction==='out')&&qty(db,product,warehouse)<units)throw Error('كمية المخزون غير كافية.');
+ if(!transfer&&!['in','out'].includes(direction))throw Error('نوع الحركة غير معروف.');
+ const unitCost=transfer||direction==='out'?average(db,product,warehouse):n($('rc-cost')?.value);
+ positive(rnd(unitCost),'تكلفة الوحدة');
+ const total=rnd(units*unitCost),kind=transfer?'transfer':'adjust';
+ const doc={id:id(),kind,number:(transfer?'TR':'AD')+'-'+String(db.invoices.filter(x=>x.kind===kind).length+1).padStart(5,'0'),date:dateValue,warehouse,from:warehouse,to:to||'',direction:direction||'',payment:'cash',party:'',partyName:'',total,cost:total,lines:[{product,qty:units,price:unitCost,cost:total}],status:'posted'};
+ await persistDoc(doc,db);
+}
+function printDoc(docId){
+ const db=data(),x=db.invoices.find(x=>x.id===docId);if(!x)return;
+ const w=window.open('','_blank');if(!w){notify('السماح بنوافذ الطباعة مطلوب','warn');return;}
+ const rows=x.lines.map(l=>'<tr><td>'+esc(db.products.find(p=>p.id===l.product)?.name)+'</td><td>'+f(l.qty)+'</td><td>'+f(l.price)+'</td></tr>').join('');
+ w.document.open();
+ w.document.write('<!doctype html><html lang="ar" dir="rtl"><meta charset="utf-8"><title>'+esc(x.number)+'</title><style>body{font-family:Arial;padding:25px}table{border-collapse:collapse;width:100%}th,td{border:1px solid #ccc;padding:9px}</style><h2>راتب — مستند تجاري</h2><p>'+esc(x.number)+' — '+esc(x.date)+' — '+esc(x.partyName||'')+'</p><table><tr><th>الصنف</th><th>الكمية</th><th>السعر</th></tr>'+rows+'</table><h3>الإجمالي: '+f(x.total)+' YER</h3></html>');
+ w.document.close();w.focus();w.print();
+}
 function open(target='sale'){mode=['sale','purchase','stock'].includes(target)?target:'sale';view=mode==='stock'?'products':'new';draft=null;navigateToTab('pageCommerce',true);paint();}
 function bind(){
  const root=$('pageCommerce');if(!root)return;
- root.addEventListener('click',e=>{const m=e.target.closest('[data-rc-mode]'),s=e.target.closest('[data-rc-view]');
- if(m){mode=m.dataset.rcMode;view=mode==='stock'?'products':'new';draft=null;paint();}
- if(s){view=s.dataset.rcView;draft=null;paint();}
+ root.addEventListener('click',e=>{
+  const m=e.target.closest('[data-rc-mode]'),v=e.target.closest('[data-rc-view]'),p=e.target.closest('[data-rc-print]');
+  if(m){mode=m.dataset.rcMode;view=mode==='stock'?'products':'new';draft=null;paint();}
+  if(v){view=v.dataset.rcView;draft=null;paint();}
+  if(p)printDoc(p.dataset.rcPrint);
  });
- root.addEventListener('change',e=>{if(e.target.id==='rc-product'&&draft){syncInvoice();const p=data().products.find(p=>p.id===draft.product);if(p&&mode==='sale')draft.price=p.price;paint();}});
- root.addEventListener('submit',async e=>{if(!e.target.id?.startsWith('rc-'))return;e.preventDefault();
- try{const d=data(),fid=e.target.id;
- if(fid==='rc-product-form'){const sku=$('rc-sku').value.trim(),name=$('rc-name').value.trim(),unit=$('rc-unit').value.trim(),price=n($('rc-price').value);positive(price,'السعر',true);if(!sku||!name||!unit||d.products.some(x=>x.sku===sku))throw Error('بيانات ناقصة أو رمز مكرر');d.products.push({id:id(),sku,name,unit,price});save(d);await flushStorage();paint();}
- else if(fid==='rc-warehouse-form'){const name=$('rc-name').value.trim();if(!name||d.warehouses.some(x=>x.name===name))throw Error('اسم فارغ أو مكرر');d.warehouses.push({id:id(),name});save(d);await flushStorage();paint();}
- else if(fid==='rc-person-form'){const name=$('rc-name').value.trim();if(!name)throw Error('اسم الطرف فارغ');d.people.push({id:id(),name,phone:$('rc-phone').value,type:mode==='sale'?'client':'vendor'});save(d);await flushStorage();paint();}
- else if(fid==='rc-accounts-form'){for(const k of Object.keys(d.accounts))d.accounts[k]=$('rc-acc-'+k).value;save(d);await flushStorage();notify('تم حفظ الربط','success');paint();}
- else if(fid==='rc-invoice-form')await saveInvoice();
- }catch(err){console.error('commerce',err);notify(err.message||'فشل الحفظ','error');}});
+ root.addEventListener('change',e=>{
+  if(e.target.id==='rc-origin'&&draft){
+   syncInvoice();const db=data(),src=db.invoices.find(x=>x.id===draft.origin);
+   if(src){const line=src.lines.find(l=>leftToReturn(db,src.id,l.product)>0);
+    draft.product=line?.product||'';draft.qty=1;draft.price=line?.price||0;draft.warehouse=src.warehouse;draft.party=src.party;draft.payment=src.payment;
+   }paint();
+  }else if(e.target.id==='rc-product'&&draft){
+   syncInvoice();const db=data(),p=db.products.find(x=>x.id===draft.product);
+   if(view==='return'){const original=db.invoices.find(x=>x.id===draft.origin);draft.price=original?.lines.find(l=>l.product===draft.product)?.price||0;}
+   else if(p&&mode==='sale')draft.price=p.price;
+   paint();
+  }
+ });
+ root.addEventListener('submit',async e=>{
+  if(!e.target.id?.startsWith('rc-'))return;e.preventDefault();if(loading)return;
+  try{
+   const db=data(),which=e.target.id;
+   if(which==='rc-product-form'){
+    const sku=$('rc-sku').value.trim(),name=$('rc-name').value.trim(),unit=$('rc-unit').value.trim(),price=n($('rc-price').value);
+    positive(price,'سعر البيع',true);if(!sku||!name||!unit||db.products.some(p=>p.sku===sku))throw Error('البيانات غير مكتملة أو رمز الصنف مكرر.');
+    db.products.push({id:id(),sku,name,unit,price,minimum:0});save(db);await flushStorage();paint();
+   }else if(which==='rc-warehouse-form'){
+    const name=$('rc-name').value.trim();if(!name||db.warehouses.some(w=>w.name===name))throw Error('اسم المخزن فارغ أو مكرر.');
+    db.warehouses.push({id:id(),name});save(db);await flushStorage();paint();
+   }else if(which==='rc-person-form'){
+    const name=$('rc-name').value.trim();if(!name)throw Error('اسم العميل أو المورد فارغ.');
+    db.people.push({id:id(),name,phone:$('rc-phone').value,type:mode==='sale'?'client':'vendor'});save(db);await flushStorage();paint();
+   }else if(which==='rc-accounts-form'){
+    for(const k of Object.keys(db.accounts))db.accounts[k]=$('rc-acc-'+k)?.value||'';
+    save(db);await flushStorage();notify('تم حفظ ربط الحسابات','success');paint();
+   }else if(which==='rc-invoice-form')await saveInvoice();
+   else if(which==='rc-movement-form')await saveMovement();
+  }catch(err){console.error('commerce',err);notify(err.message||'تعذر إكمال الحفظ','error');}
+ });
 }
 window.RatibCommerce={open,render:paint};
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',bind,{once:true});else bind();

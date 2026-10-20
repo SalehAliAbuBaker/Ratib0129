@@ -84,7 +84,7 @@ function commerceResolveProduct(index){
  draft.lines[index].product=hidden.value;
  if(p&&old!==p.id){
   draft.lines[index].unit=pMain(p);
-  draft.lines[index].price=mode==='out'?Number(p.price)||0:0;
+  draft.lines[index].price=mode==='out'&&(draft.currency||'YER')==='YER'?Number(p.price)||0:0;
   const unit=$('rc-unit-'+index),price=$('rc-price-'+index);
   if(unit)unit.innerHTML=unitList(p).map(v=>'<option value="'+esc(v)+'"'+(v===draft.lines[index].unit?' selected':'')+'>'+esc(v)+'</option>').join('');
   if(price)price.value=draft.lines[index].price;
@@ -351,7 +351,7 @@ function invoice(db){
  fld('طريقة التسوية','<select id="rc-payment"><option value="credit" '+(draft.payment==='credit'?'selected':'')+'>آجل / على الحساب</option><option value="cash" '+(draft.payment==='cash'?'selected':'')+'>نقدي</option></select>')+
  fld('عملة المستند',ret?'<strong>'+esc(commerceCurrencyName(draft.currency||'YER'))+' (عملة المستند الأصلي)</strong>':sel('currency',COMMERCE_CURRENCIES,draft.currency||'YER'))+
  (draft.currency!=='YER'?fld('سعر الصرف (ريال يمني لكل 1 '+esc(draft.currency)+')',ret?'<strong>'+esc(draft.exchangeRate)+'</strong>':inp('exchangeRate','number',draft.exchangeRate||'','required min="0.000001" step="any" inputmode="decimal"')):'')+
- (draft.currency!=='YER'?'<div class="rc-full rc-fx-preview">الإجمالي بالعملة الأصلية: <b>'+f(draft.lines.reduce((v,l)=>v+n(l.qty)*n(l.price),0))+' '+esc(draft.currency)+'</b> · المعادل اليمني: <b>'+((Number.isFinite(n(draft.exchangeRate))&&n(draft.exchangeRate)>0)?f(rnd(draft.lines.reduce((v,l)=>v+n(l.qty)*n(l.price),0)*n(draft.exchangeRate))):'حدّد سعر الصرف')+' YER</b></div>':'')+
+ (draft.currency!=='YER'?'<div class="rc-full rc-note">أدخل أسعار الأصناف بعملة المستند المحددة، وأدخل سعر صرف موثقًا بالريال اليمني؛ لا تُحوّل أسعار بطاقة الصنف تلقائيًا.</div><div class="rc-full rc-fx-preview" id="rc-fx-preview">الإجمالي بالعملة الأصلية: <b>'+f(draft.lines.reduce((v,l)=>v+n(l.qty)*n(l.price),0))+' '+esc(draft.currency)+'</b> · المعادل اليمني: <b>'+((Number.isFinite(n(draft.exchangeRate))&&n(draft.exchangeRate)>0)?f(rnd(draft.lines.reduce((v,l)=>v+n(l.qty)*n(l.price),0)*n(draft.exchangeRate))):'حدّد سعر الصرف')+' YER</b></div>':'')+
  '<div class="rc-full">'+fld('البيان / الملاحظات','<textarea id="rc-note" rows="2" placeholder="ملاحظة المستند">'+esc(draft.note)+'</textarea>')+'</div></div>'+
  '<div class="rc-scroll"><table class="rc-lines"><thead><tr><th>الصنف</th><th>الوحدة</th><th>العدد</th><th>السعر</th><th>الإجمالي</th><th></th></tr></thead><tbody>'+
  draft.lines.map((l,i)=>{
@@ -420,7 +420,7 @@ function changeOrigin(){
 function makeJournal(doc,db){
  if(doc.kind==='transfer')return [];
  const a=db.accounts,accounts=leaf(),valid=new Set(accounts.map(x=>x.id)),lines=[];
- const currency=doc.currency||'YER',exchangeRate=commerceValidFx(currency,doc.exchangeRate||1);
+ const currency=doc.currency||'YER',exchangeRate=commerceValidFx(currency,doc.exchangeRate??(currency==='YER'?1:0));
  const baseTotal=doc.baseTotal==null?commerceBaseTotal(doc.total,currency,exchangeRate):rnd(doc.baseTotal);
  if(Math.abs(baseTotal-commerceBaseTotal(doc.total,currency,exchangeRate))>0.011)throw Error('المعادل اليمني لا يطابق سعر الصرف المعتمد؛ لن يتم الترحيل.');
  const post=(side,key,sum,foreign=false)=>{
@@ -768,8 +768,9 @@ function bind(){
  });
  root.addEventListener('change',e=>{
   if(e.target.id==='rc-currency'&&draft){
-   syncInvoice();draft.currency=e.target.value;
-   draft.exchangeRate=draft.currency==='YER'?1:'';
+   const previous=draft.currency||'YER';syncInvoice();draft.currency=e.target.value;
+   if(previous!==draft.currency){draft.exchangeRate=draft.currency==='YER'?1:'';
+    if(previous==='YER'&&draft.currency!=='YER'&&draft.lines.some(l=>n(l.price)>0))notify('تنبيه: الأسعار المدخلة كانت بالريال اليمني؛ راجع سعر كل صنف بالعملة الجديدة قبل الحفظ.','warn');}
    paint();return;
   }
   if(e.target.id==='rc-catalog-group'){catalogGroup=e.target.value;refreshCatalogListing();return;}if(e.target.id==='rc-partyName'){const p=data().people.find(p=>p.name===e.target.value);if(p&&$('rc-partyAccount'))$('rc-partyAccount').value=p.accountId||'';}if(e.target.id==='rc-import-file'){stageImportFile(e.target.files?.[0]);e.target.value='';return;}if(e.target.id==='rc-person-account'){const input=$('rc-name');if(input&&!input.value.trim())input.value=e.target.value;}});
@@ -799,7 +800,7 @@ function bind(){
  root.addEventListener('change',e=>{
   if(e.target.id==='rc-origin'&&draft){syncInvoice();changeOrigin();return;}
   const prod=e.target.id.match(/^rc-product-(\d+)$/);
-  if(prod&&draft){syncInvoice();const i=Number(prod[1]),db=data(),p=db.products.find(p=>p.id===draft.lines[i].product);draft.lines[i].unit=pMain(p||{unit:'حبة'});if(view==='return'){const o=db.invoices.find(x=>x.id===draft.origin);draft.lines[i].price=o?.lines.find(x=>x.product===p?.id)?.price||0;}else if(mode==='out')draft.lines[i].price=p?.price||0;paint();return;}
+  if(prod&&draft){syncInvoice();const i=Number(prod[1]),db=data(),p=db.products.find(p=>p.id===draft.lines[i].product);draft.lines[i].unit=pMain(p||{unit:'حبة'});if(view==='return'){const o=db.invoices.find(x=>x.id===draft.origin);draft.lines[i].price=o?.lines.find(x=>x.product===p?.id)?.price||0;}else if(mode==='out')draft.lines[i].price=(draft.currency||'YER')==='YER'?(p?.price||0):0;paint();return;}
   const unit=e.target.id.match(/^rc-unit-(\d+)$/);
   if(unit&&draft){syncInvoice();const i=Number(unit[1]),db=data(),o=db.invoices.find(x=>x.id===draft.origin),l=draft.lines[i];if(view==='return')l.price=o?.lines.find(x=>x.product===l.product&&lineUnit(db,x)===l.unit)?.price||0;refreshTotals();return;}
   if(e.target.id==='rc-product'&&['adjust','transfer'].includes(view)){const p=data().products.find(x=>x.id===e.target.value),input=$('rc-unit');if(input)input.innerHTML=unitList(p||{unit:'حبة'}).map(x=>'<option value="'+esc(x)+'">'+esc(x)+'</option>').join('');}

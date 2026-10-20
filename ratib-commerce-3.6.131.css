@@ -365,3 +365,13 @@
 #pageCommerce .rc-posting-credit b{color:#a75a3c}
 @media(max-width:450px){#pageCommerce .rc-tabs{grid-template-columns:repeat(2,minmax(0,1fr))}#pageCommerce .rc-head{gap:5px}#pageCommerce .rc-posting-pair{gap:4px}}
 @media print{#pageCommerce .rc-size-setting,#pageCommerce .rc-posting-preview{display:none!important}}
+
+/* Match dashboard commerce shortcut sizing to the user's chosen commerce control size. */
+.ratib-commerce-shortcuts[data-rc-button-size="small"]{gap:5px}
+.ratib-commerce-shortcuts[data-rc-button-size="small"] .ratib-commerce-shortcut{min-height:59px;padding:6px 3px;gap:3px;font-size:.78rem}
+.ratib-commerce-shortcuts[data-rc-button-size="small"] .ratib-commerce-shortcut svg{width:21px;height:21px}
+.ratib-commerce-shortcuts[data-rc-button-size="medium"] .ratib-commerce-shortcut{min-height:82px;padding:10px 4px;gap:6px;font-size:.93rem}
+.ratib-commerce-shortcuts[data-rc-button-size="medium"] .ratib-commerce-shortcut svg{width:27px;height:27px}
+.ratib-commerce-shortcuts[data-rc-button-size="large"]{gap:11px}
+.ratib-commerce-shortcuts[data-rc-button-size="large"] .ratib-commerce-shortcut{min-height:112px;padding:16px 5px;gap:9px;font-size:1.15rem}
+.ratib-commerce-shortcuts[data-rc-button-size="large"] .ratib-commerce-shortcut svg{width:38px;height:38px}

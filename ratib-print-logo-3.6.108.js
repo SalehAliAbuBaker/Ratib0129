@@ -79,7 +79,7 @@ function syncPrint(){
  ['#printStatementContainer .ps-header','header'],['#printBudgetContainer .ps-header','header'],
  ['#printVoucherContainer .pv-header','header'],['#printHeaderBanner','header'],
  ['#trialPrintHost','special'],['#ratibSpecialPrintHost','special'],
- ['#printPreviewBody','special']
+ ['#printPreviewBody','special'],['#ratibCommercePrintHost .rc-paper-head','header'],['#rc-preview-content .rc-paper-head','header']
  ];
  for(const [selector,kind] of roots)syncRoot(document.querySelector(selector),kind);
 }

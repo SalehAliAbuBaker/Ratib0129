@@ -7,8 +7,10 @@ const sw=fs.readFileSync('sw.js','utf8');
 for(const [file,source] of [['voice',voice],['favorites',fav],['worker',sw]])assert.doesNotThrow(()=>new vm.Script(source),file+' must parse');
 assert.match(html,/ratib-voice-dictation-3\.6\.117\.js\?v=3\.6\.121/);
 assert.match(html,/ratib-favorites-v3\.js\?v=3\.6\.120/);
-assert.match(html,/الإصدار 3\.6\.123/);
-assert.match(sw,/v131-trial-account-codes-safe-fx-3\.6\.123/);
+const release=sw.match(/const APP_RELEASE=\{"version":"(3\.6\.\d+)"/)?.[1];
+assert.ok(release, 'Current trial release must exist');
+assert.ok(html.includes('الإصدار '+release), 'Visible version must follow current release');
+assert.ok(sw.includes('const CACHE_VERSION=')&&sw.includes(release), 'Offline cache must follow current release');
 assert.match(sw,/ratib-voice-dictation-3\.6\.117\.js/);
 assert.match(voice,/button\.addEventListener\('click'/); // speech starts only by user click
 assert.match(voice,/const Recognition=window\.SpeechRecognition\|\|window\.webkitSpeechRecognition/);

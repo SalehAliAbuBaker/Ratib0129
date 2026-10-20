@@ -1,9 +1,9 @@
 const fs=require('node:fs'),path=require('node:path'),vm=require('node:vm'),assert=require('node:assert/strict');
-const source=fs.readFileSync(path.join(__dirname,'ratib-commerce-3.6.131.js'),'utf8'),mark="window.RatibCommerce={open,render:paint,version:'3.6.131'};";
+const source=fs.readFileSync(path.join(__dirname,'ratib-commerce-3.6.131.js'),'utf8'),mark="window.RatibCommerce={open,render:paint,version:'3.6.133'};";
 assert(source.includes(mark));assert(source.includes("['pdf','PDF'],['share','المشاركة']"));
-const code=source.replace(mark,"window.__test={data,products,guideMarkup,documentHtml,productOutput,productGuideCanvases,filteredCatalogProducts,setCatalogFilter:(term,group)=>{catalogSearch=term;catalogGroup=group;},nextNumber,invoice,currentDraftDocument,draftOutput,setInbound:()=>{mode='in';view='new';draft=null;},setOutbound:()=>{mode='out';view='new';draft=null;},setDraft:x=>{draft=x;}};"+mark);
-const memory={},store={get:(k,d)=>memory[k]??d,set:(k,v)=>memory[k]=v},capture=[],rows=[];
-const window={RatibPrintLogo:{whenReady:async()=>true,syncPrint(){}}},document={readyState:'loading',addEventListener(){},getElementById(){return null;}};
+const code=source.replace(mark,"window.__test={data,products,guideMarkup,documentHtml,productOutput,productGuideCanvases,filteredCatalogProducts,setCatalogFilter:(term,group)=>{catalogSearch=term;catalogGroup=group;},nextNumber,invoice,currentDraftDocument,draftOutput,commerceSignatureLabels,commerceCanvasPage,setInbound:()=>{mode='in';view='new';draft=null;},setOutbound:()=>{mode='out';view='new';draft=null;},setDraft:x=>{draft=x;}};"+mark);
+const memory={},store={get:(k,d)=>memory[k]??d,set:(k,v)=>memory[k]=v},capture=[],rows=[],headerDraws=[];
+const window={RatibPrintLogo:{whenReady:async()=>true,syncPrint(){},drawCanvas(){return true;}}},document={readyState:'loading',addEventListener(){},getElementById(){return null;}};
 class File{constructor(parts,name,opts){this.name=name;this.type=opts.type;}}
 const state={
  window,document,File,store,console,
@@ -11,7 +11,11 @@ const state={
  getNextMultiVoucherNumber:()=>1,getAllTransactions:()=>[],getMasterPlan:()=>({transactions:[]}),
  APP_SCHEMA_VERSION:3,flushStorage:async()=>{},showToast(){},audit(){},renderAllData(){},updateProDashboard(){},navigateToTab(){},
  getHeaderConfig:()=>({name:'الجهة من إعدادات الترويسة',details:'العنوان من الإعدادات',show:true}),
- reportCanvasPage:(title,subtitle,page)=>({canvas:{title,subtitle,page},ctx:{},y:210}),
+ reportCanvasPage:(title,subtitle,page)=>{
+  const ctx={save(){},restore(){},fillText(text){headerDraws.push(String(text));}};
+  ctx.fillText('الجهة من إعدادات الترويسة');
+  return {canvas:{title,subtitle,page,width:1200,height:1590},ctx,y:210};
+ },
  reportTableLayout:(_,values)=>({values,height:48}),
  drawReportTableRow:(page,layout)=>{page.y+=layout.height;rows.push(layout.values);},
  buildPdfFromCanvases:generator=>({pages:[...generator].map(x=>x.title)}),
@@ -88,10 +92,23 @@ d.warehouses=[{id:'main',name:'المخزن الرئيسي'}];store.set('commerc
  assert.equal(T.data().invoices.length,beforeOut,'outbound draft must not post or alter saved documents');
  assert.equal(capture.at(-2).blob.pages[0],'مسودة غير معتمدة — فاتورة مبيعات');
  assert.equal(capture.at(-1).action,'share');
+ // The PDF base canvas already prints the personal header; commerce must not paint it twice.
+ headerDraws.length=0;
+ const paperDoc={kind:'purchase',title:'فاتورة مشتريات',number:'PI-00002',date:'2026-10-20',
+  warehouse:'main',partyName:'مورد',note:'مراجعة',total:540,
+  lines:[{product:'a',unit:'حبة',qty:6,price:90}]};
+ T.commerceCanvasPage(d,paperDoc,1);
+ assert.equal(headerDraws.filter(x=>x==='الجهة من إعدادات الترويسة').length,1,'personal header is drawn once');
+ assert(!headerDraws.includes('بسم الله الرحمن الرحيم'),'no second added header after base canvas');
+ for(const [type,count] of [['أمر توريد',3],['توريد مخزني',4],['فاتورة مشتريات',3],
+  ['أمر صرف',3],['صرف مخزني',4],['فاتورة مبيعات',4]]){
+  assert.equal(T.commerceSignatureLabels({title:type}).length,count,'signature count for '+type);
+ }
  const css=fs.readFileSync(path.join(__dirname,'ratib-commerce-3.6.131.css'),'utf8');
+ assert(css.includes('grid-auto-flow:column!important'),'signatures remain in one printed row');
  assert(css.includes('.rc-type-switch')&&css.includes('repeat(3,minmax(0,1fr))'));
  assert(css.includes('.rc-invoice-card .rc-grid')&&css.includes('repeat(2,minmax(0,1fr))'));
  const doc=T.documentHtml(d,{kind:'purchase',title:'فاتورة مشتريات',number:'IN-1',date:'2026-10-20',warehouse:'main',partyName:'مورد',total:10,lines:[]});
  assert(doc.includes('الجهة من إعدادات الترويسة')&&doc.includes('فاتورة مشتريات'));
- console.log('PASS 3.6.131: inbound and outbound three-button flows; PO/GR/PI and SO/GI/SI independent numbering; seven draft tools; nonposting outputs; compact layout');
+ console.log('PASS 3.6.133: catalog, inbound/outbound numbering, draft PDFs, single personal header, one-row signatures');
 })().catch(error=>{console.error(error);process.exitCode=1;});

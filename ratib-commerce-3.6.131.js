@@ -21,6 +21,7 @@ function wrap(t,c){return '<section class="rc-card"><h3>'+t+'</h3>'+c+'</section
 function table(labels,rows){return '<div class="rc-scroll"><table><thead><tr>'+labels.map(x=>'<th>'+x+'</th>').join('')+'</tr></thead><tbody>'+rows.map(row=>'<tr>'+row.map(x=>'<td>'+x+'</td>').join('')+'</tr>').join('')+'</tbody></table></div>';}
 const types={in:['أمر توريد','توريد مخزني','فاتورة مشتريات'],out:['أمر صرف','صرف مخزني','فاتورة مبيعات']};
 const inboundNumbers={'أمر توريد':'PO','توريد مخزني':'GR','فاتورة مشتريات':'PI'};
+const outboundNumbers={'أمر صرف':'SO','صرف مخزني':'GI','فاتورة مبيعات':'SI'};
 const dir=()=>mode==='in'?'purchase':'sale';
 const docName=d=>d?.title||({purchase:'فاتورة مشتريات',sale:'فاتورة مبيعات',purchase_return:'مرتجع مشتريات',sale_return:'مرتجع مبيعات',transfer:'تحويل مخزني',adjust:'تسوية مخزنية'}[d?.kind]||'مستند مخزني');
 const pMain=p=>String(p?.unitMain||p?.unit||'حبة').trim();
@@ -106,10 +107,14 @@ async function confirmProductImport(){if(!pendingImport?.length)throw Error('ل�
 
 function nextSku(db){const used=new Set(db.products.map(p=>String(p.sku)));let no=Math.max(0,...db.products.map(p=>/^\d+$/.test(p.sku)?Number(p.sku):0));let val;do{val=String(++no).padStart(6,'0')}while(used.has(val));return val;}
 function nextNumber(db,kind,title=''){
- const prefix=kind==='purchase'?(inboundNumbers[title]||'IN'):'OUT';
- const docs=db.invoices.filter(x=>x.kind===kind&&(kind!=='purchase'||(inboundNumbers[title]?x.title===title:!inboundNumbers[x.title])));
+ const groups=kind==='purchase'?inboundNumbers:kind==='sale'?outboundNumbers:null;
+ const prefix=groups?(groups[title]||(kind==='purchase'?'IN':'OUT')):'OUT';
+ const docs=db.invoices.filter(x=>x.kind===kind&&(!groups||(groups[title]?x.title===title:!groups[x.title])));
  const max=docs.reduce((m,x)=>Math.max(m,Number(String(x.number).match(/(\d+)$/)?.[1]||0)),0);
- return prefix+'-'+String(max+1).padStart(5,'0');
+ const used=new Set(db.invoices.filter(x=>x.kind===kind).map(x=>String(x.number)));
+ let count=max+1,number=prefix+'-'+String(count).padStart(5,'0');
+ while(used.has(number)){number=prefix+'-'+String(++count).padStart(5,'0');}
+ return number;
 }
 function move(x,l,wid){
  if(x.kind==='transfer')return x.from===wid?-l.qty:x.to===wid?l.qty:0;
@@ -248,7 +253,7 @@ function invoice(db){
  const originals=ret?db.invoices.filter(d=>d.kind===dir()&&d.lines.some(l=>leftToReturn(db,d.id,l.product,lineUnit(db,l))>0)):[];
  const partySuggestions=[...db.people.map(p=>p.name),...leaf().map(x=>x.id)];
  const form='<form id="rc-invoice-form"><div class="rc-grid">'+
- (mode==='in'&&!ret?'':fld('نوع المستند',ret?'<strong>مرتجع '+(mode==='in'?'الوارد':'الصادر')+'</strong>':sel('doctype',types[mode].map(name=>({id:name,name})),draft.title)))+
+ (ret?fld('نوع المستند','<strong>مرتجع '+(mode==='in'?'الوارد':'الصادر')+'</strong>'):'')+
  fld('رقم المستند / الفاتورة',inp('number','text',draft.number,'required maxlength="40"'))+
  fld('التاريخ',inp('date','date',draft.date,'required'))+
  fld('المخزن',sel('warehouse',db.warehouses,draft.warehouse))+
@@ -267,10 +272,10 @@ function invoice(db){
  }).join('')+'</tbody></table></div>'+
  '<div class="rc-actions no-print"><button type="button" class="btn btn-ghost" data-rc-add="1">＋ إضافة صنف</button>'+
  '<strong class="rc-grand">الإجمالي: <span id="rc-grand">'+f(draft.lines.reduce((a,l)=>a+n(l.qty)*n(l.price),0))+'</span> YER</strong></div>'+
- (mode==='in'&&!ret?'<div class="rc-document-actions rc-draft-actions no-print">'+[['view','◉','المشاهدة'],['preview','▣','المعاينة'],['print','▤','الطباعة'],['pdf','▣','PDF'],['share','⇧','المشاركة'],['search','⌕','البحث'],['back','↪','الرجوع']].map(([action,icon,label])=>'<button type="button" class="rc-doc-action" data-rc-draft-action="'+action+'"><span class="rc-tool-icon" aria-hidden="true">'+icon+'</span><small>'+label+'</small></button>').join('')+'</div>':'<div class="rc-actions no-print"><button type="button" class="btn btn-ghost" data-rc-draft-preview="1">👁 معاينة</button></div>')+
+ (!ret?'<div class="rc-document-actions rc-draft-actions no-print">'+[['view','◉','المشاهدة'],['preview','▣','المعاينة'],['print','▤','الطباعة'],['pdf','▣','PDF'],['share','⇧','المشاركة'],['search','⌕','البحث'],['back','↪','الرجوع']].map(([action,icon,label])=>'<button type="button" class="rc-doc-action" data-rc-draft-action="'+action+'"><span class="rc-tool-icon" aria-hidden="true">'+icon+'</span><small>'+label+'</small></button>').join('')+'</div>':'<div class="rc-actions no-print"><button type="button" class="btn btn-ghost" data-rc-draft-preview="1">👁 معاينة</button></div>')+
  '<div class="rc-actions no-print"><button type="submit" class="btn btn-primary">💾 اعتماد وحفظ المستند</button></div></form><div id="rc-draft-view"></div>'+
  '<p class="rc-note">جميع البنود بسعرها وإجماليها؛ لا يوجد تحويل تلقائي بين الوحدة الرئيسية والفرعية قبل اعتماده. يمنع الحفظ غير المتوازن أو صرف كمية غير متاحة.</p>';
- const headings=(mode==='in'&&!ret)?'<div class="rc-type-switch no-print" role="group" aria-label="نوع مستند الوارد">'+types.in.map((title,i)=>'<button type="button" class="rc-type-option'+(draft.title===title?' active':'')+'" data-rc-select-doctype="'+esc(title)+'" aria-pressed="'+(draft.title===title)+'"><span class="rc-type-symbol" aria-hidden="true">'+['▤','▦','▣'][i]+'</span><span>'+esc(title)+'</span></button>').join('')+'</div>':'<h3>'+esc(ret?'مرتجع مخزني — '+(mode==='in'?'الوارد':'الصادر'):draft.title)+'</h3>';
+ const headings=!ret?'<div class="rc-type-switch no-print" role="group" aria-label="نوع مستند '+(mode==='in'?'الوارد':'الصادر')+'">'+types[mode].map((title,i)=>'<button type="button" class="rc-type-option'+(draft.title===title?' active':'')+'" data-rc-select-doctype="'+esc(title)+'" aria-pressed="'+(draft.title===title)+'"><span class="rc-type-symbol" aria-hidden="true">'+['▤','▦','▣'][i]+'</span><span>'+esc(title)+'</span></button>').join('')+'</div>':'<h3>'+esc(ret?'مرتجع مخزني — '+(mode==='in'?'الوارد':'الصادر'):draft.title)+'</h3>';
  return '<section class="rc-card rc-invoice-card">'+headings+form+'</section>';
 }
 function currentDraftDocument(){
@@ -510,9 +515,9 @@ function bind(){
  root.addEventListener('click',event=>{
   const hit=selector=>event.target.closest(selector);
   try{
-   const chooseDocType=hit('[data-rc-select-doctype]');if(chooseDocType&&draft&&mode==='in'&&view==='new'){
+   const chooseDocType=hit('[data-rc-select-doctype]');if(chooseDocType&&draft&&['in','out'].includes(mode)&&view==='new'){
     const newTitle=chooseDocType.dataset.rcSelectDoctype;
-    if(!types.in.includes(newTitle))throw Error('نوع المستند غير معتمد.');
+    if(!types[mode].includes(newTitle))throw Error('نوع المستند غير معتمد.');
     if(draft.title!==newTitle){syncInvoice();draft.title=newTitle;draft.number=nextNumber(data(),draft.kind,newTitle);paint();}
     return;
    }

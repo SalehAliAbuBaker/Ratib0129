@@ -1,14 +1,14 @@
 const fs=require('node:fs'),path=require('node:path'),vm=require('node:vm'),assert=require('node:assert/strict');
-const source=fs.readFileSync(path.join(__dirname,'ratib-commerce-3.6.131.js'),'utf8'),mark="window.RatibCommerce={open,openFavorite,render:paint,version:'3.6.137'};";
+const source=fs.readFileSync(path.join(__dirname,'ratib-commerce-3.6.131.js'),'utf8'),mark="window.RatibCommerce={open,openFavorite,openDocument:commerceOpenDocument,documentAction:commerceDocumentOperation,render:paint,version:'3.6.138'};";
 assert(source.includes(mark));assert(source.includes("['pdf','PDF'],['share','المشاركة']"));
-const code=source.replace(mark,"window.__test={data,products,guideMarkup,documentHtml,productOutput,productGuideCanvases,filteredCatalogProducts,setCatalogFilter:(term,group)=>{catalogSearch=term;catalogGroup=group;},nextNumber,invoice,currentDraftDocument,draftOutput,commerceSignatureLabels,commerceCanvasPage,commerceInvoiceRecipientLabel,commerceInvoiceRecipientRow,commerceProductLabel,commerceFindProduct,commerceAmountWords,commerceBaseTotal,commerceValidFx,makeJournal,openFavorite,saveInvoice,setInbound:()=>{mode='in';view='new';draft=null;},setOutbound:()=>{mode='out';view='new';draft=null;},setDraft:x=>{draft=x;}};"+mark);
+const code=source.replace(mark,"window.__test={data,products,guideMarkup,documentHtml,productOutput,productGuideCanvases,filteredCatalogProducts,setCatalogFilter:(term,group)=>{catalogSearch=term;catalogGroup=group;},nextNumber,invoice,currentDraftDocument,draftOutput,commerceSignatureLabels,commerceCanvasPage,commerceInvoiceRecipientLabel,commerceInvoiceRecipientRow,commerceProductLabel,commerceFindProduct,commerceAmountWords,commerceBaseTotal,commerceValidFx,makeJournal,openFavorite,commerceOpenInvoice,commerceReplaceOrDelete,commerceValidateRevision,commerceDocumentOperation,saveInvoice,getDraft:()=>draft,setInbound:()=>{mode='in';view='new';draft=null;},setOutbound:()=>{mode='out';view='new';draft=null;},setDraft:x=>{draft=x;}};"+mark);
 const memory={},store={get:(k,d)=>memory[k]??d,set:(k,v)=>memory[k]=v},capture=[],rows=[],headerDraws=[],plan={transactions:[]};
 const window={RatibPrintLogo:{whenReady:async()=>true,syncPrint(){},drawCanvas(){return true;}}},document={readyState:'loading',addEventListener(){},getElementById(id){return id==='pageCommerce'?{innerHTML:''}:null;}};
 class File{constructor(parts,name,opts){this.name=name;this.type=opts.type;}}
 const state={
  window,document,File,store,console,
  getCanonicalCatalog:()=>[{details:[['1','مخزون'],['2','صندوق'],['3','عملاء'],['4','موردون'],['5','مبيعات'],['6','تكلفة'],['7','تسويات']]}],
- getNextMultiVoucherNumber:()=>plan.transactions.length+1,getAllTransactions:()=>plan.transactions,getMasterPlan:()=>plan,
+ getNextMultiVoucherNumber:()=>(memory.plan||plan).transactions.length+1,getAllTransactions:()=>(memory.plan||plan).transactions,getMasterPlan:()=>memory.plan||plan,
  APP_SCHEMA_VERSION:3,flushStorage:async()=>{},showToast(){},audit(){},renderAllData(){},updateProDashboard(){},navigateToTab(){},
  getHeaderConfig:()=>({name:'الجهة من إعدادات الترويسة',details:'العنوان من الإعدادات',show:true}),
  tafqitAccountCurrency:(v,c)=>'تفقيط '+v+' '+c+' فقط لا غير',
@@ -224,6 +224,54 @@ d.warehouses=[{id:'main',name:'المخزن الرئيسي'}];store.set('commerc
  assert.equal(plan.transactions[txBefore].multiVoucher.lines[1].currency,'SAR');
  assert.equal(plan.transactions[txBefore].multiVoucher.lines[1].amount,100);
  assert.equal(plan.transactions[txBefore].amount,41000);
+ // A real edit must preserve document ID and sequence and replace—not duplicate—the journal.
+ const oldFinancial=(memory.plan||plan).transactions.filter(x=>x.commerceId===saved.id);
+ T.commerceOpenInvoice(saved.id);
+ const loaded=T.getDraft();
+ assert.equal(loaded.number,'PI-FX-001','load original invoice');
+ assert.equal(loaded.currency,'SAR','preserve currency');
+ loaded.note='ملاحظة معدلة';
+ loaded.partyName='مورد آخر';
+ loaded.displayPartyName='اسم المشتري اختياري';
+ loaded.lines[0].price=11;
+ const oldLength=T.data().invoices.length;
+ await T.saveInvoice();
+ const updated=T.data().invoices.find(x=>x.id===saved.id);
+ assert.equal(updated.total,110);
+ assert.equal(updated.baseTotal,45100);
+ assert.equal(updated.cost,45100);
+ assert.equal(updated.note,'ملاحظة معدلة');
+ assert.equal(T.data().invoices.length,oldLength,'edit must not append a second invoice');
+ const updateTx=(memory.plan||plan).transactions.filter(t=>t.commerceId===saved.id);
+ assert.equal(updateTx.length,2,'edit still has two financial sides');
+ assert.equal(updateTx[0].seqNum,oldFinancial[0].seqNum,'sequence number retained');
+ assert.equal(updateTx[0].multiVoucher.lines[1].amount,110,'updated original SAR');
+ assert.equal(updateTx[0].amount,45100,'updated YER journal amount');
+ const trail=store.get('commerce_archive_v1',[]);
+ assert.equal(trail.at(-1).action,'edit','previous version archived');
+ assert.equal(trail.at(-1).before.total,100);
+ // Clone creates a new document in memory without posting until saved.
+ T.commerceOpenInvoice(saved.id,true);
+ const clone=T.getDraft();
+ assert.equal(clone.currency,'SAR');
+ assert.notEqual(clone.number,updated.number);
+ assert.equal(T.data().invoices.length,oldLength,'opening clone does not post');
+ await T.saveInvoice();
+ const cloned=T.data().invoices.find(x=>x.number===clone.number);
+ assert(cloned&&cloned.id!==saved.id,'clone gets own ID');
+ assert.equal(T.data().invoices.length,oldLength+1);
+ const linkedTx=(memory.plan||plan).transactions.filter(t=>t.commerceId===cloned.id);
+ assert.equal(linkedTx.length,2,'clone has own financial journal');
+ await assert.rejects(()=>T.commerceReplaceOrDelete(updated,null),/حركة لاحقة/);
+ await T.commerceReplaceOrDelete(cloned,null);
+ assert(!T.data().invoices.some(x=>x.id===cloned.id),'deleted clone leaves commerce storage');
+ assert(!(memory.plan||plan).transactions.some(x=>x.commerceId===cloned.id),'deleted clone financial entries removed');
+ assert(store.get('commerce_archive_v1',[]).at(-1).action==='delete','deleted document archive preserved');
+ const print=T.documentHtml(T.data(),updated);
+ assert(!print.includes('بسم الله الرحمن الرحيم'),'personal heading omits basmala');
+ const ledger=fs.readFileSync(path.join(__dirname,'index.html'),'utf8');
+ assert(ledger.includes("return record?record.title+' — '+record.number"),'ledger displays actual invoice name');
+ assert(ledger.includes('data-commerce-ledger="edit"')&&ledger.includes('data-commerce-ledger="clone"')&&ledger.includes('data-commerce-ledger="delete"'),'ledger offers operations');
  const failBefore=T.data().invoices.length;
  T.setInbound();
  T.setDraft({kind:'purchase',title:'فاتورة مشتريات',number:'PI-FX-002',date:'2026-10-20',
@@ -260,5 +308,5 @@ const doc=T.documentHtml(d,{kind:'purchase',title:'فاتورة مشتريات',
  assert.equal(headerDraws.filter(t=>t==='ملاحظات:').length,1,'long PDF note has single heading');
  assert(headerDraws.some(t=>t.includes('التفقيط:')),'Arabic amount spelling in PDF');
  assert(!rows.some(r=>r.includes('ملاحظات')),'notes are not repeated table rows');
- console.log('PASS 3.6.137: FX journal SAR/USD YER base, print equivalent, favorite routes, optional print name, notes and smart search');
+ console.log('PASS 3.6.138: safe invoice edit/clone/delete and journal replacement; real ledger labels; no basmala in header; FX and smart search');
 })().catch(error=>{console.error(error);process.exitCode=1;});

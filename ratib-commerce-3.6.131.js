@@ -355,7 +355,10 @@ function invoice(db){
  '<div class="rc-full">'+fld('البيان / الملاحظات','<textarea id="rc-note" rows="2" placeholder="ملاحظة المستند">'+esc(draft.note)+'</textarea>')+'</div></div>'+
  '<div class="rc-scroll"><table class="rc-lines"><thead><tr><th>الصنف</th><th>الوحدة</th><th>العدد</th><th>السعر</th><th>الإجمالي</th><th></th></tr></thead><tbody>'+
  draft.lines.map((l,i)=>{
-  const available=ret?(orig?.lines||[]).filter(x=>leftToReturn(db,orig.id,x.product,lineUnit(db,x))>0).map(x=>({id:x.product,name:db.products.find(p=>p.id===x.product)?.name||''})):db.products;
+  const available=ret?(orig?.lines||[]).filter(x=>
+    leftToReturn(db,orig.id,x.product,lineUnit(db,x))>0||
+    !!(editingDocId&&draft.lines.some(entry=>entry.product===x.product&&entry.unit===lineUnit(db,x)))
+   ).map(x=>({id:x.product,name:db.products.find(p=>p.id===x.product)?.name||''})):db.products;
   const p=db.products.find(p=>p.id===l.product);
   const units=p?unitList(p).map(x=>({id:x,name:x})):[];
   return '<tr><td>'+commerceProductInput(i,available,l.product)+'</td><td>'+sel('unit-'+i,units,l.unit)+'</td><td>'+inp('qty-'+i,'number',l.qty,'min="0" step="0.01" inputmode="decimal"')+'</td><td>'+inp('price-'+i,'number',l.price,'min="0" step="0.01" inputmode="decimal" '+(ret?'readonly':''))+'</td><td class="rc-line-total" data-total="'+i+'">'+f(n(l.qty)*n(l.price))+'</td><td><button type="button" class="btn btn-ghost" data-rc-remove="'+i+'" aria-label="حذف السطر">×</button></td></tr>';
@@ -611,6 +614,7 @@ async function saveInvoice(){
  syncInvoice();const db=data(),d=draft;if(!d)throw Error('لا يوجد مستند قيد التحرير.');
  const kind=d.kind,ret=kind.endsWith('_return'),originalDoc=editingDocId?db.invoices.find(x=>x.id===editingDocId):null;
  if(editingDocId&&(!originalDoc||originalDoc.kind!==kind))throw Error('المستند الأصلي غير موجود أو تغير نوعه.');
+ if(originalDoc&&ret&&originalDoc.origin!==d.origin)throw Error('لا يمكن تغيير المستند الأصلي لمرتجع محفوظ؛ استنسخ المرتجع لإنشاء مستند مرتبط بمصدر آخر.');
  const validationDb=originalDoc?{...db,invoices:db.invoices.filter(x=>x.id!==editingDocId)}:db;
  const origin=db.invoices.find(x=>x.id===d.origin);
  if(!d||!db.warehouses.some(w=>w.id===d.warehouse))throw Error('اختر مخزنًا صحيحًا.');

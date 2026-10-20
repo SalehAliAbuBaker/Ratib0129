@@ -79,10 +79,13 @@ function commerceResolveAccount(input){
  const key=input?.id?.slice('rc-search-'.length),element=$('rc-'+key);
  if(!key||!element)return;
  const q=commerceNormalize(input.value),items=leaf();
+ const resolve=(selected)=>{if(element.value!==selected){element.value=selected;element.dispatchEvent(new Event('change',{bubbles:true}));}};
+ if(!q){resolve('');return;}
  const matches=items.filter(x=>[x.name,x.id,x.name.split(' — ')[0]].some(v=>commerceNormalize(v)===q));
- if(matches.length===1){element.value=matches[0].id;element.dispatchEvent(new Event('change',{bubbles:true}));return;}
+ if(matches.length===1){resolve(matches[0].id);return;}
  const prefix=items.filter(x=>[x.name,x.id,x.name.split(' — ')[0]].some(v=>commerceNormalize(v).startsWith(q)));
- if(prefix.length===1&&q.length>1)commerceAutocomplete(input,[prefix[0].name]);
+ if(prefix.length===1&&q.length>1){resolve(prefix[0].id);commerceAutocomplete(input,[prefix[0].name]);return;}
+ resolve(''); // An ambiguous typed account may never silently post to a previous account.
 }
 function commerceNormalize(value){return String(value||'').normalize('NFKC').replace(/[\u064B-\u065F\u0670]/g,'').trim().toLocaleLowerCase('ar');}
 function commerceProductLabel(p){return String(p.sku||'')+' — '+p.name;}
@@ -907,6 +910,7 @@ function openFavorite(target,screen='products'){
 }
 function bind(){
  const root=$('pageCommerce');if(!root)return;
+ document.querySelector('.ratib-commerce-shortcuts')?.setAttribute('data-rc-button-size',commerceButtonSize());
  root.addEventListener('click',event=>{
   const hit=selector=>event.target.closest(selector);
   try{
@@ -949,9 +953,10 @@ function bind(){
    if(COMMERCE_BUTTON_SIZES.includes(e.target.value)){
     store.set('commerce_button_size_v1',e.target.value);
     root.querySelector('.rc-app')?.setAttribute('data-rc-button-size',e.target.value);
+    document.querySelector('.ratib-commerce-shortcuts')?.setAttribute('data-rc-button-size',e.target.value);
    }return;
   }
-  if(e.target.id.startsWith('rc-acc-')||['rc-partyAccount','rc-payment','rc-warehouse','rc-warehouse-account','rc-person-account'].includes(e.target.id)){
+  if(e.target.id.startsWith('rc-acc-')||['rc-partyAccount','rc-payment','rc-warehouse-account','rc-person-account'].includes(e.target.id)||(e.target.id==='rc-warehouse'&&draft)){
    const search=$('rc-search-'+e.target.id.slice(3));if(search){const match=leaf().find(x=>x.id===e.target.value);search.value=match?.name||'';}
    if(draft&&['rc-partyAccount','rc-payment','rc-warehouse'].includes(e.target.id)){
     syncInvoice();const element=$('rc-posting-preview');

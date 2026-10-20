@@ -9,7 +9,7 @@ const f=v=>Number(v||0).toLocaleString('en-US',{maximumFractionDigits:2});
 const id=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,8);
 const today=()=>new Date().toLocaleDateString('en-CA');
 let mode='sale',view='new',draft=null,loading=false;
-function data(){const v=store.get('commerce_v1',null);return v&&typeof v==='object'?Object.assign(fresh(),JSON.parse(JSON.stringify(v))):fresh();}
+function data(){const base=fresh(),v=store.get('commerce_v1',null);if(!v||typeof v!=='object')return base;const x=JSON.parse(JSON.stringify(v));return {...base,...x,accounts:{...base.accounts,...(x.accounts||{})}};}
 function save(x){store.set('commerce_v1',x);}
 function notify(t,k='info'){if(typeof showToast==='function')showToast(t,k);else alert(t);}
 function positive(v,label,allowZero=false){if(!Number.isFinite(v)||v<0||(!allowZero&&v===0)||rnd(v)!==v)throw Error('راجع '+label);}
@@ -49,7 +49,7 @@ function paint(){
  if(view==='summary')body=summary(db);
  $('pageCommerce').innerHTML='<div class="rc-app"><h2>المبيعات والمشتريات والمخزون</h2><p class="rc-note">يعمل محليًا، وتحفظ بياناته مع النسخ الاحتياطية لراتب</p><div class="rc-tabs">'+[['sale','المبيعات'],['purchase','المشتريات'],['stock','المخزون']].map(x=>'<button type="button" '+(mode===x[0]?'class="active"':'')+' data-rc-mode="'+x[0]+'">'+x[1]+'</button>').join('')+'</div><div class="rc-tabs">'+btns(tabs)+'</div>'+body+'</div>';
 }
-function products(db){return wrap('إدارة الأصناف','<form id="rc-product-form" class="rc-grid">'+fld('رمز الصنف',inp('sku','text','','required'))+fld('اسم الصنف',inp('name','text','','required'))+fld('الوحدة',inp('unit','text','حبة','required'))+fld('سعر البيع (YER)',inp('price','number','0','step="0.01" min="0" required'))+'<button class="rc-primary">إضافة صنف</button></form>')+wrap('الأصناف',table(['الرمز','الصنف','الوحدة','سعر البيع'],db.products.map(x=>[esc(x.sku),esc(x.name),esc(x.unit),f(x.price)])));}
+function products(db){return wrap('إدارة الأصناف','<form id="rc-product-form" class="rc-grid">'+fld('رمز الصنف',inp('sku','text','','required'))+fld('اسم الصنف',inp('name','text','','required'))+fld('الوحدة',inp('unit','text','حبة','required'))+fld('سعر البيع (YER)',inp('price','number','0','step="0.01" min="0" required'))+fld('حد تنبيه المخزون',inp('minimum','number','0','step="0.01" min="0" required'))+'<button class="rc-primary">إضافة صنف</button></form>')+wrap('الأصناف',table(['الرمز','الصنف','الوحدة','سعر البيع'],db.products.map(x=>[esc(x.sku),esc(x.name),esc(x.unit),f(x.price)])));}
 function warehouses(db){return wrap('إدارة المخازن','<form id="rc-warehouse-form" class="rc-grid">'+fld('اسم المخزن',inp('name','text','','required'))+'<button class="rc-primary">إضافة مخزن</button></form>')+wrap('المخازن',db.warehouses.map(w=>'<p>'+esc(w.name)+'</p>').join(''));}
 function people(db){const type=mode==='sale'?'client':'vendor';return wrap('الأطراف','<form id="rc-person-form" class="rc-grid">'+fld('الاسم',inp('name','text','','required'))+fld('رقم الهاتف',inp('phone','tel'))+'<button class="rc-primary">حفظ</button></form>')+wrap('السجل',db.people.filter(x=>x.type===type).map(x=>'<p>'+esc(x.name)+'</p>').join(''));}
 function accounts(db){const names={cash:'الصندوق / البنك',receivable:'ذمم العملاء',payable:'ذمم الموردين',inventory:'المخزون',sales:'إيرادات المبيعات',cogs:'تكلفة البضاعة المباعة',adjust:'فروق وتسويات المخزون'};
@@ -101,7 +101,7 @@ function invoice(db){
  (returning?fld('الفاتورة الأصلية',sel('origin',originals.map(x=>({id:x.id,name:x.number+' — '+x.date})),draft.origin)):'')+
  fld('الصنف',sel('product',eligible,draft.product))+
  fld('الكمية',inp('qty','number',draft.qty,'step="0.01" min="0.01" required'))+
- fld('سعر الوحدة (YER)',inp('price','number',draft.price||selected?.price||0,'step="0.01" min="0" required '+(returning?'readonly':'')))+
+ fld('سعر الوحدة (YER)',inp('price','number',draft.price||(mode==='sale'?selected?.price:0)||0,'step="0.01" min="0" required '+(returning?'readonly':'')))+
  fld('الطرف',sel('party',db.people.filter(x=>x.type===(mode==='sale'?'client':'vendor')),draft.party))+
  fld('طريقة الدفع','<select id="rc-payment"><option value="cash">نقدي</option><option value="credit" '+(draft.payment==='credit'?'selected':'')+'>آجل</option></select>')+
  '<button type="submit" class="rc-primary">اعتماد وترحيل '+(returning?'المرتجع':'الفاتورة')+'</button></form><p class="rc-note">المرتجعات مرتبطة بمستندها الأصلي، ويُمنع تجاوز الكمية أو إنشاء مستند غير متوازن.</p>');
@@ -212,9 +212,9 @@ function bind(){
   try{
    const db=data(),which=e.target.id;
    if(which==='rc-product-form'){
-    const sku=$('rc-sku').value.trim(),name=$('rc-name').value.trim(),unit=$('rc-unit').value.trim(),price=n($('rc-price').value);
-    positive(price,'سعر البيع',true);if(!sku||!name||!unit||db.products.some(p=>p.sku===sku))throw Error('البيانات غير مكتملة أو رمز الصنف مكرر.');
-    db.products.push({id:id(),sku,name,unit,price,minimum:0});save(db);await flushStorage();paint();
+    const sku=$('rc-sku').value.trim(),name=$('rc-name').value.trim(),unit=$('rc-unit').value.trim(),price=n($('rc-price').value),minimum=n($('rc-minimum').value);
+    positive(price,'سعر البيع',true);positive(minimum,'حد المخزون',true);if(!sku||!name||!unit||db.products.some(p=>p.sku===sku))throw Error('البيانات غير مكتملة أو رمز الصنف مكرر.');
+    db.products.push({id:id(),sku,name,unit,price,minimum});save(db);await flushStorage();paint();
    }else if(which==='rc-warehouse-form'){
     const name=$('rc-name').value.trim();if(!name||db.warehouses.some(w=>w.name===name))throw Error('اسم المخزن فارغ أو مكرر.');
     db.warehouses.push({id:id(),name});save(db);await flushStorage();paint();

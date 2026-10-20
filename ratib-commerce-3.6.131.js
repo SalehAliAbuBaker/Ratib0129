@@ -935,6 +935,20 @@ function bind(){
   }catch(e){notify(e.message||'تعذر فتح الأمر','error');}
  });
  root.addEventListener('change',e=>{
+  if(e.target.id==='rc-button-size'){
+   if(COMMERCE_BUTTON_SIZES.includes(e.target.value)){
+    store.set('commerce_button_size_v1',e.target.value);
+    root.querySelector('.rc-app')?.setAttribute('data-rc-button-size',e.target.value);
+   }return;
+  }
+  if(e.target.id.startsWith('rc-acc-')||['rc-partyAccount','rc-payment','rc-warehouse','rc-warehouse-account','rc-person-account'].includes(e.target.id)){
+   const search=$('rc-search-'+e.target.id.slice(3));if(search){const match=leaf().find(x=>x.id===e.target.value);search.value=match?.name||'';}
+   if(draft&&['rc-partyAccount','rc-payment','rc-warehouse'].includes(e.target.id)){
+    syncInvoice();const element=$('rc-posting-preview');
+    if(element){const tmp=document.createElement('div');tmp.innerHTML=commerceSidesMarkup(data(),draft);element.innerHTML=tmp.firstElementChild?.innerHTML||'';}
+   }
+   return;
+  }
   if(e.target.id==='rc-currency'&&draft){
    const previous=draft.currency||'YER';syncInvoice();draft.currency=e.target.value;
    if(previous!==draft.currency){draft.exchangeRate=draft.currency==='YER'?1:'';
@@ -943,6 +957,12 @@ function bind(){
   }
   if(e.target.id==='rc-catalog-group'){catalogGroup=e.target.value;refreshCatalogListing();return;}if(e.target.id==='rc-partyName'){const p=data().people.find(p=>p.name===e.target.value);if(p&&$('rc-partyAccount'))$('rc-partyAccount').value=p.accountId||'';}if(e.target.id==='rc-import-file'){stageImportFile(e.target.files?.[0]);e.target.value='';return;}if(e.target.id==='rc-person-account'){const input=$('rc-name');if(input&&!input.value.trim())input.value=e.target.value;}});
  root.addEventListener('input',e=>{
+  if(e.target.id.startsWith('rc-search-')){commerceResolveAccount(e.target);return;}
+  if(['rc-group','rc-name'].includes(e.target.id)&&!e.isComposing){
+   const db=data();
+   const suggestions=e.target.id==='rc-group'?db.products.map(p=>p.group):view==='products'?db.products.map(p=>p.name):view==='warehouses'?db.warehouses.map(w=>w.alias||w.name):db.people.map(p=>p.name);
+   commerceAutocomplete(e.target,suggestions);return;
+  }
   if(e.target.id==='rc-catalog-search'){catalogSearch=e.target.value;refreshCatalogListing();return;}
   const productInput=e.target.id.match(/^rc-product-search-(\d+)$/);
   if(productInput&&draft){

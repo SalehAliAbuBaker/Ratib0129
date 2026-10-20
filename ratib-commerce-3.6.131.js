@@ -659,6 +659,21 @@ function open(target='stock'){
  view=mode==='stock'?'products':'new';draft=null;editingProduct=null;query='';detailId='';catalogSearch='';catalogGroup='';catalogSearchVisible=false;catalogGroupVisible=false;
  navigateToTab('pageCommerce',true);paint();
 }
+function openFavorite(target,screen='products'){
+ const source=target==='purchase'?'in':target==='sale'?'out':target==='stock'?'stock':null;
+ if(!source)throw Error('قسم غير معروف في مفضلتي.');
+ const key=String(screen||'').trim();
+ const available=source==='stock'?['products','warehouses','movements','summary','accounts']:
+  ['return','records','people','summary','accounts','new'];
+ const [pageTitle,...rest]=key.split(':');
+ const directTitle=rest.join(':');
+ if(!available.includes(pageTitle))throw Error('وظيفة المفضلة غير متاحة.');
+ if(directTitle&&(!['in','out'].includes(source)||pageTitle!=='new'||!types[source].includes(directTitle)))throw Error('نوع المستند غير صحيح.');
+ open(target);
+ view=pageTitle;
+ if(directTitle){draft=newDraft();draft.title=directTitle;draft.number=nextNumber(data(),draft.kind,directTitle);}
+ paint();
+}
 function bind(){
  const root=$('pageCommerce');if(!root)return;
  root.addEventListener('click',event=>{
@@ -747,6 +762,6 @@ function bind(){
   }catch(error){console.error('Ratib commerce',error);notify(error.message||'تعذر الحفظ','error');}
  });
 }
-window.RatibCommerce={open,render:paint,version:'3.6.136'};
+window.RatibCommerce={open,openFavorite,render:paint,version:'3.6.137'};
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',bind,{once:true});else bind();
 })();

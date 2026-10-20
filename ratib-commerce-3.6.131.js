@@ -294,10 +294,10 @@ function records(db){
  const docs=db.invoices.filter(d=>mode==='in'?['purchase','purchase_return'].includes(d.kind):['sale','sale_return'].includes(d.kind));
  const filtered=docs.filter(d=>!query||[d.number,docName(d),d.partyName,d.date,d.note].join(' ').toLocaleLowerCase().includes(query.toLocaleLowerCase()));
  return wrap('سجل مستندات '+(mode==='in'?'الوارد':'الصادر'),'<div class="rc-search no-print">'+inp('query','search',query,'placeholder="ابحث برقم المستند أو التاريخ أو الطرف..."')+'<button type="button" class="btn btn-ghost" data-rc-search="1">🔎 بحث</button></div>'+
- table(['رقم المستند','المسمى','التاريخ','الطرف','الإجمالي YER','المشاهدة'],filtered.slice().reverse().map(x=>[esc(x.number),esc(docName(x)),esc(x.date),esc(x.partyName||'—'),f(x.total),'<button type="button" class="btn btn-ghost" data-rc-detail="'+esc(x.id)+'">مشاهدة</button>'])));
+ table(['رقم المستند','المسمى','التاريخ','الطرف','إجمالي المستند','المعادل YER','المشاهدة'],filtered.slice().reverse().map(x=>[esc(x.number),esc(docName(x)),esc(x.date),esc(x.partyName||'—'),f(x.total)+' '+esc(x.currency||'YER'),f(x.baseTotal??x.total),'<button type="button" class="btn btn-ghost" data-rc-detail="'+esc(x.id)+'">مشاهدة</button>'])));
 }
 function summary(db){
- const sum=k=>db.invoices.filter(d=>d.kind===k).reduce((a,d)=>a+Number(d.total||0),0);
+ const sum=k=>db.invoices.filter(d=>d.kind===k).reduce((a,d)=>a+Number(d.baseTotal??d.total??0),0);
  const sales=rnd(sum('sale')-sum('sale_return')),purchases=rnd(sum('purchase')-sum('purchase_return'));
  const cost=rnd(db.invoices.filter(d=>d.kind==='sale').reduce((a,d)=>a+Number(d.cost||0),0)-db.invoices.filter(d=>d.kind==='sale_return').reduce((a,d)=>a+Number(d.cost||0),0));
  const rows=db.products.flatMap(p=>db.warehouses.flatMap(w=>unitList(p).map(u=>{
@@ -409,6 +409,7 @@ function refreshTotals(){
  if(!draft)return;
  let total=0;draft.lines.forEach((l,i)=>{const amount=rnd(n(l.qty)*n(l.price));total+=amount;const cell=document.querySelector('[data-total="'+i+'"]');if(cell)cell.textContent=f(amount);});
  if($('rc-grand'))$('rc-grand').textContent=f(total);
+ const box=$('rc-fx-preview');if(box){const rate=n($('rc-exchangeRate')?.value||draft.exchangeRate);box.innerHTML='الإجمالي بالعملة الأصلية: <b>'+f(total)+' '+esc(draft.currency)+'</b> · المعادل اليمني: <b>'+(Number.isFinite(rate)&&rate>0?f(rnd(total*rate)):'حدّد سعر الصرف')+' YER</b>';}
 }
 function changeOrigin(){
  const db=data(),origin=db.invoices.find(x=>x.id===draft.origin);
@@ -419,25 +420,49 @@ function changeOrigin(){
 function makeJournal(doc,db){
  if(doc.kind==='transfer')return [];
  const a=db.accounts,accounts=leaf(),valid=new Set(accounts.map(x=>x.id)),lines=[];
- const post=(side,key,sum)=>{sum=rnd(sum);if(sum<=0)return;const selected=key==='inventory'?warehouseAccount(db,doc.warehouse):(key==='payable'||key==='receivable')?partyAccount(db,doc):a[key];if(!selected||!valid.has(selected))throw Error('ربط الحساب التفصيلي غير مكتمل: '+key);lines.push({side,account:selected,amount:sum});};
+ const currency=doc.currency||'YER',exchangeRate=commerceValidFx(currency,doc.exchangeRate||1);
+ const baseTotal=doc.baseTotal==null?commerceBaseTotal(doc.total,currency,exchangeRate):rnd(doc.baseTotal);
+ if(Math.abs(baseTotal-commerceBaseTotal(doc.total,currency,exchangeRate))>0.011)throw Error('المعادل اليمني لا يطابق سعر الصرف المعتمد؛ لن يتم الترحيل.');
+ const post=(side,key,sum,foreign=false)=>{
+  sum=rnd(sum);if(sum<=0)return;
+  const selected=key==='inventory'?warehouseAccount(db,doc.warehouse):
+   (key==='payable'||key==='receivable')?partyAccount(db,doc):a[key];
+  if(!selected||!valid.has(selected))throw Error('ربط الحساب التفصيلي غير مكتمل: '+key);
+  lines.push({side,account:selected,amount:sum,foreign:!!foreign&&currency!=='YER'});
+ };
  if(doc.kind==='sale'||doc.kind==='sale_return'){
   const sign=doc.kind==='sale';
-  post(sign?'debit':'credit',doc.payment==='cash'?'cash':'receivable',doc.total);
-  post(sign?'credit':'debit','sales',doc.total);
+  post(sign?'debit':'credit',doc.payment==='cash'?'cash':'receivable',baseTotal,true);
+  post(sign?'credit':'debit','sales',baseTotal,true);
   post(sign?'debit':'credit','cogs',doc.cost);
   post(sign?'credit':'debit','inventory',doc.cost);
  }else if(doc.kind==='purchase'||doc.kind==='purchase_return'){
   const sign=doc.kind==='purchase';
-  post(sign?'debit':'credit','inventory',doc.total);
-  post(sign?'credit':'debit',doc.payment==='cash'?'cash':'payable',doc.total);
+  post(sign?'debit':'credit','inventory',baseTotal);
+  post(sign?'credit':'debit',doc.payment==='cash'?'cash':'payable',baseTotal,true);
  }else if(doc.kind==='adjust'){
-  const sign=doc.direction==='in';post(sign?'debit':'credit','inventory',doc.total);post(sign?'credit':'debit','adjust',doc.total);
+  const sign=doc.direction==='in';
+  post(sign?'debit':'credit','inventory',baseTotal);
+  post(sign?'credit':'debit','adjust',baseTotal);
  }
- const debit=rnd(lines.filter(x=>x.side==='debit').reduce((sum,x)=>sum+x.amount,0)),credit=rnd(lines.filter(x=>x.side==='credit').reduce((sum,x)=>sum+x.amount,0));
+ const debit=rnd(lines.filter(x=>x.side==='debit').reduce((sum,x)=>sum+x.amount,0)),
+       credit=rnd(lines.filter(x=>x.side==='credit').reduce((sum,x)=>sum+x.amount,0));
  if(!lines.length||debit!==credit)throw Error('القيد غير متوازن؛ لن يتم الحفظ.');
  const codes=new Map(accounts.map(x=>[x.id,x.name.split(' — ')[0]])),vid='com_'+doc.id,seq=getNextMultiVoucherNumber();
- const multi={id:vid,seq,date:doc.date,mode:'multi-entry',baseCurrency:'YER',baseTotal:debit,note:docName(doc)+' رقم '+doc.number,beneficiary:doc.partyName,lines:lines.map(l=>({side:l.side,account:l.account,accountId:codes.get(l.account)||'',currency:'YER',amount:l.amount,base:l.amount,rate:1,budgetId:'general',note:doc.note||doc.number}))};
- return lines.map((l,i)=>({id:vid+'_'+i,multiVoucherId:vid,commerceId:doc.id,isMultiVoucher:true,voucherMode:'multi-entry',seqNum:seq,date:doc.date,isoDate:doc.date,timestamp:new Date(doc.date+'T12:00:00').getTime(),amount:l.amount,currency:'YER',debitAccount:l.side==='debit'?l.account:'',creditAccount:l.side==='credit'?l.account:'',debitAccountId:l.side==='debit'?codes.get(l.account)||'':'',creditAccountId:l.side==='credit'?codes.get(l.account)||'':'',multiVoucher:multi,type:docName(doc)+' '+doc.number,recipient:doc.partyName,distribution:{},execution:{},status:'posted',schemaVersion:APP_SCHEMA_VERSION,updatedAt:Date.now()}));
+ const multi={id:vid,seq,date:doc.date,mode:'multi-entry',baseCurrency:'YER',baseTotal:debit,
+  note:docName(doc)+' رقم '+doc.number,beneficiary:doc.partyName,
+  lines:lines.map(l=>({side:l.side,account:l.account,accountId:codes.get(l.account)||'',
+   currency:l.foreign?currency:'YER',amount:l.foreign?rnd(doc.total):l.amount,base:l.amount,
+   rate:l.foreign?exchangeRate:1,exchangeRate:l.foreign?exchangeRate:1,
+   equivalentCurrency:'YER',budgetId:'general',note:doc.note||doc.number}))};
+ return lines.map((l,i)=>({id:vid+'_'+i,multiVoucherId:vid,commerceId:doc.id,
+  isMultiVoucher:true,voucherMode:'multi-entry',seqNum:seq,date:doc.date,isoDate:doc.date,
+  timestamp:new Date(doc.date+'T12:00:00').getTime(),amount:l.amount,currency:'YER',
+  debitAccount:l.side==='debit'?l.account:'',creditAccount:l.side==='credit'?l.account:'',
+  debitAccountId:l.side==='debit'?codes.get(l.account)||'':'',
+  creditAccountId:l.side==='credit'?codes.get(l.account)||'':'',
+  multiVoucher:multi,type:docName(doc)+' '+doc.number,recipient:doc.partyName,
+  distribution:{},execution:{},status:'posted',schemaVersion:APP_SCHEMA_VERSION,updatedAt:Date.now()}));
 }
 async function persistDoc(doc,db){
  if(loading)throw Error('هناك حفظ سابق قيد التنفيذ.');
@@ -739,7 +764,13 @@ function bind(){
    if(hit('[data-rc-draft-preview]')){syncInvoice();const db=data(),d=draft;const lines=d.lines.filter(l=>l.product&&n(l.qty)>0).map(l=>({product:l.product,unit:l.unit,qty:n(l.qty),price:n(l.price),subtotal:rnd(n(l.qty)*n(l.price))}));if(!lines.length)throw Error('أدخل صنفًا لمعاينته.');previewDocument('',{kind:d.kind,title:d.title,number:d.number,date:d.date,warehouse:d.warehouse,partyName:d.partyName,note:d.note,lines,total:rnd(lines.reduce((a,l)=>a+l.subtotal,0))});return;}
   }catch(e){notify(e.message||'تعذر فتح الأمر','error');}
  });
- root.addEventListener('change',e=>{if(e.target.id==='rc-catalog-group'){catalogGroup=e.target.value;refreshCatalogListing();return;}if(e.target.id==='rc-partyName'){const p=data().people.find(p=>p.name===e.target.value);if(p&&$('rc-partyAccount'))$('rc-partyAccount').value=p.accountId||'';}if(e.target.id==='rc-import-file'){stageImportFile(e.target.files?.[0]);e.target.value='';return;}if(e.target.id==='rc-person-account'){const input=$('rc-name');if(input&&!input.value.trim())input.value=e.target.value;}});
+ root.addEventListener('change',e=>{
+  if(e.target.id==='rc-currency'&&draft){
+   syncInvoice();draft.currency=e.target.value;
+   draft.exchangeRate=draft.currency==='YER'?1:'';
+   paint();return;
+  }
+  if(e.target.id==='rc-catalog-group'){catalogGroup=e.target.value;refreshCatalogListing();return;}if(e.target.id==='rc-partyName'){const p=data().people.find(p=>p.name===e.target.value);if(p&&$('rc-partyAccount'))$('rc-partyAccount').value=p.accountId||'';}if(e.target.id==='rc-import-file'){stageImportFile(e.target.files?.[0]);e.target.value='';return;}if(e.target.id==='rc-person-account'){const input=$('rc-name');if(input&&!input.value.trim())input.value=e.target.value;}});
  root.addEventListener('input',e=>{
   if(e.target.id==='rc-catalog-search'){catalogSearch=e.target.value;refreshCatalogListing();return;}
   const productInput=e.target.id.match(/^rc-product-search-(\d+)$/);
@@ -752,6 +783,7 @@ function bind(){
    }
    return;
   }
+  if(e.target.id==='rc-exchangeRate'&&draft){draft.exchangeRate=e.target.value;refreshTotals();return;}
   if(['rc-partyName','rc-displayPartyName'].includes(e.target.id)){
    if(!e.isComposing)commerceAutocomplete(e.target,data().people.filter(p=>p.type===(mode==='in'?'vendor':'client')).map(p=>p.name));
    if(e.target.id==='rc-partyName'){

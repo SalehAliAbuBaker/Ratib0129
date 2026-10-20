@@ -577,6 +577,7 @@ function documentHtml(db,d){
  '<div class="rc-document-meta"><span>رقم المستند: <b>'+esc(d.number)+'</b></span><span>التاريخ: <b>'+esc(d.date)+'</b></span><span>المخزن: <b>'+esc(db.warehouses.find(w=>w.id===d.warehouse)?.name||'—')+'</b></span><span>الطرف: <b>'+esc(d.partyName||'—')+'</b></span></div>')+
  commerceInvoiceRecipientRow(d)+
  tableHtml+'<div class="rc-document-footer"><div class="rc-paper-total">الإجمالي: '+f(d.total)+' '+esc(commerceCurrencyName(d.currency||'YER'))+'</div>'+
+ (d.currency&&d.currency!=='YER'?'<p class="rc-paper-equivalent"><b>المعادل اليمني:</b> '+f(d.baseTotal??commerceBaseTotal(d.total,d.currency,d.exchangeRate))+' YER <span>(1 '+esc(d.currency)+' = '+esc(d.exchangeRate)+' YER)</span></p>':'')+
  '<p class="rc-paper-tafqit"><b>التفقيط:</b> '+esc(commerceAmountWords(d.total,d.currency||'YER'))+'</p>'+
  (String(d.note||'').trim()?'<p class="rc-paper-note"><b>ملاحظات:</b> '+esc(d.note)+'</p>':'')+commerceSignatureHtml(d)+'</div></article>';
 }
@@ -668,16 +669,17 @@ function* documentCanvases(db,d){
   draw(vals,'#fff',reportTableLayout(page.ctx,vals,widths,19));
  }
  const curr=d.currency||'YER',total=['','الإجمالي',curr,'','',f(d.total)],totalLayout=reportTableLayout(page.ctx,total,widths,19);
+ const fxLine=curr==='YER'?'':'المعادل اليمني: '+f(d.baseTotal??commerceBaseTotal(d.total,curr,d.exchangeRate))+' YER — سعر الصرف: 1 '+curr+' = '+d.exchangeRate+' YER';
  const spelled=commerceAmountWords(d.total,curr),note=String(d.note||'').trim();
  // One unboxed notes section, including long paragraphs, not a new table row for each fragment.
  const measure=(value,width)=>typeof wrapCanvasText==='function'?wrapCanvasText(page.ctx,value,width):String(value).match(/.{1,55}/gu)||[''];
  const words=spelled?measure('التفقيط: '+spelled,970):[];
  const lines=note?note.split(/\r?\n/).flatMap(para=>measure(para||' ',970)):[];
- const preliminary=totalLayout.height+(words.length+Math.min(lines.length,5))*31+166;
+ const preliminary=totalLayout.height+(words.length+(fxLine?2:0)+Math.min(lines.length,5))*31+166;
  if(page.y+preliminary>maxY&&preliminary<maxY-300){yield page.canvas;nextPage();}
  if(page.y+totalLayout.height>maxY){yield page.canvas;nextPage();}
  draw(total,'#ecfdf5',reportTableLayout(page.ctx,total,widths,19));
- const prose=[...words,...(lines.length?['ملاحظات:',...lines]:[])];
+ const prose=[...(fxLine?measure(fxLine,970):[]),...words,...(lines.length?['ملاحظات:',...lines]:[])];
  for(let i=0;i<prose.length;i++){
   if(page.y+32+116>maxY){yield page.canvas;nextPage();}
   page.ctx.save();page.ctx.fillStyle='#182231';page.ctx.textAlign='right';page.ctx.direction='rtl';

@@ -9,7 +9,7 @@ const labels=[
 ];
 const markup='<html lang="ar"><head></head><body>'+
  '<button id="sidebarMenuBtn">☰</button><button id="backToMenuBtn"><span>الرجوع إلى الشاشة السابقة</span></button>'+
- '<aside id="appSidebar"><div class="sidebar-nav"><button data-sidebar-action="exit"><span>خروج</span></button></div><div class="sidebar-footer"></div></aside><small id="appVersionLabel"></small><section id="pageSettings"></section></body></html>';
+ '<aside id="appSidebar"><div class="sidebar-nav"><button data-sidebar-action="exit"><span>خروج</span></button></div><div class="sidebar-footer"></div></aside><small id="appVersionLabel"></small><section id="pageSettings"></section><section id="pageCommerce"><input type="number" id="rc-amount" value="12345"><input type="text" id="rc-note" value="نص تجريبي"></section></body></html>';
 const dom=new JSDOM(markup,{runScripts:'outside-only',url:'https://ratib.test/',pretendToBeVisual:true});
 const w=dom.window,doc=w.document;
 w.RatibCommerce={version:'3.6.139'};
@@ -32,6 +32,16 @@ const visibleEntries=[...nav.children].filter(n=>!n.hidden);
 assert.equal(visibleEntries.length,5,'five visible top-level menu entries; hidden legacy anchors are not menu items');
 assert.equal(doc.getElementById('sidebarCurrentVersion')?.textContent,'الإصدار 3.6.139 (تجريبية)','sidebar footer uses live release');
 assert.equal(doc.getElementById('appVersionLabel')?.textContent,'الإصدار 3.6.139 (تجريبية)','header release matches sidebar');
+const commerceNumber=doc.getElementById('rc-amount'),commerceText=doc.getElementById('rc-note');
+commerceNumber.focus();
+assert.equal(commerceNumber.type,'text','numeric commerce control becomes selectable only while focused');
+assert.equal(commerceNumber.selectionStart,0);
+assert.equal(commerceNumber.selectionEnd,5,'numeric amount selected in full');
+commerceText.focus();
+assert.equal(commerceNumber.type,'number','numeric type restored when focus changes');
+assert.equal(commerceText.selectionStart,0);
+assert.equal(commerceText.selectionEnd,commerceText.value.length,'text selected in full');
+
 assert.deepEqual(visibleEntries.map(n=>(n.matches('.sidebar-group')?n.querySelector(':scope > button'):n).textContent.trim()),[
  'الإعدادات','النسخ المحلي والسحابي','إدخال كود التفعيل','المساعدة','خروج'
 ]);

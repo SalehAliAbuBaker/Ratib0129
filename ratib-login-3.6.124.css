@@ -1,0 +1,27 @@
+
+/* Ratib trial 3.6.124: dedicated fullscreen login, without changing application theme. */
+#lockScreen.ratib-login124{position:fixed;inset:0;width:100%;height:100vh;height:100dvh;min-height:100vh;min-height:100dvh;z-index:9999;box-sizing:border-box;overflow-y:auto;overscroll-behavior:contain;align-items:stretch;justify-content:flex-start;padding:max(18px,env(safe-area-inset-top)) 22px max(24px,env(safe-area-inset-bottom));color:#fff;background:#168657;direction:rtl;font-family:Tajawal,system-ui,sans-serif}
+#lockScreen.ratib-login124 .lock-content{background:transparent!important;color:#fff!important;border:0!important;border-radius:0!important;box-shadow:none!important;width:100%;max-width:520px;margin:0 auto;padding:0!important;min-height:100%;display:flex;flex-direction:column;gap:0;text-align:right;font-family:inherit}
+#lockScreen.ratib-login124 .ratib-login-top{display:flex;align-items:center;justify-content:center;min-height:56px;margin:4px 0 52px;color:#fff;text-align:center;gap:10px;font-size:clamp(1.15rem,4.3vw,1.6rem);font-weight:900;line-height:1.3}
+#lockScreen.ratib-login124 .ratib-login-top img{width:34px;height:34px;object-fit:contain;border-radius:8px;filter:brightness(0) invert(1)}
+#lockScreen.ratib-login124 #lockTitle{align-self:flex-start;color:#168657!important;background:white;font:800 clamp(1.18rem,4.5vw,1.6rem) Tajawal,sans-serif!important;padding:17px 32px;margin:0 -22px 58px 0!important;border-radius:38px 0 0 38px;min-width:min(260px,80%);max-width:100%;box-sizing:border-box;box-shadow:none;line-height:1.15}
+#lockScreen.ratib-login124 #lockDesc{font:700 .94rem Tajawal,sans-serif!important;color:#eaffef!important;margin:0 0 15px!important;text-align:right}
+#lockScreen.ratib-login124 .ratib-password-field{display:flex;align-items:stretch;direction:rtl;border:2px solid #bde5c9;border-radius:10px;overflow:hidden;background:#fff;height:64px;min-height:64px;width:100%;margin:0 0 18px;box-sizing:border-box}
+#lockScreen.ratib-login124 .ratib-password-icon{width:62px;flex:0 0 62px;background:#168657;display:flex;align-items:center;justify-content:center;color:#fff}
+#lockScreen.ratib-login124 .ratib-password-icon svg{width:25px;height:25px}
+#lockScreen.ratib-login124 #pinInput{flex:1;min-width:0!important;width:100%!important;height:100%!important;min-height:0!important;max-width:100%!important;border:0!important;border-radius:0!important;box-shadow:none!important;padding:8px 14px!important;outline:none!important;background:#fff!important;color:#24352b!important;font-size:1.27rem!important;letter-spacing:normal!important;font-weight:700!important;text-align:right!important;font-family:inherit!important}
+#lockScreen.ratib-login124 #pinInput:focus-visible{outline:3px solid #7adea7!important;outline-offset:-3px!important}
+#lockScreen.ratib-login124 .ratib-password-eye{display:flex;align-items:center;justify-content:center;flex:0 0 52px;min-width:52px;height:100%;border:0;background:#fff;color:#6b7d75;cursor:pointer}
+#lockScreen.ratib-login124 .ratib-password-eye svg{height:25px;width:25px}
+#lockScreen.ratib-login124 .ratib-login-submit{display:block!important;background:#00bd79!important;color:#fff!important;border:0!important;border-radius:8px!important;box-shadow:0 3px 8px #09482f44!important;width:100%;min-height:64px;font:800 1.35rem Tajawal,sans-serif!important;margin:26px 0 10px!important;padding:14px!important;text-align:center;cursor:pointer}
+#lockScreen.ratib-login124 .ratib-login-submit:focus-visible,#lockScreen.ratib-login124 .ratib-fingerprint-trigger:focus-visible,#lockScreen.ratib-login124 .ratib-password-eye:focus-visible{outline:3px solid #fff;outline-offset:3px}
+#lockScreen.ratib-login124 .ratib-login-fingerprint{margin-top:auto;min-height:190px;padding:30px 0 max(55px,10dvh);display:flex;align-items:center;justify-content:center;flex-direction:column;gap:5px;flex-shrink:0;text-align:center}
+#lockScreen.ratib-login124 .ratib-fingerprint-trigger{width:118px;height:118px;border:0;border-radius:22px;display:flex;align-items:center;justify-content:center;background:transparent;color:#fff;cursor:pointer;padding:10px}
+#lockScreen.ratib-login124 .ratib-fingerprint-trigger svg{width:90px;height:90px;fill:none;stroke:#fff;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+#lockScreen.ratib-login124 .ratib-fingerprint-label{color:#effff4;font:800 1rem Tajawal,sans-serif}
+#lockScreen.ratib-login124 .ratib-fingerprint-info{color:#e0ffeb;font:700 .86rem Tajawal,sans-serif;min-height:1.3rem;max-width:330px;line-height:1.4;text-align:center}
+#lockScreen.ratib-login124 #bioUnlockBtn{position:absolute!important;width:0!important;height:0!important;min-height:0!important;padding:0!important;border:0!important;overflow:hidden!important;opacity:0!important;pointer-events:none!important}
+#lockScreen.ratib-login124 .ratib-lock-form{display:contents}
+@media(max-height:690px){#lockScreen.ratib-login124 .ratib-login-top{margin-bottom:18px}#lockScreen.ratib-login124 #lockTitle{margin-bottom:22px!important}#lockScreen.ratib-login124 .ratib-login-submit{margin-top:12px!important}#lockScreen.ratib-login124 .ratib-login-fingerprint{padding:10px 0 18px;min-height:135px}#lockScreen.ratib-login124 .ratib-fingerprint-trigger{width:88px;height:88px}#lockScreen.ratib-login124 .ratib-fingerprint-trigger svg{width:70px;height:70px}}
+@media(min-width:600px){#lockScreen.ratib-login124 #lockTitle{margin-right:0;border-radius:38px}}
+@media print{#lockScreen.ratib-login124{display:none!important}}

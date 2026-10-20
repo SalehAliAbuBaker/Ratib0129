@@ -5056,7 +5056,7 @@ function navigateToTab(target, pushToHistory = true) {
   currentActiveTab = target;
   syncSidebarCurrentPage();
   // للشاشتين شريط تنقل داخلي؛ إخفاء زر الرجوع الكبير المكرر يترك اسم الحساب واضحاً.
-  if (target === 'pageLedger' || target === 'pageAccountOperations') backBtn.classList.add('hidden');
+  if (target === 'pageLedger' || target === 'pageAccountOperations' || target === 'pageCommerce') backBtn.classList.add('hidden');
 
   if (target === 'pageLedger') renderAllData(true);
   if (target === 'pageExpenses') {initVoucherSelectorView();updateDraftButton();}

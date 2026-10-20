@@ -254,7 +254,7 @@ function movements(db){
 }
 function newDraft(){
  const db=data(),kind=view==='return'?(mode==='in'?'purchase_return':'sale_return'):dir(),title=view==='return'?'مرتجع':types[mode]?.[0]||'مرتجع';
- return {kind,title,number:nextNumber(db,kind,title),date:today(),warehouse:db.warehouses[0]?.id||'main',partyName:'',partyAccount:'',payment:'credit',note:'',origin:'',lines:[{id:id(),product:'',unit:'',qty:1,price:0}]};
+ return {kind,title,number:nextNumber(db,kind,title),date:today(),warehouse:db.warehouses[0]?.id||'main',partyName:'',displayPartyName:'',partyAccount:'',payment:'credit',note:'',origin:'',lines:[{id:id(),product:'',unit:'',qty:1,price:0}]};
 }
 function leftToReturn(db,origin,pid,unit){
  const x=db.invoices.find(t=>t.id===origin);
@@ -274,7 +274,8 @@ function invoice(db){
  fld('التاريخ',inp('date','date',draft.date,'required'))+
  fld('المخزن',sel('warehouse',db.warehouses,draft.warehouse))+
  (ret?fld('المستند الأصلي',sel('origin',originals.map(x=>({id:x.id,name:x.number+' — '+docName(x)})),draft.origin)):'')+
- fld(mode==='in'?'المورد أو صاحب الحساب':'العميل أو صاحب الحساب',inp('partyName','text',draft.partyName,(commerceInvoiceRecipientLabel(draft)?'':'required ')+'maxlength="140" list="rc-parties"')+'<datalist id="rc-parties">'+[...new Set(partySuggestions)].map(n=>'<option value="'+esc(n)+'"></option>').join('')+'</datalist>')+
+ fld(mode==='in'?'المورد أو صاحب الحساب':'العميل أو صاحب الحساب',inp('partyName','text',draft.partyName,'required maxlength="140" autocomplete="off" list="rc-parties"')+'<datalist id="rc-parties">'+[...new Set(partySuggestions)].map(n=>'<option value="'+esc(n)+'"></option>').join('')+'</datalist>')+
+ (commerceInvoiceRecipientLabel(draft)?fld('اسم '+(mode==='in'?'المورد':'العميل')+' على الفاتورة (اختياري)',inp('displayPartyName','text',draft.displayPartyName||'','maxlength="140" autocomplete="off" placeholder="اكتب اسمًا أو اترك الحقل فارغًا" list="rc-parties"')):'')+
  fld('الحساب الفرعي للطرف (افتراضي، قابل للتغيير)',sel('partyAccount',leaf(),draft.partyAccount||db.accounts[mode==='in'?'payable':'receivable']))+
  fld('طريقة التسوية','<select id="rc-payment"><option value="credit" '+(draft.payment==='credit'?'selected':'')+'>آجل / على الحساب</option><option value="cash" '+(draft.payment==='cash'?'selected':'')+'>نقدي</option></select>')+
  fld('العملة','<strong>YER — ريال يمني</strong>')+
@@ -323,7 +324,7 @@ async function draftOutput(action){
 }
 function syncInvoice(){
  if(!draft)return;
- for(const key of ['doctype','number','date','warehouse','origin','partyName','partyAccount','payment','note']){
+ for(const key of ['doctype','number','date','warehouse','origin','partyName','displayPartyName','partyAccount','payment','note']){
   const element=$('rc-'+key);if(element)draft[key==='doctype'?'title':key]=element.value;
  }
  draft.lines.forEach((l,i)=>{
@@ -338,7 +339,7 @@ function refreshTotals(){
 function changeOrigin(){
  const db=data(),origin=db.invoices.find(x=>x.id===draft.origin);
  draft.lines=origin?(origin.lines||[]).filter(l=>leftToReturn(db,origin.id,l.product,lineUnit(db,l))>0).map(l=>({id:id(),product:l.product,unit:lineUnit(db,l),qty:0,price:l.price})):[{id:id(),product:'',unit:'',qty:0,price:0}];
- if(origin){draft.warehouse=origin.warehouse;draft.partyName=origin.partyName;draft.partyAccount=origin.partyAccount||'';draft.payment=origin.payment;}
+ if(origin){draft.warehouse=origin.warehouse;draft.partyName=origin.partyName;draft.displayPartyName=origin.displayPartyName||'';draft.partyAccount=origin.partyAccount||'';draft.payment=origin.payment;}
  paint();
 }
 function makeJournal(doc,db){
@@ -390,7 +391,7 @@ async function saveInvoice(){
  if(!/^\d{4}-\d{2}-\d{2}$/.test(d.date)||!Number.isFinite(Date.parse(d.date)))throw Error('تاريخ المستند غير صحيح.');
  if(!String(d.number||'').trim())throw Error('أدخل رقم المستند.');
  if(db.invoices.some(x=>x.number===d.number&&x.kind===kind))throw Error('رقم المستند مستخدم مسبقًا ضمن نفس النوع.');
- if(!String(d.partyName||'').trim()&&!commerceInvoiceRecipientLabel(d))throw Error('حدد المورد أو العميل أو صاحب الحساب.');
+ if(!String(d.partyName||'').trim())throw Error('حدد المورد أو العميل أو صاحب الحساب المحاسبي.');
  if(d.partyAccount)validatedAccount(d.partyAccount,'الحساب المقابل');
  if(!['cash','credit'].includes(d.payment))throw Error('طريقة التسوية غير صالحة.');
  if(!ret&&!types[mode].includes(d.title))throw Error('اختر نوع مستند معتمد.');
@@ -425,7 +426,7 @@ async function saveInvoice(){
  });
  positive(total,'الإجمالي');
  const prefix={purchase:'IN',sale:'OUT',purchase_return:'IR',sale_return:'OR'}[kind];
- const doc={id:id(),kind,title:ret?'مرتجع '+(mode==='in'?'الوارد':'الصادر'):d.title,number:String(d.number).trim(),date:d.date,warehouse:d.warehouse,partyName:String(d.partyName).trim(),partyAccount:d.payment==='credit'?validatedAccount(d.partyAccount,'الحساب المقابل'):'',payment:d.payment,note:String(d.note||''),origin:ret?origin.id:'',currency:'YER',total:rnd(total),cost:rnd(totalCost),lines:items,status:'posted',createdAt:new Date().toISOString()};
+ const doc={id:id(),kind,title:ret?'مرتجع '+(mode==='in'?'الوارد':'الصادر'):d.title,number:String(d.number).trim(),date:d.date,warehouse:d.warehouse,partyName:String(d.partyName).trim(),partyAccount:d.payment==='credit'?validatedAccount(d.partyAccount,'الحساب المقابل'):'',payment:d.payment,note:String(d.note||''),origin:ret?origin.id:'',currency:'YER',displayPartyName:commerceInvoiceRecipientLabel(d)?String(d.displayPartyName||'').trim():'',total:rnd(total),cost:rnd(totalCost),lines:items,status:'posted',createdAt:new Date().toISOString()};
  await persistDoc(doc,db);
 }
 async function saveMovement(){
@@ -454,7 +455,7 @@ function commerceInvoiceRecipientLabel(d){
  return title==='فاتورة مبيعات'?'مباع على / صادر إلى':title==='فاتورة مشتريات'?'مُشترى من / وارد من':'';
 }
 function commerceInvoiceRecipientRow(d){
- const label=commerceInvoiceRecipientLabel(d),name=String(d.partyName||'').trim();
+ const label=commerceInvoiceRecipientLabel(d),name=String(d.displayPartyName||'').trim();
  if(!label||!name)return '';
  return '<div class="rc-invoice-party-row" dir="rtl"><div class="rc-invoice-recipient"><b>'+esc(label)+':</b> <span>'+esc(name)+'</span></div></div>';
 }
@@ -505,7 +506,7 @@ async function printDocument(docId,derivedDoc){
 function commerceCanvasPage(db,d,pageNumber){
  const title=(d.isDraft?'مسودة غير معتمدة — ':'')+docName(d);
  const warehouse=db.warehouses.find(w=>w.id===d.warehouse)?.name||'—';
- const label=commerceInvoiceRecipientLabel(d),recipient=String(d.partyName||'').trim();
+ const label=commerceInvoiceRecipientLabel(d),recipient=String(d.displayPartyName||'').trim();
  const subtitle=label?'':'رقم: '+d.number+' — التاريخ: '+d.date+' — المخزن: '+warehouse+' — الطرف: '+(d.partyName||'—');
  // reportCanvasPage renders the single personal heading and a generic issuance date.
  const page=reportCanvasPage(title,subtitle,pageNumber);

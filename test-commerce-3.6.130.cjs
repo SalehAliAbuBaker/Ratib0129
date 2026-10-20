@@ -1,0 +1,37 @@
+const assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('node:vm'),path=require('node:path');
+const source=fs.readFileSync(path.join(__dirname,'ratib-commerce-3.6.130.js'),'utf8');
+const marker="window.RatibCommerce={open,render:paint,version:'3.6.130'};";
+assert(source.includes(marker));
+const patch=source.replace(marker,"window.__test={data,stageProducts,guideMarkup,warehouseAccount,partyAccount,makeJournal,warehouses,accounts,productRows};"+marker);
+const storeValues={},store={get:(k,def)=>storeValues[k]??def,set:(k,v)=>storeValues[k]=v};
+const catalog=()=>[{details:[['101','صندوق'],['110','عملاء'],['210','موردون'],['130','مخزون'],['410','مبيعات'],['510','تكلفة'],['610','فروق'],['131','مخزن الفرع'],['211','مورد خاص']]}];
+const plan={transactions:[]},win={RatibLicense:{beforeCreate:async()=>true,recordCreated(){}}};
+const doc={readyState:'loading',addEventListener(){},getElementById(){return null;}};
+const context={window:win,document:doc,store,getCanonicalCatalog:catalog,
+ getNextMultiVoucherNumber:()=>25,getAllTransactions:()=>plan.transactions,getMasterPlan:()=>plan,
+ APP_SCHEMA_VERSION:3,flushStorage:async()=>{},showToast(){},audit(){},renderAllData(){},updateProDashboard(){},navigateToTab(){},getHeaderConfig:()=>({name:'راتب',show:true})};
+vm.runInNewContext(patch,context,{filename:'ratib-commerce-3.6.130.js'});
+const T=win.__test,d=T.data();
+d.accounts={cash:'صندوق',receivable:'عملاء',payable:'موردون',inventory:'مخزون',sales:'مبيعات',cogs:'تكلفة',adjust:'فروق'};
+d.warehouses=[{id:'main',name:'الرئيسي',accountId:'مخزون'},{id:'w2',name:'مخزن الفرع',accountId:'مخزن الفرع'}];
+const rows=[['000010','دقيق','غذاء','كرتون','درزن','45','2'],['000011','قلم','قرطاسية','حبة','','2','0']];
+const products=T.stageProducts(rows,d);
+assert.equal(products.length,2);d.products.push(...products);
+assert.throws(()=>T.stageProducts([['000010','مكرر','غذاء','حبة','','1','0']],d),/مكرر/);
+assert.throws(()=>T.stageProducts([['000020','بدون مجموعة','','حبة','','1','0']],d),/مطلوبة/);
+assert(T.guideMarkup(d).includes('دقيق'));
+assert(T.accounts(d).includes('ربط الحسابات'));
+assert(T.warehouses(d).includes('مخزن الفرع'));
+assert.equal(T.warehouseAccount(d,'w2'),'مخزن الفرع');
+const purchase={id:'doc1',kind:'purchase',date:'2026-10-20',warehouse:'w2',partyName:'مورد خاص',partyAccount:'مورد خاص',payment:'credit',total:100,cost:100,number:'IN-01',lines:[{product:products[0].id,unit:'كرتون',qty:2,price:50,subtotal:100,cost:100}]};
+let journal=T.makeJournal(purchase,d);
+assert(journal.some(x=>x.debitAccount==='مخزن الفرع'));
+assert(journal.some(x=>x.creditAccount==='مورد خاص'));
+assert.equal(journal.reduce((a,x)=>a+(x.debitAccount?x.amount:-x.amount),0),0);
+const sale={...purchase,id:'doc2',kind:'sale',partyName:'عميل',partyAccount:'عملاء',total:150,cost:100};
+journal=T.makeJournal(sale,d);
+assert.equal(journal.length,4);
+assert(journal.some(x=>x.debitAccount==='عملاء'));
+assert(journal.some(x=>x.creditAccount==='مخزن الفرع'));
+assert.equal(journal.reduce((a,x)=>a+(x.debitAccount?x.amount:-x.amount),0),0);
+console.log('PASS: 3.6.130 product import validation, preview, warehouse/party ledgers and balanced journals');

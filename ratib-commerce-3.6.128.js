@@ -109,52 +109,59 @@ function invoice(db){
 function syncInvoice(){if(!draft)return;for(const k of ['date','warehouse','product','party','payment','origin','qty','price'])if($('rc-'+k))draft[k]=$('rc-'+k).value;}
 function makeJournal(doc,db){
  if(doc.kind==='transfer')return [];
- const a=db.accounts,items=leaf(),leafs=new Set(items.map(x=>x.id)),lines=[];
- const post=(side,k,value)=>{value=rnd(value);if(value<=0)return;if(!a[k]||!leafs.has(a[k]))throw Error('ربط الحساب مفقود: '+k);lines.push({side,account:a[k],amount:value});};
+ const a=db.accounts,accounts=leaf(),valid=new Set(accounts.map(x=>x.id)),lines=[];
+ const post=(side,key,sum)=>{sum=rnd(sum);if(sum<=0)return;if(!a[key]||!valid.has(a[key]))throw Error('يرجى ربط الحساب التفصيلي: '+key);lines.push({side,account:a[key],amount:sum});};
  if(doc.kind==='sale'||doc.kind==='sale_return'){
-  const normal=doc.kind==='sale';
-  post(normal?'debit':'credit',doc.payment==='cash'?'cash':'receivable',doc.total);
-  post(normal?'credit':'debit','sales',doc.total);
-  post(normal?'debit':'credit','cogs',doc.cost);
-  post(normal?'credit':'debit','inventory',doc.cost);
+  const sign=doc.kind==='sale';post(sign?'debit':'credit',doc.payment==='cash'?'cash':'receivable',doc.total);
+  post(sign?'credit':'debit','sales',doc.total);post(sign?'debit':'credit','cogs',doc.cost);post(sign?'credit':'debit','inventory',doc.cost);
+ }else if(doc.kind==='purchase'||doc.kind==='purchase_return'){
+  const sign=doc.kind==='purchase';post(sign?'debit':'credit','inventory',doc.total);post(sign?'credit':'debit',doc.payment==='cash'?'cash':'payable',doc.total);
+ }else if(doc.kind==='adjust'){
+  const incoming=doc.direction==='in';post(incoming?'debit':'credit','inventory',doc.total);post(incoming?'credit':'debit','adjust',doc.total);
  }
- if(doc.kind==='purchase'||doc.kind==='purchase_return'){
-  const normal=doc.kind==='purchase';
-  post(normal?'debit':'credit','inventory',doc.total);
-  post(normal?'credit':'debit',doc.payment==='cash'?'cash':'payable',doc.total);
- }
- if(doc.kind==='adjust'){
-  const incoming=doc.direction==='in';
-  post(incoming?'debit':'credit','inventory',doc.total);
-  post(incoming?'credit':'debit','adjust',doc.total);
- }
- const debit=rnd(lines.filter(l=>l.side==='debit').reduce((a,l)=>a+l.amount,0));
- const credit=rnd(lines.filter(l=>l.side==='credit').reduce((a,l)=>a+l.amount,0));
- if(debit!==credit)throw Error('القيد غير متوازن');
- if(!lines.length)throw Error('القيد المالي فارغ');
- const codes=new Map(items.map(x=>[x.id,x.name.split(' — ')[0]])),voucherId='com_'+doc.id,seq=getNextMultiVoucherNumber();
- const multi={id:voucherId,seq,date:doc.date,mode:'multi-entry',baseCurrency:'YER',baseTotal:debit,note:'مستند تجاري '+doc.number,lines:lines.map(l=>({side:l.side,account:l.account,accountId:codes.get(l.account)||'',currency:'YER',amount:l.amount,base:l.amount,rate:1,budgetId:'general',note:'مستند '+doc.number}))};
- return lines.map((l,i)=>({id:voucherId+'_'+i,multiVoucherId:voucherId,commerceId:doc.id,isMultiVoucher:true,voucherMode:'multi-entry',seqNum:seq,date:doc.date,isoDate:doc.date,timestamp:new Date(doc.date+'T12:00:00').getTime(),amount:l.amount,currency:'YER',debitAccount:l.side==='debit'?l.account:'',creditAccount:l.side==='credit'?l.account:'',debitAccountId:l.side==='debit'?codes.get(l.account)||'':'',creditAccountId:l.side==='credit'?codes.get(l.account)||'':'',multiVoucher:multi,type:'مستند تجاري '+doc.number,status:'posted',schemaVersion:APP_SCHEMA_VERSION,updatedAt:Date.now(),distribution:{},execution:{}}));
+ const dr=rnd(lines.filter(x=>x.side==='debit').reduce((a,l)=>a+l.amount,0)),cr=rnd(lines.filter(x=>x.side==='credit').reduce((a,l)=>a+l.amount,0));
+ if(!lines.length||dr!==cr)throw Error('القيد المحاسبي غير متوازن.');
+ const ids=new Map(accounts.map(x=>[x.id,x.name.split(' — ')[0]])),vid='com_'+doc.id,seq=getNextMultiVoucherNumber();
+ const m={id:vid,seq,date:doc.date,mode:'multi-entry',baseCurrency:'YER',baseTotal:dr,note:'مستند تجاري '+doc.number,lines:lines.map(x=>({side:x.side,account:x.account,accountId:ids.get(x.account)||'',currency:'YER',amount:x.amount,base:x.amount,rate:1,budgetId:'general',note:doc.number}))};
+ return lines.map((x,i)=>({id:vid+'_'+i,multiVoucherId:vid,commerceId:doc.id,isMultiVoucher:true,voucherMode:'multi-entry',seqNum:seq,date:doc.date,isoDate:doc.date,timestamp:new Date(doc.date+'T12:00:00').getTime(),amount:x.amount,currency:'YER',debitAccount:x.side==='debit'?x.account:'',creditAccount:x.side==='credit'?x.account:'',debitAccountId:x.side==='debit'?ids.get(x.account)||'':'',creditAccountId:x.side==='credit'?ids.get(x.account)||'':'',multiVoucher:m,type:'مستند تجاري '+doc.number,status:'posted',schemaVersion:APP_SCHEMA_VERSION,updatedAt:Date.now(),distribution:{},execution:{}}));
+}
+async function persistDoc(doc,db){
+ if(loading)throw Error('هناك حفظ سابق قيد التنفيذ.');
+ if(typeof _pendingFinancialCompletion!=='undefined'&&_pendingFinancialCompletion)throw Error('أكمل حفظ راتب السابق.');
+ if(db.invoices.some(x=>x.id===doc.id)||getAllTransactions().some(x=>x.commerceId===doc.id))throw Error('المستند مكرر.');
+ const lines=makeJournal(doc,db);
+ if(window.RatibLicense?.beforeCreate&&!(await window.RatibLicense.beforeCreate(getAllTransactions())))return false;
+ loading=true;
+ try{
+  const plan=lines.length?getMasterPlan():null;
+  if(plan)plan.transactions.push(...lines);
+  db.invoices.push(doc);save(db);if(plan)store.set('plan',plan);
+  if(typeof audit==='function')audit('COMMERCE_POST',doc.id,null,doc);
+  await flushStorage();
+  window.RatibLicense?.recordCreated?.();
+  if(typeof renderAllData==='function')renderAllData();
+  if(typeof updateProDashboard==='function')updateProDashboard();
+  draft=null;view=mode==='stock'?'movements':'records';paint();notify('تم اعتماد المستند وحفظه','success');
+  return true;
+ }finally{loading=false;}
 }
 async function saveInvoice(){
- if(loading)throw Error('حفظ آخر قيد التنفيذ');syncInvoice();const db=data(),v=draft,q=n(v.qty),price=n(v.price),p=db.products.find(x=>x.id===v.product);
- positive(q,'الكمية');positive(price,'السعر',true);
- if(!p||!db.warehouses.some(x=>x.id===v.warehouse))throw Error('اختر صنفًا ومخزنًا صحيحين');
- if(v.payment==='credit'&&!v.party)throw Error('حدد العميل أو المورد للآجل');
- if(v.kind==='sale'&&qty(db,p.id,v.warehouse)<q)throw Error('المخزون غير كاف');
- if(!/^\d{4}-\d{2}-\d{2}$/.test(v.date)||!Number.isFinite(Date.parse(v.date)))throw Error('التاريخ غير صحيح');
- const cost=rnd(q*(v.kind==='sale'?average(db,p.id,v.warehouse):price));
- const total=rnd(q*price);positive(total,'الإجمالي');
- const doc={id:id(),kind:v.kind,number:(v.kind==='sale'?'S':'P')+'-'+String(db.invoices.filter(x=>x.kind===v.kind).length+1).padStart(5,'0'),date:v.date,warehouse:v.warehouse,party:v.party,payment:v.payment,partyName:db.people.find(x=>x.id===v.party)?.name||'',total,cost,lines:[{product:p.id,qty:q,price,cost}],status:'posted'};
- const tx=makeJournal(doc,db);
- if(window.RatibLicense?.beforeCreate&&!(await window.RatibLicense.beforeCreate(getAllTransactions())))return;
- loading=true;try{
-  const plan=getMasterPlan();plan.transactions.push(...tx);db.invoices.push(doc);
-  save(db);store.set('plan',plan);if(typeof audit==='function')audit('COMMERCE_INVOICE',doc.id,null,doc);
-  await flushStorage();window.RatibLicense?.recordCreated?.();
-  if(typeof renderAllData==='function')renderAllData();if(typeof updateProDashboard==='function')updateProDashboard();
-  draft=null;view='records';paint();notify('تم حفظ الفاتورة بقيد متوازن','success');
- }finally{loading=false;}
+ syncInvoice();const db=data(),v=draft,q=n(v.qty),p=db.products.find(x=>x.id===v.product),returning=v.kind.endsWith('_return');
+ positive(q,'الكمية');
+ if(!p||!db.warehouses.some(w=>w.id===v.warehouse))throw Error('اختر الصنف والمخزن.');
+ if(!/^\d{4}-\d{2}-\d{2}$/.test(v.date)||!Number.isFinite(Date.parse(v.date)))throw Error('التاريخ غير صحيح.');
+ if(v.payment==='credit'&&!v.party)throw Error('حدد العميل أو المورد للآجل.');
+ const src=db.invoices.find(x=>x.id===v.origin);
+ if(returning&&(!src||src.kind!==mode||src.warehouse!==v.warehouse))throw Error('اختر فاتورة أصلية بمخزن صحيح.');
+ if(returning&&q>leftToReturn(db,src.id,p.id))throw Error('كمية المرتجع تتجاوز الفاتورة الأصلية.');
+ if(['sale','purchase_return'].includes(v.kind)&&q>qty(db,p.id,v.warehouse))throw Error('الكمية المتاحة لا تكفي.');
+ let price=n(v.price),cost;
+ if(returning){const line=src.lines.find(x=>x.product===p.id);if(!line)throw Error('الصنف غير موجود في الفاتورة الأصلية.');price=line.price;cost=rnd(q*line.cost/line.qty);}
+ else{positive(price,'سعر الوحدة',true);cost=rnd(q*(v.kind==='sale'?average(db,p.id,v.warehouse):price));}
+ const total=rnd(q*price);positive(total,'المبلغ');
+ const prefix={sale:'S',purchase:'P',sale_return:'SR',purchase_return:'PR'}[v.kind];
+ const doc={id:id(),kind:v.kind,number:prefix+'-'+String(db.invoices.filter(x=>x.kind===v.kind).length+1).padStart(5,'0'),date:v.date,warehouse:v.warehouse,party:returning?src.party:v.party,payment:returning?src.payment:v.payment,partyName:returning?src.partyName:(db.people.find(x=>x.id===v.party)?.name||''),origin:returning?src.id:'',total,cost,lines:[{product:p.id,qty:q,price,cost}],status:'posted'};
+ await persistDoc(doc,db);
 }
 function open(target='sale'){mode=['sale','purchase','stock'].includes(target)?target:'sale';view=mode==='stock'?'products':'new';draft=null;navigateToTab('pageCommerce',true);paint();}
 function bind(){

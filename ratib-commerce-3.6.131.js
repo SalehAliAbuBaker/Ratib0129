@@ -124,7 +124,7 @@ function commerceSignatureHtml(d){
 }
 function printHeading(title,info=''){
  const cfg=typeof getHeaderConfig==='function'?getHeaderConfig():{name:'راتب للتنظيم والتدبير المالي',details:'',show:true};
- return (cfg.show?'<header class="rc-paper-head"><div class="rc-basmalah">بسم الله الرحمن الرحيم</div><strong>'+esc(cfg.name||'راتب للتنظيم والتدبير المالي')+'</strong>'+(cfg.details?'<div class="rc-paper-header-details">'+esc(cfg.details)+'</div>':'')+'</header>':'')+
+ return (cfg.show?'<header class="rc-paper-head"><strong>'+esc(cfg.name||'راتب للتنظيم والتدبير المالي')+'</strong>'+(cfg.details?'<div class="rc-paper-header-details">'+esc(cfg.details)+'</div>':'')+'</header>':'')+
  '<h2 class="rc-document-title">'+esc(title)+'</h2>'+(info?'<p class="rc-paper-subtitle">'+esc(info)+'</p>':'');
 }
 function guideMarkup(db,selected){

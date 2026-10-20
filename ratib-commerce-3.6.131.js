@@ -630,6 +630,6 @@ function bind(){
   }catch(error){console.error('Ratib commerce',error);notify(error.message||'تعذر الحفظ','error');}
  });
 }
-window.RatibCommerce={open,render:paint,version:'3.6.132'};
+window.RatibCommerce={open,render:paint,version:'3.6.133'};
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',bind,{once:true});else bind();
 })();

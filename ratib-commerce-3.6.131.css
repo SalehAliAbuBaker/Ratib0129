@@ -256,35 +256,35 @@
  body.printing-commerce #ratibCommercePrintHost .rc-signature-cell span{font-size:8pt}
 }
 
-/* Sales and purchase invoices: approved recipient-and-date row above item table. */
+/* Ratib trial invoice layout 3.6.135: one date in metadata and an optional plain RTL recipient. */
+.rc-paper.rc-document-paper .rc-invoice-meta{
+ display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.25fr) minmax(0,1fr);
+ gap:6px 10px;align-items:baseline;direction:rtl;text-align:right;
+ margin:2px 0 5px;font-size:.86rem;line-height:1.38;
+}
+.rc-paper.rc-document-paper .rc-invoice-meta>span{min-width:0;overflow-wrap:anywhere}
 .rc-paper.rc-document-paper .rc-invoice-party-row{
- display:flex!important;flex-direction:row;align-items:center;flex-wrap:nowrap!important;
- direction:rtl;gap:12px;margin:4px 0 12px;
+ display:block;direction:rtl;text-align:right;
+ margin:0 0 8px;padding:0;
  break-inside:avoid;page-break-inside:avoid;
 }
-.rc-paper.rc-document-paper .rc-invoice-issue-date{
- flex:0 0 28%;min-width:0;white-space:nowrap;text-align:right;
- font-size:.86rem;line-height:1.4;padding:5px 0;
-}
 .rc-paper.rc-document-paper .rc-invoice-recipient{
- flex:1 1 auto;min-width:0;display:flex;align-items:center;justify-content:center;
- gap:8px;min-height:43px;box-sizing:border-box;
- background:#fff7f0!important;border:2px solid #dc2626;border-radius:6px;
- padding:6px 10px;color:#182231;
- font-size:.93rem;line-height:1.45;
- overflow-wrap:anywhere;print-color-adjust:exact;-webkit-print-color-adjust:exact;
+ display:block!important;direction:rtl;text-align:right!important;
+ min-height:0!important;margin:0;padding:0!important;line-height:1.45;
+ background:transparent!important;color:#182231!important;
+ border:0!important;border-radius:0!important;box-shadow:none!important;
+ font-size:.93rem;overflow-wrap:anywhere;
 }
-.rc-paper.rc-document-paper .rc-invoice-recipient b{font-weight:900;white-space:nowrap}
-.rc-paper.rc-document-paper .rc-invoice-recipient span{font-weight:750;text-align:center;min-width:0}
+.rc-paper.rc-document-paper .rc-invoice-recipient b{font-weight:900}
+.rc-paper.rc-document-paper .rc-invoice-recipient span{font-weight:700}
 @media(max-width:550px){
- .rc-paper.rc-document-paper .rc-invoice-party-row{gap:5px}
- .rc-paper.rc-document-paper .rc-invoice-issue-date{flex-basis:31%;font-size:.72rem}
- .rc-paper.rc-document-paper .rc-invoice-recipient{gap:3px;padding:5px 4px;font-size:.7rem}
- .rc-paper.rc-document-paper .rc-invoice-recipient b{white-space:normal}
+ .rc-paper.rc-document-paper .rc-invoice-meta{gap:4px;font-size:.72rem}
+ .rc-paper.rc-document-paper .rc-invoice-party-row{margin-bottom:5px}
+ .rc-paper.rc-document-paper .rc-invoice-recipient{font-size:.74rem}
 }
 @media print{
  body.printing-commerce .rc-paper.rc-document-paper .rc-invoice-party-row{
   break-inside:avoid!important;page-break-inside:avoid!important;
-  margin-top:2mm;margin-bottom:3mm;
+  margin-top:0;margin-bottom:2mm;
  }
 }

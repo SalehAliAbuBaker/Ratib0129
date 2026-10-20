@@ -417,6 +417,124 @@ function changeOrigin(){
  if(origin){draft.warehouse=origin.warehouse;draft.partyName=origin.partyName;draft.displayPartyName=origin.displayPartyName||'';draft.partyAccount=origin.partyAccount||'';draft.payment=origin.payment;draft.currency=origin.currency||'YER';draft.exchangeRate=origin.exchangeRate||1;}
  paint();
 }
+function commerceInvoiceKind(kind){
+ return ['purchase','sale','purchase_return','sale_return'].includes(kind);
+}
+function commerceOpenInvoice(docId,clone=false){
+ const source=data().invoices.find(x=>x.id===docId);
+ if(!source||!commerceInvoiceKind(source.kind))throw Error('مستند الوارد أو الصادر غير موجود.');
+ open(['purchase','purchase_return'].includes(source.kind)?'purchase':'sale');
+ view=source.kind.endsWith('_return')?'return':'new';
+ editingDocId=clone?'':source.id;
+ draft={
+  ...JSON.parse(JSON.stringify(source)),
+  lines:(source.lines||[]).map(l=>({...l,id:id(),product:l.product,unit:l.unit,qty:l.qty,price:l.price})),
+  currency:source.currency||'YER',exchangeRate:source.exchangeRate??1,
+  displayPartyName:source.displayPartyName||'',
+  date:clone?today():source.date,
+  number:clone?nextNumber(data(),source.kind,source.title):source.number
+ };
+ if(clone){delete draft.id;delete draft.createdAt;delete draft.updatedAt;delete draft.baseTotal;delete draft.total;delete draft.cost;draft.status='draft';}
+ paint();
+}
+function commerceSameStock(first,second){
+ if(!first||!second)return false;
+ const keys=d=>(d.lines||[]).map(l=>[
+  d.warehouse||'',l.product||'',l.unit||'',Number(l.qty||0),Number(l.cost||0)
+ ]).sort((a,b)=>JSON.stringify(a).localeCompare(JSON.stringify(b)));
+ return first.kind===second.kind&&first.warehouse===second.warehouse&&
+  JSON.stringify(keys(first))===JSON.stringify(keys(second));
+}
+function commerceTouches(first,second,db){
+ const attrs=d=>(d.lines||[]).flatMap(l=>{
+  const wh=d.kind==='transfer'?[d.from,d.to]:[d.warehouse];
+  return wh.map(w=>w+'|'+l.product+'|'+lineUnit(db,l));
+ });
+ const set=new Set(attrs(first));
+ return attrs(second).some(x=>set.has(x));
+}
+function commerceValidateRevision(db,before,after){
+ if(!before)return;
+ const originalIndex=db.invoices.findIndex(d=>d.id===before.id);
+ if(originalIndex<0)throw Error('المستند الأصلي غير موجود.');
+ const altersStock=!commerceSameStock(before,after);
+ if(!altersStock)return;
+ if(db.invoices.some(d=>d.origin===before.id&&d.id!==before.id))
+  throw Error('لا يمكن تغيير الأصناف أو الكميات أو التكلفة لهذا المستند لوجود مرتجعات مرتبطة؛ يمكن تعديل البيانات الوصفية.');
+ const later=db.invoices.slice(originalIndex+1).find(d=>commerceTouches(before,d,db)||after&&commerceTouches(after,d,db));
+ if(later)throw Error('توجد حركة لاحقة لنفس الصنف والمخزن ('+later.number+'). لحماية تقييم المخزون والقيود، لا يمكن تغيير الأصناف أو الكميات أو التكلفة حتى معالجة الحركة اللاحقة. يمكن تعديل البيانات الوصفية.');
+}
+function commercePostedPlan(doc){
+ if(!doc||!commerceInvoiceKind(doc.kind))throw Error('نوع المستند غير قابل لهذا الإجراء.');
+ const plan=getMasterPlan();
+ const current=(plan.transactions||[]).filter(t=>t.commerceId===doc.id);
+ const all=getAllTransactions().filter(t=>t.commerceId===doc.id);
+ if(!current.length||current.length!==all.length||all.some(t=>t.status!=='posted'))
+  throw Error('هذا المستند لا يملك جميع قيوده في السنة المحاسبية الحالية، أو سبق إلغاء أحدها. لا يمكن تعديل أو حذف المستند دون تسوية وضعه أولًا.');
+ if(!current.every(t=>t.multiVoucherId==='com_'+doc.id||t.multiVoucher?.id==='com_'+doc.id))
+  throw Error('تعذر مطابقة القيود الأصلية للمستند. لا يمكن تغييره حفاظًا على سلامة الحسابات.');
+ return {plan,current};
+}
+async function commerceReplaceOrDelete(before,after){
+ if(loading)throw Error('هناك حفظ سابق قيد التنفيذ.');
+ if(typeof _pendingFinancialCompletion!=='undefined'&&_pendingFinancialCompletion)throw Error('أكمل حفظ راتب السابق.');
+ const db=data(),existing=db.invoices.find(d=>d.id===before.id);
+ if(!existing)throw Error('المستند الأصلي غير موجود.');
+ if(!after&&db.invoices.some(d=>d.origin===existing.id))
+  throw Error('لا يمكن حذف المستند لوجود مرتجعات مرتبطة به؛ عالج المرتجعات أولًا.');
+ commerceValidateRevision(db,existing,after);
+ const {plan,current}=commercePostedPlan(existing),work=JSON.parse(JSON.stringify(plan));
+ const prevPlan=JSON.parse(JSON.stringify(plan)),prevDb=JSON.parse(JSON.stringify(db));
+ const beforeArchive=store.get('commerce_archive_v1',[]);
+ const archive=Array.isArray(beforeArchive)?beforeArchive.slice():[];
+ const beforeTx=current.map(x=>JSON.parse(JSON.stringify(x)));
+ const existingIndex=db.invoices.findIndex(d=>d.id===existing.id);
+ const seq=current[0].seqNum;
+ const nextDb=JSON.parse(JSON.stringify(db));
+ if(after)nextDb.invoices[existingIndex]=JSON.parse(JSON.stringify(after));
+ else nextDb.invoices.splice(existingIndex,1);
+ let replacement=[];
+ if(after){
+  replacement=makeJournal(after,nextDb).map(t=>{
+   t.seqNum=seq;
+   t.multiVoucher.seq=seq;
+   return t;
+  });
+ }
+ const txIndices=work.transactions.map((t,i)=>t.commerceId===existing.id?i:-1).filter(i=>i>=0),insertAt=txIndices[0];
+ work.transactions=work.transactions.filter(t=>t.commerceId!==existing.id);
+ work.transactions.splice(insertAt,0,...replacement);
+ archive.push({action:after?'edit':'delete',date:new Date().toISOString(),before:JSON.parse(JSON.stringify(existing)),after:after?JSON.parse(JSON.stringify(after)):null,transactions:beforeTx});
+ loading=true;
+ try{
+  store.set('commerce_archive_v1',archive.slice(-100));
+  store.set('commerce_v1',nextDb);
+  store.set('plan',work);
+  await flushStorage();
+ }catch(error){
+  store.set('commerce_v1',prevDb);store.set('plan',prevPlan);store.set('commerce_archive_v1',beforeArchive);
+  try{await flushStorage();}catch(_){}
+  throw Error('تعذر حفظ التعديل؛ أُعيدت البيانات السابقة. '+(error.message||''));
+ }finally{loading=false;}
+ try{if(typeof audit==='function')audit(after?'COMMERCE_EDIT':'COMMERCE_DELETE',existing.id,existing,after||null);}catch(error){console.warn('Commerce audit',error);}
+ if(typeof renderAllData==='function')renderAllData();
+ if(typeof updateProDashboard==='function')updateProDashboard();
+ editingDocId='';draft=null;detailId='';view='records';paint();
+ notify(after?'تم تحديث الفاتورة والقيد المرتبط بها':'تم حذف الفاتورة وقيدها المحاسبي مع حفظ نسخة في سجل الاسترجاع','success');
+ return true;
+}
+async function commerceDocumentOperation(action,docId){
+ const doc=data().invoices.find(x=>x.id===docId);
+ if(!doc||!commerceInvoiceKind(doc.kind))throw Error('المستند غير موجود أو نوعه غير معتمد.');
+ if(action==='clone'){commerceOpenInvoice(docId,true);return;}
+ if(action==='edit'){commercePostedPlan(doc);commerceOpenInvoice(docId);return;}
+ if(action==='delete'){
+  commercePostedPlan(doc);
+  if(!window.confirm||!window.confirm('حذف '+docName(doc)+' رقم '+doc.number+' سيحذف القيد المحاسبي المرتبط به وحركة المخزون. هل تعتمد الحذف؟'))return;
+  await commerceReplaceOrDelete(doc,null);return;
+ }
+ throw Error('إجراء غير معروف.');
+}
 function makeJournal(doc,db){
  if(doc.kind==='transfer')return [];
  const a=db.accounts,accounts=leaf(),valid=new Set(accounts.map(x=>x.id)),lines=[];

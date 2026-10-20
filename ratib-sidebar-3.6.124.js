@@ -37,7 +37,18 @@ const settings=[
 ];
 function icon(name){const n=document.createElementNS('http://www.w3.org/2000/svg','svg');n.setAttribute('class','sidebar-icon');n.setAttribute('viewBox','0 0 24 24');n.setAttribute('fill','none');n.setAttribute('stroke','currentColor');n.setAttribute('stroke-width','1.7');n.setAttribute('stroke-linecap','round');n.setAttribute('stroke-linejoin','round');n.setAttribute('aria-hidden','true');n.innerHTML=shapes[name]||shapes.settings;return n;}
 function make(label,ico,action,arrow){const b=document.createElement('button');b.type='button';b.append(icon(ico),Object.assign(document.createElement('span'),{textContent:label}));if(arrow){const a=icon('chevron');a.classList.add('ratib-menu-chevron');b.append(a);}b.addEventListener('click',action);return b;}
-function expandGroup(label,ico){const section=document.createElement('section');section.className='sidebar-group';const children=document.createElement('div');children.className='ratib-menu-children';children.hidden=true;const b=make(label,ico,()=>{children.hidden=!children.hidden;b.setAttribute('aria-expanded',String(!children.hidden));},true);b.setAttribute('aria-expanded','false');section.append(b,children);return {section,children};}
+const menuGroups=[];
+function expandGroup(label,ico){
+ const section=document.createElement('section');section.className='sidebar-group';
+ const children=document.createElement('div');children.className='ratib-menu-children';children.hidden=true;
+ const b=make(label,ico,()=>{
+  const open=children.hidden;
+  for(const other of menuGroups){if(other.children!==children){other.children.hidden=true;other.button.setAttribute('aria-expanded','false');}}
+  children.hidden=!open;b.setAttribute('aria-expanded',String(open));
+ },true);
+ b.setAttribute('aria-expanded','false');section.append(b,children);
+ menuGroups.push({children,button:b});return {section,children,button:b};
+}
 function css(){if($('ratibApprovedSidebarStyle'))return;const e=document.createElement('style');e.id='ratibApprovedSidebarStyle';e.textContent=[
 '.ratib-menu-children{margin:0 5px 6px;padding:4px 6px;border-inline-start:3px solid var(--border);border-radius:8px;background:var(--bg)}',
 '.ratib-menu-children[hidden],.ratib-menu-subchildren[hidden]{display:none!important}',
@@ -46,6 +57,13 @@ function css(){if($('ratibApprovedSidebarStyle'))return;const e=document.createE
 '.sidebar-nav .ratib-menu-chevron{width:18px;height:18px;flex:0 0 18px;transition:transform .18s}',
 '.sidebar-nav button[aria-expanded=true]>.ratib-menu-chevron{transform:rotate(180deg)}',
 '.sidebar-nav button:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}',
+'#pageSettings.ratib-settings-detail > .settings-accordion-card:not(.ratib-settings-current){display:none!important}',
+'#pageSettings.ratib-settings-detail > .ratib-settings-current{margin-top:0}',
+'#pageSettings.ratib-settings-detail > .ratib-settings-current > .settings-accordion-body{display:block}',
+'#pageSettings.ratib-security-detail > .ratib-settings-current > .settings-accordion-header{display:none!important}',
+'#pageSettings.ratib-security-detail > .ratib-settings-current > .settings-accordion-body > :not(.ratib-inside-identity){display:none!important}',
+'#pageSettings.ratib-security-detail > .ratib-settings-current > .settings-accordion-body{border:0!important;padding:0!important}',
+'#pageSettings.ratib-security-detail .ratib-inside-identity{margin:0!important}',
 '#pageSettings.ratib-settings-reordered .settings-accordion-header>svg.sidebar-icon+span{flex:1;min-width:0;overflow-wrap:anywhere}',
 '#pageSettings.ratib-settings-reordered>.settings-accordion-card{background:var(--card);border:1px solid var(--border)!important;border-inline-start:1px solid var(--border)!important;box-shadow:none!important;border-radius:8px;padding:0!important;overflow:hidden}',
 '#pageSettings.ratib-settings-reordered>.settings-accordion-card>.settings-accordion-header{font:900 1rem Tajawal,sans-serif!important;min-height:48px;padding:10px 12px;gap:10px;cursor:pointer}',
@@ -88,17 +106,84 @@ function reorder(){
  const order=settings.map(x=>map.get(x[0])).filter(Boolean);
  for(let i=0;i<order.length;i++){const c=order[i],key=keyFor(c);setTitle(c,key);if(page.children[i]!==c)page.insertBefore(c,page.children[i]||null);}
 }
-function openCard(c){if(!c)return;const body=c.querySelector(':scope > .settings-accordion-body');if(!body||body.classList.contains('open'))return;if(c.dataset.ratibCreated){body.classList.add('open');header(c).setAttribute('aria-expanded','true');}else if(typeof window.toggleSettingsCard==='function')window.toggleSettingsCard(c);else body.classList.add('open');}
+function setCardOpen(c,open){
+ if(!c)return;
+ const body=c.querySelector(':scope > .settings-accordion-body'),h=header(c);if(!body)return;
+ if(body.classList.contains('open')!==open){
+  if(!c.dataset.ratibCreated&&typeof window.toggleSettingsCard==='function')window.toggleSettingsCard(c);
+  else body.classList.toggle('open',open);
+ }
+ if(h)h.setAttribute('aria-expanded',String(open));
+ const arrow=h?.querySelector('.accordion-arrow');if(arrow)arrow.textContent=open?'▲':'▼';
+}
+function openCard(c){setCardOpen(c,true);}
+function isSettingsDetail(){return !!$('pageSettings')?.classList.contains('ratib-settings-detail');}
+function resetSettingsDetail(){
+ const page=$('pageSettings');if(!page||!isSettingsDetail())return;
+ page.classList.remove('ratib-settings-detail','ratib-security-detail');
+ for(const c of page.querySelectorAll('.settings-accordion-card')){
+  c.classList.remove('ratib-settings-current');c.removeAttribute('aria-hidden');setCardOpen(c,false);
+ }
+ const label=$('backToMenuBtn')?.querySelector('span');
+ if(label?.dataset.ratibOriginalBackLabel)label.textContent=label.dataset.ratibOriginalBackLabel;
+ window.scrollTo?.({top:0,behavior:'instant'});
+}
+function focusSetting(key,makeHistory){
+ const page=$('pageSettings');if(!page)return;
+ reorder();
+ const main=getCard(key==='security'?'identity':key);if(!main)return;
+ if(makeHistory&&!isSettingsDetail()&&typeof window.rememberAppView==='function')window.rememberAppView();
+ for(const c of page.querySelectorAll('.settings-accordion-card')){setCardOpen(c,false);c.classList.remove('ratib-settings-current');c.removeAttribute('aria-hidden');}
+ for(const c of page.querySelectorAll(':scope > .settings-accordion-card')){
+  if(c===main)c.classList.add('ratib-settings-current');else c.setAttribute('aria-hidden','true');
+ }
+ page.classList.add('ratib-settings-detail');page.classList.toggle('ratib-security-detail',key==='security');
+ openCard(main);
+ if(key==='security')openCard(main.querySelector('.ratib-inside-identity'));
+ const label=$('backToMenuBtn')?.querySelector('span');
+ if(label){if(!label.dataset.ratibOriginalBackLabel)label.dataset.ratibOriginalBackLabel=label.textContent;label.textContent='↪️ رجوع إلى الإعدادات';}
+ requestAnimationFrame(()=>{main.scrollIntoView({behavior:'instant',block:'start'});});
+}
+function installSettingsNavigation(){
+ const page=$('pageSettings'),back=$('backToMenuBtn');if(!page||page.dataset.ratibSinglePanel==='1')return;
+ page.dataset.ratibSinglePanel='1';
+ page.addEventListener('click',event=>{
+  const h=event.target.closest('.settings-accordion-header');
+  if(!h||!page.contains(h))return;
+  const card=h.closest('.settings-accordion-card'),key=card&&(keyFor(card)||card.dataset.ratibCreated);
+  if(!key)return;
+  event.preventDefault();event.stopImmediatePropagation();
+  if(isSettingsDetail()&&page.classList.contains('ratib-security-detail')&&key==='identity')return;
+  if(isSettingsDetail()&&page.querySelector('.ratib-settings-current')===card)return;
+  focusSetting(key,true);
+ },true);
+ page.addEventListener('keydown',event=>{
+  if(!['Enter',' '].includes(event.key))return;
+  const h=event.target.closest('.settings-accordion-header');if(!h||!page.contains(h))return;
+  event.preventDefault();event.stopImmediatePropagation();h.click();
+ },true);
+ back?.addEventListener('click',event=>{
+  if(!isSettingsDetail()||page.classList.contains('hidden'))return;
+  event.preventDefault();event.stopImmediatePropagation();
+  resetSettingsDetail();
+  if(typeof window.goBackInApp==='function')window.goBackInApp();
+ },true);
+ window.addEventListener('popstate',()=>{
+  if(!isSettingsDetail()||$('appSidebar')?.classList.contains('show')||document.querySelector('.modal-overlay.show'))return;
+  resetSettingsDetail();
+ },true);
+ new MutationObserver(()=>{
+  if(page.classList.contains('hidden')&&isSettingsDetail())resetSettingsDetail();
+ }).observe(page,{attributes:true,attributeFilter:['class']});
+}
 function openSetting(key){
  window.closeRatibSidebar?.();
  if(typeof window.navigateToTab==='function')window.navigateToTab('pageSettings',true);
- reorder();const card=getCard(key==='security'?'identity':key);if(!card)return;openCard(card);
- if(key==='security')openCard(card.querySelector('.ratib-inside-identity'));
- requestAnimationFrame(()=>card.scrollIntoView({behavior:'smooth',block:'start'}));
+ focusSetting(key,true);
 }
 function buildSidebar(){
  const aside=$('appSidebar'),nav=aside?.querySelector('.sidebar-nav');if(!aside||!nav||aside.dataset.ratibApproved==='1')return;
- css();reorder();
+ css();reorder();installSettingsNavigation();
  // Preserve the existing header button and theme; change only its glyph and accessible name.
  const menuGear=$('sidebarMenuBtn');
  if(menuGear){
@@ -118,6 +203,7 @@ function buildSidebar(){
   inner.append(make('بيانات الهوية','identity',()=>openSetting('identity')),make('إعدادات الأمان وقفل الحماية','lock',()=>openSetting('security')));
   group.append(main,inner);settingsItems.append(group);
  }
+ const settingsMenu=expandGroup('الإعدادات','settings');settingsMenu.children.append(settingsItems);
  const backup=expandGroup('النسخ المحلي والسحابي','cloud');
  const relabel=(el,label)=>{const span=el?.querySelector('span');if(span)span.textContent=label;return el;};
  if(existing.backup)backup.children.append(relabel(existing.backup,'حفظ نسخة احتياطية محلية'));
@@ -132,7 +218,7 @@ function buildSidebar(){
  const help=expandGroup('المساعدة','help');if(contact)help.children.append(contact);if(existing.about)help.children.append(existing.about);
  const oldAnchors=document.createElement('div');oldAnchors.hidden=true;
  for(const name of ['home','accounts','settings'])if(existing[name])oldAnchors.append(existing[name]);
- nav.replaceChildren(settingsItems,backup.section,license,help.section);
+ nav.replaceChildren(settingsMenu.section,backup.section,license,help.section);
  if(existing.exit){relabel(existing.exit,'خروج');nav.append(existing.exit);}
  nav.append(oldAnchors);
  aside.querySelector('.sidebar-footer')?.replaceChildren();

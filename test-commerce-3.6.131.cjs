@@ -296,7 +296,7 @@ d.warehouses=[{id:'main',name:'المخزن الرئيسي'}];store.set('commerc
  assert(accountMarkup.includes('rc-search-partyAccount'),'account name/number lookup');
  // The single visible account control must come exclusively from chart-detail (posting) accounts.
  const options=T.leaf();
- assert(options.length>=7&&options.every(x=>x.id&&/^\\d+ — /.test(x.name)),'only detailed chart accounts with codes');
+ assert(options.length>=7&&options.every(x=>x.id&&/^\d+ — /.test(x.name)),'only detailed chart accounts with codes');
  const choice=T.commerceSmartAccount('acc-cash',options,'صندوق');
  assert(choice.includes('id="rc-search-acc-cash"')&&choice.includes('id="rc-acc-cash"'));
  assert(!choice.includes('<select'),'no duplicate account dropdown');

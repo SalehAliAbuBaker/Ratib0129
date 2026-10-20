@@ -292,6 +292,7 @@ d.warehouses=[{id:'main',name:'المخزن الرئيسي'}];store.set('commerc
  const ledger=fs.readFileSync(path.join(__dirname,'index.html'),'utf8');
  assert(ledger.includes("return record?record.title+' — '+record.number"),'ledger displays actual invoice name');
  assert(ledger.includes('data-commerce-ledger="edit"')&&ledger.includes('data-commerce-ledger="clone"')&&ledger.includes('data-commerce-ledger="delete"'),'ledger offers operations');
+ assert(ledger.includes('data-ledger-voucher-type="commerce"')&&ledger.includes("if(t.commerceId)return 'commerce'"),'commercial invoices have their own ledger filter, not compound type');
  const failBefore=T.data().invoices.length;
  T.setInbound();
  T.setDraft({kind:'purchase',title:'فاتورة مشتريات',number:'PI-FX-002',date:'2026-10-20',

@@ -141,10 +141,10 @@ d.warehouses=[{id:'main',name:'المخزن الرئيسي'}];store.set('commerc
  T.setDraft({kind:'purchase',title:'فاتورة مشتريات',number:'PI-00099',date:'2026-10-20',
   warehouse:'main',partyName:'',payment:'credit',note:'',lines:[{product:'a',unit:'حبة',qty:1,price:5}]});
  const editableInvoice=T.invoice(d);
- assert(!editableInvoice.includes('id="rc-partyName" required'),'invoice name is optional in form');
+ assert(!/<input[^>]*id="rc-partyName"[^>]*\srequired(?:\s|>)/.test(editableInvoice),'invoice name is optional in form');
  T.setDraft({kind:'purchase',title:'أمر توريد',number:'PO-00099',date:'2026-10-20',
   warehouse:'main',partyName:'',payment:'credit',note:'',lines:[{product:'a',unit:'حبة',qty:1,price:5}]});
- assert(T.invoice(d).includes('id="rc-partyName" required'),'other vouchers still require a party');
+ assert(/<input[^>]*id="rc-partyName"[^>]*\srequired(?:\s|>)/.test(T.invoice(d)),'other vouchers still require a party');
  const css=fs.readFileSync(path.join(__dirname,'ratib-commerce-3.6.131.css'),'utf8');
  assert(css.includes('grid-auto-flow:column!important'),'signatures remain in one printed row');
  assert(css.includes('.rc-invoice-party-row')&&css.includes('text-align:right!important'),'invoice party right-aligned');

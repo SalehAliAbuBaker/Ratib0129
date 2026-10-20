@@ -336,3 +336,32 @@
 #pageCommerce .rc-record-tools [data-rc-doc-op="delete"]{color:var(--danger)}
 #pageCommerce .rc-record-tools [data-rc-doc-op="edit"]{font-weight:800}
 @media(max-width:550px){#pageCommerce .rc-record-tools{gap:3px}#pageCommerce .rc-record-tools .btn{min-height:30px;padding:4px 6px;font-size:.69rem}}
+
+
+/* 3.6.139 — balanced side labels, account lookup and adjustable symbol-led controls. */
+#pageCommerce .rc-head{flex-wrap:wrap;gap:6px}
+#pageCommerce .rc-size-setting{display:inline-flex;align-items:center;gap:5px;white-space:nowrap;color:var(--muted);font:700 .76rem Tajawal,sans-serif}
+#pageCommerce .rc-size-setting select{min-height:32px;width:auto;padding:4px 5px;font:700 .78rem Tajawal,sans-serif;border:1px solid var(--border);border-radius:7px;background:var(--card);color:var(--text)}
+#pageCommerce .rc-tabs{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,118px),1fr));gap:6px}
+#pageCommerce .rc-tabs button{display:flex;align-items:center;justify-content:center;gap:6px;text-align:center;min-width:0}
+#pageCommerce .rc-tab-icon{flex:0 0 auto;font-size:1.18em;line-height:1.1}
+#pageCommerce .rc-app[data-rc-button-size="small"]{--rc-btn-height:34px;--rc-btn-font:.74rem;--rc-btn-padding:4px 6px;--rc-symbol-size:.9rem}
+#pageCommerce .rc-app[data-rc-button-size="medium"]{--rc-btn-height:43px;--rc-btn-font:.86rem;--rc-btn-padding:7px 9px;--rc-symbol-size:1.08rem}
+#pageCommerce .rc-app[data-rc-button-size="large"]{--rc-btn-height:55px;--rc-btn-font:1rem;--rc-btn-padding:10px 13px;--rc-symbol-size:1.28rem}
+#pageCommerce .rc-app .rc-tabs button,#pageCommerce .rc-app .rc-type-option{min-height:var(--rc-btn-height)!important;padding:var(--rc-btn-padding)!important;font-size:var(--rc-btn-font)!important}
+#pageCommerce .rc-app .rc-type-symbol{font-size:var(--rc-symbol-size)!important}
+#pageCommerce .rc-smart-account{display:grid;grid-template-columns:minmax(0,1fr);gap:4px;min-width:0}
+#pageCommerce .rc-smart-account>input{min-width:0;width:100%;padding:8px;min-height:37px;border:1px solid var(--border);background:var(--card);color:var(--text);border-radius:8px;font:inherit}
+#pageCommerce .rc-smart-account>input:focus{border-color:var(--accent);outline:1px solid var(--accent)}
+#pageCommerce .rc-posting-preview{margin:5px 0;display:grid;gap:6px}
+#pageCommerce .rc-posting-pair{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px;direction:rtl;align-items:stretch}
+#pageCommerce .rc-posting-note{grid-column:1/-1;font:750 .72rem Tajawal,sans-serif;color:var(--muted)}
+#pageCommerce .rc-posting-account{min-width:0;display:flex;align-items:flex-start;flex-direction:column;gap:3px;padding:7px 8px;border-radius:8px;border:2px solid;line-height:1.4;overflow-wrap:anywhere}
+#pageCommerce .rc-posting-account b{font-size:.82rem}
+#pageCommerce .rc-posting-account span{font-size:.8rem;font-weight:700}
+#pageCommerce .rc-posting-debit{border-color:#317aab;background:rgba(49,122,171,.095);color:var(--text)}
+#pageCommerce .rc-posting-debit b{color:#317aab}
+#pageCommerce .rc-posting-credit{border-color:#a75a3c;background:rgba(167,90,60,.095);color:var(--text)}
+#pageCommerce .rc-posting-credit b{color:#a75a3c}
+@media(max-width:450px){#pageCommerce .rc-tabs{grid-template-columns:repeat(2,minmax(0,1fr))}#pageCommerce .rc-head{gap:5px}#pageCommerce .rc-posting-pair{gap:4px}}
+@media print{#pageCommerce .rc-size-setting,#pageCommerce .rc-posting-preview{display:none!important}}

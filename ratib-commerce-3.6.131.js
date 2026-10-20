@@ -479,7 +479,9 @@ function bind(){
      const kind=catalogToggle.dataset.rcCatalogToggle;
      if(kind==='search'){catalogSearchVisible=!catalogSearchVisible;if(!catalogSearchVisible)catalogSearch='';}
      if(kind==='group'){catalogGroupVisible=!catalogGroupVisible;if(!catalogGroupVisible)catalogGroup='';}
-     paint();$(kind==='search'?'rc-catalog-search':'rc-catalog-group')?.focus();return;
+     const productForm=$('rc-product-form');const unsavedFields=productForm?Array.from(productForm.querySelectorAll('input,select,textarea')).filter(el=>el.id).map(el=>[el.id,el.value]):[];
+     paint();for(const [fieldId,value] of unsavedFields){const field=$(fieldId);if(field)field.value=value;}
+     $(kind==='search'?'rc-catalog-search':'rc-catalog-group')?.focus();return;
     }
     const productAction=hit('[data-rc-products]');if(productAction){Promise.resolve(productOutput(productAction.dataset.rcProducts,productAction.dataset.rcItem||'')).catch(e=>notify(e.message||'تعذّر تجهيز دليل الأصناف','error'));return;}
    if(hit('[data-rc-confirm-import]')){confirmProductImport().catch(e=>notify(e.message,'error'));return;}

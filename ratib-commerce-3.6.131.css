@@ -375,3 +375,46 @@
 .ratib-commerce-shortcuts[data-rc-button-size="large"]{gap:11px}
 .ratib-commerce-shortcuts[data-rc-button-size="large"] .ratib-commerce-shortcut{min-height:112px;padding:16px 5px;gap:9px;font-size:1.15rem}
 .ratib-commerce-shortcuts[data-rc-button-size="large"] .ratib-commerce-shortcut svg{width:38px;height:38px}
+
+
+/* Trial 3.6.140 — restore familiar, unpadded fields and text-only document selector. */
+#pageCommerce .rc-field{
+ position:static!important;gap:5px!important;
+}
+#pageCommerce .rc-field .rc-field-label{
+ position:static!important;inset:auto!important;z-index:auto!important;
+ font:700 .84rem/1.35 'Tajawal',sans-serif!important;
+ color:var(--muted);white-space:normal!important;
+ overflow:visible!important;text-overflow:clip!important;
+ pointer-events:auto!important;
+}
+#pageCommerce .rc-field>input,
+#pageCommerce .rc-field>select,
+#pageCommerce .rc-field>textarea{
+ box-sizing:border-box;min-height:42px!important;height:auto!important;
+ padding:8px 10px!important;line-height:1.45!important;
+}
+#pageCommerce .rc-field>strong{
+ box-sizing:border-box;min-height:42px!important;
+ padding:8px 10px!important;line-height:1.45!important;
+}
+#pageCommerce .rc-invoice-card .rc-document-type-row{
+ max-width:380px;margin:0 0 10px;direction:rtl;
+}
+#pageCommerce .rc-invoice-card .rc-document-type-row select{
+ width:100%;border:1px solid var(--border);border-radius:8px;
+ color:var(--text);background:var(--card);font:700 .94rem 'Tajawal',sans-serif;
+}
+#pageCommerce .rc-invoice-card .rc-grid{
+ align-items:start;
+}
+#pageCommerce .rc-smart-account{
+ gap:4px;min-width:0;
+}
+#pageCommerce .rc-invoice-card .rc-smart-account>input,
+#pageCommerce .rc-invoice-card .rc-smart-account>select{
+ min-height:39px!important;padding:7px 9px!important;
+}
+@media(max-width:500px){
+ #pageCommerce .rc-invoice-card .rc-document-type-row{max-width:100%}
+}

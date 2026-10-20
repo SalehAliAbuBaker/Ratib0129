@@ -203,3 +203,55 @@
 #pageCommerce .rc-invoice-card .rc-draft-view-head .btn{width:auto;min-height:34px;padding:4px 8px;font-size:.76rem}
 #pageCommerce .rc-invoice-card #rc-draft-view:empty{display:none}
 #pageCommerce .rc-invoice-card #rc-draft-view .rc-paper{padding:10px}
+
+
+/* Ratib trial 3.6.132 — personal print header and a SINGLE horizontal signature row. */
+.rc-paper.rc-document-paper .rc-paper-head .rc-basmalah{
+  font-size:.88rem;font-weight:800;line-height:1.35;margin:0 0 5px;
+}
+.rc-paper.rc-document-paper .rc-paper-head .rc-paper-header-details{
+  white-space:pre-line;overflow-wrap:anywhere;font-size:.86rem;line-height:1.5;margin:3px 0 0;
+}
+.rc-paper.rc-document-paper .rc-document-footer{
+  break-inside:avoid;page-break-inside:avoid;
+}
+.rc-paper.rc-document-paper .rc-paper-signatures{
+  display:grid!important;
+  grid-auto-flow:column!important;
+  grid-auto-columns:minmax(0,1fr)!important;
+  grid-template-columns:none!important;
+  flex-wrap:nowrap!important;
+  align-items:start;
+  gap:7px!important;
+  margin-top:21px!important;
+  width:100%;
+  page-break-inside:avoid;break-inside:avoid;
+}
+.rc-paper.rc-document-paper .rc-signature-cell{
+  display:flex;flex-direction:column;align-items:center;justify-content:flex-start;
+  min-width:0;text-align:center;gap:4px;
+  border-top:1px solid #cbd5e1;padding:7px 2px 0;
+  font-size:.71rem;line-height:1.35;overflow-wrap:anywhere;
+}
+.rc-paper.rc-document-paper .rc-signature-cell b{
+  font-size:.78rem;line-height:1.3;min-height:2.1em;
+}
+.rc-paper.rc-document-paper .rc-signature-cell span{
+  white-space:nowrap;max-width:100%;font-size:.69rem;letter-spacing:-.1px;
+}
+@media(max-width:550px){
+ .rc-paper.rc-document-paper .rc-paper-signatures{gap:3px!important}
+ .rc-paper.rc-document-paper .rc-signature-cell{padding-inline:0;font-size:.59rem}
+ .rc-paper.rc-document-paper .rc-signature-cell b{font-size:.62rem}
+ .rc-paper.rc-document-paper .rc-signature-cell span{font-size:.57rem;letter-spacing:-.6px}
+}
+@media print{
+ body.printing-commerce #ratibCommercePrintHost .rc-paper-head,
+ body.printing-commerce #ratibCommercePrintHost .rc-document-footer,
+ body.printing-commerce #ratibCommercePrintHost .rc-paper-signatures{
+  break-inside:avoid!important;page-break-inside:avoid!important;
+ }
+ body.printing-commerce #ratibCommercePrintHost .rc-signature-cell{font-size:9pt}
+ body.printing-commerce #ratibCommercePrintHost .rc-signature-cell b{font-size:9pt}
+ body.printing-commerce #ratibCommercePrintHost .rc-signature-cell span{font-size:8pt}
+}

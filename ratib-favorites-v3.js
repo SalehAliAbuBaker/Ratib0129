@@ -196,6 +196,7 @@ function openFavoritesSettings(){
  renderSettings();
  card.scrollIntoView?.({block:'start',behavior:'smooth'});
 }
+const favExpandedGroups=new Set();
 function renderSettings(){
  const host=document.getElementById('ratibFavoritesSettingsCard');
  if(!host)return;
@@ -217,7 +218,7 @@ function renderSettings(){
  const grouped=groupOrder.filter(group=>available.some(a=>groupOf(a[0])===group));
  catalogRoot.innerHTML=available.length?'<div class="fav-settings-collection">'+grouped.map(group=>{
   const options=available.filter(a=>groupOf(a[0])===group);
-  const expand=!!search||!!groupValue&&group===groupValue;
+  const expand=!!search||!!groupValue&&group===groupValue||favExpandedGroups.has(group);
   return '<details class="fav-settings-group" data-group="'+escapeHtml(group)+'" '+(expand?'open':'')+'>'+
    '<summary><span>'+escapeHtml(group)+'</span><span class="fav-settings-count">'+options.length+' وظيفة</span></summary>'+
    '<div class="fav-settings-compact">'+options.map(a=>'<button type="button" class="fav-settings-option" data-add-fav="'+escapeHtml(a[0])+'" title="إضافة إلى مفضلتي"><span>'+escapeHtml(a[2])+'</span><span>'+escapeHtml(a[1])+'</span><span aria-hidden="true">＋</span></button>').join('')+'</div></details>';
@@ -238,10 +239,13 @@ function installFavoritesSettings(){
  card.querySelector('#ratibSettingsFavSearch').addEventListener('input',renderSettings);
  card.querySelector('#ratibSettingsFavGroup').addEventListener('change',renderSettings);
  card.addEventListener('click',e=>{
+  const summary=e.target.closest('summary');
+  if(summary){const group=summary.closest('[data-group]');if(group){const key=group.dataset.group;if(group.open)favExpandedGroups.delete(key);else favExpandedGroups.add(key);}return;}
   const btn=e.target.closest('button');
   if(!btn)return;
   const id=btn.dataset.addFav||btn.dataset.removeFav||btn.dataset.moveUp||btn.dataset.moveDown;
   if(!id||!byId[id])return;
+  const sourceGroup=btn.closest('.fav-settings-group');if(sourceGroup)favExpandedGroups.add(sourceGroup.dataset.group);
   if('addFav'in btn.dataset&&!selected.includes(id))selected.push(id);
   if('removeFav'in btn.dataset)selected=selected.filter(x=>x!==id);
   if('moveUp'in btn.dataset||'moveDown'in btn.dataset){

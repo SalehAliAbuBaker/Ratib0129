@@ -36,9 +36,25 @@ function warehouseAccount(db,wid){const w=db.warehouses.find(x=>x.id===wid);retu
 function partyAccount(db,doc){return doc.partyAccount||db.people.find(p=>p.name===doc.partyName&&p.type===(['purchase','purchase_return'].includes(doc.kind)?'vendor':'client'))?.accountId||(doc.kind==='purchase'||doc.kind==='purchase_return'?db.accounts.payable:db.accounts.receivable);}
 function productRows(db){return db.products.map(p=>[p.sku,p.name,p.group||'',pMain(p),pSub(p),p.price||0,p.minimum||0]);}
 
+function commerceSignatureLabels(d){
+ const labels={
+  'أمر توريد':['معدّ الطلب','المراجع','المعتمد'],
+  'توريد مخزني':['المسلّم','أمين المخزن المستلم','الفاحص','المعتمد'],
+  'فاتورة مشتريات':['مسؤول المشتريات','مراجع الحسابات','المعتمد'],
+  'أمر صرف':['طالب الصرف','المراجع','المعتمد'],
+  'صرف مخزني':['أمين المخزن المسلّم','المستلم','المراجع','المعتمد'],
+  'فاتورة مبيعات':['محرّر الفاتورة','المحاسب','المعتمد','العميل / المستلم'],
+  'مرتجع الوارد':['المسلّم','أمين المخزن المستلم','المراجع','المعتمد'],
+  'مرتجع الصادر':['أمين المخزن المسلّم','المستلم','المراجع','المعتمد']
+ };
+ return labels[docName(d)]||['المعدّ','المستلم','المراجع','المعتمد'];
+}
+function commerceSignatureHtml(d){
+ return '<div class="rc-paper-signatures">'+commerceSignatureLabels(d).map(label=>'<div class="rc-signature-cell"><b>'+esc(label)+'</b><span>الاسم: ______________</span><span>التوقيع: ____________</span></div>').join('')+'</div>';
+}
 function printHeading(title,info=''){
  const cfg=typeof getHeaderConfig==='function'?getHeaderConfig():{name:'راتب للتنظيم والتدبير المالي',details:'',show:true};
- return (cfg.show?'<header class="rc-paper-head"><strong>'+esc(cfg.name||'راتب للتنظيم والتدبير المالي')+'</strong>'+(cfg.details?'<div>'+esc(cfg.details)+'</div>':'')+'</header>':'')+
+ return (cfg.show?'<header class="rc-paper-head"><div class="rc-basmalah">بسم الله الرحمن الرحيم</div><strong>'+esc(cfg.name||'راتب للتنظيم والتدبير المالي')+'</strong>'+(cfg.details?'<div class="rc-paper-header-details">'+esc(cfg.details)+'</div>':'')+'</header>':'')+
  '<h2 class="rc-document-title">'+esc(title)+'</h2>'+(info?'<p class="rc-paper-subtitle">'+esc(info)+'</p>':'');
 }
 function guideMarkup(db,selected){
@@ -435,12 +451,11 @@ function documentLines(db,d){
 
 function documentHtml(db,d){
  const rows=documentLines(db,d);
- const tableHtml='<table class="rc-document-table"><thead><tr><th>#</th><th>اسم الصنف</th><th>الوحدة</th><th>العدد</th><th>السعر</th><th>الإجمالي</th></tr></thead><tbody>'+rows.map(r=>'<tr>'+r.map(x=>'<td>'+x+'</td>').join('')+'</tr>').join('')+'</tbody></table>';
- return '<article class="rc-paper" dir="rtl">'+printHeading((d.isDraft?'مسودة غير معتمدة — ':'')+docName(d))+
+ const tableHtml='<table class="rc-document-table"><thead><tr><th>#</th><th>اسم الصنف</th><th>الوحدة</th><th>العدد</th><th>السعر</th><th>الإجمالي</th></tr></thead><tbody>'+rows.map(row=>'<tr>'+row.map(x=>'<td>'+x+'</td>').join('')+'</tr>').join('')+'</tbody></table>';
+ return '<article class="rc-paper rc-document-paper" dir="rtl">'+printHeading((d.isDraft?'مسودة غير معتمدة — ':'')+docName(d))+
  '<div class="rc-document-meta"><span>رقم المستند: <b>'+esc(d.number)+'</b></span><span>التاريخ: <b>'+esc(d.date)+'</b></span><span>المخزن: <b>'+esc(db.warehouses.find(w=>w.id===d.warehouse)?.name||'—')+'</b></span><span>الطرف: <b>'+esc(d.partyName||'—')+'</b></span></div>'+
- tableHtml+'<div class="rc-paper-total">الإجمالي: '+f(d.total)+' ريال يمني</div><p class="rc-paper-note"><b>ملاحظات:</b> '+esc(d.note||'—')+'</p><div class="rc-paper-signatures"><span>المعدّ: ______________</span><span>المستلم: ______________</span><span>المعتمد: ______________</span></div></article>';
+ tableHtml+'<div class="rc-document-footer"><div class="rc-paper-total">الإجمالي: '+f(d.total)+' ريال يمني</div><p class="rc-paper-note"><b>ملاحظات:</b> '+esc(d.note||'—')+'</p>'+commerceSignatureHtml(d)+'</div></article>';
 }
-
 function documentToolbar(db,d){
  const actions=[['view','eye','المشاهدة'],['preview','scan-eye','المعاينة'],['print','printer','الطباعة'],['pdf','file-down','PDF'],['share','share-2','المشاركة'],['search','search','البحث'],['back','corner-up-left','الرجوع']];
  const pictures={eye:'◉','scan-eye':'▣',printer:'▤','file-down':'▣','share-2':'⇧',search:'⌕','corner-up-left':'↪'};
@@ -457,7 +472,7 @@ function ensurePreview(){
  modal.innerHTML='<div class="modal-content rc-preview-modal-body" role="dialog" aria-modal="true" aria-label="معاينة المستند"><h3>معاينة المستند قبل الطباعة</h3><div id="rc-preview-content"></div><div class="rc-actions"><button type="button" class="btn btn-primary" id="rc-preview-print">🖨️ طباعة</button><button type="button" class="btn btn-ghost" id="rc-preview-close">إغلاق</button></div></div>';
  document.body.appendChild(modal);
  modal.querySelector('#rc-preview-close').addEventListener('click',()=>modal.classList.remove('show'));
- modal.querySelector('#rc-preview-print').addEventListener('click',()=>{const chosen=previewId;modal.classList.remove('show');if(chosen==='__products__')productOutput('print');else if(chosen?.startsWith('__product__:'))productOutput('print',chosen.slice(12));else if(chosen==='__draft__'&&previewDraft)printDocument('',previewDraft);else printDocument(chosen);});
+ modal.querySelector('#rc-preview-print').addEventListener('click',()=>{const chosen=previewId;modal.classList.remove('show');if(chosen==='__products__')productOutput('print');else if(chosen?.startsWith('__product__:'))productOutput('print',chosen.slice(12));else if(chosen==='__draft__'&&previewDraft)Promise.resolve(printDocument('',previewDraft)).catch(e=>notify(e.message,'error'));else Promise.resolve(printDocument(chosen)).catch(e=>notify(e.message,'error'));});
  return modal;
 }
 function previewDocument(docId,derivedDoc){
@@ -465,25 +480,70 @@ function previewDocument(docId,derivedDoc){
  previewId=docId||'__draft__';previewDraft=docId?null:JSON.parse(JSON.stringify(d));const modal=ensurePreview();modal.querySelector('#rc-preview-print').disabled=false;modal.querySelector('#rc-preview-content').innerHTML=documentHtml(db,d);window.RatibPrintLogo?.syncPrint();
  modal.classList.add('show');
 }
-function printDocument(docId,derivedDoc){
+async function printDocument(docId,derivedDoc){
  const db=data(),d=derivedDoc||db.invoices.find(x=>x.id===docId);if(!d)throw Error('تعذّر العثور على المستند.');
  let host=$('ratibCommercePrintHost');
  if(!host){host=document.createElement('div');host.id='ratibCommercePrintHost';document.body.appendChild(host);}
- host.innerHTML=documentHtml(db,d);window.RatibPrintLogo?.syncPrint();
+ host.innerHTML=documentHtml(db,d);
+ await window.RatibPrintLogo?.whenReady?.();
+ window.RatibPrintLogo?.syncPrint?.();
+ await Promise.all(Array.from(host.querySelectorAll('img')).map(image=>image.complete?Promise.resolve():new Promise(resolve=>{image.addEventListener('load',resolve,{once:true});image.addEventListener('error',resolve,{once:true});})));
  if(typeof printRatibDocument==='function')printRatibDocument('printing-commerce');
  else window.print();
 }
-function* documentCanvases(db,d){
- let pageNumber=1,title=(d.isDraft?'مسودة غير معتمدة — ':'')+docName(d),page=reportCanvasPage(title,d.number+' — '+d.date+' — '+(d.partyName||''),pageNumber);
- const widths=[70,340,150,140,170,220],headers=['#','اسم الصنف','الوحدة','العدد','السعر','الإجمالي'];
- const draw=(arr,bg)=>drawReportTableRow(page,reportTableLayout(page.ctx,arr,widths,19),widths,bg||'#fff');
- draw(headers,'#e2e8f0');
- for(const row of documentLines(db,d)){
-  if(page.y>1490){yield page.canvas;page=reportCanvasPage(title,d.number+' — '+d.date,++pageNumber);draw(headers,'#e2e8f0');}
-  draw(row.map(r=>r.replace(/&amp;|&quot;|&#39;|&lt;|&gt;/g,match=>({'&amp;':'&','&quot;':'"','&#39;':"'",'&lt;':'<','&gt;':'>'}[match]))));
+function commerceCanvasPage(db,d,pageNumber){
+ const title=(d.isDraft?'مسودة غير معتمدة — ':'')+docName(d);
+ const warehouse=db.warehouses.find(w=>w.id===d.warehouse)?.name||'—';
+ const subtitle='رقم: '+d.number+' — التاريخ: '+d.date+' — المخزن: '+warehouse+' — الطرف: '+(d.partyName||'—');
+ const page=reportCanvasPage(title,subtitle,pageNumber);
+ const cfg=typeof getHeaderConfig==='function'?getHeaderConfig():{show:true,name:'راتب للتنظيم والتدبير المالي',details:''};
+ if(cfg.show){
+  const ctx=page.ctx,cx=page.canvas.width/2,parts=String(cfg.details||'').split(/\r?\n/).map(s=>s.trim()).filter(Boolean).slice(0,3);
+  ctx.save();ctx.fillStyle='#1f2937';ctx.textAlign='center';ctx.direction='rtl';
+  ctx.font="700 17px 'Tajawal',sans-serif";ctx.fillText('بسم الله الرحمن الرحيم',cx,page.y+20,page.canvas.width-150);
+  ctx.font="bold 24px 'Tajawal',sans-serif";ctx.fillText(String(cfg.name||'راتب للتنظيم والتدبير المالي'),cx,page.y+50,page.canvas.width-190);
+  parts.forEach((line,i)=>{ctx.font="18px 'Tajawal',sans-serif";ctx.fillText(line,cx,page.y+77+i*23,page.canvas.width-190);});
+  ctx.restore();page.y+=83+parts.length*23;
  }
- draw(['','الإجمالي','YER','','',f(d.total)],'#ecfdf5');
- if(d.note){if(page.y>1450){yield page.canvas;page=reportCanvasPage(title,d.number,++pageNumber);}draw(['','الملاحظات',d.note,'','','']);}
+ window.RatibPrintLogo?.drawCanvas?.(page.canvas);
+ return page;
+}
+function commerceCanvasSignatures(page,d){
+ const labels=commerceSignatureLabels(d),ctx=page.ctx,width=page.canvas.width,left=65,right=65,col=(width-left-right)/labels.length,y=page.y+24;
+ ctx.save();ctx.direction='rtl';ctx.textAlign='center';ctx.fillStyle='#111827';
+ labels.forEach((label,i)=>{
+  const x=width-right-(i+.5)*col;
+  ctx.font="bold 19px 'Tajawal',sans-serif";ctx.fillText(label,x,y,col-12);
+  ctx.font="16px 'Tajawal',sans-serif";ctx.fillText('الاسم: ____________',x,y+34,col-12);ctx.fillText('التوقيع: ____________',x,y+64,col-12);
+ });
+ ctx.restore();page.y+=116;
+}
+function* documentCanvases(db,d){
+ let pageNumber=1,page=commerceCanvasPage(db,d,pageNumber);
+ const widths=[70,340,150,140,170,220],headers=['#','اسم الصنف','الوحدة','العدد','السعر','الإجمالي'],maxY=1480;
+ const draw=(vals,color,layout)=>drawReportTableRow(page,layout||reportTableLayout(page.ctx,vals,widths,19),widths,color||'#fff');
+ const heading=()=>draw(headers,'#e2e8f0');
+ const nextPage=()=>{page=commerceCanvasPage(db,d,++pageNumber);heading();};
+ heading();
+ for(const row of documentLines(db,d)){
+  const vals=row.map(r=>r.replace(/&amp;|&quot;|&#39;|&lt;|&gt;/g,m=>({'&amp;':'&','&quot;':'"','&#39;':"'",'&lt;':'<','&gt;':'>'}[m])));
+  const layout=reportTableLayout(page.ctx,vals,widths,19);
+  if(page.y+layout.height>maxY){yield page.canvas;nextPage();}
+  draw(vals,'#fff',reportTableLayout(page.ctx,vals,widths,19));
+ }
+ const total=['','الإجمالي','YER','','',f(d.total)],totalLayout=reportTableLayout(page.ctx,total,widths,19);
+ const notes=d.note?String(d.note).split(/\r?\n/).flatMap(line=>line.match(/.{1,48}/gu)||['']):[];
+ const estimatedNotes=notes.reduce((sum,line)=>sum+reportTableLayout(page.ctx,['','ملاحظات',line,'','',''],widths,19).height,0);
+ if(page.y+totalLayout.height+estimatedNotes+135>maxY&&totalLayout.height+estimatedNotes+135<maxY-300){yield page.canvas;nextPage();}
+ if(page.y+totalLayout.height>maxY){yield page.canvas;nextPage();}
+ draw(total,'#ecfdf5',reportTableLayout(page.ctx,total,widths,19));
+ for(const line of notes){
+  const vals=['','ملاحظات',line,'','',''],layout=reportTableLayout(page.ctx,vals,widths,19);
+  if(page.y+layout.height+126>maxY){yield page.canvas;nextPage();}
+  draw(vals,'#fff',reportTableLayout(page.ctx,vals,widths,19));
+ }
+ if(page.y+126>maxY){yield page.canvas;nextPage();}
+ commerceCanvasSignatures(page,d);
  yield page.canvas;
 }
 async function pdfFor(d){
@@ -577,6 +637,6 @@ function bind(){
   }catch(error){console.error('Ratib commerce',error);notify(error.message||'تعذر الحفظ','error');}
  });
 }
-window.RatibCommerce={open,render:paint,version:'3.6.131'};
+window.RatibCommerce={open,render:paint,version:'3.6.132'};
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',bind,{once:true});else bind();
 })();

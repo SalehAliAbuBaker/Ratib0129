@@ -8,7 +8,7 @@ const n=v=>Number(String(v??'').replace(/,/g,'')),rnd=v=>Math.round(Number(v)*10
 const f=v=>Number(v||0).toLocaleString('en-US',{maximumFractionDigits:2});
 const id=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,8);
 const today=()=>new Date().toLocaleDateString('en-CA');
-let mode='stock',view='products',draft=null,loading=false,editingProduct=null,query='',detailId='',previewId='',pendingImport=null,editingWarehouse=null;
+let mode='stock',view='products',draft=null,loading=false,editingProduct=null,query='',detailId='',previewId='',pendingImport=null,editingWarehouse=null,previewDraft=null;
 let catalogSearch='',catalogGroup='',catalogSearchVisible=false,catalogGroupVisible=false;
 function data(){const base=fresh(),v=store.get('commerce_v1',null);if(!v||typeof v!=='object')return base;const x=JSON.parse(JSON.stringify(v));return {...base,...x,products:Array.isArray(x.products)?x.products:[],warehouses:Array.isArray(x.warehouses)?x.warehouses:base.warehouses,people:Array.isArray(x.people)?x.people:[],invoices:Array.isArray(x.invoices)?x.invoices:[],accounts:{...base.accounts,...(x.accounts||{})}};}
 function save(x){store.set('commerce_v1',x);}
@@ -267,10 +267,38 @@ function invoice(db){
  }).join('')+'</tbody></table></div>'+
  '<div class="rc-actions no-print"><button type="button" class="btn btn-ghost" data-rc-add="1">＋ إضافة صنف</button>'+
  '<strong class="rc-grand">الإجمالي: <span id="rc-grand">'+f(draft.lines.reduce((a,l)=>a+n(l.qty)*n(l.price),0))+'</span> YER</strong></div>'+
- '<div class="rc-actions no-print"><button type="button" class="btn btn-ghost" data-rc-draft-preview="1">👁 معاينة</button><button type="submit" class="btn btn-primary">💾 اعتماد وحفظ المستند</button></div></form>'+
+ '<div class="rc-document-actions rc-draft-actions no-print">'+[['view','◉','المشاهدة'],['preview','▣','المعاينة'],['print','▤','الطباعة'],['pdf','▣','PDF'],['share','⇧','المشاركة'],['search','⌕','البحث'],['back','↪','الرجوع']].map(([action,icon,label])=>'<button type="button" class="rc-doc-action" data-rc-draft-action="'+action+'"><span class="rc-tool-icon" aria-hidden="true">'+icon+'</span><small>'+label+'</small></button>').join('')+'</div>'+
+ '<div class="rc-actions no-print"><button type="submit" class="btn btn-primary">💾 اعتماد وحفظ المستند</button></div></form><div id="rc-draft-view"></div>'+
  '<p class="rc-note">جميع البنود بسعرها وإجماليها؛ لا يوجد تحويل تلقائي بين الوحدة الرئيسية والفرعية قبل اعتماده. يمنع الحفظ غير المتوازن أو صرف كمية غير متاحة.</p>';
  const headings=(mode==='in'&&!ret)?'<div class="rc-type-switch no-print" role="group" aria-label="نوع مستند الوارد">'+types.in.map((title,i)=>'<button type="button" class="rc-type-option'+(draft.title===title?' active':'')+'" data-rc-select-doctype="'+esc(title)+'" aria-pressed="'+(draft.title===title)+'"><span class="rc-type-symbol" aria-hidden="true">'+['▤','▦','▣'][i]+'</span><span>'+esc(title)+'</span></button>').join('')+'</div>':'<h3>'+esc(ret?'مرتجع مخزني — '+(mode==='in'?'الوارد':'الصادر'):draft.title)+'</h3>';
  return '<section class="rc-card rc-invoice-card">'+headings+form+'</section>';
+}
+function currentDraftDocument(){
+ syncInvoice();if(!draft)throw Error('لا يوجد مستند قيد الإدخال.');
+ const db=data(),lines=draft.lines.filter(l=>l.product&&n(l.qty)>0).map(l=>{
+  const p=db.products.find(x=>x.id===l.product);if(!p)throw Error('اختر صنفًا معتمدًا.');
+  const unit=pUnit(p,l.unit);if(!unitList(p).includes(unit))throw Error('اختر وحدة معتمدة للصنف '+p.name);
+  const amount=rnd(n(l.qty)*n(l.price));return {product:l.product,unit,qty:n(l.qty),price:n(l.price),subtotal:amount};
+ });
+ if(!lines.length)throw Error('أدخل صنفًا واحدًا بكمية موجبة للعرض أو المعاينة.');
+ return {...draft,lines,total:rnd(lines.reduce((sum,l)=>sum+l.subtotal,0))};
+}
+async function draftOutput(action){
+ if(['search','back'].includes(action)){
+  if(typeof window.confirm==='function'&&!window.confirm('البيانات غير المحفوظة في المستند ستُفقد. هل تريد المتابعة؟'))return;
+  draft=null;view='records';
+  if(action==='back'&&typeof goBackInApp==='function'){goBackInApp();return;}
+  paint();if(action==='search')$('rc-query')?.focus();return;
+ }
+ const doc=currentDraftDocument();
+ if(action==='view'){const host=$('rc-draft-view');if(host)host.innerHTML='<div class="rc-draft-view-head"><b>مشاهدة المستند قبل اعتماده</b><button type="button" class="btn btn-ghost" data-rc-close-draft-view="1">إغلاق</button></div>'+documentHtml(data(),doc);return;}
+ if(action==='preview'){previewDocument('',doc);return;}
+ if(action==='print'){printDocument('',doc);return;}
+ if(action==='pdf'||action==='share'){
+  const blob=await pdfFor(doc),filename=docName(doc)+'-'+doc.number+'-معاينة.pdf';
+  if(action==='pdf')downloadFinancialFile(blob,filename);
+  else await shareRatibDocumentFile(new File([blob],filename,{type:'application/pdf'}),'معاينة '+docName(doc)+' '+doc.number);
+ }
 }
 function syncInvoice(){
  if(!draft)return;
@@ -424,16 +452,16 @@ function ensurePreview(){
  modal.innerHTML='<div class="modal-content rc-preview-modal-body" role="dialog" aria-modal="true" aria-label="معاينة المستند"><h3>معاينة المستند قبل الطباعة</h3><div id="rc-preview-content"></div><div class="rc-actions"><button type="button" class="btn btn-primary" id="rc-preview-print">🖨️ طباعة</button><button type="button" class="btn btn-ghost" id="rc-preview-close">إغلاق</button></div></div>';
  document.body.appendChild(modal);
  modal.querySelector('#rc-preview-close').addEventListener('click',()=>modal.classList.remove('show'));
- modal.querySelector('#rc-preview-print').addEventListener('click',()=>{const chosen=previewId;modal.classList.remove('show');if(chosen==='__products__')productOutput('print');else if(chosen?.startsWith('__product__:'))productOutput('print',chosen.slice(12));else printDocument(chosen);});
+ modal.querySelector('#rc-preview-print').addEventListener('click',()=>{const chosen=previewId;modal.classList.remove('show');if(chosen==='__products__')productOutput('print');else if(chosen?.startsWith('__product__:'))productOutput('print',chosen.slice(12));else if(chosen==='__draft__'&&previewDraft)printDocument('',previewDraft);else printDocument(chosen);});
  return modal;
 }
 function previewDocument(docId,derivedDoc){
  const db=data(),d=derivedDoc||db.invoices.find(x=>x.id===docId);if(!d)throw Error('تعذّر العثور على المستند.');
- previewId=docId;const modal=ensurePreview();modal.querySelector('#rc-preview-print').disabled=!docId;modal.querySelector('#rc-preview-content').innerHTML=documentHtml(db,d);window.RatibPrintLogo?.syncPrint();
+ previewId=docId||'__draft__';previewDraft=docId?null:JSON.parse(JSON.stringify(d));const modal=ensurePreview();modal.querySelector('#rc-preview-print').disabled=false;modal.querySelector('#rc-preview-content').innerHTML=documentHtml(db,d);window.RatibPrintLogo?.syncPrint();
  modal.classList.add('show');
 }
-function printDocument(docId){
- const db=data(),d=db.invoices.find(x=>x.id===docId);if(!d)throw Error('تعذّر العثور على المستند.');
+function printDocument(docId,derivedDoc){
+ const db=data(),d=derivedDoc||db.invoices.find(x=>x.id===docId);if(!d)throw Error('تعذّر العثور على المستند.');
  let host=$('ratibCommercePrintHost');
  if(!host){host=document.createElement('div');host.id='ratibCommercePrintHost';document.body.appendChild(host);}
  host.innerHTML=documentHtml(db,d);window.RatibPrintLogo?.syncPrint();
@@ -496,6 +524,8 @@ function bind(){
      paint();for(const [fieldId,value] of unsavedFields){const field=$(fieldId);if(field)field.value=value;}
      $(kind==='search'?'rc-catalog-search':'rc-catalog-group')?.focus();return;
     }
+   const draftAction=hit('[data-rc-draft-action]');if(draftAction){Promise.resolve(draftOutput(draftAction.dataset.rcDraftAction)).catch(e=>notify(e.message||'تعذر إعداد المستند','error'));return;}
+   if(hit('[data-rc-close-draft-view]')){const host=$('rc-draft-view');if(host)host.innerHTML='';return;}
     const productAction=hit('[data-rc-products]');if(productAction){Promise.resolve(productOutput(productAction.dataset.rcProducts,productAction.dataset.rcItem||'')).catch(e=>notify(e.message||'تعذّر تجهيز دليل الأصناف','error'));return;}
    if(hit('[data-rc-confirm-import]')){confirmProductImport().catch(e=>notify(e.message,'error'));return;}
    if(hit('[data-rc-cancel-import]')){pendingImport=null;paint();return;}

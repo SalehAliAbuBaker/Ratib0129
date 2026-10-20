@@ -267,6 +267,26 @@ d.warehouses=[{id:'main',name:'المخزن الرئيسي'}];store.set('commerc
  assert(!T.data().invoices.some(x=>x.id===cloned.id),'deleted clone leaves commerce storage');
  assert(!(memory.plan||plan).transactions.some(x=>x.commerceId===cloned.id),'deleted clone financial entries removed');
  assert(store.get('commerce_archive_v1',[]).at(-1).action==='delete','deleted document archive preserved');
+ // Editing a complete return must keep its original SKU visible even when nothing remains.
+ T.setInbound();
+ T.setDraft({kind:'purchase_return',title:'مرتجع الوارد',number:'IR-RET-1',date:'2026-10-20',
+  warehouse:'main',origin:updated.id,partyName:'مورد آخر',partyAccount:'موردون',
+  payment:'credit',currency:'SAR',exchangeRate:410,note:'مرتجع كامل',
+  lines:[{product:'a',unit:'حبة',qty:10,price:11}]});
+ await T.saveInvoice();
+ const savedReturn=T.data().invoices.find(x=>x.number==='IR-RET-1');
+ assert(savedReturn&&savedReturn.origin===updated.id,'return saved against original');
+ T.commerceOpenInvoice(savedReturn.id);
+ const returnView=T.invoice(T.data());
+ assert(returnView.includes('id="rc-product-search-0"'),'return item input exists');
+ assert(returnView.includes('value="a"'),'existing return SKU remains selectable');
+ assert.equal(T.getDraft().origin,updated.id);
+ T.getDraft().note='مرتجع معدل';
+ await T.saveInvoice();
+ assert.equal(T.data().invoices.find(x=>x.id===savedReturn.id).note,'مرتجع معدل');
+ await assert.rejects(()=>T.commerceReplaceOrDelete(updated,null),/مرتجعات/);
+ await T.commerceReplaceOrDelete(T.data().invoices.find(x=>x.id===savedReturn.id),null);
+ assert(!T.data().invoices.some(x=>x.id===savedReturn.id),'returned invoice may be safely deleted when unlinked');
  const print=T.documentHtml(T.data(),updated);
  assert(!print.includes('بسم الله الرحمن الرحيم'),'personal heading omits basmala');
  const ledger=fs.readFileSync(path.join(__dirname,'index.html'),'utf8');

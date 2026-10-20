@@ -9,9 +9,10 @@ const labels=[
 ];
 const markup='<html lang="ar"><head></head><body>'+
  '<button id="sidebarMenuBtn">☰</button><button id="backToMenuBtn"><span>الرجوع إلى الشاشة السابقة</span></button>'+
- '<aside id="appSidebar"><div class="sidebar-nav"><button data-sidebar-action="exit"><span>خروج</span></button></div></aside><section id="pageSettings"></section></body></html>';
+ '<aside id="appSidebar"><div class="sidebar-nav"><button data-sidebar-action="exit"><span>خروج</span></button></div><div class="sidebar-footer"></div></aside><small id="appVersionLabel"></small><section id="pageSettings"></section></body></html>';
 const dom=new JSDOM(markup,{runScripts:'outside-only',url:'https://ratib.test/',pretendToBeVisual:true});
 const w=dom.window,doc=w.document;
+w.RatibCommerce={version:'3.6.139'};
 w.HTMLElement.prototype.scrollIntoView=function(){};
 w.scrollTo=()=>{};w.closeRatibSidebar=()=>{};
 let visits=0,backs=0,history=0;
@@ -27,8 +28,11 @@ for(const label of [...labels,'إعدادات الأمان وقفل الحماي
 w.eval(fs.readFileSync(require('node:path').join(__dirname,'ratib-sidebar-3.6.124.js'),'utf8'));
 w.dispatchEvent(new w.Event('load'));
 const nav=doc.querySelector('#appSidebar .sidebar-nav'),page=doc.getElementById('pageSettings');
-assert.equal(nav.children.length,5,'five top-level menu entries');
-assert.deepEqual([...nav.children].map(n=>(n.matches('.sidebar-group')?n.querySelector(':scope > button'):n).textContent.trim()),[
+const visibleEntries=[...nav.children].filter(n=>!n.hidden);
+assert.equal(visibleEntries.length,5,'five visible top-level menu entries; hidden legacy anchors are not menu items');
+assert.equal(doc.getElementById('sidebarCurrentVersion')?.textContent,'الإصدار 3.6.139 (تجريبية)','sidebar footer uses live release');
+assert.equal(doc.getElementById('appVersionLabel')?.textContent,'الإصدار 3.6.139 (تجريبية)','header release matches sidebar');
+assert.deepEqual(visibleEntries.map(n=>(n.matches('.sidebar-group')?n.querySelector(':scope > button'):n).textContent.trim()),[
  'الإعدادات','النسخ المحلي والسحابي','إدخال كود التفعيل','المساعدة','خروج'
 ]);
 assert.equal(doc.getElementById('sidebarMenuBtn').getAttribute('aria-label'),'فتح الإعدادات');

@@ -1,5 +1,5 @@
 const fs=require('node:fs'),path=require('node:path'),vm=require('node:vm'),assert=require('node:assert/strict');
-const source=fs.readFileSync(path.join(__dirname,'ratib-commerce-3.6.131.js'),'utf8'),mark="window.RatibCommerce={open,openFavorite,openDocument:commerceOpenDocument,documentAction:commerceDocumentOperation,render:paint,version:'3.6.138'};";
+const source=fs.readFileSync(path.join(__dirname,'ratib-commerce-3.6.131.js'),'utf8'),mark="window.RatibCommerce={open,openFavorite,openDocument:commerceOpenDocument,documentAction:commerceDocumentOperation,render:paint,version:'3.6.139'};";
 assert(source.includes(mark));assert(source.includes("['pdf','PDF'],['share','المشاركة']"));
 const code=source.replace(mark,"window.__test={data,products,guideMarkup,documentHtml,productOutput,productGuideCanvases,filteredCatalogProducts,setCatalogFilter:(term,group)=>{catalogSearch=term;catalogGroup=group;},nextNumber,invoice,currentDraftDocument,draftOutput,commerceSignatureLabels,commerceCanvasPage,commerceInvoiceRecipientLabel,commerceInvoiceRecipientRow,commerceProductLabel,commerceFindProduct,commerceAmountWords,commerceBaseTotal,commerceValidFx,makeJournal,openFavorite,commerceOpenInvoice,commerceReplaceOrDelete,commerceValidateRevision,commerceDocumentOperation,saveInvoice,getDraft:()=>draft,setInbound:()=>{mode='in';view='new';draft=null;},setOutbound:()=>{mode='out';view='new';draft=null;},setDraft:x=>{draft=x;}};"+mark);
 const memory={},store={get:(k,d)=>memory[k]??d,set:(k,v)=>memory[k]=v},capture=[],rows=[],headerDraws=[],plan={transactions:[]};
@@ -289,8 +289,24 @@ d.warehouses=[{id:'main',name:'المخزن الرئيسي'}];store.set('commerc
  assert(!T.data().invoices.some(x=>x.id===savedReturn.id),'returned invoice may be safely deleted when unlinked');
  const print=T.documentHtml(T.data(),updated);
  assert(!print.includes('بسم الله الرحمن الرحيم'),'personal heading omits basmala');
+ // New account and print controls in all commerce sections.
+ const accountMarkup=T.invoice(T.data());
+ assert(accountMarkup.includes('rc-posting-debit')&&accountMarkup.includes('rc-posting-credit'),'debit/credit sides visibly distinguished');
+ assert(accountMarkup.includes('rc-search-partyAccount'),'account name/number lookup');
+ const commerceCode=fs.readFileSync(path.join(__dirname,'ratib-commerce-3.6.131.js'),'utf8');
+ assert(commerceCode.includes("commerceTabIcons={products:'📦'"),'semantic icons for commerce menus');
+ assert(commerceCode.includes('commerce_button_size_v1'),'size preference stored');
+ assert(commerceCode.includes("data-rc-button-size"),'size applies to internal commerce controls');
+ const style=fs.readFileSync(path.join(__dirname,'ratib-commerce-3.6.131.css'),'utf8');
+ assert(style.includes('.ratib-commerce-shortcuts[data-rc-button-size="large"]'),'main commerce launch controls resizable');
+ const sidebarScript=fs.readFileSync(path.join(__dirname,'ratib-sidebar-3.6.124.js'),'utf8');
+ assert(sidebarScript.includes("function syncSidebarVersion()")&&sidebarScript.includes("footer.append(version)"),'visible sidebar footer bound to current release');
+ assert(sidebarScript.includes("document.addEventListener('focusin',e=>ratibSelectField"),'focus selects the full editable text');
  const ledger=fs.readFileSync(path.join(__dirname,'index.html'),'utf8');
- assert(ledger.includes("return record?record.title+' — '+record.number"),'ledger displays actual invoice name');
+ assert(ledger.includes("return record?record.title+' — '+record.number")||ledger.includes("const commercial=ratibCommerceStatementName(t);if(commercial"),'ledger displays actual invoice name');
+ assert(ledger.includes('const mode=ratibStatementDocumentLabel(t);'),'account statement UI uses real invoice names');
+ assert(ledger.includes('doc=ratibStatementDocumentLabel(t);'),'print/PDF also uses real invoice names');
+ assert(ledger.includes('<small id="appVersionLabel" class="app-version">الإصدار 3.6.139'),'version visible at header');
  assert(ledger.includes('data-commerce-ledger="edit"')&&ledger.includes('data-commerce-ledger="clone"')&&ledger.includes('data-commerce-ledger="delete"'),'ledger offers operations');
  assert(ledger.includes('data-ledger-voucher-type="commerce"')&&ledger.includes("if(t.commerceId)return 'commerce'"),'commercial invoices have their own ledger filter, not compound type');
  const failBefore=T.data().invoices.length;
@@ -329,5 +345,5 @@ const doc=T.documentHtml(d,{kind:'purchase',title:'فاتورة مشتريات',
  assert.equal(headerDraws.filter(t=>t==='ملاحظات:').length,1,'long PDF note has single heading');
  assert(headerDraws.some(t=>t.includes('التفقيط:')),'Arabic amount spelling in PDF');
  assert(!rows.some(r=>r.includes('ملاحظات')),'notes are not repeated table rows');
- console.log('PASS 3.6.138: safe invoice edit/clone/delete and journal replacement; real ledger labels; no basmala in header; FX and smart search');
+ console.log('PASS 3.6.139: account statement invoice names in UI/PDF, dynamic sidebar version, smart fields, debit/credit and adjustable commerce buttons');
 })().catch(error=>{console.error(error);process.exitCode=1;});

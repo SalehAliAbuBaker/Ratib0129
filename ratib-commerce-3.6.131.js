@@ -449,11 +449,24 @@ function documentLines(db,d){
  });
 }
 
+function commerceInvoiceRecipientLabel(d){
+ const title=docName(d);
+ return title==='فاتورة مبيعات'?'مباع على / صادر إلى':title==='فاتورة مشتريات'?'مُشترى من / وارد من':'';
+}
+function commerceInvoiceRecipientRow(d){
+ const label=commerceInvoiceRecipientLabel(d);
+ if(!label)return '';
+ return '<div class="rc-invoice-party-row" dir="rtl">'+
+ '<div class="rc-invoice-issue-date"><b>تاريخ الإصدار:</b> '+esc(d.date||'—')+'</div>'+
+ '<div class="rc-invoice-recipient"><b>'+esc(label)+':</b><span>'+esc(d.partyName||'—')+'</span></div></div>';
+}
 function documentHtml(db,d){
- const rows=documentLines(db,d);
+ const rows=documentLines(db,d),invoiceLabel=commerceInvoiceRecipientLabel(d);
  const tableHtml='<table class="rc-document-table"><thead><tr><th>#</th><th>اسم الصنف</th><th>الوحدة</th><th>العدد</th><th>السعر</th><th>الإجمالي</th></tr></thead><tbody>'+rows.map(row=>'<tr>'+row.map(x=>'<td>'+x+'</td>').join('')+'</tr>').join('')+'</tbody></table>';
  return '<article class="rc-paper rc-document-paper" dir="rtl">'+printHeading((d.isDraft?'مسودة غير معتمدة — ':'')+docName(d))+
- '<div class="rc-document-meta"><span>رقم المستند: <b>'+esc(d.number)+'</b></span><span>التاريخ: <b>'+esc(d.date)+'</b></span><span>المخزن: <b>'+esc(db.warehouses.find(w=>w.id===d.warehouse)?.name||'—')+'</b></span><span>الطرف: <b>'+esc(d.partyName||'—')+'</b></span></div>'+
+ '<div class="rc-document-meta"><span>رقم المستند: <b>'+esc(d.number)+'</b></span><span>التاريخ: <b>'+esc(d.date)+'</b></span><span>المخزن: <b>'+esc(db.warehouses.find(w=>w.id===d.warehouse)?.name||'—')+'</b></span>'+
+ (invoiceLabel?'':'<span>الطرف: <b>'+esc(d.partyName||'—')+'</b></span>')+'</div>'+
+ commerceInvoiceRecipientRow(d)+
  tableHtml+'<div class="rc-document-footer"><div class="rc-paper-total">الإجمالي: '+f(d.total)+' ريال يمني</div><p class="rc-paper-note"><b>ملاحظات:</b> '+esc(d.note||'—')+'</p>'+commerceSignatureHtml(d)+'</div></article>';
 }
 function documentToolbar(db,d){
@@ -498,6 +511,20 @@ function commerceCanvasPage(db,d,pageNumber){
  // reportCanvasPage already renders Ratib's configured personal header.
  // Do not add a second basmalah/name/address block below the document title.
  const page=reportCanvasPage(title,subtitle,pageNumber);
+ // The shared page template already prints the issue date on the right.
+ // Place the invoice party to its left, above the item table, without repeating that date.
+ const recipientLabel=commerceInvoiceRecipientLabel(d);
+ if(recipientLabel){
+  const ctx=page.ctx,width=page.canvas.width,left=70,right=width-350,top=page.y-59,height=42;
+  if(right>left+150&&top>=90){
+   ctx.save();ctx.fillStyle='#fff7f0';ctx.fillRect(left,top,right-left,height);
+   ctx.strokeStyle='#dc2626';ctx.lineWidth=2;ctx.strokeRect(left,top,right-left,height);
+   ctx.fillStyle='#182231';ctx.font="bold 19px 'Tajawal',sans-serif";
+   ctx.direction='rtl';ctx.textAlign='right';
+   ctx.fillText(recipientLabel+': '+(d.partyName||'—'),right-12,top+28,right-left-24);
+   ctx.restore();
+  }
+ }
  window.RatibPrintLogo?.drawCanvas?.(page.canvas);
  return page;
 }
@@ -630,6 +657,6 @@ function bind(){
   }catch(error){console.error('Ratib commerce',error);notify(error.message||'تعذر الحفظ','error');}
  });
 }
-window.RatibCommerce={open,render:paint,version:'3.6.133'};
+window.RatibCommerce={open,render:paint,version:'3.6.134'};
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',bind,{once:true});else bind();
 })();

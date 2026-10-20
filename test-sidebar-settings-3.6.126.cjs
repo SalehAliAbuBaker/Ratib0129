@@ -35,7 +35,7 @@ for(let i=0;i<10;i++)assert(firstTen[i].textContent.includes(labels[i]),'Menu or
 assert(nav.textContent.includes('النسخ المحلي والسحابي'));
 assert(nav.textContent.includes('إدخال كود التفعيل'));
 assert(nav.textContent.includes('المساعدة'));
-firstTen[0].querySelector('button').click();
+firstTen[0].click();
 assert.equal(doc.querySelectorAll('#pageSettings > .settings-accordion-card').length,10);
 for(const c of doc.querySelectorAll('#pageSettings > .settings-accordion-card'))assert.equal(c.hidden,false,'Settings remain visible');
 assert.equal(doc.querySelector('#ratibSettingsBack125'),null);

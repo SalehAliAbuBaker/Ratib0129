@@ -265,10 +265,26 @@ function ratibCanSelectText(el){
 }
 function ratibSelectField(el){
  if(!ratibCanSelectText(el))return;
+ // Some browsers do not support text selection on type=number. On commerce screens
+ // temporarily expose it as a decimal text entry while focused, then restore on blur.
+ if(el instanceof HTMLInputElement&&el.type==='number'&&el.closest('#pageCommerce')){
+  el.dataset.ratibNumericSelect='1';
+  el.dataset.ratibPriorInputMode=el.getAttribute('inputmode')||'';
+  el.type='text';el.setAttribute('inputmode','decimal');
+ }
  try{el.select();}catch(_){}
  try{if(el.type!=='number'&&typeof el.setSelectionRange==='function')el.setSelectionRange(0,el.value.length);}catch(_){}
 }
 document.addEventListener('focusin',e=>ratibSelectField(e.target),true);
 document.addEventListener('click',e=>ratibSelectField(e.target),true);
+document.addEventListener('focusout',e=>{
+ const el=e.target;
+ if(!(el instanceof HTMLInputElement)||el.dataset.ratibNumericSelect!=='1')return;
+ delete el.dataset.ratibNumericSelect;
+ const previousMode=el.dataset.ratibPriorInputMode||'';
+ delete el.dataset.ratibPriorInputMode;
+ try{el.type='number';}catch(_){}
+ if(previousMode)el.setAttribute('inputmode',previousMode);else el.removeAttribute('inputmode');
+},true);
 if(document.readyState==='complete'){buildSidebar();syncSidebarVersion();}else window.addEventListener('load',()=>{buildSidebar();syncSidebarVersion();},{once:true});
 })();

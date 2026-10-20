@@ -1532,7 +1532,13 @@ body.ratib-sidebar-open,body.ratib-about-open{overflow:hidden}
 }
 </style>
 <link rel="stylesheet" href="./ratib-login-3.6.124.css?v=3.6.131">
-<link rel="stylesheet" href="./ratib-commerce-3.6.131.css?v=3.6.137">
+<link rel="stylesheet" href="./ratib-commerce-3.6.131.css?v=3.6.138">
+
+<style id="ratib-commerce-ledger-actions-3.6.138">
+#pageLedger .rc-ledger-operations{display:flex;align-items:center;justify-content:flex-start;gap:5px;flex-wrap:wrap;padding:6px 8px;margin-top:4px}
+#pageLedger .rc-ledger-operations .btn{width:auto;min-height:34px;padding:5px 9px;margin:0;font-size:.76rem}
+#pageLedger .tx-log-item:has(.rc-ledger-operations) .single-del-btn{display:none!important}
+</style>
 </head>
 <body>
 
@@ -4738,7 +4744,14 @@ function getMasterPlan(){
   if(changed)store.set('plan',p);return p;
 }
 
-function getTransactionDisplayType(t){if(t?.isOpeningBalance)return 'سند قيد مركب — أرصدة مستوردة';return t?.isMultiVoucher?cashVoucherTitle(t.multiVoucher?.mode):(t?.type||'عملية');}
+function getTransactionDisplayType(t){
+ if(t?.isOpeningBalance)return 'سند قيد مركب — أرصدة مستوردة';
+ if(t?.commerceId){
+  const record=store.get('commerce_v1',null)?.invoices?.find(d=>d.id===t.commerceId);
+  return record?record.title+' — '+record.number:(t.type||'مستند تجاري');
+ }
+ return t?.isMultiVoucher?cashVoucherTitle(t.multiVoucher?.mode):(t?.type||'عملية');
+}
 function getNextVoucherNumber(mode) {
   const allTxs = getAllTransactions();
   return allTxs.filter(t => t.voucherMode === mode).reduce((max, t) => Math.max(max, Number(t.seqNum) || 0), 0) + 1;
@@ -6540,7 +6553,7 @@ function renderAllData(force=false) {
         <div class="tx-title-area">
           <div class="tx-badge-group">
             ${item.seqNum ? `<span class="tx-num-tag">#${esc(item.seqNum)}</span>` : ''}
-            <span class="tx-badge">${item.voucherMode === 'spend' ? 'سند صرف' : (item.voucherMode === 'income' ? 'سند إيراد' : 'سند قيد')}</span>
+            <span class="tx-badge">${item.commerceId ? getTransactionDisplayType(item).split(' — ')[0] : (item.voucherMode === 'spend' ? 'سند صرف' : (item.voucherMode === 'income' ? 'سند إيراد' : 'سند قيد'))}</span>
             <span class="tx-type-tag">${highlightText(getTransactionDisplayType(item), currentLedgerSearchQuery)}</span>
             ${statusChipHtml}
           </div>
@@ -6556,10 +6569,21 @@ function renderAllData(force=false) {
         <div class="tx-acc-row"><span>الدائن:</span><b>${esc(item.creditAccount)}</b></div>
         ${noteText ? `<div style="font-weight:700;">البيان: ${esc(noteText)}</div>` : ''}
       </div>
-      <div class="tx-dist">${distHtml}</div>
+      <div class="tx-dist">${item.commerceId ? '<span>فاتورة مرتبطة بالمخزون وبالقيد المحاسبي</span>' : distHtml}</div>
+      ${item.commerceId ? '<div class="rc-ledger-operations"><button type="button" class="btn btn-ghost" data-commerce-ledger="view">مشاهدة</button><button type="button" class="btn btn-ghost" data-commerce-ledger="edit">تعديل</button><button type="button" class="btn btn-ghost" data-commerce-ledger="clone">استنساخ</button><button type="button" class="btn btn-ghost" data-commerce-ledger="delete">حذف</button></div>' : ''}
     `;
 
-    card.addEventListener('click', async (e) => { 
+    card.addEventListener('click', async (e) => {
+      if(item.commerceId){
+        e.stopPropagation();
+        const action=e.target.closest('[data-commerce-ledger]')?.dataset.commerceLedger||(e.target.closest('.single-del-btn')?'delete':'view');
+        try{
+          if(action==='view')window.RatibCommerce?.openDocument?.(item.commerceId);
+          else await window.RatibCommerce?.documentAction?.(action,item.commerceId);
+          if(!window.RatibCommerce?.openDocument)throw Error('وحدة المستندات التجارية غير جاهزة.');
+        }catch(error){showToast(error.message||'تعذر فتح الفاتورة','error');}
+        return;
+      }
       if (e.target.closest('.single-del-btn')) {
         if(item.isOpeningBalance){e.stopPropagation();openImportedOpeningVoucher(item);return;}
         e.stopPropagation(); 
@@ -6585,6 +6609,10 @@ function renderAllData(force=false) {
 }
 
 function openDocumentDetailsModal(item) {
+  if(item?.commerceId){
+    try{window.RatibCommerce?.openDocument?.(item.commerceId);}catch(error){showToast(error.message,'error');}
+    return;
+  }
   pendingLongPressTx = item;
   
   const titleEl = document.getElementById('longPressModalTitle');
@@ -12045,7 +12073,7 @@ try{currenciesUi();sync();}catch(e){console.error('Ratib 3.6.12 initialization',
 <script src="./ratib-print-logo-3.6.108.js?v=3.6.111" defer></script>
 <div id="ratibSpecialPrintHost" aria-hidden="true"></div>
 <script src="./ratib-sidebar-3.6.124.js?v=3.6.131" defer></script>
-<script src="./ratib-commerce-3.6.131.js?v=3.6.137" defer></script>
+<script src="./ratib-commerce-3.6.131.js?v=3.6.138" defer></script>
 <script src="./ratib-login-3.6.124.js?v=3.6.131" defer></script>
 </body>
 </html>

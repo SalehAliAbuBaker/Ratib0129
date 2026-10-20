@@ -198,3 +198,8 @@
  #pageCommerce .rc-invoice-card .rc-type-option{font-size:.66rem}
  #pageCommerce .rc-invoice-card .rc-type-symbol{font-size:.87rem}
 }
+
+#pageCommerce .rc-invoice-card .rc-draft-view-head{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:9px 0 5px;font-size:.84rem;color:var(--accent)}
+#pageCommerce .rc-invoice-card .rc-draft-view-head .btn{width:auto;min-height:34px;padding:4px 8px;font-size:.76rem}
+#pageCommerce .rc-invoice-card #rc-draft-view:empty{display:none}
+#pageCommerce .rc-invoice-card #rc-draft-view .rc-paper{padding:10px}

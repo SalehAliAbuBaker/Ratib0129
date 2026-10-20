@@ -206,9 +206,6 @@
 
 
 /* Ratib trial 3.6.132 — personal print header and a SINGLE horizontal signature row. */
-.rc-paper.rc-document-paper .rc-paper-head .rc-basmalah{
-  font-size:.88rem;font-weight:800;line-height:1.35;margin:0 0 5px;
-}
 .rc-paper.rc-document-paper .rc-paper-head .rc-paper-header-details{
   white-space:pre-line;overflow-wrap:anywhere;font-size:.86rem;line-height:1.5;margin:3px 0 0;
 }
@@ -331,3 +328,11 @@
  break-inside:avoid;page-break-inside:avoid;
 }
 .rc-paper.rc-document-paper .rc-paper-equivalent span{font-size:.78rem;color:#475569}
+
+
+/* Compact management actions for native warehouse and invoice records. */
+#pageCommerce .rc-record-tools{display:flex;align-items:center;flex-wrap:wrap;gap:4px;justify-content:flex-start;direction:rtl;padding:4px 0}
+#pageCommerce .rc-record-tools .btn{width:auto;min-height:33px;padding:5px 8px;margin:0;font-size:.75rem}
+#pageCommerce .rc-record-tools [data-rc-doc-op="delete"]{color:var(--danger)}
+#pageCommerce .rc-record-tools [data-rc-doc-op="edit"]{font-weight:800}
+@media(max-width:550px){#pageCommerce .rc-record-tools{gap:3px}#pageCommerce .rc-record-tools .btn{min-height:30px;padding:4px 6px;font-size:.69rem}}

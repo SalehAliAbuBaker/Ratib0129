@@ -2,13 +2,13 @@ const fs=require('node:fs'),path=require('node:path'),vm=require('node:vm'),asse
 const source=fs.readFileSync(path.join(__dirname,'ratib-commerce-3.6.131.js'),'utf8'),mark="window.RatibCommerce={open,openFavorite,render:paint,version:'3.6.137'};";
 assert(source.includes(mark));assert(source.includes("['pdf','PDF'],['share','المشاركة']"));
 const code=source.replace(mark,"window.__test={data,products,guideMarkup,documentHtml,productOutput,productGuideCanvases,filteredCatalogProducts,setCatalogFilter:(term,group)=>{catalogSearch=term;catalogGroup=group;},nextNumber,invoice,currentDraftDocument,draftOutput,commerceSignatureLabels,commerceCanvasPage,commerceInvoiceRecipientLabel,commerceInvoiceRecipientRow,commerceProductLabel,commerceFindProduct,commerceAmountWords,commerceBaseTotal,commerceValidFx,makeJournal,openFavorite,saveInvoice,setInbound:()=>{mode='in';view='new';draft=null;},setOutbound:()=>{mode='out';view='new';draft=null;},setDraft:x=>{draft=x;}};"+mark);
-const memory={},store={get:(k,d)=>memory[k]??d,set:(k,v)=>memory[k]=v},capture=[],rows=[],headerDraws=[];
+const memory={},store={get:(k,d)=>memory[k]??d,set:(k,v)=>memory[k]=v},capture=[],rows=[],headerDraws=[],plan={transactions:[]};
 const window={RatibPrintLogo:{whenReady:async()=>true,syncPrint(){},drawCanvas(){return true;}}},document={readyState:'loading',addEventListener(){},getElementById(){return null;}};
 class File{constructor(parts,name,opts){this.name=name;this.type=opts.type;}}
 const state={
  window,document,File,store,console,
  getCanonicalCatalog:()=>[{details:[['1','مخزون'],['2','صندوق'],['3','عملاء'],['4','موردون'],['5','مبيعات'],['6','تكلفة'],['7','تسويات']]}],
- getNextMultiVoucherNumber:()=>1,getAllTransactions:()=>[],getMasterPlan:()=>({transactions:[]}),
+ getNextMultiVoucherNumber:()=>plan.transactions.length+1,getAllTransactions:()=>plan.transactions,getMasterPlan:()=>plan,
  APP_SCHEMA_VERSION:3,flushStorage:async()=>{},showToast(){},audit(){},renderAllData(){},updateProDashboard(){},navigateToTab(){},
  getHeaderConfig:()=>({name:'الجهة من إعدادات الترويسة',details:'العنوان من الإعدادات',show:true}),
  tafqitAccountCurrency:(v,c)=>'تفقيط '+v+' '+c+' فقط لا غير',
@@ -193,6 +193,38 @@ d.warehouses=[{id:'main',name:'المخزن الرئيسي'}];store.set('commerc
  assert(journalHTML.includes('43,000')&&journalHTML.includes('المعادل اليمني'),'FX print equivalent');
  const savedCount=T.data().invoices.length;
  assert.equal(T.data().invoices.length,savedCount,'pure journal must not post data');
+ // End-to-end posting: retain document currency, YER equivalent, actual journal records and stock cost.
+ T.setInbound();
+ T.setDraft({kind:'purchase',title:'فاتورة مشتريات',number:'PI-FX-001',date:'2026-10-20',
+  warehouse:'main',partyName:'مورد',partyAccount:'موردون',payment:'credit',
+  currency:'SAR',exchangeRate:410,displayPartyName:'البائع',note:'ترحيل صرف',
+  lines:[{id:'line-fx-1',product:'a',unit:'حبة',qty:10,price:10}]});
+ const docsBefore=T.data().invoices.length,txBefore=plan.transactions.length;
+ await T.saveInvoice();
+ assert.equal(T.data().invoices.length,docsBefore+1,'foreign purchase saved once');
+ const saved=T.data().invoices.find(x=>x.number==='PI-FX-001');
+ assert.equal(saved.currency,'SAR');
+ assert.equal(saved.exchangeRate,410);
+ assert.equal(saved.total,100);
+ assert.equal(saved.baseTotal,41000);
+ assert.equal(saved.cost,41000);
+ assert.equal(saved.lines[0].cost,41000,'YER stock valuation retained');
+ assert.equal(plan.transactions.length,txBefore+2,'two balanced journal sides');
+ assert.equal(plan.transactions[txBefore].multiVoucher.lines[1].currency,'SAR');
+ assert.equal(plan.transactions[txBefore].multiVoucher.lines[1].amount,100);
+ assert.equal(plan.transactions[txBefore].amount,41000);
+ const failBefore=T.data().invoices.length;
+ T.setInbound();
+ T.setDraft({kind:'purchase',title:'فاتورة مشتريات',number:'PI-FX-002',date:'2026-10-20',
+  warehouse:'main',partyName:'مورد',partyAccount:'موردون',payment:'credit',
+  currency:'USD',exchangeRate:'',lines:[{id:'line-fx-2',product:'a',unit:'حبة',qty:2,price:5}]});
+ await assert.rejects(()=>T.saveInvoice(),/سعر الصرف/);
+ assert.equal(T.data().invoices.length,failBefore,'missing FX rate must not save document');
+ const fav=fs.readFileSync(path.join(__dirname,'ratib-favorites-v3.js'),'utf8');
+ assert.doesNotThrow(()=>new vm.Script(fav),'favorites source parses');
+ assert(fav.includes('commerceFavorites=')&&fav.includes('المخزون')&&fav.includes('الوارد')&&fav.includes('الصادر'));
+ assert(fav.includes('<details class="fav-settings-group"')&&fav.includes('fav-settings-compact'),'grouped favorite detail panels');
+ assert(fav.includes("ratib.quickFavorites.v2"),'existing favorites key unchanged');
  // Favorite navigation should accept only approved sections/types.
  assert.throws(()=>T.openFavorite('sale','new:أمر توريد'),/نوع المستند/);
  assert.throws(()=>T.openFavorite('unknown','records'),/قسم/);

@@ -114,8 +114,8 @@ function buildSidebar(){
   make('حفظ نسخة احتياطية محلية','backup',()=>{window.closeRatibSidebar?.();$('exportDataBtn')?.click();}),
   make('استعادة نسخة احتياطية محلية','down',()=>{window.closeRatibSidebar?.();$('importDataBtn')?.click();}),
   make('النسخ عبر Google Drive','cloud',()=>{window.closeRatibSidebar?.();existing.drive?.click();}),
-  make('نسخ سحابي الآن','up',()=>{window.closeRatibSidebar?.();const b=$('cloudRunNowBtn');if(b&&getComputedStyle(b).display!=='none'&&!b.disabled)b.click();else existing.drive?.click();}),
-  make('استعادة نسخة سحابية','down',()=>{window.closeRatibSidebar?.();const b=$('cloudRestoreBtn');if(b&&getComputedStyle(b).display!=='none'&&!b.disabled)b.click();else existing.drive?.click();})
+  make('نسخ سحابي الآن','up',()=>{window.closeRatibSidebar?.();const b=$('cloudRunNowBtn');if(b&&b.style.display!=='none'&&!b.disabled)b.click();else existing.drive?.click();}),
+  make('استعادة نسخة سحابية','down',()=>{window.closeRatibSidebar?.();const b=$('cloudRestoreBtn');if(b&&b.style.display!=='none'&&!b.disabled)b.click();else existing.drive?.click();})
  );
  if(legacy)backup.children.append(legacy);
  const license=make('إدخال كود التفعيل','key',()=>{window.closeRatibSidebar?.();if(window.RatibLicense?.showActivation)window.RatibLicense.showActivation();else window.showToast?.('شاشة التفعيل غير متاحة.','warn');});

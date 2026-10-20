@@ -184,6 +184,17 @@ d.warehouses=[{id:'main',name:'المخزن الرئيسي'}];store.set('commerc
  assert.equal(purchaseJournal[0].multiVoucher.lines[0].currency,'YER','inventory in YER');
  assert.equal(purchaseJournal[0].multiVoucher.lines[1].currency,'USD','supplier account in USD');
  assert.equal(purchaseJournal[0].multiVoucher.lines[1].amount,20);
+ const reversedPurchase=T.makeJournal({...originalPurchase,id:'return-purchase',kind:'purchase_return',title:'مرتجع الوارد'},d);
+ assert.equal(reversedPurchase.length,2);
+ assert.equal(reversedPurchase[0].amount,43000);
+ assert.equal(reversedPurchase[0].creditAccount,'مخزون');
+ assert.equal(reversedPurchase[1].debitAccount,'موردون');
+ assert.equal(reversedPurchase[0].multiVoucher.lines[1].currency,'USD');
+ const reversedSale=T.makeJournal({...originalSale,id:'return-sale',kind:'sale_return',title:'مرتجع الصادر'},d);
+ assert.equal(reversedSale.filter(x=>x.debitAccount).reduce((a,x)=>a+x.amount,0),58000);
+ assert.equal(reversedSale.filter(x=>x.creditAccount).reduce((a,x)=>a+x.amount,0),58000);
+ assert.equal(reversedSale[0].multiVoucher.lines[0].currency,'SAR');
+ assert.equal(reversedSale[0].multiVoucher.lines[0].amount,100);
  assert.equal(T.commerceBaseTotal(100,'SAR',410),41000);
  assert.throws(()=>T.commerceValidFx('USD',0),/سعر الصرف/);
  assert.throws(()=>T.commerceValidFx('USD',''),/سعر الصرف/);

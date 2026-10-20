@@ -3,8 +3,10 @@ const assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('nod
 const html=fs.readFileSync('index.html','utf8');
 const sw=fs.readFileSync('sw.js','utf8');
 const pack=require('./package.json');
-assert.equal(pack.version,'3.6.123');
-assert.match(html,/الإصدار 3\.6\.123/);
+const release=sw.match(/const APP_RELEASE=\{"version":"(3\.6\.\d+)"/)?.[1];
+assert.ok(release, 'SW must declare trial release version');
+assert.equal(pack.version,release);
+assert.ok(html.includes('الإصدار '+release), 'Visible release must match package and worker');
 assert.match(html,/function trialPairedReportRows\(model\)/);
 assert.match(html,/\?\['رمز الحساب','الحساب','العملة','مدين ريال يمني','دائن ريال يمني','مدين أجنبي','دائن أجنبي'\]/);
 assert.match(html,/const cols=trialColumns\(model\.filters\),labels=trialReportLabels\(model\)/);
@@ -12,7 +14,7 @@ assert.match(html,/sheet\['!cols'\]=model\.filters\.mode==='paired'\?\[\{wch:15\
 assert.match(html,/trialDatedCurrencyReference\(leg,filters\.base\)/);
 assert.match(html,/const ref=\/تعارض\|مختلفة\/\.test/,'conflicting FX prices must not be silently replaced');
 assert.match(html,/const balancedBase=!base\.missing&&!base\.reference/);
-assert.match(sw,/3\.6\.123/);
+assert.ok(sw.includes(release), 'SW must carry current version');
 const start=html.indexOf('function trialDatedCurrencyReference(');
 const end=html.indexOf('function trialFxRateEvidence(',start);
 assert(start>0&&end>start);

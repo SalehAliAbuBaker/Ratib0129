@@ -29,7 +29,14 @@ function install(){
    eye.addEventListener('click',()=>{const showing=pin.type==='text';pin.type=showing?'password':'text';eye.innerHTML=showing?iconHide:iconShow;eye.setAttribute('aria-label',showing?'إظهار كلمة المرور':'إخفاء كلمة المرور');eye.setAttribute('aria-pressed',String(!showing));pin.focus({preventScroll:true});});
    field.append(key,pin,eye);group.append(field);
  }
- $('forgotPinLink')?.remove();
+ // Keep the existing security explanation; no recovery or decryption bypass is introduced.
+ let forgot=$('forgotPinLink');
+ if(!forgot){forgot=document.createElement('button');forgot.type='button';forgot.id='forgotPinLink';forgot.textContent='نسيت الرقم السري؟';}
+ forgot.classList.add('ratib-forgot-pin');
+ forgot.removeAttribute('style');forgot.removeAttribute('onclick');
+ forgot.addEventListener('click',()=>{if(typeof window.showForgotPinInfo==='function'){window.showForgotPinInfo();return;}alert('لا توجد طريقة لاسترجاع الرقم السري وفك تشفير البيانات بدونه. هذا أمان حقيقي، ولا يوجد باب خلفي حتى لنا.');});
+ const actionBox=[...content.querySelectorAll('button')].find(b=>b.getAttribute('onclick')?.includes('verifyPinLock'))?.parentElement;
+ if(actionBox)actionBox.append(forgot);
  const nativeBio=$('bioUnlockBtn');
  const submit=[...content.querySelectorAll('button')].find(btn=>btn.getAttribute('onclick')?.includes('verifyPinLock'));
  if(submit){submit.textContent='تسجيل الدخول';submit.classList.add('ratib-login-submit');submit.type='button';}
@@ -43,6 +50,7 @@ function install(){
    info.textContent='البصمة غير متاحة حاليًا؛ استخدم كلمة المرور أو فعّلها من إعدادات الأمان في الجهاز المدعوم.';
  });
  bioArea.append(bio,label,info);content.append(bioArea);
+ const version=document.createElement('small');version.className='ratib-login-version';version.textContent='الإصدار 3.6.125 (تجريبية)';content.append(version);
 }
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',install,{once:true});else install();
 })();

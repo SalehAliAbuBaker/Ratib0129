@@ -2,8 +2,7 @@
 (function(){
 'use strict';
 const $=id=>document.getElementById(id);
-// No password recovery method is implemented: omit this link until secure recovery is available.
-$('forgotPinLink')?.remove();
+// Password recovery remains unavailable; login retains the original warning only.
 const shapes={
  settings:'<path d="M9 3l-.6 3-2.6 1.5-2.8-1L1.5 9l2.2 2v3l-2.2 2L3 18.5l2.8-1L8.4 19l.6 3h3l.6-3 2.6-1.5 2.8 1 1.5-2.5-2.2-2v-3l2.2-2L18 6.5l-2.8 1L12.6 6 12 3Z" transform="translate(1 0) scale(1 .95)"/><circle cx="11.5" cy="12" r="3"/>',
  tree:'<rect x="9" y="3" width="6" height="5" rx="1"/><path d="M12 8v5M5 13h14M5 13v3M19 13v3"/><rect x="2" y="16" width="6" height="5" rx="1"/><rect x="16" y="16" width="6" height="5" rx="1"/>',
@@ -42,6 +41,9 @@ function expandGroup(label,ico){const section=document.createElement('section');
 function css(){if($('ratibApprovedSidebarStyle'))return;const e=document.createElement('style');e.id='ratibApprovedSidebarStyle';e.textContent=[
 '.ratib-menu-children{margin:0 5px 6px;padding:4px 6px;border-inline-start:3px solid var(--border);border-radius:8px;background:var(--bg)}',
 '.ratib-menu-children[hidden],.ratib-menu-subchildren[hidden]{display:none!important}',
+'#pageSettings.ratib-single-setting>.settings-accordion-card[hidden]{display:none!important}',
+'#ratibSettingsBack125{display:block;width:100%;margin:0 0 12px;min-height:44px;text-align:right}',
+'#ratibSettingsBack125[hidden]{display:none!important}',
 '.sidebar-nav .ratib-menu-children button{font:900 1rem Tajawal,sans-serif;min-height:48px;padding:10px 12px;color:var(--text)}',
 '.sidebar-nav .ratib-menu-subchildren{padding-inline-start:9px;border-inline-start:2px solid var(--border)}',
 '.sidebar-nav .ratib-menu-chevron{width:18px;height:18px;flex:0 0 18px;transition:transform .18s}',
@@ -90,11 +92,25 @@ function reorder(){
  for(let i=0;i<order.length;i++){const c=order[i],key=keyFor(c);setTitle(c,key);if(page.children[i]!==c)page.insertBefore(c,page.children[i]||null);}
 }
 function openCard(c){if(!c)return;const body=c.querySelector(':scope > .settings-accordion-body');if(!body||body.classList.contains('open'))return;if(c.dataset.ratibCreated){body.classList.add('open');header(c).setAttribute('aria-expanded','true');}else if(typeof window.toggleSettingsCard==='function')window.toggleSettingsCard(c);else body.classList.add('open');}
+function focusSetting(card){
+ const page=$('pageSettings');if(!page||!card)return;
+ page.classList.add('ratib-single-setting');
+ [...page.querySelectorAll(':scope > .settings-accordion-card')].forEach(c=>{c.hidden=c!==card;});
+ let back=$('ratibSettingsBack125');
+ if(!back){back=document.createElement('button');back.type='button';back.id='ratibSettingsBack125';back.className='btn btn-ghost';back.textContent='↪️ رجوع إلى البنود العشرة';back.addEventListener('click',()=>{
+  page.classList.remove('ratib-single-setting');
+  [...page.querySelectorAll(':scope > .settings-accordion-card')].forEach(c=>c.hidden=false);
+  back.hidden=true;
+  page.scrollIntoView({block:'start',behavior:'smooth'});
+ });page.prepend(back);}
+ back.hidden=false;
+}
 function openSetting(key){
  window.closeRatibSidebar?.();
  if(typeof window.navigateToTab==='function')window.navigateToTab('pageSettings',true);
  reorder();const card=getCard(key==='security'?'identity':key);if(!card)return;openCard(card);
  if(key==='security')openCard(card.querySelector('.ratib-inside-identity'));
+ focusSetting(card);
  requestAnimationFrame(()=>card.scrollIntoView({behavior:'smooth',block:'start'}));
 }
 function buildSidebar(){
@@ -104,6 +120,13 @@ function buildSidebar(){
  const oldBackupGroup=$('sidebarBackupTitle')?.closest('.sidebar-group');const backupExtras=[...(oldBackupGroup?.querySelectorAll(':scope > button')||[])].filter(el=>!['backup','restore','drive'].includes(el.dataset.sidebarAction));
  const contact=$('sidebarContactMenu');
  const set=expandGroup('الإعدادات','settings');
+ // Opening settings initially reveals all ten items; selecting one opens its own view.
+ set.section.querySelector(':scope > button')?.addEventListener('click',()=>{
+  const page=$('pageSettings');if(!page)return;
+  page.classList.remove('ratib-single-setting');
+  [...page.querySelectorAll(':scope > .settings-accordion-card')].forEach(c=>c.hidden=false);
+  const back=$('ratibSettingsBack125');if(back)back.hidden=true;
+ });
  for(const [key,label,ico] of settings){
   if(key!=='identity'){set.children.append(make(label,ico,()=>openSetting(key)));continue;}
   const group=document.createElement('div'),inner=document.createElement('div');inner.className='ratib-menu-subchildren';inner.hidden=true;

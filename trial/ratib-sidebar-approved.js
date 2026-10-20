@@ -45,6 +45,7 @@ function css(){if($('ratibApprovedSidebarStyle'))return;const e=document.createE
 '.sidebar-nav .ratib-menu-chevron{width:18px;height:18px;flex:0 0 18px;transition:transform .18s}',
 '.sidebar-nav button[aria-expanded=true]>.ratib-menu-chevron{transform:rotate(180deg)}',
 '.sidebar-nav button:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}',
+'#pageSettings.ratib-settings-reordered .settings-accordion-header>svg.sidebar-icon+span{flex:1;min-width:0;overflow-wrap:anywhere}',
 '#pageSettings.ratib-settings-reordered>.settings-accordion-card{background:var(--card);border:1px solid var(--border)!important;border-inline-start:1px solid var(--border)!important;box-shadow:none!important;border-radius:8px;padding:0!important;overflow:hidden}',
 '#pageSettings.ratib-settings-reordered>.settings-accordion-card>.settings-accordion-header{font:900 1rem Tajawal,sans-serif!important;min-height:48px;padding:10px 12px;gap:10px;cursor:pointer}',
 '#pageSettings.ratib-settings-reordered>.settings-accordion-card>.settings-accordion-body{padding:12px;margin:0!important;border-top:1px solid var(--border)}',
@@ -128,7 +129,7 @@ function buildSidebar(){
 }
 function money(el){
  if(!(el instanceof HTMLInputElement)||el.disabled||el.readOnly||el.type==='hidden')return false;
- if(el.matches('.number-formatted,.multi-line-amount,#ratibHeaderAmount,.spend-line-quote'))return true;
+ if(el.matches('.number-formatted,.multi-line-amount,.voucher-cat-amt-input,#ratibHeaderAmount,.spend-line-quote'))return true;
  if(['date','time','password','email','tel','search','checkbox','radio','file'].includes(el.type)||el.id==='financialCalcExpression')return false;
  const desc=[el.id,el.name,el.className,el.getAttribute('aria-label')||'',el.placeholder||''].join(' ');
  return /(?:amount|debit|credit|balance|opening|مبلغ|المبلغ|رصيد|قيمة|عمولة)/i.test(desc)&&!/(?:account-name|account-id|code|اسم|رقم الحساب|الحساب المقابل)/i.test(desc);
@@ -137,6 +138,7 @@ function normalize(v){return String(v).replace(/[٠-٩]/g,x=>String(x.charCodeAt
 function acceptable(v){const n=normalize(v);return /^[\d,.]*$/.test(n)&&n.split('.').length<=2&&!(n.split('.')[1]||'').includes(',');}
 document.addEventListener('beforeinput',e=>{const el=e.target;if(!money(el)||e.isComposing||e.inputType?.startsWith('delete')||!e.data)return;const a=el.selectionStart??el.value.length,b=el.selectionEnd??a;if(!acceptable(el.value.slice(0,a)+e.data+el.value.slice(b)))e.preventDefault();},true);
 document.addEventListener('paste',e=>{if(money(e.target)&&!acceptable(e.clipboardData?.getData('text')||''))e.preventDefault();},true);
+document.addEventListener('paste',e=>{const el=e.target;if(e.defaultPrevented||!money(el)||el.type!=='number')return;const raw=e.clipboardData?.getData('text')||'';if(!acceptable(raw))return;e.preventDefault();const value=normalize(raw).replace(/,/g,'');const a=el.selectionStart??el.value.length,b=el.selectionEnd??a;el.value=el.value.slice(0,a)+value+el.value.slice(b);el.dispatchEvent(new Event('input',{bubbles:true}));},true);
 document.addEventListener('input',e=>{const el=e.target;if(!money(el)||e.isComposing)return;const old=el.value;let v=normalize(old).replace(/[^\d,.]/g,'');const p=v.indexOf('.');if(p>=0)v=v.slice(0,p+1)+v.slice(p+1).replace(/[.,]/g,'');else v=v.replace(/,{2,}/g,',');if(v===old)return;const at=el.selectionStart??old.length;const prefix=normalize(old.slice(0,at)).replace(/[^\d,.]/g,'');el.value=v;try{el.setSelectionRange(Math.min(prefix.length,v.length),Math.min(prefix.length,v.length));}catch(_){}},true);
 document.addEventListener('blur',e=>{const el=e.target;if(!money(el)||el.type==='number')return;const v=normalize(el.value);if(v.includes(',')&&!/^\d{1,3}(,\d{3})+(\.\d*)?$/.test(v))el.value=v.replace(/,/g,'');},true);
 if(document.readyState==='complete')buildSidebar();else window.addEventListener('load',buildSidebar,{once:true});

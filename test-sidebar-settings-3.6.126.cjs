@@ -28,9 +28,9 @@ w.eval(fs.readFileSync(require('node:path').join(__dirname,'ratib-sidebar-3.6.12
 w.dispatchEvent(new w.Event('load'));
 const nav=doc.querySelector('#appSidebar .sidebar-nav'),page=doc.getElementById('pageSettings');
 assert.equal(nav.children.length,5,'five top-level menu entries');
-assert.deepEqual([...nav.children].map(n=>n.textContent.trim().slice(0,10)).map(x=>x),[
- 'الإعدادات','النسخ المحلي','إدخال كود ','المساعدة','خروج'
-].map(x=>x).map((x,i)=>x));
+assert.deepEqual([...nav.children].map(n=>(n.matches('.sidebar-group')?n.querySelector(':scope > button'):n).textContent.trim()),[
+ 'الإعدادات','النسخ المحلي والسحابي','إدخال كود التفعيل','المساعدة','خروج'
+]);
 assert.equal(doc.getElementById('sidebarMenuBtn').getAttribute('aria-label'),'فتح الإعدادات');
 const groups=nav.querySelectorAll(':scope > .sidebar-group');
 assert.equal(groups.length,3);

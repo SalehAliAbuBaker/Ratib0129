@@ -8,7 +8,7 @@ const n=v=>Number(String(v??'').replace(/,/g,'')),rnd=v=>Math.round(Number(v)*10
 const f=v=>Number(v||0).toLocaleString('en-US',{maximumFractionDigits:2});
 const id=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,8);
 const today=()=>new Date().toLocaleDateString('en-CA');
-let mode='stock',view='products',draft=null,loading=false,editingProduct=null,query='',detailId='',previewId='',pendingImport=null,editingWarehouse=null,previewDraft=null;
+let mode='stock',view='products',draft=null,editingDocId='',loading=false,editingProduct=null,query='',detailId='',previewId='',pendingImport=null,editingWarehouse=null,previewDraft=null;
 let catalogSearch='',catalogGroup='',catalogSearchVisible=false,catalogGroupVisible=false;
 function data(){const base=fresh(),v=store.get('commerce_v1',null);if(!v||typeof v!=='object')return base;const x=JSON.parse(JSON.stringify(v));return {...base,...x,products:Array.isArray(x.products)?x.products:[],warehouses:Array.isArray(x.warehouses)?x.warehouses:base.warehouses,people:Array.isArray(x.people)?x.people:[],invoices:Array.isArray(x.invoices)?x.invoices:[],accounts:{...base.accounts,...(x.accounts||{})}};}
 function save(x){store.set('commerce_v1',x);}
@@ -294,7 +294,7 @@ function records(db){
  const docs=db.invoices.filter(d=>mode==='in'?['purchase','purchase_return'].includes(d.kind):['sale','sale_return'].includes(d.kind));
  const filtered=docs.filter(d=>!query||[d.number,docName(d),d.partyName,d.date,d.note].join(' ').toLocaleLowerCase().includes(query.toLocaleLowerCase()));
  return wrap('سجل مستندات '+(mode==='in'?'الوارد':'الصادر'),'<div class="rc-search no-print">'+inp('query','search',query,'placeholder="ابحث برقم المستند أو التاريخ أو الطرف..."')+'<button type="button" class="btn btn-ghost" data-rc-search="1">🔎 بحث</button></div>'+
- table(['رقم المستند','المسمى','التاريخ','الطرف','إجمالي المستند','المعادل YER','المشاهدة'],filtered.slice().reverse().map(x=>[esc(x.number),esc(docName(x)),esc(x.date),esc(x.partyName||'—'),f(x.total)+' '+esc(x.currency||'YER'),f(x.baseTotal??x.total),'<button type="button" class="btn btn-ghost" data-rc-detail="'+esc(x.id)+'">مشاهدة</button>'])));
+ table(['رقم المستند','المسمى','التاريخ','الطرف','إجمالي المستند','المعادل YER','المشاهدة'],filtered.slice().reverse().map(x=>[esc(x.number),esc(docName(x)),esc(x.date),esc(x.partyName||'—'),f(x.total)+' '+esc(x.currency||'YER'),f(x.baseTotal??x.total),'<div class="rc-record-tools"><button type="button" class="btn btn-ghost" data-rc-detail="'+esc(x.id)+'">مشاهدة</button><button type="button" class="btn btn-ghost" data-rc-doc-op="edit" data-doc="'+esc(x.id)+'">تعديل</button><button type="button" class="btn btn-ghost" data-rc-doc-op="clone" data-doc="'+esc(x.id)+'">استنساخ</button><button type="button" class="btn btn-ghost" data-rc-doc-op="delete" data-doc="'+esc(x.id)+'">حذف</button></div>'])));
 }
 function summary(db){
  const sum=k=>db.invoices.filter(d=>d.kind===k).reduce((a,d)=>a+Number(d.baseTotal??d.total??0),0);
@@ -334,10 +334,10 @@ function leftToReturn(db,origin,pid,unit){
 }
 function invoice(db){
  const kind=view==='return'?(mode==='in'?'purchase_return':'sale_return'):dir(),ret=view==='return';
- if(!draft||draft.kind!==kind)draft=newDraft();
+ if(!draft||draft.kind!==kind){draft=newDraft();editingDocId='';}
  const orig=db.invoices.find(x=>x.id===draft.origin);
  if(ret&&orig){draft.currency=orig.currency||'YER';draft.exchangeRate=orig.exchangeRate||1;}
- const originals=ret?db.invoices.filter(d=>d.kind===dir()&&d.lines.some(l=>leftToReturn(db,d.id,l.product,lineUnit(db,l))>0)):[];
+ const originals=ret?db.invoices.filter(d=>d.kind===dir()&&(d.id===draft.origin||d.lines.some(l=>leftToReturn(db,d.id,l.product,lineUnit(db,l))>0))):[];
  const partySuggestions=[...db.people.map(p=>p.name),...leaf().map(x=>x.id)];
  const form='<form id="rc-invoice-form"><div class="rc-grid">'+
  (ret?fld('نوع المستند','<strong>مرتجع '+(mode==='in'?'الوارد':'الصادر')+'</strong>'):'')+
@@ -363,7 +363,7 @@ function invoice(db){
  '<div class="rc-actions no-print"><button type="button" class="btn btn-ghost" data-rc-add="1">＋ إضافة صنف</button>'+
  '<strong class="rc-grand">الإجمالي: <span id="rc-grand">'+f(draft.lines.reduce((a,l)=>a+n(l.qty)*n(l.price),0))+'</span> '+esc(draft.currency||'YER')+'</strong></div>'+
  (!ret?'<div class="rc-document-actions rc-draft-actions no-print">'+[['view','◉','المشاهدة'],['preview','▣','المعاينة'],['print','▤','الطباعة'],['pdf','▣','PDF'],['share','⇧','المشاركة'],['search','⌕','البحث'],['back','↪','الرجوع']].map(([action,icon,label])=>'<button type="button" class="rc-doc-action" data-rc-draft-action="'+action+'"><span class="rc-tool-icon" aria-hidden="true">'+icon+'</span><small>'+label+'</small></button>').join('')+'</div>':'<div class="rc-actions no-print"><button type="button" class="btn btn-ghost" data-rc-draft-preview="1">👁 معاينة</button></div>')+
- '<div class="rc-actions no-print"><button type="submit" class="btn btn-primary">💾 اعتماد وحفظ المستند</button></div></form><div id="rc-draft-view"></div>'+
+ '<div class="rc-actions no-print"><button type="submit" class="btn btn-primary">'+(editingDocId?'💾 حفظ تعديل المستند':'💾 اعتماد وحفظ المستند')+'</button>'+(editingDocId?'<button type="button" class="btn btn-ghost" data-rc-cancel-edit="1">إلغاء التعديل</button>':'')+'</div></form><div id="rc-draft-view"></div>'+
  '<p class="rc-note">جميع البنود بسعرها وإجماليها؛ لا يوجد تحويل تلقائي بين الوحدة الرئيسية والفرعية قبل اعتماده. يمنع الحفظ غير المتوازن أو صرف كمية غير متاحة.</p>';
  const headings=!ret?'<div class="rc-type-switch no-print" role="group" aria-label="نوع مستند '+(mode==='in'?'الوارد':'الصادر')+'">'+types[mode].map((title,i)=>'<button type="button" class="rc-type-option'+(draft.title===title?' active':'')+'" data-rc-select-doctype="'+esc(title)+'" aria-pressed="'+(draft.title===title)+'"><span class="rc-type-symbol" aria-hidden="true">'+['▤','▦','▣'][i]+'</span><span>'+esc(title)+'</span></button>').join('')+'</div>':'<h3>'+esc(ret?'مرتجع مخزني — '+(mode==='in'?'الوارد':'الصادر'):draft.title)+'</h3>';
  return '<section class="rc-card rc-invoice-card">'+headings+form+'</section>';
@@ -586,9 +586,10 @@ function documentToolbar(db,d){
  const pictures={eye:'◉','scan-eye':'▣',printer:'▤','file-down':'▣','share-2':'⇧',search:'⌕','corner-up-left':'↪'};
  return '<div class="rc-document-actions no-print">'+actions.map(([action,icon,label])=>'<button type="button" class="rc-doc-action" data-rc-action="'+action+'" data-doc="'+esc(d.id)+'"><span class="rc-tool-icon" aria-hidden="true">'+pictures[icon]+'</span><small>'+label+'</small></button>').join('')+'</div>';
 }
+function commerceOperationToolbar(doc){return '<div class="rc-record-tools no-print" aria-label="إجراءات المستند">'+[['edit','تعديل'],['clone','استنساخ'],['delete','حذف']].map(([action,label])=>'<button type="button" class="btn btn-ghost" data-rc-doc-op="'+action+'" data-doc="'+esc(doc.id)+'">'+label+'</button>').join('')+'</div>';}
 function showDocument(db){
  const doc=db.invoices.find(d=>d.id===detailId);
- return doc?documentToolbar(db,doc)+documentHtml(db,doc):wrap('المستند','المستند غير موجود في البيانات الحالية.');
+ return doc?documentToolbar(db,doc)+commerceOperationToolbar(doc)+documentHtml(db,doc):wrap('المستند','المستند غير موجود في البيانات الحالية.');
 }
 function ensurePreview(){
  let modal=$('rc-preview-modal');
@@ -712,7 +713,7 @@ async function documentOutput(action,docId){
 
 function open(target='stock'){
  mode=target==='purchase'?'in':target==='sale'?'out':['stock','in','out'].includes(target)?target:'stock';
- view=mode==='stock'?'products':'new';draft=null;editingProduct=null;query='';detailId='';catalogSearch='';catalogGroup='';catalogSearchVisible=false;catalogGroupVisible=false;
+ view=mode==='stock'?'products':'new';draft=null;editingDocId='';editingProduct=null;query='';detailId='';catalogSearch='';catalogGroup='';catalogSearchVisible=false;catalogGroupVisible=false;
  navigateToTab('pageCommerce',true);paint();
 }
 function openFavorite(target,screen='products'){
@@ -727,7 +728,7 @@ function openFavorite(target,screen='products'){
  if(directTitle&&(!['in','out'].includes(source)||pageTitle!=='new'||!types[source].includes(directTitle)))throw Error('نوع المستند غير صحيح.');
  open(target);
  view=pageTitle;
- if(directTitle){draft=newDraft();draft.title=directTitle;draft.number=nextNumber(data(),draft.kind,directTitle);}
+ if(directTitle){editingDocId='';draft=newDraft();draft.title=directTitle;draft.number=nextNumber(data(),draft.kind,directTitle);}
  paint();
 }
 function bind(){
@@ -737,6 +738,7 @@ function bind(){
   try{
    const chooseDocType=hit('[data-rc-select-doctype]');if(chooseDocType&&draft&&['in','out'].includes(mode)&&view==='new'){
     const newTitle=chooseDocType.dataset.rcSelectDoctype;
+     if(editingDocId&&newTitle!==draft.title)throw Error('لا يمكن تغيير نوع المستند أثناء التعديل؛ استنسخه في النوع المطلوب.');
     if(!types[mode].includes(newTitle))throw Error('نوع المستند غير معتمد.');
     if(draft.title!==newTitle){syncInvoice();draft.title=newTitle;draft.number=nextNumber(data(),draft.kind,newTitle);paint();}
     return;
@@ -755,8 +757,10 @@ function bind(){
    if(hit('[data-rc-confirm-import]')){confirmProductImport().catch(e=>notify(e.message,'error'));return;}
    if(hit('[data-rc-cancel-import]')){pendingImport=null;paint();return;}
    const warehouseEdit=hit('[data-rc-edit-warehouse]');if(warehouseEdit){editingWarehouse=warehouseEdit.dataset.rcEditWarehouse;paint();return;}
-   if(hit('[data-rc-back]')){if(view==='detail'){view='records';paint();}else if(typeof goBackInApp==='function')goBackInApp();return;}
-   const v=hit('[data-rc-view]');if(v){view=v.dataset.rcView;draft=null;editingProduct=null;query='';paint();return;}
+   if(hit('[data-rc-cancel-edit]')){editingDocId='';draft=null;view='records';paint();return;}
+    const docOperation=hit('[data-rc-doc-op]');if(docOperation){Promise.resolve(commerceDocumentOperation(docOperation.dataset.rcDocOp,docOperation.dataset.doc)).catch(e=>notify(e.message||'تعذر إجراء العملية','error'));return;}
+    if(hit('[data-rc-back]')){if(view==='detail'){view='records';paint();}else if(typeof goBackInApp==='function')goBackInApp();return;}
+   const v=hit('[data-rc-view]');if(v){view=v.dataset.rcView;draft=null;editingDocId='';editingProduct=null;query='';paint();return;}
    const d=hit('[data-rc-detail]');if(d){detailId=d.dataset.rcDetail;view='detail';paint();return;}
    const edit=hit('[data-rc-edit-product]');if(edit){editingProduct=edit.dataset.rcEditProduct||null;paint();return;}
    const add=hit('[data-rc-add]');if(add){syncInvoice();draft.lines.push({id:id(),product:'',unit:'',qty:1,price:0});paint();return;}

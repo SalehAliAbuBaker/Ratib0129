@@ -165,3 +165,36 @@
  #pageCommerce .rc-catalog-toggle span{font-size:.9rem}
  #pageCommerce .rc-products-guide .rc-guide-actions small{font-size:.69rem}
 }
+
+/* Compact inbound vouchers: preserve native Ratib card typography and action sizing. */
+#pageCommerce .rc-invoice-card{padding:10px;margin:7px 0}
+#pageCommerce .rc-invoice-card .rc-type-switch{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:5px;margin:0 0 8px;direction:rtl}
+#pageCommerce .rc-invoice-card .rc-type-option{display:flex;align-items:center;justify-content:center;gap:5px;min-width:0;min-height:42px;padding:5px 3px;border:1px solid var(--border);border-radius:9px;background:var(--card);color:var(--text);font:800 .85rem/1.18 'Tajawal',sans-serif;cursor:pointer}
+#pageCommerce .rc-invoice-card .rc-type-option.active{border:2px solid var(--accent);color:var(--accent);background:var(--bg)}
+#pageCommerce .rc-invoice-card .rc-type-option:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+#pageCommerce .rc-invoice-card .rc-type-symbol{font-size:1rem;color:var(--accent);line-height:1}
+#pageCommerce .rc-invoice-card .rc-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;align-items:end}
+#pageCommerce .rc-invoice-card .rc-field>input,
+#pageCommerce .rc-invoice-card .rc-field>select,
+#pageCommerce .rc-invoice-card .rc-field>strong{min-height:47px!important}
+#pageCommerce .rc-invoice-card .rc-scroll{margin-top:7px}
+#pageCommerce .rc-invoice-card .rc-lines th,
+#pageCommerce .rc-invoice-card .rc-lines td{padding:4px}
+#pageCommerce .rc-invoice-card .rc-lines input,
+#pageCommerce .rc-invoice-card .rc-lines select{padding:5px;font-size:.83rem;min-height:35px}
+#pageCommerce .rc-invoice-card .rc-actions{gap:5px;margin:7px 0}
+#pageCommerce .rc-invoice-card .rc-actions .btn{min-height:39px;padding:6px 9px}
+#pageCommerce .rc-invoice-card .rc-note{font-size:.76rem;line-height:1.35}
+#pageCommerce .rc-invoice-card .rc-draft-actions{margin:7px 0 5px;gap:5px}
+#pageCommerce .rc-invoice-card .rc-draft-actions .rc-doc-action{min-height:47px;padding:4px 2px;gap:2px}
+#pageCommerce .rc-invoice-card .rc-draft-actions .rc-tool-icon{font-size:1rem}
+#pageCommerce .rc-invoice-card .rc-draft-actions small{font-size:.7rem}
+@media(max-width:650px){
+ #pageCommerce .rc-invoice-card .rc-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}
+ #pageCommerce .rc-invoice-card .rc-type-option{font-size:.73rem;min-height:40px;gap:3px}
+ #pageCommerce .rc-invoice-card .rc-draft-actions{grid-template-columns:repeat(4,minmax(0,1fr))}
+}
+@media(max-width:385px){
+ #pageCommerce .rc-invoice-card .rc-type-option{font-size:.66rem}
+ #pageCommerce .rc-invoice-card .rc-type-symbol{font-size:.87rem}
+}

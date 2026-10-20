@@ -38,36 +38,39 @@ function printHeading(title,info=''){
  return (cfg.show?'<header class="rc-paper-head"><strong>'+esc(cfg.name||'راتب للتنظيم والتدبير المالي')+'</strong>'+(cfg.details?'<div>'+esc(cfg.details)+'</div>':'')+'</header>':'')+
  '<h2 class="rc-document-title">'+esc(title)+'</h2>'+(info?'<p class="rc-paper-subtitle">'+esc(info)+'</p>':'');
 }
-function guideMarkup(db){
+function guideMarkup(db,selected){
+ const title=selected?'بطاقة الصنف':'دليل الأصناف',subtitle=selected?selected.sku+' — '+selected.name:'إجمالي الأصناف: '+db.products.length;
  const heads=['رقم الصنف','اسم الصنف','المجموعة','الوحدة الرئيسية','الوحدة الفرعية','سعر البيع YER','حد التنبيه'];
- return '<article class="rc-paper rc-guide-paper" dir="rtl">'+printHeading('دليل الأصناف','إجمالي الأصناف: '+db.products.length)+
+ return '<article class="rc-paper rc-guide-paper" dir="rtl">'+printHeading(title,subtitle)+
  '<table class="rc-document-table"><thead><tr>'+heads.map(h=>'<th>'+esc(h)+'</th>').join('')+'</tr></thead><tbody>'+
- productRows(db).map(row=>'<tr>'+row.map(cell=>'<td>'+esc(cell)+'</td>').join('')+'</tr>').join('')+'</tbody></table></article>';
+ productRows(selected?{products:[selected]}:db).map(row=>'<tr>'+row.map(cell=>'<td>'+esc(cell)+'</td>').join('')+'</tr>').join('')+'</tbody></table></article>';
 }
-function* productGuideCanvases(db){
- const title='دليل الأصناف',subtitle='عدد الأصناف: '+db.products.length;
+function* productGuideCanvases(db,selected){
+ const title=selected?'بطاقة الصنف':'دليل الأصناف',subtitle=selected?selected.sku+' — '+selected.name:'عدد الأصناف: '+db.products.length;
  const heads=['رقم الصنف','اسم الصنف','المجموعة','الرئيسية','الفرعية','سعر YER','حد التنبيه'];
  const widths=[130,260,190,150,140,120,100];
  let number=1,page=reportCanvasPage(title,subtitle,number);
  const draw=(layout,color)=>drawReportTableRow(page,layout,widths,color);
  const header=()=>draw(reportTableLayout(page.ctx,heads,widths,18),'#e2e8f0');
  header();
- for(const values of productRows(db)){
+ for(const values of productRows(selected?{products:[selected]}:db)){
   const layout=reportTableLayout(page.ctx,values.map(x=>String(x??'')),widths,18);
   if(page.y+layout.height>1530){yield page.canvas;page=reportCanvasPage(title,subtitle,++number);header();}
   draw(layout,'#fff');
  }
  yield page.canvas;
 }
-async function productOutput(action){
- const db=data(),filename='دليل-الأصناف-راتب.pdf';
- if(action==='preview'){const modal=ensurePreview();modal.querySelector('#rc-preview-content').innerHTML=guideMarkup(db);previewId='__products__';modal.querySelector('#rc-preview-print').disabled=false;window.RatibPrintLogo?.syncPrint?.();modal.classList.add('show');return;}
- if(action==='print'){let host=$('ratibCommercePrintHost');if(!host){host=document.createElement('div');host.id='ratibCommercePrintHost';document.body.appendChild(host);}host.innerHTML=guideMarkup(db);window.RatibPrintLogo?.syncPrint?.();if(typeof printRatibDocument==='function')printRatibDocument('printing-commerce');else window.print();return;}
+async function productOutput(action,productId=''){
+ const db=data(),selected=productId?db.products.find(p=>p.id===productId):null;
+ if(productId&&!selected)throw Error('الصنف المحدد لم يعد موجودًا.');
+ const filename=selected?'بطاقة-صنف-'+selected.sku+'.pdf':'دليل-الأصناف-راتب.pdf';
+ if(action==='preview'){const modal=ensurePreview();modal.querySelector('#rc-preview-content').innerHTML=guideMarkup(db,selected);previewId=selected?'__product__:'+selected.id:'__products__';modal.querySelector('#rc-preview-print').disabled=false;window.RatibPrintLogo?.syncPrint?.();modal.classList.add('show');return;}
+ if(action==='print'){let host=$('ratibCommercePrintHost');if(!host){host=document.createElement('div');host.id='ratibCommercePrintHost';document.body.appendChild(host);}host.innerHTML=guideMarkup(db,selected);window.RatibPrintLogo?.syncPrint?.();if(typeof printRatibDocument==='function')printRatibDocument('printing-commerce');else window.print();return;}
  if(action==='pdf'||action==='share'){
   await window.RatibPrintLogo?.whenReady?.();
-  const pdf=buildPdfFromCanvases(productGuideCanvases(db));
+  const pdf=buildPdfFromCanvases(productGuideCanvases(db,selected));
   if(action==='pdf')downloadFinancialFile(pdf,filename);
-  else await shareRatibDocumentFile(new File([pdf],filename,{type:'application/pdf'}),'راتب — دليل الأصناف');
+  else await shareRatibDocumentFile(new File([pdf],filename,{type:'application/pdf'}),'راتب — '+(selected?'بطاقة الصنف '+selected.name:'دليل الأصناف'));
   return;
  }
  if(action==='export'||action==='template'){if(typeof XLSX==='undefined')throw Error('مكتبة Excel غير متاحة.');const rows=action==='template'?[]:productRows(db);const sheet=XLSX.utils.aoa_to_sheet([['رقم الصنف','اسم الصنف','المجموعة','الوحدة الرئيسية','الوحدة الفرعية','سعر البيع YER','حد التنبيه'],...rows]);sheet['!cols']=[12,38,25,19,19,20,16].map(wch=>({wch}));const book=XLSX.utils.book_new();XLSX.utils.book_append_sheet(book,sheet,'الأصناف');XLSX.writeFile(book,action==='template'?'نموذج-استيراد-أصناف-راتب.xlsx':'راتب-دليل-الأصناف.xlsx',{compression:true});return;}
@@ -144,9 +147,10 @@ function products(db){
  fld('حد تنبيه المخزون',inp('minimum','number',p?.minimum||0,'min="0" step="0.01"'))+
  '<div class="rc-full rc-actions"><button class="btn btn-primary" type="submit">'+(exists?'حفظ تعديل الصنف':'حفظ الصنف')+'</button>'+(exists?'<button type="button" class="btn btn-ghost" data-rc-edit-product="">إلغاء التعديل</button>':'')+'</div></form>';
  const toolbar='<div class="rc-guide-actions no-print">'+[['preview','المعاينة'],['print','الطباعة'],['pdf','PDF'],['share','المشاركة'],['export','تصدير Excel'],['template','نموذج Excel'],['import','استيراد Excel']].map(([action,label])=>'<button type="button" class="rc-doc-action" data-rc-products="'+action+'">'+label+'</button>').join('')+'<input id="rc-import-file" type="file" accept=".xlsx,.xls" hidden></div>';
+ const itemActions=exists?'<div class="rc-guide-actions no-print">'+[['preview','المعاينة'],['print','الطباعة'],['pdf','PDF'],['share','المشاركة']].map(([action,label])=>'<button type="button" class="rc-doc-action" data-rc-products="'+action+'" data-rc-item="'+esc(p.id)+'">'+label+'</button>').join('')+'</div>':'';
  const review=pendingImport?'<div class="rc-import-review"><h4>معاينة قبل الاستيراد: '+pendingImport.length+' صنف</h4>'+table(['رقم','الصنف','المجموعة','الرئيسية','الفرعية'],pendingImport.slice(0,25).map(x=>[x.sku,x.name,x.group,x.unitMain,x.unitSub].map(esc)))+'<p>المعروض أول 25 صنفًا فقط؛ سيُحفظ الإجمالي بعد الموافقة.</p><button type="button" class="btn btn-primary" data-rc-confirm-import="1">تأكيد الاستيراد</button><button type="button" class="btn btn-ghost" data-rc-cancel-import="1">إلغاء</button></div>':'';
- return wrap('بطاقة الصنف',form+'<p class="rc-note">الوحدتان تعريفان مستقلان للصنف؛ لا يُطبّق التحويل بينهما حتى اعتماد نسب التحويل لاحقًا.</p>')+
- wrap('دليل الأصناف',toolbar+review+table(['الرقم','الصنف','المجموعة','الرئيسية','الفرعية',''],db.products.map(p=>[esc(p.sku),esc(p.name),esc(p.group||'—'),esc(pMain(p)),esc(pSub(p)||'—'),'<button type="button" data-rc-edit-product="'+esc(p.id)+'">تعديل</button>'])));
+ return wrap('بطاقة الصنف',form+itemActions+'<p class="rc-note">الوحدتان تعريفان مستقلان للصنف؛ لا يُطبّق التحويل بينهما حتى اعتماد نسب التحويل لاحقًا.</p>')+
+ wrap('دليل الأصناف',toolbar+review+table(['الرقم','الصنف','المجموعة','الرئيسية','الفرعية',''],db.products.map(p=>[esc(p.sku),esc(p.name),esc(p.group||'—'),esc(pMain(p)),esc(pSub(p)||'—'),'<button type="button" data-rc-edit-product="'+esc(p.id)+'">تعديل</button> <button type="button" data-rc-products="preview" data-rc-item="'+esc(p.id)+'">معاينة</button> <button type="button" data-rc-products="pdf" data-rc-item="'+esc(p.id)+'">PDF</button> <button type="button" data-rc-products="share" data-rc-item="'+esc(p.id)+'">مشاركة</button>'])));
 }
 function warehouses(db){
  const w=db.warehouses.find(x=>x.id===editingWarehouse),opts=leaf();
@@ -390,7 +394,7 @@ function ensurePreview(){
  modal.innerHTML='<div class="modal-content rc-preview-modal-body" role="dialog" aria-modal="true" aria-label="معاينة المستند"><h3>معاينة المستند قبل الطباعة</h3><div id="rc-preview-content"></div><div class="rc-actions"><button type="button" class="btn btn-primary" id="rc-preview-print">🖨️ طباعة</button><button type="button" class="btn btn-ghost" id="rc-preview-close">إغلاق</button></div></div>';
  document.body.appendChild(modal);
  modal.querySelector('#rc-preview-close').addEventListener('click',()=>modal.classList.remove('show'));
- modal.querySelector('#rc-preview-print').addEventListener('click',()=>{const chosen=previewId;modal.classList.remove('show');if(chosen==='__products__')productOutput('print');else printDocument(chosen);});
+ modal.querySelector('#rc-preview-print').addEventListener('click',()=>{const chosen=previewId;modal.classList.remove('show');if(chosen==='__products__')productOutput('print');else if(chosen?.startsWith('__product__:'))productOutput('print',chosen.slice(12));else printDocument(chosen);});
  return modal;
 }
 function previewDocument(docId,derivedDoc){
@@ -448,7 +452,7 @@ function bind(){
  root.addEventListener('click',event=>{
   const hit=selector=>event.target.closest(selector);
   try{
-   const productAction=hit('[data-rc-products]');if(productAction){Promise.resolve(productOutput(productAction.dataset.rcProducts)).catch(e=>notify(e.message||'تعذّر تجهيز دليل الأصناف','error'));return;}
+   const productAction=hit('[data-rc-products]');if(productAction){Promise.resolve(productOutput(productAction.dataset.rcProducts,productAction.dataset.rcItem||'')).catch(e=>notify(e.message||'تعذّر تجهيز دليل الأصناف','error'));return;}
    if(hit('[data-rc-confirm-import]')){confirmProductImport().catch(e=>notify(e.message,'error'));return;}
    if(hit('[data-rc-cancel-import]')){pendingImport=null;paint();return;}
    const warehouseEdit=hit('[data-rc-edit-warehouse]');if(warehouseEdit){editingWarehouse=warehouseEdit.dataset.rcEditWarehouse;paint();return;}

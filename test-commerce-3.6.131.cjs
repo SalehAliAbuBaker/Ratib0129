@@ -1,7 +1,7 @@
 const fs=require('node:fs'),path=require('node:path'),vm=require('node:vm'),assert=require('node:assert/strict');
-const source=fs.readFileSync(path.join(__dirname,'ratib-commerce-3.6.131.js'),'utf8'),mark="window.RatibCommerce={open,openFavorite,openDocument:commerceOpenDocument,documentAction:commerceDocumentOperation,render:paint,version:'3.6.139'};";
+const source=fs.readFileSync(path.join(__dirname,'ratib-commerce-3.6.131.js'),'utf8'),mark="window.RatibCommerce={open,openFavorite,openDocument:commerceOpenDocument,documentAction:commerceDocumentOperation,render:paint,version:'3.6.141'};";
 assert(source.includes(mark));assert(source.includes("['pdf','PDF'],['share','المشاركة']"));
-const code=source.replace(mark,"window.__test={data,products,guideMarkup,documentHtml,productOutput,productGuideCanvases,filteredCatalogProducts,setCatalogFilter:(term,group)=>{catalogSearch=term;catalogGroup=group;},nextNumber,invoice,currentDraftDocument,draftOutput,commerceSignatureLabels,commerceCanvasPage,commerceInvoiceRecipientLabel,commerceInvoiceRecipientRow,commerceProductLabel,commerceFindProduct,commerceAmountWords,commerceBaseTotal,commerceValidFx,makeJournal,openFavorite,commerceOpenInvoice,commerceReplaceOrDelete,commerceValidateRevision,commerceDocumentOperation,saveInvoice,getDraft:()=>draft,setInbound:()=>{mode='in';view='new';draft=null;},setOutbound:()=>{mode='out';view='new';draft=null;},setDraft:x=>{draft=x;}};"+mark);
+const code=source.replace(mark,"window.__test={data,products,guideMarkup,documentHtml,productOutput,productGuideCanvases,filteredCatalogProducts,setCatalogFilter:(term,group)=>{catalogSearch=term;catalogGroup=group;},nextNumber,invoice,currentDraftDocument,draftOutput,commerceSignatureLabels,commerceCanvasPage,commerceInvoiceRecipientLabel,commerceInvoiceRecipientRow,commerceProductLabel,commerceFindProduct,leaf,commerceSmartAccount,commerceResolveAccount,commerceChosenAccount,accounts,commerceAmountWords,commerceBaseTotal,commerceValidFx,makeJournal,openFavorite,commerceOpenInvoice,commerceReplaceOrDelete,commerceValidateRevision,commerceDocumentOperation,saveInvoice,getDraft:()=>draft,setInbound:()=>{mode='in';view='new';draft=null;},setOutbound:()=>{mode='out';view='new';draft=null;},setDraft:x=>{draft=x;}};"+mark);
 const memory={},store={get:(k,d)=>memory[k]??d,set:(k,v)=>memory[k]=v},capture=[],rows=[],headerDraws=[],plan={transactions:[]};
 const window={RatibPrintLogo:{whenReady:async()=>true,syncPrint(){},drawCanvas(){return true;}}},document={readyState:'loading',addEventListener(){},getElementById(id){return id==='pageCommerce'?{innerHTML:''}:null;}};
 class File{constructor(parts,name,opts){this.name=name;this.type=opts.type;}}
@@ -54,9 +54,9 @@ d.warehouses=[{id:'main',name:'المخزن الرئيسي'}];store.set('commerc
  const inboundTitles=['أمر توريد','توريد مخزني','فاتورة مشتريات'];
  T.setInbound();
  const inboundLayout=T.invoice(d);
- for(const title of inboundTitles)assert(inboundLayout.includes('data-rc-select-doctype="'+title+'"'),title);
+ for(const title of inboundTitles)assert(inboundLayout.includes('<option value="'+title+'"'),title);
  for(const action of ['view','preview','print','pdf','share','search','back'])assert(inboundLayout.includes('data-rc-draft-action="'+action+'"'),action);
- assert(!inboundLayout.includes('id="rc-doctype"'),'inbound type should be selected via three top buttons, not a dropdown');
+ assert(inboundLayout.includes('id="rc-doctype"'),'inbound should use original text-only document dropdown');
  d.invoices.push({kind:'purchase',title:'أمر توريد',number:'IN-00007'},
  {kind:'purchase',title:'توريد مخزني',number:'IN-00003'},
  {kind:'purchase',title:'فاتورة مشتريات',number:'IN-00020'});
@@ -75,7 +75,7 @@ d.warehouses=[{id:'main',name:'المخزن الرئيسي'}];store.set('commerc
  const outboundTitles=['أمر صرف','صرف مخزني','فاتورة مبيعات'];
  T.setOutbound();
  const outboundLayout=T.invoice(d);
- for(const title of outboundTitles)assert(outboundLayout.includes('data-rc-select-doctype="'+title+'"'),title);
+ for(const title of outboundTitles)assert(outboundLayout.includes('<option value="'+title+'"'),title);
  for(const action of ['view','preview','print','pdf','share','search','back'])assert(outboundLayout.includes('data-rc-draft-action="'+action+'"'),action);
  assert(outboundLayout.includes('role="group" aria-label="نوع مستند الصادر"'));
  assert(!outboundLayout.includes('id="rc-doctype"'),'outbound title selection must be three inline buttons');
@@ -152,7 +152,7 @@ d.warehouses=[{id:'main',name:'المخزن الرئيسي'}];store.set('commerc
  assert(css.includes('grid-auto-flow:column!important'),'signatures remain in one printed row');
  assert(css.includes('.rc-invoice-party-row')&&css.includes('text-align:right!important'),'invoice party right-aligned');
  assert(!css.includes('border:2px solid #dc2626'),'no red recipient frame');
- assert(css.includes('.rc-type-switch')&&css.includes('repeat(3,minmax(0,1fr))'));
+ assert(css.includes('.rc-document-type-row')&&css.includes('restore familiar, unpadded fields'));
  assert(css.includes('.rc-invoice-card .rc-grid')&&css.includes('repeat(2,minmax(0,1fr))'));
  // Foreign currency accounting: carry the original amount on financial journal lines,
  // with all debit and credit postings balanced by YER equivalent and purchase costs in YER.
@@ -291,8 +291,31 @@ d.warehouses=[{id:'main',name:'المخزن الرئيسي'}];store.set('commerc
  assert(!print.includes('بسم الله الرحمن الرحيم'),'personal heading omits basmala');
  // New account and print controls in all commerce sections.
  const accountMarkup=T.invoice(T.data());
- assert(accountMarkup.includes('rc-posting-debit')&&accountMarkup.includes('rc-posting-credit'),'debit/credit sides visibly distinguished');
+ assert(!accountMarkup.includes('rc-posting-debit')&&!accountMarkup.includes('rc-posting-credit'),'no colored debit/credit cards in invoices');
+ assert(accountMarkup.includes('rc-displayPartyName'),'optional printed client/supplier name retained');
  assert(accountMarkup.includes('rc-search-partyAccount'),'account name/number lookup');
+ // The single visible account control must come exclusively from chart-detail (posting) accounts.
+ const options=T.leaf();
+ assert(options.length>=7&&options.every(x=>x.id&&/^\\d+ — /.test(x.name)),'only detailed chart accounts with codes');
+ const choice=T.commerceSmartAccount('acc-cash',options,'صندوق');
+ assert(choice.includes('id="rc-search-acc-cash"')&&choice.includes('id="rc-acc-cash"'));
+ assert(!choice.includes('<select'),'no duplicate account dropdown');
+ assert(choice.includes('type="hidden"'),'posted account reference is stored separately');
+ const mapping=T.accounts(T.data());
+ assert(mapping.includes('rc-search-acc-sales')&&mapping.includes('rc-search-acc-inventory'),'link accounts are searchable and editable');
+ const fake={value:'صندوق',dataset:{},setSelectionRange(){}};
+ const hidden={value:'صندوق'};
+ const originalLookup=state.document.getElementById;
+ state.document.getElementById=id=>id==='rc-search-acc-cash'?fake:id==='rc-acc-cash'?hidden:originalLookup(id);
+ fake.id='rc-search-acc-cash';fake.value='2';
+ T.commerceResolveAccount(fake);
+ assert.equal(hidden.value,'صندوق','search by exact account number');
+ fake.value='اسم غير موجود في الشجرة';
+ T.commerceResolveAccount(fake);
+ assert.equal(hidden.value,'','unrecognized account must never retain old ID');
+ assert.equal(fake.value,'اسم غير موجود في الشجرة','user text stays unchanged when no match');
+ assert.throws(()=>T.commerceChosenAccount('acc-cash','الصندوق'),/الحساب غير موجود/);
+ state.document.getElementById=originalLookup;
  const commerceCode=fs.readFileSync(path.join(__dirname,'ratib-commerce-3.6.131.js'),'utf8');
  assert(commerceCode.includes("commerceTabIcons={products:'📦'"),'semantic icons for commerce menus');
  assert(commerceCode.includes('commerce_button_size_v1'),'size preference stored');
@@ -306,7 +329,7 @@ d.warehouses=[{id:'main',name:'المخزن الرئيسي'}];store.set('commerc
  assert(ledger.includes("return record?record.title+' — '+record.number")||ledger.includes("const commercial=ratibCommerceStatementName(t);if(commercial"),'ledger displays actual invoice name');
  assert(ledger.includes('const mode=ratibStatementDocumentLabel(t);'),'account statement UI uses real invoice names');
  assert(ledger.includes('doc=ratibStatementDocumentLabel(t);'),'print/PDF also uses real invoice names');
- assert(ledger.includes('<small id="appVersionLabel" class="app-version">الإصدار 3.6.139'),'version visible at header');
+ assert(ledger.includes('<small id="appVersionLabel" class="app-version">الإصدار 3.6.140'),'visible trial version was advanced with document menu');
  assert(ledger.includes('data-commerce-ledger="edit"')&&ledger.includes('data-commerce-ledger="clone"')&&ledger.includes('data-commerce-ledger="delete"'),'ledger offers operations');
  assert(ledger.includes('data-ledger-voucher-type="commerce"')&&ledger.includes("if(t.commerceId)return 'commerce'"),'commercial invoices have their own ledger filter, not compound type');
  const failBefore=T.data().invoices.length;
@@ -345,5 +368,5 @@ const doc=T.documentHtml(d,{kind:'purchase',title:'فاتورة مشتريات',
  assert.equal(headerDraws.filter(t=>t==='ملاحظات:').length,1,'long PDF note has single heading');
  assert(headerDraws.some(t=>t.includes('التفقيط:')),'Arabic amount spelling in PDF');
  assert(!rows.some(r=>r.includes('ملاحظات')),'notes are not repeated table rows');
- console.log('PASS 3.6.139: account statement invoice names in UI/PDF, dynamic sidebar version, smart fields, debit/credit and adjustable commerce buttons');
+ console.log('PASS 3.6.141: leaf-only searchable account linking, no duplicate dropdown, preserved free text, plain invoice menu and balanced journal');
 })().catch(error=>{console.error(error);process.exitCode=1;});

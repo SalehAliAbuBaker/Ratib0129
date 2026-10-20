@@ -274,7 +274,7 @@ function invoice(db){
  fld('التاريخ',inp('date','date',draft.date,'required'))+
  fld('المخزن',sel('warehouse',db.warehouses,draft.warehouse))+
  (ret?fld('المستند الأصلي',sel('origin',originals.map(x=>({id:x.id,name:x.number+' — '+docName(x)})),draft.origin)):'')+
- fld(mode==='in'?'المورد أو صاحب الحساب':'العميل أو صاحب الحساب',inp('partyName','text',draft.partyName,'required maxlength="140" list="rc-parties"')+'<datalist id="rc-parties">'+[...new Set(partySuggestions)].map(n=>'<option value="'+esc(n)+'"></option>').join('')+'</datalist>')+
+ fld(mode==='in'?'المورد أو صاحب الحساب':'العميل أو صاحب الحساب',inp('partyName','text',draft.partyName,(commerceInvoiceRecipientLabel(draft)?'':'required ')+'maxlength="140" list="rc-parties"')+'<datalist id="rc-parties">'+[...new Set(partySuggestions)].map(n=>'<option value="'+esc(n)+'"></option>').join('')+'</datalist>')+
  fld('الحساب الفرعي للطرف (افتراضي، قابل للتغيير)',sel('partyAccount',leaf(),draft.partyAccount||db.accounts[mode==='in'?'payable':'receivable']))+
  fld('طريقة التسوية','<select id="rc-payment"><option value="credit" '+(draft.payment==='credit'?'selected':'')+'>آجل / على الحساب</option><option value="cash" '+(draft.payment==='cash'?'selected':'')+'>نقدي</option></select>')+
  fld('العملة','<strong>YER — ريال يمني</strong>')+
@@ -390,7 +390,7 @@ async function saveInvoice(){
  if(!/^\d{4}-\d{2}-\d{2}$/.test(d.date)||!Number.isFinite(Date.parse(d.date)))throw Error('تاريخ المستند غير صحيح.');
  if(!String(d.number||'').trim())throw Error('أدخل رقم المستند.');
  if(db.invoices.some(x=>x.number===d.number&&x.kind===kind))throw Error('رقم المستند مستخدم مسبقًا ضمن نفس النوع.');
- if(!String(d.partyName||'').trim())throw Error('حدد المورد أو العميل أو صاحب الحساب.');
+ if(!String(d.partyName||'').trim()&&!commerceInvoiceRecipientLabel(d))throw Error('حدد المورد أو العميل أو صاحب الحساب.');
  if(d.partyAccount)validatedAccount(d.partyAccount,'الحساب المقابل');
  if(!['cash','credit'].includes(d.payment))throw Error('طريقة التسوية غير صالحة.');
  if(!ret&&!types[mode].includes(d.title))throw Error('اختر نوع مستند معتمد.');
@@ -454,18 +454,16 @@ function commerceInvoiceRecipientLabel(d){
  return title==='فاتورة مبيعات'?'مباع على / صادر إلى':title==='فاتورة مشتريات'?'مُشترى من / وارد من':'';
 }
 function commerceInvoiceRecipientRow(d){
- const label=commerceInvoiceRecipientLabel(d);
- if(!label)return '';
- return '<div class="rc-invoice-party-row" dir="rtl">'+
- '<div class="rc-invoice-issue-date"><b>تاريخ الإصدار:</b> '+esc(d.date||'—')+'</div>'+
- '<div class="rc-invoice-recipient"><b>'+esc(label)+':</b><span>'+esc(d.partyName||'—')+'</span></div></div>';
+ const label=commerceInvoiceRecipientLabel(d),name=String(d.partyName||'').trim();
+ if(!label||!name)return '';
+ return '<div class="rc-invoice-party-row" dir="rtl"><div class="rc-invoice-recipient"><b>'+esc(label)+':</b> <span>'+esc(name)+'</span></div></div>';
 }
 function documentHtml(db,d){
  const rows=documentLines(db,d),invoiceLabel=commerceInvoiceRecipientLabel(d);
  const tableHtml='<table class="rc-document-table"><thead><tr><th>#</th><th>اسم الصنف</th><th>الوحدة</th><th>العدد</th><th>السعر</th><th>الإجمالي</th></tr></thead><tbody>'+rows.map(row=>'<tr>'+row.map(x=>'<td>'+x+'</td>').join('')+'</tr>').join('')+'</tbody></table>';
  return '<article class="rc-paper rc-document-paper" dir="rtl">'+printHeading((d.isDraft?'مسودة غير معتمدة — ':'')+docName(d))+
- '<div class="rc-document-meta"><span>رقم المستند: <b>'+esc(d.number)+'</b></span><span>التاريخ: <b>'+esc(d.date)+'</b></span><span>المخزن: <b>'+esc(db.warehouses.find(w=>w.id===d.warehouse)?.name||'—')+'</b></span>'+
- (invoiceLabel?'':'<span>الطرف: <b>'+esc(d.partyName||'—')+'</b></span>')+'</div>'+
+ (invoiceLabel?'<div class="rc-document-meta rc-invoice-meta"><span><b>التاريخ:</b> '+esc(d.date||'—')+'</span><span>رقم الفاتورة: <b>'+esc(d.number)+'</b></span><span>المخزن: <b>'+esc(db.warehouses.find(w=>w.id===d.warehouse)?.name||'—')+'</b></span></div>':
+ '<div class="rc-document-meta"><span>رقم المستند: <b>'+esc(d.number)+'</b></span><span>التاريخ: <b>'+esc(d.date)+'</b></span><span>المخزن: <b>'+esc(db.warehouses.find(w=>w.id===d.warehouse)?.name||'—')+'</b></span><span>الطرف: <b>'+esc(d.partyName||'—')+'</b></span></div>')+
  commerceInvoiceRecipientRow(d)+
  tableHtml+'<div class="rc-document-footer"><div class="rc-paper-total">الإجمالي: '+f(d.total)+' ريال يمني</div><p class="rc-paper-note"><b>ملاحظات:</b> '+esc(d.note||'—')+'</p>'+commerceSignatureHtml(d)+'</div></article>';
 }
@@ -507,23 +505,28 @@ async function printDocument(docId,derivedDoc){
 function commerceCanvasPage(db,d,pageNumber){
  const title=(d.isDraft?'مسودة غير معتمدة — ':'')+docName(d);
  const warehouse=db.warehouses.find(w=>w.id===d.warehouse)?.name||'—';
- const subtitle='رقم: '+d.number+' — التاريخ: '+d.date+' — المخزن: '+warehouse+' — الطرف: '+(d.partyName||'—');
- // reportCanvasPage already renders Ratib's configured personal header.
- // Do not add a second basmalah/name/address block below the document title.
+ const label=commerceInvoiceRecipientLabel(d),recipient=String(d.partyName||'').trim();
+ const subtitle=label?'':'رقم: '+d.number+' — التاريخ: '+d.date+' — المخزن: '+warehouse+' — الطرف: '+(d.partyName||'—');
+ // reportCanvasPage renders the single personal heading and a generic issuance date.
  const page=reportCanvasPage(title,subtitle,pageNumber);
- // The shared page template already prints the issue date on the right.
- // Place the invoice party to its left, above the item table, without repeating that date.
- const recipientLabel=commerceInvoiceRecipientLabel(d);
- if(recipientLabel){
-  const ctx=page.ctx,width=page.canvas.width,left=70,right=width-350,top=page.y-59,height=42;
-  if(right>left+150&&top>=90){
-   ctx.save();ctx.fillStyle='#fff7f0';ctx.fillRect(left,top,right-left,height);
-   ctx.strokeStyle='#dc2626';ctx.lineWidth=2;ctx.strokeRect(left,top,right-left,height);
-   ctx.fillStyle='#182231';ctx.font="bold 19px 'Tajawal',sans-serif";
-   ctx.direction='rtl';ctx.textAlign='right';
-   ctx.fillText(recipientLabel+': '+(d.partyName||'—'),right-12,top+28,right-left-24);
-   ctx.restore();
+ if(label){
+  const ctx=page.ctx;
+  ctx.save();
+  // Erase only the generic "تاريخ الإصدار" row at y=181, then put document date at y=150.
+  // For invoices, the base subtitle is empty; metadata is laid out as one compact RTL row.
+  ctx.fillStyle='#ffffff';ctx.fillRect(755,156,389,37);
+  ctx.direction='rtl';ctx.textAlign='right';ctx.fillStyle='#182231';
+  ctx.font="bold 18px 'Tajawal',sans-serif";
+  ctx.fillText('التاريخ: '+(d.date||'—'),1140,150,250);
+  ctx.font="17px 'Tajawal',sans-serif";
+  ctx.fillText('رقم الفاتورة: '+d.number+' — المخزن: '+warehouse,856,150,720);
+  if(recipient){
+   ctx.font="bold 19px 'Tajawal',sans-serif";
+   ctx.fillText(label+': '+recipient,1140,197,1030);
   }
+  ctx.restore();
+  // Keep the recipient separated from the table without an outline or filler panel.
+  page.y=recipient?242:222;
  }
  window.RatibPrintLogo?.drawCanvas?.(page.canvas);
  return page;
@@ -657,6 +660,6 @@ function bind(){
   }catch(error){console.error('Ratib commerce',error);notify(error.message||'تعذر الحفظ','error');}
  });
 }
-window.RatibCommerce={open,render:paint,version:'3.6.134'};
+window.RatibCommerce={open,render:paint,version:'3.6.135'};
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',bind,{once:true});else bind();
 })();

@@ -495,16 +495,9 @@ function commerceCanvasPage(db,d,pageNumber){
  const title=(d.isDraft?'مسودة غير معتمدة — ':'')+docName(d);
  const warehouse=db.warehouses.find(w=>w.id===d.warehouse)?.name||'—';
  const subtitle='رقم: '+d.number+' — التاريخ: '+d.date+' — المخزن: '+warehouse+' — الطرف: '+(d.partyName||'—');
+ // reportCanvasPage already renders Ratib's configured personal header.
+ // Do not add a second basmalah/name/address block below the document title.
  const page=reportCanvasPage(title,subtitle,pageNumber);
- const cfg=typeof getHeaderConfig==='function'?getHeaderConfig():{show:true,name:'راتب للتنظيم والتدبير المالي',details:''};
- if(cfg.show){
-  const ctx=page.ctx,cx=page.canvas.width/2,parts=String(cfg.details||'').split(/\r?\n/).map(s=>s.trim()).filter(Boolean).slice(0,3);
-  ctx.save();ctx.fillStyle='#1f2937';ctx.textAlign='center';ctx.direction='rtl';
-  ctx.font="700 17px 'Tajawal',sans-serif";ctx.fillText('بسم الله الرحمن الرحيم',cx,page.y+20,page.canvas.width-150);
-  ctx.font="bold 24px 'Tajawal',sans-serif";ctx.fillText(String(cfg.name||'راتب للتنظيم والتدبير المالي'),cx,page.y+50,page.canvas.width-190);
-  parts.forEach((line,i)=>{ctx.font="18px 'Tajawal',sans-serif";ctx.fillText(line,cx,page.y+77+i*23,page.canvas.width-190);});
-  ctx.restore();page.y+=83+parts.length*23;
- }
  window.RatibPrintLogo?.drawCanvas?.(page.canvas);
  return page;
 }

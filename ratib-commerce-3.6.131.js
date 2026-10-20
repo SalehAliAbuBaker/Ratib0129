@@ -70,22 +70,32 @@ function commerceMovementSidesMarkup(db,transfer,direction,warehouse,to){
  '<div class="rc-posting-pair"><span class="rc-posting-note">'+esc(x.note)+'</span><div class="rc-posting-account rc-posting-debit"><b>م — مدين</b><span>'+esc(x.debit)+'</span></div><div class="rc-posting-account rc-posting-credit"><b>د — دائن</b><span>'+esc(x.credit)+'</span></div></div>').join('')+'</div>';
 }
 function commerceSmartAccount(id,items,selected){
+ // One visible searchable input and one hidden, validated account ID. No duplicated dropdown.
  const current=items.find(x=>String(x.id)===String(selected));
- return '<div class="rc-smart-account"><input type="search" id="rc-search-'+esc(id)+'" list="rc-account-list-'+esc(id)+'" autocomplete="off" value="'+esc(current?.name||'')+'" placeholder="ابحث باسم الحساب أو رقمه">'+
- '<datalist id="rc-account-list-'+esc(id)+'">'+items.map(x=>'<option value="'+esc(x.name)+'"></option>').join('')+'</datalist>'+
- sel(id,items,selected)+'</div>';
+ return '<div class="rc-smart-account">'+
+ '<input type="search" id="rc-search-'+esc(id)+'" list="rc-account-list-'+esc(id)+'" autocomplete="off" value="'+esc(current?.name||'')+'" placeholder="ابحث برقم الحساب أو اسمه" aria-label="اختيار الحساب الفرعي">'+
+ '<input type="hidden" id="rc-'+esc(id)+'" value="'+esc(current?.id||'')+'">'+
+ '<datalist id="rc-account-list-'+esc(id)+'">'+items.map(x=>'<option value="'+esc(x.name)+'"></option>').join('')+'</datalist></div>';
 }
 function commerceResolveAccount(input){
  const key=input?.id?.slice('rc-search-'.length),element=$('rc-'+key);
  if(!key||!element)return;
  const q=commerceNormalize(input.value),items=leaf();
- const resolve=(selected)=>{if(element.value!==selected){element.value=selected;element.dispatchEvent(new Event('change',{bubbles:true}));}};
- if(!q){resolve('');return;}
+ // Keep the text untouched if there is no unique match; never post to the previously selected account.
+ const set=matched=>{element.value=matched?.id||'';};
+ if(!q){set(null);return;}
  const matches=items.filter(x=>[x.name,x.id,x.name.split(' — ')[0]].some(v=>commerceNormalize(v)===q));
- if(matches.length===1){resolve(matches[0].id);return;}
+ if(matches.length===1){set(matches[0]);return;}
  const prefix=items.filter(x=>[x.name,x.id,x.name.split(' — ')[0]].some(v=>commerceNormalize(v).startsWith(q)));
- if(prefix.length===1&&q.length>1){resolve(prefix[0].id);commerceAutocomplete(input,[prefix[0].name]);return;}
- resolve(''); // An ambiguous typed account may never silently post to a previous account.
+ if(prefix.length===1&&q.length>1){set(prefix[0]);commerceAutocomplete(input,[prefix[0].name]);return;}
+ set(null);
+}
+function commerceChosenAccount(id,label,required=false){
+ const textInput=$('rc-search-'+id),selected=$('rc-'+id)?.value||'';
+ if(textInput?.value?.trim()&&!selected)throw Error('الحساب غير موجود أو غير فرعي في شجرة الحسابات: '+label);
+ const account=validatedAccount(selected,label);
+ if(required&&!account)throw Error('اختر حسابًا فرعيًا من شجرة الحسابات: '+label);
+ return account;
 }
 function commerceNormalize(value){return String(value||'').normalize('NFKC').replace(/[\u064B-\u065F\u0670]/g,'').trim().toLocaleLowerCase('ar');}
 function commerceProductLabel(p){return String(p.sku||'')+' — '+p.name;}
@@ -263,7 +273,17 @@ function average(db,pid,wid,unit){
  }
  return balanceQty>0?Math.max(0,rnd(balanceValue/balanceQty)):0;
 }
-function leaf(){return getCanonicalCatalog().flatMap(x=>(x.details||[]).map(d=>({id:d[1],name:d[0]+' — '+d[1]})));}
+function leaf(){
+ // Detail rows are posting accounts. Main, group, and subgroup headings are not selectable.
+ const chosen=new Map();
+ for(const node of getCanonicalCatalog()){
+  for(const item of node.details||[]){
+   const code=String(item[0]||'').trim(),name=String(item[1]||'').trim();
+   if(code&&name&&!chosen.has(name))chosen.set(name,{id:name,name:code+' — '+name});
+  }
+ }
+ return [...chosen.values()];
+}
 function paint(){
  const db=data(),panels=mode==='stock'?[['products','بطاقة الصنف'],['warehouses','المخازن'],['movements','حركة المخزون'],['summary','تقارير المخزون'],['accounts','الحسابات']]:[['new','مستند جديد'],['return','مرتجعات'],['records','سجل المستندات'],['people',mode==='in'?'الموردون':'العملاء'],['summary','التقارير'],['accounts','ربط الحسابات']];
  let body='';
@@ -331,7 +351,7 @@ function people(db){const type=mode==='in'?'vendor':'client';return wrap('إدا
 
 function accounts(db){
  const names={cash:'الصندوق / البنك',receivable:'ذمم العملاء (الصادر الآجل)',payable:'ذمم الموردين (الوارد الآجل)',inventory:'حساب المخزون',sales:'إيرادات المبيعات',cogs:'تكلفة البضاعة المباعة',adjust:'فروق وتسويات المخزون'};
- return wrap('ربط الحسابات المحاسبية','<p class="rc-note">استخدم الحسابات التفصيلية الموجودة في شجرة راتب. الوارد: المخزون مدين، الصادر: المخزون دائن بتكلفته، وتُسجَّل قيمة المبيعات في حساب مستقل. لن يمر مستند غير متوازن.</p><form id="rc-accounts-form" class="rc-grid">'+Object.keys(names).map(k=>fld(names[k],commerceSmartAccount('acc-'+k,leaf(),db.accounts[k]))).join('')+'<button class="btn btn-primary">حفظ الربط</button></form>');
+ return wrap('ربط الحسابات المحاسبية','<p class="rc-note">اختر حسابًا فرعيًا تفصيليًا من شجرة الحسابات بالبحث بالرقم أو الاسم. الربط قابل للتغيير، ولا يُسمح بالحسابات الرئيسية أو التجميعية. تعديل الربط لا يغيّر المستندات المحفوظة.</p><form id="rc-accounts-form" class="rc-grid">'+Object.keys(names).map(k=>fld(names[k],commerceSmartAccount('acc-'+k,leaf(),db.accounts[k]))).join('')+'<button class="btn btn-primary">حفظ الربط</button></form>');
 }
 function records(db){
  const docs=db.invoices.filter(d=>mode==='in'?['purchase','purchase_return'].includes(d.kind):['sale','sale_return'].includes(d.kind));
@@ -390,7 +410,7 @@ function invoice(db){
  (ret?fld('المستند الأصلي',sel('origin',originals.map(x=>({id:x.id,name:x.number+' — '+docName(x)})),draft.origin)):'')+
  fld(mode==='in'?'المورد أو صاحب الحساب':'العميل أو صاحب الحساب',inp('partyName','text',draft.partyName,'required maxlength="140" autocomplete="off" list="rc-parties"')+'<datalist id="rc-parties">'+[...new Set(partySuggestions)].map(n=>'<option value="'+esc(n)+'"></option>').join('')+'</datalist>')+
  fld('اسم '+(mode==='in'?'المورد':'العميل')+' على الفاتورة (اختياري)',inp('displayPartyName','text',draft.displayPartyName||'','maxlength="140" autocomplete="off" placeholder="اكتب اسمًا أو اترك الحقل فارغًا" list="rc-parties"'))+
- fld('الحساب الفرعي للطرف (افتراضي، قابل للتغيير)',commerceSmartAccount('partyAccount',leaf(),draft.partyAccount||db.accounts[mode==='in'?'payable':'receivable']))+
+ fld('الحساب الفرعي للطرف (من شجرة الحسابات)',commerceSmartAccount('partyAccount',leaf(),draft.partyAccount||db.accounts[mode==='in'?'payable':'receivable']))+
  fld('طريقة التسوية','<select id="rc-payment"><option value="credit" '+(draft.payment==='credit'?'selected':'')+'>آجل / على الحساب</option><option value="cash" '+(draft.payment==='cash'?'selected':'')+'>نقدي</option></select>')+
  fld('عملة المستند',ret?'<strong>'+esc(commerceCurrencyName(draft.currency||'YER'))+' (عملة المستند الأصلي)</strong>':sel('currency',COMMERCE_CURRENCIES,draft.currency||'YER'))+
  (draft.currency!=='YER'?fld('سعر الصرف (ريال يمني لكل 1 '+esc(draft.currency)+')',ret?'<strong>'+esc(draft.exchangeRate)+'</strong>':inp('exchangeRate','number',draft.exchangeRate||'','required min="0.000001" step="any" inputmode="decimal"')):'')+
@@ -654,6 +674,7 @@ async function persistDoc(doc,db){
  }finally{loading=false;}
 }
 async function saveInvoice(){
+ if($('rc-search-partyAccount'))commerceChosenAccount('partyAccount','حساب الطرف');
  syncInvoice();const db=data(),d=draft;if(!d)throw Error('لا يوجد مستند قيد التحرير.');
  const kind=d.kind,ret=kind.endsWith('_return'),originalDoc=editingDocId?db.invoices.find(x=>x.id===editingDocId):null;
  if(editingDocId&&(!originalDoc||originalDoc.kind!==kind))throw Error('المستند الأصلي غير موجود أو تغير نوعه.');
@@ -980,7 +1001,7 @@ function bind(){
     if(previous==='YER'&&draft.currency!=='YER'&&draft.lines.some(l=>n(l.price)>0))notify('تنبيه: الأسعار المدخلة كانت بالريال اليمني؛ راجع سعر كل صنف بالعملة الجديدة قبل الحفظ.','warn');}
    paint();return;
   }
-  if(e.target.id==='rc-catalog-group'){catalogGroup=e.target.value;refreshCatalogListing();return;}if(e.target.id==='rc-partyName'){const p=data().people.find(p=>p.name===e.target.value);if(p&&$('rc-partyAccount'))$('rc-partyAccount').value=p.accountId||'';}if(e.target.id==='rc-import-file'){stageImportFile(e.target.files?.[0]);e.target.value='';return;}if(e.target.id==='rc-person-account'){const input=$('rc-name');if(input&&!input.value.trim())input.value=e.target.value;}});
+  if(e.target.id==='rc-catalog-group'){catalogGroup=e.target.value;refreshCatalogListing();return;}if(e.target.id==='rc-partyName'){const p=data().people.find(p=>p.name===e.target.value);if(p&&$('rc-partyAccount')){const account=leaf().find(x=>x.id===p.accountId);$('rc-partyAccount').value=account?.id||'';if($('rc-search-partyAccount'))$('rc-search-partyAccount').value=account?.name||'';}}if(e.target.id==='rc-import-file'){stageImportFile(e.target.files?.[0]);e.target.value='';return;}if(e.target.id==='rc-person-account'){const input=$('rc-name');if(input&&!input.value.trim())input.value=e.target.value;}});
  root.addEventListener('input',e=>{
   if(e.target.id.startsWith('rc-search-')){commerceResolveAccount(e.target);return;}
   if(['rc-group','rc-name'].includes(e.target.id)&&!e.isComposing){
@@ -1031,9 +1052,9 @@ function bind(){
     if(editingProduct){const old=db.products.find(p=>p.id===editingProduct);if(!old)throw Error('الصنف غير موجود.');if(db.invoices.some(x=>x.lines.some(l=>l.product===old.id))&&(pMain(old)!==unitMain||pSub(old)!==unitSub))throw Error('الوحدات مستخدمة في مستندات سابقة؛ لا يمكن تعديلها.');Object.assign(old,{sku,name,group,unitMain,unitSub,unit:unitMain,price,minimum});}
     else db.products.push({id:id(),sku,name,group,unitMain,unitSub,unit:unitMain,price,minimum});
     save(db);await flushStorage();editingProduct=null;paint();notify('تم حفظ بطاقة الصنف','success');
-   }else if(form==='rc-warehouse-form'){const accountId=validatedAccount($('rc-warehouse-account').value,'حساب المخزن'),alias=$('rc-name').value.trim();if(!accountId)throw Error('اختر الحساب الفرعي أولًا.');if(db.warehouses.some(w=>w.id!==editingWarehouse&&w.accountId===accountId))throw Error('الحساب مرتبط بمخزن آخر.');const name=alias||accountId;const existing=db.warehouses.find(w=>w.id===editingWarehouse);if(existing)Object.assign(existing,{accountId,alias,name});else db.warehouses.push({id:id(),accountId,alias,name});save(db);await flushStorage();editingWarehouse=null;paint();}
-   else if(form==='rc-person-form'){const accountId=validatedAccount($('rc-person-account').value,'حساب المورد أو العميل'),name=$('rc-name').value.trim()||accountId;if(!accountId)throw Error('اختر حساب الطرف من شجرة الحسابات.');if(db.people.some(p=>p.accountId===accountId&&p.type===(mode==='in'?'vendor':'client')))throw Error('هذا الطرف مسجل مسبقًا.');db.people.push({id:id(),accountId,name,phone:$('rc-phone')?.value||'',type:mode==='in'?'vendor':'client'});save(db);await flushStorage();paint();}
-   else if(form==='rc-accounts-form'){for(const key of Object.keys(db.accounts))db.accounts[key]=validatedAccount($('rc-acc-'+key)?.value||'',key);save(db);await flushStorage();notify('تم حفظ ربط الحسابات','success');paint();}
+   }else if(form==='rc-warehouse-form'){const accountId=commerceChosenAccount('warehouse-account','حساب المخزن',true),alias=$('rc-name').value.trim();if(!accountId)throw Error('اختر الحساب الفرعي أولًا.');if(db.warehouses.some(w=>w.id!==editingWarehouse&&w.accountId===accountId))throw Error('الحساب مرتبط بمخزن آخر.');const name=alias||accountId;const existing=db.warehouses.find(w=>w.id===editingWarehouse);if(existing)Object.assign(existing,{accountId,alias,name});else db.warehouses.push({id:id(),accountId,alias,name});save(db);await flushStorage();editingWarehouse=null;paint();}
+   else if(form==='rc-person-form'){const accountId=commerceChosenAccount('person-account','حساب المورد أو العميل',true),name=$('rc-name').value.trim()||accountId;if(!accountId)throw Error('اختر حساب الطرف من شجرة الحسابات.');if(db.people.some(p=>p.accountId===accountId&&p.type===(mode==='in'?'vendor':'client')))throw Error('هذا الطرف مسجل مسبقًا.');db.people.push({id:id(),accountId,name,phone:$('rc-phone')?.value||'',type:mode==='in'?'vendor':'client'});save(db);await flushStorage();paint();}
+   else if(form==='rc-accounts-form'){for(const key of Object.keys(db.accounts))db.accounts[key]=commerceChosenAccount('acc-'+key,key);save(db);await flushStorage();notify('تم حفظ ربط الحسابات','success');paint();}
    else if(form==='rc-invoice-form')await saveInvoice();
    else if(form==='rc-movement-form')await saveMovement();
   }catch(error){console.error('Ratib commerce',error);notify(error.message||'تعذر الحفظ','error');}
@@ -1045,6 +1066,6 @@ function commerceOpenDocument(docId){
  open(['purchase','purchase_return'].includes(doc.kind)?'purchase':'sale');
  detailId=doc.id;view='detail';paint();
 }
-window.RatibCommerce={open,openFavorite,openDocument:commerceOpenDocument,documentAction:commerceDocumentOperation,render:paint,version:'3.6.140'};
+window.RatibCommerce={open,openFavorite,openDocument:commerceOpenDocument,documentAction:commerceDocumentOperation,render:paint,version:'3.6.141'};
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',bind,{once:true});else bind();
 })();

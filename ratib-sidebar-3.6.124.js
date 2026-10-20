@@ -57,6 +57,7 @@ function css(){if($('ratibApprovedSidebarStyle'))return;const e=document.createE
 '.sidebar-nav .ratib-menu-chevron{width:18px;height:18px;flex:0 0 18px;transition:transform .18s}',
 '.sidebar-nav button[aria-expanded=true]>.ratib-menu-chevron{transform:rotate(180deg)}',
 '.sidebar-nav button:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}',
+ '.sidebar-footer .ratib-sidebar-release{display:block;text-align:center;padding:8px 5px;color:var(--muted);font-size:.8rem;font-weight:800}',
 '#pageSettings.ratib-settings-detail > :not(.ratib-settings-current){display:none!important}',
 '#pageSettings.ratib-settings-detail > .ratib-settings-current{margin-top:0}',
 '#pageSettings.ratib-settings-detail > .ratib-settings-current > .settings-accordion-body{display:block}',
@@ -221,9 +222,25 @@ function buildSidebar(){
  nav.replaceChildren(settingsMenu.section,backup.section,license,help.section);
  if(existing.exit){relabel(existing.exit,'خروج');nav.append(existing.exit);}
  nav.append(oldAnchors);
- aside.querySelector('.sidebar-footer')?.replaceChildren();
+ const footer=aside.querySelector('.sidebar-footer');
+ if(footer){
+  footer.replaceChildren();
+  const version=document.createElement('small');version.id='sidebarCurrentVersion';
+  version.className='ratib-sidebar-release';footer.append(version);
+  syncSidebarVersion();
+ }
  aside.dataset.ratibApproved='1';
  let queued=false;new MutationObserver(records=>{if(!records.some(r=>[...r.addedNodes].some(n=>n.nodeType===1&&n.classList?.contains('settings-accordion-card')))||queued)return;queued=true;requestAnimationFrame(()=>{queued=false;reorder();});}).observe($('pageSettings'),{childList:true});
+}
+function ratibTrialVersion(){
+ return String(window.RatibCommerce?.version||(typeof RATIB_RELEASE!=='undefined'?RATIB_RELEASE.version:'')||'').trim();
+}
+function syncSidebarVersion(){
+ const v=ratibTrialVersion();if(!/^\d+\.\d+\.\d+$/.test(v))return;
+ const label='الإصدار '+v+' (تجريبية)';
+ const footer=$('sidebarCurrentVersion');if(footer)footer.textContent=label;
+ const header=$('appVersionLabel');if(header)header.textContent=label;
+ const about=document.querySelector('.ratib-about-version');if(about)about.textContent=label;
 }
 function money(el){
  if(!(el instanceof HTMLInputElement)||el.disabled||el.readOnly||el.type==='hidden')return false;
@@ -239,5 +256,19 @@ document.addEventListener('paste',e=>{if(money(e.target)&&!acceptable(e.clipboar
 document.addEventListener('paste',e=>{const el=e.target;if(e.defaultPrevented||!money(el)||el.type!=='number')return;const raw=e.clipboardData?.getData('text')||'';if(!acceptable(raw))return;e.preventDefault();const value=normalize(raw).replace(/,/g,'');if(el.type==='number'){el.value=value;el.dispatchEvent(new Event('input',{bubbles:true}));return;}const a=el.selectionStart??el.value.length,b=el.selectionEnd??a;el.value=el.value.slice(0,a)+value+el.value.slice(b);el.dispatchEvent(new Event('input',{bubbles:true}));},true);
 document.addEventListener('input',e=>{const el=e.target;if(!money(el)||e.isComposing)return;const old=el.value;let v=normalize(old).replace(/[^\d,.\-]/g,'');v=(v.startsWith('-')?'-':'')+v.replace(/-/g,'');const p=v.indexOf('.');if(p>=0)v=v.slice(0,p+1)+v.slice(p+1).replace(/[.,]/g,'');else v=v.replace(/,{2,}/g,',');if(v===old)return;const at=el.selectionStart??old.length;const prefix=normalize(old.slice(0,at)).replace(/[^\d,.]/g,'');el.value=v;try{el.setSelectionRange(Math.min(prefix.length,v.length),Math.min(prefix.length,v.length));}catch(_){}},true);
 document.addEventListener('blur',e=>{const el=e.target;if(!money(el)||el.type==='number')return;const v=normalize(el.value);if(v.includes(',')&&!/^\d{1,3}(,\d{3})+(\.\d*)?$/.test(v))el.value=v.replace(/,/g,'');},true);
-if(document.readyState==='complete')buildSidebar();else window.addEventListener('load',buildSidebar,{once:true});
+// Select the complete current value on each tap/click for editable text controls.
+// Preserve numeric/date/password input types to avoid changing financial validation rules.
+function ratibCanSelectText(el){
+ if(el instanceof HTMLTextAreaElement)return !el.disabled&&!el.readOnly;
+ return el instanceof HTMLInputElement&&
+  ['text','search','tel','email','url','number'].includes(el.type)&&!el.disabled&&!el.readOnly;
+}
+function ratibSelectField(el){
+ if(!ratibCanSelectText(el))return;
+ try{el.select();}catch(_){}
+ try{if(el.type!=='number'&&typeof el.setSelectionRange==='function')el.setSelectionRange(0,el.value.length);}catch(_){}
+}
+document.addEventListener('focusin',e=>ratibSelectField(e.target),true);
+document.addEventListener('click',e=>ratibSelectField(e.target),true);
+if(document.readyState==='complete'){buildSidebar();syncSidebarVersion();}else window.addEventListener('load',()=>{buildSidebar();syncSidebarVersion();},{once:true});
 })();

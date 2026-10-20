@@ -6131,6 +6131,7 @@ function reverseTransactionById(itemId) {
     }
   }
   if (!tx) return false;
+  if(tx.commerceId){showToast('المستند التجاري مرتبط بالمخزون؛ التصحيح يكون بمرتجع أو تسوية داخل القسم التجاري، ولا يجوز إلغاء بند القيد وحده.','warn');return false;}
   const before = structuredClone(tx);
   tx.status = 'reversed';
   tx.reversedAt = new Date().toISOString();
@@ -6153,6 +6154,7 @@ try{await completeFinancialSave(()=>{  showToast('تم إلغاء السند ب�
 async function deleteDocumentFromModal() {
   const item = pendingLongPressTx;
   if (!item) return;
+  if(item.commerceId){showToast('المستند التجاري محمي؛ استخدم المرتجعات أو تسويات المخزون بدل حذف قيده.','warn');return;}
   if(item.isOpeningBalance){document.getElementById('longPressConfirmModal').classList.remove('show');openImportedOpeningVoucher(item);showToast('راجع القيد المركب كاملًا؛ لا يُلغى بند منفرد بما يخل بتوازنه.','info');return;}
   const typed = prompt('لتأكيد حذف هذا المستند نهائياً، اكتب كلمة "حذف" في الخانة أدناه:');
   if (typed === null) return;
@@ -6183,6 +6185,7 @@ document.getElementById('clearAllTxsBtn')?.addEventListener('click', () => {
   if (secondCheck === 'تأكيد') {
     store.remove('plan');
     store.remove('history');
+    const commerceData=store.get('commerce_v1',null);if(commerceData&&Array.isArray(commerceData.invoices)){commerceData.invoices=[];store.set('commerce_v1',commerceData);}
     showToast('تم تصفير كافة العمليات بنجاح', 'success');
     location.reload();
   } else {
@@ -6192,7 +6195,7 @@ document.getElementById('clearAllTxsBtn')?.addEventListener('click', () => {
 
 let editVoucherCatStates = {}, editVoucherSplitMode = 'pct';
 
-function openTxModal(item) {if(item&&!item.isOpeningBalance&&['income','spend'].includes(item.voucherMode)&&!item.isMultiVoucher)return openLegacyCashEditor(item);if(item?.isOpeningBalance)return openImportedOpeningVoucher(item);
+function openTxModal(item) {if(item?.commerceId){showToast('مستند تجاري مرتبط بالمخزون؛ لا يعدل من شاشة السندات.','warn');return;}if(item&&!item.isOpeningBalance&&['income','spend'].includes(item.voucherMode)&&!item.isMultiVoucher)return openLegacyCashEditor(item);if(item?.isOpeningBalance)return openImportedOpeningVoucher(item);
   activeEditingTx = item; lastPrintedTx = item; preparePrintVoucherTemplate(item);
   document.getElementById('modalSubtitle').textContent = `📅 تاريخ السند: ${item.date} | رقم السند: #${item.seqNum || '-'}`;
   setExistingAccountForEdit(selEditDebitAcc,item.debitAccount,item.debitAccountId);
@@ -9639,6 +9642,7 @@ function applySpendDocument(d){cashLegacySource=d.legacySource||null;
 }
 
 function openMultiVoucherEditor(item){
+  if(item?.commerceId){showToast('هذا القيد تابع لفاتورة أو حركة مخزنية؛ استخدم القسم التجاري لتصحيحها.','warn');return;}
   configureVoucherMode(['income','spend'].includes(item.multiVoucher?.mode)?item.multiVoucher.mode:'multi-entry');
   const restored=entryopenMultiVoucherEditor(item);
   applySpendDocument(restored||{});

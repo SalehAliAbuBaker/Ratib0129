@@ -2,7 +2,7 @@
 (function(){
 'use strict';
 const $=id=>document.getElementById(id);
-const fresh=()=>({products:[],warehouses:[{id:'main',name:'المخزن الرئيسي'}],people:[],invoices:[],accounts:{cash:'',receivable:'',payable:'',inventory:'',sales:'',cogs:''}});
+const fresh=()=>({products:[],warehouses:[{id:'main',name:'المخزن الرئيسي'}],people:[],invoices:[],accounts:{cash:'',receivable:'',payable:'',inventory:'',sales:'',cogs:'',adjust:''}});
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const n=v=>Number(String(v??'').replace(/,/g,'')),rnd=v=>Math.round(Number(v)*100)/100;
 const f=v=>Number(v||0).toLocaleString('en-US',{maximumFractionDigits:2});
@@ -60,6 +60,29 @@ function summary(db){
  const sales=rnd(sum('sale')-sum('sale_return')),purchases=rnd(sum('purchase')-sum('purchase_return'));
  const cogs=rnd(db.invoices.filter(x=>x.kind==='sale').reduce((a,x)=>a+x.cost,0)-db.invoices.filter(x=>x.kind==='sale_return').reduce((a,x)=>a+x.cost,0));
  return wrap('الملخص التجاري (YER)','<div class="rc-kpis"><div>صافي المبيعات<strong>'+f(sales)+'</strong></div><div>صافي المشتريات<strong>'+f(purchases)+'</strong></div><div>مجمل الربح<strong>'+f(sales-cogs)+'</strong></div></div>')+wrap('الأرصدة والكميات',table(['الصنف','المخزن','الكمية','القيمة','الحد الأدنى'],db.products.flatMap(p=>db.warehouses.map(w=>[esc(p.name),esc(w.name),f(qty(db,p.id,w.id)),f(qty(db,p.id,w.id)*average(db,p.id,w.id)),qty(db,p.id,w.id)<=Number(p.minimum||0)?'تنبيه':'متاح']))));}
+function movementForm(db){
+ const transfer=view==='transfer';
+ return wrap(transfer?'تحويل الأصناف بين المخازن':'إدخال وإخراج المخزون','<form id="rc-movement-form" class="rc-grid">'+
+ fld('التاريخ',inp('date','date',today(),'required'))+
+ fld('الصنف',sel('product',db.products))+
+ fld('المخزن المصدر',sel('warehouse',db.warehouses))+
+ (transfer?fld('المخزن الوجهة',sel('target',db.warehouses)):fld('نوع الحركة','<select id="rc-direction"><option value="in">إدخال</option><option value="out">إخراج</option></select>'))+
+ fld('الكمية',inp('qty','number',1,'step="0.01" min="0.01" required'))+
+ (transfer?'':fld('تكلفة الوحدة عند الإدخال YER',inp('cost','number',0,'step="0.01" min="0" required')))+
+ '<button type="submit" class="rc-primary">اعتماد الحركة</button></form>');
+}
+function movements(db){
+ return wrap('كشف حركة الأصناف',table(['التاريخ','نوع الحركة','الصنف','المخزن','الكمية'],db.invoices.slice().reverse().flatMap(x=>x.lines.flatMap(l=>db.warehouses.filter(w=>move(x,l,w.id)!==0).map(w=>[esc(x.date),esc(x.kind),esc(db.products.find(p=>p.id===l.product)?.name),esc(w.name),f(move(x,l,w.id))])))));
+}
+function printDoc(code){
+ const db=data(),x=db.invoices.find(x=>x.id===code);if(!x)return;
+ const names={sale:'فاتورة بيع',purchase:'فاتورة شراء',sale_return:'مرتجع مبيعات',purchase_return:'مرتجع مشتريات'};
+ const w=window.open('','_blank');if(!w){notify('اسمح بالطباعة من المتصفح','warn');return;}
+ const lines=x.lines.map(l=>'<tr><td>'+esc(db.products.find(p=>p.id===l.product)?.name)+'</td><td>'+f(l.qty)+'</td><td>'+f(l.price)+'</td></tr>').join('');
+ w.document.open();
+ w.document.write('<!doctype html><html lang="ar" dir="rtl"><meta charset="utf-8"><title>'+esc(x.number)+'</title><style>body{font-family:Arial;padding:25px}table{border-collapse:collapse;width:100%}td,th{padding:9px;border:1px solid #bbb}</style><h2>راتب — '+esc(names[x.kind]||'مستند تجاري')+'</h2><p>رقم '+esc(x.number)+' — '+esc(x.date)+' — '+esc(x.partyName||'')+'</p><table><tr><th>الصنف</th><th>الكمية</th><th>السعر</th></tr>'+lines+'</table><h3>الإجمالي: '+f(x.total)+' ريال يمني</h3></html>');
+ w.document.close();w.focus();w.print();
+}
 function newDraft(){return {kind:view==='return'?mode+'_return':mode,date:today(),warehouse:'main',party:'',payment:'cash',origin:'',product:'',qty:1,price:0};}
 function leftToReturn(db,id,pid){
  const x=db.invoices.find(x=>x.id===id);
@@ -85,14 +108,33 @@ function invoice(db){
 }
 function syncInvoice(){if(!draft)return;for(const k of ['date','warehouse','product','party','payment','origin','qty','price'])if($('rc-'+k))draft[k]=$('rc-'+k).value;}
 function makeJournal(doc,db){
- const a=db.accounts,leafs=new Set(leaf().map(x=>x.id)),lines=[];
- const post=(side,k,value)=>{if(!a[k]||!leafs.has(a[k]))throw Error('ربط الحساب مفقود: '+k);if(value>0)lines.push({side,account:a[k],amount:value});};
- if(doc.kind==='sale'){post('debit',doc.payment==='cash'?'cash':'receivable',doc.total);post('credit','sales',doc.total);post('debit','cogs',doc.cost);post('credit','inventory',doc.cost);}
- if(doc.kind==='purchase'){post('debit','inventory',doc.total);post('credit',doc.payment==='cash'?'cash':'payable',doc.total);}
- if(rnd(lines.filter(l=>l.side==='debit').reduce((a,l)=>a+l.amount,0))!==rnd(lines.filter(l=>l.side==='credit').reduce((a,l)=>a+l.amount,0)))throw Error('القيد غير متوازن');
- const codes=new Map(leaf().map(x=>[x.id,x.name.split(' — ')[0]])),id='com_'+doc.id,seq=getNextMultiVoucherNumber();
- const multi={id,seq,date:doc.date,mode:'multi-entry',baseCurrency:'YER',baseTotal:doc.total,note:'فاتورة '+doc.number,lines:lines.map(l=>({side:l.side,account:l.account,currency:'YER',amount:l.amount,base:l.amount,rate:1}))};
- return lines.map((l,i)=>({id:id+'_'+i,multiVoucherId:id,commerceId:doc.id,isMultiVoucher:true,voucherMode:'multi-entry',seqNum:seq,date:doc.date,isoDate:doc.date,timestamp:new Date(doc.date).getTime(),amount:l.amount,currency:'YER',debitAccount:l.side==='debit'?l.account:'',creditAccount:l.side==='credit'?l.account:'',debitAccountId:l.side==='debit'?codes.get(l.account)||'':'',creditAccountId:l.side==='credit'?codes.get(l.account)||'':'',multiVoucher:multi,type:'فاتورة '+doc.number,status:'posted',schemaVersion:APP_SCHEMA_VERSION,updatedAt:Date.now(),distribution:{},execution:{}}));
+ if(doc.kind==='transfer')return [];
+ const a=db.accounts,items=leaf(),leafs=new Set(items.map(x=>x.id)),lines=[];
+ const post=(side,k,value)=>{value=rnd(value);if(value<=0)return;if(!a[k]||!leafs.has(a[k]))throw Error('ربط الحساب مفقود: '+k);lines.push({side,account:a[k],amount:value});};
+ if(doc.kind==='sale'||doc.kind==='sale_return'){
+  const normal=doc.kind==='sale';
+  post(normal?'debit':'credit',doc.payment==='cash'?'cash':'receivable',doc.total);
+  post(normal?'credit':'debit','sales',doc.total);
+  post(normal?'debit':'credit','cogs',doc.cost);
+  post(normal?'credit':'debit','inventory',doc.cost);
+ }
+ if(doc.kind==='purchase'||doc.kind==='purchase_return'){
+  const normal=doc.kind==='purchase';
+  post(normal?'debit':'credit','inventory',doc.total);
+  post(normal?'credit':'debit',doc.payment==='cash'?'cash':'payable',doc.total);
+ }
+ if(doc.kind==='adjust'){
+  const incoming=doc.direction==='in';
+  post(incoming?'debit':'credit','inventory',doc.total);
+  post(incoming?'credit':'debit','adjust',doc.total);
+ }
+ const debit=rnd(lines.filter(l=>l.side==='debit').reduce((a,l)=>a+l.amount,0));
+ const credit=rnd(lines.filter(l=>l.side==='credit').reduce((a,l)=>a+l.amount,0));
+ if(debit!==credit)throw Error('القيد غير متوازن');
+ if(!lines.length)throw Error('القيد المالي فارغ');
+ const codes=new Map(items.map(x=>[x.id,x.name.split(' — ')[0]])),voucherId='com_'+doc.id,seq=getNextMultiVoucherNumber();
+ const multi={id:voucherId,seq,date:doc.date,mode:'multi-entry',baseCurrency:'YER',baseTotal:debit,note:'مستند تجاري '+doc.number,lines:lines.map(l=>({side:l.side,account:l.account,accountId:codes.get(l.account)||'',currency:'YER',amount:l.amount,base:l.amount,rate:1,budgetId:'general',note:'مستند '+doc.number}))};
+ return lines.map((l,i)=>({id:voucherId+'_'+i,multiVoucherId:voucherId,commerceId:doc.id,isMultiVoucher:true,voucherMode:'multi-entry',seqNum:seq,date:doc.date,isoDate:doc.date,timestamp:new Date(doc.date+'T12:00:00').getTime(),amount:l.amount,currency:'YER',debitAccount:l.side==='debit'?l.account:'',creditAccount:l.side==='credit'?l.account:'',debitAccountId:l.side==='debit'?codes.get(l.account)||'':'',creditAccountId:l.side==='credit'?codes.get(l.account)||'':'',multiVoucher:multi,type:'مستند تجاري '+doc.number,status:'posted',schemaVersion:APP_SCHEMA_VERSION,updatedAt:Date.now(),distribution:{},execution:{}}));
 }
 async function saveInvoice(){
  if(loading)throw Error('حفظ آخر قيد التنفيذ');syncInvoice();const db=data(),v=draft,q=n(v.qty),price=n(v.price),p=db.products.find(x=>x.id===v.product);

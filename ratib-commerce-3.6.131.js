@@ -458,8 +458,13 @@ function commerceValidateRevision(db,before,after){
  const originalIndex=db.invoices.findIndex(d=>d.id===before.id);
  if(originalIndex<0)throw Error('المستند الأصلي غير موجود.');
  const altersStock=!commerceSameStock(before,after);
+ const returns=db.invoices.filter(d=>d.origin===before.id&&d.id!==before.id);
+ if(returns.length&&after&&(Number(before.total)!==Number(after.total)||(before.currency||'YER')!==(after.currency||'YER')||
+  Number(before.exchangeRate||1)!==Number(after.exchangeRate||1)||before.number!==after.number||
+  before.partyName!==after.partyName||before.date!==after.date))
+  throw Error('للمستند مرتجعات مرتبطة؛ لا يمكن تغيير القيمة أو العملة أو الطرف أو التاريخ أو الرقم قبل معالجة المرتجعات.');
  if(!altersStock)return;
- if(db.invoices.some(d=>d.origin===before.id&&d.id!==before.id))
+ if(returns.length)
   throw Error('لا يمكن تغيير الأصناف أو الكميات أو التكلفة لهذا المستند لوجود مرتجعات مرتبطة؛ يمكن تعديل البيانات الوصفية.');
  const later=db.invoices.slice(originalIndex+1).find(d=>commerceTouches(before,d,db)||after&&commerceTouches(after,d,db));
  if(later)throw Error('توجد حركة لاحقة لنفس الصنف والمخزن ('+later.number+'). لحماية تقييم المخزون والقيود، لا يمكن تغيير الأصناف أو الكميات أو التكلفة حتى معالجة الحركة اللاحقة. يمكن تعديل البيانات الوصفية.');
@@ -603,11 +608,15 @@ async function persistDoc(doc,db){
  }finally{loading=false;}
 }
 async function saveInvoice(){
- syncInvoice();const db=data(),d=draft,kind=d.kind,ret=kind.endsWith('_return'),origin=db.invoices.find(x=>x.id===d.origin);
+ syncInvoice();const db=data(),d=draft;if(!d)throw Error('لا يوجد مستند قيد التحرير.');
+ const kind=d.kind,ret=kind.endsWith('_return'),originalDoc=editingDocId?db.invoices.find(x=>x.id===editingDocId):null;
+ if(editingDocId&&(!originalDoc||originalDoc.kind!==kind))throw Error('المستند الأصلي غير موجود أو تغير نوعه.');
+ const validationDb=originalDoc?{...db,invoices:db.invoices.filter(x=>x.id!==editingDocId)}:db;
+ const origin=db.invoices.find(x=>x.id===d.origin);
  if(!d||!db.warehouses.some(w=>w.id===d.warehouse))throw Error('اختر مخزنًا صحيحًا.');
  if(!/^\d{4}-\d{2}-\d{2}$/.test(d.date)||!Number.isFinite(Date.parse(d.date)))throw Error('تاريخ المستند غير صحيح.');
  if(!String(d.number||'').trim())throw Error('أدخل رقم المستند.');
- if(db.invoices.some(x=>x.number===d.number&&x.kind===kind))throw Error('رقم المستند مستخدم مسبقًا ضمن نفس النوع.');
+ if(db.invoices.some(x=>x.number===d.number&&x.kind===kind&&x.id!==editingDocId))throw Error('رقم المستند مستخدم مسبقًا ضمن نفس النوع.');
  if(!String(d.partyName||'').trim())throw Error('حدد المورد أو العميل أو صاحب الحساب المحاسبي.');
  if(d.partyAccount)validatedAccount(d.partyAccount,'الحساب المقابل');
  if(!['cash','credit'].includes(d.payment))throw Error('طريقة التسوية غير صالحة.');
@@ -627,8 +636,8 @@ async function saveInvoice(){
   const quantity=n(l.qty);positive(quantity,'الكمية');
   if(!Number.isFinite(quantity)||quantity>1e9)throw Error('الكمية غير صالحة.');
   const key=p.id+'|'+unit;pending.set(key,rnd((pending.get(key)||0)+quantity));
-  if(ret&&pending.get(key)>leftToReturn(db,origin.id,p.id,unit))throw Error('المرتجع يتجاوز كمية المستند الأصلي.');
-  if(['sale','purchase_return'].includes(kind)&&pending.get(key)>qty(db,p.id,d.warehouse,unit))throw Error('الرصيد غير كاف للصنف '+p.name+' بوحدة '+unit);
+  if(ret&&pending.get(key)>leftToReturn(validationDb,origin.id,p.id,unit))throw Error('المرتجع يتجاوز كمية المستند الأصلي.');
+  if(['sale','purchase_return'].includes(kind)&&pending.get(key)>qty(validationDb,p.id,d.warehouse,unit))throw Error('الرصيد غير كاف للصنف '+p.name+' بوحدة '+unit);
   let price=n(l.price),cost;
   if(ret){
    const originals=origin.lines.filter(x=>x.product===p.id&&lineUnit(db,x)===unit);
@@ -638,7 +647,8 @@ async function saveInvoice(){
    cost=rnd(quantity*originals.reduce((a,x)=>a+Number(x.cost||0),0)/base);
   }else{
    positive(price,'سعر الوحدة',true);
-   cost=rnd(quantity*(kind==='purchase'?price*exchangeRate:average(db,p.id,d.warehouse,unit)));
+   const previousLine=originalDoc?.lines.find(x=>x.product===p.id&&lineUnit(db,x)===unit&&Number(x.qty)===quantity);
+    cost=rnd(quantity*(kind==='purchase'?price*exchangeRate:previousLine&&['sale','sale_return'].includes(kind)?Number(previousLine.cost||0)/quantity:average(validationDb,p.id,d.warehouse,unit)));
   }
   const lineSum=rnd(price*quantity);positive(lineSum,'الإجمالي');
   total=rnd(total+lineSum);totalCost=rnd(totalCost+cost);
@@ -654,8 +664,9 @@ async function saveInvoice(){
   else throw Error('فرق التقريب في تكلفة الوارد غير صالح.');
  }
  const prefix={purchase:'IN',sale:'OUT',purchase_return:'IR',sale_return:'OR'}[kind];
- const doc={id:id(),kind,title:ret?'مرتجع '+(mode==='in'?'الوارد':'الصادر'):d.title,number:String(d.number).trim(),date:d.date,warehouse:d.warehouse,partyName:String(d.partyName).trim(),partyAccount:d.payment==='credit'?validatedAccount(d.partyAccount,'الحساب المقابل'):'',payment:d.payment,note:String(d.note||''),origin:ret?origin.id:'',currency,exchangeRate,baseTotal,displayPartyName:commerceInvoiceRecipientLabel(d)?String(d.displayPartyName||'').trim():'',total:rnd(total),cost:rnd(totalCost),lines:items,status:'posted',createdAt:new Date().toISOString()};
- await persistDoc(doc,db);
+ const doc={id:originalDoc?.id||id(),kind,title:ret?'مرتجع '+(mode==='in'?'الوارد':'الصادر'):d.title,number:String(d.number).trim(),date:d.date,warehouse:d.warehouse,partyName:String(d.partyName).trim(),partyAccount:d.payment==='credit'?validatedAccount(d.partyAccount,'الحساب المقابل'):'',payment:d.payment,note:String(d.note||''),origin:ret?origin.id:'',currency,exchangeRate,baseTotal,displayPartyName:commerceInvoiceRecipientLabel(d)?String(d.displayPartyName||'').trim():'',total:rnd(total),cost:rnd(totalCost),lines:items,status:'posted',createdAt:originalDoc?.createdAt||new Date().toISOString(),...(originalDoc?{updatedAt:new Date().toISOString()}: {})};
+ if(originalDoc)await commerceReplaceOrDelete(originalDoc,doc);
+ else await persistDoc(doc,db);
 }
 async function saveMovement(){
  const db=data(),transfer=view==='transfer',product=$('rc-product')?.value,warehouse=$('rc-warehouse')?.value,to=$('rc-target')?.value,direction=$('rc-direction')?.value,units=n($('rc-qty')?.value),dateValue=$('rc-date')?.value;

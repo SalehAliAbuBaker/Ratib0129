@@ -1531,6 +1531,7 @@ body.ratib-sidebar-open,body.ratib-about-open{overflow:hidden}
 #pageAccountOperations .ratib-statement-closing-note{font-size:.78rem!important;line-height:1.5!important;padding:6px 2px!important}
 }
 </style>
+<link rel="stylesheet" href="./ratib-login-3.6.124.css?v=3.6.124">
 </head>
 <body>
 
@@ -1544,7 +1545,7 @@ body.ratib-sidebar-open,body.ratib-about-open{overflow:hidden}
     <div style="display: flex; gap: 8px; flex-direction: column;">
       <button class="btn btn-primary" onclick="verifyPinLock()">فتح التطبيق</button>
       <button class="btn btn-success" id="bioUnlockBtn" onclick="authenticateBiometric()" style="display:none;">🔑 الدخول ببصمة الإصبع</button>
-      <button type="button" id="forgotPinLink" style="background:none; border:none; color:var(--muted); text-decoration:underline; font-weight:700; margin-top:6px; cursor:pointer;" onclick="showForgotPinInfo()">نسيت الرقم السري؟</button>
+      
     </div>
   </div>
 </div>
@@ -4493,7 +4494,7 @@ function exportTransactionsCsv() {
   const table=`<table dir="rtl" border="1"><thead><tr>${rows[0].map(h=>`<th>${String(h)}</th>`).join('')}</tr></thead><tbody>${rows.slice(1).map(r=>`<tr>${r.map(v=>`<td>${String(v??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}</td>`).join('')}</tr>`).join('')}</tbody></table>`;
   const blob=new Blob([`\ufeff<html><head><meta charset="utf-8"></head><body>${table}
 
-<script src="./ratib-sidebar-3.6.124.js?v=3.6.124" defer></script>
+
 </body></html>`],{type:'application/vnd.ms-excel;charset=utf-8'});
   const a=document.createElement('a');a.download=`Ratib_transactions_${monthKey()}.xls`;a.href=URL.createObjectURL(blob);a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000);showToast('تم تنزيل سجل العمليات بصيغة Excel','success');
 }
@@ -12031,5 +12032,7 @@ try{currenciesUi();sync();}catch(e){console.error('Ratib 3.6.12 initialization',
 <script src="./ratib-report-buttons-3.6.106.js?v=3.6.106" defer></script>
 <script src="./ratib-print-logo-3.6.108.js?v=3.6.111" defer></script>
 <div id="ratibSpecialPrintHost" aria-hidden="true"></div>
+<script src="./ratib-sidebar-3.6.124.js?v=3.6.124" defer></script>
+<script src="./ratib-login-3.6.124.js?v=3.6.124" defer></script>
 </body>
 </html>

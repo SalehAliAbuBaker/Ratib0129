@@ -41,9 +41,6 @@ function expandGroup(label,ico){const section=document.createElement('section');
 function css(){if($('ratibApprovedSidebarStyle'))return;const e=document.createElement('style');e.id='ratibApprovedSidebarStyle';e.textContent=[
 '.ratib-menu-children{margin:0 5px 6px;padding:4px 6px;border-inline-start:3px solid var(--border);border-radius:8px;background:var(--bg)}',
 '.ratib-menu-children[hidden],.ratib-menu-subchildren[hidden]{display:none!important}',
-'#pageSettings.ratib-single-setting>.settings-accordion-card[hidden]{display:none!important}',
-'#ratibSettingsBack125{display:block;width:100%;margin:0 0 12px;min-height:44px;text-align:right}',
-'#ratibSettingsBack125[hidden]{display:none!important}',
 '.sidebar-nav .ratib-menu-children button{font:900 1rem Tajawal,sans-serif;min-height:48px;padding:10px 12px;color:var(--text)}',
 '.sidebar-nav .ratib-menu-subchildren{padding-inline-start:9px;border-inline-start:2px solid var(--border)}',
 '.sidebar-nav .ratib-menu-chevron{width:18px;height:18px;flex:0 0 18px;transition:transform .18s}',
@@ -92,47 +89,34 @@ function reorder(){
  for(let i=0;i<order.length;i++){const c=order[i],key=keyFor(c);setTitle(c,key);if(page.children[i]!==c)page.insertBefore(c,page.children[i]||null);}
 }
 function openCard(c){if(!c)return;const body=c.querySelector(':scope > .settings-accordion-body');if(!body||body.classList.contains('open'))return;if(c.dataset.ratibCreated){body.classList.add('open');header(c).setAttribute('aria-expanded','true');}else if(typeof window.toggleSettingsCard==='function')window.toggleSettingsCard(c);else body.classList.add('open');}
-function focusSetting(card){
- const page=$('pageSettings');if(!page||!card)return;
- page.classList.add('ratib-single-setting');
- [...page.querySelectorAll(':scope > .settings-accordion-card')].forEach(c=>{c.hidden=c!==card;});
- let back=$('ratibSettingsBack125');
- if(!back){back=document.createElement('button');back.type='button';back.id='ratibSettingsBack125';back.className='btn btn-ghost';back.textContent='↪️ رجوع إلى البنود العشرة';back.addEventListener('click',()=>{
-  page.classList.remove('ratib-single-setting');
-  [...page.querySelectorAll(':scope > .settings-accordion-card')].forEach(c=>c.hidden=false);
-  back.hidden=true;
-  page.scrollIntoView({block:'start',behavior:'smooth'});
- });page.prepend(back);}
- back.hidden=false;
-}
 function openSetting(key){
  window.closeRatibSidebar?.();
  if(typeof window.navigateToTab==='function')window.navigateToTab('pageSettings',true);
  reorder();const card=getCard(key==='security'?'identity':key);if(!card)return;openCard(card);
  if(key==='security')openCard(card.querySelector('.ratib-inside-identity'));
- focusSetting(card);
  requestAnimationFrame(()=>card.scrollIntoView({behavior:'smooth',block:'start'}));
 }
 function buildSidebar(){
  const aside=$('appSidebar'),nav=aside?.querySelector('.sidebar-nav');if(!aside||!nav||aside.dataset.ratibApproved==='1')return;
  css();reorder();
+ // Preserve the existing header button and theme; change only its glyph and accessible name.
+ const menuGear=$('sidebarMenuBtn');
+ if(menuGear){
+  const glyph=icon('settings');glyph.style.width='22px';glyph.style.height='22px';glyph.style.verticalAlign='middle';
+  menuGear.replaceChildren(glyph);
+  menuGear.title='الإعدادات';menuGear.setAttribute('aria-label','فتح الإعدادات');
+ }
  const existing={};for(const action of ['home','accounts','settings','license','backup','restore','drive','about','exit'])existing[action]=aside.querySelector('[data-sidebar-action="'+action+'"]');
  const oldBackupGroup=$('sidebarBackupTitle')?.closest('.sidebar-group');const backupExtras=[...(oldBackupGroup?.querySelectorAll(':scope > button')||[])].filter(el=>!['backup','restore','drive'].includes(el.dataset.sidebarAction));
  const contact=$('sidebarContactMenu');
- const set=expandGroup('الإعدادات','settings');
- // Opening settings initially reveals all ten items; selecting one opens its own view.
- set.section.querySelector(':scope > button')?.addEventListener('click',()=>{
-  const page=$('pageSettings');if(!page)return;
-  page.classList.remove('ratib-single-setting');
-  [...page.querySelectorAll(':scope > .settings-accordion-card')].forEach(c=>c.hidden=false);
-  const back=$('ratibSettingsBack125');if(back)back.hidden=true;
- });
+ // Display all ten current settings as first-level entries above backup, activation and help.
+ const settingsItems=document.createDocumentFragment();
  for(const [key,label,ico] of settings){
-  if(key!=='identity'){set.children.append(make(label,ico,()=>openSetting(key)));continue;}
+  if(key!=='identity'){settingsItems.append(make(label,ico,()=>openSetting(key)));continue;}
   const group=document.createElement('div'),inner=document.createElement('div');inner.className='ratib-menu-subchildren';inner.hidden=true;
   const main=make(label,ico,()=>{inner.hidden=!inner.hidden;main.setAttribute('aria-expanded',String(!inner.hidden));},true);main.setAttribute('aria-expanded','false');
   inner.append(make('بيانات الهوية','identity',()=>openSetting('identity')),make('إعدادات الأمان وقفل الحماية','lock',()=>openSetting('security')));
-  group.append(main,inner);set.children.append(group);
+  group.append(main,inner);settingsItems.append(group);
  }
  const backup=expandGroup('النسخ المحلي والسحابي','cloud');
  const relabel=(el,label)=>{const span=el?.querySelector('span');if(span)span.textContent=label;return el;};
@@ -148,7 +132,7 @@ function buildSidebar(){
  const help=expandGroup('المساعدة','help');if(contact)help.children.append(contact);if(existing.about)help.children.append(existing.about);
  const oldAnchors=document.createElement('div');oldAnchors.hidden=true;
  for(const name of ['home','accounts','settings'])if(existing[name])oldAnchors.append(existing[name]);
- nav.replaceChildren(set.section,backup.section,license,help.section);
+ nav.replaceChildren(settingsItems,backup.section,license,help.section);
  if(existing.exit){relabel(existing.exit,'خروج');nav.append(existing.exit);}
  nav.append(oldAnchors);
  aside.querySelector('.sidebar-footer')?.replaceChildren();

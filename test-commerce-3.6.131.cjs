@@ -1,7 +1,7 @@
 const fs=require('node:fs'),path=require('node:path'),vm=require('node:vm'),assert=require('node:assert/strict');
-const source=fs.readFileSync(path.join(__dirname,'ratib-commerce-3.6.131.js'),'utf8'),mark="window.RatibCommerce={open,render:paint,version:'3.6.134'};";
+const source=fs.readFileSync(path.join(__dirname,'ratib-commerce-3.6.131.js'),'utf8'),mark="window.RatibCommerce={open,render:paint,version:'3.6.135'};";
 assert(source.includes(mark));assert(source.includes("['pdf','PDF'],['share','المشاركة']"));
-const code=source.replace(mark,"window.__test={data,products,guideMarkup,documentHtml,productOutput,productGuideCanvases,filteredCatalogProducts,setCatalogFilter:(term,group)=>{catalogSearch=term;catalogGroup=group;},nextNumber,invoice,currentDraftDocument,draftOutput,commerceSignatureLabels,commerceCanvasPage,commerceInvoiceRecipientLabel,commerceInvoiceRecipientRow,setInbound:()=>{mode='in';view='new';draft=null;},setOutbound:()=>{mode='out';view='new';draft=null;},setDraft:x=>{draft=x;}};"+mark);
+const code=source.replace(mark,"window.__test={data,products,guideMarkup,documentHtml,productOutput,productGuideCanvases,filteredCatalogProducts,setCatalogFilter:(term,group)=>{catalogSearch=term;catalogGroup=group;},nextNumber,invoice,currentDraftDocument,draftOutput,commerceSignatureLabels,commerceCanvasPage,commerceInvoiceRecipientLabel,commerceInvoiceRecipientRow,saveInvoice,setInbound:()=>{mode='in';view='new';draft=null;},setOutbound:()=>{mode='out';view='new';draft=null;},setDraft:x=>{draft=x;}};"+mark);
 const memory={},store={get:(k,d)=>memory[k]??d,set:(k,v)=>memory[k]=v},capture=[],rows=[],headerDraws=[];
 const window={RatibPrintLogo:{whenReady:async()=>true,syncPrint(){},drawCanvas(){return true;}}},document={readyState:'loading',addEventListener(){},getElementById(){return null;}};
 class File{constructor(parts,name,opts){this.name=name;this.type=opts.type;}}
@@ -104,7 +104,7 @@ d.warehouses=[{id:'main',name:'المخزن الرئيسي'}];store.set('commerc
   ['أمر صرف',3],['صرف مخزني',4],['فاتورة مبيعات',4]]){
   assert.equal(T.commerceSignatureLabels({title:type}).length,count,'signature count for '+type);
  }
- // Invoice recipient row is exclusive to sales and purchase invoices, in screen/print and PDF.
+ // Sales/purchase invoices: one date on the right at metadata height, plain optional party aligned right.
  const purchaseInvoice={kind:'purchase',title:'فاتورة مشتريات',number:'PI-00045',
   date:'2026-10-20',warehouse:'main',partyName:'مؤسسة الفجر للتوريدات',total:600,lines:[]};
  const salesInvoice={kind:'sale',title:'فاتورة مبيعات',number:'SI-00032',
@@ -112,28 +112,46 @@ d.warehouses=[{id:'main',name:'المخزن الرئيسي'}];store.set('commerc
  for(const [doc,label,name] of [[purchaseInvoice,'مُشترى من / وارد من','مؤسسة الفجر للتوريدات'],
   [salesInvoice,'مباع على / صادر إلى','شركة النور للتجارة العامة']]){
   const html=T.documentHtml(d,doc);
-  assert(html.includes('rc-invoice-party-row'),doc.title);
-  assert(html.includes(label+':'),doc.title+' recipient caption');
+  assert(html.includes('rc-invoice-meta'),doc.title+' compact invoice metadata');
+  assert.equal((html.match(/التاريخ:/g)||[]).length,1,doc.title+' date only once');
+  assert(!html.includes('تاريخ الإصدار:'),doc.title+' old duplicate date label removed');
+  assert(html.includes('rc-invoice-party-row')&&html.includes(label+':'),doc.title+' recipient label');
   assert(html.includes(name),doc.title+' party name');
-  assert(html.includes('rc-invoice-issue-date')&&html.includes('تاريخ الإصدار:'),doc.title+' issue date');
-  assert(html.indexOf('rc-invoice-party-row')<html.indexOf('rc-document-table'),doc.title+' recipient above item table');
-  assert(!html.includes('الطرف: <b>'),doc.title+' no duplicate generic party label');
+  assert(html.indexOf('rc-invoice-party-row')<html.indexOf('rc-document-table'),doc.title+' party above table');
+  assert(!html.includes('الطرف: <b>'),doc.title+' no generic repeated party');
+  assert(!html.includes('rc-invoice-issue-date'),'no second date row');
   headerDraws.length=0;
   T.commerceCanvasPage(d,doc,1);
   assert.equal(headerDraws.filter(x=>x==='الجهة من إعدادات الترويسة').length,1,'one personal header');
-  assert(headerDraws.some(x=>x.includes(label+': '+name)),doc.title+' recipient rendered in PDF');
-  assert(!headerDraws.some(x=>x.includes('تاريخ الإصدار')),'existing base date must not be duplicated');
+  assert(headerDraws.some(x=>x==='التاريخ: 2026-10-20'),doc.title+' document date on right');
+  assert(headerDraws.some(x=>x.includes(label+': '+name)),doc.title+' recipient in PDF');
+  assert(!headerDraws.some(x=>x.includes('تاريخ الإصدار')),'no second added date header');
+  const unnamed={...doc,partyName:''};
+  const blankHtml=T.documentHtml(d,unnamed);
+  assert(!blankHtml.includes('rc-invoice-party-row'),'empty recipient does not print');
+  headerDraws.length=0;
+  T.commerceCanvasPage(d,unnamed,1);
+  assert(!headerDraws.some(x=>x.includes(label)),'empty name omits recipient on PDF');
  }
  const other=T.documentHtml(d,{kind:'sale',title:'صرف مخزني',number:'GI-00001',
   date:'2026-10-20',warehouse:'main',partyName:'العميل',total:0,lines:[]});
- assert(!other.includes('rc-invoice-party-row'),'other voucher layouts unchanged');
+ assert(!other.includes('rc-invoice-party-row'),'noninvoice layout unchanged');
  assert.equal(T.commerceInvoiceRecipientLabel({title:'صرف مخزني'}),'');
+ T.setInbound();
+ T.setDraft({kind:'purchase',title:'فاتورة مشتريات',number:'PI-00099',date:'2026-10-20',
+  warehouse:'main',partyName:'',payment:'credit',note:'',lines:[{product:'a',unit:'حبة',qty:1,price:5}]});
+ const editableInvoice=T.invoice(d);
+ assert(!editableInvoice.includes('id="rc-partyName" required'),'invoice name is optional in form');
+ T.setDraft({kind:'purchase',title:'أمر توريد',number:'PO-00099',date:'2026-10-20',
+  warehouse:'main',partyName:'',payment:'credit',note:'',lines:[{product:'a',unit:'حبة',qty:1,price:5}]});
+ assert(T.invoice(d).includes('id="rc-partyName" required'),'other vouchers still require a party');
  const css=fs.readFileSync(path.join(__dirname,'ratib-commerce-3.6.131.css'),'utf8');
  assert(css.includes('grid-auto-flow:column!important'),'signatures remain in one printed row');
- assert(css.includes('.rc-invoice-party-row')&&css.includes('flex-wrap:nowrap!important'),'approved single-row invoice appearance');
+ assert(css.includes('.rc-invoice-party-row')&&css.includes('text-align:right!important'),'invoice party right-aligned');
+ assert(!css.includes('border:2px solid #dc2626'),'no red recipient frame');
  assert(css.includes('.rc-type-switch')&&css.includes('repeat(3,minmax(0,1fr))'));
  assert(css.includes('.rc-invoice-card .rc-grid')&&css.includes('repeat(2,minmax(0,1fr))'));
  const doc=T.documentHtml(d,{kind:'purchase',title:'فاتورة مشتريات',number:'IN-1',date:'2026-10-20',warehouse:'main',partyName:'مورد',total:10,lines:[]});
  assert(doc.includes('الجهة من إعدادات الترويسة')&&doc.includes('فاتورة مشتريات'));
- console.log('PASS 3.6.134: invoice party+date rows in print/PDF, correct purchase/sales labels, single header, one-row signatures and catalog');
+ console.log('PASS 3.6.135: one invoice date, optional right recipient with no red box, print/PDF, one-row signatures and catalog');
 })().catch(error=>{console.error(error);process.exitCode=1;});

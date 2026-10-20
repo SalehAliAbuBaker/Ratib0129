@@ -9,6 +9,7 @@ const f=v=>Number(v||0).toLocaleString('en-US',{maximumFractionDigits:2});
 const id=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,8);
 const today=()=>new Date().toLocaleDateString('en-CA');
 let mode='stock',view='products',draft=null,loading=false,editingProduct=null,query='',detailId='',previewId='',pendingImport=null,editingWarehouse=null;
+let catalogSearch='',catalogGroup='',catalogSearchVisible=false,catalogGroupVisible=false;
 function data(){const base=fresh(),v=store.get('commerce_v1',null);if(!v||typeof v!=='object')return base;const x=JSON.parse(JSON.stringify(v));return {...base,...x,products:Array.isArray(x.products)?x.products:[],warehouses:Array.isArray(x.warehouses)?x.warehouses:base.warehouses,people:Array.isArray(x.people)?x.people:[],invoices:Array.isArray(x.invoices)?x.invoices:[],accounts:{...base.accounts,...(x.accounts||{})}};}
 function save(x){store.set('commerce_v1',x);}
 function notify(t,k='info'){if(typeof showToast==='function')showToast(t,k);else alert(t);}
@@ -134,6 +135,19 @@ function paint(){
  const header=mode==='stock'?'المخزون':mode==='in'?'الوارد':'الصادر';
  $('pageCommerce').innerHTML='<div class="rc-app"><div class="rc-head"><h2>'+header+'</h2>'+(view==='detail'?'':'<button type="button" class="btn btn-ghost" data-rc-back="1">↪️ رجوع</button>')+'</div><div class="rc-tabs">'+panels.map(x=>'<button type="button" class="'+(view===x[0]?'active':'')+'" data-rc-view="'+x[0]+'">'+x[1]+'</button>').join('')+'</div>'+body+'</div>';
 }
+function filteredCatalogProducts(db){
+ const term=catalogSearch.trim().toLocaleLowerCase();
+ return db.products.filter(p=>(!term||String(p.name||'').toLocaleLowerCase().includes(term)||String(p.sku||'').toLocaleLowerCase().includes(term))&&(!catalogGroup||p.group===catalogGroup));
+}
+function catalogListMarkup(db){
+ const items=filteredCatalogProducts(db);
+ const rows=items.length?items.map(p=>[esc(p.sku),esc(p.name),esc(p.group||'—'),esc(pMain(p)),esc(pSub(p)||'—'),'<button type="button" data-rc-edit-product="'+esc(p.id)+'">تعديل</button> <button type="button" data-rc-products="preview" data-rc-item="'+esc(p.id)+'">معاينة</button> <button type="button" data-rc-products="pdf" data-rc-item="'+esc(p.id)+'">PDF</button> <button type="button" data-rc-products="share" data-rc-item="'+esc(p.id)+'">مشاركة</button>']):[['لا توجد أصناف مطابقة','','','','','']];
+ return '<div class="rc-catalog-count" aria-live="polite">عرض '+items.length+' من '+db.products.length+' صنف</div>'+table(['الرقم','الصنف','المجموعة','الرئيسية','الفرعية',''],rows);
+}
+function refreshCatalogListing(){
+ const host=$('rc-catalog-results');
+ if(host)host.innerHTML=catalogListMarkup(data());
+}
 function products(db){
  const p=db.products.find(x=>x.id===editingProduct),exists=!!p;
  const form='<form id="rc-product-form" class="rc-grid">'+
@@ -146,11 +160,20 @@ function products(db){
  fld('سعر البيع الافتراضي YER',inp('price','number',p?.price||0,'min="0" step="0.01"'))+
  fld('حد تنبيه المخزون',inp('minimum','number',p?.minimum||0,'min="0" step="0.01"'))+
  '<div class="rc-full rc-actions"><button class="btn btn-primary" type="submit">'+(exists?'حفظ تعديل الصنف':'حفظ الصنف')+'</button>'+(exists?'<button type="button" class="btn btn-ghost" data-rc-edit-product="">إلغاء التعديل</button>':'')+'</div></form>';
- const toolbar='<div class="rc-guide-actions no-print">'+[['preview','المعاينة'],['print','الطباعة'],['pdf','PDF'],['share','المشاركة'],['export','تصدير Excel'],['template','نموذج Excel'],['import','استيراد Excel']].map(([action,label])=>'<button type="button" class="rc-doc-action" data-rc-products="'+action+'">'+label+'</button>').join('')+'<input id="rc-import-file" type="file" accept=".xlsx,.xls" hidden></div>';
+ const toolbar='<div class="rc-guide-actions no-print">'+[['preview','◉','المعاينة'],['print','▤','الطباعة'],['pdf','▣','PDF'],['share','⇧','المشاركة'],['export','⇩','تصدير Excel'],['template','▦','نموذج Excel'],['import','⇧','استيراد Excel']].map(([action,icon,label])=>'<button type="button" class="rc-doc-action" data-rc-products="'+action+'"><span class="rc-guide-tool-icon" aria-hidden="true">'+icon+'</span><small>'+label+'</small></button>').join('')+'<input id="rc-import-file" type="file" accept=".xlsx,.xls" hidden></div>';
  const itemActions=exists?'<div class="rc-guide-actions no-print">'+[['preview','المعاينة'],['print','الطباعة'],['pdf','PDF'],['share','المشاركة']].map(([action,label])=>'<button type="button" class="rc-doc-action" data-rc-products="'+action+'" data-rc-item="'+esc(p.id)+'">'+label+'</button>').join('')+'</div>':'';
  const review=pendingImport?'<div class="rc-import-review"><h4>معاينة قبل الاستيراد: '+pendingImport.length+' صنف</h4>'+table(['رقم','الصنف','المجموعة','الرئيسية','الفرعية'],pendingImport.slice(0,25).map(x=>[x.sku,x.name,x.group,x.unitMain,x.unitSub].map(esc)))+'<p>المعروض أول 25 صنفًا فقط؛ سيُحفظ الإجمالي بعد الموافقة.</p><button type="button" class="btn btn-primary" data-rc-confirm-import="1">تأكيد الاستيراد</button><button type="button" class="btn btn-ghost" data-rc-cancel-import="1">إلغاء</button></div>':'';
  return wrap('بطاقة الصنف',form+itemActions+'<p class="rc-note">الوحدتان تعريفان مستقلان للصنف؛ لا يُطبّق التحويل بينهما حتى اعتماد نسب التحويل لاحقًا.</p>')+
- wrap('دليل الأصناف',toolbar+review+table(['الرقم','الصنف','المجموعة','الرئيسية','الفرعية',''],db.products.map(p=>[esc(p.sku),esc(p.name),esc(p.group||'—'),esc(pMain(p)),esc(pSub(p)||'—'),'<button type="button" data-rc-edit-product="'+esc(p.id)+'">تعديل</button> <button type="button" data-rc-products="preview" data-rc-item="'+esc(p.id)+'">معاينة</button> <button type="button" data-rc-products="pdf" data-rc-item="'+esc(p.id)+'">PDF</button> <button type="button" data-rc-products="share" data-rc-item="'+esc(p.id)+'">مشاركة</button>'])));
+ '<section class="rc-card rc-products-guide">'+
+ '<div class="rc-guide-heading no-print"><h3>دليل الأصناف</h3><div class="rc-catalog-buttons">'+
+ '<button type="button" class="rc-catalog-toggle'+(catalogSearchVisible?' is-active':'')+'" data-rc-catalog-toggle="search" aria-expanded="'+catalogSearchVisible+'" aria-controls="rc-catalog-search-field"><span aria-hidden="true">⌕</span> بحث الصنف</button>'+
+ '<button type="button" class="rc-catalog-toggle'+(catalogGroupVisible?' is-active':'')+'" data-rc-catalog-toggle="group" aria-expanded="'+catalogGroupVisible+'" aria-controls="rc-catalog-group-field"><span aria-hidden="true">▦</span> فلترة المجموعة</button>'+
+ '</div></div>'+
+ ((catalogSearchVisible||catalogGroupVisible)?'<div class="rc-catalog-filter-fields no-print">'+
+  (catalogSearchVisible?'<label id="rc-catalog-search-field"><span>البحث باسم الصنف أو رقمه</span><input type="search" id="rc-catalog-search" value="'+esc(catalogSearch)+'" placeholder="اكتب اسم الصنف أو رقمه" autocomplete="off"></label>':'')+
+  (catalogGroupVisible?'<label id="rc-catalog-group-field"><span>اختيار المجموعة</span><select id="rc-catalog-group"><option value="">جميع المجموعات</option>'+[...new Set(db.products.map(p=>p.group).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'ar')).map(g=>'<option value="'+esc(g)+'" '+(g===catalogGroup?'selected':'')+'>'+esc(g)+'</option>').join('')+'</select></label>':'')+
+ '</div>':'')+
+ toolbar+review+'<div id="rc-catalog-results">'+catalogListMarkup(db)+'</div></section>';
 }
 function warehouses(db){
  const w=db.warehouses.find(x=>x.id===editingWarehouse),opts=leaf();
@@ -444,7 +467,7 @@ async function documentOutput(action,docId){
 
 function open(target='stock'){
  mode=target==='purchase'?'in':target==='sale'?'out':['stock','in','out'].includes(target)?target:'stock';
- view=mode==='stock'?'products':'new';draft=null;editingProduct=null;query='';detailId='';
+ view=mode==='stock'?'products':'new';draft=null;editingProduct=null;query='';detailId='';catalogSearch='';catalogGroup='';catalogSearchVisible=false;catalogGroupVisible=false;
  navigateToTab('pageCommerce',true);paint();
 }
 function bind(){
@@ -452,7 +475,13 @@ function bind(){
  root.addEventListener('click',event=>{
   const hit=selector=>event.target.closest(selector);
   try{
-   const productAction=hit('[data-rc-products]');if(productAction){Promise.resolve(productOutput(productAction.dataset.rcProducts,productAction.dataset.rcItem||'')).catch(e=>notify(e.message||'تعذّر تجهيز دليل الأصناف','error'));return;}
+   const catalogToggle=hit('[data-rc-catalog-toggle]');if(catalogToggle){
+     const kind=catalogToggle.dataset.rcCatalogToggle;
+     if(kind==='search'){catalogSearchVisible=!catalogSearchVisible;if(!catalogSearchVisible)catalogSearch='';}
+     if(kind==='group'){catalogGroupVisible=!catalogGroupVisible;if(!catalogGroupVisible)catalogGroup='';}
+     paint();$(kind==='search'?'rc-catalog-search':'rc-catalog-group')?.focus();return;
+    }
+    const productAction=hit('[data-rc-products]');if(productAction){Promise.resolve(productOutput(productAction.dataset.rcProducts,productAction.dataset.rcItem||'')).catch(e=>notify(e.message||'تعذّر تجهيز دليل الأصناف','error'));return;}
    if(hit('[data-rc-confirm-import]')){confirmProductImport().catch(e=>notify(e.message,'error'));return;}
    if(hit('[data-rc-cancel-import]')){pendingImport=null;paint();return;}
    const warehouseEdit=hit('[data-rc-edit-warehouse]');if(warehouseEdit){editingWarehouse=warehouseEdit.dataset.rcEditWarehouse;paint();return;}
@@ -467,8 +496,8 @@ function bind(){
    if(hit('[data-rc-draft-preview]')){syncInvoice();const db=data(),d=draft;const lines=d.lines.filter(l=>l.product&&n(l.qty)>0).map(l=>({product:l.product,unit:l.unit,qty:n(l.qty),price:n(l.price),subtotal:rnd(n(l.qty)*n(l.price))}));if(!lines.length)throw Error('أدخل صنفًا لمعاينته.');previewDocument('',{kind:d.kind,title:d.title,number:d.number,date:d.date,warehouse:d.warehouse,partyName:d.partyName,note:d.note,lines,total:rnd(lines.reduce((a,l)=>a+l.subtotal,0))});return;}
   }catch(e){notify(e.message||'تعذر فتح الأمر','error');}
  });
- root.addEventListener('change',e=>{if(e.target.id==='rc-partyName'){const p=data().people.find(p=>p.name===e.target.value);if(p&&$('rc-partyAccount'))$('rc-partyAccount').value=p.accountId||'';}if(e.target.id==='rc-import-file'){stageImportFile(e.target.files?.[0]);e.target.value='';return;}if(e.target.id==='rc-person-account'){const input=$('rc-name');if(input&&!input.value.trim())input.value=e.target.value;}});
- root.addEventListener('input',e=>{if(/^rc-(qty|price)-\d+$/.test(e.target.id)){syncInvoice();refreshTotals();}});
+ root.addEventListener('change',e=>{if(e.target.id==='rc-catalog-group'){catalogGroup=e.target.value;refreshCatalogListing();return;}if(e.target.id==='rc-partyName'){const p=data().people.find(p=>p.name===e.target.value);if(p&&$('rc-partyAccount'))$('rc-partyAccount').value=p.accountId||'';}if(e.target.id==='rc-import-file'){stageImportFile(e.target.files?.[0]);e.target.value='';return;}if(e.target.id==='rc-person-account'){const input=$('rc-name');if(input&&!input.value.trim())input.value=e.target.value;}});
+ root.addEventListener('input',e=>{if(e.target.id==='rc-catalog-search'){catalogSearch=e.target.value;refreshCatalogListing();return;}if(/^rc-(qty|price)-\d+$/.test(e.target.id)){syncInvoice();refreshTotals();}});
  root.addEventListener('change',e=>{
   if(e.target.id==='rc-origin'&&draft){syncInvoice();changeOrigin();return;}
   const prod=e.target.id.match(/^rc-product-(\d+)$/);

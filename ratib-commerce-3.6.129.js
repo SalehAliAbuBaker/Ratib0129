@@ -77,7 +77,12 @@ function warehouses(db){return wrap('إدارة المخازن','<form id="rc-wa
 function people(db){const type=mode==='in'?'vendor':'client';return wrap('إدارة '+(type==='vendor'?'الموردين':'العملاء'),'<form id="rc-person-form" class="rc-grid">'+fld('الاسم أو صاحب الحساب',inp('name','text','','required'))+fld('رقم الهاتف',inp('phone','tel'))+'<button class="btn btn-primary">حفظ</button></form>')+wrap('السجل',db.people.filter(x=>x.type===type).map(x=>'<p>'+esc(x.name)+' — '+esc(x.phone||'')+'</p>').join(''));}
 function accounts(db){const names={cash:'الصندوق / البنك',receivable:'ذمم العملاء',payable:'ذمم الموردين',inventory:'المخزون',sales:'إيرادات المبيعات',cogs:'تكلفة البضاعة المباعة',adjust:'فروق وتسويات المخزون'};
 return wrap('ربط الحسابات','<p class="rc-note">لا يُرحّل أي مستند قبل ربط حساباته التفصيلية. القيد المحاسبي متوازن وبالريال اليمني YER فقط.</p><form id="rc-accounts-form" class="rc-grid">'+Object.keys(names).map(k=>fld(names[k],sel('acc-'+k,leaf(),db.accounts[k]))).join('')+'<button class="rc-primary">حفظ الحسابات</button></form>');}
-function records(db){return wrap('الفواتير والمرتجعات المعتمدة',table(['الرقم','النوع','التاريخ','الطرف','المجموع YER',''],db.invoices.filter(x=>x.kind===mode||x.kind===mode+'_return').slice().reverse().map(x=>[esc(x.number),x.kind.endsWith('return')?'مرتجع':'فاتورة',esc(x.date),esc(x.partyName||'نقدي'),f(x.total),'<button type="button" data-rc-print="'+esc(x.id)+'">طباعة</button>'])));}
+function records(db){
+ const docs=db.invoices.filter(d=>mode==='in'?['purchase','purchase_return'].includes(d.kind):['sale','sale_return'].includes(d.kind));
+ const filtered=docs.filter(d=>!query||[d.number,docName(d),d.partyName,d.date,d.note].join(' ').toLocaleLowerCase().includes(query.toLocaleLowerCase()));
+ return wrap('سجل مستندات '+(mode==='in'?'الوارد':'الصادر'),'<div class="rc-search no-print">'+inp('query','search',query,'placeholder="ابحث برقم المستند أو التاريخ أو الطرف..."')+'<button type="button" class="btn btn-ghost" data-rc-search="1">🔎 بحث</button></div>'+
+ table(['رقم المستند','المسمى','التاريخ','الطرف','الإجمالي YER','المشاهدة'],filtered.slice().reverse().map(x=>[esc(x.number),esc(docName(x)),esc(x.date),esc(x.partyName||'—'),f(x.total),'<button type="button" class="btn btn-ghost" data-rc-detail="'+esc(x.id)+'">مشاهدة</button>'])));
+}
 function summary(db){
  const sum=kind=>db.invoices.filter(x=>x.kind===kind).reduce((a,x)=>a+x.total,0);
  const sales=rnd(sum('sale')-sum('sale_return')),purchases=rnd(sum('purchase')-sum('purchase_return'));
@@ -106,30 +111,65 @@ function printDoc(code){
  w.document.write('<!doctype html><html lang="ar" dir="rtl"><meta charset="utf-8"><title>'+esc(x.number)+'</title><style>body{font-family:Arial;padding:25px}table{border-collapse:collapse;width:100%}td,th{padding:9px;border:1px solid #bbb}</style><h2>راتب — '+esc(names[x.kind]||'مستند تجاري')+'</h2><p>رقم '+esc(x.number)+' — '+esc(x.date)+' — '+esc(x.partyName||'')+'</p><table><tr><th>الصنف</th><th>الكمية</th><th>السعر</th></tr>'+lines+'</table><h3>الإجمالي: '+f(x.total)+' ريال يمني</h3></html>');
  w.document.close();w.focus();w.print();
 }
-function newDraft(){return {kind:view==='return'?mode+'_return':mode,date:today(),warehouse:'main',party:'',payment:'cash',origin:'',product:'',qty:1,price:0};}
-function leftToReturn(db,id,pid){
- const x=db.invoices.find(x=>x.id===id);
- return rnd((x?.lines.find(l=>l.product===pid)?.qty||0)-db.invoices.filter(t=>t.origin===id).flatMap(t=>t.lines).filter(l=>l.product===pid).reduce((a,l)=>a+l.qty,0));
+function newDraft(){
+ const db=data(),kind=view==='return'?(mode==='in'?'purchase_return':'sale_return'):dir();
+ return {kind,title:types[mode]?.[0]||'مرتجع',number:nextNumber(db,kind),date:today(),warehouse:db.warehouses[0]?.id||'main',partyName:'',payment:'credit',note:'',origin:'',lines:[{id:id(),product:'',unit:'',qty:1,price:0}]};
+}
+function leftToReturn(db,origin,pid,unit){
+ const x=db.invoices.find(t=>t.id===origin);
+ const original=(x?.lines||[]).filter(l=>l.product===pid&&(!unit||lineUnit(db,l)===unit)).reduce((a,l)=>a+Number(l.qty||0),0);
+ const returned=db.invoices.filter(t=>t.origin===origin).flatMap(t=>t.lines).filter(l=>l.product===pid&&(!unit||lineUnit(db,l)===unit)).reduce((a,l)=>a+Number(l.qty||0),0);
+ return rnd(original-returned);
 }
 function invoice(db){
- const kind=view==='return'?mode+'_return':mode,returning=view==='return';
+ const kind=view==='return'?(mode==='in'?'purchase_return':'sale_return'):dir(),ret=view==='return';
  if(!draft||draft.kind!==kind)draft=newDraft();
- const source=db.invoices.find(x=>x.id===draft.origin);
- const originals=db.invoices.filter(x=>x.kind===mode&&x.lines.some(l=>leftToReturn(db,x.id,l.product)>0));
- const eligible=returning?(source?.lines.filter(l=>leftToReturn(db,source.id,l.product)>0).map(l=>({id:l.product,name:db.products.find(p=>p.id===l.product)?.name||''}))||[]):db.products;
- const selected=db.products.find(x=>x.id===draft.product);
- return wrap(returning?'مرتجع '+(mode==='sale'?'مبيعات':'مشتريات'):'فاتورة '+(mode==='sale'?'بيع':'شراء')+' جديدة','<form id="rc-invoice-form" class="rc-grid">'+
+ const orig=db.invoices.find(x=>x.id===draft.origin);
+ const originals=ret?db.invoices.filter(d=>d.kind===dir()&&d.lines.some(l=>leftToReturn(db,d.id,l.product,lineUnit(db,l))>0)):[];
+ const partySuggestions=[...db.people.map(p=>p.name),...leaf().map(x=>x.id)];
+ const form='<form id="rc-invoice-form"><div class="rc-grid">'+
+ fld('نوع المستند',ret?'<strong>مرتجع '+(mode==='in'?'الوارد':'الصادر')+'</strong>':sel('doctype',types[mode].map(name=>({id:name,name})),draft.title))+
+ fld('رقم المستند / الفاتورة',inp('number','text',draft.number,'required maxlength="40"'))+
  fld('التاريخ',inp('date','date',draft.date,'required'))+
  fld('المخزن',sel('warehouse',db.warehouses,draft.warehouse))+
- (returning?fld('الفاتورة الأصلية',sel('origin',originals.map(x=>({id:x.id,name:x.number+' — '+x.date})),draft.origin)):'')+
- fld('الصنف',sel('product',eligible,draft.product))+
- fld('الكمية',inp('qty','number',draft.qty,'step="0.01" min="0.01" required'))+
- fld('سعر الوحدة (YER)',inp('price','number',draft.price||(mode==='sale'?selected?.price:0)||0,'step="0.01" min="0" required '+(returning?'readonly':'')))+
- fld('الطرف',sel('party',db.people.filter(x=>x.type===(mode==='sale'?'client':'vendor')),draft.party))+
- fld('طريقة الدفع','<select id="rc-payment"><option value="cash">نقدي</option><option value="credit" '+(draft.payment==='credit'?'selected':'')+'>آجل</option></select>')+
- '<button type="submit" class="rc-primary">اعتماد وترحيل '+(returning?'المرتجع':'الفاتورة')+'</button></form><p class="rc-note">المرتجعات مرتبطة بمستندها الأصلي، ويُمنع تجاوز الكمية أو إنشاء مستند غير متوازن.</p>');
+ (ret?fld('المستند الأصلي',sel('origin',originals.map(x=>({id:x.id,name:x.number+' — '+docName(x)})),draft.origin)):'')+
+ fld(mode==='in'?'المورد أو صاحب الحساب':'العميل أو صاحب الحساب',inp('partyName','text',draft.partyName,'required maxlength="140" list="rc-parties"')+'<datalist id="rc-parties">'+[...new Set(partySuggestions)].map(n=>'<option value="'+esc(n)+'"></option>').join('')+'</datalist>')+
+ fld('طريقة التسوية','<select id="rc-payment"><option value="credit" '+(draft.payment==='credit'?'selected':'')+'>آجل / على الحساب</option><option value="cash" '+(draft.payment==='cash'?'selected':'')+'>نقدي</option></select>')+
+ fld('العملة','<strong>YER — ريال يمني</strong>')+
+ '<div class="rc-full">'+fld('البيان / الملاحظات','<textarea id="rc-note" rows="2" placeholder="ملاحظة المستند">'+esc(draft.note)+'</textarea>')+'</div></div>'+
+ '<div class="rc-scroll"><table class="rc-lines"><thead><tr><th>الصنف</th><th>الوحدة</th><th>العدد</th><th>السعر</th><th>الإجمالي</th><th></th></tr></thead><tbody>'+
+ draft.lines.map((l,i)=>{
+  const available=ret?(orig?.lines||[]).filter(x=>leftToReturn(db,orig.id,x.product,lineUnit(db,x))>0).map(x=>({id:x.product,name:db.products.find(p=>p.id===x.product)?.name||''})):db.products;
+  const p=db.products.find(p=>p.id===l.product);
+  const units=p?unitList(p).map(x=>({id:x,name:x})):[];
+  return '<tr><td>'+sel('product-'+i,available,l.product)+'</td><td>'+sel('unit-'+i,units,l.unit)+'</td><td>'+inp('qty-'+i,'number',l.qty,'min="0" step="0.01" inputmode="decimal"')+'</td><td>'+inp('price-'+i,'number',l.price,'min="0" step="0.01" inputmode="decimal" '+(ret?'readonly':''))+'</td><td class="rc-line-total" data-total="'+i+'">'+f(n(l.qty)*n(l.price))+'</td><td><button type="button" class="btn btn-ghost" data-rc-remove="'+i+'" aria-label="حذف السطر">×</button></td></tr>';
+ }).join('')+'</tbody></table></div>'+
+ '<div class="rc-actions no-print"><button type="button" class="btn btn-ghost" data-rc-add="1">＋ إضافة صنف</button>'+
+ '<strong class="rc-grand">الإجمالي: <span id="rc-grand">'+f(draft.lines.reduce((a,l)=>a+n(l.qty)*n(l.price),0))+'</span> YER</strong></div>'+
+ '<div class="rc-actions no-print"><button type="button" class="btn btn-ghost" data-rc-draft-preview="1">👁 معاينة</button><button type="submit" class="btn btn-primary">💾 اعتماد وحفظ المستند</button></div></form>'+
+ '<p class="rc-note">جميع البنود بسعرها وإجماليها؛ لا يوجد تحويل تلقائي بين الوحدة الرئيسية والفرعية قبل اعتماده. يمنع الحفظ غير المتوازن أو صرف كمية غير متاحة.</p>';
+ return wrap(ret?'مرتجع مخزني — '+(mode==='in'?'الوارد':'الصادر'):draft.title,form);
 }
-function syncInvoice(){if(!draft)return;for(const k of ['date','warehouse','product','party','payment','origin','qty','price'])if($('rc-'+k))draft[k]=$('rc-'+k).value;}
+function syncInvoice(){
+ if(!draft)return;
+ for(const key of ['doctype','number','date','warehouse','origin','partyName','payment','note']){
+  const element=$('rc-'+key);if(element)draft[key==='doctype'?'title':key]=element.value;
+ }
+ draft.lines.forEach((l,i)=>{
+  for(const k of ['product','unit','qty','price']){const e=$('rc-'+k+'-'+i);if(e)l[k]=e.value;}
+ });
+}
+function refreshTotals(){
+ if(!draft)return;
+ let total=0;draft.lines.forEach((l,i)=>{const amount=rnd(n(l.qty)*n(l.price));total+=amount;const cell=document.querySelector('[data-total="'+i+'"]');if(cell)cell.textContent=f(amount);});
+ if($('rc-grand'))$('rc-grand').textContent=f(total);
+}
+function changeOrigin(){
+ const db=data(),origin=db.invoices.find(x=>x.id===draft.origin);
+ draft.lines=origin?(origin.lines||[]).filter(l=>leftToReturn(db,origin.id,l.product,lineUnit(db,l))>0).map(l=>({id:id(),product:l.product,unit:lineUnit(db,l),qty:0,price:l.price})):[{id:id(),product:'',unit:'',qty:0,price:0}];
+ if(origin){draft.warehouse=origin.warehouse;draft.partyName=origin.partyName;draft.payment=origin.payment;}
+ paint();
+}
 function makeJournal(doc,db){
  if(doc.kind==='transfer')return [];
  const a=db.accounts,accounts=leaf(),valid=new Set(accounts.map(x=>x.id)),lines=[];

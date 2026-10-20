@@ -33,7 +33,7 @@ function warehouseAccount(db,wid){const w=db.warehouses.find(x=>x.id===wid);retu
 function partyAccount(db,doc){return doc.partyAccount||db.people.find(p=>p.name===doc.partyName&&p.type===(['purchase','purchase_return'].includes(doc.kind)?'vendor':'client'))?.accountId||(doc.kind==='purchase'||doc.kind==='purchase_return'?db.accounts.payable:db.accounts.receivable);}
 function productRows(db){return db.products.map(p=>[p.sku,p.name,p.group||'',pMain(p),pSub(p),p.price||0,p.minimum||0]);}
 function guideMarkup(db){return '<article class="rc-paper" dir="rtl"><header class="rc-paper-head"><strong>راتب للتنظيم والتدبير المالي</strong><h2>دليل الأصناف</h2><small>عدد الأصناف: '+db.products.length+'</small></header>'+table(['رقم الصنف','اسم الصنف','المجموعة','الوحدة الرئيسية','الوحدة الفرعية','سعر البيع YER','حد التنبيه'],productRows(db).map(row=>row.map(esc)))+'</article>';}
-function productOutput(action){const db=data(),name='راتب-دليل-الأصناف.xlsx';if(action==='preview'){const modal=ensurePreview();modal.querySelector('#rc-preview-content').innerHTML=guideMarkup(db);modal.querySelector('#rc-preview-print').disabled=false;modal.querySelector('#rc-preview-print').onclick=()=>{modal.classList.remove('show');productOutput('print')};modal.classList.add('show');return;}
+function productOutput(action){const db=data(),name='راتب-دليل-الأصناف.xlsx';if(action==='preview'){const modal=ensurePreview();modal.querySelector('#rc-preview-content').innerHTML=guideMarkup(db);previewId='__products__';modal.querySelector('#rc-preview-print').disabled=false;modal.classList.add('show');return;}
  if(action==='print'){let host=$('ratibCommercePrintHost');if(!host){host=document.createElement('div');host.id='ratibCommercePrintHost';document.body.appendChild(host);}host.innerHTML=guideMarkup(db);window.RatibPrintLogo?.syncPrint?.();if(typeof printRatibDocument==='function')printRatibDocument('printing-commerce');else window.print();return;}
  if(action==='export'||action==='template'){if(typeof XLSX==='undefined')throw Error('مكتبة Excel غير متاحة.');const rows=action==='template'?[]:productRows(db);const sheet=XLSX.utils.aoa_to_sheet([['رقم الصنف','اسم الصنف','المجموعة','الوحدة الرئيسية','الوحدة الفرعية','سعر البيع YER','حد التنبيه'],...rows]);sheet['!cols']=[12,38,25,19,19,20,16].map(wch=>({wch}));const book=XLSX.utils.book_new();XLSX.utils.book_append_sheet(book,sheet,'الأصناف');XLSX.writeFile(book,action==='template'?'نموذج-استيراد-أصناف-راتب.xlsx':name,{compression:true});return;}
  if(action==='import'){$('rc-import-file')?.click();return;}
@@ -353,7 +353,7 @@ function ensurePreview(){
  modal.innerHTML='<div class="modal-content rc-preview-modal-body" role="dialog" aria-modal="true" aria-label="معاينة المستند"><h3>معاينة المستند قبل الطباعة</h3><div id="rc-preview-content"></div><div class="rc-actions"><button type="button" class="btn btn-primary" id="rc-preview-print">🖨️ طباعة</button><button type="button" class="btn btn-ghost" id="rc-preview-close">إغلاق</button></div></div>';
  document.body.appendChild(modal);
  modal.querySelector('#rc-preview-close').addEventListener('click',()=>modal.classList.remove('show'));
- modal.querySelector('#rc-preview-print').addEventListener('click',()=>{const chosen=previewId;modal.classList.remove('show');printDocument(chosen);});
+ modal.querySelector('#rc-preview-print').addEventListener('click',()=>{const chosen=previewId;modal.classList.remove('show');if(chosen==='__products__')productOutput('print');else printDocument(chosen);});
  return modal;
 }
 function previewDocument(docId,derivedDoc){
@@ -426,7 +426,7 @@ function bind(){
    if(hit('[data-rc-draft-preview]')){syncInvoice();const db=data(),d=draft;const lines=d.lines.filter(l=>l.product&&n(l.qty)>0).map(l=>({product:l.product,unit:l.unit,qty:n(l.qty),price:n(l.price),subtotal:rnd(n(l.qty)*n(l.price))}));if(!lines.length)throw Error('أدخل صنفًا لمعاينته.');previewDocument('',{kind:d.kind,title:d.title,number:d.number,date:d.date,warehouse:d.warehouse,partyName:d.partyName,note:d.note,lines,total:rnd(lines.reduce((a,l)=>a+l.subtotal,0))});return;}
   }catch(e){notify(e.message||'تعذر فتح الأمر','error');}
  });
- root.addEventListener('change',e=>{if(e.target.id==='rc-import-file'){stageImportFile(e.target.files?.[0]);e.target.value='';return;}if(e.target.id==='rc-person-account'){const input=$('rc-name');if(input&&!input.value.trim())input.value=e.target.value;}});
+ root.addEventListener('change',e=>{if(e.target.id==='rc-partyName'){const p=data().people.find(p=>p.name===e.target.value);if(p&&$('rc-partyAccount'))$('rc-partyAccount').value=p.accountId||'';}if(e.target.id==='rc-import-file'){stageImportFile(e.target.files?.[0]);e.target.value='';return;}if(e.target.id==='rc-person-account'){const input=$('rc-name');if(input&&!input.value.trim())input.value=e.target.value;}});
  root.addEventListener('input',e=>{if(/^rc-(qty|price)-\d+$/.test(e.target.id)){syncInvoice();refreshTotals();}});
  root.addEventListener('change',e=>{
   if(e.target.id==='rc-origin'&&draft){syncInvoice();changeOrigin();return;}
@@ -451,7 +451,7 @@ function bind(){
     save(db);await flushStorage();editingProduct=null;paint();notify('تم حفظ بطاقة الصنف','success');
    }else if(form==='rc-warehouse-form'){const accountId=validatedAccount($('rc-warehouse-account').value,'حساب المخزن'),alias=$('rc-name').value.trim();if(!accountId)throw Error('اختر الحساب الفرعي أولًا.');if(db.warehouses.some(w=>w.id!==editingWarehouse&&w.accountId===accountId))throw Error('الحساب مرتبط بمخزن آخر.');const name=alias||accountId;const existing=db.warehouses.find(w=>w.id===editingWarehouse);if(existing)Object.assign(existing,{accountId,alias,name});else db.warehouses.push({id:id(),accountId,alias,name});save(db);await flushStorage();editingWarehouse=null;paint();}
    else if(form==='rc-person-form'){const accountId=validatedAccount($('rc-person-account').value,'حساب المورد أو العميل'),name=$('rc-name').value.trim()||accountId;if(!accountId)throw Error('اختر حساب الطرف من شجرة الحسابات.');if(db.people.some(p=>p.accountId===accountId&&p.type===(mode==='in'?'vendor':'client')))throw Error('هذا الطرف مسجل مسبقًا.');db.people.push({id:id(),accountId,name,phone:$('rc-phone')?.value||'',type:mode==='in'?'vendor':'client'});save(db);await flushStorage();paint();}
-   else if(form==='rc-accounts-form'){for(const key of Object.keys(db.accounts))db.accounts[key]=$('rc-acc-'+key)?.value||'';save(db);await flushStorage();notify('تم حفظ ربط الحسابات','success');paint();}
+   else if(form==='rc-accounts-form'){for(const key of Object.keys(db.accounts))db.accounts[key]=validatedAccount($('rc-acc-'+key)?.value||'',key);save(db);await flushStorage();notify('تم حفظ ربط الحسابات','success');paint();}
    else if(form==='rc-invoice-form')await saveInvoice();
    else if(form==='rc-movement-form')await saveMovement();
   }catch(error){console.error('Ratib commerce',error);notify(error.message||'تعذر الحفظ','error');}

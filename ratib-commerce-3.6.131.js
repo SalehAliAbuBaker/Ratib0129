@@ -337,7 +337,7 @@ function invoice(db){
  if(!draft||draft.kind!==kind){draft=newDraft();editingDocId='';}
  const orig=db.invoices.find(x=>x.id===draft.origin);
  if(ret&&orig){draft.currency=orig.currency||'YER';draft.exchangeRate=orig.exchangeRate||1;}
- const originals=ret?db.invoices.filter(d=>d.kind===dir()&&(d.id===draft.origin||d.lines.some(l=>leftToReturn(db,d.id,l.product,lineUnit(db,l))>0))):[];
+ const originals=ret?db.invoices.filter(d=>d.kind===dir()&&(d.id===draft.origin||(d.lines||[]).some(l=>leftToReturn(db,d.id,l.product,lineUnit(db,l))>0))):[];
  const partySuggestions=[...db.people.map(p=>p.name),...leaf().map(x=>x.id)];
  const form='<form id="rc-invoice-form"><div class="rc-grid">'+
  (ret?fld('نوع المستند','<strong>مرتجع '+(mode==='in'?'الوارد':'الصادر')+'</strong>'):'')+

@@ -84,6 +84,14 @@ function warehouseAccount(db,wid){const w=db.warehouses.find(x=>x.id===wid);retu
 function partyAccount(db,doc){return doc.partyAccount||db.people.find(p=>p.name===doc.partyName&&p.type===(['purchase','purchase_return'].includes(doc.kind)?'vendor':'client'))?.accountId||(doc.kind==='purchase'||doc.kind==='purchase_return'?db.accounts.payable:db.accounts.receivable);}
 function productRows(db){return db.products.map(p=>[p.sku,p.name,p.group||'',pMain(p),pSub(p),p.price||0,p.minimum||0]);}
 
+function commerceAmountWords(amount,currency='YER'){
+ if(typeof tafqitAccountCurrency==='function')return tafqitAccountCurrency(amount,currency);
+ if(typeof tafqit==='function'&&currency==='YER')return tafqit(amount);
+ return '';
+}
+function commerceCurrencyName(code){
+ return ({YER:'ريال يمني',SAR:'ريال سعودي',USD:'دولار أمريكي'})[code]||code;
+}
 function commerceSignatureLabels(d){
  const labels={
   'أمر توريد':['معدّ الطلب','المراجع','المعتمد'],
@@ -326,7 +334,7 @@ function invoice(db){
  (commerceInvoiceRecipientLabel(draft)?fld('اسم '+(mode==='in'?'المورد':'العميل')+' على الفاتورة (اختياري)',inp('displayPartyName','text',draft.displayPartyName||'','maxlength="140" autocomplete="off" placeholder="اكتب اسمًا أو اترك الحقل فارغًا" list="rc-parties"')):'')+
  fld('الحساب الفرعي للطرف (افتراضي، قابل للتغيير)',sel('partyAccount',leaf(),draft.partyAccount||db.accounts[mode==='in'?'payable':'receivable']))+
  fld('طريقة التسوية','<select id="rc-payment"><option value="credit" '+(draft.payment==='credit'?'selected':'')+'>آجل / على الحساب</option><option value="cash" '+(draft.payment==='cash'?'selected':'')+'>نقدي</option></select>')+
- fld('العملة','<strong>YER — ريال يمني</strong>')+
+ fld('عملة المستند','<strong>YER — ريال يمني</strong><small class="rc-currency-note">عملة الترحيل المتاحة حاليًا؛ العملات الأخرى تحتاج سعر صرف معتمد.</small>')+
  '<div class="rc-full">'+fld('البيان / الملاحظات','<textarea id="rc-note" rows="2" placeholder="ملاحظة المستند">'+esc(draft.note)+'</textarea>')+'</div></div>'+
  '<div class="rc-scroll"><table class="rc-lines"><thead><tr><th>الصنف</th><th>الوحدة</th><th>العدد</th><th>السعر</th><th>الإجمالي</th><th></th></tr></thead><tbody>'+
  draft.lines.map((l,i)=>{
@@ -511,10 +519,12 @@ function documentHtml(db,d){
  const rows=documentLines(db,d),invoiceLabel=commerceInvoiceRecipientLabel(d);
  const tableHtml='<table class="rc-document-table"><thead><tr><th>#</th><th>اسم الصنف</th><th>الوحدة</th><th>العدد</th><th>السعر</th><th>الإجمالي</th></tr></thead><tbody>'+rows.map(row=>'<tr>'+row.map(x=>'<td>'+x+'</td>').join('')+'</tr>').join('')+'</tbody></table>';
  return '<article class="rc-paper rc-document-paper" dir="rtl">'+printHeading((d.isDraft?'مسودة غير معتمدة — ':'')+docName(d))+
- (invoiceLabel?'<div class="rc-document-meta rc-invoice-meta"><span><b>التاريخ:</b> '+esc(d.date||'—')+'</span><span>رقم الفاتورة: <b>'+esc(d.number)+'</b></span><span>المخزن: <b>'+esc(db.warehouses.find(w=>w.id===d.warehouse)?.name||'—')+'</b></span></div>':
+ (invoiceLabel?'<div class="rc-document-meta rc-invoice-meta"><span><b>التاريخ:</b> '+esc(d.date||'—')+'</span><span>رقم الفاتورة: <b>'+esc(d.number)+'</b></span><span>المخزن: <b>'+esc(db.warehouses.find(w=>w.id===d.warehouse)?.name||'—')+'</b></span><span>عملة المستند: <b>'+esc(commerceCurrencyName(d.currency||'YER'))+'</b></span></div>':
  '<div class="rc-document-meta"><span>رقم المستند: <b>'+esc(d.number)+'</b></span><span>التاريخ: <b>'+esc(d.date)+'</b></span><span>المخزن: <b>'+esc(db.warehouses.find(w=>w.id===d.warehouse)?.name||'—')+'</b></span><span>الطرف: <b>'+esc(d.partyName||'—')+'</b></span></div>')+
  commerceInvoiceRecipientRow(d)+
- tableHtml+'<div class="rc-document-footer"><div class="rc-paper-total">الإجمالي: '+f(d.total)+' ريال يمني</div><p class="rc-paper-note"><b>ملاحظات:</b> '+esc(d.note||'—')+'</p>'+commerceSignatureHtml(d)+'</div></article>';
+ tableHtml+'<div class="rc-document-footer"><div class="rc-paper-total">الإجمالي: '+f(d.total)+' '+esc(commerceCurrencyName(d.currency||'YER'))+'</div>'+
+ '<p class="rc-paper-tafqit"><b>التفقيط:</b> '+esc(commerceAmountWords(d.total,d.currency||'YER'))+'</p>'+
+ (String(d.note||'').trim()?'<p class="rc-paper-note"><b>ملاحظات:</b> '+esc(d.note)+'</p>':'')+commerceSignatureHtml(d)+'</div></article>';
 }
 function documentToolbar(db,d){
  const actions=[['view','eye','المشاهدة'],['preview','scan-eye','المعاينة'],['print','printer','الطباعة'],['pdf','file-down','PDF'],['share','share-2','المشاركة'],['search','search','البحث'],['back','corner-up-left','الرجوع']];
@@ -603,17 +613,24 @@ function* documentCanvases(db,d){
   if(page.y+layout.height>maxY){yield page.canvas;nextPage();}
   draw(vals,'#fff',reportTableLayout(page.ctx,vals,widths,19));
  }
- const total=['','الإجمالي','YER','','',f(d.total)],totalLayout=reportTableLayout(page.ctx,total,widths,19);
- const notes=d.note?String(d.note).split(/\r?\n/).flatMap(line=>line.match(/.{1,48}/gu)||['']):[];
- const estimatedNotes=notes.reduce((sum,line)=>sum+reportTableLayout(page.ctx,['','ملاحظات',line,'','',''],widths,19).height,0);
- if(page.y+totalLayout.height+estimatedNotes+135>maxY&&totalLayout.height+estimatedNotes+135<maxY-300){yield page.canvas;nextPage();}
+ const curr=d.currency||'YER',total=['','الإجمالي',curr,'','',f(d.total)],totalLayout=reportTableLayout(page.ctx,total,widths,19);
+ const spelled=commerceAmountWords(d.total,curr),note=String(d.note||'').trim();
+ // One unboxed notes section, including long paragraphs, not a new table row for each fragment.
+ const measure=(value,width)=>typeof wrapCanvasText==='function'?wrapCanvasText(page.ctx,value,width):String(value).match(/.{1,55}/gu)||[''];
+ const words=spelled?measure('التفقيط: '+spelled,970):[];
+ const lines=note?note.split(/\r?\n/).flatMap(para=>measure(para||' ',970)):[];
+ const preliminary=totalLayout.height+(words.length+Math.min(lines.length,5))*31+166;
+ if(page.y+preliminary>maxY&&preliminary<maxY-300){yield page.canvas;nextPage();}
  if(page.y+totalLayout.height>maxY){yield page.canvas;nextPage();}
  draw(total,'#ecfdf5',reportTableLayout(page.ctx,total,widths,19));
- for(const line of notes){
-  const vals=['','ملاحظات',line,'','',''],layout=reportTableLayout(page.ctx,vals,widths,19);
-  if(page.y+layout.height+126>maxY){yield page.canvas;nextPage();}
-  draw(vals,'#fff',reportTableLayout(page.ctx,vals,widths,19));
+ const prose=[...words,...(lines.length?['ملاحظات:',...lines]:[])];
+ for(let i=0;i<prose.length;i++){
+  if(page.y+32+116>maxY){yield page.canvas;nextPage();}
+  page.ctx.save();page.ctx.fillStyle='#182231';page.ctx.textAlign='right';page.ctx.direction='rtl';
+  page.text(prose[i],1130,page.y+23,18,i===0||prose[i]==='ملاحظات:'?'700':'500');
+  page.ctx.restore();page.y+=31;
  }
+ if(prose.length)page.y+=12;
  if(page.y+126>maxY){yield page.canvas;nextPage();}
  commerceCanvasSignatures(page,d);
  yield page.canvas;

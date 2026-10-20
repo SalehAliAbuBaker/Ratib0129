@@ -578,7 +578,7 @@ function commerceCanvasPage(db,d,pageNumber){
   ctx.font="bold 18px 'Tajawal',sans-serif";
   ctx.fillText('التاريخ: '+(d.date||'—'),1140,150,250);
   ctx.font="17px 'Tajawal',sans-serif";
-  ctx.fillText('رقم الفاتورة: '+d.number+' — المخزن: '+warehouse,856,150,720);
+  ctx.fillText('رقم الفاتورة: '+d.number+' — المخزن: '+warehouse+' — عملة المستند: '+(d.currency||'YER'),856,150,720);
   if(recipient){
    ctx.font="bold 19px 'Tajawal',sans-serif";
    ctx.fillText(label+': '+recipient,1140,197,1030);

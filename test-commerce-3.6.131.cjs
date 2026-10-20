@@ -77,8 +77,8 @@ d.warehouses=[{id:'main',name:'المخزن الرئيسي'}];store.set('commerc
  const outboundLayout=T.invoice(d);
  for(const title of outboundTitles)assert(outboundLayout.includes('<option value="'+title+'"'),title);
  for(const action of ['view','preview','print','pdf','share','search','back'])assert(outboundLayout.includes('data-rc-draft-action="'+action+'"'),action);
- assert(outboundLayout.includes('role="group" aria-label="نوع مستند الصادر"'));
- assert(!outboundLayout.includes('id="rc-doctype"'),'outbound title selection must be three inline buttons');
+ assert(outboundLayout.includes('id="rc-doctype"'),'outbound titles use simple text dropdown');
+ assert(!outboundLayout.includes('rc-type-symbol'),'no decorative document icons in previous dropdown');
  d.invoices.push({kind:'sale',title:'أمر صرف',number:'OUT-00004'},
  {kind:'sale',title:'صرف مخزني',number:'OUT-00012'},
  {kind:'sale',title:'فاتورة مبيعات',number:'OUT-00020'},

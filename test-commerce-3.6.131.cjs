@@ -64,7 +64,7 @@ d.warehouses=[{id:'main',name:'المخزن الرئيسي'}];store.set('commerc
  const before=d.invoices.length;
  await T.draftOutput('pdf');await T.draftOutput('share');
  assert.equal(T.data().invoices.length,before,'draft output must not save accounting documents');
- assert.equal(capture.at(-2).blob.pages[0],'توريد مخزني');
+ assert.equal(capture.at(-2).blob.pages[0],'مسودة غير معتمدة — توريد مخزني');
  assert.equal(capture.at(-1).action,'share');
  const css=fs.readFileSync(path.join(__dirname,'ratib-commerce-3.6.131.css'),'utf8');
  assert(css.includes('.rc-type-switch')&&css.includes('repeat(3,minmax(0,1fr))'));

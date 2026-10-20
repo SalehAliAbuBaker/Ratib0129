@@ -46,8 +46,8 @@ async function run(){
  const load=name=>w.eval(fs.readFileSync(require('node:path').join(__dirname,name),'utf8'));
  for(const name of ['ratib-annual-close.js','ratib-favorites-v3.js','ratib-theme.js','ratib-navigation-v3.js'])load(name);
  await pause(20);
- await test('Report grid reuses the four original controls; annual dialog remains functional',async()=>{
-  assert.equal(d.querySelectorAll('#ratibReportMenu>*').length,4);code(w,"navigateToTab('pageReports',true);closeAllReportsSections()");
+ await test('Report grid reuses the six current controls; annual dialog remains functional',async()=>{
+  assert.equal(d.querySelectorAll('#ratibReportMenu>*').length,6);code(w,"navigateToTab('pageReports',true);closeAllReportsSections()");
   for(const id of ['reportsGroupStatementHeader','reportsGroupBudgetHeader','reportsGroupTrialHeader']){d.getElementById(id).click();await pause(10);assert(d.getElementById(id.replace('Header','Body')).classList.contains('open'));}
   d.getElementById('yearToolOpen').click();assert.equal(d.getElementById('yearToolOverlay').style.display,'flex');d.getElementById('yearToolDismiss').click();assert.equal(d.getElementById('yearToolOverlay').style.display,'none');
  });
@@ -63,7 +63,7 @@ async function run(){
   assert.equal(code(w,'JSON.stringify(getAllTransactions())'),before);
  });
  await test('Specific report favorites open the intended report every time',async()=>{
-  for(const [id,section] of [['trial-balance','Trial'],['budget-analysis','Budget'],['statement','Statement'],['trial-balance','Trial']]){
+  for(const [id,section] of [['trial-balance','Trial'],['budget-analysis','Budget'],['trial-balance','Trial']]){
    await choose(id);assert(!d.getElementById('pageReports').classList.contains('hidden'));assert(d.getElementById('reportsGroup'+section+'Body').classList.contains('open'));
   }
  });

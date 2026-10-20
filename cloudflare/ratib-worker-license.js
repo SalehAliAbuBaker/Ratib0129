@@ -75,7 +75,13 @@ export default {
     // Public license verification, isolated from the administrator API.
     if (path === '/api/license/activate' || path === '/api/license/verify') {
       const origin = request.headers.get('Origin');
-      const permitted = origin === 'https://salehaliabubaker.github.io';
+      // Restrict browser activation to the official app and the trial app.
+      // Cloudflare Pages uses its own origin, even when both apps share this Worker.
+      const permittedOrigins = new Set([
+        'https://salehaliabubaker.github.io',
+        'https://ratibtrial.pages.dev'
+      ]);
+      const permitted = permittedOrigins.has(origin);
       const cors = {
         ...baseHeaders,
         ...(permitted ? { 'Access-Control-Allow-Origin': origin, Vary: 'Origin' } : {})

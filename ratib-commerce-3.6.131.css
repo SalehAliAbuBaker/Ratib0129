@@ -1,0 +1,433 @@
+/* Ratib trial commerce 3.6.131 */
+#pageCommerce{font-family:'Tajawal',sans-serif}
+#pageCommerce .rc-app{max-width:850px;margin:auto;padding:8px;color:var(--text)}
+#pageCommerce h2{color:var(--accent);font-size:1.28rem;margin:10px 0}
+#pageCommerce .rc-note{font-size:.87rem;color:var(--muted);line-height:1.65;margin:5px 0 13px}
+#pageCommerce .rc-tabs{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}
+#pageCommerce .rc-tabs button{background:var(--card);color:var(--text);border:1px solid var(--border);border-radius:10px;min-height:44px;padding:8px 13px;font:700 1rem 'Tajawal',sans-serif}
+#pageCommerce .rc-tabs button.active{color:var(--accent);border-color:var(--accent);background:var(--bg)}
+#pageCommerce .rc-card{border:1px solid var(--border);border-radius:12px;background:var(--card);padding:14px;margin:12px 0;box-shadow:var(--shadow)}
+#pageCommerce .rc-card h3{color:var(--accent);font:800 1.1rem 'Tajawal',sans-serif;margin:0 0 12px}
+#pageCommerce .rc-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+#pageCommerce .rc-field{display:flex;flex-direction:column;gap:6px;min-width:0;font:700 .94rem 'Tajawal',sans-serif}
+#pageCommerce .rc-field input,#pageCommerce .rc-field select{background:var(--card);border:1px solid var(--border);border-radius:8px;color:var(--text);font:inherit;min-width:0;width:100%;min-height:45px;padding:9px}
+#pageCommerce .rc-primary{min-height:47px;background:var(--accent);color:white;border:0;border-radius:9px;font:800 1rem 'Tajawal',sans-serif;cursor:pointer}
+#pageCommerce .rc-scroll{overflow:auto;max-width:100%;margin-top:8px}
+#pageCommerce .rc-scroll table{border-collapse:collapse;width:100%;min-width:430px}
+#pageCommerce .rc-scroll th,#pageCommerce .rc-scroll td{border-bottom:1px solid var(--border);padding:10px 8px;text-align:right;font-size:.9rem;white-space:nowrap}
+#pageCommerce .rc-kpis{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+#pageCommerce .rc-kpis>div{border:1px solid var(--border);border-radius:8px;padding:12px;font-size:.86rem}
+#pageCommerce .rc-kpis strong{display:block;margin-top:6px;font-size:1.14rem;color:var(--accent)}
+#ratibCommerceHome{display:block;width:100%;border:1px solid var(--border);border-radius:12px;padding:14px;background:var(--card);color:var(--text);text-align:right;box-shadow:var(--shadow);margin:15px 0}
+#ratibCommerceHome .ratib-com-heading{font:800 1.08rem 'Tajawal',sans-serif;color:var(--accent);display:block;margin-bottom:10px}
+#ratibCommerceHome .ratib-com-quick{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;text-align:center}
+#ratibCommerceHome .ratib-com-quick>span{display:flex;flex-direction:column;align-items:center;gap:7px;font:700 .91rem 'Tajawal',sans-serif}
+#ratibCommerceHome svg{width:29px;height:29px;fill:none;stroke:var(--accent);stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+@media(max-width:500px){#pageCommerce .rc-grid{grid-template-columns:1fr}#pageCommerce .rc-kpis{grid-template-columns:1fr}}
+
+/* Ratib 3.6.131: approved home/financial-document design; preserve theme variables. */
+.ratib-commerce-shortcuts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:14px 0 16px;direction:rtl}
+.ratib-commerce-shortcut{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:7px;min-height:90px;background:var(--card);border:1px solid var(--border);border-radius:10px;color:var(--text);box-shadow:var(--shadow);font:800 1.03rem 'Tajawal',sans-serif;cursor:pointer;padding:13px 4px}
+.ratib-commerce-shortcut:hover,.ratib-commerce-shortcut:focus-visible{border-color:var(--accent);outline:2px solid transparent;color:var(--accent)}
+.ratib-commerce-shortcut svg{width:31px;height:31px;stroke:var(--accent);fill:none;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+#pageCommerce .rc-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:6px 0 10px}
+#pageCommerce .rc-head h2{border:0;margin:0;padding:0;color:var(--accent);font:800 1.25rem 'Tajawal',sans-serif}
+#pageCommerce .rc-full{grid-column:1/-1}
+#pageCommerce .rc-field textarea{resize:vertical;min-height:65px;width:100%;font:inherit;color:var(--text);background:var(--card);border:1px solid var(--border);border-radius:8px;padding:10px}
+#pageCommerce .rc-grid strong{display:block;padding:10px;color:var(--text)}
+#pageCommerce .rc-lines{min-width:720px}
+#pageCommerce .rc-lines th,#pageCommerce .rc-lines td{vertical-align:middle;text-align:right;border:1px solid var(--border);padding:6px}
+#pageCommerce .rc-lines input,#pageCommerce .rc-lines select{width:100%;min-width:0;max-width:210px;background:var(--card);color:var(--text);border:1px solid var(--border);border-radius:7px;padding:8px;font:700 .93rem 'Tajawal',sans-serif}
+#pageCommerce .rc-lines td:nth-child(1){min-width:200px}
+#pageCommerce .rc-lines td:nth-child(2){min-width:110px}
+#pageCommerce .rc-lines td:nth-child(3),#pageCommerce .rc-lines td:nth-child(4){min-width:90px}
+#pageCommerce .rc-lines td:nth-child(5){min-width:100px;font-weight:800}
+#pageCommerce .rc-actions{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin:12px 0}
+#pageCommerce .rc-actions .btn{width:auto;min-height:44px;margin-top:0}
+#pageCommerce .rc-grand{margin-inline-start:auto;color:var(--accent);font-size:1.06rem}
+#pageCommerce .rc-search{display:flex;gap:8px;align-items:center;margin:9px 0}
+#pageCommerce .rc-search input{flex:1;min-width:100px;border:1px solid var(--border);border-radius:8px;background:var(--card);color:var(--text);min-height:45px;padding:8px;font:inherit}
+#pageCommerce .rc-document-actions{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:5px;margin:8px 0 14px}
+#pageCommerce .rc-doc-action{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;background:var(--card);color:var(--text);border:1px solid var(--border);border-radius:9px;min-width:0;min-height:61px;padding:6px 2px;font-family:inherit;cursor:pointer}
+#pageCommerce .rc-doc-action small{font-size:.74rem;font-weight:700}
+#pageCommerce .rc-tool-icon{font-size:1.3rem;color:var(--accent);font-weight:800}
+.rc-paper{background:#fff!important;color:#111827!important;direction:rtl;font-family:'Tajawal',Arial,sans-serif;padding:16px;border:1px solid #cbd5e1;border-radius:8px;line-height:1.7;min-width:0}
+.rc-paper .rc-paper-head{text-align:center;font-size:1rem;border-bottom:1px solid #94a3b8;padding-bottom:12px}
+.rc-paper .rc-paper-head strong{font-size:1.14rem}
+.rc-paper h2{text-align:center!important;font-size:1.35rem!important;margin:15px 0!important;color:#111827!important;border:0!important}
+.rc-paper .rc-document-meta{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:4px 18px;font-size:.9rem;margin:12px 0}
+.rc-paper .rc-document-table{border-collapse:collapse;width:100%;font-size:.88rem}
+.rc-paper .rc-document-table td,.rc-paper .rc-document-table th{border:1px solid #94a3b8;text-align:right;padding:7px 5px}
+.rc-paper .rc-document-table th{background:#f1f5f9}
+.rc-paper .rc-paper-total{text-align:left;font-weight:900;font-size:1.06rem;margin-top:12px}
+.rc-paper .rc-paper-note{border-top:1px dashed #94a3b8;padding-top:10px}
+.rc-paper .rc-paper-signatures{display:flex;gap:12px;justify-content:space-between;margin-top:30px;font-size:.82rem;flex-wrap:wrap}
+#rc-preview-modal .rc-preview-modal-body{max-width:750px;width:96%;max-height:94vh;overflow:auto}
+#rc-preview-modal #rc-preview-content{overflow:auto;max-height:70vh;background:#f8fafc;padding:8px;border-radius:8px}
+#ratibCommercePrintHost{display:none}
+@media(max-width:550px){
+ .ratib-commerce-shortcuts{gap:7px}.ratib-commerce-shortcut{min-height:76px;font-size:.93rem;padding:8px 3px}
+ #pageCommerce .rc-document-actions{grid-template-columns:repeat(4,minmax(0,1fr))}
+ #pageCommerce .rc-paper .rc-document-meta{grid-template-columns:1fr}
+}
+@media print{
+ body.printing-commerce *{visibility:hidden!important}
+ body.printing-commerce #ratibCommercePrintHost,
+ body.printing-commerce #ratibCommercePrintHost *{visibility:visible!important}
+ body.printing-commerce #ratibCommercePrintHost{display:block!important;position:absolute;top:0;left:0;right:0;width:100%;background:white;z-index:2147483647}
+ body.printing-commerce #ratibCommercePrintHost .rc-paper{border:0!important;box-shadow:none!important;width:100%;padding:0}
+ body.printing-commerce #ratibCommercePrintHost .rc-paper .rc-document-table tr{break-inside:avoid}
+}
+
+#pageCommerce .rc-guide-actions{display:flex;gap:7px;flex-wrap:wrap;margin:12px 0 14px}
+#pageCommerce .rc-guide-actions .rc-doc-action{flex:1 1 105px;min-height:55px;font:700 .93rem Tajawal,sans-serif;white-space:normal}
+#pageCommerce .rc-import-review{border:1px solid var(--accent);border-radius:10px;margin:12px 0;padding:12px;background:var(--card)}
+#pageCommerce .rc-import-review h4{margin:3px 0 10px}
+#pageCommerce .rc-import-review button{width:auto;margin:8px 5px 0}
+#pageCommerce .rc-import-review p{font-size:.8rem;color:var(--muted)}
+@media print {body.printing-commerce #ratibCommercePrintHost .rc-scroll{overflow:visible!important;max-height:none!important}body.printing-commerce #ratibCommercePrintHost table{width:100%!important;break-inside:auto}body.printing-commerce #ratibCommercePrintHost tr{break-inside:avoid}}
+
+/* Compact field layout: field names live inside each control, without separate header rows. */
+#pageCommerce .rc-app{max-width:1020px;padding:4px 6px}
+#pageCommerce .rc-card{padding:11px;margin:8px 0;border-radius:10px}
+#pageCommerce .rc-card h3{font-size:1.04rem;margin:0 0 8px}
+#pageCommerce .rc-grid{gap:8px;align-items:end}
+#pageCommerce .rc-field{position:relative;display:flex;flex-direction:column;gap:0;min-width:0}
+#pageCommerce .rc-field .rc-field-label{
+ position:absolute;z-index:1;inset-block-start:5px;inset-inline-start:11px;inset-inline-end:8px;
+ color:var(--muted);font:700 .72rem/1.13 'Tajawal',sans-serif;
+ pointer-events:none;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+#pageCommerce .rc-field>input,
+#pageCommerce .rc-field>select,
+#pageCommerce .rc-field>textarea{
+ box-sizing:border-box;min-height:49px!important;height:auto!important;margin:0!important;
+ padding:20px 10px 5px!important;
+ line-height:1.3!important;font-size:.97rem!important;font-weight:700;
+}
+#pageCommerce .rc-field>textarea{min-height:68px!important}
+#pageCommerce .rc-field>strong{min-height:49px;box-sizing:border-box;padding:20px 10px 5px!important;line-height:1.3}
+#pageCommerce .rc-field input:focus,#pageCommerce .rc-field select:focus,#pageCommerce .rc-field textarea:focus{outline:1px solid var(--accent);outline-offset:0}
+#pageCommerce .rc-field input::placeholder,#pageCommerce .rc-field textarea::placeholder{color:var(--muted);opacity:.7;font-weight:500}
+#pageCommerce .rc-field input[type=date]{min-width:0}
+#pageCommerce .rc-actions{margin:6px 0}
+#pageCommerce .rc-tabs{gap:5px;margin:7px 0}
+#pageCommerce .rc-tabs button{min-height:40px;padding:6px 10px;font-size:.9rem}
+#pageCommerce .rc-head{margin:3px 0 5px}
+#pageCommerce .rc-guide-actions{gap:5px;margin:8px 0}
+#pageCommerce .rc-guide-actions .rc-doc-action{flex:1 1 88px;min-height:49px;font-size:.87rem}
+#pageCommerce .rc-note{margin:4px 0 7px;line-height:1.5;font-size:.79rem}
+.rc-paper .rc-document-title{font-size:1.35rem;text-align:center;margin:9px 0}
+.rc-paper .rc-paper-subtitle{text-align:center;color:#334155;margin:1px 0 13px}
+.rc-paper .rc-paper-head{position:relative;min-height:57px;padding-inline-start:15px;padding-inline-end:95px}
+.rc-paper .rc-paper-head.ratib-with-user-logo{min-height:72px}
+.rc-paper.rc-guide-paper .rc-document-table{width:100%;table-layout:auto;border-collapse:collapse}
+.rc-paper.rc-guide-paper .rc-document-table td,.rc-paper.rc-guide-paper .rc-document-table th{white-space:normal;overflow-wrap:anywhere}
+@media(max-width:500px){
+ #pageCommerce .rc-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}
+ #pageCommerce .rc-field .rc-field-label{font-size:.67rem}
+ #pageCommerce .rc-field>input,#pageCommerce .rc-field>select{font-size:.88rem!important;padding-inline:7px!important}
+ #pageCommerce .rc-full{grid-column:1/-1}
+ #pageCommerce .rc-card{padding:9px}
+ #pageCommerce .rc-paper .rc-paper-head{padding-inline-end:64px}
+}
+@media(max-width:365px){#pageCommerce .rc-grid{grid-template-columns:1fr}}
+@media print{
+ body.printing-commerce .rc-paper .rc-document-table thead{display:table-header-group}
+ body.printing-commerce .rc-paper .rc-document-table tr{break-inside:avoid;page-break-inside:avoid}
+ body.printing-commerce .rc-paper .rc-paper-head{break-after:avoid}
+}
+
+/* Trial catalog: inline search/group controls and 1-2 compact rows of document tools. */
+#pageCommerce .rc-products-guide .rc-guide-heading{display:flex;align-items:center;justify-content:space-between;gap:7px;direction:rtl;min-width:0;margin-bottom:7px}
+#pageCommerce .rc-products-guide .rc-guide-heading h3{white-space:nowrap;margin:0;font-size:1.03rem}
+#pageCommerce .rc-catalog-buttons{display:flex;align-items:center;gap:5px;min-width:0}
+#pageCommerce .rc-catalog-toggle{display:inline-flex;align-items:center;justify-content:center;gap:3px;min-width:0;min-height:35px;padding:5px 7px;white-space:nowrap;border:1px solid var(--border);border-radius:8px;background:var(--card);color:var(--text);font:700 .73rem 'Tajawal',sans-serif;cursor:pointer}
+#pageCommerce .rc-catalog-toggle span{font-size:1.05rem;line-height:1;color:var(--accent)}
+#pageCommerce .rc-catalog-toggle.is-active{border-color:var(--accent);color:var(--accent);background:var(--bg)}
+#pageCommerce .rc-catalog-toggle:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+#pageCommerce .rc-catalog-filter-fields{display:flex;align-items:end;gap:7px;margin:4px 0 8px}
+#pageCommerce .rc-catalog-filter-fields label{display:flex;flex:1;flex-direction:column;gap:3px;min-width:0;color:var(--muted);font:700 .73rem 'Tajawal',sans-serif}
+#pageCommerce .rc-catalog-filter-fields input,#pageCommerce .rc-catalog-filter-fields select{box-sizing:border-box;width:100%;min-width:0;min-height:40px;padding:6px 8px;border:1px solid var(--border);border-radius:8px;background:var(--card);color:var(--text);font:700 .85rem 'Tajawal',sans-serif}
+#pageCommerce .rc-catalog-count{font-size:.72rem;color:var(--muted);margin:2px 0 1px}
+#pageCommerce .rc-products-guide .rc-guide-actions{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:5px;margin:7px 0 8px}
+#pageCommerce .rc-products-guide .rc-guide-actions .rc-doc-action{flex:none;min-width:0;min-height:49px;padding:4px 2px;gap:2px;font-size:.73rem;line-height:1.15}
+#pageCommerce .rc-products-guide .rc-guide-actions .rc-guide-tool-icon{color:var(--accent);font-size:1.15rem;line-height:1}
+#pageCommerce .rc-products-guide .rc-guide-actions small{font:700 .72rem/1.18 'Tajawal',sans-serif;white-space:normal;overflow-wrap:anywhere}
+@media(max-width:650px){
+ #pageCommerce .rc-products-guide .rc-guide-actions{grid-template-columns:repeat(4,minmax(0,1fr))}
+}
+@media(max-width:390px){
+ #pageCommerce .rc-products-guide .rc-guide-heading{gap:3px}
+ #pageCommerce .rc-products-guide .rc-guide-heading h3{font-size:.96rem}
+ #pageCommerce .rc-catalog-buttons{gap:3px}
+ #pageCommerce .rc-catalog-toggle{min-height:34px;padding:4px 4px;font-size:.66rem}
+ #pageCommerce .rc-catalog-toggle span{font-size:.9rem}
+ #pageCommerce .rc-products-guide .rc-guide-actions small{font-size:.69rem}
+}
+
+/* Compact inbound vouchers: preserve native Ratib card typography and action sizing. */
+#pageCommerce .rc-invoice-card{padding:10px;margin:7px 0}
+#pageCommerce .rc-invoice-card .rc-type-switch{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:5px;margin:0 0 8px;direction:rtl}
+#pageCommerce .rc-invoice-card .rc-type-option{display:flex;align-items:center;justify-content:center;gap:5px;min-width:0;min-height:42px;padding:5px 3px;border:1px solid var(--border);border-radius:9px;background:var(--card);color:var(--text);font:800 .85rem/1.18 'Tajawal',sans-serif;cursor:pointer}
+#pageCommerce .rc-invoice-card .rc-type-option.active{border:2px solid var(--accent);color:var(--accent);background:var(--bg)}
+#pageCommerce .rc-invoice-card .rc-type-option:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+#pageCommerce .rc-invoice-card .rc-type-symbol{font-size:1rem;color:var(--accent);line-height:1}
+#pageCommerce .rc-invoice-card .rc-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;align-items:end}
+#pageCommerce .rc-invoice-card .rc-field>input,
+#pageCommerce .rc-invoice-card .rc-field>select,
+#pageCommerce .rc-invoice-card .rc-field>strong{min-height:47px!important}
+#pageCommerce .rc-invoice-card .rc-scroll{margin-top:7px}
+#pageCommerce .rc-invoice-card .rc-lines th,
+#pageCommerce .rc-invoice-card .rc-lines td{padding:4px}
+#pageCommerce .rc-invoice-card .rc-lines input,
+#pageCommerce .rc-invoice-card .rc-lines select{padding:5px;font-size:.83rem;min-height:35px}
+#pageCommerce .rc-invoice-card .rc-actions{gap:5px;margin:7px 0}
+#pageCommerce .rc-invoice-card .rc-actions .btn{min-height:39px;padding:6px 9px}
+#pageCommerce .rc-invoice-card .rc-note{font-size:.76rem;line-height:1.35}
+#pageCommerce .rc-invoice-card .rc-draft-actions{margin:7px 0 5px;gap:5px}
+#pageCommerce .rc-invoice-card .rc-draft-actions .rc-doc-action{min-height:47px;padding:4px 2px;gap:2px}
+#pageCommerce .rc-invoice-card .rc-draft-actions .rc-tool-icon{font-size:1rem}
+#pageCommerce .rc-invoice-card .rc-draft-actions small{font-size:.7rem}
+@media(max-width:650px){
+ #pageCommerce .rc-invoice-card .rc-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}
+ #pageCommerce .rc-invoice-card .rc-type-option{font-size:.73rem;min-height:40px;gap:3px}
+ #pageCommerce .rc-invoice-card .rc-draft-actions{grid-template-columns:repeat(4,minmax(0,1fr))}
+}
+@media(max-width:385px){
+ #pageCommerce .rc-invoice-card .rc-type-option{font-size:.66rem}
+ #pageCommerce .rc-invoice-card .rc-type-symbol{font-size:.87rem}
+}
+
+#pageCommerce .rc-invoice-card .rc-draft-view-head{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:9px 0 5px;font-size:.84rem;color:var(--accent)}
+#pageCommerce .rc-invoice-card .rc-draft-view-head .btn{width:auto;min-height:34px;padding:4px 8px;font-size:.76rem}
+#pageCommerce .rc-invoice-card #rc-draft-view:empty{display:none}
+#pageCommerce .rc-invoice-card #rc-draft-view .rc-paper{padding:10px}
+
+
+/* Ratib trial 3.6.132 — personal print header and a SINGLE horizontal signature row. */
+.rc-paper.rc-document-paper .rc-paper-head .rc-paper-header-details{
+  white-space:pre-line;overflow-wrap:anywhere;font-size:.86rem;line-height:1.5;margin:3px 0 0;
+}
+.rc-paper.rc-document-paper .rc-document-footer{
+  break-inside:avoid;page-break-inside:avoid;
+}
+.rc-paper.rc-document-paper .rc-paper-signatures{
+  display:grid!important;
+  grid-auto-flow:column!important;
+  grid-auto-columns:minmax(0,1fr)!important;
+  grid-template-columns:none!important;
+  flex-wrap:nowrap!important;
+  align-items:start;
+  gap:7px!important;
+  margin-top:21px!important;
+  width:100%;
+  page-break-inside:avoid;break-inside:avoid;
+}
+.rc-paper.rc-document-paper .rc-signature-cell{
+  display:flex;flex-direction:column;align-items:center;justify-content:flex-start;
+  min-width:0;text-align:center;gap:4px;
+  border-top:1px solid #cbd5e1;padding:7px 2px 0;
+  font-size:.71rem;line-height:1.35;overflow-wrap:anywhere;
+}
+.rc-paper.rc-document-paper .rc-signature-cell b{
+  font-size:.78rem;line-height:1.3;min-height:2.1em;
+}
+.rc-paper.rc-document-paper .rc-signature-cell span{
+  white-space:nowrap;max-width:100%;font-size:.69rem;letter-spacing:-.1px;
+}
+@media(max-width:550px){
+ .rc-paper.rc-document-paper .rc-paper-signatures{gap:3px!important}
+ .rc-paper.rc-document-paper .rc-signature-cell{padding-inline:0;font-size:.59rem}
+ .rc-paper.rc-document-paper .rc-signature-cell b{font-size:.62rem}
+ .rc-paper.rc-document-paper .rc-signature-cell span{font-size:.57rem;letter-spacing:-.6px}
+}
+@media print{
+ body.printing-commerce #ratibCommercePrintHost .rc-paper-head,
+ body.printing-commerce #ratibCommercePrintHost .rc-document-footer,
+ body.printing-commerce #ratibCommercePrintHost .rc-paper-signatures{
+  break-inside:avoid!important;page-break-inside:avoid!important;
+ }
+ body.printing-commerce #ratibCommercePrintHost .rc-signature-cell{font-size:9pt}
+ body.printing-commerce #ratibCommercePrintHost .rc-signature-cell b{font-size:9pt}
+ body.printing-commerce #ratibCommercePrintHost .rc-signature-cell span{font-size:8pt}
+}
+
+/* Ratib trial invoice layout 3.6.135: one date in metadata and an optional plain RTL recipient. */
+.rc-paper.rc-document-paper .rc-invoice-meta{
+ display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.25fr) minmax(0,1fr);
+ gap:6px 10px;align-items:baseline;direction:rtl;text-align:right;
+ margin:2px 0 5px;font-size:.86rem;line-height:1.38;
+}
+.rc-paper.rc-document-paper .rc-invoice-meta>span{min-width:0;overflow-wrap:anywhere}
+.rc-paper.rc-document-paper .rc-invoice-party-row{
+ display:block;direction:rtl;text-align:right;
+ margin:0 0 8px;padding:0;
+ break-inside:avoid;page-break-inside:avoid;
+}
+.rc-paper.rc-document-paper .rc-invoice-recipient{
+ display:block!important;direction:rtl;text-align:right!important;
+ min-height:0!important;margin:0;padding:0!important;line-height:1.45;
+ background:transparent!important;color:#182231!important;
+ border:0!important;border-radius:0!important;box-shadow:none!important;
+ font-size:.93rem;overflow-wrap:anywhere;
+}
+.rc-paper.rc-document-paper .rc-invoice-recipient b{font-weight:900}
+.rc-paper.rc-document-paper .rc-invoice-recipient span{font-weight:700}
+@media(max-width:550px){
+ .rc-paper.rc-document-paper .rc-invoice-meta{gap:4px;font-size:.72rem}
+ .rc-paper.rc-document-paper .rc-invoice-party-row{margin-bottom:5px}
+ .rc-paper.rc-document-paper .rc-invoice-recipient{font-size:.74rem}
+}
+@media print{
+ body.printing-commerce .rc-paper.rc-document-paper .rc-invoice-party-row{
+  break-inside:avoid!important;page-break-inside:avoid!important;
+  margin-top:0;margin-bottom:2mm;
+ }
+}
+
+
+/* Trial: optional printed invoice recipient, searchable products and continuous notes. */
+#pageCommerce .rc-invoice-card .rc-product-search{min-width:170px;max-width:100%;width:100%;box-sizing:border-box}
+#pageCommerce .rc-invoice-card .rc-currency-note{display:block;margin-top:3px;color:var(--muted);font-weight:500;font-size:.68rem;line-height:1.4}
+.rc-paper.rc-document-paper .rc-paper-tafqit{
+ display:block;text-align:right;direction:rtl;line-height:1.6;
+ margin:7px 0 9px;padding:0 0 5px;
+ font-size:.85rem;color:#182231;
+ overflow-wrap:anywhere;white-space:normal;
+ break-inside:avoid;page-break-inside:avoid;
+}
+.rc-paper.rc-document-paper .rc-paper-note{
+ display:block;direction:rtl;text-align:right;white-space:pre-wrap;
+ overflow-wrap:anywhere;word-break:normal;border-top:0;
+ margin:6px 0 10px;padding:3px 0;line-height:1.55;
+}
+.rc-paper.rc-document-paper .rc-invoice-meta{
+ grid-template-columns:minmax(0,1fr) minmax(0,1.1fr) minmax(0,1fr) minmax(0,1fr);
+}
+@media(max-width:550px){
+ .rc-paper.rc-document-paper .rc-invoice-meta{grid-template-columns:repeat(2,minmax(0,1fr));}
+}
+@media print{
+ .rc-paper.rc-document-paper .rc-paper-note,
+ .rc-paper.rc-document-paper .rc-paper-tafqit{break-inside:avoid;page-break-inside:avoid}
+}
+
+
+/* Ratib trial 3.6.137 — foreign currency accounting and document-equivalent display */
+#pageCommerce .rc-invoice-card .rc-fx-preview{
+ background:var(--bg);border:1px solid var(--border);border-radius:8px;
+ padding:7px 10px;margin:2px 0;font:700 .8rem/1.6 Tajawal,sans-serif;
+ color:var(--text);text-align:right;
+}
+#pageCommerce .rc-invoice-card #rc-exchangeRate{direction:ltr;text-align:right}
+#pageCommerce .rc-invoice-card #rc-currency{min-height:44px}
+.rc-paper.rc-document-paper .rc-paper-equivalent{
+ margin:6px 0;padding:0;color:#182231;line-height:1.55;
+ font-size:.87rem;text-align:right;direction:rtl;overflow-wrap:anywhere;
+ break-inside:avoid;page-break-inside:avoid;
+}
+.rc-paper.rc-document-paper .rc-paper-equivalent span{font-size:.78rem;color:#475569}
+
+
+/* Compact management actions for native warehouse and invoice records. */
+#pageCommerce .rc-record-tools{display:flex;align-items:center;flex-wrap:wrap;gap:4px;justify-content:flex-start;direction:rtl;padding:4px 0}
+#pageCommerce .rc-record-tools .btn{width:auto;min-height:33px;padding:5px 8px;margin:0;font-size:.75rem}
+#pageCommerce .rc-record-tools [data-rc-doc-op="delete"]{color:var(--danger)}
+#pageCommerce .rc-record-tools [data-rc-doc-op="edit"]{font-weight:800}
+@media(max-width:550px){#pageCommerce .rc-record-tools{gap:3px}#pageCommerce .rc-record-tools .btn{min-height:30px;padding:4px 6px;font-size:.69rem}}
+
+
+/* 3.6.139 — balanced side labels, account lookup and adjustable symbol-led controls. */
+#pageCommerce .rc-head{flex-wrap:wrap;gap:6px}
+#pageCommerce .rc-size-setting{display:inline-flex;align-items:center;gap:5px;white-space:nowrap;color:var(--muted);font:700 .76rem Tajawal,sans-serif}
+#pageCommerce .rc-size-setting select{min-height:32px;width:auto;padding:4px 5px;font:700 .78rem Tajawal,sans-serif;border:1px solid var(--border);border-radius:7px;background:var(--card);color:var(--text)}
+#pageCommerce .rc-tabs{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,118px),1fr));gap:6px}
+#pageCommerce .rc-tabs button{display:flex;align-items:center;justify-content:center;gap:6px;text-align:center;min-width:0}
+#pageCommerce .rc-tab-icon{flex:0 0 auto;font-size:1.18em;line-height:1.1}
+#pageCommerce .rc-app[data-rc-button-size="small"]{--rc-btn-height:34px;--rc-btn-font:.74rem;--rc-btn-padding:4px 6px;--rc-symbol-size:.9rem}
+#pageCommerce .rc-app[data-rc-button-size="medium"]{--rc-btn-height:43px;--rc-btn-font:.86rem;--rc-btn-padding:7px 9px;--rc-symbol-size:1.08rem}
+#pageCommerce .rc-app[data-rc-button-size="large"]{--rc-btn-height:55px;--rc-btn-font:1rem;--rc-btn-padding:10px 13px;--rc-symbol-size:1.28rem}
+#pageCommerce .rc-app .rc-tabs button,#pageCommerce .rc-app .rc-type-option{min-height:var(--rc-btn-height)!important;padding:var(--rc-btn-padding)!important;font-size:var(--rc-btn-font)!important}
+#pageCommerce .rc-app .rc-type-symbol{font-size:var(--rc-symbol-size)!important}
+#pageCommerce .rc-smart-account{display:grid;grid-template-columns:minmax(0,1fr);gap:4px;min-width:0}
+#pageCommerce .rc-smart-account>input{min-width:0;width:100%;padding:8px;min-height:37px;border:1px solid var(--border);background:var(--card);color:var(--text);border-radius:8px;font:inherit}
+#pageCommerce .rc-smart-account>input:focus{border-color:var(--accent);outline:1px solid var(--accent)}
+#pageCommerce .rc-posting-preview{margin:5px 0;display:grid;gap:6px}
+#pageCommerce .rc-posting-pair{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px;direction:rtl;align-items:stretch}
+#pageCommerce .rc-posting-note{grid-column:1/-1;font:750 .72rem Tajawal,sans-serif;color:var(--muted)}
+#pageCommerce .rc-posting-account{min-width:0;display:flex;align-items:flex-start;flex-direction:column;gap:3px;padding:7px 8px;border-radius:8px;border:2px solid;line-height:1.4;overflow-wrap:anywhere}
+#pageCommerce .rc-posting-account b{font-size:.82rem}
+#pageCommerce .rc-posting-account span{font-size:.8rem;font-weight:700}
+#pageCommerce .rc-posting-debit{border-color:#317aab;background:rgba(49,122,171,.095);color:var(--text)}
+#pageCommerce .rc-posting-debit b{color:#317aab}
+#pageCommerce .rc-posting-credit{border-color:#a75a3c;background:rgba(167,90,60,.095);color:var(--text)}
+#pageCommerce .rc-posting-credit b{color:#a75a3c}
+@media(max-width:450px){#pageCommerce .rc-tabs{grid-template-columns:repeat(2,minmax(0,1fr))}#pageCommerce .rc-head{gap:5px}#pageCommerce .rc-posting-pair{gap:4px}}
+@media print{#pageCommerce .rc-size-setting,#pageCommerce .rc-posting-preview{display:none!important}}
+
+/* Match dashboard commerce shortcut sizing to the user's chosen commerce control size. */
+.ratib-commerce-shortcuts[data-rc-button-size="small"]{gap:5px}
+.ratib-commerce-shortcuts[data-rc-button-size="small"] .ratib-commerce-shortcut{min-height:59px;padding:6px 3px;gap:3px;font-size:.78rem}
+.ratib-commerce-shortcuts[data-rc-button-size="small"] .ratib-commerce-shortcut svg{width:21px;height:21px}
+.ratib-commerce-shortcuts[data-rc-button-size="medium"] .ratib-commerce-shortcut{min-height:82px;padding:10px 4px;gap:6px;font-size:.93rem}
+.ratib-commerce-shortcuts[data-rc-button-size="medium"] .ratib-commerce-shortcut svg{width:27px;height:27px}
+.ratib-commerce-shortcuts[data-rc-button-size="large"]{gap:11px}
+.ratib-commerce-shortcuts[data-rc-button-size="large"] .ratib-commerce-shortcut{min-height:112px;padding:16px 5px;gap:9px;font-size:1.15rem}
+.ratib-commerce-shortcuts[data-rc-button-size="large"] .ratib-commerce-shortcut svg{width:38px;height:38px}
+
+
+/* Trial 3.6.140 — restore familiar, unpadded fields and text-only document selector. */
+#pageCommerce .rc-field{
+ position:static!important;gap:5px!important;
+}
+#pageCommerce .rc-field .rc-field-label{
+ position:static!important;inset:auto!important;z-index:auto!important;
+ font:700 .84rem/1.35 'Tajawal',sans-serif!important;
+ color:var(--muted);white-space:normal!important;
+ overflow:visible!important;text-overflow:clip!important;
+ pointer-events:auto!important;
+}
+#pageCommerce .rc-field>input,
+#pageCommerce .rc-field>select,
+#pageCommerce .rc-field>textarea{
+ box-sizing:border-box;min-height:42px!important;height:auto!important;
+ padding:8px 10px!important;line-height:1.45!important;
+}
+#pageCommerce .rc-field>strong{
+ box-sizing:border-box;min-height:42px!important;
+ padding:8px 10px!important;line-height:1.45!important;
+}
+#pageCommerce .rc-invoice-card .rc-document-type-row{
+ max-width:380px;margin:0 0 10px;direction:rtl;
+}
+#pageCommerce .rc-invoice-card .rc-document-type-row select{
+ width:100%;border:1px solid var(--border);border-radius:8px;
+ color:var(--text);background:var(--card);font:700 .94rem 'Tajawal',sans-serif;
+}
+#pageCommerce .rc-invoice-card .rc-grid{
+ align-items:start;
+}
+#pageCommerce .rc-smart-account{
+ gap:4px;min-width:0;
+}
+#pageCommerce .rc-invoice-card .rc-smart-account>input,
+#pageCommerce .rc-invoice-card .rc-smart-account>select{
+ min-height:39px!important;padding:7px 9px!important;
+}
+@media(max-width:500px){
+ #pageCommerce .rc-invoice-card .rc-document-type-row{max-width:100%}
+}
+
+
+/* Trial 3.6.141 — one clean searchable posting account field, not input plus select. */
+#pageCommerce .rc-smart-account{display:block!important;min-width:0}
+#pageCommerce .rc-smart-account>input[type="search"]{
+ display:block;box-sizing:border-box;width:100%;min-width:0;
+ min-height:42px!important;padding:8px 10px!important;
+ border:1px solid var(--border);border-radius:8px;
+ background:var(--card);color:var(--text);
+ font:700 .91rem/1.45 'Tajawal',sans-serif!important;
+}
+#pageCommerce .rc-smart-account>input[type="hidden"]{display:none!important}
+#pageCommerce .rc-invoice-card .rc-field-label{white-space:normal!important}

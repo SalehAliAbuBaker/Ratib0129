@@ -56,3 +56,11 @@ body.ratib-special-preview-open{overflow:hidden!important}
 .ratib-special-preview-pages canvas{display:block;width:100%;max-width:1000px;height:auto;background:#fff;box-shadow:0 1px 8px #0003}
 @media(max-width:460px){#ratibSpecialPreview.ratib-special-preview-overlay{padding:4px}.ratib-special-preview-head{padding:9px 6px}.ratib-special-preview-head strong{font-size:.73rem}.ratib-special-preview-head button{font-size:.75rem;padding:6px}.ratib-special-preview-pages{padding:5px;gap:7px}}
 @media print{#ratibSpecialPreview{display:none!important}}
+
+/* Financial position: equal title panels and bottom-aligned totals. */
+.ratib-special-position{align-items:stretch}
+.ratib-special-position>section{display:flex;flex-direction:column;min-height:100%;box-sizing:border-box}
+.ratib-special-position>section>h3{box-sizing:border-box;min-height:82px;display:flex;align-items:center;justify-content:center;line-height:1.5;padding:12px 7px;overflow-wrap:break-word}
+.ratib-special-position>section>.ratib-special-sum{margin-top:auto;min-height:76px;box-sizing:border-box;align-content:center;justify-content:center;text-align:center;flex-direction:column;gap:5px}
+.ratib-special-position>section>.ratib-special-sum b{margin:0}
+@media(max-width:390px){.ratib-special-position>section>h3{min-height:76px;padding:9px 4px;font-size:.83rem}.ratib-special-position>section>.ratib-special-sum{min-height:72px}}

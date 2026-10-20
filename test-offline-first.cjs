@@ -10,8 +10,10 @@ const license = fs.readFileSync(path.join(root,'ratib-license-draft.js'),'utf8')
 const manifest = JSON.parse(fs.readFileSync(path.join(root,'manifest.json'),'utf8'));
 
 assert.match(html, /<link\s+rel="manifest"\s+href="\.\/manifest\.json">/);
-assert.match(html, /الإصدار 3\.6\.99/);
-assert.match(sw, /v106-offline-first-3\.6\.99/);
+const publishedVersion = sw.match(/const APP_RELEASE=\{"version":"(3\.6\.\d+)"/)?.[1];
+assert.ok(publishedVersion, 'app release must expose its current numeric version');
+assert.ok(html.includes('الإصدار '+publishedVersion), 'visible version must match offline release');
+assert.ok(sw.includes('CACHE_VERSION=') && sw.includes(publishedVersion), 'cache version must identify current release');
 assert.equal(manifest.display,'standalone');
 assert.equal(manifest.scope,'./');
 const shellMatch = sw.match(/const APP_SHELL=(\[[\s\S]*?\]);/);
@@ -75,9 +77,9 @@ async function testLicence() {
   const page=await requestWithNoNetwork('./','navigate');
   assert.equal(page.text,'CACHED INDEX');
   assert.equal(page.attemptedNetwork,0,'offline page opening must use cache');
-  const script=await requestWithNoNetwork('./ratib-theme.js?v=3.6.99','cors');
+  const script=await requestWithNoNetwork('./ratib-theme.js?v='+publishedVersion,'cors');
   assert.equal(script.text,'CACHED JS');
   assert.equal(script.attemptedNetwork,0,'offline JS must use installed assets');
   await testLicence();
-  console.log('PASS Ratib 3.6.99: app shell, offline navigation, versioned JS, and unexpired local licence');
+  console.log('PASS Ratib '+publishedVersion+': app shell, offline navigation, versioned JS, and unexpired local licence');
 })().catch(e=>{console.error(e);process.exitCode=1;});

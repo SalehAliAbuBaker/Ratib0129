@@ -1,7 +1,7 @@
 const fs=require('node:fs'),path=require('node:path'),vm=require('node:vm'),assert=require('node:assert/strict');
 const source=fs.readFileSync(path.join(__dirname,'ratib-commerce-3.6.131.js'),'utf8'),mark="window.RatibCommerce={open,render:paint,version:'3.6.131'};";
 assert(source.includes(mark));assert(source.includes("['pdf','PDF'],['share','المشاركة']"));
-const code=source.replace(mark,"window.__test={data,products,guideMarkup,documentHtml,productOutput,productGuideCanvases,filteredCatalogProducts,setCatalogFilter:(term,group)=>{catalogSearch=term;catalogGroup=group;}};"+mark);
+const code=source.replace(mark,"window.__test={data,products,guideMarkup,documentHtml,productOutput,productGuideCanvases,filteredCatalogProducts,setCatalogFilter:(term,group)=>{catalogSearch=term;catalogGroup=group;},nextNumber,invoice,currentDraftDocument,draftOutput,setInbound:()=>{mode='in';view='new';draft=null;},setDraft:x=>{draft=x;}};"+mark);
 const memory={},store={get:(k,d)=>memory[k]??d,set:(k,v)=>memory[k]=v},capture=[],rows=[];
 const window={RatibPrintLogo:{whenReady:async()=>true,syncPrint(){}}},document={readyState:'loading',addEventListener(){},getElementById(){return null;}};
 class File{constructor(parts,name,opts){this.name=name;this.type=opts.type;}}
@@ -45,7 +45,31 @@ d.warehouses=[{id:'main',name:'المخزن الرئيسي'}];store.set('commerc
  assert.equal(capture[2].blob.pages[0],'بطاقة الصنف');
  assert(capture[2].name.includes('000001'));
  assert(capture[3].title.includes('صنف أ'));
+ const inboundTitles=['أمر توريد','توريد مخزني','فاتورة مشتريات'];
+ T.setInbound();
+ const inboundLayout=T.invoice(d);
+ for(const title of inboundTitles)assert(inboundLayout.includes('data-rc-select-doctype="'+title+'"'),title);
+ for(const action of ['view','preview','print','pdf','share','search','back'])assert(inboundLayout.includes('data-rc-draft-action="'+action+'"'),action);
+ assert(!inboundLayout.includes('id="rc-doctype"'),'inbound type should be selected via three top buttons, not a dropdown');
+ d.invoices.push({kind:'purchase',title:'أمر توريد',number:'IN-00007'},
+ {kind:'purchase',title:'توريد مخزني',number:'IN-00003'},
+ {kind:'purchase',title:'فاتورة مشتريات',number:'IN-00020'});
+ assert.equal(T.nextNumber(d,'purchase','أمر توريد'),'PO-00008');
+ assert.equal(T.nextNumber(d,'purchase','توريد مخزني'),'GR-00004');
+ assert.equal(T.nextNumber(d,'purchase','فاتورة مشتريات'),'PI-00021');
+ assert.notEqual(T.nextNumber(d,'purchase','توريد مخزني'),T.nextNumber(d,'purchase','أمر توريد'));
+ store.set('commerce_v1',d);
+ T.setDraft({kind:'purchase',title:'توريد مخزني',number:'GR-00004',date:'2026-10-20',warehouse:'main',partyName:'مورد',note:'مراجعة',
+  lines:[{product:'a',unit:'حبة',qty:2,price:5}]});
+ const before=d.invoices.length;
+ await T.draftOutput('pdf');await T.draftOutput('share');
+ assert.equal(T.data().invoices.length,before,'draft output must not save accounting documents');
+ assert.equal(capture.at(-2).blob.pages[0],'توريد مخزني');
+ assert.equal(capture.at(-1).action,'share');
+ const css=fs.readFileSync(path.join(__dirname,'ratib-commerce-3.6.131.css'),'utf8');
+ assert(css.includes('.rc-type-switch')&&css.includes('repeat(3,minmax(0,1fr))'));
+ assert(css.includes('.rc-invoice-card .rc-grid')&&css.includes('repeat(2,minmax(0,1fr))'));
  const doc=T.documentHtml(d,{kind:'purchase',title:'فاتورة مشتريات',number:'IN-1',date:'2026-10-20',warehouse:'main',partyName:'مورد',total:10,lines:[]});
  assert(doc.includes('الجهة من إعدادات الترويسة')&&doc.includes('فاتورة مشتريات'));
- console.log('PASS 3.6.131: guide search/group filters, PDF/share for guide and item card, header/title fidelity, compact toolbar');
+ console.log('PASS 3.6.131: three inbound type buttons, independent PO/GR/PI numbering, seven draft tools, nonposting PDF/share, compact fields and catalog');
 })().catch(error=>{console.error(error);process.exitCode=1;});

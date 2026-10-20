@@ -1875,12 +1875,13 @@ body.ratib-sidebar-open,body.ratib-about-open{overflow:hidden}
 
 
     <details id="ledgerVoucherTypeFilter" class="no-print">
-      <summary id="ledgerVoucherTypeSummary">نوع المستند: الكل (4)</summary>
+      <summary id="ledgerVoucherTypeSummary">نوع المستند: الكل (5)</summary>
       <div class="ratib-ledger-type-options" role="group" aria-label="تصفية السندات بحسب النوع">
         <label><input type="checkbox" data-ledger-voucher-type="receipt" checked>سند قبض</label>
         <label><input type="checkbox" data-ledger-voucher-type="payment" checked>سند صرف</label>
         <label><input type="checkbox" data-ledger-voucher-type="simple" checked>قيد بسيط</label>
         <label><input type="checkbox" data-ledger-voucher-type="compound" checked>قيد مركب</label>
+        <label><input type="checkbox" data-ledger-voucher-type="commerce" checked>الفواتير والمخزون</label>
       </div>
       <button type="button" id="ledgerSelectAllTypes">تحديد الكل</button>
     </details>
@@ -4204,8 +4205,9 @@ let currentLedgerSearchQuery = '', currentStatementSearchQuery = '', currentLedg
 let lastPrintedTx = null;
 let hasUnsavedChanges = false, lastFocusedElement = null, ledgerRenderTimer = null;
 let currentLedgerQuickFilter = 'all';
-let currentLedgerVoucherTypes=new Set(['receipt','payment','simple','compound']);
+let currentLedgerVoucherTypes=new Set(['receipt','payment','simple','compound','commerce']);
 function ratibLedgerVoucherType(t){
+ if(t.commerceId)return 'commerce';
  if(t.isImportedOpeningVoucher||t.isOpeningBalance)return 'compound';
  const mode=t.voucherMode||t.multiVoucher?.mode||'';
  if(mode==='income')return 'receipt';
@@ -6454,14 +6456,14 @@ document.querySelectorAll('#ledgerVoucherTypeFilter input[data-ledger-voucher-ty
   const values=[...document.querySelectorAll('#ledgerVoucherTypeFilter input[data-ledger-voucher-type]:checked')].map(x=>x.dataset.ledgerVoucherType);
   currentLedgerVoucherTypes=new Set(values);
   const summary=document.getElementById('ledgerVoucherTypeSummary');
-  if(summary)summary.textContent=values.length===4?'نوع المستند: الكل (4)':values.length?'نوع المستند: '+values.length+' من 4':'نوع المستند: لا شيء';
+  if(summary)summary.textContent=values.length===5?'نوع المستند: الكل (5)':values.length?'نوع المستند: '+values.length+' من 5':'نوع المستند: لا شيء';
   ledgerVisibleLimit=50;renderAllData();
  });
 });
 document.getElementById('ledgerSelectAllTypes')?.addEventListener('click',()=>{
  document.querySelectorAll('#ledgerVoucherTypeFilter input[data-ledger-voucher-type]').forEach(box=>box.checked=true);
- currentLedgerVoucherTypes=new Set(['receipt','payment','simple','compound']);
- const summary=document.getElementById('ledgerVoucherTypeSummary');if(summary)summary.textContent='نوع المستند: الكل (4)';
+ currentLedgerVoucherTypes=new Set(['receipt','payment','simple','compound','commerce']);
+ const summary=document.getElementById('ledgerVoucherTypeSummary');if(summary)summary.textContent='نوع المستند: الكل (5)';
  ledgerVisibleLimit=50;renderAllData();
 });
 document.querySelectorAll('#ledgerStatusFilter .status-filter-btn').forEach(btn => {

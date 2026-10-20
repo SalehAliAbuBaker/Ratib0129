@@ -281,7 +281,7 @@ function currentDraftDocument(){
   const amount=rnd(n(l.qty)*n(l.price));return {product:l.product,unit,qty:n(l.qty),price:n(l.price),subtotal:amount};
  });
  if(!lines.length)throw Error('أدخل صنفًا واحدًا بكمية موجبة للعرض أو المعاينة.');
- return {...draft,lines,total:rnd(lines.reduce((sum,l)=>sum+l.subtotal,0))};
+ return {...draft,isDraft:true,lines,total:rnd(lines.reduce((sum,l)=>sum+l.subtotal,0))};
 }
 async function draftOutput(action){
  if(['search','back'].includes(action)){
@@ -431,7 +431,7 @@ function documentLines(db,d){
 function documentHtml(db,d){
  const rows=documentLines(db,d);
  const tableHtml='<table class="rc-document-table"><thead><tr><th>#</th><th>اسم الصنف</th><th>الوحدة</th><th>العدد</th><th>السعر</th><th>الإجمالي</th></tr></thead><tbody>'+rows.map(r=>'<tr>'+r.map(x=>'<td>'+x+'</td>').join('')+'</tr>').join('')+'</tbody></table>';
- return '<article class="rc-paper" dir="rtl">'+printHeading(docName(d))+
+ return '<article class="rc-paper" dir="rtl">'+printHeading((d.isDraft?'مسودة غير معتمدة — ':'')+docName(d))+
  '<div class="rc-document-meta"><span>رقم المستند: <b>'+esc(d.number)+'</b></span><span>التاريخ: <b>'+esc(d.date)+'</b></span><span>المخزن: <b>'+esc(db.warehouses.find(w=>w.id===d.warehouse)?.name||'—')+'</b></span><span>الطرف: <b>'+esc(d.partyName||'—')+'</b></span></div>'+
  tableHtml+'<div class="rc-paper-total">الإجمالي: '+f(d.total)+' ريال يمني</div><p class="rc-paper-note"><b>ملاحظات:</b> '+esc(d.note||'—')+'</p><div class="rc-paper-signatures"><span>المعدّ: ______________</span><span>المستلم: ______________</span><span>المعتمد: ______________</span></div></article>';
 }
@@ -469,16 +469,16 @@ function printDocument(docId,derivedDoc){
  else window.print();
 }
 function* documentCanvases(db,d){
- let pageNumber=1,page=reportCanvasPage(docName(d),d.number+' — '+d.date+' — '+(d.partyName||''),pageNumber);
+ let pageNumber=1,title=(d.isDraft?'مسودة غير معتمدة — ':'')+docName(d),page=reportCanvasPage(title,d.number+' — '+d.date+' — '+(d.partyName||''),pageNumber);
  const widths=[70,340,150,140,170,220],headers=['#','اسم الصنف','الوحدة','العدد','السعر','الإجمالي'];
  const draw=(arr,bg)=>drawReportTableRow(page,reportTableLayout(page.ctx,arr,widths,19),widths,bg||'#fff');
  draw(headers,'#e2e8f0');
  for(const row of documentLines(db,d)){
-  if(page.y>1490){yield page.canvas;page=reportCanvasPage(docName(d),d.number+' — '+d.date,++pageNumber);draw(headers,'#e2e8f0');}
+  if(page.y>1490){yield page.canvas;page=reportCanvasPage(title,d.number+' — '+d.date,++pageNumber);draw(headers,'#e2e8f0');}
   draw(row.map(r=>r.replace(/&amp;|&quot;|&#39;|&lt;|&gt;/g,match=>({'&amp;':'&','&quot;':'"','&#39;':"'",'&lt;':'<','&gt;':'>'}[match]))));
  }
  draw(['','الإجمالي','YER','','',f(d.total)],'#ecfdf5');
- if(d.note){if(page.y>1450){yield page.canvas;page=reportCanvasPage(docName(d),d.number,++pageNumber);}draw(['','الملاحظات',d.note,'','','']);}
+ if(d.note){if(page.y>1450){yield page.canvas;page=reportCanvasPage(title,d.number,++pageNumber);}draw(['','الملاحظات',d.note,'','','']);}
  yield page.canvas;
 }
 async function pdfFor(d){

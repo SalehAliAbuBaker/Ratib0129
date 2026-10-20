@@ -305,14 +305,14 @@ function ensurePreview(){
 }
 function previewDocument(docId,derivedDoc){
  const db=data(),d=derivedDoc||db.invoices.find(x=>x.id===docId);if(!d)throw Error('تعذّر العثور على المستند.');
- previewId=docId;const modal=ensurePreview();modal.querySelector('#rc-preview-print').disabled=!docId;modal.querySelector('#rc-preview-content').innerHTML=documentHtml(db,d);
+ previewId=docId;const modal=ensurePreview();modal.querySelector('#rc-preview-print').disabled=!docId;modal.querySelector('#rc-preview-content').innerHTML=documentHtml(db,d);window.RatibPrintLogo?.syncPrint();
  modal.classList.add('show');
 }
 function printDocument(docId){
  const db=data(),d=db.invoices.find(x=>x.id===docId);if(!d)throw Error('تعذّر العثور على المستند.');
  let host=$('ratibCommercePrintHost');
  if(!host){host=document.createElement('div');host.id='ratibCommercePrintHost';document.body.appendChild(host);}
- host.innerHTML=documentHtml(db,d);
+ host.innerHTML=documentHtml(db,d);window.RatibPrintLogo?.syncPrint();
  if(typeof printRatibDocument==='function')printRatibDocument('printing-commerce');
  else window.print();
 }
@@ -329,7 +329,8 @@ function* documentCanvases(db,d){
  if(d.note){if(page.y>1450){yield page.canvas;page=reportCanvasPage(docName(d),d.number,++pageNumber);}draw(['','الملاحظات',d.note,'','','']);}
  yield page.canvas;
 }
-function pdfFor(d){
+async function pdfFor(d){
+ await window.RatibPrintLogo?.whenReady?.();
  const db=data();return buildPdfFromCanvases(documentCanvases(db,d));
 }
 async function documentOutput(action,docId){
@@ -338,7 +339,7 @@ async function documentOutput(action,docId){
  if(action==='preview'){previewDocument(d.id);return;}
  if(action==='print'){printDocument(d.id);return;}
  if(['pdf','share'].includes(action)){
-  const blob=pdfFor(d),name=docName(d)+'-'+d.number+'.pdf';
+  const blob=await pdfFor(d),name=docName(d)+'-'+d.number+'.pdf';
   if(action==='pdf')downloadFinancialFile(blob,name);
   else await shareRatibDocumentFile(new File([blob],name,{type:'application/pdf'}),docName(d)+' '+d.number);
   return;

@@ -75,8 +75,10 @@ function products(db){
 }
 function warehouses(db){return wrap('إدارة المخازن','<form id="rc-warehouse-form" class="rc-grid">'+fld('اسم المخزن',inp('name','text','','required'))+'<button class="rc-primary">إضافة مخزن</button></form>')+wrap('المخازن',db.warehouses.map(w=>'<p>'+esc(w.name)+'</p>').join(''));}
 function people(db){const type=mode==='in'?'vendor':'client';return wrap('إدارة '+(type==='vendor'?'الموردين':'العملاء'),'<form id="rc-person-form" class="rc-grid">'+fld('الاسم أو صاحب الحساب',inp('name','text','','required'))+fld('رقم الهاتف',inp('phone','tel'))+'<button class="btn btn-primary">حفظ</button></form>')+wrap('السجل',db.people.filter(x=>x.type===type).map(x=>'<p>'+esc(x.name)+' — '+esc(x.phone||'')+'</p>').join(''));}
-function accounts(db){const names={cash:'الصندوق / البنك',receivable:'ذمم العملاء',payable:'ذمم الموردين',inventory:'المخزون',sales:'إيرادات المبيعات',cogs:'تكلفة البضاعة المباعة',adjust:'فروق وتسويات المخزون'};
-return wrap('ربط الحسابات','<p class="rc-note">لا يُرحّل أي مستند قبل ربط حساباته التفصيلية. القيد المحاسبي متوازن وبالريال اليمني YER فقط.</p><form id="rc-accounts-form" class="rc-grid">'+Object.keys(names).map(k=>fld(names[k],sel('acc-'+k,leaf(),db.accounts[k]))).join('')+'<button class="rc-primary">حفظ الحسابات</button></form>');}
+function accounts(db){
+ const names={cash:'الصندوق / البنك',receivable:'ذمم العملاء (الصادر الآجل)',payable:'ذمم الموردين (الوارد الآجل)',inventory:'حساب المخزون',sales:'إيرادات المبيعات',cogs:'تكلفة البضاعة المباعة',adjust:'فروق وتسويات المخزون'};
+ return wrap('ربط الحسابات المحاسبية','<p class="rc-note">استخدم الحسابات التفصيلية الموجودة في شجرة راتب. الوارد: المخزون مدين، الصادر: المخزون دائن بتكلفته، وتُسجَّل قيمة المبيعات في حساب مستقل. لن يمر مستند غير متوازن.</p><form id="rc-accounts-form" class="rc-grid">'+Object.keys(names).map(k=>fld(names[k],sel('acc-'+k,leaf(),db.accounts[k]))).join('')+'<button class="btn btn-primary">حفظ الربط</button></form>');
+}
 function records(db){
  const docs=db.invoices.filter(d=>mode==='in'?['purchase','purchase_return'].includes(d.kind):['sale','sale_return'].includes(d.kind));
  const filtered=docs.filter(d=>!query||[d.number,docName(d),d.partyName,d.date,d.note].join(' ').toLocaleLowerCase().includes(query.toLocaleLowerCase()));
@@ -173,20 +175,25 @@ function changeOrigin(){
 function makeJournal(doc,db){
  if(doc.kind==='transfer')return [];
  const a=db.accounts,accounts=leaf(),valid=new Set(accounts.map(x=>x.id)),lines=[];
- const post=(side,key,sum)=>{sum=rnd(sum);if(sum<=0)return;if(!a[key]||!valid.has(a[key]))throw Error('يرجى ربط الحساب التفصيلي: '+key);lines.push({side,account:a[key],amount:sum});};
+ const post=(side,key,sum)=>{sum=rnd(sum);if(sum<=0)return;if(!a[key]||!valid.has(a[key]))throw Error('ربط الحساب التفصيلي غير مكتمل: '+key);lines.push({side,account:a[key],amount:sum});};
  if(doc.kind==='sale'||doc.kind==='sale_return'){
-  const sign=doc.kind==='sale';post(sign?'debit':'credit',doc.payment==='cash'?'cash':'receivable',doc.total);
-  post(sign?'credit':'debit','sales',doc.total);post(sign?'debit':'credit','cogs',doc.cost);post(sign?'credit':'debit','inventory',doc.cost);
+  const sign=doc.kind==='sale';
+  post(sign?'debit':'credit',doc.payment==='cash'?'cash':'receivable',doc.total);
+  post(sign?'credit':'debit','sales',doc.total);
+  post(sign?'debit':'credit','cogs',doc.cost);
+  post(sign?'credit':'debit','inventory',doc.cost);
  }else if(doc.kind==='purchase'||doc.kind==='purchase_return'){
-  const sign=doc.kind==='purchase';post(sign?'debit':'credit','inventory',doc.total);post(sign?'credit':'debit',doc.payment==='cash'?'cash':'payable',doc.total);
+  const sign=doc.kind==='purchase';
+  post(sign?'debit':'credit','inventory',doc.total);
+  post(sign?'credit':'debit',doc.payment==='cash'?'cash':'payable',doc.total);
  }else if(doc.kind==='adjust'){
-  const incoming=doc.direction==='in';post(incoming?'debit':'credit','inventory',doc.total);post(incoming?'credit':'debit','adjust',doc.total);
+  const sign=doc.direction==='in';post(sign?'debit':'credit','inventory',doc.total);post(sign?'credit':'debit','adjust',doc.total);
  }
- const dr=rnd(lines.filter(x=>x.side==='debit').reduce((a,l)=>a+l.amount,0)),cr=rnd(lines.filter(x=>x.side==='credit').reduce((a,l)=>a+l.amount,0));
- if(!lines.length||dr!==cr)throw Error('القيد المحاسبي غير متوازن.');
- const ids=new Map(accounts.map(x=>[x.id,x.name.split(' — ')[0]])),vid='com_'+doc.id,seq=getNextMultiVoucherNumber();
- const m={id:vid,seq,date:doc.date,mode:'multi-entry',baseCurrency:'YER',baseTotal:dr,note:'مستند تجاري '+doc.number,lines:lines.map(x=>({side:x.side,account:x.account,accountId:ids.get(x.account)||'',currency:'YER',amount:x.amount,base:x.amount,rate:1,budgetId:'general',note:doc.number}))};
- return lines.map((x,i)=>({id:vid+'_'+i,multiVoucherId:vid,commerceId:doc.id,isMultiVoucher:true,voucherMode:'multi-entry',seqNum:seq,date:doc.date,isoDate:doc.date,timestamp:new Date(doc.date+'T12:00:00').getTime(),amount:x.amount,currency:'YER',debitAccount:x.side==='debit'?x.account:'',creditAccount:x.side==='credit'?x.account:'',debitAccountId:x.side==='debit'?ids.get(x.account)||'':'',creditAccountId:x.side==='credit'?ids.get(x.account)||'':'',multiVoucher:m,type:'مستند تجاري '+doc.number,status:'posted',schemaVersion:APP_SCHEMA_VERSION,updatedAt:Date.now(),distribution:{},execution:{}}));
+ const debit=rnd(lines.filter(x=>x.side==='debit').reduce((sum,x)=>sum+x.amount,0)),credit=rnd(lines.filter(x=>x.side==='credit').reduce((sum,x)=>sum+x.amount,0));
+ if(!lines.length||debit!==credit)throw Error('القيد غير متوازن؛ لن يتم الحفظ.');
+ const codes=new Map(accounts.map(x=>[x.id,x.name.split(' — ')[0]])),vid='com_'+doc.id,seq=getNextMultiVoucherNumber();
+ const multi={id:vid,seq,date:doc.date,mode:'multi-entry',baseCurrency:'YER',baseTotal:debit,note:docName(doc)+' رقم '+doc.number,beneficiary:doc.partyName,lines:lines.map(l=>({side:l.side,account:l.account,accountId:codes.get(l.account)||'',currency:'YER',amount:l.amount,base:l.amount,rate:1,budgetId:'general',note:doc.note||doc.number}))};
+ return lines.map((l,i)=>({id:vid+'_'+i,multiVoucherId:vid,commerceId:doc.id,isMultiVoucher:true,voucherMode:'multi-entry',seqNum:seq,date:doc.date,isoDate:doc.date,timestamp:new Date(doc.date+'T12:00:00').getTime(),amount:l.amount,currency:'YER',debitAccount:l.side==='debit'?l.account:'',creditAccount:l.side==='credit'?l.account:'',debitAccountId:l.side==='debit'?codes.get(l.account)||'':'',creditAccountId:l.side==='credit'?codes.get(l.account)||'':'',multiVoucher:multi,type:docName(doc)+' '+doc.number,recipient:doc.partyName,distribution:{},execution:{},status:'posted',schemaVersion:APP_SCHEMA_VERSION,updatedAt:Date.now()}));
 }
 async function persistDoc(doc,db){
  if(loading)throw Error('هناك حفظ سابق قيد التنفيذ.');
@@ -209,21 +216,45 @@ async function persistDoc(doc,db){
  }finally{loading=false;}
 }
 async function saveInvoice(){
- syncInvoice();const db=data(),v=draft,q=n(v.qty),p=db.products.find(x=>x.id===v.product),returning=v.kind.endsWith('_return');
- positive(q,'الكمية');
- if(!p||!db.warehouses.some(w=>w.id===v.warehouse))throw Error('اختر الصنف والمخزن.');
- if(!/^\d{4}-\d{2}-\d{2}$/.test(v.date)||!Number.isFinite(Date.parse(v.date)))throw Error('التاريخ غير صحيح.');
- if(v.payment==='credit'&&!v.party)throw Error('حدد العميل أو المورد للآجل.');
- const src=db.invoices.find(x=>x.id===v.origin);
- if(returning&&(!src||src.kind!==mode||src.warehouse!==v.warehouse))throw Error('اختر فاتورة أصلية بمخزن صحيح.');
- if(returning&&q>leftToReturn(db,src.id,p.id))throw Error('كمية المرتجع تتجاوز الفاتورة الأصلية.');
- if(['sale','purchase_return'].includes(v.kind)&&q>qty(db,p.id,v.warehouse))throw Error('الكمية المتاحة لا تكفي.');
- let price=n(v.price),cost;
- if(returning){const line=src.lines.find(x=>x.product===p.id);if(!line)throw Error('الصنف غير موجود في الفاتورة الأصلية.');price=line.price;cost=rnd(q*line.cost/line.qty);}
- else{positive(price,'سعر الوحدة',true);cost=rnd(q*(v.kind==='sale'?average(db,p.id,v.warehouse):price));}
- const total=rnd(q*price);positive(total,'المبلغ');
- const prefix={sale:'S',purchase:'P',sale_return:'SR',purchase_return:'PR'}[v.kind];
- const doc={id:id(),kind:v.kind,number:prefix+'-'+String(db.invoices.filter(x=>x.kind===v.kind).length+1).padStart(5,'0'),date:v.date,warehouse:v.warehouse,party:returning?src.party:v.party,payment:returning?src.payment:v.payment,partyName:returning?src.partyName:(db.people.find(x=>x.id===v.party)?.name||''),origin:returning?src.id:'',total,cost,lines:[{product:p.id,qty:q,price,cost}],status:'posted'};
+ syncInvoice();const db=data(),d=draft,kind=d.kind,ret=kind.endsWith('_return'),origin=db.invoices.find(x=>x.id===d.origin);
+ if(!d||!db.warehouses.some(w=>w.id===d.warehouse))throw Error('اختر مخزنًا صحيحًا.');
+ if(!/^\d{4}-\d{2}-\d{2}$/.test(d.date)||!Number.isFinite(Date.parse(d.date)))throw Error('تاريخ المستند غير صحيح.');
+ if(!String(d.number||'').trim())throw Error('أدخل رقم المستند.');
+ if(db.invoices.some(x=>x.number===d.number&&x.kind===kind))throw Error('رقم المستند مستخدم مسبقًا ضمن نفس النوع.');
+ if(!String(d.partyName||'').trim())throw Error('حدد المورد أو العميل أو صاحب الحساب.');
+ if(!['cash','credit'].includes(d.payment))throw Error('طريقة التسوية غير صالحة.');
+ if(!ret&&!types[mode].includes(d.title))throw Error('اختر نوع مستند معتمد.');
+ if(ret&&(!origin||origin.kind!==dir()||origin.warehouse!==d.warehouse))throw Error('اختر مستندًا أصليًا من نفس اتجاه الحركة والمخزن.');
+ const selected=d.lines.filter(l=>l.product&&n(l.qty)>0),pending=new Map();
+ if(!selected.length)throw Error('أدخل صنفًا واحدًا بكمية موجبة على الأقل.');
+ let total=0,totalCost=0;
+ const items=selected.map(l=>{
+  const p=db.products.find(x=>x.id===l.product);if(!p)throw Error('اختر صنفًا معتمدًا.');
+  const unit=pUnit(p,l.unit);
+  if(!unitList(p).includes(unit))throw Error('الوحدة غير معرفة في بطاقة الصنف: '+p.name);
+  const quantity=n(l.qty);positive(quantity,'الكمية');
+  if(!Number.isFinite(quantity)||quantity>1e9)throw Error('الكمية غير صالحة.');
+  const key=p.id+'|'+unit;pending.set(key,rnd((pending.get(key)||0)+quantity));
+  if(ret&&pending.get(key)>leftToReturn(db,origin.id,p.id,unit))throw Error('المرتجع يتجاوز كمية المستند الأصلي.');
+  if(['sale','purchase_return'].includes(kind)&&pending.get(key)>qty(db,p.id,d.warehouse,unit))throw Error('الرصيد غير كاف للصنف '+p.name+' بوحدة '+unit);
+  let price=n(l.price),cost;
+  if(ret){
+   const originals=origin.lines.filter(x=>x.product===p.id&&lineUnit(db,x)===unit);
+   if(!originals.length)throw Error('الصنف والوحدة لا يتبعان المستند الأصلي.');
+   const base=originals.reduce((a,x)=>a+Number(x.qty||0),0);
+   price=rnd(originals.reduce((a,x)=>a+Number(x.price||0)*Number(x.qty||0),0)/base);
+   cost=rnd(quantity*originals.reduce((a,x)=>a+Number(x.cost||0),0)/base);
+  }else{
+   positive(price,'سعر الوحدة',true);
+   cost=rnd(quantity*(kind==='purchase'?price:average(db,p.id,d.warehouse,unit)));
+  }
+  const lineSum=rnd(price*quantity);positive(lineSum,'الإجمالي');
+  total=rnd(total+lineSum);totalCost=rnd(totalCost+cost);
+  return {product:p.id,unit,qty:quantity,price,subtotal:lineSum,cost};
+ });
+ positive(total,'الإجمالي');
+ const prefix={purchase:'IN',sale:'OUT',purchase_return:'IR',sale_return:'OR'}[kind];
+ const doc={id:id(),kind,title:ret?'مرتجع '+(mode==='in'?'الوارد':'الصادر'):d.title,number:String(d.number).trim(),date:d.date,warehouse:d.warehouse,partyName:String(d.partyName).trim(),payment:d.payment,note:String(d.note||''),origin:ret?origin.id:'',currency:'YER',total:rnd(total),cost:rnd(totalCost),lines:items,status:'posted',createdAt:new Date().toISOString()};
  await persistDoc(doc,db);
 }
 async function saveMovement(){

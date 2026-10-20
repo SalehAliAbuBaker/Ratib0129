@@ -60,6 +60,15 @@ function commerceSidesMarkup(db,d){
  return '<div class="rc-posting-preview rc-full" id="rc-posting-preview" aria-label="الحسابات المدينة والدائنة">'+commercePostingSides(db,d).map(x=>
  '<div class="rc-posting-pair"><span class="rc-posting-note">'+esc(x.note)+'</span><div class="rc-posting-account rc-posting-debit"><b>م — مدين</b><span>'+esc(x.debit)+'</span></div><div class="rc-posting-account rc-posting-credit"><b>د — دائن</b><span>'+esc(x.credit)+'</span></div></div>').join('')+'</div>';
 }
+function commerceMovementSidesMarkup(db,transfer,direction,warehouse,to){
+ const account=w=>db.warehouses.find(x=>x.id===w)?.accountId||db.accounts.inventory||'لم يحدد الحساب بعد';
+ const adjust=db.accounts.adjust||'لم يحدد حساب التسويات';
+ const entries=transfer?[{debit:account(to),credit:account(warehouse),note:'نقل بين المخازن'}]:
+  direction==='in'?[{debit:account(warehouse),credit:adjust,note:'تسوية إضافة مخزون'}]:
+  [{debit:adjust,credit:account(warehouse),note:'تسوية إخراج مخزون'}];
+ return '<div class="rc-posting-preview rc-full" id="rc-movement-posting-preview">'+entries.map(x=>
+ '<div class="rc-posting-pair"><span class="rc-posting-note">'+esc(x.note)+'</span><div class="rc-posting-account rc-posting-debit"><b>م — مدين</b><span>'+esc(x.debit)+'</span></div><div class="rc-posting-account rc-posting-credit"><b>د — دائن</b><span>'+esc(x.credit)+'</span></div></div>').join('')+'</div>';
+}
 function commerceSmartAccount(id,items,selected){
  const current=items.find(x=>String(x.id)===String(selected));
  return '<div class="rc-smart-account"><input type="search" id="rc-search-'+esc(id)+'" list="rc-account-list-'+esc(id)+'" autocomplete="off" value="'+esc(current?.name||'')+'" placeholder="ابحث باسم الحساب أو رقمه">'+
@@ -345,6 +354,7 @@ function movementForm(db){
  fld('الوحدة',sel('unit',unitList(db.products[0]||{unit:'حبة'}).map(x=>({id:x,name:x}))))+
  fld('المخزن المصدر',sel('warehouse',db.warehouses))+
  (transfer?fld('المخزن الوجهة',sel('target',db.warehouses)):fld('اتجاه التسوية','<select id="rc-direction"><option value="in">وارد</option><option value="out">صادر</option></select>'))+
+ commerceMovementSidesMarkup(db,transfer,'in',db.warehouses[0]?.id||'main',db.warehouses[1]?.id||'')+
  fld('الكمية',inp('qty','number',1,'min="0.01" step="0.01"'))+
  (transfer?'':fld('تكلفة الوحدة عند الإدخال (YER)',inp('cost','number',0,'min="0" step="0.01"')))+
  '<button type="submit" class="btn btn-primary">اعتماد الحركة</button></form>');
@@ -946,6 +956,16 @@ function bind(){
    if(draft&&['rc-partyAccount','rc-payment','rc-warehouse'].includes(e.target.id)){
     syncInvoice();const element=$('rc-posting-preview');
     if(element){const tmp=document.createElement('div');tmp.innerHTML=commerceSidesMarkup(data(),draft);element.innerHTML=tmp.firstElementChild?.innerHTML||'';}
+   }
+   return;
+  }
+  if(['rc-direction','rc-warehouse','rc-target'].includes(e.target.id)&&['adjust','transfer'].includes(view)){
+   const host=$('rc-movement-posting-preview');
+   if(host){
+    const transfer=view==='transfer';
+    const tmp=document.createElement('div');
+    tmp.innerHTML=commerceMovementSidesMarkup(data(),transfer,$('rc-direction')?.value||'in',$('rc-warehouse')?.value,$('rc-target')?.value);
+    host.innerHTML=tmp.firstElementChild?.innerHTML||'';
    }
    return;
   }

@@ -315,3 +315,19 @@
  .rc-paper.rc-document-paper .rc-paper-note,
  .rc-paper.rc-document-paper .rc-paper-tafqit{break-inside:avoid;page-break-inside:avoid}
 }
+
+
+/* Ratib trial 3.6.137 — foreign currency accounting and document-equivalent display */
+#pageCommerce .rc-invoice-card .rc-fx-preview{
+ background:var(--bg);border:1px solid var(--border);border-radius:8px;
+ padding:7px 10px;margin:2px 0;font:700 .8rem/1.6 Tajawal,sans-serif;
+ color:var(--text);text-align:right;
+}
+#pageCommerce .rc-invoice-card #rc-exchangeRate{direction:ltr;text-align:right}
+#pageCommerce .rc-invoice-card #rc-currency{min-height:44px}
+.rc-paper.rc-document-paper .rc-paper-equivalent{
+ margin:6px 0;padding:0;color:#182231;line-height:1.55;
+ font-size:.87rem;text-align:right;direction:rtl;overflow-wrap:anywhere;
+ break-inside:avoid;page-break-inside:avoid;
+}
+.rc-paper.rc-document-paper .rc-paper-equivalent span{font-size:.78rem;color:#475569}

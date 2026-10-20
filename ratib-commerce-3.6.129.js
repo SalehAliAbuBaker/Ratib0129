@@ -56,7 +56,7 @@ function paint(){
  if(view==='movements')body=movements(db);if(view==='records')body=records(db);if(view==='summary')body=summary(db);
  if(view==='detail')body=showDocument(db);
  const header=mode==='stock'?'المخزون':mode==='in'?'الوارد':'الصادر';
- $('pageCommerce').innerHTML='<div class="rc-app"><div class="rc-head"><h2>'+header+'</h2><button type="button" class="btn btn-ghost" data-rc-back="1">↪️ رجوع</button></div><div class="rc-tabs">'+panels.map(x=>'<button type="button" class="'+(view===x[0]?'active':'')+'" data-rc-view="'+x[0]+'">'+x[1]+'</button>').join('')+'</div>'+body+'</div>';
+ $('pageCommerce').innerHTML='<div class="rc-app"><div class="rc-head"><h2>'+header+'</h2>'+(view==='detail'?'':'<button type="button" class="btn btn-ghost" data-rc-back="1">↪️ رجوع</button>')+'</div><div class="rc-tabs">'+panels.map(x=>'<button type="button" class="'+(view===x[0]?'active':'')+'" data-rc-view="'+x[0]+'">'+x[1]+'</button>').join('')+'</div>'+body+'</div>';
 }
 function products(db){
  const p=db.products.find(x=>x.id===editingProduct),exists=!!p;

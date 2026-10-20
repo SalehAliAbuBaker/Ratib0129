@@ -418,3 +418,16 @@
 @media(max-width:500px){
  #pageCommerce .rc-invoice-card .rc-document-type-row{max-width:100%}
 }
+
+
+/* Trial 3.6.141 — one clean searchable posting account field, not input plus select. */
+#pageCommerce .rc-smart-account{display:block!important;min-width:0}
+#pageCommerce .rc-smart-account>input[type="search"]{
+ display:block;box-sizing:border-box;width:100%;min-width:0;
+ min-height:42px!important;padding:8px 10px!important;
+ border:1px solid var(--border);border-radius:8px;
+ background:var(--card);color:var(--text);
+ font:700 .91rem/1.45 'Tajawal',sans-serif!important;
+}
+#pageCommerce .rc-smart-account>input[type="hidden"]{display:none!important}
+#pageCommerce .rc-invoice-card .rc-field-label{white-space:normal!important}

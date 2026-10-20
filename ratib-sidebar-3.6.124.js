@@ -57,7 +57,7 @@ function css(){if($('ratibApprovedSidebarStyle'))return;const e=document.createE
 '.sidebar-nav .ratib-menu-chevron{width:18px;height:18px;flex:0 0 18px;transition:transform .18s}',
 '.sidebar-nav button[aria-expanded=true]>.ratib-menu-chevron{transform:rotate(180deg)}',
 '.sidebar-nav button:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}',
-'#pageSettings.ratib-settings-detail > .settings-accordion-card:not(.ratib-settings-current){display:none!important}',
+'#pageSettings.ratib-settings-detail > :not(.ratib-settings-current){display:none!important}',
 '#pageSettings.ratib-settings-detail > .ratib-settings-current{margin-top:0}',
 '#pageSettings.ratib-settings-detail > .ratib-settings-current > .settings-accordion-body{display:block}',
 '#pageSettings.ratib-security-detail > .ratib-settings-current > .settings-accordion-header{display:none!important}',
@@ -126,7 +126,7 @@ function resetSettingsDetail(){
  }
  const label=$('backToMenuBtn')?.querySelector('span');
  if(label?.dataset.ratibOriginalBackLabel)label.textContent=label.dataset.ratibOriginalBackLabel;
- window.scrollTo?.({top:0,behavior:'instant'});
+ try{window.scrollTo?.({top:0,behavior:'auto'});}catch(_){}
 }
 function focusSetting(key,makeHistory){
  const page=$('pageSettings');if(!page)return;
@@ -142,7 +142,7 @@ function focusSetting(key,makeHistory){
  if(key==='security')openCard(main.querySelector('.ratib-inside-identity'));
  const label=$('backToMenuBtn')?.querySelector('span');
  if(label){if(!label.dataset.ratibOriginalBackLabel)label.dataset.ratibOriginalBackLabel=label.textContent;label.textContent='↪️ رجوع إلى الإعدادات';}
- requestAnimationFrame(()=>{main.scrollIntoView({behavior:'instant',block:'start'});});
+ requestAnimationFrame(()=>{main.scrollIntoView({behavior:'auto',block:'start'});});
 }
 function installSettingsNavigation(){
  const page=$('pageSettings'),back=$('backToMenuBtn');if(!page||page.dataset.ratibSinglePanel==='1')return;

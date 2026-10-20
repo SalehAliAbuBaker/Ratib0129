@@ -10,6 +10,7 @@ assert.match(html,/\?\['رمز الحساب','الحساب','العملة','مد
 assert.match(html,/const cols=trialColumns\(model\.filters\),labels=trialReportLabels\(model\)/);
 assert.match(html,/sheet\['!cols'\]=model\.filters\.mode==='paired'\?\[\{wch:15\},\{wch:38\}/);
 assert.match(html,/trialDatedCurrencyReference\(leg,filters\.base\)/);
+assert.match(html,/const ref=\/تعارض\|مختلفة\/\.test/,'conflicting FX prices must not be silently replaced');
 assert.match(html,/const balancedBase=!base\.missing&&!base\.reference/);
 assert.match(sw,/3\.6\.123/);
 const start=html.indexOf('function trialDatedCurrencyReference(');

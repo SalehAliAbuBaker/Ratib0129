@@ -10289,7 +10289,8 @@ function trialBuildModel(transactions,filters){
       const valuation=row.valuations.get(currency);valuation[prefix+'Debit']+=leg.baseDebit;valuation[prefix+'Credit']+=leg.baseCredit;
       let equivalent=trialEquivalent(leg,filters.base,filters.fxMethod||'entry');
       if(!equivalent&&filters.mode==='paired'&&filters.base==='YER'){
-        const ref=trialDatedCurrencyReference(leg,filters.base);
+        const evidence=trialFxRateEvidence(leg,filters.base,filters.fxMethod||'approved');
+        const ref=/تعارض|مختلفة/.test(String(evidence.reason||''))?null:trialDatedCurrencyReference(leg,filters.base);
         if(ref){
           equivalent={debit:leg.baseDebit*ref.rate,credit:leg.baseCredit*ref.rate};
           base.reference++;

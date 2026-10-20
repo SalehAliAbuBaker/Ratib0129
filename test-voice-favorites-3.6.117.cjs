@@ -8,7 +8,7 @@ for(const [file,source] of [['voice',voice],['favorites',fav],['worker',sw]])ass
 assert.match(html,/ratib-voice-dictation-3\.6\.117\.js\?v=3\.6\.121/);
 assert.match(html,/ratib-favorites-v3\.js\?v=3\.6\.120/);
 assert.match(html,/الإصدار 3\.6\.123/);
-assert.match(sw,/v130-trial-account-codes-and-fx-reference-3\.6\.123/);
+assert.match(sw,/v131-trial-account-codes-safe-fx-3\.6\.123/);
 assert.match(sw,/ratib-voice-dictation-3\.6\.117\.js/);
 assert.match(voice,/button\.addEventListener\('click'/); // speech starts only by user click
 assert.match(voice,/const Recognition=window\.SpeechRecognition\|\|window\.webkitSpeechRecognition/);

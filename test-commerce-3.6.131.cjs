@@ -1,7 +1,7 @@
 const fs=require('node:fs'),path=require('node:path'),vm=require('node:vm'),assert=require('node:assert/strict');
 const source=fs.readFileSync(path.join(__dirname,'ratib-commerce-3.6.131.js'),'utf8'),mark="window.RatibCommerce={open,render:paint,version:'3.6.131'};";
 assert(source.includes(mark));assert(source.includes("['pdf','PDF'],['share','المشاركة']"));
-const code=source.replace(mark,"window.__test={data,products,guideMarkup,documentHtml,productOutput,productGuideCanvases,filteredCatalogProducts,setCatalogFilter:(term,group)=>{catalogSearch=term;catalogGroup=group;},nextNumber,invoice,currentDraftDocument,draftOutput,setInbound:()=>{mode='in';view='new';draft=null;},setDraft:x=>{draft=x;}};"+mark);
+const code=source.replace(mark,"window.__test={data,products,guideMarkup,documentHtml,productOutput,productGuideCanvases,filteredCatalogProducts,setCatalogFilter:(term,group)=>{catalogSearch=term;catalogGroup=group;},nextNumber,invoice,currentDraftDocument,draftOutput,setInbound:()=>{mode='in';view='new';draft=null;},setOutbound:()=>{mode='out';view='new';draft=null;},setDraft:x=>{draft=x;}};"+mark);
 const memory={},store={get:(k,d)=>memory[k]??d,set:(k,v)=>memory[k]=v},capture=[],rows=[];
 const window={RatibPrintLogo:{whenReady:async()=>true,syncPrint(){}}},document={readyState:'loading',addEventListener(){},getElementById(){return null;}};
 class File{constructor(parts,name,opts){this.name=name;this.type=opts.type;}}
@@ -66,10 +66,32 @@ d.warehouses=[{id:'main',name:'المخزن الرئيسي'}];store.set('commerc
  assert.equal(T.data().invoices.length,before,'draft output must not save accounting documents');
  assert.equal(capture.at(-2).blob.pages[0],'مسودة غير معتمدة — توريد مخزني');
  assert.equal(capture.at(-1).action,'share');
+ const outboundTitles=['أمر صرف','صرف مخزني','فاتورة مبيعات'];
+ T.setOutbound();
+ const outboundLayout=T.invoice(d);
+ for(const title of outboundTitles)assert(outboundLayout.includes('data-rc-select-doctype="'+title+'"'),title);
+ for(const action of ['view','preview','print','pdf','share','search','back'])assert(outboundLayout.includes('data-rc-draft-action="'+action+'"'),action);
+ assert(outboundLayout.includes('role="group" aria-label="نوع مستند الصادر"'));
+ assert(!outboundLayout.includes('id="rc-doctype"'),'outbound title selection must be three inline buttons');
+ d.invoices.push({kind:'sale',title:'أمر صرف',number:'OUT-00004'},
+ {kind:'sale',title:'صرف مخزني',number:'OUT-00012'},
+ {kind:'sale',title:'فاتورة مبيعات',number:'OUT-00020'},
+ {kind:'sale',title:'صرف مخزني',number:'SO-00005'});
+ assert.equal(T.nextNumber(d,'sale','أمر صرف'),'SO-00006','avoid collision with a legacy/custom prefix');
+ assert.equal(T.nextNumber(d,'sale','صرف مخزني'),'GI-00013');
+ assert.equal(T.nextNumber(d,'sale','فاتورة مبيعات'),'SI-00021');
+ assert.equal(T.nextNumber(d,'sale_return','مرتجع'),'OUT-00001','do not modify return sequences');
+ store.set('commerce_v1',d);
+ T.setDraft({kind:'sale',title:'فاتورة مبيعات',number:'SI-00021',date:'2026-10-20',warehouse:'main',partyName:'عميل',note:'مسودة صادر',lines:[{product:'b',unit:'كرتون',qty:1,price:6}]});
+ const beforeOut=T.data().invoices.length;
+ await T.draftOutput('pdf');await T.draftOutput('share');
+ assert.equal(T.data().invoices.length,beforeOut,'outbound draft must not post or alter saved documents');
+ assert.equal(capture.at(-2).blob.pages[0],'مسودة غير معتمدة — فاتورة مبيعات');
+ assert.equal(capture.at(-1).action,'share');
  const css=fs.readFileSync(path.join(__dirname,'ratib-commerce-3.6.131.css'),'utf8');
  assert(css.includes('.rc-type-switch')&&css.includes('repeat(3,minmax(0,1fr))'));
  assert(css.includes('.rc-invoice-card .rc-grid')&&css.includes('repeat(2,minmax(0,1fr))'));
  const doc=T.documentHtml(d,{kind:'purchase',title:'فاتورة مشتريات',number:'IN-1',date:'2026-10-20',warehouse:'main',partyName:'مورد',total:10,lines:[]});
  assert(doc.includes('الجهة من إعدادات الترويسة')&&doc.includes('فاتورة مشتريات'));
- console.log('PASS 3.6.131: three inbound type buttons, independent PO/GR/PI numbering, seven draft tools, nonposting PDF/share, compact fields and catalog');
+ console.log('PASS 3.6.131: inbound and outbound three-button flows; PO/GR/PI and SO/GI/SI independent numbering; seven draft tools; nonposting outputs; compact layout');
 })().catch(error=>{console.error(error);process.exitCode=1;});

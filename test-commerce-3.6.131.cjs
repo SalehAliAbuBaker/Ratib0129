@@ -329,7 +329,7 @@ d.warehouses=[{id:'main',name:'المخزن الرئيسي'}];store.set('commerc
  assert(ledger.includes("return record?record.title+' — '+record.number")||ledger.includes("const commercial=ratibCommerceStatementName(t);if(commercial"),'ledger displays actual invoice name');
  assert(ledger.includes('const mode=ratibStatementDocumentLabel(t);'),'account statement UI uses real invoice names');
  assert(ledger.includes('doc=ratibStatementDocumentLabel(t);'),'print/PDF also uses real invoice names');
- assert(ledger.includes('<small id="appVersionLabel" class="app-version">الإصدار 3.6.141'),'visible trial version matches new account-linking release');
+ assert(ledger.includes('<small id="appVersionLabel" class="app-version">الإصدار 3.6.142'),'visible trial version matches new account-linking release');
  assert(ledger.includes('data-commerce-ledger="edit"')&&ledger.includes('data-commerce-ledger="clone"')&&ledger.includes('data-commerce-ledger="delete"'),'ledger offers operations');
  assert(ledger.includes('data-ledger-voucher-type="commerce"')&&ledger.includes("if(t.commerceId)return 'commerce'"),'commercial invoices have their own ledger filter, not compound type');
  const failBefore=T.data().invoices.length;
@@ -368,5 +368,5 @@ const doc=T.documentHtml(d,{kind:'purchase',title:'فاتورة مشتريات',
  assert.equal(headerDraws.filter(t=>t==='ملاحظات:').length,1,'long PDF note has single heading');
  assert(headerDraws.some(t=>t.includes('التفقيط:')),'Arabic amount spelling in PDF');
  assert(!rows.some(r=>r.includes('ملاحظات')),'notes are not repeated table rows');
- console.log('PASS 3.6.141: leaf-only searchable account linking, no duplicate dropdown, preserved free text, plain invoice menu and balanced journal');
+ console.log('PASS 3.6.142: leaf-only searchable account linking, no duplicate dropdown, preserved free text, plain invoice menu and balanced journal');
 })().catch(error=>{console.error(error);process.exitCode=1;});

@@ -81,6 +81,26 @@ jobs:
           console.log('HEADERS:',headers.split(/\r?\n/).filter(x=>/^(HTTP\/|cf-ray:|location:|cache-control:)/i.test(x)).join(' | '));
           NODE
 
+      - name: Confirm navigation asset deployment at current time
+        shell: bash
+        run: |
+          set -eu
+          echo "Checking exact navigation resource requested by current GitHub trial at $(date -u +'%Y-%m-%d %H:%M:%S UTC')"
+          curl -fLsS --max-time 30 -D /tmp/check-nav-headers "https://ratibtrial.pages.dev/ratib-navigation-v3.6.149.js?fresh=${GITHUB_SHA}-$(date +%s)" -o /tmp/check-nav-body
+          curl -fLsS --max-time 30 "https://ratibtrial.pages.dev/?fresh=${GITHUB_SHA}-$(date +%s)" -o /tmp/check-home-body
+          node - <<'NODE'
+          const fs=require('fs');
+          const nav=fs.readFileSync('/tmp/check-nav-body','utf8');
+          const local=fs.readFileSync('ratib-navigation-v3.6.149.js','utf8');
+          const home=fs.readFileSync('/tmp/check-home-body','utf8');
+          console.log('NAV_BODY_LENGTH:',nav.length);
+          console.log('LOCAL_NAV_LENGTH:',local.length);
+          console.log('NAV_MATCH:',nav===local);
+          console.log('HOME_HAS_NAV_TAG:',home.includes('ratib-navigation-v3.6.149.js?v=3.6.149'));
+          console.log('HOME_RELEASE:',home.match(/RATIB_RELEASE=\{"version":"([^"]+)/)?.[1]||'not found');
+          console.log('NAV_FIRST_120:',nav.slice(0,120).replace(/\s+/g,' '));
+          NODE
+
       - name: Check deployed immutable navigation resource
         shell: bash
         run: |

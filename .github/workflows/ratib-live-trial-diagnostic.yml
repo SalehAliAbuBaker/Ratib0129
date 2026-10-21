@@ -66,3 +66,12 @@ jobs:
           NODE
             done
           done
+
+      - name: Verify standalone release diagnostic page
+        shell: bash
+        run: |
+          set -eu
+          curl -fLsS --max-time 35 "https://ratibtrial.pages.dev/check-trial-version.html?trial_probe=${GITHUB_SHA}" -o /tmp/trial-check-html
+          grep -Fq 'فحص إصدار راتب التجريبي' /tmp/trial-check-html
+          grep -Fq 'trial_version_probe=' /tmp/trial-check-html
+          echo 'Public diagnostic page is available and contains the read-only version check.'

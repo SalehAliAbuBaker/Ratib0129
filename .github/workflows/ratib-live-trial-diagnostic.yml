@@ -71,7 +71,19 @@ jobs:
         shell: bash
         run: |
           set -eu
-          curl -fLsS --max-time 35 "https://ratibtrial.pages.dev/check-trial-version.html?trial_probe=${GITHUB_SHA}" -o /tmp/trial-check-html
-          grep -Fq 'فحص إصدار راتب التجريبي' /tmp/trial-check-html
-          grep -Fq 'trial_version_probe=' /tmp/trial-check-html
-          echo 'Public diagnostic page is available and contains the read-only version check.'
+          ready=0
+          for attempt in 1 2 3 4 5 6 7 8 9 10 11 12; do
+            curl -fLsS --max-time 25 -H 'Cache-Control: no-cache' "https://ratibtrial.pages.dev/check-trial-version.html?trial_probe=${GITHUB_SHA}-${attempt}" -o /tmp/trial-check-html || true
+            if grep -Fq 'فحص إصدار راتب التجريبي' /tmp/trial-check-html && grep -Fq 'trial_version_probe=' /tmp/trial-check-html; then
+              ready=1
+              echo "Public diagnostic page found on attempt ${attempt}"
+              break
+            fi
+            echo "Diagnostic page is not yet served (attempt ${attempt}), bytes=$(wc -c < /tmp/trial-check-html 2>/dev/null || echo 0)."
+            [ "$attempt" = "12" ] || sleep 10
+          done
+          if [ "$ready" != "1" ]; then
+            echo 'Cloudflare served an older deployment or SPA fallback instead of the new diagnostic file.'
+            head -c 130 /tmp/trial-check-html || true
+            exit 1
+          fi

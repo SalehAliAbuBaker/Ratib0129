@@ -2,7 +2,7 @@ name: Inspect live Ratib trial deployment
 on:
   push:
     branches: [trial]
-    paths: ['.github/workflows/ratib-live-trial-diagnostic.yml', 'index.html', 'check-trial-version.html']
+    paths: ['.github/workflows/ratib-live-trial-diagnostic.yml', 'index.html', 'sw.js', 'ratib-navigation-v3.js', 'check-trial-version.html']
   workflow_dispatch:
 permissions:
   contents: read
@@ -79,4 +79,21 @@ jobs:
           const checker=body.includes('فحص إصدار راتب التجريبي');
           console.log('FALLBACK/DIAGNOSTIC PAGE: bytes='+body.length+' checker='+checker+' sourceRelease='+version+' appLabel='+label);
           console.log('HEADERS:',headers.split(/\r?\n/).filter(x=>/^(HTTP\/|cf-ray:|location:|cache-control:)/i.test(x)).join(' | '));
+          NODE
+
+      - name: Check deployed navigation version override is gone
+        shell: bash
+        run: |
+          set -eu
+          curl -fLsS --retry 3 --max-time 35 \
+            "https://ratibtrial.pages.dev/ratib-navigation-v3.js?verify=${GITHUB_SHA}" \
+            -o /tmp/ratib-live-navigation.js
+          node - <<'NODE'
+          const fs=require('fs');
+          const local=fs.readFileSync('ratib-navigation-v3.js','utf8');
+          const live=fs.readFileSync('/tmp/ratib-live-navigation.js','utf8');
+          console.log('LIVE NAV LENGTH:',live.length);
+          console.log('LIVE NAV equals repository:',live===local);
+          console.log('LIVE NAV forces 3.6.123:',live.includes("const VERSION='3.6.123'")||live.includes('RATIB_RELEASE.version=VERSION'));
+          if(live!==local||live.includes('RATIB_RELEASE.version=VERSION'))process.exitCode=1;
           NODE

@@ -65,6 +65,8 @@ function css(){if($('ratibApprovedSidebarStyle'))return;const e=document.createE
 '#pageSettings.ratib-security-detail > .ratib-settings-current > .settings-accordion-body > :not(.ratib-inside-identity){display:none!important}',
 '#pageSettings.ratib-security-detail > .ratib-settings-current > .settings-accordion-body{border:0!important;padding:0!important}',
 '#pageSettings.ratib-security-detail .ratib-inside-identity{margin:0!important}',
+'#pageSettings.ratib-security-detail .ratib-inside-identity > .settings-accordion-header{display:none!important}',
+'#pageSettings.ratib-security-detail .ratib-inside-identity > .settings-accordion-body{display:block!important}',
 '#pageSettings.ratib-settings-reordered .settings-accordion-header>svg.sidebar-icon+span{flex:1;min-width:0;overflow-wrap:anywhere}',
 '#pageSettings.ratib-settings-reordered>.settings-accordion-card{background:var(--card);border:1px solid var(--border)!important;border-inline-start:1px solid var(--border)!important;box-shadow:none!important;border-radius:8px;padding:0!important;overflow:hidden}',
 '#pageSettings.ratib-settings-reordered>.settings-accordion-card>.settings-accordion-header{font:900 1rem Tajawal,sans-serif!important;line-height:1.4!important;color:var(--text)!important;min-height:48px;padding:10px 12px;gap:10px;cursor:pointer}',
@@ -179,8 +181,20 @@ function installSettingsNavigation(){
 }
 function openSetting(key){
  window.closeRatibSidebar?.();
- if(typeof window.navigateToTab==='function')window.navigateToTab('pageSettings',true);
- focusSetting(key,true);
+ const page=$('pageSettings');
+ if(!page)return;
+ if(page.classList.contains('hidden')&&typeof window.navigateToTab==='function')window.navigateToTab('pageSettings',true);
+ // Application navigation can finish asynchronously while history is being restored.
+ // Focusing a hidden page would immediately be undone by the settings observer.
+ let attempts=0;
+ const display=()=>{
+  if(page.classList.contains('hidden')){
+   if(++attempts<80)setTimeout(display,25);
+   return;
+  }
+  focusSetting(key,true);
+ };
+ display();
 }
 function buildSidebar(){
  const aside=$('appSidebar'),nav=aside?.querySelector('.sidebar-nav');if(!aside||!nav||aside.dataset.ratibApproved==='1')return;

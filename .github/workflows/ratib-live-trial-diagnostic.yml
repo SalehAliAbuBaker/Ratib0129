@@ -2,7 +2,7 @@ name: Inspect live Ratib trial deployment
 on:
   push:
     branches: [trial]
-    paths: ['.github/workflows/ratib-live-trial-diagnostic.yml', 'index.html', 'sw.js', 'ratib-navigation-v3.js', 'check-trial-version.html']
+    paths: ['.github/workflows/ratib-live-trial-diagnostic.yml', 'index.html', 'sw.js', 'ratib-navigation-v3.js', 'ratib-navigation-v3.6.149.js', 'check-trial-version.html']
   workflow_dispatch:
 permissions:
   contents: read
@@ -81,19 +81,28 @@ jobs:
           console.log('HEADERS:',headers.split(/\r?\n/).filter(x=>/^(HTTP\/|cf-ray:|location:|cache-control:)/i.test(x)).join(' | '));
           NODE
 
-      - name: Check deployed navigation version override is gone
+      - name: Check deployed immutable navigation resource
         shell: bash
         run: |
           set -eu
-          curl -fLsS --retry 3 --max-time 35 \
-            "https://ratibtrial.pages.dev/ratib-navigation-v3.js?verify=${GITHUB_SHA}" \
-            -o /tmp/ratib-live-navigation.js
-          node - <<'NODE'
+          for attempt in 1 2 3 4 5 6 7 8 9 10 11 12; do
+            curl -fLsS --retry 2 --max-time 30 "https://ratibtrial.pages.dev/ratib-navigation-v3.6.149.js?verify=${GITHUB_SHA}-${attempt}" -o /tmp/ratib-live-navigation.js || true
+            curl -fLsS --retry 2 --max-time 30 "https://ratibtrial.pages.dev/?verify=${GITHUB_SHA}-${attempt}" -o /tmp/ratib-live-page.html || true
+            if node - <<'NODE'
           const fs=require('fs');
-          const local=fs.readFileSync('ratib-navigation-v3.js','utf8');
+          const local=fs.readFileSync('ratib-navigation-v3.6.149.js','utf8');
           const live=fs.readFileSync('/tmp/ratib-live-navigation.js','utf8');
-          console.log('LIVE NAV LENGTH:',live.length);
-          console.log('LIVE NAV equals repository:',live===local);
-          console.log('LIVE NAV forces 3.6.123:',live.includes("const VERSION='3.6.123'")||live.includes('RATIB_RELEASE.version=VERSION'));
-          if(live!==local||live.includes('RATIB_RELEASE.version=VERSION'))process.exitCode=1;
+          const page=fs.readFileSync('/tmp/ratib-live-page.html','utf8');
+          const correct=live===local&&!live.includes('RATIB_RELEASE.version=VERSION')&&page.includes('ratib-navigation-v3.6.149.js?v=3.6.149');
+          console.log('NAV DEPLOY CHECK: matched='+correct+' bytes='+live.length+' new script referenced by page='+page.includes('ratib-navigation-v3.6.149.js?v=3.6.149'));
+          process.exit(correct?0:1);
           NODE
+            then
+              echo 'PASS: Cloudflare serves the new immutable navigation asset and current HTML'
+              exit 0
+            fi
+            echo "Waiting for Cloudflare Pages to deploy new navigation resource (attempt ${attempt})"
+            [ "$attempt" = "12" ] || sleep 10
+          done
+          echo 'FAIL: Cloudflare Pages still serves older navigation or HTML'
+          exit 1

@@ -21,7 +21,7 @@
    const submit=content.querySelector('.ratib-login-submit');
    if(submit)submit.textContent='فتح راتب';
    const version=content.querySelector('.ratib-login-version');
-   if(version)version.textContent='الإصدار 3.6.146 (تجريبية)';
+   if(version)version.textContent=window.ratibCurrentTrialVersionLabel?.()||byId('appVersionLabel')?.textContent?.trim()||version.textContent;
    const top=content.querySelector('.ratib-login-top');
    if(top&&!top.querySelector('.ratib-login-name')){
      const text=top.querySelector('span');

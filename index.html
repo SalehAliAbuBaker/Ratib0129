@@ -8644,7 +8644,7 @@ function entrybuildMultiVoucherPdf(d){
     yield {highlight:true,values:['المبلغ كتابة',tafqitAccountCurrency(d.baseTotal,d.baseCurrency),'','','','','','']};
     yield {highlight:true,values:['الإجمالي','','',d.note||'',d.baseCurrency,'','',Number(d.baseTotal||0).toLocaleString()]};
   }
-  return buildPdfFromCanvases(renderPagedReportTable(`سند قيد مركب #${d.seq}`,`${d.date} — ${[d.note,d.party].filter(Boolean).join(' — ')}`,['الجهة','الحساب','بند الميزانية','البيان','العملة','المبلغ','سعر الصرف','القيمة الأساسية'],[75,200,160,220,75,115,100,145],rows(),'compound')));
+  return buildPdfFromCanvases(renderPagedReportTable(`سند قيد مركب #${d.seq}`,`${d.date} — ${[d.note,d.party].filter(Boolean).join(' — ')}`,['الجهة','الحساب','بند الميزانية','البيان','العملة','المبلغ','سعر الصرف','القيمة الأساسية'],[75,200,160,220,75,115,100,145],rows(),'compound'));
 }
 // إنشاء PDF للسند الفردي (صرف/قبض/قيد) مباشرة برسم كانفاس وتجميع بايتات PDF يدوياً،
 // بنفس أسلوب سند القيد المركب أعلاه — بديل لا يعتمد على window.print() إطلاقاً.
@@ -9746,7 +9746,7 @@ function buildMultiVoucherPdf(d){
     yield {highlight:true,values:['','الإجمالي بعملة '+cashSourceLabel(d.mode),fmt(d.baseTotal,d.baseCurrency),...(showEq?['']:[]),'','']};
     yield {highlight:true,values:['','المبلغ كتابة',tafqitAccountCurrency(d.baseTotal,d.baseCurrency),...(showEq?['']:[]),'','']};
   }
-  return buildPdfFromCanvases(renderPagedReportTable(`${cashVoucherTitle(d.mode)} #${d.seq}`,`${d.date} — من: ${d.sourceAccount} — ${[d.note,d.beneficiary].filter(Boolean).join(' — ')}`,heads,widths,rows(),d.mode==='income'?'receipt':'payment')));
+  return buildPdfFromCanvases(renderPagedReportTable(`${cashVoucherTitle(d.mode)} #${d.seq}`,`${d.date} — من: ${d.sourceAccount} — ${[d.note,d.beneficiary].filter(Boolean).join(' — ')}`,heads,widths,rows(),d.mode==='income'?'receipt':'payment'));
 }
 
 async function printSpendData(d){try{await ratibEnsurePrintLogoReady();prepareMultiVoucherPrint(d);printRatibDocument('printing-voucher');}catch(e){showToast(e.message||'تعذر تجهيز الشعار للطباعة','error');}}

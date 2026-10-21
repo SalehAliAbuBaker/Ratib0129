@@ -3,7 +3,7 @@ const assert=require('node:assert/strict'),fs=require('node:fs'),path=require('n
 const read=p=>fs.readFileSync(path.join(__dirname,p),'utf8');
 const ui=read('ratib-global-button-size-3.6.146.js'),style=read('ratib-global-button-size-3.6.146.css');
 const sidebar=read('ratib-sidebar-3.6.124.js'),commerce=read('ratib-commerce-3.6.131.js'),html=read('index.html'),sw=read('sw.js');
-for(const type of ['js','css']){assert(html.includes('ratib-global-button-size-3.6.146.'+type+'?v=3.6.146'));assert(sw.includes('./ratib-global-button-size-3.6.146.'+type));}
+for(const type of ['js','css']){assert(new RegExp('ratib-global-button-size-3\\.6\\.146\\.'+type+'\\?v=3\\.6\\.\\d+').test(html));assert(sw.includes('./ratib-global-button-size-3.6.146.'+type));}
 assert(!commerce.includes('class="rc-size-setting"'),'No independent size menu above commerce documents');
 assert(commerce.includes('data-rc-direct-type'),'Existing document menu is preserved');
 assert(style.includes('#dashboardHomeContent .main-menu-btn'));

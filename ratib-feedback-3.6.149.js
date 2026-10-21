@@ -9,6 +9,7 @@ const $=id=>document.getElementById(id);
 const safeText=value=>String(value==null?'':value);
 let audio=null;
 const lastPlayed=new Map();
+const lastNotices=new Map();
 const read=()=>{
  let source={};
  try{source=typeof store!=='undefined'&&typeof store.get==='function'?store.get(KEY,{})||{}:JSON.parse(localStorage.getItem(KEY)||'{}')||{}}catch(_){}
@@ -46,7 +47,7 @@ function play(kind='reminder',priority='',test=false){
  if(!cfg.master||LEVELS[cfg.volume]<=0)return false;
  const category=kind==='critical'||kind==='urgent'?'reminder':kind;
  if(cfg[category]===false||(category==='reminder'&&muteReminders()))return false;
- const now=Date.now(),id=kind+':'+priority;
+ const now=Date.now(),id=category==='reminder'?'reminder':kind;
  if(!test&&now-(lastPlayed.get(id)||0)<(category==='reminder'?1800:category==='save'?650:1000))return false;
  const ctx=availableAudio();if(!ctx)return false;
  const steps=PATTERNS[kind]||PATTERNS.reminder;
@@ -78,6 +79,10 @@ let noticeId=0;
 function toast(message,type='info',timeout=3200,options={}){
  const stack=$('toastStack');if(!stack)return false;
  const body=safeText(message),category=options.kind||(isReminderMessage(body)?'reminder':type==='success'?'success':type==='error'?'error':type==='warn'?'warning':'info');
+ const stamp=Date.now(),noticeKey=category+':'+body;
+ if(!options.force&&stamp-(lastNotices.get(noticeKey)||0)<1400)return true;
+ lastNotices.set(noticeKey,stamp);
+ if(lastNotices.size>80){for(const [key,time] of lastNotices){if(stamp-time>10000)lastNotices.delete(key);}}
  const persistent=type==='error'&&isSaveError(body);
  const duration=persistent?0:category==='reminder'?Math.max(10000,Math.min(12000,Number(timeout)||12000)):Math.max(2400,Math.min(12000,Number(timeout)||3200));
  // A burst of events should not cover the entire screen.

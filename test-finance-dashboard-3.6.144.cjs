@@ -41,8 +41,8 @@ const missing=model([...data,transaction('2026-10-08',[leg('البنك','dr',10,
 assert.equal(missing.missing.cash,true);assert.equal(missing.missing.activity,true);
 const noClass=model([...data,transaction('2026-10-09',[leg('حساب تاريخي','dr',20),leg('البنك','cr',20)])]);assert(noClass.unknown.includes('حساب تاريخي'));assert.equal(noClass.missing.activity,true);
 const html=fs.readFileSync(path.join(__dirname,'index.html'),'utf8'),sw=fs.readFileSync(path.join(__dirname,'sw.js'),'utf8');
-const version=html.match(/const RATIB_RELEASE=\\{"version":"([^"]+)"/)?.[1];assert(version);assert(sw.includes('"version":"'+version+'"'));
-assert(/ratib-dashboard-finance-3\\.6\\.144\\.js\\?v=3\\.6\\.\\d+/.test(html));
+const version=html.match(/const RATIB_RELEASE=\{"version":"([^"]+)"/)?.[1];assert(version);assert(sw.includes('"version":"'+version+'"'));
+assert(/ratib-dashboard-finance-3\.6\.144\.js\?v=3\.6\.\d+/.test(html));
 assert(sw.includes('"./ratib-dashboard-finance-3.6.144.js"'));
 assert(sw.includes('"./ratib-dashboard-finance-3.6.144.css"'));
 assert(source.includes("trialEquivalent(leg,target,'approved')"),'FX follows existing voucher and report engine');

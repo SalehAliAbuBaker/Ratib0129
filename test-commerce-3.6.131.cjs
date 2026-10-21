@@ -1,5 +1,5 @@
 const fs=require('node:fs'),path=require('node:path'),vm=require('node:vm'),assert=require('node:assert/strict');
-const source=fs.readFileSync(path.join(__dirname,'ratib-commerce-3.6.131.js'),'utf8'),mark="window.RatibCommerce={open,openFavorite,openDocument:commerceOpenDocument,documentAction:commerceDocumentOperation,render:paint,version:'3.6.144'};";
+const source=fs.readFileSync(path.join(__dirname,'ratib-commerce-3.6.131.js'),'utf8'),mark="window.RatibCommerce={open,openFavorite,openDocument:commerceOpenDocument,documentAction:commerceDocumentOperation,render:paint,version:'3.6.145'};";
 assert(source.includes(mark));assert(source.includes("['pdf','PDF'],['share','المشاركة']"));
 const code=source.replace(mark,"window.__test={data,products,guideMarkup,documentHtml,productOutput,productGuideCanvases,filteredCatalogProducts,setCatalogFilter:(term,group)=>{catalogSearch=term;catalogGroup=group;},nextNumber,invoice,currentDraftDocument,draftOutput,commerceSignatureLabels,commerceCanvasPage,commerceInvoiceRecipientLabel,commerceInvoiceRecipientRow,commerceProductLabel,commerceFindProduct,leaf,commerceSmartAccount,commerceResolveAccount,commerceChosenAccount,accounts,commerceAmountWords,commerceBaseTotal,commerceValidFx,makeJournal,openFavorite,commerceOpenInvoice,commerceReplaceOrDelete,commerceValidateRevision,commerceDocumentOperation,saveInvoice,getDraft:()=>draft,setInbound:()=>{mode='in';view='new';draft=null;},setOutbound:()=>{mode='out';view='new';draft=null;},setDraft:x=>{draft=x;}};"+mark);
 const memory={},store={get:(k,d)=>memory[k]??d,set:(k,v)=>memory[k]=v},capture=[],rows=[],headerDraws=[],plan={transactions:[]};
@@ -54,9 +54,9 @@ d.warehouses=[{id:'main',name:'المخزن الرئيسي'}];store.set('commerc
  const inboundTitles=['أمر توريد','توريد مخزني','فاتورة مشتريات'];
  T.setInbound();
  const inboundLayout=T.invoice(d);
- for(const title of inboundTitles)assert(inboundLayout.includes('<option value="'+title+'"'),title);
+ for(const title of inboundTitles)assert(source.includes("'"+title+"'")&&source.includes('data-rc-direct-type'),title);
  for(const action of ['view','preview','print','pdf','share','search','back'])assert(inboundLayout.includes('data-rc-draft-action="'+action+'"'),action);
- assert(inboundLayout.includes('id="rc-doctype"'),'inbound should use original text-only document dropdown');
+ assert(inboundLayout.includes('rc-document-selected-name')&&!inboundLayout.includes('id="rc-doctype"'),'inbound should show the chosen title without a second selector');
  d.invoices.push({kind:'purchase',title:'أمر توريد',number:'IN-00007'},
  {kind:'purchase',title:'توريد مخزني',number:'IN-00003'},
  {kind:'purchase',title:'فاتورة مشتريات',number:'IN-00020'});
@@ -75,9 +75,9 @@ d.warehouses=[{id:'main',name:'المخزن الرئيسي'}];store.set('commerc
  const outboundTitles=['أمر صرف','صرف مخزني','فاتورة مبيعات'];
  T.setOutbound();
  const outboundLayout=T.invoice(d);
- for(const title of outboundTitles)assert(outboundLayout.includes('<option value="'+title+'"'),title);
+ for(const title of outboundTitles)assert(source.includes("'"+title+"'")&&source.includes('data-rc-direct-type'),title);
  for(const action of ['view','preview','print','pdf','share','search','back'])assert(outboundLayout.includes('data-rc-draft-action="'+action+'"'),action);
- assert(outboundLayout.includes('id="rc-doctype"'),'outbound titles use simple text dropdown');
+ assert(outboundLayout.includes('rc-document-selected-name')&&!outboundLayout.includes('id="rc-doctype"'),'outbound should not show a second selector');
  assert(!outboundLayout.includes('rc-type-symbol'),'no decorative document icons in previous dropdown');
  d.invoices.push({kind:'sale',title:'أمر صرف',number:'OUT-00004'},
  {kind:'sale',title:'صرف مخزني',number:'OUT-00012'},
@@ -329,7 +329,7 @@ d.warehouses=[{id:'main',name:'المخزن الرئيسي'}];store.set('commerc
  assert(ledger.includes("return record?record.title+' — '+record.number")||ledger.includes("const commercial=ratibCommerceStatementName(t);if(commercial"),'ledger displays actual invoice name');
  assert(ledger.includes('const mode=ratibStatementDocumentLabel(t);'),'account statement UI uses real invoice names');
  assert(ledger.includes('doc=ratibStatementDocumentLabel(t);'),'print/PDF also uses real invoice names');
- assert(ledger.includes('<small id="appVersionLabel" class="app-version">الإصدار 3.6.144'),'visible trial version matches new account-linking release');
+ assert(ledger.includes('<small id="appVersionLabel" class="app-version">الإصدار 3.6.145'),'visible trial version matches new account-linking release');
  assert(ledger.includes('data-commerce-ledger="edit"')&&ledger.includes('data-commerce-ledger="clone"')&&ledger.includes('data-commerce-ledger="delete"'),'ledger offers operations');
  assert(ledger.includes('data-ledger-voucher-type="commerce"')&&ledger.includes("if(t.commerceId)return 'commerce'"),'commercial invoices have their own ledger filter, not compound type');
  const failBefore=T.data().invoices.length;
@@ -368,5 +368,5 @@ const doc=T.documentHtml(d,{kind:'purchase',title:'فاتورة مشتريات',
  assert.equal(headerDraws.filter(t=>t==='ملاحظات:').length,1,'long PDF note has single heading');
  assert(headerDraws.some(t=>t.includes('التفقيط:')),'Arabic amount spelling in PDF');
  assert(!rows.some(r=>r.includes('ملاحظات')),'notes are not repeated table rows');
- console.log('PASS 3.6.144: leaf-only searchable account linking, no duplicate dropdown, preserved free text, plain invoice menu and balanced journal');
+ console.log('PASS 3.6.145: leaf-only searchable account linking, no duplicate dropdown, preserved free text, plain invoice menu and balanced journal');
 })().catch(error=>{console.error(error);process.exitCode=1;});

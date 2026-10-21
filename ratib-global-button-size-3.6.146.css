@@ -1,0 +1,38 @@
+/* Ratib 3.6.146 trial: compact/medium/large universal ACTION BUTTONS, not form controls. */
+@media screen {
+:root[data-ratib-button-size="small"]{--rb-action-height:42px;--rb-action-font:.81rem;--rb-action-icon:19px;--rb-menu-height:44px;--rb-tile-height:80px;--rb-tile-icon:22px;--rb-com-gap:5px}
+:root[data-ratib-button-size="medium"],:root:not([data-ratib-button-size]){--rb-action-height:46px;--rb-action-font:.92rem;--rb-action-icon:22px;--rb-menu-height:49px;--rb-tile-height:89px;--rb-tile-icon:25px;--rb-com-gap:8px}
+:root[data-ratib-button-size="large"]{--rb-action-height:54px;--rb-action-font:1.02rem;--rb-action-icon:26px;--rb-menu-height:56px;--rb-tile-height:105px;--rb-tile-icon:29px;--rb-com-gap:10px}
+#pageSettings .ratib-global-size-card{display:flex;flex-direction:column;gap:9px;padding:8px 0}
+#pageSettings .ratib-global-size-card>label{display:block;font:.95rem/1.6 Tajawal,system-ui,sans-serif;font-weight:700;color:var(--text)}
+#pageSettings .ratib-global-size-card>select{width:100%;min-height:46px;max-width:380px;padding:8px 12px;border:1px solid var(--border);border-radius:10px;background:var(--card);color:var(--text);font:750 .95rem Tajawal,system-ui,sans-serif}
+#pageSettings .ratib-global-size-card>p{margin:0;color:var(--muted);font:.82rem/1.65 Tajawal,system-ui,sans-serif}
+#mainWrap :is(.btn,.back-to-menu-btn):not(.icon-btn),
+#pageCommerce :is(.btn,.rc-tabs>button,.rc-new-menu button,.rc-catalog-toggle,.rc-doc-action),
+#appSidebar .sidebar-nav button{
+  min-height:var(--rb-action-height)!important;
+  font-size:var(--rb-action-font)!important;
+  line-height:1.45!important;
+}
+#mainWrap :is(.btn,.back-to-menu-btn):not(.icon-btn),
+#pageCommerce :is(.btn,.rc-tabs>button,.rc-new-menu button,.rc-catalog-toggle){
+  padding-block:6px!important;
+  padding-inline:9px!important;
+}
+#appSidebar .sidebar-nav button{min-height:var(--rb-menu-height)!important;font-weight:700!important}
+#dashboardHomeContent .main-menu-btn{min-height:var(--rb-tile-height)!important;gap:6px!important}
+#dashboardHomeContent .main-menu-icon{width:var(--rb-tile-icon)!important;height:var(--rb-tile-icon)!important;max-width:var(--rb-tile-icon)!important;max-height:var(--rb-tile-icon)!important}
+#dashboardHomeContent .main-menu-icon svg{width:var(--rb-tile-icon)!important;height:var(--rb-tile-icon)!important;max-width:var(--rb-tile-icon)!important;max-height:var(--rb-tile-icon)!important}
+#dashboardHomeContent .main-menu-btn>span:not(.main-menu-icon){font-size:var(--rb-action-font)!important}
+#dashboardHomeContent .ratib-commerce-shortcuts{gap:var(--rb-com-gap)!important}
+#dashboardHomeContent .ratib-commerce-shortcut{min-height:var(--rb-tile-height)!important;font-size:var(--rb-action-font)!important;padding:7px 5px!important;gap:6px!important}
+#dashboardHomeContent .ratib-commerce-shortcut svg{width:var(--rb-tile-icon)!important;height:var(--rb-tile-icon)!important;max-width:var(--rb-tile-icon)!important;max-height:var(--rb-tile-icon)!important}
+#pageCommerce .rc-tab-icon,#pageCommerce .rc-tool-icon,#pageCommerce .rc-guide-tool-icon{font-size:var(--rb-action-font)!important}
+#pageCommerce .rc-doc-action small{font-size:calc(var(--rb-action-font) * .86)!important}
+#pageCommerce .rc-size-setting{display:none!important}
+#pageSettings.ratib-security-detail>.ratib-settings-current>.settings-accordion-header{display:flex!important}
+
+#pageSettings.ratib-settings-detail>.ratib-settings-current>.settings-accordion-body{display:block!important}
+}
+@media screen and (max-width:410px){#dashboardHomeContent .main-menu-btn{min-width:0}#appSidebar .sidebar-nav button{overflow-wrap:anywhere}}
+@media print{#pageSettings .ratib-global-size-card{display:none!important}}

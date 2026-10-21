@@ -29,6 +29,7 @@ const settings=[
  ['identity','الهوية والبيانات الشخصية','identity'],
  ['printing','إعدادات الطباعة','print'],
  ['defaults','إعدادات الحسابات الافتراضية للسندات','defaults'],
+ ['buttonsize','حجم الأزرار','settings'],
  ['currencies','إدارة العملات','currency'],
  ['backupsettings','النسخ الاحتياطي','backup'],
  ['favorites','مفضلتي','favorites'],
@@ -61,8 +62,8 @@ function css(){if($('ratibApprovedSidebarStyle'))return;const e=document.createE
 '#pageSettings.ratib-settings-detail > :not(.ratib-settings-current){display:none!important}',
 '#pageSettings.ratib-settings-detail > .ratib-settings-current{margin-top:0}',
 '#pageSettings.ratib-settings-detail > .ratib-settings-current > .settings-accordion-body{display:block}',
-'#pageSettings.ratib-security-detail > .ratib-settings-current > .settings-accordion-header{display:none!important}',
-'#pageSettings.ratib-security-detail > .ratib-settings-current > .settings-accordion-body > :not(.ratib-inside-identity){display:none!important}',
+'#pageSettings.ratib-security-detail > .ratib-settings-current > .settings-accordion-header{display:flex!important}',
+'#pageSettings.ratib-security-detail > .ratib-settings-current > .settings-accordion-body > *{visibility:visible!important}',
 '#pageSettings.ratib-security-detail > .ratib-settings-current > .settings-accordion-body{border:0!important;padding:0!important}',
 '#pageSettings.ratib-security-detail .ratib-inside-identity{margin:0!important}',
 '#pageSettings.ratib-security-detail .ratib-inside-identity > .settings-accordion-header{display:none!important}',
@@ -79,7 +80,7 @@ function css(){if($('ratibApprovedSidebarStyle'))return;const e=document.createE
 function header(c){return c?.querySelector(':scope > .settings-accordion-header');}
 function title(c){return header(c)?.querySelector('span')?.textContent?.trim()||'';}
 function keyFor(c){
- const t=title(c);if(c.id==='notificationSoundCard'||t.includes('صوت إشعارات التذكيرات'))return 'sound';
+ const t=title(c);if(c.dataset.ratibCreated==='buttonsize'||t.includes('حجم الأزرار'))return 'buttonsize';if(c.id==='notificationSoundCard'||t.includes('صوت إشعارات التذكيرات'))return 'sound';
  if(c.id==='ratibCurrencyManager'||t.includes('إدارة العملات'))return 'currencies';
  if(c.id==='ratibStatementOptions'||t.includes('عرض وطباعة كشف الحساب'))return 'printing';
  if(t.includes('الأمان وقفل الحماية'))return 'security';
@@ -104,8 +105,14 @@ function reorder(){
  const page=$('pageSettings');if(!page)return;page.classList.add('ratib-settings-reordered');
  const cards=[...page.querySelectorAll(':scope > .settings-accordion-card')];
  const map=new Map(cards.map(c=>[keyFor(c),c]).filter(([key])=>key));
- const sec=map.get('security'),identity=map.get('identity');
- if(sec&&identity&&sec.parentNode===page){const body=identity.querySelector(':scope > .settings-accordion-body');if(body){body.prepend(sec);sec.classList.add('ratib-inside-identity');}}
+ // The security card remains independent of the identity card.
+ if(!map.has('buttonsize')){
+   const holder=document.createElement('div');holder.className='ratib-global-size-card';
+   holder.innerHTML='<label for="ratibGlobalButtonSize">حجم أزرار التطبيق بالكامل</label><select id="ratibGlobalButtonSize" aria-label="حجم أزرار التطبيق"><option value="small">صغير</option><option value="medium">متوسط</option><option value="large">كبير</option></select><p>الأزرار والأيقونات فقط؛ دون تغيير الحقول أو الطباعة.</p>';
+   const card=createCard('buttonsize',holder);
+   card.id='ratibButtonSizeSettingsCard';page.append(card);map.set('buttonsize',card);
+   holder.querySelector('select').value=window.RatibButtonSizing?.get?.()||'medium';
+ }
  const order=settings.map(x=>map.get(x[0])).filter(Boolean);
  for(let i=0;i<order.length;i++){const c=order[i],key=keyFor(c);setTitle(c,key);if(page.children[i]!==c)page.insertBefore(c,page.children[i]||null);}
 }
@@ -134,7 +141,7 @@ function resetSettingsDetail(){
 function focusSetting(key,makeHistory){
  const page=$('pageSettings');if(!page)return;
  reorder();
- const main=getCard(key==='security'?'identity':key);if(!main)return;
+ const main=getCard(key);if(!main)return;
  if(makeHistory&&!isSettingsDetail()&&typeof window.rememberAppView==='function')window.rememberAppView();
  for(const c of page.querySelectorAll('.settings-accordion-card')){setCardOpen(c,false);c.classList.remove('ratib-settings-current');c.removeAttribute('aria-hidden');}
  for(const c of page.querySelectorAll(':scope > .settings-accordion-card')){
@@ -142,7 +149,7 @@ function focusSetting(key,makeHistory){
  }
  page.classList.add('ratib-settings-detail');page.classList.toggle('ratib-security-detail',key==='security');
  openCard(main);
- if(key==='security')openCard(main.querySelector('.ratib-inside-identity'));
+ // The independent security card opens directly.
  const label=$('backToMenuBtn')?.querySelector('span');
  if(label){if(!label.dataset.ratibOriginalBackLabel)label.dataset.ratibOriginalBackLabel=label.textContent;label.textContent='↪️ رجوع إلى الإعدادات';}
  requestAnimationFrame(()=>{main.scrollIntoView({behavior:'auto',block:'start'});});
@@ -188,7 +195,7 @@ function openSetting(key){
  // Focusing a hidden page would immediately be undone by the settings observer.
  let attempts=0;
  const display=()=>{
-  if(page.classList.contains('hidden')){
+  if(page.classList.contains('hidden')||!getCard(key)){
    if(++attempts<80)setTimeout(display,25);
    return;
   }

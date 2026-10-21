@@ -72,8 +72,12 @@ function drawCanvas(ctx,key,width,y){
 }
 function height(key){const v=get(key);return v.enabled&&v.people.length?Math.ceil(v.people.length/4)*91+12:0;}
 function fillVoucher(key){
- const element=document.querySelector('#printVoucherTemplate .pv-signatures, .print-voucher-template .pv-signatures, .pv-signatures');
- if(element)element.outerHTML='<div class="pv-signatures ratib-signatures-managed">'+html(key)+'</div>';
+ const element=document.querySelector('.pv-signatures');if(!element)return;
+ for(const child of element.children){if(!child.classList.contains('ratib-sig-print-host'))child.style.display='none';}
+ let host=element.querySelector('.ratib-sig-print-host');
+ if(!host){host=document.createElement('div');host.className='ratib-sig-print-host';element.append(host);}
+ host.style.width='100%';host.innerHTML=html(key);
+ element.classList.add('ratib-signatures-managed');
 }
 let selected='payment',draft=null;
 function field(name,type='text',value=''){

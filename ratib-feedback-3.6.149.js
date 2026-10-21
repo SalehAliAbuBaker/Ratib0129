@@ -126,7 +126,7 @@ function localDateParts(date){
  const n=x=>String(x).padStart(2,'0');
  return {date:date.getFullYear()+'-'+n(date.getMonth()+1)+'-'+n(date.getDate()),time:n(date.getHours())+':'+n(date.getMinutes())};
 }
-function reminder(reminder,findReminder,saveReminders,openReminderModal,renderRemindersList,updateProDashboard){
+function reminder(reminder,findReminder,saveReminders,openReminderModal,renderRemindersList,updateProDashboard,getReminders){
  const r=reminder||{},severity=r.priority==='حرجة جداً'?'critical':r.priority==='عاجلة'?'urgent':'reminder';
  const active=()=>{
   const i=findReminder();return i>=0?i:-1;
@@ -134,7 +134,7 @@ function reminder(reminder,findReminder,saveReminders,openReminderModal,renderRe
  const snooze=()=>{
   const i=active();if(i<0){toast('لم يعد التذكير موجودًا.','info');return;}
   // Postpone only after the user presses the action; normal notification never edits due times.
-  const list=window.RatibFeedback.getCurrentReminders?.()||[];
+  const list=getReminders();
   if(!list[i])return;
   const value=localDateParts(new Date(Date.now()+10*60000));
   list[i]={...list[i],date:value.date,time:value.time};
@@ -181,7 +181,7 @@ function install(){
  $('ratibFeedbackDefaults')?.addEventListener('click',()=>{write(DEFAULTS);toast('عادت إعدادات الأصوات الافتراضية.','info',3000,{silent:true});});
  syncUI();
 }
-window.RatibFeedback={toast,play,reminder,read,write,syncUI,install,getCurrentReminders:null};
+window.RatibFeedback={toast,play,reminder,read,write,syncUI,install};
 document.addEventListener('pointerdown',unlock,{passive:true});
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',install,{once:true});else install();
 })();

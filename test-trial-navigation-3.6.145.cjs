@@ -9,7 +9,7 @@ const sidebar = read('ratib-sidebar-3.6.124.js'), worker = read('sw.js'), pkg = 
 assert.match(html,/const RATIB_RELEASE=\{"version":"3\.6\.145"/);
 assert.match(html,/الإصدار 3\.6\.145 \(تجريبية\)/);
 assert.match(worker,/const CACHE_VERSION='v161-trial-navigation-cloud-3\.6\.145'/);
-assert.equal(pkg.version,'3.6.145');
+assert.equal(pkg.version,'3.6.146');
 assert.match(html,/ratib-commerce-3\.6\.131\.js\?v=3\.6\.145/);
 assert.match(html,/ratib-sidebar-3\.6\.124\.js\?v=3\.6\.145/);
 assert.match(ui,/data-rc-toggle-new/);
@@ -19,9 +19,9 @@ assert(!ui.includes('id="rc-doctype"'), 'No standalone document type selector al
 assert.match(css,/\.rc-new-menu\[hidden\]/);
 assert.match(sidebar,/window\.RatibSettingsOpen=openSetting/);
 assert.match(sidebar,/focusSetting\(key,true\)/);
-assert.match(sidebar,/ratib-security-detail \.ratib-inside-identity/);
+assert.match(sidebar,/const main=getCard\(key\)/);
 assert.match(html,/if \(!\(window\.google && google\.accounts && google\.accounts\.oauth2\)\)/);
 assert.match(html,/if \(interactive\) throw new Error\('اكتمل تجهيز تسجيل الدخول إلى Google/);
 assert.match(html,/window\.RatibSettingsOpen\('backupsettings'\)/);
 assert(!html.includes('license://' ) && !html.includes('intent://'),'No forced app link during Google sign-in');
-console.log('PASS 3.6.145: trial release, document menu, settings route, Google auth gesture, cache consistency');
+console.log('PASS 3.6.146: trial release, document menu, settings route, Google auth gesture, cache consistency');

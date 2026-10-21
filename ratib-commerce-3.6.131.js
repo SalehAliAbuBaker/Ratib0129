@@ -300,7 +300,7 @@ function paint(){
   return '<div class="rc-new-menu-wrap">'+toggle+'<div class="rc-new-menu" role="menu" '+(newMenuOpen?'':'hidden')+'>'+types[mode].map(title=>'<button type="button" role="menuitem" data-rc-direct-type="'+esc(title)+'"><span aria-hidden="true">'+(commerceDocIcons[title]||'▣')+'</span> '+esc(title)+'</button>').join('')+'</div></div>';
  }).join('');
  const header=mode==='stock'?'المخزون':mode==='in'?'الوارد':'الصادر';
- $('pageCommerce').innerHTML='<div class="rc-app" data-rc-button-size="'+commerceButtonSize()+'"><div class="rc-head"><h2>'+({'stock':'📦 ','in':'📥 ','out':'📤 '}[mode]||'')+header+'</h2><label class="rc-size-setting">حجم الأزرار <select id="rc-button-size" aria-label="حجم الأزرار">'+[['small','صغير'],['medium','متوسط'],['large','كبير']].map(([id,label])=>'<option value="'+id+'"'+(commerceButtonSize()===id?' selected':'')+'>'+label+'</option>').join('')+'</select></label>'+(view==='detail'?'':'<button type="button" class="btn btn-ghost" data-rc-back="1">↪️ رجوع</button>')+'</div><div class="rc-tabs">'+tabMarkup+'</div>'+body+'</div>';
+ $('pageCommerce').innerHTML='<div class="rc-app" data-rc-button-size="'+commerceButtonSize()+'"><div class="rc-head"><h2>'+({'stock':'📦 ','in':'📥 ','out':'📤 '}[mode]||'')+header+'</h2>'+(view==='detail'?'':'<button type="button" class="btn btn-ghost" data-rc-back="1">↪️ رجوع</button>')+'</div><div class="rc-tabs">'+tabMarkup+'</div>'+body+'</div>';
 }
 function filteredCatalogProducts(db){
  const term=catalogSearch.trim().toLocaleLowerCase();
@@ -986,14 +986,7 @@ function bind(){
   }catch(e){notify(e.message||'تعذر فتح الأمر','error');}
  });
  root.addEventListener('change',e=>{
-  if(e.target.id==='rc-button-size'){
-   if(COMMERCE_BUTTON_SIZES.includes(e.target.value)){
-    store.set('commerce_button_size_v1',e.target.value);
-    root.querySelector('.rc-app')?.setAttribute('data-rc-button-size',e.target.value);
-    document.querySelector('.ratib-commerce-shortcuts')?.setAttribute('data-rc-button-size',e.target.value);
-   }return;
-  }
-  if(e.target.id.startsWith('rc-acc-')||['rc-partyAccount','rc-payment','rc-warehouse-account','rc-person-account'].includes(e.target.id)||(e.target.id==='rc-warehouse'&&draft)){
+    if(e.target.id.startsWith('rc-acc-')||['rc-partyAccount','rc-payment','rc-warehouse-account','rc-person-account'].includes(e.target.id)||(e.target.id==='rc-warehouse'&&draft)){
    const search=$('rc-search-'+e.target.id.slice(3));if(search){const match=leaf().find(x=>x.id===e.target.value);search.value=match?.name||'';}
    if(draft&&['rc-partyAccount','rc-payment','rc-warehouse'].includes(e.target.id)){
     syncInvoice();const element=$('rc-posting-preview');
@@ -1082,6 +1075,6 @@ function commerceOpenDocument(docId){
  open(['purchase','purchase_return'].includes(doc.kind)?'purchase':'sale');
  detailId=doc.id;view='detail';paint();
 }
-window.RatibCommerce={open,openFavorite,openDocument:commerceOpenDocument,documentAction:commerceDocumentOperation,render:paint,version:'3.6.145'};
+window.RatibCommerce={open,openFavorite,openDocument:commerceOpenDocument,documentAction:commerceDocumentOperation,render:paint,version:'3.6.146'};
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',bind,{once:true});else bind();
 })();

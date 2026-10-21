@@ -195,7 +195,7 @@ function details(key,opener){
  modal.addEventListener('click',e=>{if(e.target===modal)dismiss()});
 }
 function start(){
- const loginVersion=document.querySelector('.ratib-login-version');if(loginVersion)loginVersion.textContent='الإصدار 3.6.144 (تجريبية)';
+ const loginVersion=document.querySelector('.ratib-login-version');if(loginVersion)loginVersion.textContent='الإصدار 3.6.146 (تجريبية)';
  if($('ratibDashboardFinance144'))return;
  setup();
 }

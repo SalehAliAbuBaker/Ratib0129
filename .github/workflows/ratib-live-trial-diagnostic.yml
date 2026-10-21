@@ -1,0 +1,46 @@
+name: Inspect live Ratib trial deployment
+on:
+  push:
+    branches: [trial]
+    paths: ['.github/workflows/ratib-live-trial-diagnostic.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  compare-live-release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Compare deployed Cloudflare HTML and worker with trial branch
+        shell: bash
+        run: |
+          set -eu
+          echo '--- LOCAL TRIAL GIT CONTENT ---'
+          node -e "const fs=require('fs');const x=fs.readFileSync('index.html','utf8');console.log('HEAD:',process.env.GITHUB_SHA,'version:',(x.match(/const RATIB_RELEASE=\\{\\\"version\\\":\\\"([^\\\"]+)/)||[])[1]);"
+          echo '--- CLOUDFLARE LIVE SITE (NOT USER CACHE) ---'
+          curl --location --silent --show-error --fail --retry 3 --max-time 40 \
+            --dump-header /tmp/ratib-live-headers.txt \
+            "https://ratibtrial.pages.dev/?verify=${GITHUB_SHA}" \
+            --output /tmp/ratib-live.html
+          echo 'HEADERS:'
+          grep -Ei '^(HTTP/|server:|date:|cf-cache-status:|cache-control:|etag:|last-modified:)' /tmp/ratib-live-headers.txt || true
+          node - <<'NODE'
+          const fs=require('fs');const text=fs.readFileSync('/tmp/ratib-live.html','utf8');
+          console.log('LIVE HTML LENGTH:',text.length);
+          console.log('LIVE RATIB_RELEASE:',text.match(/const RATIB_RELEASE=\{"version":"([^"]+)/)?.[1]||'not found');
+          console.log('LIVE appVersionLabel:',text.match(/id="appVersionLabel"[^>]*>([^<]*)/)?.[1]||'not found');
+          console.log('LIVE static 3.6.123:',text.includes('3.6.123'));
+          console.log('LIVE has 3.6.149 feedback:',text.includes('ratib-feedback-3.6.149.js'));
+          console.log('LOCAL HTML exactly equals LIVE:',text===fs.readFileSync('index.html','utf8'));
+          NODE
+          echo '--- CLOUDFLARE LIVE SERVICE WORKER ---'
+          curl --location --silent --show-error --fail --retry 3 --max-time 40 \
+            "https://ratibtrial.pages.dev/sw.js?verify=${GITHUB_SHA}" \
+            --output /tmp/ratib-live-sw.js
+          node - <<'NODE'
+          const fs=require('fs');const text=fs.readFileSync('/tmp/ratib-live-sw.js','utf8');
+          console.log('LIVE SW LENGTH:',text.length);
+          console.log('LIVE APP_RELEASE:',text.match(/const APP_RELEASE=\{"version":"([^"]+)/)?.[1]||'not found');
+          console.log('LIVE CACHE_VERSION:',text.match(/const CACHE_VERSION='([^']+)/)?.[1]||'not found');
+          console.log('LOCAL WORKER exactly equals LIVE:',text===fs.readFileSync('sw.js','utf8'));
+          NODE

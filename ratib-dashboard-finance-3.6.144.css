@@ -1,0 +1,32 @@
+/* Trial 3.6.144: accounting-separated dashboard, non-invasive. */
+@media screen {
+#dashboardCarousel .pro-kpi-grid.ratib-finance-legacy{display:none!important}
+#ratibDashboardFinance144{direction:rtl;margin:2px 0 11px}
+#ratibDashboardFinance144 .ratib-finance-tabs{display:flex;align-items:center;gap:5px;padding:4px;background:var(--bg);border:1px solid var(--border);border-radius:11px;margin:0 0 9px}
+#ratibDashboardFinance144 .ratib-finance-tabs button{flex:1;min-width:0;border:0;background:transparent;color:var(--muted);border-radius:8px;min-height:37px;padding:7px;font:700 .86rem Tajawal,sans-serif;cursor:pointer}
+#ratibDashboardFinance144 .ratib-finance-tabs button[aria-pressed=true]{background:var(--card);color:var(--accent-strong);box-shadow:0 1px 5px rgba(0,0,0,.08)}
+#ratibDashboardFinance144 .ratib-finance-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+#ratibDashboardFinance144 .ratib-finance-card{background:var(--bg);border:1px solid var(--border);border-radius:11px;min-width:0;min-height:79px;padding:10px 9px;display:flex;flex-direction:column;align-items:stretch;gap:4px;text-align:right;color:var(--text);cursor:pointer}
+#ratibDashboardFinance144 .ratib-finance-card.ratib-finance-main{grid-column:1/-1;background:color-mix(in srgb,var(--accent) 5%,var(--card));border-color:color-mix(in srgb,var(--accent) 24%,var(--border))}
+#ratibDashboardFinance144 .ratib-finance-card>span{font:650 .82rem/1.45 Tajawal,sans-serif;color:var(--muted)}
+#ratibDashboardFinance144 .ratib-finance-card>strong{font:800 clamp(1.07rem,4.3vw,1.38rem)/1.5 Tajawal,sans-serif;overflow-wrap:anywhere;font-variant-numeric:tabular-nums;direction:rtl}
+#ratibDashboardFinance144 .ratib-finance-card.ratib-finance-main>strong{font-size:clamp(1.3rem,5vw,1.73rem)}
+#ratibDashboardFinance144 .ratib-finance-card>small{font:500 .7rem/1.4 Tajawal,sans-serif;color:var(--muted)}
+#ratibDashboardFinance144 .ratib-finance-note{font:.75rem/1.6 Tajawal,sans-serif;color:var(--muted);margin:9px 2px}
+#ratibDashboardFinance144 .ratib-finance-card:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.ratib-finance-overlay{position:fixed;inset:0;background:rgba(7,35,26,.48);z-index:9998;display:flex;align-items:center;justify-content:center;padding:14px;direction:rtl}
+.ratib-finance-dialog{width:min(100%,650px);max-height:min(86dvh,740px);overflow:hidden;display:flex;flex-direction:column;gap:10px;background:var(--card);border:1px solid var(--border);border-radius:17px;padding:16px;color:var(--text)}
+.ratib-finance-detail-head{display:flex;justify-content:space-between;gap:10px;align-items:center}
+.ratib-finance-detail-head strong{font-size:1.06rem;color:var(--accent-strong)}
+.ratib-finance-detail-head button{width:36px;height:36px;min-height:36px;border:1px solid var(--border);background:var(--card);border-radius:9px;color:var(--text);font-size:1.25rem;cursor:pointer}
+.ratib-finance-detail-total{font-weight:750;font-size:1rem;margin:0;color:var(--accent-strong)}
+.ratib-finance-detail-status{font-size:.78rem;color:var(--muted);margin:0}
+.ratib-finance-rows{overflow:auto;min-height:0;flex:1}
+.ratib-finance-rows table{width:100%;border-collapse:collapse;font-size:.81rem}
+.ratib-finance-rows th,.ratib-finance-rows td{border-bottom:1px solid var(--border);padding:8px 5px;text-align:right}
+.ratib-finance-rows th{position:sticky;top:0;background:var(--card);color:var(--muted)}
+.ratib-finance-more{min-height:40px;border:1px solid var(--border);border-radius:9px;background:var(--bg);color:var(--accent-strong);font:700 .82rem Tajawal,sans-serif;cursor:pointer}
+.ratib-finance-more[hidden]{display:none!important}
+}
+@media screen and (max-width:400px){#ratibDashboardFinance144 .ratib-finance-card{padding:8px 7px}#ratibDashboardFinance144 .ratib-finance-card>strong{font-size:1rem}}
+@media print{#ratibDashboardFinance144,.ratib-finance-overlay{display:none!important}}

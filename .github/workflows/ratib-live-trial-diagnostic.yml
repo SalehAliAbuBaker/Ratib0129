@@ -44,3 +44,25 @@ jobs:
           console.log('LIVE CACHE_VERSION:',text.match(/const CACHE_VERSION='([^']+)/)?.[1]||'not found');
           console.log('LOCAL WORKER exactly equals LIVE:',text===fs.readFileSync('sw.js','utf8'));
           NODE
+
+      - name: Probe mobile clients and cache bypass paths
+        shell: bash
+        run: |
+          set -eu
+          for target in '' 'index.html' 'sw.js' 'ratib-feedback-3.6.149.js'; do
+            for profile in desktop android; do
+              url="https://ratibtrial.pages.dev/${target}?diag=${GITHUB_SHA}-${profile}"
+              echo "PROBE target=${target:-root} profile=${profile}"
+              if [ "${profile}" = android ]; then
+                agent='Mozilla/5.0 (Linux; Android 17; SM-S938B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Mobile Safari/537.36'
+              else
+                agent='curl/8.0'
+              fi
+              curl -L -fsS --max-time 25 -A "${agent}" -H 'Cache-Control: no-cache' -H 'Pragma: no-cache' --dump-header /tmp/ratib-probe-header -o /tmp/ratib-probe.html "${url}"
+              grep -iE '^(HTTP/|cf-ray:|cf-cache-status:|cache-control:|location:)' /tmp/ratib-probe-header | tail -6 || true
+              TARGET="${target}" node - <<'NODE'
+          const fs=require('fs'),s=fs.readFileSync('/tmp/ratib-probe.html','utf8');const name=process.env.TARGET;
+          console.log('PROBE RESULT:',name||'root','length:',s.length,'release:',s.match(/RATIB_RELEASE=\{"version":"([^"]+)/)?.[1]||s.match(/APP_RELEASE=\{"version":"([^"]+)/)?.[1]||'none','old123:',s.includes('3.6.123'),'new149:',s.includes('3.6.149'));
+          NODE
+            done
+          done

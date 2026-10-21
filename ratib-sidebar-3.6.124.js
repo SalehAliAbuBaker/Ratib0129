@@ -199,8 +199,8 @@ function buildSidebar(){
  const settingsItems=document.createDocumentFragment();
  for(const [key,label,ico] of settings){
   if(key!=='identity'){settingsItems.append(make(label,ico,()=>openSetting(key)));continue;}
-  const group=document.createElement('div'),inner=document.createElement('div');inner.className='ratib-menu-subchildren';inner.hidden=true;
-  const main=make(label,ico,()=>{inner.hidden=!inner.hidden;main.setAttribute('aria-expanded',String(!inner.hidden));},true);main.setAttribute('aria-expanded','false');
+  const group=document.createElement('div'),inner=document.createElement('div');inner.className='ratib-menu-subchildren';inner.hidden=false;
+  const main=make(label,ico,()=>{inner.hidden=!inner.hidden;main.setAttribute('aria-expanded',String(!inner.hidden));},true);main.setAttribute('aria-expanded','true');
   inner.append(make('بيانات الهوية','identity',()=>openSetting('identity')),make('إعدادات الأمان وقفل الحماية','lock',()=>openSetting('security')));
   group.append(main,inner);settingsItems.append(group);
  }

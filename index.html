@@ -8887,6 +8887,7 @@ function showExitedScreen(wasSecured) {
   function setSoundStatus(){
     const el=document.getElementById('notificationSoundStatus'); if(el)el.textContent=soundEnabled()?'مفعّل':'مكتوم';
     ['enableNotificationSoundBtn','disableNotificationSoundBtn'].forEach(id=>{const b=document.getElementById(id);if(b)b.disabled=(id.startsWith('enable')?soundEnabled():!soundEnabled())});
+    window.RatibFeedback?.syncUI?.();
   }
   function playRatibNotificationSound(){
     if(!soundEnabled()||typeof window==='undefined')return;

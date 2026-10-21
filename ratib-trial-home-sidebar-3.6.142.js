@@ -3,7 +3,7 @@
   'use strict';
   const byId = id => document.getElementById(id);
   const foldKey = 'ratib.ui.dashboard.folded.v1';
-  const getFold = () => { try { return localStorage.getItem(foldKey) === '1'; } catch (_) { return false; } };
+  const getFold = () => { try { return localStorage.getItem(foldKey) !== '0'; } catch (_) { return false; } };
   const saveFold = value => { try { localStorage.setItem(foldKey, value ? '1' : '0'); } catch (_) {} };
 
   function compactBrand() {

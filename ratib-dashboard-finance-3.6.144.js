@@ -32,7 +32,7 @@ function compute(txs,catalog,currency,period,currentMonth,getLegs,convert){
  const grouped=new Map(),result={cashIn:0,cashOut:0,cashNet:0,cashBalance:0,revenue:0,expenses:0,surplus:0},
  missing={cash:false,activity:false},unknown=new Set(),rows={cashIn:[],cashOut:[],cashNet:[],cashBalance:[],revenue:[],expenses:[],surplus:[]};
  const notes=[];
- const active=t=>t&&t.status!=='reversed'&&t.status!=='deleted';
+ const active=t=>t&&t.status!=='reversed'&&t.status!=='deleted'&&t.status!=='draft'&&t.status!=='pending';
  const inPeriod=date=>period!=='current'||String(date).startsWith(currentMonth+'-');
  for(const t of (Array.isArray(txs)?txs:[])){
   if(!active(t))continue;
@@ -43,7 +43,7 @@ function compute(txs,catalog,currency,period,currentMonth,getLegs,convert){
    if(!/^\d{4}-\d\d-\d\d$/.test(date)||!account){notes.push('توجد حركة بتصنيف أو تاريخ غير قابل للمراجعة');continue;}
    if(!entry){unknown.add(account);}
    if(!['cash','revenue','expense'].includes(kind))continue;
-   if(!grouped.has(key))grouped.set(key,{date,doc:t.seqNum||'',type:String(t.type||t.voucherMode||'سند'),tx:t,cash:0,cashMissing:false,lines:[]});
+   if(!grouped.has(key))grouped.set(key,{date,doc:t.seqNum||'',type:String(t.type||t.voucherMode||'سند'),tx:t,cash:0,cashMissing:false,allOpening:true,lines:[]});
    const group=grouped.get(key);
    let equivalent=null;
    try{equivalent=convert(leg,currency);}catch(_){}
@@ -57,6 +57,7 @@ function compute(txs,catalog,currency,period,currentMonth,getLegs,convert){
    const debit=Number(equivalent.debit),credit=Number(equivalent.credit);
    const row={date,doc:String(group.doc||'—'),type:group.type,account,currency,amount:0,reference:String(t.id||'')};
    if(kind==='cash'){
+    group.allOpening=group.allOpening&&!!leg.opening;
     const value=round(debit-credit);group.cash+=value;
     row.amount=value;rows.cashBalance.push(row);result.cashBalance+=value;
    }
@@ -72,17 +73,10 @@ function compute(txs,catalog,currency,period,currentMonth,getLegs,convert){
  }
  // Net cash change PER DOCUMENT, so an internal bank-to-cash transfer is not
  // counted as either an inflow or an outflow. Original opening balances are not flow.
- const cashRows=rows.cashBalance;
  for(const group of grouped.values()){
   if(!inPeriod(group.date))continue;
-  const openingOnly=cashRows.filter(r=>r.date===group.date&&r.reference===String(group.tx.id||'')).length>0;
-  // Only counted postings belong in the flow. Opening transactions never affect it.
-  let cash=0;
-  const txGroup=(Array.isArray(txs)?txs:[]).filter(t=>active(t)&&docKey(t)+'|'+String(t.isoDate||t.date||'').slice(0,10)===docKey(group.tx)+'|'+group.date);
-  let isOpening=true;
-  for(const t of txGroup)if(!t.isOpeningBalance)isOpening=false;
-  if(isOpening||group.cashMissing)continue;
-  cash=round(group.cash);
+  if(group.allOpening||group.cashMissing)continue;
+  const cash=round(group.cash);
   if(Math.abs(cash)<0.000001)continue;
   const row={date:group.date,doc:String(group.doc||'—'),type:group.type,account:'حركة نقدية خارجية',currency,amount:cash,reference:String(group.tx.id||'')};
   rows.cashNet.push(row);

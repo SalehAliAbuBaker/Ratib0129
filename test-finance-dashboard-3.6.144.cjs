@@ -1,7 +1,7 @@
 /* Ratib 3.6.144: read-only accounting dashboard cross-checks. */
 const assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('node:vm'),path=require('node:path');
 const source=fs.readFileSync(path.join(__dirname,'ratib-dashboard-finance-3.6.144.js'),'utf8');
-const ctx={window:{},document:{readyState:'loading',addEventListener(){}},console,Date,Number,Math,Intl,Map,Set};
+const ctx={window:{addEventListener(){}},document:{readyState:'loading',addEventListener(){}},console,Date,Number,Math,Intl,Map,Set};
 vm.runInNewContext(source,ctx);
 const {compute}=ctx.window.RatibDashboardFinance144;
 const catalog=[

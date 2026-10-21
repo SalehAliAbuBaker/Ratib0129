@@ -196,6 +196,7 @@ function openSetting(key){
  };
  display();
 }
+window.RatibSettingsOpen=openSetting;
 function buildSidebar(){
  const aside=$('appSidebar'),nav=aside?.querySelector('.sidebar-nav');if(!aside||!nav||aside.dataset.ratibApproved==='1')return;
  css();reorder();installSettingsNavigation();

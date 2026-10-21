@@ -171,10 +171,10 @@ function commerceSignatureLabels(d){
   'مرتجع الوارد':['المسلّم','أمين المخزن المستلم','المراجع','المعتمد'],
   'مرتجع الصادر':['أمين المخزن المسلّم','المستلم','المراجع','المعتمد']
  };
- return labels[docName(d)]||['المعدّ','المستلم','المراجع','المعتمد'];
+ return (window.RatibSignatureSettings?.get?.(docName(d))?.people||labels[docName(d)]?.map(label=>({label}))||[{label:'المعدّ'},{label:'المستلم'},{label:'المراجع'},{label:'المعتمد'}]).map(p=>p.label);
 }
 function commerceSignatureHtml(d){
- return '<div class="rc-paper-signatures">'+commerceSignatureLabels(d).map(label=>'<div class="rc-signature-cell"><b>'+esc(label)+'</b><span>الاسم: ______________</span><span>التوقيع: ____________</span></div>').join('')+'</div>';
+ return window.RatibSignatureSettings?.html?.(docName(d))||'';
 }
 function printHeading(title,info=''){
  const cfg=typeof getHeaderConfig==='function'?getHeaderConfig():{name:'راتب للتنظيم والتدبير المالي',details:'',show:true};
@@ -851,14 +851,8 @@ function commerceCanvasPage(db,d,pageNumber){
  return page;
 }
 function commerceCanvasSignatures(page,d){
- const labels=commerceSignatureLabels(d),ctx=page.ctx,width=page.canvas.width,left=65,right=65,col=(width-left-right)/labels.length,y=page.y+24;
- ctx.save();ctx.direction='rtl';ctx.textAlign='center';ctx.fillStyle='#111827';
- labels.forEach((label,i)=>{
-  const x=width-right-(i+.5)*col;
-  ctx.font="bold 19px 'Tajawal',sans-serif";ctx.fillText(label,x,y,col-12);
-  ctx.font="16px 'Tajawal',sans-serif";ctx.fillText('الاسم: ____________',x,y+34,col-12);ctx.fillText('التوقيع: ____________',x,y+64,col-12);
- });
- ctx.restore();page.y+=116;
+ const height=window.RatibSignatureSettings?.drawCanvas?.(page.ctx,docName(d),page.canvas.width,page.y+20)||0;
+ page.y+=height?height+24:0;
 }
 function* documentCanvases(db,d){
  let pageNumber=1,page=commerceCanvasPage(db,d,pageNumber);
@@ -892,7 +886,8 @@ function* documentCanvases(db,d){
   page.ctx.restore();page.y+=31;
  }
  if(prose.length)page.y+=12;
- if(page.y+126>maxY){yield page.canvas;nextPage();}
+ const signatureHeight=window.RatibSignatureSettings?.height?.(docName(d))||0;
+ if(signatureHeight&&page.y+signatureHeight+45>maxY){yield page.canvas;nextPage();}
  commerceCanvasSignatures(page,d);
  yield page.canvas;
 }
@@ -1075,6 +1070,6 @@ function commerceOpenDocument(docId){
  open(['purchase','purchase_return'].includes(doc.kind)?'purchase':'sale');
  detailId=doc.id;view='detail';paint();
 }
-window.RatibCommerce={open,openFavorite,openDocument:commerceOpenDocument,documentAction:commerceDocumentOperation,render:paint,version:'3.6.147'};
+window.RatibCommerce={open,openFavorite,openDocument:commerceOpenDocument,documentAction:commerceDocumentOperation,render:paint,version:'3.6.148'};
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',bind,{once:true});else bind();
 })();

@@ -256,7 +256,7 @@ function buildSidebar(){
  let queued=false;new MutationObserver(records=>{if(!records.some(r=>[...r.addedNodes].some(n=>n.nodeType===1&&n.classList?.contains('settings-accordion-card')))||queued)return;queued=true;requestAnimationFrame(()=>{queued=false;reorder();});}).observe($('pageSettings'),{childList:true});
 }
 function ratibTrialVersion(){
- return String(window.RatibCommerce?.version||(typeof RATIB_RELEASE!=='undefined'?RATIB_RELEASE.version:'')||'').trim();
+ return String(window.ratibCurrentTrialVersion?.()||(typeof RATIB_RELEASE!=='undefined'?RATIB_RELEASE.version:'')||window.RatibCommerce?.version||'').trim();
 }
 function syncSidebarVersion(){
  const v=ratibTrialVersion();if(!/^\d+\.\d+\.\d+$/.test(v))return;

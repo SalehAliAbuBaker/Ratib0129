@@ -2,7 +2,7 @@ name: Inspect live Ratib trial deployment
 on:
   push:
     branches: [trial]
-    paths: ['.github/workflows/ratib-live-trial-diagnostic.yml']
+    paths: ['.github/workflows/ratib-live-trial-diagnostic.yml', 'index.html', 'check-trial-version.html']
   workflow_dispatch:
 permissions:
   contents: read

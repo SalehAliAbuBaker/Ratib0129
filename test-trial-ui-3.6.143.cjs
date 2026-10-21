@@ -3,7 +3,7 @@ const assert=require('node:assert/strict');const fs=require('node:fs');
 const get=name=>fs.readFileSync(require('node:path').join(__dirname,name),'utf8');
 const html=get('index.html'),sw=get('sw.js'),ui=get('ratib-trial-ui-3.6.143.js'),style=get('ratib-trial-ui-3.6.143.css');
 const home=get('ratib-trial-home-sidebar-3.6.142.js'),commerce=get('ratib-commerce-3.6.131.js'),login=get('ratib-login-3.6.124.js');
-assert.match(html,/id="appVersionLabel" class="app-version">الإصدار 3\.6\.144/);
+assert.match(html,/id="appVersionLabel" class="app-version">الإصدار 3\.6\.145/);
 assert.match(html,/const RATIB_RELEASE=\{"version":"3\.6\.144"/);
 assert.match(sw,/const CACHE_VERSION='v160-trial-finance-3\.6\.144'/);
 assert.match(sw,/ratib-trial-ui-3\.6\.143\.js/);

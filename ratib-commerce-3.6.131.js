@@ -10,6 +10,7 @@ const id=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,8);
 const today=()=>new Date().toLocaleDateString('en-CA');
 let mode='stock',view='products',draft=null,editingDocId='',loading=false,editingProduct=null,query='',detailId='',previewId='',pendingImport=null,editingWarehouse=null,previewDraft=null;
 let catalogSearch='',catalogGroup='',catalogSearchVisible=false,catalogGroupVisible=false;
+let newMenuOpen=false;
 function data(){const base=fresh(),v=store.get('commerce_v1',null);if(!v||typeof v!=='object')return base;const x=JSON.parse(JSON.stringify(v));return {...base,...x,products:Array.isArray(x.products)?x.products:[],warehouses:Array.isArray(x.warehouses)?x.warehouses:base.warehouses,people:Array.isArray(x.people)?x.people:[],invoices:Array.isArray(x.invoices)?x.invoices:[],accounts:{...base.accounts,...(x.accounts||{})}};}
 function save(x){store.set('commerce_v1',x);}
 function notify(t,k='info'){if(typeof showToast==='function')showToast(t,k);else alert(t);}
@@ -292,8 +293,14 @@ function paint(){
  if(['adjust','transfer'].includes(view))body=movementForm(db);
  if(view==='movements')body=movements(db);if(view==='records')body=records(db);if(view==='summary')body=summary(db);
  if(view==='detail')body=showDocument(db);
+ const tabMarkup=panels.map(x=>{
+  const button='<button type="button" class="'+(view===x[0]?'active':'')+'" data-rc-view="'+x[0]+'"><span class="rc-tab-icon" aria-hidden="true">'+(commerceTabIcons[x[0]]||'◉')+'</span><span>'+x[1]+'</span></button>';
+  if(x[0]!=='new')return button;
+  const toggle=button.replace('data-rc-view="new"','data-rc-toggle-new="1" aria-haspopup="menu" aria-expanded="'+(newMenuOpen?'true':'false')+'"');
+  return '<div class="rc-new-menu-wrap">'+toggle+'<div class="rc-new-menu" role="menu" '+(newMenuOpen?'':'hidden')+'>'+types[mode].map(title=>'<button type="button" role="menuitem" data-rc-direct-type="'+esc(title)+'"><span aria-hidden="true">'+(commerceDocIcons[title]||'▣')+'</span> '+esc(title)+'</button>').join('')+'</div></div>';
+ }).join('');
  const header=mode==='stock'?'المخزون':mode==='in'?'الوارد':'الصادر';
- $('pageCommerce').innerHTML='<div class="rc-app" data-rc-button-size="'+commerceButtonSize()+'"><div class="rc-head"><h2>'+({'stock':'📦 ','in':'📥 ','out':'📤 '}[mode]||'')+header+'</h2><label class="rc-size-setting">حجم الأزرار <select id="rc-button-size" aria-label="حجم الأزرار">'+[['small','صغير'],['medium','متوسط'],['large','كبير']].map(([id,label])=>'<option value="'+id+'"'+(commerceButtonSize()===id?' selected':'')+'>'+label+'</option>').join('')+'</select></label>'+(view==='detail'?'':'<button type="button" class="btn btn-ghost" data-rc-back="1">↪️ رجوع</button>')+'</div><div class="rc-tabs">'+panels.map(x=>'<button type="button" class="'+(view===x[0]?'active':'')+'" data-rc-view="'+x[0]+'"><span class="rc-tab-icon" aria-hidden="true">'+(commerceTabIcons[x[0]]||'◉')+'</span><span>'+x[1]+'</span></button>').join('')+'</div>'+body+'</div>';
+ $('pageCommerce').innerHTML='<div class="rc-app" data-rc-button-size="'+commerceButtonSize()+'"><div class="rc-head"><h2>'+({'stock':'📦 ','in':'📥 ','out':'📤 '}[mode]||'')+header+'</h2><label class="rc-size-setting">حجم الأزرار <select id="rc-button-size" aria-label="حجم الأزرار">'+[['small','صغير'],['medium','متوسط'],['large','كبير']].map(([id,label])=>'<option value="'+id+'"'+(commerceButtonSize()===id?' selected':'')+'>'+label+'</option>').join('')+'</select></label>'+(view==='detail'?'':'<button type="button" class="btn btn-ghost" data-rc-back="1">↪️ رجوع</button>')+'</div><div class="rc-tabs">'+tabMarkup+'</div>'+body+'</div>';
 }
 function filteredCatalogProducts(db){
  const term=catalogSearch.trim().toLocaleLowerCase();
@@ -431,7 +438,7 @@ function invoice(db){
  (!ret?'<div class="rc-document-actions rc-draft-actions no-print">'+[['view','◉','المشاهدة'],['preview','▣','المعاينة'],['print','▤','الطباعة'],['pdf','▣','PDF'],['share','⇧','المشاركة'],['search','⌕','البحث'],['back','↪','الرجوع']].map(([action,icon,label])=>'<button type="button" class="rc-doc-action" data-rc-draft-action="'+action+'"><span class="rc-tool-icon" aria-hidden="true">'+icon+'</span><small>'+label+'</small></button>').join('')+'</div>':'<div class="rc-actions no-print"><button type="button" class="btn btn-ghost" data-rc-draft-preview="1">👁 معاينة</button></div>')+
  '<div class="rc-actions no-print"><button type="submit" class="btn btn-primary">'+(editingDocId?'💾 حفظ تعديل المستند':'💾 اعتماد وحفظ المستند')+'</button>'+(editingDocId?'<button type="button" class="btn btn-ghost" data-rc-cancel-edit="1">إلغاء التعديل</button>':'')+'</div></form><div id="rc-draft-view"></div>'+
  '<p class="rc-note">جميع البنود بسعرها وإجماليها؛ لا يوجد تحويل تلقائي بين الوحدة الرئيسية والفرعية قبل اعتماده. يمنع الحفظ غير المتوازن أو صرف كمية غير متاحة.</p>';
- const headings=!ret?'<div class="rc-document-type-row no-print">'+fld('نوع المستند','<select id="rc-doctype" '+(editingDocId?'disabled':'')+'>'+types[mode].map(title=>'<option value="'+esc(title)+'"'+(draft.title===title?' selected':'')+'>'+esc(title)+'</option>').join('')+'</select>')+'</div>':'<h3>'+esc(ret?'مرتجع مخزني — '+(mode==='in'?'الوارد':'الصادر'):draft.title)+'</h3>';
+ const headings='<h3 class="rc-document-selected-name">'+esc(ret?'مرتجع مخزني — '+(mode==='in'?'الوارد':'الصادر'):draft.title)+'</h3>';
  return '<section class="rc-card rc-invoice-card">'+headings+form+'</section>';
 }
 function currentDraftDocument(){
@@ -910,7 +917,7 @@ async function documentOutput(action,docId){
 
 function open(target='stock'){
  mode=target==='purchase'?'in':target==='sale'?'out':['stock','in','out'].includes(target)?target:'stock';
- view=mode==='stock'?'products':'new';draft=null;editingDocId='';editingProduct=null;query='';detailId='';catalogSearch='';catalogGroup='';catalogSearchVisible=false;catalogGroupVisible=false;
+ view=mode==='stock'?'products':'records';newMenuOpen=false;draft=null;editingDocId='';editingProduct=null;query='';detailId='';catalogSearch='';catalogGroup='';catalogSearchVisible=false;catalogGroupVisible=false;
  navigateToTab('pageCommerce',true);paint();
 }
 function openFavorite(target,screen='products'){
@@ -925,6 +932,7 @@ function openFavorite(target,screen='products'){
  if(directTitle&&(!['in','out'].includes(source)||pageTitle!=='new'||!types[source].includes(directTitle)))throw Error('نوع المستند غير صحيح.');
  open(target);
  view=pageTitle;
+ if(pageTitle==='new'&&!directTitle){view='records';newMenuOpen=true;}
  if(directTitle){editingDocId='';draft=newDraft();draft.title=directTitle;draft.number=nextNumber(data(),draft.kind,directTitle);}
  paint();
 }
@@ -951,7 +959,23 @@ function bind(){
    if(hit('[data-rc-cancel-edit]')){editingDocId='';draft=null;view='records';paint();return;}
     const docOperation=hit('[data-rc-doc-op]');if(docOperation){Promise.resolve(commerceDocumentOperation(docOperation.dataset.rcDocOp,docOperation.dataset.doc)).catch(e=>notify(e.message||'تعذر إجراء العملية','error'));return;}
     if(hit('[data-rc-back]')){if(view==='detail'){view='records';paint();}else if(typeof goBackInApp==='function')goBackInApp();return;}
-   const v=hit('[data-rc-view]');if(v){view=v.dataset.rcView;draft=null;editingDocId='';editingProduct=null;query='';paint();return;}
+   if(hit('[data-rc-toggle-new]')){
+    if(view==='new'&&draft)syncInvoice();
+    newMenuOpen=!newMenuOpen;paint();return;
+   }
+   const requested=hit('[data-rc-direct-type]');
+   if(requested){
+    const chosen=requested.dataset.rcDirectType;
+    if(!types[mode]?.includes(chosen))throw Error('نوع المستند غير معتمد.');
+    if(view==='new'&&draft)syncInvoice();
+    if(editingDocId&&view==='new'&&draft?.title!==chosen){notify('لا يمكن تغيير نوع المستند أثناء التعديل؛ استنسخه في النوع المطلوب.','warn');return;}
+    if(view==='new'&&draft?.title===chosen){newMenuOpen=false;paint();return;}
+    const dirty=view==='new'&&draft&&(draft.partyName||draft.note||draft.displayPartyName||draft.lines?.some(l=>l.product||Number(l.price)>0));
+    if(dirty&&typeof window.confirm==='function'&&!window.confirm('ستُفقد بيانات المستند غير المحفوظة عند اختيار نوع مختلف. هل تريد المتابعة؟'))return;
+    view='new';draft=newDraft();draft.title=chosen;draft.number=nextNumber(data(),draft.kind,chosen);
+    editingDocId='';newMenuOpen=false;paint();return;
+   }
+   const v=hit('[data-rc-view]');if(v){newMenuOpen=false;view=v.dataset.rcView;draft=null;editingDocId='';editingProduct=null;query='';paint();return;}
    const d=hit('[data-rc-detail]');if(d){detailId=d.dataset.rcDetail;view='detail';paint();return;}
    const edit=hit('[data-rc-edit-product]');if(edit){editingProduct=edit.dataset.rcEditProduct||null;paint();return;}
    const add=hit('[data-rc-add]');if(add){syncInvoice();draft.lines.push({id:id(),product:'',unit:'',qty:1,price:0});paint();return;}
@@ -962,14 +986,6 @@ function bind(){
   }catch(e){notify(e.message||'تعذر فتح الأمر','error');}
  });
  root.addEventListener('change',e=>{
-  if(e.target.id==='rc-doctype'&&draft&&view==='new'){
-   const chosen=e.target.value,previous=draft.title;
-   if(!types[mode].includes(chosen)){e.target.value=previous;notify('نوع المستند غير معتمد.','error');return;}
-   if(editingDocId&&chosen!==previous){e.target.value=previous;notify('لا يمكن تغيير نوع المستند أثناء التعديل؛ استنسخه في النوع المطلوب.','error');return;}
-   syncInvoice();
-   if(chosen!==previous){draft.title=chosen;draft.number=nextNumber(data(),draft.kind,chosen);paint();}
-   return;
-  }
   if(e.target.id==='rc-button-size'){
    if(COMMERCE_BUTTON_SIZES.includes(e.target.value)){
     store.set('commerce_button_size_v1',e.target.value);
@@ -1066,6 +1082,6 @@ function commerceOpenDocument(docId){
  open(['purchase','purchase_return'].includes(doc.kind)?'purchase':'sale');
  detailId=doc.id;view='detail';paint();
 }
-window.RatibCommerce={open,openFavorite,openDocument:commerceOpenDocument,documentAction:commerceDocumentOperation,render:paint,version:'3.6.144'};
+window.RatibCommerce={open,openFavorite,openDocument:commerceOpenDocument,documentAction:commerceDocumentOperation,render:paint,version:'3.6.145'};
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',bind,{once:true});else bind();
 })();

@@ -37,7 +37,14 @@ function sanitize(key,item){
  const people=Array.isArray(item.people)?item.people.slice(0,8).map(p=>({label:cleanText(p?.label),name:cleanText(p?.name,90)})).filter(p=>p.label):def.people;
  return {enabled:item.enabled!==false,people};
 }
-function get(key){key=safeKey(key);return key?sanitize(key,state[key]):{enabled:false,people:[]};}
+function liveState(){
+ try{
+  const current=typeof store!=='undefined'&&typeof store.get==='function'?store.get(KEY,null):JSON.parse(localStorage.getItem(KEY)||'null');
+  if(current&&typeof current==='object'&&!Array.isArray(current))state=current;
+ }catch(_){}
+ return state;
+}
+function get(key){key=safeKey(key);return key?sanitize(key,liveState()[key]):{enabled:false,people:[]};}
 function persist(){
  try{if(typeof store!=='undefined'&&typeof store.set==='function')store.set(KEY,state);else localStorage.setItem(KEY,JSON.stringify(state));}
  catch(error){console.warn('Ratib signature settings could not be saved',error);return false;}
@@ -45,11 +52,12 @@ function persist(){
 }
 function put(key,value){
  key=safeKey(key);if(!key)return false;
+ liveState();
  const next=sanitize(key,value);
  if(next.people.length>8)return false;
  state[key]=next;return persist();
 }
-function reset(key){key=safeKey(key);if(!key)return false;delete state[key];return persist();}
+function reset(key){key=safeKey(key);if(!key)return false;liveState();delete state[key];return persist();}
 function html(key){
  const config=get(key);
  if(!config.enabled||!config.people.length)return '';
@@ -134,7 +142,7 @@ function build(){
   if(!commit())return;
   const targets=[...box.querySelectorAll('#ratibSignatureBulk input:checked')].map(el=>el.value).filter(k=>safeKey(k)&&k!==selected);
   if(!targets.length){notify('حدد المستندات المطلوب تطبيق التواقيع عليها.');return;}
-  for(const key of targets)state[key]=sanitize(key,draft);
+  liveState();for(const key of targets)state[key]=sanitize(key,draft);
   persist();notify('تم تطبيق التواقيع على '+targets.length+' نوع مستند.');
  });
  load(selected);

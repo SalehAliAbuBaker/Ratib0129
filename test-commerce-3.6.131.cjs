@@ -54,7 +54,7 @@ d.warehouses=[{id:'main',name:'المخزن الرئيسي'}];store.set('commerc
  const inboundTitles=['أمر توريد','توريد مخزني','فاتورة مشتريات'];
  T.setInbound();
  const inboundLayout=T.invoice(d);
- for(const title of inboundTitles)assert(inboundLayout.includes('<option value="'+title+'"'),title);
+ for(const title of inboundTitles)assert(source.includes("'"+title+"'")&&source.includes('data-rc-direct-type'),title);
  for(const action of ['view','preview','print','pdf','share','search','back'])assert(inboundLayout.includes('data-rc-draft-action="'+action+'"'),action);
  assert(inboundLayout.includes('rc-document-selected-name')&&!inboundLayout.includes('id="rc-doctype"'),'inbound should show the chosen title without a second selector');
  d.invoices.push({kind:'purchase',title:'أمر توريد',number:'IN-00007'},
@@ -75,7 +75,7 @@ d.warehouses=[{id:'main',name:'المخزن الرئيسي'}];store.set('commerc
  const outboundTitles=['أمر صرف','صرف مخزني','فاتورة مبيعات'];
  T.setOutbound();
  const outboundLayout=T.invoice(d);
- for(const title of outboundTitles)assert(outboundLayout.includes('<option value="'+title+'"'),title);
+ for(const title of outboundTitles)assert(source.includes("'"+title+"'")&&source.includes('data-rc-direct-type'),title);
  for(const action of ['view','preview','print','pdf','share','search','back'])assert(outboundLayout.includes('data-rc-draft-action="'+action+'"'),action);
  assert(outboundLayout.includes('rc-document-selected-name')&&!outboundLayout.includes('id="rc-doctype"'),'outbound should not show a second selector');
  assert(!outboundLayout.includes('rc-type-symbol'),'no decorative document icons in previous dropdown');

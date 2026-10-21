@@ -183,7 +183,7 @@ function openSetting(key){
  window.closeRatibSidebar?.();
  const page=$('pageSettings');
  if(!page)return;
- if(page.classList.contains('hidden')&&typeof window.navigateToTab==='function')window.navigateToTab('pageSettings',true);
+ if(typeof window.navigateToTab==='function')window.navigateToTab('pageSettings',true);
  // Application navigation can finish asynchronously while history is being restored.
  // Focusing a hidden page would immediately be undone by the settings observer.
  let attempts=0;

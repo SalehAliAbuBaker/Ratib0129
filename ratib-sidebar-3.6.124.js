@@ -29,7 +29,7 @@ const settings=[
  ['identity','الهوية والبيانات الشخصية','identity'],
  ['printing','إعدادات الطباعة','print'],
  ['defaults','إعدادات الحسابات الافتراضية للسندات','defaults'],
- ['buttonsize','حجم الأزرار','settings'],
+ ['buttonsize','حجم الأزرار والخط','settings'],
  ['currencies','إدارة العملات','currency'],
  ['backupsettings','النسخ الاحتياطي','backup'],
  ['favorites','مفضلتي','favorites'],
@@ -108,10 +108,11 @@ function reorder(){
  // The security card remains independent of the identity card.
  if(!map.has('buttonsize')){
    const holder=document.createElement('div');holder.className='ratib-global-size-card';
-   holder.innerHTML='<label for="ratibGlobalButtonSize">حجم أزرار التطبيق بالكامل</label><select id="ratibGlobalButtonSize" aria-label="حجم أزرار التطبيق"><option value="small">صغير</option><option value="medium">متوسط</option><option value="large">كبير</option></select><p>الأزرار والأيقونات فقط؛ دون تغيير الحقول أو الطباعة.</p>';
+   holder.innerHTML='<label for="ratibGlobalButtonSize">حجم أزرار التطبيق بالكامل</label><select id="ratibGlobalButtonSize" aria-label="حجم أزرار التطبيق"><option value="small">صغير</option><option value="medium">متوسط</option><option value="large">كبير</option></select><p>حجم الأزرار مستقل عن حجم الخط، ولا يغير الطباعة.</p><label for="ratibGlobalFontSize">حجم الخط في واجهة التطبيق</label><select id="ratibGlobalFontSize" aria-label="حجم الخط"><option value="small">صغير — 90%</option><option value="normal">عادي — 100%</option><option value="large">كبير — 110%</option><option value="xlarge">كبير جدًا — 120%</option></select><p>حجم الخط لا يؤثر على طباعة وPDF أو مقاسات الأيقونات.</p>';
    const card=createCard('buttonsize',holder);
    card.id='ratibButtonSizeSettingsCard';page.append(card);map.set('buttonsize',card);
-   holder.querySelector('select').value=window.RatibButtonSizing?.get?.()||'medium';
+   holder.querySelector('#ratibGlobalButtonSize').value=window.RatibButtonSizing?.get?.()||'medium';
+   holder.querySelector('#ratibGlobalFontSize').value=window.RatibButtonSizing?.getFont?.()||'normal';
  }
  const order=settings.map(x=>map.get(x[0])).filter(Boolean);
  for(let i=0;i<order.length;i++){const c=order[i],key=keyFor(c);setTitle(c,key);if(page.children[i]!==c)page.insertBefore(c,page.children[i]||null);}

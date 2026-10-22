@@ -50,7 +50,8 @@ function install(){
    info.textContent='البصمة غير متاحة حاليًا؛ استخدم كلمة المرور أو فعّلها من إعدادات الأمان في الجهاز المدعوم.';
  });
  bioArea.append(bio,label,info);content.append(bioArea);
- const version=document.createElement('small');version.className='ratib-login-version';version.textContent='الإصدار '+(typeof RATIB_RELEASE!=='undefined'?RATIB_RELEASE.version:'3.6.102');content.append(version);
+ const version=document.createElement('small');version.className='ratib-login-version';version.textContent=window.ratibCurrentTrialVersionLabel?.()||$('appVersionLabel')?.textContent?.trim()||'الإصدار 3.6.105';content.append(version);
+ window.ratibSyncTrialVersion?.();
 }
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',install,{once:true});else install();
 })();

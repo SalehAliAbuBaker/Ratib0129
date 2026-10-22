@@ -5499,6 +5499,13 @@ class SearchableSelect {
     this.buildDropdownShell();
     this.input.setAttribute("role","combobox");this.input.setAttribute("aria-autocomplete","list");this.input.setAttribute("aria-controls",this.drop.id);this.input.setAttribute("aria-expanded","false");this.list.setAttribute("role","listbox");
     this.initEvents();
+    // Simple journal fields sit inside compact grid/card containers. Their dropdowns
+    // must escape clipping and stacking contexts while retaining the SAME selector.
+    if(['wrapDebitAcc','wrapCreditAcc'].includes(wrapId)){
+      document.body.append(this.drop);
+      this.portaled=true;
+      this.input.setAttribute('aria-haspopup','listbox');
+    }
   }
   // شريط علوي داخل القائمة: زر 🔍 صغير يفتح خانة بحث بالاسم داخل القائمة نفسها
   buildDropdownShell() {

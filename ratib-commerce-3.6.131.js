@@ -117,16 +117,25 @@ function commerceProductInput(i,products,selected){
   '<datalist id="rc-product-options-'+i+'">'+products.map(x=>'<option value="'+esc(commerceProductLabel(x))+'"></option>').join('')+'</datalist>';
 }
 function commerceAutocomplete(input,values){
- if(!input||input.dataset.composing==='1')return;
- const value=input.value,typed=commerceNormalize(value);
- if(typed.length<2)return;
- const options=[...new Set(values.map(x=>String(x||'').trim()).filter(Boolean))];
- const matches=options.filter(x=>commerceNormalize(x).startsWith(typed));
- if(matches.length!==1)return;
- const match=matches[0];
- if(commerceNormalize(match)===typed)return;
- input.value=match;
- try{input.setSelectionRange(value.length,match.length);}catch(_){}
+ // Native suggestions do not change a user's selection, caret or typed text.
+ // Keep pre-existing product/account datalists untouched.
+ if(!input||input.dataset.composing==='1'||!input.id)return;
+ const typed=commerceNormalize(input.value);
+ const existingId=input.getAttribute('list');
+ if(existingId&&!existingId.startsWith('ratib-commerce-suggest-'))return;
+ const suggestions=[...new Set(values.map(x=>String(x||'').trim()).filter(Boolean))]
+  .filter(x=>typed.length>=2&&commerceNormalize(x).startsWith(typed)).slice(0,25);
+ let list=existingId?document.getElementById(existingId):null;
+ if(!list&&!suggestions.length)return;
+ if(!list){
+  list=document.createElement('datalist');
+  list.id='ratib-commerce-suggest-'+input.id.replace(/[^a-zA-Z0-9_-]/g,'-');
+  input.setAttribute('list',list.id);
+  input.after(list);
+ }
+ list.replaceChildren(...suggestions.map(value=>{
+  const option=document.createElement('option');option.value=value;return option;
+ }));
 }
 function commerceResolveProduct(index){
  if(!draft)return;

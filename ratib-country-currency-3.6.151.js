@@ -34,7 +34,7 @@ const localeSuggestion=()=>{
 };
 const options=()=>{
  let list=[];
- try{if(typeof catalog==='function')list=catalog().filter(x=>x.active!==false).map(x=>({code:x.code,name:x.name||x.code}));}catch(_){}
+ try{const stored=store.get('currency_catalog_v1',[]);if(Array.isArray(stored))list=stored.filter(x=>x&&x.active!==false&&validCode(x.code)).map(x=>({code:x.code,name:x.name||x.code}));}catch(_){}
  for(const c of Object.keys(NAMES))if(!list.some(x=>x.code===c))list.push({code:c,name:NAMES[c]});
  const selected=base();if(!list.some(x=>x.code===selected))list.push({code:selected,name:selected});
  return list;
@@ -118,7 +118,8 @@ async function saveSelection(country,currency,modal){
  const submit=$('ratibCountrySave');if(submit)submit.disabled=true;
  try{
   // Provide AED/EUR in the existing central currency catalog, without rates or historical conversions.
-  const data=typeof catalog==='function'?catalog():[];
+  const existing=store.get('currency_catalog_v1',[]);
+  const data=Array.isArray(existing)?existing.filter(x=>x&&validCode(x.code)).map(x=>({...x})):[];
   if(!data.some(x=>x.code===currency)){
    data.push({code:currency,name:NAMES[currency]||currency,decimals:digits(currency),active:true});
    store.set('currency_catalog_v1',data);
@@ -128,7 +129,7 @@ async function saveSelection(country,currency,modal){
   await flushStorage();
   const persisted=read();
   if(!persisted||persisted.country!==country||persisted.currency!==currency)throw Error('لم يثبت حفظ اختيار العملة.');
-  if(typeof sync==='function')sync();
+  window.ratibCurrencyManagerRefresh?.();
   apply({refresh:true});close();
   if(typeof showToast==='function')showToast('تم اعتماد '+currency+' للعمليات الجديدة؛ السندات القديمة لم تتغير.','success');
  }catch(e){

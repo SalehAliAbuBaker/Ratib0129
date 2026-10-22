@@ -1,4 +1,4 @@
-/* Ratib trial 3.6.158: voice + manual input coverage across the application. */
+/* Ratib trial 3.6.159: voice + manual input coverage across the application. */
 'use strict';
 const assert=require('node:assert/strict');
 const fs=require('node:fs');
@@ -7,9 +7,9 @@ const source=fs.readFileSync('ratib-voice-dictation-3.6.117.js','utf8');
 const html=fs.readFileSync('index.html','utf8');
 const worker=fs.readFileSync('sw.js','utf8');
 assert.doesNotThrow(()=>new Function(source));
-assert.match(html,/الإصدار 3\.6\.158 \(تجريبية\)/);
-assert.match(worker,/v178-brief-update-smart-completion-3\.6\.158/);
-assert.match(html,/ratib-voice-dictation-3\.6\.117\.js\?v=3\.6\.158/);
+assert.match(html,/الإصدار 3\.6\.159 \(تجريبية\)/);
+assert.match(worker,/v179-arabic-spoken-amounts-3\.6\.159/);
+assert.match(html,/ratib-voice-dictation-3\.6\.117\.js\?v=3\.6\.159/);
 assert.doesNotMatch(source,/saveVoucher\(|saveTransaction\(|submitVoucher\(/);
 
 async function main(){
@@ -72,6 +72,6 @@ async function main(){
  }
  assert.equal(field('pin').value,'secret','PIN is never edited by speech');
  dom.window.close();
- console.log('PASS trial 3.6.158: modal, note, accounting numbers, dates, times, unique selects, datalist and protected inputs');
+ console.log('PASS trial 3.6.159: modal, note, accounting numbers, dates, times, unique selects, datalist and protected inputs');
 }
 main().catch(error=>{console.error(error);process.exitCode=1;});

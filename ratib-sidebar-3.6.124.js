@@ -290,7 +290,40 @@ function ratibPrepareEditableNumber(el){
   el.type='text';el.setAttribute('inputmode','decimal');
  }
 }
-document.addEventListener('focusin',e=>ratibPrepareEditableNumber(e.target),true);
+// On entering a filled field, select its complete text once. A second tap keeps
+// the browser's native caret/partial selection, so users can replace or edit words.
+// A long press/drag never triggers a second forced selection after the gesture.
+function ratibEditableText(el){
+ if(!el||el.disabled||el.readOnly)return false;
+ if(el instanceof HTMLTextAreaElement)return true;
+ return el instanceof HTMLInputElement&&
+  ['text','search','tel','email','url'].includes(el.type);
+}
+function ratibSelectInitialValue(el){
+ if(!ratibEditableText(el)||!el.value)return;
+ try{el.select();}catch(_){}
+}
+let ratibNewFocusPointer=null;
+document.addEventListener('pointerdown',e=>{
+ const el=e.target;
+ const incoming=ratibEditableText(el)||(el instanceof HTMLInputElement&&el.type==='number'&&el.closest('#pageCommerce'));
+ ratibNewFocusPointer=incoming&&document.activeElement!==el?
+  {el,time:Date.now(),x:e.clientX||0,y:e.clientY||0,moved:false}:null;
+},true);
+document.addEventListener('pointermove',e=>{
+ const p=ratibNewFocusPointer;
+ if(p&&(Math.abs((e.clientX||0)-p.x)>8||Math.abs((e.clientY||0)-p.y)>8))p.moved=true;
+},true);
+document.addEventListener('pointercancel',()=>{ratibNewFocusPointer=null;},true);
+document.addEventListener('focusin',e=>{
+ ratibPrepareEditableNumber(e.target);
+ ratibSelectInitialValue(e.target);
+},true);
+document.addEventListener('click',e=>{
+ const p=ratibNewFocusPointer;ratibNewFocusPointer=null;
+ if(!p||p.el!==e.target||p.moved||Date.now()-p.time>550)return;
+ if(document.activeElement===p.el)ratibSelectInitialValue(p.el);
+},false);
 document.addEventListener('focusout',e=>{
  const el=e.target;
  if(!(el instanceof HTMLInputElement)||el.dataset.ratibNumericSelect!=='1')return;

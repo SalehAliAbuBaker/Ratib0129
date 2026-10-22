@@ -2,7 +2,7 @@
    Presentation/input selection only. No posting, balancing or persisted data logic. */
 (function(){
   'use strict';
-  const firstPointerFocus=new WeakSet();
+  // Preserve native touch caret and text selection, including the first tap.
   const isMoneyInput=node=>{
     if(!(node instanceof HTMLInputElement)||node.disabled||node.readOnly)return false;
     if(!['text','search','tel'].includes(node.type))return false;
@@ -45,29 +45,7 @@
       try{input.setSelectionRange(mappedStart,mappedEnd,dir||'none')}catch(_){}
     }
   };
-  const selectAll=input=>{
-    if(!isMoneyInput(input))return;
-    try{input.select()}catch(_){}
-  };
-  // First tap selects the entire amount. A second tap uses the native caret.
-  document.addEventListener('pointerdown',event=>{
-    const input=event.target;
-    if(!isMoneyInput(input))return;
-    if(document.activeElement===input)firstPointerFocus.delete(input);
-    else firstPointerFocus.add(input);
-  },true);
-  document.addEventListener('focusin',event=>{
-    if(isMoneyInput(event.target))selectAll(event.target);
-  },true);
-  document.addEventListener('click',event=>{
-    const input=event.target;
-    if(!isMoneyInput(input)||!firstPointerFocus.has(input))return;
-    firstPointerFocus.delete(input);
-    selectAll(input);
-  },false);
-  document.addEventListener('pointercancel',event=>{
-    if(isMoneyInput(event.target))firstPointerFocus.delete(event.target);
-  },true);
+  // No select-all on focus/pointer/click; long press and text handles work normally.
   // Group digits while preserving the logical caret and selection boundaries.
   document.addEventListener('input',event=>{
     const input=event.target;

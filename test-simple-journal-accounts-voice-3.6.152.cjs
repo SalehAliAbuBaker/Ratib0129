@@ -11,7 +11,7 @@ assert(head>0&&tail>head,'Main application must expose original searchable accou
 const original=html.slice(head,tail);
 new Function(original+';return SearchableSelect;');
 new Function(voice);
-assert(/3\.6\.153/.test(html)&&/3\.6\.153/.test(sw),'App and worker version updated');
+assert(/3\.6\.154/.test(html)&&/3\.6\.154/.test(sw),'App and worker version updated');
 assert(html.includes("this.isSimpleAccount=['wrapDebitAcc','wrapCreditAcc'].includes(wrapId)"),'Both simple journal dropdowns use a visible portal');
 assert(voice.includes('ratibSimpleVoiceDebit')&&voice.includes('ratibSimpleVoiceCredit'),'Dedicated voice buttons present');
 
@@ -49,6 +49,10 @@ assert(voice.includes('ratibSimpleVoiceDebit')&&voice.includes('ratibSimpleVoice
  debit.focus();
  assert.equal(d.getElementById('dropDebitAcc').parentElement,d.body,'Debit dropdown escapes compact grid');
  assert.equal(d.getElementById('dropCreditAcc').parentElement,d.body,'Credit dropdown escapes compact grid');
+ assert.equal(d.querySelector('#dropDebitAcc .sd-toolbar'),null,'Debit has one editable search: the primary field');
+ assert.equal(d.querySelector('#dropCreditAcc .sd-toolbar'),null,'Credit has one editable search: the primary field');
+ assert.equal(debit.getAttribute('inputmode'),'text','Android keyboard and Gboard speech may write directly');
+ assert.equal(credit.getAttribute('inputmode'),'text','Credit Android keyboard and speech may write directly');
  assert.equal(debit.getAttribute('aria-expanded'),'false','Typing field must not open full results on focus');
  assert.equal(d.getElementById('dropDebitAcc').classList.contains('open'),false,'Android focus must not cover keyboard with full list');
  debit.value='صندوق';
@@ -99,5 +103,5 @@ assert(voice.includes('ratibSimpleVoiceDebit')&&voice.includes('ratibSimpleVoice
  debitMic.click();
  assert.equal(started,2,'Debit microphone can also activate');
  dom.window.close();
- console.log('PASS 3.6.153: direct typing, dropdown arrow, mobile focus-safe dictation, account IDs');
+ console.log('PASS 3.6.154: direct typing, dropdown arrow, mobile focus-safe dictation, account IDs');
 })().catch(err=>{console.error(err);process.exitCode=1;});

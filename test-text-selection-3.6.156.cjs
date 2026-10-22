@@ -1,4 +1,4 @@
-/* Ratib 3.6.156 regression: genuine editable caret/selection in account, financial and commerce fields. */
+/* Ratib 3.6.158 regression: genuine editable caret/selection in account, financial and commerce fields. */
 'use strict';
 const fs=require('node:fs'),assert=require('node:assert/strict'),{JSDOM}=require('jsdom'),vm=require('node:vm');
 const html=fs.readFileSync('index.html','utf8');
@@ -10,10 +10,10 @@ assert.doesNotMatch(sidebar,/ratibSelectField\(/);
 assert.match(sidebar,/ratibPrepareEditableNumber/);
 assert.match(sidebar,/function ratibSelectInitialValue/,'first tap selects all editable text');
 assert.match(sidebar,/document\.activeElement!==el/,'second tap may place caret freely');
-assert.match(html,/الإصدار 3\.6\.156 \(تجريبية\)/);
-assert.match(sw,/v176-native-text-selection-3\.6\.156/);
-assert.match(html,/ratib-amount-edit-3\.6\.97\.js\?v=3\.6\.156/);
-assert.match(html,/ratib-commerce-3\.6\.131\.js\?v=3\.6\.156/);
+assert.match(html,/الإصدار 3\.6\.158 \(تجريبية\)/);
+assert.match(sw,/v178-brief-update-smart-completion-3\.6\.158/);
+assert.match(html,/ratib-amount-edit-3\.6\.97\.js\?v=3\.6\.158/);
+assert.match(html,/ratib-commerce-3\.6\.131\.js\?v=3\.6\.158/);
 assert.doesNotMatch(html,/ratibSelectNext/);
 assert.doesNotMatch(amount,/input\.select\(\)/);
 for(const source of [amount,commerce])assert.doesNotThrow(()=>new vm.Script(source));
@@ -22,12 +22,12 @@ assert(head>0&&tail>head);
 const searchable=html.slice(head,tail);
 assert.doesNotMatch(searchable,/this\.input\.select\(\)/);
 assert.doesNotMatch(searchable,/this\.input\.setSelectionRange\(typedLength/);
-assert.doesNotMatch(searchable,/this\._singleMatchTimer=setTimeout\(/);
+assert.match(searchable,/this\._singleMatchTimer=setTimeout\(/,'Unique smart completion is restored');
 assert.doesNotMatch(html,/input\.value=name;input\.focus\(\);input\.setSelectionRange\(query\.length/);
 const commerceStart=commerce.indexOf('function commerceAutocomplete('),commerceEnd=commerce.indexOf('function commerceResolveProduct(',commerceStart);
 assert(commerceStart>=0&&commerceEnd>commerceStart);
 const commerceSuggestions=commerce.slice(commerceStart,commerceEnd);
-assert.doesNotMatch(commerceSuggestions,/input\.value\s*=\s*match/);
+assert.match(commerceSuggestions,/input\.value\s*=\s*match/,'One matching suggestion is inserted into the editable field');
 
 (async()=>{
  const dom=new JSDOM('<!doctype html><html><head></head><body>'+
@@ -81,7 +81,7 @@ assert.doesNotMatch(commerceSuggestions,/input\.value\s*=\s*match/);
  assert.equal(party.selectionStart,1,'commerce suggestions preserve caret');
  assert.equal(d.getElementById(party.getAttribute('list')).options.length,2,'choices remain available in datalist');
  dom.window.close();
- console.log('PASS 3.6.156: selected subtext editing, native caret, unique account identity, amounts, commerce suggestions');
+ console.log('PASS 3.6.158: selected subtext editing, native caret, unique account identity, amounts, commerce suggestions');
 })().catch(err=>{console.error(err);process.exitCode=1;});
 
 (async()=>{

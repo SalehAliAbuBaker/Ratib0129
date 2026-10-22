@@ -133,10 +133,15 @@ function settings(){
  container.prepend(div);
  $('ratibCountrySettingsOpen').addEventListener('click',open);
 }
+let initialized=false;
 function initAfterUnlock(){
+ if(initialized)return;
+ initialized=true;
  settings();prepare();apply();
  // New, empty workspaces receive one-time onboarding. Existing ledgers retain YER.
  if(!read()&&typeof getAllTransactions==='function'&&getAllTransactions().length===0)open();
 }
 global.RatibCountryCurrency=Object.freeze({KEY,base,read,values,localeSuggestion,open,prepare,apply,initAfterUnlock});
+// The encrypted vault may have unlocked before deferred modules were evaluated.
+if(global.__ratibProceedInitialized)queueMicrotask(initAfterUnlock);
 })(window);

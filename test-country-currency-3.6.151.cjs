@@ -45,7 +45,7 @@ async function scenario({lang='ar-OM',prefs=null,transactions=[]}={}){
  const w=dom.window;
  Object.defineProperty(w.navigator,'language',{configurable:true,value:lang});
  Object.defineProperty(w.navigator,'languages',{configurable:true,value:[lang]});
- const records={};
+ const records={currency_catalog_v1:[{code:'YER',name:'ريال يمني',decimals:2,active:true},{code:'SAR',name:'ريال سعودي',decimals:2,active:true,reportRateYer:412,reportRateYerUpdatedAt:'2026-10-18'}]};
  if(prefs)records.country_currency_settings_v1=prefs;
  let flushed=0,notices=[];
  w.store={get:(key,defaultVal=null)=>key in records?records[key]:defaultVal,set:(key,value)=>{records[key]=JSON.parse(JSON.stringify(value));}};
@@ -74,6 +74,7 @@ async function scenario({lang='ar-OM',prefs=null,transactions=[]}={}){
  assert.equal(w.RatibCountryCurrency.base(),'OMR');
  assert.equal(fresh.records.country_currency_settings_v1.country,'OM');
  assert.equal(fresh.records.currency_catalog_v1.find(x=>x.code==='OMR').decimals,3);
+ assert.equal(fresh.records.currency_catalog_v1.find(x=>x.code==='SAR').reportRateYer,412,'Existing SAR rate must survive country selection');
  assert.equal(w.document.getElementById('currency').value,'OMR');
  assert(fresh.flushed>0,'settings should persist locally');
  assert.equal(w.document.getElementById('ratibCountryCurrencyDialog').hidden,true);

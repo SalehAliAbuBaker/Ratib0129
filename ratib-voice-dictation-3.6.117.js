@@ -282,7 +282,7 @@ function insert(spoken){
  const numeric=type==='number'||(target.matches?.('input')&&
   /^(decimal|numeric)$/.test(target.getAttribute('inputmode')||''));
  const content=numeric?parseNumber(raw):raw;
- if(content===null){notify('لم أتعرف على مبلغ واضح؛ انطق مثل ستة وثلاثين ألفًا ومئة واثنين وخمسين، أو ٣٦١٥٢. لم تتغير القيمة.','warn');return;}
+ if(content===null){notify('لم أتعرف على مبلغ واضح. انطقه بالأرقام أو بالكلمات؛ لم تتغير القيمة.','warn');return;}
  try{
   if(target.matches?.('select')){
    if(!chooseByVoice(target,raw))notify('لم أجد خيارًا واحدًا مطابقًا. اختر من القائمة أو انطق الاسم الكامل.','warn');

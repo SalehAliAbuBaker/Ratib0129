@@ -11,8 +11,8 @@ assert(head>0&&tail>head,'Main application must expose original searchable accou
 const original=html.slice(head,tail);
 new Function(original+';return SearchableSelect;');
 new Function(voice);
-assert(/3\.6\.152/.test(html)&&/3\.6\.152/.test(sw),'App and worker version updated');
-assert(html.includes("['wrapDebitAcc','wrapCreditAcc'].includes(wrapId)"),'Both simple journal dropdowns use a visible portal');
+assert(/3\.6\.153/.test(html)&&/3\.6\.153/.test(sw),'App and worker version updated');
+assert(html.includes("this.isSimpleAccount=['wrapDebitAcc','wrapCreditAcc'].includes(wrapId)"),'Both simple journal dropdowns use a visible portal');
 assert(voice.includes('ratibSimpleVoiceDebit')&&voice.includes('ratibSimpleVoiceCredit'),'Dedicated voice buttons present');
 
 (async()=>{
@@ -21,10 +21,10 @@ assert(voice.includes('ratibSimpleVoiceDebit')&&voice.includes('ratibSimpleVoice
   '<div id="cashFlowCard" class="unified-voucher simple-journal">'+
   '<div class="simple-journal-grid">'+
   '<div class="form-group journal-account-field"><label>الحساب المدين</label><div style="display:flex">'+
-  '<div id="wrapDebitAcc" class="searchable-select-wrap"><input type="text" id="inpDebitAcc"/><div id="dropDebitAcc" class="searchable-dropdown"></div></div>'+
+  '<div id="wrapDebitAcc" class="searchable-select-wrap"><input type="text" id="inpDebitAcc"/><span class="searchable-arrow">▼</span><div id="dropDebitAcc" class="searchable-dropdown"></div></div>'+
   '<button type="button" id="lockDebitAccBtn">🔓</button></div><input type="hidden" id="valDebitAcc"/></div>'+
   '<div class="form-group journal-account-field"><label>الحساب الدائن</label><div style="display:flex">'+
-  '<div id="wrapCreditAcc" class="searchable-select-wrap"><input type="text" id="inpCreditAcc"/><div id="dropCreditAcc" class="searchable-dropdown"></div></div>'+
+  '<div id="wrapCreditAcc" class="searchable-select-wrap"><input type="text" id="inpCreditAcc"/><span class="searchable-arrow">▼</span><div id="dropCreditAcc" class="searchable-dropdown"></div></div>'+
   '<button type="button" id="lockCreditAccBtn">🔓</button></div><input type="hidden" id="valCreditAcc"/></div>'+
   '</div></div></body></html>',
   {url:'https://ratibtrial.pages.dev/',runScripts:'outside-only',pretendToBeVisual:true});
@@ -49,7 +49,8 @@ assert(voice.includes('ratibSimpleVoiceDebit')&&voice.includes('ratibSimpleVoice
  debit.focus();
  assert.equal(d.getElementById('dropDebitAcc').parentElement,d.body,'Debit dropdown escapes compact grid');
  assert.equal(d.getElementById('dropCreditAcc').parentElement,d.body,'Credit dropdown escapes compact grid');
- assert.equal(debit.getAttribute('aria-expanded'),'true');
+ assert.equal(debit.getAttribute('aria-expanded'),'false','Typing field must not open full results on focus');
+ assert.equal(d.getElementById('dropDebitAcc').classList.contains('open'),false,'Android focus must not cover keyboard with full list');
  debit.value='صندوق';
  debit.dispatchEvent(new w.Event('input',{bubbles:true}));
  assert(d.getElementById('dropDebitAcc').classList.contains('open'));
@@ -59,11 +60,22 @@ assert(voice.includes('ratibSimpleVoiceDebit')&&voice.includes('ratibSimpleVoice
  assert.equal(selectors[0].getValue(),'صندوق النقدية','Debtor stored as selected account, not arbitrary text');
  assert.equal(selectors[0].getAccountId(),'1101','Debtor account code preserved');
  credit.focus();
- assert.equal(credit.getAttribute('aria-expanded'),'true','Creditor selector opens');
+ assert.equal(credit.getAttribute('aria-expanded'),'false','Creditor should allow typing before displaying list');
+ credit.value='مصروف';credit.dispatchEvent(new w.Event('input',{bubbles:true}));
+ assert.equal(credit.getAttribute('aria-expanded'),'true','Typing partial account filters creditor list');
  assert(!d.getElementById('dropDebitAcc').classList.contains('open'),'Only active dropdown stays open');
- d.getElementById('dropCreditAcc').querySelectorAll('.searchable-item')[1].click();
+ const matches=d.getElementById('dropCreditAcc').querySelectorAll('.searchable-item');
+ assert.equal(matches.length,1,'Typed account name should reduce matching suggestions');
+ matches[0].click();
  assert.equal(selectors[1].getValue(),'مصروفات الوقود');
  assert.equal(selectors[1].getAccountId(),'5101');
+ // Selection by arrow remains available to people who prefer scrolling lists.
+ const arrow=d.getElementById('wrapDebitAcc').querySelector('.searchable-arrow');
+ assert.equal(arrow.getAttribute('role'),'button');
+ debit.value='';debit.focus();arrow.click();
+ assert(d.getElementById('dropDebitAcc').classList.contains('open'),'Account arrow must open full list');
+ assert.equal(d.getElementById('dropDebitAcc').querySelectorAll('.searchable-item').length,2);
+ selectors[0].close();
  // Both mic controls are present even while the general voice setting remains hidden.
  w.eval(voice);
  const debitMic=d.getElementById('ratibSimpleVoiceDebit');
@@ -77,6 +89,8 @@ assert(voice.includes('ratibSimpleVoiceDebit')&&voice.includes('ratibSimpleVoice
  credit.value='';credit.focus();credit.setSelectionRange(0,0);
  creditMic.click();
  assert.equal(started,1,'Credit microphone can start directly from user click');
+ // Android speech services may move focus; keep transcript in the clicked field.
+ debit.focus();
  recognizer.onresult({resultIndex:0,results:[{0:{transcript:'مصروفات الوقود'},isFinal:true}]});
  assert.equal(credit.value,'مصروفات الوقود','Voice transcript inserted directly into account field');
  assert.equal(selectors[1].getValue(),'مصروفات الوقود','Voice transcript selects the exact ledger account');
@@ -85,5 +99,5 @@ assert(voice.includes('ratibSimpleVoiceDebit')&&voice.includes('ratibSimpleVoice
  debitMic.click();
  assert.equal(started,2,'Debit microphone can also activate');
  dom.window.close();
- console.log('PASS 3.6.152: debtor and creditor dropdowns, account IDs and direct speech dictation without altering saved journals');
+ console.log('PASS 3.6.153: direct typing, dropdown arrow, mobile focus-safe dictation, account IDs');
 })().catch(err=>{console.error(err);process.exitCode=1;});

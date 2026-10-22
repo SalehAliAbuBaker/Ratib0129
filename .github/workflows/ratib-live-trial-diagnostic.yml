@@ -96,7 +96,7 @@ jobs:
           console.log('NAV_BODY_LENGTH:',nav.length);
           console.log('LOCAL_NAV_LENGTH:',local.length);
           console.log('NAV_MATCH:',nav===local);
-          console.log('HOME_HAS_NAV_TAG:',home.includes('ratib-navigation-v3.6.149.js?v=3.6.149'));
+          console.log('HOME_HAS_NAV_TAG:',home.includes('ratib-navigation-v3.6.149.js?v='+fs.readFileSync('index.html','utf8').match(/RATIB_RELEASE=\\{\"version\":\"([^\"]+)/)?.[1]));
           console.log('HOME_RELEASE:',home.match(/RATIB_RELEASE=\{"version":"([^"]+)/)?.[1]||'not found');
           console.log('NAV_FIRST_120:',nav.slice(0,120).replace(/\s+/g,' '));
           NODE
@@ -113,8 +113,10 @@ jobs:
           const local=fs.readFileSync('ratib-navigation-v3.6.149.js','utf8');
           const live=fs.readFileSync('/tmp/ratib-live-navigation.js','utf8');
           const page=fs.readFileSync('/tmp/ratib-live-page.html','utf8');
-          const correct=live===local&&!live.includes('RATIB_RELEASE.version=VERSION')&&page.includes('ratib-navigation-v3.6.149.js?v=3.6.149');
-          console.log('NAV DEPLOY CHECK: matched='+correct+' bytes='+live.length+' new script referenced by page='+page.includes('ratib-navigation-v3.6.149.js?v=3.6.149'));
+          const sourceVersion=fs.readFileSync('index.html','utf8').match(/RATIB_RELEASE=\\{\"version\":\"([^\"]+)/)?.[1];
+          const liveVersion=page.match(/RATIB_RELEASE=\\{\"version\":\"([^\"]+)/)?.[1];
+          const correct=live===local&&sourceVersion===liveVersion&&!live.includes('RATIB_RELEASE.version=VERSION')&&page.includes('ratib-navigation-v3.6.149.js?v='+sourceVersion);
+          console.log('NAV DEPLOY CHECK: matched='+correct+' bytes='+live.length+' new script referenced by page='+page.includes('ratib-navigation-v3.6.149.js?v='+sourceVersion));
           process.exit(correct?0:1);
           NODE
             then

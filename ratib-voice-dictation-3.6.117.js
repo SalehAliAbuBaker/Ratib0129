@@ -5,7 +5,7 @@ const LANG_KEY='ratib.voice.language.v1',LANGUAGES=['ar-SA','ar-YE','ar-EG'];
 let language='ar-SA';
 const VISIBLE_KEY='ratib.voice.visible.v1';let visible=false;try{visible=localStorage.getItem(VISIBLE_KEY)==='true';}catch(_){}
 try{const saved=localStorage.getItem(LANG_KEY);if(LANGUAGES.includes(saved))language=saved;}catch(_){}
-let lastTarget=null,lastSelection=null,engine=null,listening=false,lastResult=-1;
+let lastTarget=null,lastSelection=null,engine=null,listening=false,lastResult=-1,speechTarget=null;
 function eligible(el){
  if(!el||!el.isConnected)return null;
  const rich=el.closest?.('[contenteditable="true"],[contenteditable="plaintext-only"]');
@@ -129,7 +129,9 @@ function parseNumber(spoken){
  return /^-?\d+(?:\.\d+)?$/.test(s)?s:null;
 }
 function insert(spoken){
- const current=eligible(document.activeElement),target=current||eligible(lastTarget);
+ // A mobile speech service may shift DOM focus. Keep transcription attached to
+ // the exact field whose microphone was tapped, never to an incidental focus.
+ const current=eligible(document.activeElement),target=eligible(speechTarget)||current||eligible(lastTarget);
  if(!target){notify('ضع المؤشر أولًا داخل حقل قابل للكتابة.','warn');return;}
  const raw=String(spoken||'').trim();if(!raw)return;
  const numeric=target.matches?.('input[type="number"]');
@@ -148,6 +150,11 @@ function insert(spoken){
    sel.removeAllRanges();sel.addRange(range);lastSelection=range.cloneRange();
   }else if(numeric){
    target.value=content; // numeric inputs do not expose a selectable text caret
+  }else if(target.matches?.('#inpDebitAcc,#inpCreditAcc')){
+   // Account dictation searches by a complete spoken name, not by splicing
+   // words into the middle of a previously selected account label.
+   target.value=content.replace(/[.،؛!?؟]+$/g,'').trim();
+   lastSelection=selectionAt(target);
   }else{
    const selected=target===lastTarget&&typeof lastSelection?.start==='number'?lastSelection:null;
    const start=typeof target.selectionStart==='number'?target.selectionStart:(selected?.start??target.value.length);
@@ -163,7 +170,7 @@ function insert(spoken){
 }
 function stop(){
  if(engine){try{engine.stop();}catch(_){}}
- active(false);
+ active(false);speechTarget=null;
 }
 button.addEventListener('pointerdown',e=>{
  if(eligible(document.activeElement))remember(document.activeElement);
@@ -176,6 +183,7 @@ function startSpeech(target){
  const chosen=eligible(target)||eligible(lastTarget);
  if(!chosen){notify('حدد حقل كتابة ثم اضغط زر الميكروفون.','warn');return;}
  remember(chosen);
+ speechTarget=chosen;
  engine=new Recognition();
  engine.lang=language;engine.continuous=true;engine.interimResults=false;engine.maxAlternatives=1;lastResult=-1;
  engine.onresult=e=>{for(let i=e.resultIndex;i<e.results.length;i++){if(i<=lastResult||!e.results[i].isFinal)continue;lastResult=i;insert(e.results[i][0]?.transcript||'');}};
@@ -183,8 +191,8 @@ function startSpeech(target){
   const messages={'not-allowed':'الميكروفون محظور لهذا الموقع. في Chrome افتح إعدادات الموقع ← الميكروفون ← سماح، ثم أعد المحاولة.','service-not-allowed':'خدمة التعرف على الصوت غير متاحة.',network:'تعذر الاتصال بخدمة التعرف على الصوت.','audio-capture':'لم يُعثر على ميكروفون.','no-speech':'لم أسمع كلامًا واضحًا.'};
   notify(messages[e.error]||'تعذر التعرف على الكلام: '+e.error,'warn');
  };
- engine.onend=()=>{active(false);engine=null;};
- try{engine.start();active(true);}catch(error){engine=null;active(false);notify('تعذر تشغيل الميكروفون: '+error.message,'warn');}
+ engine.onend=()=>{active(false);engine=null;speechTarget=null;};
+ try{engine.start();active(true);}catch(error){engine=null;speechTarget=null;active(false);notify('تعذر تشغيل الميكروفون: '+error.message,'warn');}
 }
 button.addEventListener('click',()=>startSpeech(micTarget()||lastTarget));
 window.addEventListener('pagehide',stop);

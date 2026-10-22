@@ -30,7 +30,7 @@ const validCode=s=>/^[A-Z]{3}$/.test(String(s||''));
 const read=()=>{try{const s=store.get(KEY,null);return s&&validCode(s.currency)?s:null;}catch(_){return null;}};
 const base=()=>read()?.currency||DEFAULT;
 const localeSuggestion=()=>{
- try{const tag=String(Intl.DateTimeFormat().resolvedOptions().locale||navigator.language||'');const region=(tag.match(/-([A-Z]{2})(?:-|$)/i)||[])[1]?.toUpperCase();return COUNTRIES.find(x=>x.code===region)||COUNTRIES[0];}catch(_){return COUNTRIES[0];}
+ try{const tags=[...(navigator.languages||[]),navigator.language,Intl.DateTimeFormat().resolvedOptions().locale].filter(Boolean);for(const raw of tags){const tag=String(raw);const region=(tag.match(/-([A-Z]{2})(?:-|$)/i)||[])[1]?.toUpperCase();const found=COUNTRIES.find(x=>x.code===region);if(found)return found;}return COUNTRIES[0];}catch(_){return COUNTRIES[0];}
 };
 const options=()=>{
  let list=[];

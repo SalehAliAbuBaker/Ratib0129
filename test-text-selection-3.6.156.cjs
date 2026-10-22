@@ -63,6 +63,18 @@ assert.match(commerceSuggestions,/input\.value\s*=\s*match/,'One matching sugges
  assert.equal(selected.getAccountId(),'','edited non-matching account must clear posted identity');
  selected.choose(matches[0]);
  assert.equal(selected.getAccountId(),'110101','suggestion can still be explicitly selected');
+ // A unique newly typed prefix should insert only the remaining suffix,
+ // and that suffix stays highlighted for replacing by typing.
+ acc.value='صندوق النق';acc.focus();acc.setSelectionRange(acc.value.length,acc.value.length);
+ acc.dispatchEvent(new w.InputEvent('input',{bubbles:true,inputType:'insertText'}));
+ await new Promise(r=>w.setTimeout(r,520));
+ assert.equal(acc.value,'صندوق النقدية','unique account name completes automatically');
+ assert.equal(acc.selectionStart,'صندوق النق'.length,'only proposed suffix is selected');
+ assert.equal(acc.selectionEnd,acc.value.length,'selected suffix extends to end');
+ assert.equal(selected.getAccountId(),'110101','smart match binds real account id');
+ acc.setRangeText('ك',acc.selectionStart,acc.selectionEnd,'end');
+ acc.dispatchEvent(new w.InputEvent('input',{bubbles:true,inputType:'insertText'}));
+ assert.equal(selected.getAccountId(),'','replacing a suggestion unbinds account if name is unrecognized');
  w.eval(amount);
  const money=d.getElementById('amount');
  money.focus();money.setSelectionRange(3,5);
@@ -80,6 +92,14 @@ assert.match(commerceSuggestions,/input\.value\s*=\s*match/,'One matching sugges
  assert.equal(party.value,'مح','commerce autocomplete preserves typed text');
  assert.equal(party.selectionStart,1,'commerce suggestions preserve caret');
  assert.equal(d.getElementById(party.getAttribute('list')).options.length,2,'choices remain available in datalist');
+ party.value='محم';party.setSelectionRange(3,3);
+ w.commerceAutocompleteTest(party,['محمد','محسن'],new w.InputEvent('input',{inputType:'insertText'}));
+ assert.equal(party.value,'محمد','unique commerce suggestion is inserted');
+ assert.equal(party.selectionStart,3,'commerce suggestion selects only remaining suffix');
+ assert.equal(party.selectionEnd,4,'suffix remains editable');
+ party.value='مح';party.setSelectionRange(2,2);
+ w.commerceAutocompleteTest(party,['محمد','محسن'],new w.InputEvent('input',{inputType:'deleteContentBackward'}));
+ assert.equal(party.value,'مح','deletion must not force autocomplete');
  dom.window.close();
  console.log('PASS 3.6.158: selected subtext editing, native caret, unique account identity, amounts, commerce suggestions');
 })().catch(err=>{console.error(err);process.exitCode=1;});

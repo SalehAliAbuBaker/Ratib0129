@@ -11,7 +11,7 @@ assert(head>0&&tail>head,'Main application must expose original searchable accou
 const original=html.slice(head,tail);
 new Function(original+';return SearchableSelect;');
 new Function(voice);
-assert(/3\.6\.154/.test(html)&&/3\.6\.154/.test(sw),'App and worker version updated');
+assert(/3\.6\.156/.test(html)&&/3\.6\.156/.test(sw),'App and worker version updated');
 assert(html.includes("this.isSimpleAccount=['wrapDebitAcc','wrapCreditAcc'].includes(wrapId)"),'Both simple journal dropdowns use a visible portal');
 assert(voice.includes('ratibSimpleVoiceDebit')&&voice.includes('ratibSimpleVoiceCredit'),'Dedicated voice buttons present');
 
@@ -103,5 +103,5 @@ assert(voice.includes('ratibSimpleVoiceDebit')&&voice.includes('ratibSimpleVoice
  debitMic.click();
  assert.equal(started,2,'Debit microphone can also activate');
  dom.window.close();
- console.log('PASS 3.6.154: direct typing, dropdown arrow, mobile focus-safe dictation, account IDs');
+ console.log('PASS 3.6.156: direct typing, dropdown arrow, mobile focus-safe dictation, account IDs');
 })().catch(err=>{console.error(err);process.exitCode=1;});

@@ -8552,14 +8552,14 @@ function entrysyncMultiAutoBalance(){
 function entryupdateMultiVoucherSummary(){
   const base=document.getElementById('multiVoucherBaseCurrency')?.value||'YER',totals={YER:0,SAR:0,USD:0};let debitTotal=0,creditTotal=0,validLines=0,invalid=false;
   for(const line of multiVoucherLines){
-    const amount=getCleanNumber(line.amount),rate=multiLineRate(line,base),value=roundAccountingAmount(amount*rate);
+    const amount=getCleanNumber(line.amount),rate=multiLineRate(line,base),value=roundAccountingAmount(amount*rate,base);
     if(!Number.isFinite(amount)||!Number.isFinite(rate)||rate<=0||amount<0||!Number.isFinite(value)){invalid=true;continue;}
     line.base=value;if(line.currency===base)line.rate='1';if(amount>0){validLines++;if(!line.account)invalid=true;}
     totals[line.currency]=(totals[line.currency]||0)+amount;if(line.side==='credit')creditTotal+=value;else debitTotal+=value;
   }
-  debitTotal=roundAccountingAmount(debitTotal);creditTotal=roundAccountingAmount(creditTotal);
+  debitTotal=roundAccountingAmount(debitTotal,base);creditTotal=roundAccountingAmount(creditTotal,base);
   const sum=document.getElementById('multiVoucherSummary');if(sum)sum.innerHTML=Object.entries(totals).filter(([,v])=>v>0).map(([c,v])=>`<span>${multiCurrencyLabel(c)}: ${v.toLocaleString()}</span>`).join('')+`<span>إجمالي المدين: ${debitTotal.toLocaleString()} ${base}</span><span>إجمالي الدائن: ${creditTotal.toLocaleString()} ${base}</span>`;
-  const balanced=!invalid&&validLines>0&&debitTotal>0&&roundAccountingAmount(debitTotal-creditTotal)===0;
+  const balanced=!invalid&&validLines>0&&debitTotal>0&&roundAccountingAmount(debitTotal-creditTotal,base)===0;
   const el=document.getElementById('multiVoucherBalance');if(el){el.dataset.base=String(debitTotal);el.className='multi-voucher-balance '+(balanced?'balanced':'unbalanced');el.textContent=invalid?'راجع المبالغ وأسعار الصرف':balanced?`🟢 القيد متوازن — المدين والدائن: ${debitTotal.toLocaleString()} ${base}`:`🔴 القيد غير متوازن — المدين ${debitTotal.toLocaleString()} / الدائن ${creditTotal.toLocaleString()}`;}
   return {base,baseTotal:debitTotal,debitTotal,creditTotal,totals,balanced,invalid};
 }
@@ -8570,7 +8570,7 @@ function entryvalidateMultiVoucher(){
   for(const line of multiVoucherLines){
     if(!line.account&&String(line.amount??'').trim()==='')continue;
     const amount=getCleanNumber(line.amount),rate=multiLineRate(line,base);
-    if(!line.account||!Number.isFinite(amount)||amount<=0)return 'اختر حساباً وأدخل مبلغاً موجباً وصحيحاً لكل سطر.';
+    if(!line.account||!Number.isFinite(amount)||amount<=0||amount!==roundAccountingAmount(amount,line.currency))return 'اختر حساباً وأدخل مبلغاً موجباً بدقة العملة المحددة لكل سطر.';
     if(!KNOWN_CURRENCIES.has(line.currency)||!['debit','credit'].includes(line.side))return 'راجع العملة والجهة المحاسبية لكل سطر.';
     if(!Number.isFinite(rate)||rate<=0||!Number.isFinite(amount*rate)||amount*rate>Number.MAX_SAFE_INTEGER/100)return 'سعر الصرف يجب أن يكون موجباً وصحيحاً.';
   }
@@ -8580,7 +8580,7 @@ function entryvalidateMultiVoucher(){
 }
 function entrybuildMultiVoucherData(status='draft'){
   const totals=updateMultiVoucherSummary(),date=document.getElementById('multiVoucherDate')?.value||multiToday(),seq=Number(document.getElementById('multiVoucherSeqBadge')?.textContent.match(/\d+/)?.[0])||getNextMultiVoucherNumber(),id=multiVoucherDraftId||`mv_${Date.now()}_${Math.random().toString(36).slice(2)}`;
-  const lines=status==='draft'?multiVoucherLines.map(line=>({...line})):multiVoucherLines.filter(l=>l.account&&getCleanNumber(l.amount)>0).map(line=>{const amount=getCleanNumber(line.amount),rate=multiLineRate(line,totals.base);return {...line,amount,rate,base:roundAccountingAmount(amount*rate)};});
+  const lines=status==='draft'?multiVoucherLines.map(line=>({...line})):multiVoucherLines.filter(l=>l.account&&getCleanNumber(l.amount)>0).map(line=>{const amount=getCleanNumber(line.amount),rate=multiLineRate(line,totals.base);return {...line,amount,rate,base:roundAccountingAmount(amount*rate,totals.base)};});
   return {id,seq,date,beneficiary:document.getElementById('multiVoucherBeneficiary')?.value.trim()||'',party:'',note:document.getElementById('multiVoucherNote')?.value.trim()||'',baseCurrency:totals.base,sourceAccount:'',lines,baseTotal:totals.baseTotal,status,updatedAt:new Date().toISOString()};
 }
 function entryopenMultiVoucherEditor(item){
@@ -8977,7 +8977,7 @@ function isValidISODate(text){
   return year>=1900&&year<=9999&&date.getUTCFullYear()===year&&date.getUTCMonth()+1===month&&date.getUTCDate()===day;
 }
 
-function roundAccountingAmount(value){return Math.round((Number(value)+Number.EPSILON)*100)/100;}
+function roundAccountingAmount(value,currency='YER'){const digits=window.RatibCountryCurrency?.digits?.(currency)??2;const factor=10**Math.max(0,Math.min(4,digits));return Math.round((Number(value)+Number.EPSILON)*factor)/factor;}
 
 function getBudgetReportCurrency(){const value=document.getElementById('budgetReportCurrency')?.value;return KNOWN_CURRENCIES.has(value)?value:getGlobalCurrency();}
 
@@ -9600,7 +9600,7 @@ function spendBase(){return document.getElementById('multiVoucherBaseCurrency').
 
 function spendBudgetOptions(value){return getCats().map(c=>`<option value="${esc(c.id)}" ${c.id===value?'selected':''}>${esc(c.name)}</option>`).join('');}
 
-function spendRound(value){return roundAccountingAmount(value);}
+function spendRound(value,currency=spendBase()){return roundAccountingAmount(value,currency);}
 
 function syncSpendSequence(){const field=document.getElementById('spendSeqInput');if(field)field.value=document.getElementById('multiVoucherSeqBadge').textContent.match(/\d+/)?.[0]||'';}
 
@@ -9676,7 +9676,7 @@ function updateMultiVoucherSummary(){
   if(!cashVoucherMode())return entryupdateMultiVoucherSummary();
   const base=spendBase(),totals={},lines=multiVoucherLines.filter(l=>!l.autoBalance);let total=0,invalid=false;
   for(const line of lines){const amount=getCleanNumber(line.amount),rate=multiLineRate(line,base),value=spendAmount(line);if(!Number.isFinite(amount)||amount<0||!Number.isFinite(rate)||rate<=0||!Number.isFinite(value))invalid=true;
-    if(Number.isFinite(amount)&&amount>0)totals[line.currency]=spendRound((totals[line.currency]||0)+amount);
+    if(Number.isFinite(amount)&&amount>0)totals[line.currency]=spendRound((totals[line.currency]||0)+amount,line.currency);
     if(Number.isFinite(value)&&value>0)total=spendRound(total+value);
     const index=multiVoucherLines.indexOf(line),cell=document.querySelector(`.multi-line-base[data-index="${index}"]`);if(cell)cell.textContent=Number.isFinite(value)&&rate>0?fmt(value,base):'حدد سعر الصرف';
   }
@@ -9700,7 +9700,7 @@ function validateMultiVoucher(){
   for(const line of lines){
     if(!accounts.has(line.account))return 'اختر حسابًا موجودًا في دليل الحسابات للبند.';
     const amount=getCleanNumber(line.amount),rate=multiLineRate(line,spendBase()),value=spendAmount(line);
-    if(!Number.isFinite(amount)||amount<=0||amount!==spendRound(amount))return 'أدخل مبلغاً موجباً بدقة لا تتجاوز منزلتين عشريتين.';
+    if(!Number.isFinite(amount)||amount<=0||amount!==spendRound(amount,line.currency))return 'أدخل مبلغاً موجباً بعدد المنازل العشرية المعتمد لهذه العملة.';
     if(!KNOWN_CURRENCIES.has(line.currency)||!Number.isFinite(rate)||rate<=0||!Number.isFinite(value)||value<=0||value>Number.MAX_SAFE_INTEGER/100)return 'راجع العملة وسعر الصرف؛ يجب أن تكون المعادلة موجبة وصحيحة.';
     if(!cats.has(line.budgetId))return 'اختر بند ميزانية مسجلاً لكل بند.';
   }

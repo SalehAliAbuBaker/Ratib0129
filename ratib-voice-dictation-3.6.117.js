@@ -232,15 +232,17 @@ function stop(){
  if(engine){try{engine.stop();}catch(_){}}
  active(false);speechTarget=null;
 }
+let pendingButtonTarget=null;
 button.addEventListener('pointerdown',e=>{
- if(eligible(document.activeElement))remember(document.activeElement);
+ pendingButtonTarget=micTarget();
+ if(pendingButtonTarget)remember(pendingButtonTarget);
  e.preventDefault(); // Keep the target field's caret while tapping the adjacent mic.
 });
 button.addEventListener('mousedown',e=>e.preventDefault());
 function startSpeech(target){
  if(listening){stop();return;}
  if(!Recognition){notify('متصفحك لا يدعم الإملاء الصوتي داخل التطبيق؛ يمكن استخدام ميكروفون لوحة المفاتيح.','warn');return;}
- const chosen=eligible(target)||eligible(lastTarget);
+ const chosen=eligible(target);
  if(!chosen){notify('حدد حقل كتابة ثم اضغط زر الميكروفون.','warn');return;}
  remember(chosen);
  speechTarget=chosen;
@@ -254,7 +256,12 @@ function startSpeech(target){
  engine.onend=()=>{active(false);engine=null;speechTarget=null;};
  try{engine.start();active(true);}catch(error){engine=null;speechTarget=null;active(false);notify('تعذر تشغيل الميكروفون: '+error.message,'warn');}
 }
-button.addEventListener('click',()=>startSpeech(micTarget()||lastTarget));
+button.addEventListener('click',()=>{
+ const target=micTarget()||pendingButtonTarget;
+ pendingButtonTarget=null;
+ if(!target){notify('اختر أولًا حقلًا قابلًا للإدخال.','warn');return;}
+ startSpeech(target);
+});
 window.addEventListener('pagehide',stop);
 
 async function requestMicrophoneAccess(){

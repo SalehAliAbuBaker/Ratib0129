@@ -8,6 +8,8 @@ const sw=fs.readFileSync('sw.js','utf8');
 const sidebar=fs.readFileSync('ratib-sidebar-3.6.124.js','utf8');
 assert.doesNotMatch(sidebar,/ratibSelectField\(/);
 assert.match(sidebar,/ratibPrepareEditableNumber/);
+assert.match(sidebar,/function ratibSelectInitialValue/,'first tap selects all editable text');
+assert.match(sidebar,/document\.activeElement!==el/,'second tap may place caret freely');
 assert.match(html,/الإصدار 3\.6\.156 \(تجريبية\)/);
 assert.match(sw,/v176-native-text-selection-3\.6\.156/);
 assert.match(html,/ratib-amount-edit-3\.6\.97\.js\?v=3\.6\.156/);
@@ -80,4 +82,47 @@ assert.doesNotMatch(commerceSuggestions,/input\.value\s*=\s*match/);
  assert.equal(d.getElementById(party.getAttribute('list')).options.length,2,'choices remain available in datalist');
  dom.window.close();
  console.log('PASS 3.6.156: selected subtext editing, native caret, unique account identity, amounts, commerce suggestions');
+})().catch(err=>{console.error(err);process.exitCode=1;});
+
+(async()=>{
+ const marker=sidebar.indexOf('// On entering a filled field, select its complete text once.');
+ const end=sidebar.indexOf("document.addEventListener('focusout',e=>{",marker);
+ assert(marker>0&&end>marker,'first-focus caret handlers located');
+ const handlers=sidebar.slice(marker,end);
+ const dom=new JSDOM('<!doctype html><html><head></head><body>'+
+   '<input id="field1" type="text" value="محمد أحمد">'+
+   '<input id="field2" type="search" value="صندوق النقدية">'+
+   '<textarea id="notes">فاتورة قديمة</textarea>'+
+   '<input id="pin" type="password" value="1234"></body></html>',
+   {url:'https://ratibtrial.pages.dev/',runScripts:'outside-only',pretendToBeVisual:true});
+ const w=dom.window,d=w.document;
+ w.eval('function ratibPrepareEditableNumber(el){};\n'+handlers);
+ const first=d.getElementById('field1'),second=d.getElementById('field2'),
+   note=d.getElementById('notes'),pin=d.getElementById('pin');
+ const down=el=>el.dispatchEvent(new w.MouseEvent('pointerdown',{bubbles:true,clientX:12,clientY:12}));
+ down(first);first.focus();first.click();
+ assert.equal(first.selectionStart,0,'first tap selects from start');
+ assert.equal(first.selectionEnd,first.value.length,'first tap selects all existing text');
+ first.setRangeText('علي',0,first.value.length,'end');
+ assert.equal(first.value,'علي','typing over full selection replaces text');
+ first.setSelectionRange(1,1);down(first);first.click();
+ assert.equal(first.selectionStart,1,'second tap respects caret');
+ assert.equal(first.selectionEnd,1,'second tap never selects all again');
+ down(second);second.focus();second.click();
+ assert.equal(second.selectionEnd,second.value.length,'next fresh field selects all once');
+ second.setSelectionRange(2,6);down(second);second.click();
+ assert.equal(second.selectionStart,2,'partial selection remains editable after second tap');
+ assert.equal(second.selectionEnd,6,'partial selection end preserved');
+ down(note);note.focus();note.click();
+ assert.equal(note.selectionEnd,note.value.length,'textarea selects all on first tap');
+ down(pin);pin.focus();pin.click();
+ assert.notEqual(pin.selectionEnd,pin.value.length,'password is excluded from automatic selection');
+ // Drag/long-press on a new field must preserve the browser's partial selection.
+ first.blur();down(first);first.focus();
+ first.setSelectionRange(0,1);
+ first.dispatchEvent(new w.MouseEvent('pointermove',{bubbles:true,clientX:40,clientY:40}));
+ first.click();
+ assert.equal(first.selectionEnd,1,'dragging selection cannot be overwritten by delayed click');
+ dom.window.close();
+ console.log('PASS trial first-tap select-all, second-tap caret, partial selection, protected PIN, drag handling');
 })().catch(err=>{console.error(err);process.exitCode=1;});

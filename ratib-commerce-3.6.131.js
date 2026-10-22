@@ -4,7 +4,8 @@
 const $=id=>document.getElementById(id);
 const fresh=()=>({products:[],warehouses:[{id:'main',name:'المخزن الرئيسي'}],people:[],invoices:[],accounts:{cash:'',receivable:'',payable:'',inventory:'',sales:'',cogs:'',adjust:''}});
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-const n=v=>Number(String(v??'').replace(/,/g,'')),rnd=v=>Math.round(Number(v)*100)/100;
+const n=v=>Number(String(v??'').replace(/,/g,'')),rnd=(v,decimals=2)=>{const factor=10**decimals;return Math.round((Number(v)+Number.EPSILON)*factor)/factor;};
+const moneyDecimals=currency=>window.RatibCountryCurrency?.digits?.(currency)??(currency==='OMR'?3:2);
 const f=v=>Number(v||0).toLocaleString('en-US',{maximumFractionDigits:2});
 const id=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,8);
 const today=()=>new Date().toLocaleDateString('en-CA');
@@ -14,7 +15,7 @@ let newMenuOpen=false;
 function data(){const base=fresh(),v=store.get('commerce_v1',null);if(!v||typeof v!=='object')return base;const x=JSON.parse(JSON.stringify(v));return {...base,...x,products:Array.isArray(x.products)?x.products:[],warehouses:Array.isArray(x.warehouses)?x.warehouses:base.warehouses,people:Array.isArray(x.people)?x.people:[],invoices:Array.isArray(x.invoices)?x.invoices:[],accounts:{...base.accounts,...(x.accounts||{})}};}
 function save(x){store.set('commerce_v1',x);}
 function notify(t,k='info'){if(typeof showToast==='function')showToast(t,k);else alert(t);}
-function positive(v,label,allowZero=false){if(!Number.isFinite(v)||v<0||(!allowZero&&v===0)||rnd(v)!==v)throw Error('راجع '+label);}
+function positive(v,label,allowZero=false){const d=label==='سعر الوحدة'||label==='الإجمالي'?moneyDecimals(draft?.currency||'YER'):2;if(!Number.isFinite(v)||v<0||(!allowZero&&v===0)||rnd(v,d)!==v)throw Error('راجع '+label);}
 function sel(id,items,selected=''){return '<select id="rc-'+id+'"><option value="">اختر</option>'+items.map(x=>'<option value="'+esc(x.id)+'" '+(String(x.id)===String(selected)?'selected':'')+'>'+esc(x.name)+'</option>').join('')+'</select>';}
 function inp(id,type='text',val='',extra=''){return '<input type="'+type+'" id="rc-'+id+'" value="'+esc(val)+'" '+extra+'>';}
 function fld(label,ctl){return '<label class="rc-field"><span class="rc-field-label">'+esc(label)+'</span>'+ctl+'</label>';}
@@ -23,7 +24,7 @@ function table(labels,rows){return '<div class="rc-scroll"><table><thead><tr>'+l
 const types={in:['أمر توريد','توريد مخزني','فاتورة مشتريات'],out:['أمر صرف','صرف مخزني','فاتورة مبيعات']};
 const inboundNumbers={'أمر توريد':'PO','توريد مخزني':'GR','فاتورة مشتريات':'PI'};
 const outboundNumbers={'أمر صرف':'SO','صرف مخزني':'GI','فاتورة مبيعات':'SI'};
-const COMMERCE_CURRENCIES=[{id:'YER',name:'ريال يمني (YER)'},{id:'SAR',name:'ريال سعودي (SAR)'},{id:'AED',name:'درهم إماراتي (AED)'},{id:'USD',name:'دولار أمريكي (USD)'}];
+const COMMERCE_CURRENCIES=[{id:'YER',name:'ريال يمني (YER)'},{id:'SAR',name:'ريال سعودي (SAR)'},{id:'AED',name:'درهم إماراتي (AED)'},{id:'OMR',name:'ريال عُماني (OMR)'},{id:'USD',name:'دولار أمريكي (USD)'}];
 function commerceValidFx(currency,rate){
  if(!COMMERCE_CURRENCIES.some(c=>c.id===currency))throw Error('عملة المستند غير معتمدة.');
  const actual=Number(rate);
@@ -158,7 +159,7 @@ function commerceAmountWords(amount,currency='YER'){
  return '';
 }
 function commerceCurrencyName(code){
- return ({YER:'ريال يمني',SAR:'ريال سعودي',USD:'دولار أمريكي'})[code]||code;
+ return ({YER:'ريال يمني',SAR:'ريال سعودي',AED:'درهم إماراتي',OMR:'ريال عُماني',USD:'دولار أمريكي'})[code]||code;
 }
 function commerceSignatureLabels(d){
  const labels={
@@ -448,10 +449,10 @@ function currentDraftDocument(){
  const db=data(),lines=draft.lines.filter(l=>l.product&&n(l.qty)>0).map(l=>{
   const p=db.products.find(x=>x.id===l.product);if(!p)throw Error('اختر صنفًا معتمدًا.');
   const unit=pUnit(p,l.unit);if(!unitList(p).includes(unit))throw Error('اختر وحدة معتمدة للصنف '+p.name);
-  const amount=rnd(n(l.qty)*n(l.price));return {product:l.product,unit,qty:n(l.qty),price:n(l.price),subtotal:amount};
+  const amount=rnd(n(l.qty)*n(l.price),moneyDecimals(draft.currency));return {product:l.product,unit,qty:n(l.qty),price:n(l.price),subtotal:amount};
  });
  if(!lines.length)throw Error('أدخل صنفًا واحدًا بكمية موجبة للعرض أو المعاينة.');
- const currency=draft.currency||'YER',exchangeRate=commerceValidFx(currency,draft.exchangeRate);const total=rnd(lines.reduce((sum,l)=>sum+l.subtotal,0));
+ const currency=draft.currency||'YER',exchangeRate=commerceValidFx(currency,draft.exchangeRate);const total=rnd(lines.reduce((sum,l)=>sum+l.subtotal,0),moneyDecimals(currency));
  return {...draft,isDraft:true,currency,exchangeRate,lines,total,baseTotal:commerceBaseTotal(total,currency,exchangeRate)};
 }
 async function draftOutput(action){
@@ -482,8 +483,8 @@ function syncInvoice(){
 }
 function refreshTotals(){
  if(!draft)return;
- let total=0;draft.lines.forEach((l,i)=>{const amount=rnd(n(l.qty)*n(l.price));total+=amount;const cell=document.querySelector('[data-total="'+i+'"]');if(cell)cell.textContent=f(amount);});
- if($('rc-grand'))$('rc-grand').textContent=f(total);
+ let total=0;draft.lines.forEach((l,i)=>{const amount=rnd(n(l.qty)*n(l.price),moneyDecimals(draft.currency));total+=amount;const cell=document.querySelector('[data-total="'+i+'"]');if(cell)cell.textContent=f(amount);});
+ if($('rc-grand'))$('rc-grand').textContent=Number(total).toLocaleString('en-US',{maximumFractionDigits:moneyDecimals(draft.currency)});
  const box=$('rc-fx-preview');if(box){const rate=n($('rc-exchangeRate')?.value||draft.exchangeRate);box.innerHTML='الإجمالي بالعملة الأصلية: <b>'+f(total)+' '+esc(draft.currency)+'</b> · المعادل اليمني: <b>'+(Number.isFinite(rate)&&rate>0?f(rnd(total*rate)):'حدّد سعر الصرف')+' YER</b>';}
 }
 function changeOrigin(){
@@ -650,7 +651,7 @@ function makeJournal(doc,db){
  const multi={id:vid,seq,date:doc.date,mode:'multi-entry',baseCurrency:'YER',baseTotal:debit,
   note:docName(doc)+' رقم '+doc.number,beneficiary:doc.partyName,
   lines:lines.map(l=>({side:l.side,account:l.account,accountId:codes.get(l.account)||'',
-   currency:l.foreign?currency:'YER',amount:l.foreign?rnd(doc.total):l.amount,base:l.amount,
+   currency:l.foreign?currency:'YER',amount:l.foreign?rnd(doc.total,moneyDecimals(currency)):l.amount,base:l.amount,
    rate:l.foreign?exchangeRate:1,exchangeRate:l.foreign?exchangeRate:1,
    equivalentCurrency:'YER',budgetId:'general',note:doc.note||doc.number}))};
  return lines.map((l,i)=>({id:vid+'_'+i,multiVoucherId:vid,commerceId:doc.id,
@@ -720,15 +721,15 @@ async function saveInvoice(){
    const originals=origin.lines.filter(x=>x.product===p.id&&lineUnit(db,x)===unit);
    if(!originals.length)throw Error('الصنف والوحدة لا يتبعان المستند الأصلي.');
    const base=originals.reduce((a,x)=>a+Number(x.qty||0),0);
-   price=rnd(originals.reduce((a,x)=>a+Number(x.price||0)*Number(x.qty||0),0)/base);
+   price=rnd(originals.reduce((a,x)=>a+Number(x.price||0)*Number(x.qty||0),0)/base,moneyDecimals(currency));
    cost=rnd(quantity*originals.reduce((a,x)=>a+Number(x.cost||0),0)/base);
   }else{
    positive(price,'سعر الوحدة',true);
    const previousLine=originalDoc?.lines.find(x=>x.product===p.id&&lineUnit(db,x)===unit&&Number(x.qty)===quantity);
     cost=rnd(quantity*(kind==='purchase'?price*exchangeRate:previousLine&&['sale','sale_return'].includes(kind)?Number(previousLine.cost||0)/quantity:average(validationDb,p.id,d.warehouse,unit)));
   }
-  const lineSum=rnd(price*quantity);positive(lineSum,'الإجمالي');
-  total=rnd(total+lineSum);totalCost=rnd(totalCost+cost);
+  const lineSum=rnd(price*quantity,moneyDecimals(currency));positive(lineSum,'الإجمالي');
+  total=rnd(total+lineSum,moneyDecimals(currency));totalCost=rnd(totalCost+cost);
   return {product:p.id,unit,qty:quantity,price,subtotal:lineSum,cost};
  });
  positive(total,'الإجمالي');
@@ -741,7 +742,7 @@ async function saveInvoice(){
   else throw Error('فرق التقريب في تكلفة الوارد غير صالح.');
  }
  const prefix={purchase:'IN',sale:'OUT',purchase_return:'IR',sale_return:'OR'}[kind];
- const doc={id:originalDoc?.id||id(),kind,title:ret?'مرتجع '+(mode==='in'?'الوارد':'الصادر'):d.title,number:String(d.number).trim(),date:d.date,warehouse:d.warehouse,partyName:String(d.partyName).trim(),partyAccount:d.payment==='credit'?validatedAccount(d.partyAccount,'الحساب المقابل'):'',payment:d.payment,note:String(d.note||''),origin:ret?origin.id:'',currency,exchangeRate,baseTotal,displayPartyName:String(d.displayPartyName||'').trim(),total:rnd(total),cost:rnd(totalCost),lines:items,status:'posted',createdAt:originalDoc?.createdAt||new Date().toISOString(),...(originalDoc?{updatedAt:new Date().toISOString()}: {})};
+ const doc={id:originalDoc?.id||id(),kind,title:ret?'مرتجع '+(mode==='in'?'الوارد':'الصادر'):d.title,number:String(d.number).trim(),date:d.date,warehouse:d.warehouse,partyName:String(d.partyName).trim(),partyAccount:d.payment==='credit'?validatedAccount(d.partyAccount,'الحساب المقابل'):'',payment:d.payment,note:String(d.note||''),origin:ret?origin.id:'',currency,exchangeRate,baseTotal,displayPartyName:String(d.displayPartyName||'').trim(),total:rnd(total,moneyDecimals(currency)),cost:rnd(totalCost),lines:items,status:'posted',createdAt:originalDoc?.createdAt||new Date().toISOString(),...(originalDoc?{updatedAt:new Date().toISOString()}: {})};
  if(originalDoc)await commerceReplaceOrDelete(originalDoc,doc);
  else await persistDoc(doc,db);
 }

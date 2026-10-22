@@ -65,7 +65,7 @@ async function testLicence() {
   const client={navigator:{onLine:false},crypto:{randomUUID:()=> 'test-id'}};
   vm.runInNewContext(license,{window:client,localStorage:storage,Date,Set,console,TypeError,
     fetch:async()=>{networkCalls++;throw new TypeError('offline');}});
-  assert.equal(client.RatibLicense.TRIAL_LIMIT,20,'preserve free-trial limit');
+  assert.equal(client.RatibLicense.TRIAL_LIMIT,50,'preserve free-trial limit');
   assert.equal(await client.RatibLicense.licensed(),true,
     'previously verified unexpired licence must remain valid offline');
   assert.equal(networkCalls,0,'offline access must not call the licensing API');

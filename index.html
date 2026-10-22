@@ -12099,6 +12099,7 @@ function currenciesUi(){
   const all=catalog();if(all.some(x=>x.code===code)){showToast('هذه العملة موجودة','warn');return;}
   all.push({code,name,decimals,active:true});if(await saveCatalog(all)){get('ratibCurrencyCode').value='';get('ratibCurrencyName').value='';sync();render();showToast('تمت إضافة العملة','success');}
  };
+ window.ratibCurrencyManagerRefresh=()=>{render();sync();};
  render();sync();
 }
 try{currenciesUi();sync();}catch(e){console.error('Ratib 3.6.12 initialization',e);}

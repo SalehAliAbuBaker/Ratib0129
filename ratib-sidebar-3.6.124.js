@@ -29,11 +29,12 @@ const settings=[
  ['identity','الهوية والبيانات الشخصية','identity'],
  ['printing','إعدادات الطباعة','print'],
  ['defaults','إعدادات الحسابات الافتراضية للسندات','defaults'],
+ ['buttonsize','حجم الأزرار والخط','settings'],
  ['currencies','إدارة العملات','currency'],
  ['backupsettings','النسخ الاحتياطي','backup'],
  ['favorites','مفضلتي','favorites'],
  ['voice','الإدخال الصوتي','mic'],
- ['sound','صوت إشعارات التذكيرات','sound']
+ ['sound','أصوات التنبيهات والتذكيرات','sound']
 ];
 function icon(name){const n=document.createElementNS('http://www.w3.org/2000/svg','svg');n.setAttribute('class','sidebar-icon');n.setAttribute('viewBox','0 0 24 24');n.setAttribute('fill','none');n.setAttribute('stroke','currentColor');n.setAttribute('stroke-width','1.7');n.setAttribute('stroke-linecap','round');n.setAttribute('stroke-linejoin','round');n.setAttribute('aria-hidden','true');n.innerHTML=shapes[name]||shapes.settings;return n;}
 function make(label,ico,action,arrow){const b=document.createElement('button');b.type='button';b.append(icon(ico),Object.assign(document.createElement('span'),{textContent:label}));if(arrow){const a=icon('chevron');a.classList.add('ratib-menu-chevron');b.append(a);}b.addEventListener('click',action);return b;}
@@ -61,10 +62,12 @@ function css(){if($('ratibApprovedSidebarStyle'))return;const e=document.createE
 '#pageSettings.ratib-settings-detail > :not(.ratib-settings-current){display:none!important}',
 '#pageSettings.ratib-settings-detail > .ratib-settings-current{margin-top:0}',
 '#pageSettings.ratib-settings-detail > .ratib-settings-current > .settings-accordion-body{display:block}',
-'#pageSettings.ratib-security-detail > .ratib-settings-current > .settings-accordion-header{display:none!important}',
-'#pageSettings.ratib-security-detail > .ratib-settings-current > .settings-accordion-body > :not(.ratib-inside-identity){display:none!important}',
+'#pageSettings.ratib-security-detail > .ratib-settings-current > .settings-accordion-header{display:flex!important}',
+'#pageSettings.ratib-security-detail > .ratib-settings-current > .settings-accordion-body > *{visibility:visible!important}',
 '#pageSettings.ratib-security-detail > .ratib-settings-current > .settings-accordion-body{border:0!important;padding:0!important}',
 '#pageSettings.ratib-security-detail .ratib-inside-identity{margin:0!important}',
+'#pageSettings.ratib-security-detail .ratib-inside-identity > .settings-accordion-header{display:none!important}',
+'#pageSettings.ratib-security-detail .ratib-inside-identity > .settings-accordion-body{display:block!important}',
 '#pageSettings.ratib-settings-reordered .settings-accordion-header>svg.sidebar-icon+span{flex:1;min-width:0;overflow-wrap:anywhere}',
 '#pageSettings.ratib-settings-reordered>.settings-accordion-card{background:var(--card);border:1px solid var(--border)!important;border-inline-start:1px solid var(--border)!important;box-shadow:none!important;border-radius:8px;padding:0!important;overflow:hidden}',
 '#pageSettings.ratib-settings-reordered>.settings-accordion-card>.settings-accordion-header{font:900 1rem Tajawal,sans-serif!important;line-height:1.4!important;color:var(--text)!important;min-height:48px;padding:10px 12px;gap:10px;cursor:pointer}',
@@ -77,7 +80,7 @@ function css(){if($('ratibApprovedSidebarStyle'))return;const e=document.createE
 function header(c){return c?.querySelector(':scope > .settings-accordion-header');}
 function title(c){return header(c)?.querySelector('span')?.textContent?.trim()||'';}
 function keyFor(c){
- const t=title(c);if(c.id==='notificationSoundCard'||t.includes('صوت إشعارات التذكيرات'))return 'sound';
+ const t=title(c);if(c.dataset.ratibCreated==='buttonsize'||t.includes('حجم الأزرار'))return 'buttonsize';if(c.id==='notificationSoundCard'||t.includes('صوت إشعارات التذكيرات'))return 'sound';
  if(c.id==='ratibCurrencyManager'||t.includes('إدارة العملات'))return 'currencies';
  if(c.id==='ratibStatementOptions'||t.includes('عرض وطباعة كشف الحساب'))return 'printing';
  if(t.includes('الأمان وقفل الحماية'))return 'security';
@@ -102,8 +105,15 @@ function reorder(){
  const page=$('pageSettings');if(!page)return;page.classList.add('ratib-settings-reordered');
  const cards=[...page.querySelectorAll(':scope > .settings-accordion-card')];
  const map=new Map(cards.map(c=>[keyFor(c),c]).filter(([key])=>key));
- const sec=map.get('security'),identity=map.get('identity');
- if(sec&&identity&&sec.parentNode===page){const body=identity.querySelector(':scope > .settings-accordion-body');if(body){body.prepend(sec);sec.classList.add('ratib-inside-identity');}}
+ // The security card remains independent of the identity card.
+ if(!map.has('buttonsize')){
+   const holder=document.createElement('div');holder.className='ratib-global-size-card';
+   holder.innerHTML='<label for="ratibGlobalButtonSize">حجم أزرار التطبيق بالكامل</label><select id="ratibGlobalButtonSize" aria-label="حجم أزرار التطبيق"><option value="small">صغير</option><option value="medium">متوسط</option><option value="large">كبير</option></select><p>حجم الأزرار مستقل عن حجم الخط، ولا يغير الطباعة.</p><label for="ratibGlobalFontSize">حجم الخط في واجهة التطبيق</label><select id="ratibGlobalFontSize" aria-label="حجم الخط"><option value="small">صغير — 90%</option><option value="normal">عادي — 100%</option><option value="large">كبير — 110%</option><option value="xlarge">كبير جدًا — 120%</option></select><p>حجم الخط لا يؤثر على طباعة وPDF أو مقاسات الأيقونات.</p>';
+   const card=createCard('buttonsize',holder);
+   card.id='ratibButtonSizeSettingsCard';page.append(card);map.set('buttonsize',card);
+   holder.querySelector('#ratibGlobalButtonSize').value=window.RatibButtonSizing?.get?.()||'medium';
+   holder.querySelector('#ratibGlobalFontSize').value=window.RatibButtonSizing?.getFont?.()||'normal';
+ }
  const order=settings.map(x=>map.get(x[0])).filter(Boolean);
  for(let i=0;i<order.length;i++){const c=order[i],key=keyFor(c);setTitle(c,key);if(page.children[i]!==c)page.insertBefore(c,page.children[i]||null);}
 }
@@ -132,7 +142,7 @@ function resetSettingsDetail(){
 function focusSetting(key,makeHistory){
  const page=$('pageSettings');if(!page)return;
  reorder();
- const main=getCard(key==='security'?'identity':key);if(!main)return;
+ const main=getCard(key);if(!main)return;
  if(makeHistory&&!isSettingsDetail()&&typeof window.rememberAppView==='function')window.rememberAppView();
  for(const c of page.querySelectorAll('.settings-accordion-card')){setCardOpen(c,false);c.classList.remove('ratib-settings-current');c.removeAttribute('aria-hidden');}
  for(const c of page.querySelectorAll(':scope > .settings-accordion-card')){
@@ -140,7 +150,7 @@ function focusSetting(key,makeHistory){
  }
  page.classList.add('ratib-settings-detail');page.classList.toggle('ratib-security-detail',key==='security');
  openCard(main);
- if(key==='security')openCard(main.querySelector('.ratib-inside-identity'));
+ // The independent security card opens directly.
  const label=$('backToMenuBtn')?.querySelector('span');
  if(label){if(!label.dataset.ratibOriginalBackLabel)label.dataset.ratibOriginalBackLabel=label.textContent;label.textContent='↪️ رجوع إلى الإعدادات';}
  requestAnimationFrame(()=>{main.scrollIntoView({behavior:'auto',block:'start'});});
@@ -179,9 +189,22 @@ function installSettingsNavigation(){
 }
 function openSetting(key){
  window.closeRatibSidebar?.();
+ const page=$('pageSettings');
+ if(!page)return;
  if(typeof window.navigateToTab==='function')window.navigateToTab('pageSettings',true);
- focusSetting(key,true);
+ // Application navigation can finish asynchronously while history is being restored.
+ // Focusing a hidden page would immediately be undone by the settings observer.
+ let attempts=0;
+ const display=()=>{
+  if(page.classList.contains('hidden')||!getCard(key)){
+   if(++attempts<80)setTimeout(display,25);
+   return;
+  }
+  focusSetting(key,true);
+ };
+ display();
 }
+window.RatibSettingsOpen=openSetting;
 function buildSidebar(){
  const aside=$('appSidebar'),nav=aside?.querySelector('.sidebar-nav');if(!aside||!nav||aside.dataset.ratibApproved==='1')return;
  css();reorder();installSettingsNavigation();
@@ -199,7 +222,7 @@ function buildSidebar(){
  const settingsItems=document.createDocumentFragment();
  for(const [key,label,ico] of settings){
   if(key!=='identity'){settingsItems.append(make(label,ico,()=>openSetting(key)));continue;}
-  const group=document.createElement('div'),inner=document.createElement('div');inner.className='ratib-menu-subchildren';inner.hidden=false;
+  const group=document.createElement('div'),inner=document.createElement('div');inner.className='ratib-menu-subchildren';inner.hidden=false; // Security is visible when Settings opens.
   const main=make(label,ico,()=>{inner.hidden=!inner.hidden;main.setAttribute('aria-expanded',String(!inner.hidden));},true);main.setAttribute('aria-expanded','true');
   inner.append(make('بيانات الهوية','identity',()=>openSetting('identity')),make('إعدادات الأمان وقفل الحماية','lock',()=>openSetting('security')));
   group.append(main,inner);settingsItems.append(group);
@@ -233,7 +256,7 @@ function buildSidebar(){
  let queued=false;new MutationObserver(records=>{if(!records.some(r=>[...r.addedNodes].some(n=>n.nodeType===1&&n.classList?.contains('settings-accordion-card')))||queued)return;queued=true;requestAnimationFrame(()=>{queued=false;reorder();});}).observe($('pageSettings'),{childList:true});
 }
 function ratibTrialVersion(){
- return String((typeof RATIB_RELEASE!=='undefined'?RATIB_RELEASE.version:'')||window.RatibCommerce?.version||'').trim();
+ return String(window.ratibCurrentTrialVersion?.()||(typeof RATIB_RELEASE!=='undefined'?RATIB_RELEASE.version:'')||window.RatibCommerce?.version||'').trim();
 }
 function syncSidebarVersion(){
  const v=ratibTrialVersion();if(!/^\d+\.\d+\.\d+$/.test(v))return;

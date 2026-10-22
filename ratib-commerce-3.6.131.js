@@ -23,7 +23,7 @@ function table(labels,rows){return '<div class="rc-scroll"><table><thead><tr>'+l
 const types={in:['أمر توريد','توريد مخزني','فاتورة مشتريات'],out:['أمر صرف','صرف مخزني','فاتورة مبيعات']};
 const inboundNumbers={'أمر توريد':'PO','توريد مخزني':'GR','فاتورة مشتريات':'PI'};
 const outboundNumbers={'أمر صرف':'SO','صرف مخزني':'GI','فاتورة مبيعات':'SI'};
-const COMMERCE_CURRENCIES=[{id:'YER',name:'ريال يمني (YER)'},{id:'SAR',name:'ريال سعودي (SAR)'},{id:'USD',name:'دولار أمريكي (USD)'}];
+const COMMERCE_CURRENCIES=[{id:'YER',name:'ريال يمني (YER)'},{id:'SAR',name:'ريال سعودي (SAR)'},{id:'AED',name:'درهم إماراتي (AED)'},{id:'USD',name:'دولار أمريكي (USD)'}];
 function commerceValidFx(currency,rate){
  if(!COMMERCE_CURRENCIES.some(c=>c.id===currency))throw Error('عملة المستند غير معتمدة.');
  const actual=Number(rate);
@@ -394,7 +394,9 @@ function movements(db){
 }
 function newDraft(){
  const db=data(),kind=view==='return'?(mode==='in'?'purchase_return':'sale_return'):dir(),title=view==='return'?'مرتجع':types[mode]?.[0]||'مرتجع';
- return {kind,title,number:nextNumber(db,kind,title),date:today(),warehouse:db.warehouses[0]?.id||'main',partyName:'',displayPartyName:'',partyAccount:'',payment:'credit',currency:'YER',exchangeRate:1,note:'',origin:'',lines:[{id:id(),product:'',unit:'',qty:1,price:0}]};
+ const preferred=window.RatibCountryCurrency?.base?.()||'YER';
+ const currency=COMMERCE_CURRENCIES.some(x=>x.id===preferred)?preferred:'YER';
+ return {kind,title,number:nextNumber(db,kind,title),date:today(),warehouse:db.warehouses[0]?.id||'main',partyName:'',displayPartyName:'',partyAccount:'',payment:'credit',currency,exchangeRate:currency==='YER'?1:'',note:'',origin:'',lines:[{id:id(),product:'',unit:'',qty:1,price:0}]};
 }
 function leftToReturn(db,origin,pid,unit){
  const x=db.invoices.find(t=>t.id===origin);

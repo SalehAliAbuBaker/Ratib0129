@@ -10,9 +10,9 @@ const commerce=fs.readFileSync('ratib-commerce-3.6.131.js','utf8');
 
 new Function(source);
 new Function(commerce);
-assert.match(html,/ratib-country-currency-3\.6\.152\.js\?v=3\.6\.152/);
-assert.match(worker,/"\.\/ratib-country-currency-3\.6\.152\.js"/);
-assert.match(worker,/"\.\/ratib-country-currency-3\.6\.152\.css"/);
+assert.match(html,/ratib-country-currency-3\.6\.151\.js\?v=3\.6\.152/);
+assert.match(worker,/"\.\/ratib-country-currency-3\.6\.151\.js"/);
+assert.match(worker,/"\.\/ratib-country-currency-3\.6\.151\.css"/);
 assert.match(html,/const RATIB_RELEASE=\{"version":"3\.6\.152"/);
 assert.match(worker,/const APP_RELEASE=\{"version":"3\.6\.152"/);
 assert.match(commerce,/id:'OMR',name:'ريال عُماني \(OMR\)'/);

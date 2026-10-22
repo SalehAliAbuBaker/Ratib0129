@@ -175,7 +175,7 @@ function chooseByVoice(select,spoken){
 function insert(spoken){
  // A mobile speech service may shift DOM focus. Keep transcription attached to
  // the exact field whose microphone was tapped, never to an incidental focus.
- const current=eligible(document.activeElement),target=eligible(speechTarget)||current||eligible(lastTarget);
+ const target=eligible(speechTarget); // Only the user-chosen field can receive transcripts.
  if(!target){notify('ضع المؤشر أولًا داخل حقل قابل للكتابة.','warn');return;}
  const raw=String(spoken||'').trim();if(!raw)return;
  const type=String(target.type||'').toLowerCase();

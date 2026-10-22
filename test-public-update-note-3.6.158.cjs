@@ -1,4 +1,4 @@
-/* Trial 3.6.158: same one-line update notice for pending updates and a freshly loaded release. */
+/* Trial 3.6.159: same one-line update notice for pending updates and a freshly loaded release. */
 'use strict';
 const assert=require('node:assert/strict'),fs=require('node:fs'),{JSDOM}=require('jsdom');
 const html=fs.readFileSync('index.html','utf8'),worker=fs.readFileSync('sw.js','utf8');
@@ -6,11 +6,11 @@ const fixed='تصحيح الأخطاء في بعض الأجهزة';
 const line=worker.split('\n').find(x=>x.startsWith('const APP_RELEASE='));
 assert(line,'Worker release manifest must exist');
 const manifest=JSON.parse(line.slice('const APP_RELEASE='.length).replace(/;$/,''));
-assert.equal(manifest.version,'3.6.158');
+assert.equal(manifest.version,'3.6.159');
 assert.deepEqual(manifest.changes,[fixed],'Older installed versions must not show detailed release notes');
-assert.match(worker,/v178-brief-update-smart-completion-3\.6\.158/);
-assert.match(html,/RATIB_RELEASE=\{"version":"3\.6\.158"/);
-assert.match(html,/ratib-commerce-3\.6\.131\.js\?v=3\.6\.158/);
+assert.match(worker,/v179-arabic-spoken-amounts-3\.6\.159/);
+assert.match(html,/RATIB_RELEASE=\{"version":"3\.6\.159"/);
+assert.match(html,/ratib-commerce-3\.6\.131\.js\?v=3\.6\.159/);
 const at=html.indexOf("const RATIB_PUBLIC_UPDATE_NOTE=");
 const until=html.indexOf('function showTransientAppNotice(',at);
 assert(at>0&&until>at);
@@ -18,13 +18,13 @@ const dom=new JSDOM('<!doctype html><html><body><div id="appUpdateDetails" class
 const w=dom.window;
 w.eval(html.slice(at,until)+';window.showAppReleaseDetailsTest=showAppReleaseDetails;');
 const box=w.document.getElementById('appUpdateDetails');
-w.showAppReleaseDetailsTest({version:'3.6.158',changes:['تفصيل أول','تفصيل ثان','تفصيل ثالث']});
+w.showAppReleaseDetailsTest({version:'3.6.159',changes:['تفصيل أول','تفصيل ثان','تفصيل ثالث']});
 assert.equal(box.textContent,fixed,'Only the public summary is visible');
 assert.equal(box.querySelectorAll('li,ul').length,0,'No detailed bullet points');
 assert(!box.classList.contains('hidden'));
 w.showAppReleaseDetailsTest(null);
 assert(box.classList.contains('hidden'),'An unrelated status notice hides release details');
-w.showAppReleaseDetailsTest({version:'3.6.158',changes:[fixed]});
+w.showAppReleaseDetailsTest({version:'3.6.159',changes:[fixed]});
 assert.equal(box.textContent,fixed);
 dom.window.close();
-console.log('PASS 3.6.158: short public update note, worker backward compatibility, no detailed list');
+console.log('PASS 3.6.159: short public update note, worker backward compatibility, no detailed list');

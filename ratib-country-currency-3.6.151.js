@@ -10,9 +10,21 @@ const COUNTRIES=[
  {code:'YE',name:'اليمن',currency:'YER'},
  {code:'SA',name:'السعودية',currency:'SAR'},
  {code:'AE',name:'الإمارات',currency:'AED'},
+ {code:'OM',name:'سلطنة عُمان',currency:'OMR'},
+ {code:'QA',name:'قطر',currency:'QAR'},
+ {code:'KW',name:'الكويت',currency:'KWD'},
+ {code:'BH',name:'البحرين',currency:'BHD'},
+ {code:'JO',name:'الأردن',currency:'JOD'},
+ {code:'EG',name:'مصر',currency:'EGP'},
+ {code:'IQ',name:'العراق',currency:'IQD'},
+ {code:'MA',name:'المغرب',currency:'MAD'},
+ {code:'GB',name:'المملكة المتحدة',currency:'GBP'},
+ {code:'US',name:'الولايات المتحدة',currency:'USD'},
  {code:'OTHER',name:'دولة أخرى',currency:''}
 ];
-const NAMES={YER:'ريال يمني',SAR:'ريال سعودي',AED:'درهم إماراتي',USD:'دولار أمريكي',EUR:'يورو'};
+const NAMES={YER:'ريال يمني',SAR:'ريال سعودي',AED:'درهم إماراتي',OMR:'ريال عُماني',QAR:'ريال قطري',KWD:'دينار كويتي',BHD:'دينار بحريني',JOD:'دينار أردني',EGP:'جنيه مصري',IQD:'دينار عراقي',MAD:'درهم مغربي',USD:'دولار أمريكي',EUR:'يورو',GBP:'جنيه إسترليني'};
+const DECIMALS={OMR:3,KWD:3,BHD:3,JOD:3,IQD:3};
+const digits=currency=>DECIMALS[currency]??2;
 const $=id=>document.getElementById(id);
 const validCode=s=>/^[A-Z]{3}$/.test(String(s||''));
 const read=()=>{try{const s=store.get(KEY,null);return s&&validCode(s.currency)?s:null;}catch(_){return null;}};
@@ -23,7 +35,7 @@ const localeSuggestion=()=>{
 const options=()=>{
  let list=[];
  try{if(typeof catalog==='function')list=catalog().filter(x=>x.active!==false).map(x=>({code:x.code,name:x.name||x.code}));}catch(_){}
- for(const c of ['YER','SAR','AED','USD','EUR'])if(!list.some(x=>x.code===c))list.push({code:c,name:NAMES[c]});
+ for(const c of Object.keys(NAMES))if(!list.some(x=>x.code===c))list.push({code:c,name:NAMES[c]});
  const selected=base();if(!list.some(x=>x.code===selected))list.push({code:selected,name:selected});
  return list;
 };
@@ -108,7 +120,7 @@ async function saveSelection(country,currency,modal){
   // Provide AED/EUR in the existing central currency catalog, without rates or historical conversions.
   const data=typeof catalog==='function'?catalog():[];
   if(!data.some(x=>x.code===currency)){
-   data.push({code:currency,name:NAMES[currency]||currency,decimals:2,active:true});
+   data.push({code:currency,name:NAMES[currency]||currency,decimals:digits(currency),active:true});
    store.set('currency_catalog_v1',data);
   }
   if(typeof KNOWN_CURRENCIES!=='undefined')KNOWN_CURRENCIES.add(currency);
@@ -141,7 +153,7 @@ function initAfterUnlock(){
  // New, empty workspaces receive one-time onboarding. Existing ledgers retain YER.
  if(!read()&&typeof getAllTransactions==='function'&&getAllTransactions().length===0)open();
 }
-global.RatibCountryCurrency=Object.freeze({KEY,base,read,values,localeSuggestion,open,prepare,apply,initAfterUnlock});
+global.RatibCountryCurrency=Object.freeze({KEY,base,read,values,localeSuggestion,digits,open,prepare,apply,initAfterUnlock});
 // The encrypted vault may have unlocked before deferred modules were evaluated.
 if(global.__ratibProceedInitialized)queueMicrotask(initAfterUnlock);
 })(window);

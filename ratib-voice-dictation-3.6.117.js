@@ -126,13 +126,111 @@ function westernDigits(raw){
  return String(raw||'').replace(/[٠-٩]/g,d=>String(d.charCodeAt(0)-1632))
   .replace(/[۰-۹]/g,d=>String(d.charCodeAt(0)-1776));
 }
-// Numeric transcription is accepted only when its value is unambiguous.
+// Parse Arabic spoken numbers only when every word has a unique numeric meaning.
+function parseArabicWordNumber(spoken){
+ const ones={'صفر':0,'واحد':1,'واحده':1,'احد':1,'احدي':1,
+  'اثنين':2,'اثنان':2,'اثنتين':2,'اثنتان':2,'اثنا':2,'اتنين':2,'ثنين':2,'ثنتين':2,
+  'ثلاثه':3,'ثلاث':3,'تلاته':3,'اربعه':4,'اربع':4,'خمسه':5,'خمس':5,
+  'سته':6,'ست':6,'سبعه':7,'سبع':7,'ثمانيه':8,'ثمان':8,'تسعه':9,'تسع':9};
+ const values={...ones,'عشره':10,'عشر':10,'عشرين':20,'ثلاثين':30,
+  'اربعين':40,'خمسين':50,'ستين':60,'سبعين':70,'ثمانين':80,'تسعين':90,
+  'احدعشر':11,'احدعشره':11,'اثناعشر':12,'اثنيعشر':12,
+  'اثناعشره':12,'اثنيعشره':12,'اثنتاعشره':12,
+  'ميه':100,'مئه':100,'مائه':100,'مايه':100,
+  'ميتين':200,'مئتين':200,'مائتين':200,'مئتان':200,'مائتان':200,
+  'ثلاثميه':300,'ثلاثمئه':300,'ثلاثمائه':300,
+  'اربعميه':400,'اربعميه':400,'اربعمئه':400,'اربعمائه':400,
+  'خمسميه':500,'خمسمئه':500,'خمسمائه':500,
+  'ستميه':600,'ستمئه':600,'ستمائه':600,
+  'سبعميه':700,'سبعمئه':700,'سبعمائه':700,
+  'ثمانميه':800,'ثمانمئه':800,'ثمانمائه':800,
+  'تسعميه':900,'تسعمئه':900,'تسعمائه':900};
+ const scales={'الف':1000,'الفا':1000,'الاف':1000,'الافا':1000,
+  'الفين':2000,'الفان':2000,'مليون':1000000,'مليونا':1000000,
+  'ملايين':1000000,'مليونين':2000000,
+  'مليار':1000000000,'مليارا':1000000000,'مليارات':1000000000,'مليارين':2000000000};
+ const currency=new Set(['ريال','ريالات','ريالا','ريالين','يمني','يمنيه',
+  'سعودي','سعوديه','درهم','دراهم','اماراتي','اماراتيه',
+  'عماني','عمانيه','دولار','دولارات','مبلغ','المبلغ','فقط','الاجمالي','اجمالي']);
+ const separators=new Set(['فاصله','نقطه']);
+ const normalized=westernDigits(spoken).normalize('NFKC').toLocaleLowerCase('ar')
+  .replace(/[\u064b-\u065f\u0670\u0640]/g,'').replace(/[أإآٱ]/g,'ا')
+  .replace(/ى/g,'ي').replace(/ة/g,'ه')
+  .replace(/[٫.]/g,' فاصله ').replace(/[،؛!?؟:()]/g,' ')
+  .replace(/\s+/g,' ').trim();
+ if(!normalized||/[^\p{Script=Arabic}\d\s-]/u.test(normalized))return null;
+ const tokens=[];let joined=false;
+ for(const original of normalized.split(' ')){
+  if(original==='و'){joined=true;continue;}
+  let word=original;
+  if(!(word in values)&&!(word in scales)&&!currency.has(word)&&!separators.has(word)&&
+   !/^\d+$/.test(word)&&word.startsWith('و')){
+   const suffix=word.slice(1);
+   if((suffix in values)||(suffix in scales)||currency.has(suffix)||
+      separators.has(suffix)||/^\d+$/.test(suffix)){word=suffix;joined=true;}
+  }
+  if(currency.has(word))continue;
+  if(!(word in values)&&!(word in scales)&&!separators.has(word)&&!/^\d+$/.test(word))return null;
+  tokens.push({word,joined});joined=false;
+ }
+ const breaks=tokens.flatMap((t,i)=>separators.has(t.word)?[i]:[]);
+ if(!tokens.length||breaks.length>1)return null;
+ const intTokens=breaks.length?tokens.slice(0,breaks[0]):tokens;
+ const fracTokens=breaks.length?tokens.slice(breaks[0]+1):null;
+ if(!intTokens.length||fracTokens&&fracTokens.length===0)return null;
+ function parsePart(part,allowScale){
+  if(!part.length)return null;
+  // "واحد اثنين ثلاثة" dictates digits, not an arithmetic sum.
+  if(part.length>1&&part.every(t=>t.word in ones&&!t.joined)){
+   const digits=part.map(t=>String(ones[t.word])).join('');
+   return {value:Number(digits),digits};
+  }
+  let total=0,group=0,previous=null;
+  for(const token of part){
+   const word=token.word;
+   if(word in scales){
+    if(!allowScale)return null;
+    const dual=/^(الفين|الفان|مليونين|مليارين)$/.test(word);
+    if(dual&&group!==0)return null;
+    total+=(dual?1:(group||1))*scales[word];group=0;
+   }else{
+    const n=/^\d+$/.test(word)?Number(word):values[word];
+    if(!Number.isSafeInteger(n))return null;
+    const prev=previous&&(previous.word in values?values[previous.word]:/^\d+$/.test(previous.word)?Number(previous.word):null);
+    // "خمسة وثلاثين أربعة" is not a valid single number.
+    if(n>0&&n<10&&prev>=20&&prev<=90)return null;
+    if(n===100&&group>=1&&group<=9&&previous&&!token.joined&&previous.word in ones)
+     group*=100; // "ثلاثة مئة" -> 300; "ثلاثة ومئة" -> 103.
+    else group+=n;
+   }
+   if(!Number.isSafeInteger(total+group))return null;
+   previous=token;
+  }
+  const value=total+group;
+  return Number.isSafeInteger(value)?{value,digits:String(value)}:null;
+ }
+ const integer=parsePart(intTokens,true);
+ if(!integer)return null;
+ if(!fracTokens)return String(integer.value);
+ const fraction=parsePart(fracTokens,false);
+ if(!fraction||fraction.digits.length>6)return null;
+ return String(integer.value)+'.'+fraction.digits;
+}
+// Spoken numbers are accepted only if their value is unambiguous. Never invent a
+// replacement amount when speech recognition returns an unclear transcript.
 function parseNumber(spoken){
- let s=westernDigits(spoken).trim().replace(/(?:فاصلة|فاصله|نقطة|نقطه|٫)/g,'.')
-  .replace(/−/g,'-').replace(/[٬]/g,',').replace(/\s+/g,'');
- if(/^-?\d{1,3}(?:,\d{3})+(?:\.\d+)?$/.test(s))s=s.replace(/,/g,'');
- else if(s.includes(','))return null;
- return /^-?\d+(?:\.\d+)?$/.test(s)?s:null;
+ const original=westernDigits(spoken).trim();
+ let digits=original.replace(/(?:فاصلة|فاصله|نقطة|نقطه|٫)/g,'.')
+  .replace(/−/g,'-').replace(/[٬،]/g,',').replace(/\s+/g,'');
+ if(/^-?\d{1,3}(?:,\d{3})+(?:\.\d+)?$/.test(digits))digits=digits.replace(/,/g,'');
+ else if(/\d,\d/.test(digits))return null;
+ if(/^-?\d+(?:\.\d+)?$/.test(digits))return digits;
+ // "١٢,٥٠" could mean 1250 or 12.50; reject instead of guessing.
+ if(/[\d][,\u066C\u060C][\d]/.test(original))return null;
+ const negative=/^(?:سالب|ناقص)\s+/.test(original);
+ const phrase=negative?original.replace(/^(?:سالب|ناقص)\s+/,''):original;
+ const result=parseArabicWordNumber(phrase);
+ return result===null?null:(negative&&Number(result)!==0?'-':'')+result;
 }
 function parseDate(spoken){
  const value=westernDigits(spoken).trim().replace(/\s*(?:\/|\-|\.|\s)\s*/g,'-');
@@ -184,7 +282,7 @@ function insert(spoken){
  const numeric=type==='number'||(target.matches?.('input')&&
   /^(decimal|numeric)$/.test(target.getAttribute('inputmode')||''));
  const content=numeric?parseNumber(raw):raw;
- if(content===null){notify('لم أتعرف على رقم واضح. انطق الأرقام مثل ١٢٣٤ أو ١٢٣٤ فاصلة ٥، وراجع القيمة قبل الحفظ.','warn');return;}
+ if(content===null){notify('لم أتعرف على مبلغ واضح؛ انطق مثل ستة وثلاثين ألفًا ومئة واثنين وخمسين، أو ٣٦١٥٢. لم تتغير القيمة.','warn');return;}
  try{
   if(target.matches?.('select')){
    if(!chooseByVoice(target,raw))notify('لم أجد خيارًا واحدًا مطابقًا. اختر من القائمة أو انطق الاسم الكامل.','warn');
@@ -288,7 +386,7 @@ function settings(){
  const parent=document.getElementById('pageSettings');
  if(!parent||document.getElementById('ratibVoiceSettingsCard'))return;
  const card=document.createElement('div');card.id='ratibVoiceSettingsCard';card.className='card settings-accordion-card no-print';
- card.innerHTML='<div class="settings-accordion-header" role="button" tabindex="0" aria-expanded="false"><span>🎙️ الإملاء الصوتي</span><span class="accordion-arrow">▼</span></div><div class="settings-accordion-body"><label style="display:flex;align-items:center;justify-content:space-between;gap:10px"><span>إظهار زر الإملاء الصوتي</span><input type="checkbox" id="ratibVoiceVisible" style="width:22px;height:22px"></label><p class="ratib-voice-hint">حدد الحقل ثم اضغط زر الميكروفون. تتاح الكتابة بالصوت للنص والمبلغ والتاريخ والوقت وخيارات القوائم عند تطابق اسم الخيار؛ لن يُحفظ مستند تلقائيًا. أمّا الرقم السري والملفات فمستثناة.</p><label for="ratibVoiceLanguage">لغة التعرف على الصوت</label><select id="ratibVoiceLanguage"><option value="ar-SA">العربية</option><option value="ar-YE">العربية — اليمن</option><option value="ar-EG">العربية — مصر</option></select><button type="button" id="ratibVoiceMicPermissionBtn" class="btn" style="margin:8px 0 4px;min-height:42px">فحص إذن الميكروفون والسماح به</button><p id="ratibVoiceMicPermissionStatus" class="ratib-voice-hint" role="status" aria-live="polite"></p><p class="ratib-voice-hint">قد يحتاج التعرف على الصوت إلى الإنترنت وخدمة المتصفح. لا يتم تشغيل الميكروفون تلقائيًا، وقد تُعالج الخدمة الصوت وفق سياسة المتصفح.</p></div>';
+ card.innerHTML='<div class="settings-accordion-header" role="button" tabindex="0" aria-expanded="false"><span>🎙️ الإملاء الصوتي</span><span class="accordion-arrow">▼</span></div><div class="settings-accordion-body"><label style="display:flex;align-items:center;justify-content:space-between;gap:10px"><span>إظهار زر الإملاء الصوتي</span><input type="checkbox" id="ratibVoiceVisible" style="width:22px;height:22px"></label><p class="ratib-voice-hint">حدد الحقل ثم اضغط زر الميكروفون. يمكن إملاء المبلغ بالأرقام أو بالكلمات العربية، مثل ستة وثلاثين ألفًا ومئة واثنين وخمسين. تتاح الكتابة بالصوت للنص والمبلغ والتاريخ والوقت وخيارات القوائم عند تطابق اسم الخيار؛ لن يُحفظ مستند تلقائيًا. أمّا الرقم السري والملفات فمستثناة.</p><label for="ratibVoiceLanguage">لغة التعرف على الصوت</label><select id="ratibVoiceLanguage"><option value="ar-SA">العربية</option><option value="ar-YE">العربية — اليمن</option><option value="ar-EG">العربية — مصر</option></select><button type="button" id="ratibVoiceMicPermissionBtn" class="btn" style="margin:8px 0 4px;min-height:42px">فحص إذن الميكروفون والسماح به</button><p id="ratibVoiceMicPermissionStatus" class="ratib-voice-hint" role="status" aria-live="polite"></p><p class="ratib-voice-hint">قد يحتاج التعرف على الصوت إلى الإنترنت وخدمة المتصفح. لا يتم تشغيل الميكروفون تلقائيًا، وقد تُعالج الخدمة الصوت وفق سياسة المتصفح.</p></div>';
  parent.prepend(card);
  const head=card.querySelector('.settings-accordion-header'),body=card.querySelector('.settings-accordion-body');
  const toggle=()=>{const opened=body.classList.toggle('open');head.setAttribute('aria-expanded',String(opened));head.querySelector('.accordion-arrow').textContent=opened?'▲':'▼';};

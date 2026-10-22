@@ -1,0 +1,105 @@
+/* Trial 3.6.142: polished, compact homepage and side drawer. Colors use existing theme variables. */
+@media screen {
+  #mainWrap > header.no-print { gap:10px; padding-block:8px 12px; margin-bottom:13px; }
+  #mainWrap > header .logo { display:flex; align-items:center; gap:9px; min-width:0; }
+  #mainWrap > header .logo .app-brand-icon { width:42px; height:42px; flex:none; object-fit:contain; }
+  #mainWrap > header .logo > span { display:flex; flex-direction:column; min-width:0; line-height:1.3; }
+  #mainWrap > header .logo > span > strong { font-size:clamp(1.18rem,3.5vw,1.42rem);font-weight:800;color:var(--accent-strong); }
+  #mainWrap > header .logo > span > small { font-size:.78rem;color:var(--muted);font-weight:500;line-height:1.45; }
+  #mainWrap > header .header-tools .app-version { font-size:.74rem;line-height:1.4; }
+
+  #dashboardHomeContent .main-menu-grid { gap:10px;margin-bottom:14px;overflow:visible; }
+  #dashboardHomeContent .main-menu-btn { min-height:86px;padding:10px 7px;gap:5px;border-radius:12px;font-size:.98rem;line-height:1.4;box-shadow:0 3px 10px rgba(16,57,43,.045); }
+  #dashboardHomeContent .main-menu-icon { width:30px;height:30px;display:grid;place-items:center;font-size:1.35rem; }
+  #dashboardHomeContent .main-menu-icon svg { width:27px!important;height:27px!important; }
+  #dashboardHomeContent #ratibCenterFavorites { width:48px;height:48px;border-radius:13px;font-size:22px; }
+
+  #dashboardHomeContent .ratib-commerce-shortcuts { display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px;margin:0 0 14px; }
+  #dashboardHomeContent .ratib-commerce-shortcut { min-width:0;min-height:79px;padding:9px 3px;border-radius:12px;gap:5px;font-size:.93rem; }
+  #dashboardHomeContent .ratib-commerce-shortcut svg { width:24px!important;height:24px!important; }
+
+  #dashboardCarousel.dashboard-carousel { margin:6px 0 13px;border:1px solid var(--border);background:var(--card);padding:10px 12px 12px;border-radius:15px;box-shadow:0 4px 16px rgba(21,54,43,.06); }
+  #dashboardCarousel .ratib-dashboard-fold-toggle { width:100%;display:flex;align-items:center;gap:8px;justify-content:space-between;border:0;border-radius:9px;background:transparent;color:var(--accent-strong);text-align:right;padding:7px 3px 9px;min-height:42px;font-family:inherit;cursor:pointer; }
+  #dashboardCarousel .ratib-dashboard-fold-toggle:focus-visible { outline:2px solid var(--accent);outline-offset:1px; }
+  #dashboardCarousel .ratib-dashboard-fold-name { display:inline-flex;align-items:center;gap:8px;white-space:nowrap;font-size:1.05rem;font-weight:800; }
+  #dashboardCarousel .ratib-dashboard-fold-name svg { width:19px;height:19px;flex:none; }
+  #dashboardCarousel .ratib-dashboard-fold-arrow { width:17px;height:17px;flex:none;transition:transform .22s ease;transform:rotate(180deg); }
+  #dashboardCarousel[data-ratib-collapsed="true"] .ratib-dashboard-fold-arrow { transform:rotate(0deg); }
+  #dashboardCarousel .ratib-dashboard-fold-net { display:none;font-size:.86rem;font-weight:750;color:var(--text);direction:ltr;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0;max-width:48%;font-variant-numeric:tabular-nums; }
+  #dashboardCarousel[data-ratib-collapsed="true"] .ratib-dashboard-fold-net { display:block; }
+  #dashboardCarousel[data-ratib-collapsed="true"] { padding-block:7px;margin-bottom:11px; }
+  #dashboardCarousel[data-ratib-collapsed="true"] .ratib-dashboard-fold-toggle { padding-block:4px; }
+  #dashboardCarousel .ratib-dashboard-fold-content[hidden] { display:none!important; }
+  #dashboardCarousel .ratib-dashboard-fold-content { animation:ratib142Reveal .22s ease both;min-width:0; }
+  @keyframes ratib142Reveal { from { opacity:.65;transform:translateY(-5px); } to { opacity:1;transform:none; } }
+  #dashboardCarousel .carousel-slide { padding:2px 0; }
+  #dashboardCarousel #proDashboardCard { border:0;background:transparent;box-shadow:none;padding:5px 0 0;margin:0; }
+  #dashboardCarousel #proDashboardCard > h2 { display:none!important; }
+  #dashboardCarousel .dashboard-period { display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;margin:3px 0 12px; }
+  #dashboardCarousel .dashboard-filter { display:flex;flex-direction:column;align-items:stretch;gap:4px;min-width:0; }
+  #dashboardCarousel .dashboard-filter label { font-size:.77rem;line-height:1.25;color:var(--muted);font-weight:600; }
+  #dashboardCarousel .dashboard-filter select { width:100%;max-width:none;min-width:0;min-height:39px;height:39px;font-size:.84rem;padding-block:6px;border-radius:9px;white-space:nowrap;text-overflow:ellipsis; }
+  #dashboardCarousel .pro-kpi-grid { display:grid;grid-template-columns:repeat(2,minmax(0,1fr));grid-template-areas:"net net" "income expense" "pending pending";gap:8px;margin-bottom:9px; }
+  #dashboardCarousel .pro-kpi { min-width:0;border:1px solid var(--border);box-shadow:none;border-radius:11px;background:var(--bg);padding:10px 8px;min-height:76px; }
+  #dashboardCarousel .pro-kpi:nth-child(1) { grid-area:income; }
+  #dashboardCarousel .pro-kpi:nth-child(2) { grid-area:expense; }
+  #dashboardCarousel .pro-kpi:nth-child(3) { grid-area:net;background:color-mix(in srgb,var(--accent) 5%,var(--card));border-color:color-mix(in srgb,var(--accent) 20%,var(--border));min-height:82px; }
+  #dashboardCarousel .pro-kpi:nth-child(4) { grid-area:pending;min-height:44px;display:flex;align-items:center;justify-content:space-between;text-align:right;gap:8px;padding:8px 12px; }
+  #dashboardCarousel .pro-kpi small { display:block;font-size:.81rem;font-weight:600;line-height:1.35;color:var(--muted); }
+  #dashboardCarousel .pro-kpi strong { display:block;font-size:clamp(.98rem,4.5vw,1.28rem);line-height:1.35;font-weight:800;margin-top:4px;overflow-wrap:anywhere;unicode-bidi:plaintext;font-variant-numeric:tabular-nums; }
+  #dashboardCarousel .pro-kpi:nth-child(3) strong { font-size:clamp(1.28rem,5.5vw,1.85rem);color:var(--accent-strong); }
+  #dashboardCarousel .pro-kpi:nth-child(4) strong { margin:0;font-size:1.14rem; }
+  #dashboardCarousel #proAlertsBox { font-size:.82rem!important;line-height:1.45;font-weight:600!important;margin-bottom:7px; }
+  #dashboardCarousel #proAlertsBox:empty { display:none; }
+  #dashboardCarousel .ratib-dashboard-task-row { display:grid;grid-template-columns:minmax(0,1fr) auto;gap:7px;align-items:stretch;margin-bottom:2px; }
+  #dashboardCarousel .open-tasks-cta { width:100%;min-width:0;margin:0;border:1px solid var(--border);box-shadow:none;background:var(--bg);min-height:43px;padding:6px 9px;gap:6px;border-radius:10px; }
+  #dashboardCarousel .open-tasks-cta > span { font-size:1rem!important;line-height:1; }
+  #dashboardCarousel .open-tasks-cta b { font-size:.8rem!important;line-height:1.25;font-weight:650; }
+  #dashboardCarousel .open-tasks-cta i { font-size:1.1rem!important; }
+  #dashboardCarousel .dashboard-add-reminder-btn { width:auto;min-width:0;margin:0;border:1px solid var(--border);font:700 .79rem Tajawal,sans-serif;padding:6px 9px;line-height:1.3;min-height:43px;border-radius:10px;white-space:nowrap; }
+  #dashboardCarousel .carousel-controls { margin-top:8px;gap:8px; }
+  #dashboardCarousel .carousel-arrow { width:30px;height:30px;border:1px solid var(--border);border-radius:8px;font-size:1.05rem; }
+  #dashboardCarousel .carousel-dot { width:7px;height:7px; }
+  #dashboardCarousel #pageReminders .card { padding:10px;border:0;box-shadow:none;margin:0; }
+  #dashboardCarousel #pageReminders h2 { font-size:1rem; }
+  #dashboardCarousel #pageReminders .interactive-orbit { transform:scale(.92);transform-origin:center; }
+
+  #appSidebar .sidebar-head { padding:calc(12px + env(safe-area-inset-top)) 14px 12px;gap:10px; }
+  #appSidebar .sidebar-brand { gap:9px; }
+  #appSidebar .sidebar-brand img { width:41px;height:41px; }
+  #appSidebar .sidebar-brand strong { font-size:1.28rem;line-height:1.2; }
+  #appSidebar .sidebar-brand small { font-size:.74rem;line-height:1.4;font-weight:500; }
+  #appSidebar .sidebar-head .icon-btn { width:38px;height:38px;min-width:38px; }
+  #appSidebar .sidebar-nav { gap:3px;padding:8px 12px 12px; }
+  #appSidebar .sidebar-nav > .sidebar-group { gap:2px;margin:0;padding:0;border:0; }
+  #appSidebar .sidebar-nav > .sidebar-group + .sidebar-group { border-top:1px solid var(--border);padding-top:8px;margin-top:7px; }
+  #appSidebar .sidebar-nav button { min-height:45px;line-height:1.42;font:600 .95rem Tajawal,sans-serif!important;padding:9px 11px;gap:10px;border-radius:10px;overflow-wrap:anywhere; }
+  #appSidebar .sidebar-nav > .sidebar-group > button { font:650 1rem Tajawal,sans-serif!important;min-height:47px; }
+  #appSidebar .sidebar-nav .ratib-menu-children { margin:2px 5px 7px;padding:5px 5px;border-inline-start:2px solid color-mix(in srgb,var(--accent) 30%,var(--border));background:color-mix(in srgb,var(--accent) 3%,var(--card));border-radius:9px; }
+  #appSidebar .sidebar-nav .ratib-menu-children button,
+  #appSidebar .sidebar-nav .ratib-menu-subchildren button { font:600 .89rem Tajawal,sans-serif!important;min-height:43px;line-height:1.35!important;padding:8px 9px;gap:9px; }
+  #appSidebar .sidebar-nav .ratib-menu-subchildren { margin:1px 5px 4px;padding-inline-start:8px;border-inline-start:2px solid var(--border); }
+  #appSidebar .sidebar-nav .sidebar-icon { width:19px;height:19px;flex:0 0 19px;stroke-width:1.7; }
+  #appSidebar .sidebar-nav .ratib-menu-children .sidebar-icon { width:17px;height:17px;flex:0 0 17px; }
+  #appSidebar .sidebar-nav .ratib-menu-chevron { width:15px!important;height:15px!important;flex:0 0 15px!important; }
+  #appSidebar .sidebar-nav button span { min-width:0; }
+  #appSidebar .sidebar-nav button[aria-expanded="true"] { background:var(--sidebar-hover,var(--bg));color:var(--sidebar-green,var(--accent)); }
+  #appSidebar .sidebar-nav .ratib-menu-children button:hover,
+  #appSidebar .sidebar-nav .ratib-menu-children button:focus-visible { background:var(--card); }
+  #appSidebar .sidebar-contact-options { margin-top:2px;margin-bottom:3px; }
+  #appSidebar .sidebar-contact-options a { font-size:.86rem;min-height:40px; }
+  #appSidebar .sidebar-footer { padding:7px 12px calc(9px + env(safe-area-inset-bottom)); }
+  #appSidebar .sidebar-footer .ratib-sidebar-release { font-size:.76rem;font-weight:650;padding:6px 4px; }
+  #appSidebar [data-sidebar-action="exit"] { color:var(--danger)!important; }
+  #appSidebar [data-sidebar-action="exit"] .sidebar-icon { color:var(--danger)!important; }
+}
+@media screen and (max-width:380px) {
+  #mainWrap > header .logo > span > small { font-size:.7rem; }
+  #dashboardCarousel.dashboard-carousel { padding-inline:9px; }
+  #dashboardCarousel .ratib-dashboard-task-row { grid-template-columns:1fr; }
+  #dashboardCarousel .dashboard-add-reminder-btn { justify-self:stretch; }
+}
+@media (prefers-reduced-motion: reduce) {
+  #dashboardCarousel .ratib-dashboard-fold-content { animation:none!important; }
+  #dashboardCarousel .ratib-dashboard-fold-arrow { transition:none!important; }
+}

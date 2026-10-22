@@ -175,22 +175,44 @@ button.addEventListener('click',()=>{
  engine.lang=language;engine.continuous=true;engine.interimResults=false;engine.maxAlternatives=1;lastResult=-1;
  engine.onresult=e=>{for(let i=e.resultIndex;i<e.results.length;i++){if(i<=lastResult||!e.results[i].isFinal)continue;lastResult=i;insert(e.results[i][0]?.transcript||'');}};
  engine.onerror=e=>{
-  const messages={'not-allowed':'يلزم السماح باستخدام الميكروفون من إعدادات الموقع.','service-not-allowed':'خدمة التعرف على الصوت غير متاحة.',network:'تعذر الاتصال بخدمة التعرف على الصوت.','audio-capture':'لم يُعثر على ميكروفون.','no-speech':'لم أسمع كلامًا واضحًا.'};
+  const messages={'not-allowed':'الميكروفون محظور لهذا الموقع. في Chrome افتح إعدادات الموقع ← الميكروفون ← سماح، ثم أعد المحاولة.','service-not-allowed':'خدمة التعرف على الصوت غير متاحة.',network:'تعذر الاتصال بخدمة التعرف على الصوت.','audio-capture':'لم يُعثر على ميكروفون.','no-speech':'لم أسمع كلامًا واضحًا.'};
   notify(messages[e.error]||'تعذر التعرف على الكلام: '+e.error,'warn');
  };
  engine.onend=()=>{active(false);engine=null;};
  try{engine.start();active(true);}catch(error){engine=null;active(false);notify('تعذر تشغيل الميكروفون: '+error.message,'warn');}
 });
 window.addEventListener('pagehide',stop);
+
+async function requestMicrophoneAccess(){
+ const statusText=document.getElementById('ratibVoiceMicPermissionStatus');
+ const report=(message,good=false)=>{if(statusText){statusText.textContent=message;statusText.style.color=good?'var(--accent-strong,var(--text))':'var(--text)';}};
+ if(!window.isSecureContext){report('يتطلب فحص الميكروفون فتح الموقع عبر HTTPS.');return;}
+ if(!navigator.mediaDevices?.getUserMedia){report('هذا المتصفح لا يوفر فحص الميكروفون. افتح التطبيق عبر Chrome.');return;}
+ report('جارٍ طلب إذن الميكروفون من المتصفح…');
+ try{
+  const stream=await navigator.mediaDevices.getUserMedia({audio:true});
+  stream.getTracks().forEach(track=>track.stop());
+  report('الميكروفون مسموح. ارجع إلى حقل الكتابة واضغط أيقونة الإملاء.',true);
+ }catch(error){
+  const code=error?.name||'';
+  const message=(code==='NotAllowedError'||code==='PermissionDeniedError')
+   ?'الميكروفون محظور. افتح Chrome ← إعدادات الموقع ← الميكروفون ← سماح؛ وتحقق من إذن الميكروفون لتطبيق Chrome في إعدادات الهاتف.'
+   :code==='NotFoundError'?'لا يوجد ميكروفون متاح على هذا الجهاز.'
+   :code==='NotReadableError'?'الميكروفون مشغول؛ أغلق أي تطبيق يستخدمه ثم أعد المحاولة.'
+   :'تعذر فحص الميكروفون: '+(error?.message||code||'سبب غير معروف');
+  report(message);
+ }
+}
 function settings(){
  const parent=document.getElementById('pageSettings');
  if(!parent||document.getElementById('ratibVoiceSettingsCard'))return;
  const card=document.createElement('div');card.id='ratibVoiceSettingsCard';card.className='card settings-accordion-card no-print';
- card.innerHTML='<div class="settings-accordion-header" role="button" tabindex="0" aria-expanded="false"><span>🎙️ الإملاء الصوتي</span><span class="accordion-arrow">▼</span></div><div class="settings-accordion-body"><label style="display:flex;align-items:center;justify-content:space-between;gap:10px"><span>إظهار زر الإملاء الصوتي</span><input type="checkbox" id="ratibVoiceVisible" style="width:22px;height:22px"></label><p class="ratib-voice-hint">حدد حقل الكتابة ثم اضغط زر الميكروفون. الإملاء يضيف النص عند المؤشر فقط ولا يحفظ السند تلقائيًا.</p><label for="ratibVoiceLanguage">لغة التعرف على الصوت</label><select id="ratibVoiceLanguage"><option value="ar-SA">العربية</option><option value="ar-YE">العربية — اليمن</option><option value="ar-EG">العربية — مصر</option></select><p class="ratib-voice-hint">قد يحتاج التعرف على الصوت إلى الإنترنت وخدمة المتصفح. لا يتم تشغيل الميكروفون تلقائيًا، وقد تُعالج الخدمة الصوت وفق سياسة المتصفح.</p></div>';
+ card.innerHTML='<div class="settings-accordion-header" role="button" tabindex="0" aria-expanded="false"><span>🎙️ الإملاء الصوتي</span><span class="accordion-arrow">▼</span></div><div class="settings-accordion-body"><label style="display:flex;align-items:center;justify-content:space-between;gap:10px"><span>إظهار زر الإملاء الصوتي</span><input type="checkbox" id="ratibVoiceVisible" style="width:22px;height:22px"></label><p class="ratib-voice-hint">حدد حقل الكتابة ثم اضغط زر الميكروفون. الإملاء يضيف النص عند المؤشر فقط ولا يحفظ السند تلقائيًا.</p><label for="ratibVoiceLanguage">لغة التعرف على الصوت</label><select id="ratibVoiceLanguage"><option value="ar-SA">العربية</option><option value="ar-YE">العربية — اليمن</option><option value="ar-EG">العربية — مصر</option></select><button type="button" id="ratibVoiceMicPermissionBtn" class="btn" style="margin:8px 0 4px;min-height:42px">فحص إذن الميكروفون والسماح به</button><p id="ratibVoiceMicPermissionStatus" class="ratib-voice-hint" role="status" aria-live="polite"></p><p class="ratib-voice-hint">قد يحتاج التعرف على الصوت إلى الإنترنت وخدمة المتصفح. لا يتم تشغيل الميكروفون تلقائيًا، وقد تُعالج الخدمة الصوت وفق سياسة المتصفح.</p></div>';
  parent.prepend(card);
  const head=card.querySelector('.settings-accordion-header'),body=card.querySelector('.settings-accordion-body');
  const toggle=()=>{const opened=body.classList.toggle('open');head.setAttribute('aria-expanded',String(opened));head.querySelector('.accordion-arrow').textContent=opened?'▲':'▼';};
  head.addEventListener('click',toggle);head.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();toggle();}});
+ card.querySelector('#ratibVoiceMicPermissionBtn')?.addEventListener('click',requestMicrophoneAccess);
  const visibility=card.querySelector('#ratibVoiceVisible');visibility.checked=visible;visibility.addEventListener('change',()=>{visible=visibility.checked;try{localStorage.setItem(VISIBLE_KEY,String(visible));}catch(_){}applyVoiceVisibility();});
  const select=card.querySelector('select');select.value=language;select.addEventListener('change',e=>{
   if(!LANGUAGES.includes(e.target.value))return;

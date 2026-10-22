@@ -431,3 +431,10 @@
 }
 #pageCommerce .rc-smart-account>input[type="hidden"]{display:none!important}
 #pageCommerce .rc-invoice-card .rc-field-label{white-space:normal!important}
+
+/* 3.6.145: direct document-type menu on the existing New Document tab. */
+#pageCommerce .rc-new-menu-wrap{position:relative;display:inline-flex;min-width:0}
+#pageCommerce .rc-new-menu{position:absolute;z-index:55;top:calc(100% + 5px);inset-inline-start:0;min-width:205px;max-width:min(85vw,285px);padding:5px;background:var(--card);border:1px solid var(--border);box-shadow:var(--shadow);border-radius:10px;display:grid;gap:4px}
+#pageCommerce .rc-new-menu[hidden]{display:none!important}
+#pageCommerce .rc-new-menu button{display:flex;align-items:center;gap:8px;width:100%;min-height:44px;text-align:right;border:0;box-shadow:none;background:transparent;padding:9px 10px;white-space:normal;font-weight:800}
+#pageCommerce .rc-new-menu button:hover,#pageCommerce .rc-new-menu button:focus-visible{background:var(--bg);color:var(--accent);outline:1px solid var(--accent)}

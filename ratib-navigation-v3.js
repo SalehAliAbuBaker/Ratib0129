@@ -49,7 +49,6 @@ new MutationObserver(()=>{if(pending)return;pending=true;queueMicrotask(()=>{pen
 /* Ratib trial 3.6.118: guard unsaved voucher inputs and style success toasts. */
 (function ratibTrialBackAndToast116(){
  'use strict';
- const VERSION=(typeof RATIB_RELEASE!=='undefined'?RATIB_RELEASE.version:'3.6.102');
  const originals=new Map();
  const editor='#cashFlowCard,#multiVoucherCard';
  const backButtons='button.ratib-back-control,#ratibCashBackBtn,#backToMenuBtn,#ledgerBackBtn,button.back-to-menu-btn,[data-account-action="close"]';
@@ -104,13 +103,7 @@ new MutationObserver(()=>{if(pending)return;pending=true;queueMicrotask(()=>{pen
   }
   enhanced.__ratibToast116=true;window.showToast=enhanced;
  }
- function version(){
-  const el=document.getElementById('appVersionLabel');
-  if(el&&!el.dataset.version116){el.dataset.version116='1';el.textContent='الإصدار '+VERSION;}
-  document.querySelectorAll('.ratib-about-version').forEach(el=>{if(!el.dataset.version116){el.dataset.version116='1';el.textContent='الإصدار '+VERSION;}});
-  // Keep the release version sourced from the main application, not a legacy UI override.
- }
- hookToast();version();
+ hookToast();
  let pending=false;
- new MutationObserver(()=>{if(pending)return;pending=true;queueMicrotask(()=>{pending=false;hookToast();version();});}).observe(document.body,{childList:true,subtree:true});
+ new MutationObserver(()=>{if(pending)return;pending=true;queueMicrotask(()=>{pending=false;hookToast();});}).observe(document.body,{childList:true,subtree:true});
 })();

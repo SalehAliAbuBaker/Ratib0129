@@ -1,0 +1,27 @@
+/* Ratib 3.6.143 trial visual regression — no accounting-data changes. */
+const assert=require('node:assert/strict');const fs=require('node:fs');
+const get=name=>fs.readFileSync(require('node:path').join(__dirname,name),'utf8');
+const html=get('index.html'),sw=get('sw.js'),ui=get('ratib-trial-ui-3.6.143.js'),style=get('ratib-trial-ui-3.6.143.css');
+const home=get('ratib-trial-home-sidebar-3.6.142.js'),commerce=get('ratib-commerce-3.6.131.js'),login=get('ratib-login-3.6.124.js');
+const activeVersion=html.match(/const RATIB_RELEASE=\{"version":"([^"]+)"/)?.[1];
+assert(activeVersion);
+assert(html.includes('id="appVersionLabel" class="app-version">الإصدار '+activeVersion));
+assert(sw.includes('"version":"'+activeVersion+'"'));
+assert(sw.includes('-'+activeVersion+"'"),'Offline cache must carry current release');
+assert.match(sw,/ratib-trial-ui-3\.6\.143\.js/);
+assert.match(sw,/ratib-trial-ui-3\.6\.143\.css/);
+assert.match(html,/ratib-trial-ui-3\.6\.143\.js\?v=3\.6\.\d+/);
+assert.match(html,/ratib-trial-ui-3\.6\.143\.css\?v=3\.6\.143/);
+assert.ok(html.lastIndexOf('ratib-trial-ui-3.6.143.js')>html.indexOf('ratib-login-3.6.124.js'),'polish follows existing login');
+assert.match(home,/localStorage\.getItem\(foldKey\) !== '0'/,'dashboard folded on first opening');
+assert.match(ui,/ratib-home-dhikr no-print/);
+assert.match(ui,/لاتنس ذكر الله والصلاة والسلام على رسول الله صلى الله عليه وآله وصحبه/);
+assert.match(style,/#dashboardHomeContent #ratibCenterFavorites/,'star remains centered');
+assert.match(style,/24px!important/,'main icons uniform');
+assert.match(style,/22px!important/,'commerce icons uniform');
+assert.match(ui,/nativeBio\.style\.display!=='none'/,'native availability gates fingerprint');
+assert.match(login,/window\.authenticateBiometric/,'existing native biometric handler preserved');
+assert(commerce.includes('version:window.ratibCurrentTrialVersion?.()'), 'Commerce must use current unified release');
+assert.ok(!ui.includes('localStorage.removeItem'),'no change to saved credentials');
+new Function(ui);
+console.log('PASS 3.6.143: folded dashboard default, dhikr footer, icon scaling, safe optional biometric presentation, release and offline shell.');

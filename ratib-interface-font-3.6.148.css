@@ -1,0 +1,38 @@
+/* Ratib trial 3.6.148: user interface typography only.
+   Fixed rem geometry, financial print templates, reports and PDF canvases are unchanged. */
+@media screen {
+:root{--ratib-font-scale:1}
+:root[data-ratib-font-size="small"]{--ratib-font-scale:.9}
+:root[data-ratib-font-size="normal"]{--ratib-font-scale:1}
+:root[data-ratib-font-size="large"]{--ratib-font-scale:1.1}
+:root[data-ratib-font-size="xlarge"]{--ratib-font-scale:1.2}
+#mainWrap{font-size:calc(1rem * var(--ratib-font-scale));}
+#mainWrap :is(input:not([type="checkbox"]):not([type="radio"]),textarea,select):not(.ratib-sig-input):not(.ratib-sig-select){
+ font-size:calc(1rem * var(--ratib-font-scale))!important;line-height:1.45!important;
+}
+#appSidebar .sidebar-nav button,
+#pageSettings :is(.settings-accordion-header,.ratib-global-size-card > label),
+#mainWrap :is(.form-group > label,.card > p,.rc-note,.rc-summary,.account-balance-note),
+#dashboardHomeContent .main-menu-btn > span:not(.main-menu-icon),
+#dashboardHomeContent .ratib-commerce-shortcut,
+#pageCommerce .rc-doc-action small{
+ font-size:calc(.91rem * var(--ratib-font-scale))!important;line-height:1.5!important;
+}
+#appSidebar .sidebar-nav > .sidebar-group > button,
+#pageSettings > .settings-accordion-card > .settings-accordion-header{
+ font-size:calc(1rem * var(--ratib-font-scale))!important;
+}
+#mainWrap :is(.btn,.back-to-menu-btn):not(.icon-btn),
+#pageCommerce :is(.btn,.rc-tabs > button,.rc-new-menu button,.rc-catalog-toggle,.rc-doc-action){
+ font-size:calc(var(--rb-action-font,.92rem) * var(--ratib-font-scale))!important;
+ line-height:1.4!important;
+}
+#pageSettings .ratib-global-size-card>select{font-size:calc(1rem * var(--ratib-font-scale))!important}
+#mainWrap :is(.pv-signatures,.ratib-output-signatures,.rc-paper,.rc-paper-signatures,.print-sheet,.print-host){
+ font-size:revert;
+}
+#ratibSignatureSettings :is(input,select,button){font-size:calc(.93rem * var(--ratib-font-scale))!important;}
+}
+@media print {
+:root{--ratib-font-scale:1!important}
+}

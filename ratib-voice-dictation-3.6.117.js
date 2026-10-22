@@ -110,6 +110,10 @@ function notify(message,kind='info'){
 }
 function active(value){
  listening=value;button.dataset.listening=String(value);button.setAttribute('aria-pressed',String(value));
+ document.querySelectorAll('.ratib-simple-account-mic').forEach(m=>{
+  m.dataset.listening=String(value);m.setAttribute('aria-pressed',String(value));
+  m.textContent=value?'⏹️':'🎙️';
+ });
  button.textContent=value?'⏹️':'🎙️';
  scheduleVoicePosition();
  button.title=value?'إيقاف الإملاء الصوتي':'ابدأ الإملاء الصوتي في الحقل المحدد';
@@ -166,11 +170,12 @@ button.addEventListener('pointerdown',e=>{
  e.preventDefault(); // Keep the target field's caret while tapping the adjacent mic.
 });
 button.addEventListener('mousedown',e=>e.preventDefault());
-button.addEventListener('click',()=>{
+function startSpeech(target){
  if(listening){stop();return;}
- if(!Recognition){notify('متصفحك لا يدعم الإملاء الصوتي؛ يمكن استخدام ميكروفون لوحة المفاتيح.','warn');return;}
- if(!micTarget()){notify('حدد حقل كتابة ثم اضغط زر الميكروفون.','warn');return;}
- if(eligible(document.activeElement))remember(document.activeElement);
+ if(!Recognition){notify('متصفحك لا يدعم الإملاء الصوتي داخل التطبيق؛ يمكن استخدام ميكروفون لوحة المفاتيح.','warn');return;}
+ const chosen=eligible(target)||eligible(lastTarget);
+ if(!chosen){notify('حدد حقل كتابة ثم اضغط زر الميكروفون.','warn');return;}
+ remember(chosen);
  engine=new Recognition();
  engine.lang=language;engine.continuous=true;engine.interimResults=false;engine.maxAlternatives=1;lastResult=-1;
  engine.onresult=e=>{for(let i=e.resultIndex;i<e.results.length;i++){if(i<=lastResult||!e.results[i].isFinal)continue;lastResult=i;insert(e.results[i][0]?.transcript||'');}};
@@ -180,7 +185,8 @@ button.addEventListener('click',()=>{
  };
  engine.onend=()=>{active(false);engine=null;};
  try{engine.start();active(true);}catch(error){engine=null;active(false);notify('تعذر تشغيل الميكروفون: '+error.message,'warn');}
-});
+}
+button.addEventListener('click',()=>startSpeech(micTarget()||lastTarget));
 window.addEventListener('pagehide',stop);
 
 async function requestMicrophoneAccess(){
@@ -220,4 +226,30 @@ function settings(){
  });
 }
 settings();
+function addAccountMicrophones(){
+ for(const [inputId,buttonId,title] of [
+  ['inpDebitAcc','ratibSimpleVoiceDebit','إملاء اسم الحساب المدين'],
+  ['inpCreditAcc','ratibSimpleVoiceCredit','إملاء اسم الحساب الدائن']
+ ]){
+  const input=document.getElementById(inputId),wrap=input?.closest('.searchable-select-wrap');
+  const row=wrap?.parentElement;
+  if(!input||!wrap||!row||document.getElementById(buttonId))continue;
+  const direct=document.createElement('button');
+  direct.type='button';direct.id=buttonId;
+  direct.className='icon-btn ratib-simple-account-mic no-print';
+  direct.textContent='🎙️';direct.title=title;
+  direct.setAttribute('aria-label',title);direct.setAttribute('aria-pressed','false');
+  direct.style.cssText='flex:0 0 40px;width:40px;min-width:40px;height:44px;padding:4px;margin:0;border-radius:9px';
+  direct.addEventListener('pointerdown',e=>{remember(input);e.preventDefault();});
+  direct.addEventListener('mousedown',e=>e.preventDefault());
+  direct.addEventListener('click',e=>{
+   e.stopPropagation();
+   // Preserve the intended field even when Android moves focus to the button.
+   remember(input);
+   startSpeech(input);
+  });
+  wrap.after(direct);
+ }
+}
+addAccountMicrophones();
 })();

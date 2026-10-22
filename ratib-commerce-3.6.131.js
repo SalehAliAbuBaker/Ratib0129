@@ -79,7 +79,7 @@ function commerceSmartAccount(id,items,selected){
  '<input type="hidden" id="rc-'+esc(id)+'" value="'+esc(current?.id||'')+'">'+
  '<datalist id="rc-account-list-'+esc(id)+'">'+items.map(x=>'<option value="'+esc(x.name)+'"></option>').join('')+'</datalist></div>';
 }
-function commerceResolveAccount(input){
+function commerceResolveAccount(input,event){
  const key=input?.id?.slice('rc-search-'.length),element=$('rc-'+key);
  if(!key||!element)return;
  const q=commerceNormalize(input.value),items=leaf();
@@ -89,7 +89,7 @@ function commerceResolveAccount(input){
  const matches=items.filter(x=>[x.name,x.id,x.name.split(' — ')[0]].some(v=>commerceNormalize(v)===q));
  if(matches.length===1){set(matches[0]);return;}
  const prefix=items.filter(x=>[x.name,x.id,x.name.split(' — ')[0]].some(v=>commerceNormalize(v).startsWith(q)));
- if(prefix.length===1&&q.length>1){set(prefix[0]);commerceAutocomplete(input,[prefix[0].name]);return;}
+ if(prefix.length===1&&q.length>1){set(prefix[0]);commerceAutocomplete(input,[prefix[0].name],event);return;}
  set(null);
 }
 function commerceChosenAccount(id,label,required=false){
@@ -116,26 +116,32 @@ function commerceProductInput(i,products,selected){
   '<input type="hidden" id="rc-product-'+i+'" value="'+esc(selected||'')+'">'+
   '<datalist id="rc-product-options-'+i+'">'+products.map(x=>'<option value="'+esc(commerceProductLabel(x))+'"></option>').join('')+'</datalist>';
 }
-function commerceAutocomplete(input,values){
- // Native suggestions do not change a user's selection, caret or typed text.
- // Keep pre-existing product/account datalists untouched.
+function commerceAutocomplete(input,values,event){
  if(!input||input.dataset.composing==='1'||!input.id)return;
- const typed=commerceNormalize(input.value);
- const existingId=input.getAttribute('list');
- if(existingId&&!existingId.startsWith('ratib-commerce-suggest-'))return;
+ const typed=commerceNormalize(input.value),existingId=input.getAttribute('list');
+ // Keep all available native suggestions; they remain selectable if multiple
+ // items match. Auto-insert only a unique prefix at the end of a typed field.
  const suggestions=[...new Set(values.map(x=>String(x||'').trim()).filter(Boolean))]
   .filter(x=>typed.length>=2&&commerceNormalize(x).startsWith(typed)).slice(0,25);
- let list=existingId?document.getElementById(existingId):null;
- if(!list&&!suggestions.length)return;
- if(!list){
-  list=document.createElement('datalist');
-  list.id='ratib-commerce-suggest-'+input.id.replace(/[^a-zA-Z0-9_-]/g,'-');
-  input.setAttribute('list',list.id);
-  input.after(list);
+ if(!existingId||existingId.startsWith('ratib-commerce-suggest-')){
+  let list=existingId?document.getElementById(existingId):null;
+  if(!list&&suggestions.length){
+   list=document.createElement('datalist');
+   list.id='ratib-commerce-suggest-'+input.id.replace(/[^a-zA-Z0-9_-]/g,'-');
+   input.setAttribute('list',list.id);input.after(list);
+  }
+  if(list)list.replaceChildren(...suggestions.map(value=>{
+   const option=document.createElement('option');option.value=value;return option;
+  }));
  }
- list.replaceChildren(...suggestions.map(value=>{
-  const option=document.createElement('option');option.value=value;return option;
- }));
+ const kind=String(event?.inputType||'');
+ if(event?.isComposing||kind.startsWith('delete')||(kind&&!kind.startsWith('insert')))return;
+ if(document.activeElement!==input||input.selectionStart!==input.selectionEnd||
+   input.selectionEnd!==input.value.length||suggestions.length!==1)return;
+ const match=suggestions[0],before=input.value;
+ if(!match.toLocaleLowerCase('ar').startsWith(before.toLocaleLowerCase('ar'))||match.length<=before.length)return;
+ input.value=match;
+ try{input.setSelectionRange(before.length,match.length);}catch(_){}
 }
 function commerceResolveProduct(index){
  if(!draft)return;
@@ -1019,11 +1025,11 @@ function bind(){
   }
   if(e.target.id==='rc-catalog-group'){catalogGroup=e.target.value;refreshCatalogListing();return;}if(e.target.id==='rc-partyName'){const p=data().people.find(p=>p.name===e.target.value);if(p&&$('rc-partyAccount')){const account=leaf().find(x=>x.id===p.accountId);$('rc-partyAccount').value=account?.id||'';if($('rc-search-partyAccount'))$('rc-search-partyAccount').value=account?.name||'';}}if(e.target.id==='rc-import-file'){stageImportFile(e.target.files?.[0]);e.target.value='';return;}if(e.target.id==='rc-person-account'){const input=$('rc-name');if(input&&!input.value.trim())input.value=e.target.value;}});
  root.addEventListener('input',e=>{
-  if(e.target.id.startsWith('rc-search-')){commerceResolveAccount(e.target);return;}
+  if(e.target.id.startsWith('rc-search-')){commerceResolveAccount(e.target,e);return;}
   if(['rc-group','rc-name'].includes(e.target.id)&&!e.isComposing){
    const db=data();
    const suggestions=e.target.id==='rc-group'?db.products.map(p=>p.group):view==='products'?db.products.map(p=>p.name):view==='warehouses'?db.warehouses.map(w=>w.alias||w.name):db.people.map(p=>p.name);
-   commerceAutocomplete(e.target,suggestions);return;
+   commerceAutocomplete(e.target,suggestions,e);return;
   }
   if(e.target.id==='rc-catalog-search'){catalogSearch=e.target.value;refreshCatalogListing();return;}
   const productInput=e.target.id.match(/^rc-product-search-(\d+)$/);
@@ -1031,14 +1037,14 @@ function bind(){
    const k=Number(productInput[1]);commerceResolveProduct(k);
    if(!e.isComposing&&!e.target.value.includes(' — ')){
     const matches=data().products.map(commerceProductLabel);
-    commerceAutocomplete(e.target,matches);
+    commerceAutocomplete(e.target,matches,e);
     commerceResolveProduct(k);
    }
    return;
   }
   if(e.target.id==='rc-exchangeRate'&&draft){draft.exchangeRate=e.target.value;refreshTotals();return;}
   if(['rc-partyName','rc-displayPartyName'].includes(e.target.id)){
-   if(!e.isComposing)commerceAutocomplete(e.target,data().people.filter(p=>p.type===(mode==='in'?'vendor':'client')).map(p=>p.name));
+   if(!e.isComposing)commerceAutocomplete(e.target,data().people.filter(p=>p.type===(mode==='in'?'vendor':'client')).map(p=>p.name),e);
    if(e.target.id==='rc-partyName'){
     const p=data().people.find(p=>commerceNormalize(p.name)===commerceNormalize(e.target.value));
     if(p&&$('rc-partyAccount'))$('rc-partyAccount').value=p.accountId||'';

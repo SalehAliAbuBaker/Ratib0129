@@ -1,4 +1,4 @@
-/* Ratib 3.6.158 regression: genuine editable caret/selection in account, financial and commerce fields. */
+/* Ratib 3.6.159 regression: genuine editable caret/selection in account, financial and commerce fields. */
 'use strict';
 const fs=require('node:fs'),assert=require('node:assert/strict'),{JSDOM}=require('jsdom'),vm=require('node:vm');
 const html=fs.readFileSync('index.html','utf8');
@@ -10,10 +10,10 @@ assert.doesNotMatch(sidebar,/ratibSelectField\(/);
 assert.match(sidebar,/ratibPrepareEditableNumber/);
 assert.match(sidebar,/function ratibSelectInitialValue/,'first tap selects all editable text');
 assert.match(sidebar,/document\.activeElement!==el/,'second tap may place caret freely');
-assert.match(html,/الإصدار 3\.6\.158 \(تجريبية\)/);
-assert.match(sw,/v178-brief-update-smart-completion-3\.6\.158/);
-assert.match(html,/ratib-amount-edit-3\.6\.97\.js\?v=3\.6\.158/);
-assert.match(html,/ratib-commerce-3\.6\.131\.js\?v=3\.6\.158/);
+assert.match(html,/الإصدار 3\.6\.159 \(تجريبية\)/);
+assert.match(sw,/v179-arabic-spoken-amounts-3\.6\.159/);
+assert.match(html,/ratib-amount-edit-3\.6\.97\.js\?v=3\.6\.159/);
+assert.match(html,/ratib-commerce-3\.6\.131\.js\?v=3\.6\.159/);
 assert.doesNotMatch(html,/ratibSelectNext/);
 assert.doesNotMatch(amount,/input\.select\(\)/);
 for(const source of [amount,commerce])assert.doesNotThrow(()=>new vm.Script(source));
@@ -101,7 +101,7 @@ assert.match(commerceSuggestions,/input\.value\s*=\s*match/,'One matching sugges
  w.commerceAutocompleteTest(party,['محمد','محسن'],new w.InputEvent('input',{inputType:'deleteContentBackward'}));
  assert.equal(party.value,'مح','deletion must not force autocomplete');
  dom.window.close();
- console.log('PASS 3.6.158: selected subtext editing, native caret, unique account identity, amounts, commerce suggestions');
+ console.log('PASS 3.6.159: selected subtext editing, native caret, unique account identity, amounts, commerce suggestions');
 })().catch(err=>{console.error(err);process.exitCode=1;});
 
 (async()=>{

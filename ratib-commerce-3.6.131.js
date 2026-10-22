@@ -6,7 +6,7 @@ const fresh=()=>({products:[],warehouses:[{id:'main',name:'المخزن الرئ
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const n=v=>Number(String(v??'').replace(/,/g,'')),rnd=(v,decimals=2)=>{const factor=10**decimals;return Math.round((Number(v)+Number.EPSILON)*factor)/factor;};
 const moneyDecimals=currency=>window.RatibCountryCurrency?.digits?.(currency)??(currency==='OMR'?3:2);
-const f=v=>Number(v||0).toLocaleString('en-US',{maximumFractionDigits:2});
+const f=v=>Number(v||0).toLocaleString('en-US',{maximumFractionDigits:3});
 const id=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,8);
 const today=()=>new Date().toLocaleDateString('en-CA');
 let mode='stock',view='products',draft=null,editingDocId='',loading=false,editingProduct=null,query='',detailId='',previewId='',pendingImport=null,editingWarehouse=null,previewDraft=null;

@@ -72,25 +72,31 @@ function commerceMovementSidesMarkup(db,transfer,direction,warehouse,to){
  '<div class="rc-posting-pair"><span class="rc-posting-note">'+esc(x.note)+'</span><div class="rc-posting-account rc-posting-debit"><b>م — مدين</b><span>'+esc(x.debit)+'</span></div><div class="rc-posting-account rc-posting-credit"><b>د — دائن</b><span>'+esc(x.credit)+'</span></div></div>').join('')+'</div>';
 }
 function commerceSmartAccount(id,items,selected){
- // One visible searchable input and one hidden, validated account ID. No duplicated dropdown.
  const current=items.find(x=>String(x.id)===String(selected));
  return '<div class="rc-smart-account">'+
- '<input type="search" id="rc-search-'+esc(id)+'" list="rc-account-list-'+esc(id)+'" autocomplete="off" value="'+esc(current?.name||'')+'" placeholder="ابحث برقم الحساب أو اسمه" aria-label="اختيار الحساب الفرعي">'+
- '<input type="hidden" id="rc-'+esc(id)+'" value="'+esc(current?.id||'')+'">'+
- '<datalist id="rc-account-list-'+esc(id)+'">'+items.map(x=>'<option value="'+esc(x.name)+'"></option>').join('')+'</datalist></div>';
+  '<input type="search" id="rc-search-'+esc(id)+'" list="rc-account-list-'+esc(id)+'" autocomplete="off" value="'+esc(current?.name||'')+'" placeholder="ابحث برقم الحساب أو اسمه" aria-label="اختيار الحساب الفرعي">'+
+  '<input type="hidden" id="rc-'+esc(id)+'" value="'+esc(current?.id||'')+'">'+
+  '<datalist id="rc-account-list-'+esc(id)+'">'+items.map(x=>'<option value="'+esc(x.name)+'"></option>').join('')+'</datalist>'+
+  '<button type="button" id="rc-add-account-'+esc(id)+'" data-rc-create-account="'+esc(id)+'" class="btn btn-ghost rc-create-account-btn" hidden style="display:none;width:auto;margin-top:5px;padding:6px 10px;font-size:.85rem">＋ إضافة حساب جديد</button></div>';
 }
 function commerceResolveAccount(input,event){
- const key=input?.id?.slice('rc-search-'.length),element=$('rc-'+key);
+ const key=input?.id?.slice('rc-search-'.length),element=$('rc-'+key),create=$('rc-add-account-'+key);
  if(!key||!element)return;
  const q=commerceNormalize(input.value),items=leaf();
- // Keep the text untouched if there is no unique match; never post to the previously selected account.
  const set=matched=>{element.value=matched?.id||'';};
- if(!q){set(null);return;}
+ const offer=visible=>{
+  if(!create)return;
+  create.hidden=!visible;
+  create.style.display=visible?'inline-flex':'none';
+  if(visible)create.textContent='＋ إضافة حساب جديد «'+input.value.trim().slice(0,60)+'»';
+ };
+ if(!q){set(null);offer(false);return;}
  const matches=items.filter(x=>[x.name,x.id,x.name.split(' — ')[0]].some(v=>commerceNormalize(v)===q));
- if(matches.length===1){set(matches[0]);return;}
+ if(matches.length===1){set(matches[0]);offer(false);return;}
  const prefix=items.filter(x=>[x.name,x.id,x.name.split(' — ')[0]].some(v=>commerceNormalize(v).startsWith(q)));
- if(prefix.length===1&&q.length>1){set(prefix[0]);commerceAutocomplete(input,[prefix[0].name],event);return;}
+ if(prefix.length===1&&q.length>1){set(prefix[0]);commerceAutocomplete(input,[prefix[0].name],event);offer(false);return;}
  set(null);
+ offer(q.length>1&&/[\p{L}]/u.test(input.value));
 }
 function commerceChosenAccount(id,label,required=false){
  const textInput=$('rc-search-'+id),selected=$('rc-'+id)?.value||'';
@@ -955,6 +961,25 @@ function bind(){
  root.addEventListener('click',event=>{
   const hit=selector=>event.target.closest(selector);
   try{
+   const newAccount=hit('[data-rc-create-account]');
+   if(newAccount){
+    const key=newAccount.dataset.rcCreateAccount,input=$('rc-search-'+key);
+    if(!input||!/[\p{L}]/u.test(input.value))return;
+    const q=commerceNormalize(input.value);
+    if(leaf().some(a=>[a.id,a.name].some(v=>commerceNormalize(v)===q))){
+     commerceResolveAccount(input);notify('الحساب موجود بالفعل؛ اختره من نتائج البحث.','warn');return;
+    }
+    const opened=window.ratibQuickAccount?.openForExternalInput(input,item=>{
+     const linked=$('rc-'+key),fresh=leaf().find(a=>a.id===item.id);
+     if(!linked||!fresh)throw Error('تعذر ربط الحساب الجديد بالحقل.');
+     input.value=fresh.name;
+     linked.value=fresh.id;
+     commerceResolveAccount(input);
+     linked.dispatchEvent(new Event('change',{bubbles:true}));
+    });
+    if(!opened)notify('تعذر فتح إضافة الحساب؛ حاول مجددًا.','error');
+    return;
+   }
    const catalogToggle=hit('[data-rc-catalog-toggle]');if(catalogToggle){
      const kind=catalogToggle.dataset.rcCatalogToggle;
      if(kind==='search'){catalogSearchVisible=!catalogSearchVisible;if(!catalogSearchVisible)catalogSearch='';}
@@ -1024,6 +1049,18 @@ function bind(){
    paint();return;
   }
   if(e.target.id==='rc-catalog-group'){catalogGroup=e.target.value;refreshCatalogListing();return;}if(e.target.id==='rc-partyName'){const p=data().people.find(p=>p.name===e.target.value);if(p&&$('rc-partyAccount')){const account=leaf().find(x=>x.id===p.accountId);$('rc-partyAccount').value=account?.id||'';if($('rc-search-partyAccount'))$('rc-search-partyAccount').value=account?.name||'';}}if(e.target.id==='rc-import-file'){stageImportFile(e.target.files?.[0]);e.target.value='';return;}if(e.target.id==='rc-person-account'){const input=$('rc-name');if(input&&!input.value.trim())input.value=e.target.value;}});
+ root.addEventListener('focusin',e=>{
+  const field=e.target;
+  if(!(field instanceof HTMLInputElement||field instanceof HTMLTextAreaElement)||
+     !field.closest('#pageCommerce form')||field.disabled||field.readOnly||
+     ['hidden','file','date','checkbox','radio'].includes(field.type)||!field.value)return;
+  const value=field.value;
+  requestAnimationFrame(()=>{
+   if(field.isConnected&&document.activeElement===field&&field.value===value){
+    try{field.select();}catch(_){}
+   }
+  });
+ });
  root.addEventListener('input',e=>{
   if(e.target.id.startsWith('rc-search-')){commerceResolveAccount(e.target,e);return;}
   if(['rc-group','rc-name'].includes(e.target.id)&&!e.isComposing){

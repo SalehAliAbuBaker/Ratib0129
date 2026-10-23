@@ -301,6 +301,9 @@ function ratibEditableText(el){
 }
 function ratibSelectInitialValue(el){
  if(!ratibEditableText(el)||!el.value)return;
+ // Do not summon Android's floating selection toolbar on a normal tap
+ // within incoming/outgoing commerce documents; long-press remains native.
+ if(el.closest('#pageCommerce .rc-app[data-rc-mode="in"], #pageCommerce .rc-app[data-rc-mode="out"]'))return;
  try{el.select();}catch(_){}
 }
 let ratibNewFocusPointer=null;

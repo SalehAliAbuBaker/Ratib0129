@@ -8,7 +8,7 @@ const pkg=JSON.parse(fs.readFileSync('package.json','utf8'));
 assert.equal(pkg.version,'3.6.106');
 assert(html.includes('const RATIB_RELEASE={"version":"3.6.106"'));
 assert(worker.includes('const APP_RELEASE={"version":"3.6.106"'));
-assert(worker.includes('v197-official-oauth-identity-badge-3.6.106'));
+assert(worker.includes('v198-official-statement-mobile-cols-3.6.106'));
 assert(!sidebar.includes("const label='الإصدار '+v+' (تجريبية)'"));
 assert(sidebar.includes("const label='الإصدار '+v;"));
 assert(html.includes('ratib-sidebar-3.6.124.js?v=3.6.106&officialBadge=2'));

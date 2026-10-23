@@ -8,7 +8,7 @@ const css=fs.readFileSync('ratib-journal-layout-3.6.90.css','utf8');
 const index=fs.readFileSync('index.html','utf8');
 const sw=fs.readFileSync('sw.js','utf8');
 const pkg=JSON.parse(fs.readFileSync('package.json','utf8'));
-assert(Number(pkg.version.split('.').at(-1))>=89);
+assert(Number(pkg.version.split('.').slice(0,3).at(-1))>=89);
 if(index.includes('ratib-journal-layout-3.6.90.js')){
  const close=index.lastIndexOf('</body>');
  assert(index.lastIndexOf('<script src="./ratib-journal-layout-3.6.90.js')>index.length-1600,'Journal script must load at document end');

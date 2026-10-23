@@ -80,6 +80,41 @@ function commerceSmartAccount(id,items,selected,placeholder='ابحث برقم �
   '<datalist id="rc-account-list-'+esc(id)+'">'+items.map(x=>'<option value="'+esc(x.name)+'"></option><option value="'+esc(x.id)+'"></option>').join('')+'</datalist>'+
   '<button type="button" id="rc-add-account-'+esc(id)+'" data-rc-create-account="'+esc(id)+'" class="btn btn-ghost rc-create-account-btn" hidden style="display:none;width:auto;margin-top:5px;padding:6px 10px;font-size:.85rem">＋ إضافة حساب جديد</button></div>';
 }
+let commerceAccountPane=null;
+function commerceAccountMatch(value,query){
+ const words=commerceNormalize(query).split(/\s+/).filter(Boolean),text=commerceNormalize(value);
+ return words.every(w=>text.includes(w));
+}
+function commerceAccountResults(input,matches){
+ if(commerceAccountPane){commerceAccountPane.remove();commerceAccountPane=null;}
+ if(!input||matches.length<2)return;
+ const pane=document.createElement('div');
+ pane.setAttribute('role','listbox');
+ pane.style.cssText='position:fixed;z-index:15000;max-height:230px;overflow-y:auto;background:var(--card,#fff);color:var(--text,#222);border:1px solid var(--border,#ccc);border-radius:9px;box-shadow:0 10px 25px rgba(0,0,0,.16);direction:rtl;';
+ const rect=input.getBoundingClientRect(),height=window.visualViewport?.height||window.innerHeight;
+ const room= Math.min(230,matches.length*43);
+ const top=rect.bottom+room+8>height?Math.max(4,rect.top-room-5):rect.bottom+4;
+ pane.style.top=Math.round(top)+'px';pane.style.left=Math.round(rect.left)+'px';pane.style.width=Math.round(rect.width)+'px';
+ matches.slice(0,30).forEach(account=>{
+   const item=document.createElement('button');item.type='button';item.setAttribute('role','option');
+   item.style.cssText='display:block;width:100%;text-align:right;padding:10px 12px;background:transparent;color:inherit;border:0;border-bottom:1px solid var(--border,#ddd);font-size:15px;cursor:pointer;';
+   item.textContent=account.name;
+   item.addEventListener('pointerdown',e=>e.preventDefault());
+   item.addEventListener('click',()=>{
+     input.value=account.name;pane.remove();if(commerceAccountPane===pane)commerceAccountPane=null;
+     input.dispatchEvent(new Event('input',{bubbles:true}));
+     input.focus({preventScroll:true});
+     try{input.setSelectionRange(input.value.length,input.value.length);}catch(_){}
+   });
+   pane.appendChild(item);
+ });
+ document.body.appendChild(pane);commerceAccountPane=pane;
+}
+document.addEventListener('pointerdown',event=>{
+ if(commerceAccountPane&&!commerceAccountPane.contains(event.target)&&!event.target.closest?.('#pageCommerce .rc-smart-account input')){
+   commerceAccountPane.remove();commerceAccountPane=null;
+ }
+},true);
 function commerceResolveAccount(input,event){
  const key=input?.id?.slice('rc-search-'.length),element=$('rc-'+key),create=$('rc-add-account-'+key);
  if(!key||!element)return;
@@ -91,13 +126,14 @@ function commerceResolveAccount(input,event){
   create.style.display=visible?'inline-flex':'none';
   if(visible)create.textContent='＋ إضافة حساب جديد «'+input.value.trim().slice(0,60)+'»';
  };
- if(!q){set(null);offer(false);return;}
+ if(!q){set(null);offer(false);commerceAccountResults(input,[]);return;}
  // Account choices appear as "number — name" while their canonical IDs are names.
  // Match both forms, including direct Arabic name entry in purchase/sales party accounts.
  const parts=x=>({code:String(x.name).split(' — ')[0],name:String(x.id)});
  const aliases=x=>{const p=parts(x);return [x.name,p.code,p.name];};
  const matches=items.filter(x=>aliases(x).some(v=>commerceNormalize(v)===q));
  if(matches.length===1){
+  commerceAccountResults(input,[]);
   const account=matches[0],p=parts(account);
   set(account);
   // A complete account number must display the resolved account as well.
@@ -106,14 +142,15 @@ function commerceResolveAccount(input,event){
   }
   offer(false);return;
  }
- const prefix=items.filter(x=>aliases(x).some(v=>commerceNormalize(v).startsWith(q)));
- if(prefix.length===1&&q.length>1){
-  const account=prefix[0],partsOfAccount=parts(account);
+ const possible=items.filter(x=>aliases(x).some(v=>commerceAccountMatch(v,q)));
+ if(possible.length===1&&q.length>1){
+  commerceAccountResults(input,[]);
+  const account=possible[0],partsOfAccount=parts(account);
   commerceAutocomplete(input,[{value:account.name,aliases:[
-   {search:account.name,fill:account.name},
+   {search:partsOfAccount.name,fill:partsOfAccount.name},
    {search:partsOfAccount.code,fill:account.name},
-   {search:partsOfAccount.name,fill:partsOfAccount.name}
-  ]}],event);
+   {search:account.name,fill:account.name}
+  ]}],event,true);
   // Only retain the posting account once the field is actually completed.
   // A partially erased or manually edited term must not silently pick an account.
   const completed=[account.name,partsOfAccount.name].some(v=>commerceNormalize(v)===commerceNormalize(input.value));
@@ -121,7 +158,8 @@ function commerceResolveAccount(input,event){
   offer(false);return;
  }
  set(null);
- offer(q.length>1&&/[\p{L}]/u.test(input.value));
+ commerceAccountResults(input,possible);
+ offer(possible.length===0&&q.length>1&&/[\p{L}]/u.test(input.value));
 }
 function commerceChosenAccount(id,label,required=false){
  const textInput=$('rc-search-'+id),selected=$('rc-'+id)?.value||'';
@@ -147,7 +185,7 @@ function commerceProductInput(i,products,selected){
   '<input type="hidden" id="rc-product-'+i+'" value="'+esc(selected||'')+'">'+
   '<datalist id="rc-product-options-'+i+'">'+products.map(x=>'<option value="'+esc(commerceProductLabel(x))+'"></option><option value="'+esc(x.name)+'"></option>').join('')+'</datalist>';
 }
-function commerceAutocomplete(input,values,event){
+function commerceAutocomplete(input,values,event,matchAnywhere=false){
  if(!input||input.dataset.composing==='1'||!input.id||event?.isComposing)return;
  const typed=commerceNormalize(input.value),existingId=input.getAttribute('list');
  // Each candidate is counted once, even if both its name and code match.
@@ -158,7 +196,7 @@ function commerceAutocomplete(input,values,event){
   if(!value)return null;
   const aliases=(typeof item==='string'?[value]:item.aliases||[value]);
   const found=aliases.map(alias=>typeof alias==='string'?{search:alias,fill:alias}:alias)
-   .find(alias=>commerceNormalize(alias.search).startsWith(typed)&&commerceNormalize(alias.fill).startsWith(typed));
+   .find(alias=>matchAnywhere?commerceAccountMatch(alias.search,typed):commerceNormalize(alias.search).startsWith(typed)&&commerceNormalize(alias.fill).startsWith(typed));
   return found?{value,fill:String(found.fill)}:null;
  }).filter(Boolean);
  if(!existingId||existingId.startsWith('ratib-commerce-suggest-')){
@@ -177,9 +215,9 @@ function commerceAutocomplete(input,values,event){
  if(document.activeElement!==input||input.selectionStart!==input.selectionEnd||
    input.selectionEnd!==input.value.length||suggestions.length!==1)return;
  const before=input.value,match=suggestions[0].fill;
- if(!commerceNormalize(match).startsWith(commerceNormalize(before))||match.length<=before.length)return;
+ if((!matchAnywhere&&!commerceNormalize(match).startsWith(commerceNormalize(before)))||match.length<=before.length)return;
  input.value=match;
- try{input.setSelectionRange(before.length,match.length);}catch(_){}
+ try{const prefix=commerceNormalize(match).startsWith(commerceNormalize(before));input.setSelectionRange(window.RatibVoiceFirstAccountActive?.(input)?match.length:(prefix?before.length:match.length),match.length);}catch(_){}
 }
 
 function commerceResolveProduct(index){

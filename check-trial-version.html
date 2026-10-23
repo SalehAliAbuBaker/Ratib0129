@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="ar" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>فحص إصدار راتب التجريبي</title>
+<meta http-equiv="Cache-Control" content="no-cache,no-store,must-revalidate">
+<style>html{font-family:system-ui,Tajawal,Arial,sans-serif;background:#f3f7f4;color:#143a31}body{max-width:610px;margin:28px auto;padding:16px}header{display:flex;align-items:center;gap:12px;margin-bottom:18px}h1{font-size:1.3rem;margin:0;color:#075e44}p{line-height:1.7}main{border-radius:16px;padding:18px;background:#fff;border:1px solid #d3dfd7;box-shadow:0 4px 22px #0001}.line{padding:12px 0;border-bottom:1px solid #edf2ef;display:flex;justify-content:space-between;gap:15px;flex-wrap:wrap}.line strong{font-size:.98rem}.line span{direction:ltr;text-align:left;font-weight:700}.note{font-size:.9rem;color:#596963}button{border:1px solid #126a4f;color:#fff;background:#126a4f;border-radius:10px;padding:11px 18px;margin-top:15px;font:inherit;cursor:pointer}#status{padding:9px;color:#6b501e;background:#fff6d8;border-radius:8px;margin:14px 0}#status.ok{background:#e5f7eb;color:#13633b}#status.bad{background:#ffebe8;color:#b72f22}code{unicode-bidi:plaintext;overflow-wrap:anywhere}footer{font-size:.84rem;color:#6a746e;margin-top:15px}</style></head>
+<body><header><div style="font-size:2rem">🔎</div><div><h1>فحص إصدار راتب التجريبي</h1><p style="margin:3px 0;color:#6a746e;font-size:.9rem">قراءة ملفات النشر من الموقع فقط</p></div></header>
+<main><div id="status" role="status">جارٍ فحص نسخة Cloudflare...</div>
+<div class="line"><strong>إصدار الصفحة المتاح</strong><span id="release">جارٍ الفحص</span></div>
+<div class="line"><strong>إصدار ملف التحديث</strong><span id="sw">جارٍ الفحص</span></div>
+<div class="line"><strong>رقم ذاكرة الملفات</strong><span id="cache">جارٍ الفحص</span></div>
+<div class="line"><strong>خادم الاستجابة</strong><span id="server">جارٍ الفحص</span></div>
+<div class="line"><strong>توقيت آخر فحص</strong><span id="time">—</span></div>
+<button id="check" type="button">إعادة الفحص</button>
+<p class="note">هذه الصفحة لا تطلب كلمة مرور، ولا تقرأ الحسابات أو الأرصدة، ولا تحذف بيانات الموقع أو سجلاته. إن ظهرت صفحة راتب الرئيسية بدل هذه الصفحة، فقد تكون نسخة قديمة تتحكم في التنقل.</p></main>
+<footer>الصفحة المستقلة لفحص إصدار راتب 3.6.149.</footer>
+<script>
+(function(){
+ const byId=id=>document.getElementById(id);
+ const version=(s,name)=>{const escaped=name==='RATIB_RELEASE'?'RATIB_RELEASE':'APP_RELEASE';const m=s.match(new RegExp('(?:const\\s+)?'+escaped+'\\s*=\\s*\\{\\s*"version"\\s*:\\s*"([^"]+)"'));return m?.[1]||'لم يُعثر عليه';};
+ async function request(path){const r=await fetch(path+'?trial_version_probe='+Date.now()+Math.random().toString(36).slice(2),{cache:'no-store',credentials:'omit',redirect:'follow',headers:{'Cache-Control':'no-cache'}});return {ok:r.ok,status:r.status,text:await r.text(),ray:r.headers.get('cf-ray')||'غير متاح',url:r.url};}
+ async function check(){
+   const status=byId('status');status.className='';status.textContent='جارٍ فحص نسخة Cloudflare...';byId('release').textContent='...';byId('sw').textContent='...';
+   try{
+     const [a,b]=await Promise.all([request('./index.html'),request('./sw.js')]);
+     const v=version(a.text,'RATIB_RELEASE'),s=version(b.text,'APP_RELEASE'),m=b.text.match(/const CACHE_VERSION='([^']+)'/);
+     byId('release').textContent=a.ok?v:'HTTP '+a.status;byId('sw').textContent=b.ok?s:'HTTP '+b.status;
+     byId('cache').textContent=m?.[1]||'غير معروف';byId('server').textContent=a.ray;
+     byId('time').textContent=new Date().toLocaleString('ar');
+     status.className=v===s&&v==='3.6.149'?'ok':'bad';
+     status.textContent=v===s&&v==='3.6.149'?'الصفحة وملف التحديث كلاهما الإصدار 3.6.149.':'يوجد اختلاف في الإصدار أو مشكلة في الاستجابة؛ التقط صورة لهذه الشاشة.';
+   }catch(e){
+     status.className='bad';status.textContent='تعذر الفحص: '+e.message;
+     byId('release').textContent='خطأ اتصال';byId('sw').textContent='خطأ اتصال';
+   }
+ }
+ byId('check').addEventListener('click',check);check();
+})();
+</script></body></html>

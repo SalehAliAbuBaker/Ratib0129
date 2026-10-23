@@ -10,7 +10,7 @@ const license = fs.readFileSync(path.join(root,'ratib-license-draft.js'),'utf8')
 const manifest = JSON.parse(fs.readFileSync(path.join(root,'manifest.json'),'utf8'));
 
 assert.match(html, /<link\s+rel="manifest"\s+href="\.\/manifest\.json">/);
-const publishedVersion = sw.match(/const APP_RELEASE=\{"version":"(3\.6\.\d+)"/)?.[1];
+const publishedVersion = sw.match(/const APP_RELEASE=\{"version":"(3\.6\.\d+(?:\.\d+)?)"/)?.[1];
 assert.ok(publishedVersion, 'app release must expose its current numeric version');
 assert.ok(html.includes('الإصدار '+publishedVersion), 'visible version must match offline release');
 assert.ok(sw.includes('CACHE_VERSION=') && sw.includes(publishedVersion), 'cache version must identify current release');

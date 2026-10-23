@@ -360,10 +360,65 @@ button.addEventListener('click',()=>{
  if(!target){notify('اختر أولًا حقلًا قابلًا للإدخال.','warn');return;}
  startSpeech(target);
 });
+
+/* Mobile account fields: first tap speaks, next tap types. Non-account fields
+   retain native behavior. Permission is requested only by a user gesture. */
+let ratibAccountFirstVoice=null,ratibVoiceBlockClick=null;
+const ratibVoiceOriginalModes=new WeakMap();
+function ratibAccountVoiceField(el){
+ const input=el?.closest?.('input.searchable-input,input.rit-search,input#accountsPagerSearchInput,input[id^="rc-search-"],input#rc-partyName,input#ratibQuickAccountName,input#ratibQuickParentSearch');
+ return input instanceof HTMLInputElement&&eligible(input)&&!input.closest('[hidden],[inert],#ratibVoiceSettingsCard')?input:null;
+}
+function ratibExitAccountVoice(){
+ if(!ratibAccountFirstVoice)return;
+ const input=ratibAccountFirstVoice,old=ratibVoiceOriginalModes.get(input);
+ if(ratibVoiceOriginalModes.has(input)){
+  if(old===null)input.removeAttribute('inputmode');
+  else input.setAttribute('inputmode',old);
+  ratibVoiceOriginalModes.delete(input);
+ }
+ ratibAccountFirstVoice=null;ratibVoiceBlockClick=null;
+}
+window.RatibVoiceFirstAccountActive=input=>input===ratibAccountFirstVoice;
+document.addEventListener('pointerdown',event=>{
+ if(event.pointerType!=='touch'||event.isPrimary===false||event.button>0)return;
+ const input=ratibAccountVoiceField(event.target);
+ if(!input){
+  if(!event.target.closest?.('#ratibVoiceButton,.ratib-simple-account-mic')){
+   if(ratibAccountFirstVoice&&listening)stop();
+   ratibExitAccountVoice();
+  }
+  return;
+ }
+ if(!visible||!Recognition){ratibExitAccountVoice();return;}
+ if(ratibAccountFirstVoice===input){
+  ratibExitAccountVoice(); // On second tap, restore Android's native keyboard.
+  if(listening)stop();
+  if(document.activeElement===input)input.blur();
+  return;
+ }
+ if(ratibAccountFirstVoice&&listening)stop();
+ ratibExitAccountVoice();ratibAccountFirstVoice=input;
+ ratibVoiceOriginalModes.set(input,input.hasAttribute('inputmode')?input.getAttribute('inputmode'):null);
+ input.setAttribute('inputmode','none'); // Speech keeps focus without soft keyboard.
+ ratibVoiceBlockClick=input;
+ event.preventDefault();event.stopImmediatePropagation();
+ try{input.focus({preventScroll:true});}catch(_){input.focus();}
+ remember(input);startSpeech(input);
+ window.setTimeout(()=>{if(ratibVoiceBlockClick===input)ratibVoiceBlockClick=null;},650);
+},true);
+document.addEventListener('click',event=>{
+ if(event.target===ratibVoiceBlockClick){
+  ratibVoiceBlockClick=null;
+  event.preventDefault();event.stopImmediatePropagation();
+ }
+},true);
+window.addEventListener('pagehide',ratibExitAccountVoice);
+
 window.addEventListener('pagehide',stop);
 
-async function requestMicrophoneAccess(){
- const statusText=document.getElementById('ratibVoiceMicPermissionStatus');
+async function requestMicrophoneAccess(targetId){
+ const statusText=document.getElementById(typeof targetId==='string'?targetId:'ratibVoiceMicPermissionStatus');
  const report=(message,good=false)=>{if(statusText){statusText.textContent=message;statusText.style.color=good?'var(--accent-strong,var(--text))':'var(--text)';}};
  if(!window.isSecureContext){report('يتطلب فحص الميكروفون فتح الموقع عبر HTTPS.');return;}
  if(!navigator.mediaDevices?.getUserMedia){report('هذا المتصفح لا يوفر فحص الميكروفون. افتح التطبيق عبر Chrome.');return;}
@@ -425,4 +480,17 @@ function addAccountMicrophones(){
  }
 }
 addAccountMicrophones();
+window.RatibVoiceDictation=Object.freeze({
+ values:()=>({visible,language}),
+ configure:({visible:requested,language:lang})=>{
+  if(!LANGUAGES.includes(lang))throw Error('لغة الإملاء غير معتمدة.');
+  try{localStorage.setItem(VISIBLE_KEY,String(Boolean(requested)));localStorage.setItem(LANG_KEY,lang);}catch(e){throw Error('تعذر حفظ تفضيلات الإملاء الصوتي.');}
+  visible=Boolean(requested);language=lang;
+  const checkbox=document.getElementById('ratibVoiceVisible'),select=document.getElementById('ratibVoiceLanguage');
+  if(checkbox)checkbox.checked=visible;
+  if(select)select.value=language;
+  applyVoiceVisibility();
+ },
+ requestMicrophoneAccess
+});
 })();

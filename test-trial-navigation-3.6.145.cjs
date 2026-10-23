@@ -6,7 +6,7 @@ const read = name => fs.readFileSync(path.join(__dirname,name),'utf8');
 const html = read('index.html'), ui = read('ratib-commerce-3.6.131.js');
 const css = read('ratib-commerce-3.6.131.css');
 const sidebar = read('ratib-sidebar-3.6.124.js'), worker = read('sw.js'), pkg = require('./package.json');
-const currentVersion=html.match(/const RATIB_RELEASE=\{"version":"(\d+\.\d+\.\d+)"/)?.[1];
+const currentVersion=html.match(/const RATIB_RELEASE=\{"version":"(\d+\.\d+\.\d+(?:\.\d+)?)"/)?.[1];
 assert(currentVersion,'Trial HTML must declare a version');
 assert(html.includes('الإصدار '+currentVersion+' (تجريبية)'));
 assert(worker.includes('"version":"'+currentVersion+'"'));

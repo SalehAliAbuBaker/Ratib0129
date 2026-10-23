@@ -1,0 +1,35 @@
+'use strict';
+const assert=require('node:assert/strict'),fs=require('node:fs');
+const read=p=>fs.readFileSync(p,'utf8');
+const html=read('index.html'),sw=read('sw.js'),src=read('ratib-simple-accounts-3.6.105.13.js'),pkg=JSON.parse(read('package.json'));
+const release='3.6.106';
+assert.equal(pkg.version,release);
+assert(html.includes('const RATIB_RELEASE={"version":"'+release+'"'));
+assert(sw.includes('const APP_RELEASE={"version":"'+release+'"'));
+assert(sw.includes("v195-official-p10601-"+release));
+assert(html.includes('id="appVersionLabel" class="app-version">الإصدار '+release));
+assert(!html.includes('الإصدار '+release+' (تجريبية)'));
+assert(html.includes('window.ratibCurrentTrialVersionLabel=()=>'));
+assert(!html.includes('RATIB_RELEASE.version} (تجريبية)'));
+assert(html.includes('ratib-simple-accounts-3.6.105.13.js?v='+release));
+assert(sw.includes('"./ratib-simple-accounts-3.6.105.13.js"'));
+assert(!/store\.(set|remove)\s*\(/.test(src),'Grouping must only change presentation');
+for(const s of [...html.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script>/gi)].map(m=>m[1]).filter(Boolean))new Function(s);
+new Function(sw);
+const events=[],local=new Map(),win={localStorage:{getItem:key=>local.get(key)??null,setItem:(key,val)=>local.set(key,val)},dispatchEvent:e=>events.push(e.detail)};
+new Function('window','CustomEvent',src)(win,class {constructor(name,opt){this.type=name;this.detail=opt.detail;}});
+const api=win.RatibSimpleAccounts;
+assert.equal(api.GROUPS.length,5);
+assert.deepEqual(api.GROUPS.map(x=>x.label),['الصناديق والبنوك','أموال لي عند الآخرين','أموال عليّ للآخرين','الدخل والإيرادات','المصروفات']);
+const examples=[['1','1101','cash'],['1','1102','clients'],['1','1103',''],['2','2101','suppliers'],['2','2102',''],['3','3101',''],['4','4101','income'],['5','5101',''],['5','5201','expenses']];
+for(const [mainCode,subCode,expected] of examples){
+ const row={mainCode,subCode,groupCode:subCode.slice(0,2),main:mainCode==='4'?'الإيرادات':mainCode==='5'?'المصروفات':''};
+ assert.equal(api.classify(row),expected,'simple category: '+mainCode+'/'+subCode);
+}
+assert.equal(api.isSimple(),true);
+api.setSimple(false);assert.equal(api.isSimple(),false);
+api.setSimple(true);assert.equal(api.isSimple(),true);
+assert.equal(events.length,2);
+assert(html.includes('const mains=simpleMode?'));
+assert(html.includes('simpleMode?simpleApi.classify(x)===main.mainCode'));
+console.log('PASS Official Ratib '+release+': release, account views and unchanged ledger store');

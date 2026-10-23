@@ -132,10 +132,12 @@ async function saveSelection(country,currency,modal){
   window.ratibCurrencyManagerRefresh?.();
   apply({refresh:true});close();
   if(typeof showToast==='function')showToast('تم اعتماد '+currency+' للعمليات الجديدة؛ السندات القديمة لم تتغير.','success');
+  return true;
  }catch(e){
   if($('ratibCountryFeedback'))$('ratibCountryFeedback').textContent='تعذّر الحفظ: '+(e.message||e);
   // Revert only the user preference if storage fails; never touch vouchers.
   try{if(previous)store.set(KEY,previous);}catch(_){}
+  return false;
  }finally{if(submit)submit.disabled=false;}
 }
 function settings(){
@@ -152,9 +154,9 @@ function initAfterUnlock(){
  initialized=true;
  settings();prepare();apply();
  // New, empty workspaces receive one-time onboarding. Existing ledgers retain YER.
- if(!read()&&typeof getAllTransactions==='function'&&getAllTransactions().length===0)open();
+ if(!global.RatibFirstRunSetup?.isActive?.()&&!read()&&typeof getAllTransactions==='function'&&getAllTransactions().length===0)open();
 }
-global.RatibCountryCurrency=Object.freeze({KEY,base,read,values,localeSuggestion,digits,open,prepare,apply,initAfterUnlock});
+global.RatibCountryCurrency=Object.freeze({KEY,base,read,values,localeSuggestion,digits,open,prepare,apply,initAfterUnlock,saveChoice:(country,currency)=>saveSelection(country,currency,null)});
 // The encrypted vault may have unlocked before deferred modules were evaluated.
 if(global.__ratibProceedInitialized)queueMicrotask(initAfterUnlock);
 })(window);

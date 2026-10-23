@@ -1,6 +1,5 @@
-/* Ratib 3.6.105.05 — interactive account administration tree inside settings ONLY.
-   The separate accounts browser and statement screen retain their original DOM and behavior.
-   Existing create/edit/delete handlers and balance computation are reused. */
+/* Ratib 3.6.105.04 — unified account-tree display, mobile details sheet.
+   Uses canonical account catalog and existing financial calculations. No transaction mutations. */
 (function(){
  'use strict';
  const ID='ratibInteractiveAccountsTree';
@@ -147,11 +146,11 @@
    html+='<div class="rit-detail-item"><small>آخر الحركات</small>'+(entries.length?entries.map(t=>'<div class="rit-movement"><span><b>'+esc(t.note).slice(0,95)+'</b><small>'+esc(t.date||'بدون تاريخ')+'</small></span><span>'+money(t.amount)+' '+esc(t.currency)+'<small>'+esc(t.side)+'</small></span></div>').join(''):'<p class="rit-muted">لا توجد حركات مسجلة لهذا الحساب.</p>')+'</div>';
   }
   html+='<div class="rit-detail-actions">';
-  if(!isLeaf){
-   html+='<button type="button" class="rit-btn rit-primary" data-rit="add-child">'+(n.kind==='sub'?'＋ إضافة حساب تحته':'＋ إضافة حساب')+'</button>';
+  if(isLeaf){
+   html+='<button type="button" class="rit-btn rit-primary" data-rit="statement">كشف الحساب</button><button type="button" class="rit-btn" data-rit="edit">تعديل الحساب</button>';
+  }else if(n.kind==='sub'){
+   html+='<button type="button" class="rit-btn rit-primary" data-rit="add-child">＋ إضافة حساب تحته</button>';
   }
-  html+='<button type="button" class="rit-btn" data-rit="edit">✏️ تعديل</button>';
-  html+='<button type="button" class="rit-btn rit-danger" data-rit="delete">🗑️ حذف</button>';
   html+='</div>';
   detailsBox.innerHTML=html;
  }
@@ -211,37 +210,20 @@
   if(action==='select'&&n){selected=n.key;renderView();revealDetails();return;}
   if(action==='add'){openAccountModal(null);return;}
   if(action==='add-child'&&n){dismissDetails(false);openAccountModal(n);return;}
-  if(action==='edit'&&n){
+  if(action==='edit'&&n&&n.kind==='detail'&&typeof openEditAccountModal==='function'){dismissDetails(false);openEditAccountModal(n.name);return;}
+  if(action==='statement'&&n&&n.kind==='detail'&&typeof openAccountFromPager==='function'){
    dismissDetails(false);
-   if(n.kind==='main'&&typeof renameMainCategory==='function')renameMainCategory(n.name);
-   else if(n.kind==='group'&&typeof renameGroupCategory==='function')renameGroupCategory(n.path[0],n.name);
-   else if(n.kind==='sub'&&typeof renameSubCategory==='function')renameSubCategory(n.path[0],n.path[1],n.name);
-   else if(n.kind==='detail'&&typeof openEditAccountModal==='function')openEditAccountModal(n.name);
-   return;
-  }
-  if(action==='delete'&&n){
-   dismissDetails(false);
-   if(n.kind==='main'&&typeof deleteMainCategory==='function')deleteMainCategory(n.name);
-   else if(n.kind==='group'&&typeof deleteGroupCategory==='function')deleteGroupCategory(n.path[0],n.name);
-   else if(n.kind==='sub'&&typeof deleteSubCategory==='function')deleteSubCategory(n.path[0],n.path[1],n.name);
-   else if(n.kind==='detail'&&typeof deleteAccountFromTree==='function')deleteAccountFromTree(n.path[0],n.name);
-   return;
+   const currency=n.sums?.size===1?[...n.sums.keys()][0]:null;
+   openAccountFromPager(n.name,[n.name],currency||null);return;
   }
  }
  function install(){
   if(initialized)return;
-  // Mount beside the actual account-management tree in Settings, never in the account-statement browser.
-  const canonicalChart=document.getElementById('chartOfAccountsView');
-  root=canonicalChart?.parentElement;
-  if(!root||!document.getElementById('pageSettings')?.contains(root))return;
+  root=document.getElementById('pageAccountsTree');if(!root)return;
   initialized=true;
-  const oldToolbar=document.getElementById('openAddAccountDialogBtn')?.parentElement;
-  if(oldToolbar&&root.contains(oldToolbar))oldToolbar.classList.add('rit-legacy-toolbar');
-  const accountsLabel=document.querySelector('[data-sidebar-action="accounts"] span');
-  if(accountsLabel)accountsLabel.textContent='الحسابات';
   mount=document.createElement('section');mount.id=ID;mount.setAttribute('aria-label','شجرة الحسابات');
   mount.innerHTML=
-   '<div class="rit-shell"><div class="rit-head"><div><h2>شجرة الحسابات</h2><small>إدارة الحسابات والأرصدة والأسقف من الدليل المحاسبي</small></div><button type="button" class="rit-btn rit-primary" data-rit="add">＋ حساب جديد</button></div>'+
+   '<div class="rit-shell"><div class="rit-head"><div><h2>دليل الحسابات</h2><small>البيانات والأرصدة من شجرة راتب الفعلية</small></div><button type="button" class="rit-btn rit-primary" data-rit="add">＋ حساب جديد</button></div>'+
    '<div class="rit-stats"></div><div class="rit-workspace"><div class="rit-panel"><div class="rit-panel-head"><b>الحسابات</b><div><button type="button" class="rit-btn" data-rit="expand">توسيع الكل</button><button type="button" class="rit-btn" data-rit="collapse">طي الكل</button></div></div>'+
    '<div class="rit-filter"><input type="search" class="rit-search" placeholder="ابحث بالاسم أو رقم الحساب..." aria-label="البحث في الشجرة"><select class="rit-kind" aria-label="تصفية نوع الحساب"><option value="all">كل الحسابات</option><option value="detail">حسابات حركة</option><option value="group">حسابات تجميعية</option></select><small class="rit-mobile-hint">اضغط على اسم الحساب لعرض تفاصيله، وعلى السهم للطي والتوسيع.</small></div>'+
    '<div class="rit-tree"></div><div class="rit-panel-foot"><button type="button" class="rit-btn" data-rit="reset">إعادة ضبط العرض</button><button type="button" class="rit-btn" data-rit="refresh">تحديث الأرصدة</button></div></div>'+
@@ -256,8 +238,7 @@
   ready=true;openNodes=new Set();
   try{
    build();openNodes=new Set(model.map(n=>n.key));renderView();
-   // Existing management DOM remains as a fallback; it is hidden only after successful startup.
-   // The account browser (#pageAccountsTree) is not touched.
+   // Keep the prior DOM only as a silent technical fallback if initialization fails.
    root.classList.add('rit-mode');
   }catch(e){
    console.error('Ratib account tree:',e);ready=false;mount.remove();
@@ -269,16 +250,16 @@
    }
   });
   window.addEventListener('resize',()=>{if(!onMobile())dismissDetails(false);},{passive:true});
-  // Refresh as account settings are opened or the canonical catalog is repainted.
+  // Refresh on re-entry, without changing accounting forms or navigation.
   new MutationObserver(function(){
-   if(!root.classList.contains('open'))dismissDetails(false);
+   if(root.classList.contains('hidden'))dismissDetails(false);
    else if(root.classList.contains('rit-mode'))refresh();
   }).observe(root,{attributes:true,attributeFilter:['class']});
-  if(canonicalChart)new MutationObserver(function(){
-   if(root.classList.contains('rit-mode'))refresh();
-  }).observe(canonicalChart,{childList:true});
-  // Leave the account pager and its navigation/click handlers untouched.
+  const chart=document.getElementById('chartOfAccountsView');
+  if(chart)new MutationObserver(function(){
+   if(!root.classList.contains('hidden'))refresh();
+  }).observe(chart,{childList:true});
  }
  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',install,{once:true});else install();
- window.RatibInteractiveTree={refresh:function(){if(ready)refresh();},version:'3.6.105.05'};
+ window.RatibInteractiveTree={refresh:function(){if(ready)refresh();},version:'3.6.105.04'};
 })();

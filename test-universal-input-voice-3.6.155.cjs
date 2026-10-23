@@ -7,9 +7,11 @@ const source=fs.readFileSync('ratib-voice-dictation-3.6.117.js','utf8');
 const html=fs.readFileSync('index.html','utf8');
 const worker=fs.readFileSync('sw.js','utf8');
 assert.doesNotThrow(()=>new Function(source));
-assert.match(html,/الإصدار 3\.6\.159 \(تجريبية\)/);
-assert.match(worker,/v179-arabic-spoken-amounts-3\.6\.159/);
-assert.match(html,/ratib-voice-dictation-3\.6\.117\.js\?v=3\.6\.159/);
+const trial=html.match(/const RATIB_RELEASE=\{"version":"([^"]+)"/)?.[1];
+assert(trial&&worker.includes('"version":"'+trial+'"'),'Application and offline worker releases should match');
+assert(html.includes('الإصدار '+trial+' (تجريبية)'),'Trial banner must show release');
+assert(worker.includes(trial),'Cache identifier must contain release');
+assert(html.includes('ratib-voice-dictation-3.6.117.js?v=3.6.159'),'Original voice implementation must remain linked');
 assert.doesNotMatch(source,/saveVoucher\(|saveTransaction\(|submitVoucher\(/);
 
 async function main(){

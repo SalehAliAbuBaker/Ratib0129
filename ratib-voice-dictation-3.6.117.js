@@ -362,8 +362,8 @@ button.addEventListener('click',()=>{
 });
 window.addEventListener('pagehide',stop);
 
-async function requestMicrophoneAccess(){
- const statusText=document.getElementById('ratibVoiceMicPermissionStatus');
+async function requestMicrophoneAccess(targetId){
+ const statusText=document.getElementById(typeof targetId==='string'?targetId:'ratibVoiceMicPermissionStatus');
  const report=(message,good=false)=>{if(statusText){statusText.textContent=message;statusText.style.color=good?'var(--accent-strong,var(--text))':'var(--text)';}};
  if(!window.isSecureContext){report('يتطلب فحص الميكروفون فتح الموقع عبر HTTPS.');return;}
  if(!navigator.mediaDevices?.getUserMedia){report('هذا المتصفح لا يوفر فحص الميكروفون. افتح التطبيق عبر Chrome.');return;}
@@ -425,4 +425,17 @@ function addAccountMicrophones(){
  }
 }
 addAccountMicrophones();
+window.RatibVoiceDictation=Object.freeze({
+ values:()=>({visible,language}),
+ configure:({visible:requested,language:lang})=>{
+  if(!LANGUAGES.includes(lang))throw Error('لغة الإملاء غير معتمدة.');
+  try{localStorage.setItem(VISIBLE_KEY,String(Boolean(requested)));localStorage.setItem(LANG_KEY,lang);}catch(e){throw Error('تعذر حفظ تفضيلات الإملاء الصوتي.');}
+  visible=Boolean(requested);language=lang;
+  const checkbox=document.getElementById('ratibVoiceVisible'),select=document.getElementById('ratibVoiceLanguage');
+  if(checkbox)checkbox.checked=visible;
+  if(select)select.value=language;
+  applyVoiceVisibility();
+ },
+ requestMicrophoneAccess
+});
 })();

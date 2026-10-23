@@ -77,7 +77,7 @@ function commerceSmartAccount(id,items,selected,placeholder='ابحث برقم �
  return '<div class="rc-smart-account">'+
   '<input type="search" id="rc-search-'+esc(id)+'" list="rc-account-list-'+esc(id)+'" autocomplete="off" value="'+esc(current?.name||'')+'" placeholder="'+esc(placeholder)+'" aria-label="'+esc(placeholder)+'">'+
   '<input type="hidden" id="rc-'+esc(id)+'" value="'+esc(current?.id||'')+'">'+
-  '<datalist id="rc-account-list-'+esc(id)+'">'+items.map(x=>'<option value="'+esc(x.name)+'"></option>').join('')+'</datalist>'+
+  '<datalist id="rc-account-list-'+esc(id)+'">'+items.map(x=>'<option value="'+esc(x.name)+'"></option><option value="'+esc(x.id)+'"></option>').join('')+'</datalist>'+
   '<button type="button" id="rc-add-account-'+esc(id)+'" data-rc-create-account="'+esc(id)+'" class="btn btn-ghost rc-create-account-btn" hidden style="display:none;width:auto;margin-top:5px;padding:6px 10px;font-size:.85rem">＋ إضافة حساب جديد</button></div>';
 }
 function commerceResolveAccount(input,event){
@@ -95,7 +95,12 @@ function commerceResolveAccount(input,event){
  const matches=items.filter(x=>[x.name,x.id,x.name.split(' — ')[0]].some(v=>commerceNormalize(v)===q));
  if(matches.length===1){set(matches[0]);offer(false);return;}
  const prefix=items.filter(x=>[x.name,x.id,x.name.split(' — ')[0]].some(v=>commerceNormalize(v).startsWith(q)));
- if(prefix.length===1&&q.length>1){set(prefix[0]);commerceAutocomplete(input,[prefix[0].name],event);offer(false);return;}
+ if(prefix.length===1&&q.length>1){
+  const account=prefix[0],name=account.name.split(' — ').slice(1).join(' — ');
+  set(account);
+  commerceAutocomplete(input,[{value:account.name,aliases:[{search:account.name,fill:account.name},{search:account.id,fill:account.id},{search:name,fill:name}]}],event);
+  offer(false);return;
+ }
  set(null);
  offer(q.length>1&&/[\p{L}]/u.test(input.value));
 }
@@ -121,15 +126,22 @@ function commerceProductInput(i,products,selected){
  const label=p?commerceProductLabel(p):'';
  return '<input type="text" id="rc-product-search-'+i+'" class="rc-product-search" value="'+esc(label)+'" list="rc-product-options-'+i+'" placeholder="ابحث باسم الصنف أو رقمه" autocomplete="off">'+
   '<input type="hidden" id="rc-product-'+i+'" value="'+esc(selected||'')+'">'+
-  '<datalist id="rc-product-options-'+i+'">'+products.map(x=>'<option value="'+esc(commerceProductLabel(x))+'"></option>').join('')+'</datalist>';
+  '<datalist id="rc-product-options-'+i+'">'+products.map(x=>'<option value="'+esc(commerceProductLabel(x))+'"></option><option value="'+esc(x.name)+'"></option>').join('')+'</datalist>';
 }
 function commerceAutocomplete(input,values,event){
- if(!input||input.dataset.composing==='1'||!input.id)return;
+ if(!input||input.dataset.composing==='1'||!input.id||event?.isComposing)return;
  const typed=commerceNormalize(input.value),existingId=input.getAttribute('list');
- // Keep all available native suggestions; they remain selectable if multiple
- // items match. Auto-insert only a unique prefix at the end of a typed field.
- const suggestions=[...new Set(values.map(x=>String(x||'').trim()).filter(Boolean))]
-  .filter(x=>typed.length>=2&&commerceNormalize(x).startsWith(typed)).slice(0,25);
+ // Each candidate is counted once, even if both its name and code match.
+ // The inserted text follows what the user typed (name OR code), never replaces it
+ // with a different prefix. This also works for stock items displayed as CODE — NAME.
+ const suggestions=typed.length<2?[]:values.map(item=>{
+  const value=String((typeof item==='string'?item:item?.value)||'').trim();
+  if(!value)return null;
+  const aliases=(typeof item==='string'?[value]:item.aliases||[value]);
+  const found=aliases.map(alias=>typeof alias==='string'?{search:alias,fill:alias}:alias)
+   .find(alias=>commerceNormalize(alias.search).startsWith(typed)&&commerceNormalize(alias.fill).startsWith(typed));
+  return found?{value,fill:String(found.fill)}:null;
+ }).filter(Boolean);
  if(!existingId||existingId.startsWith('ratib-commerce-suggest-')){
   let list=existingId?document.getElementById(existingId):null;
   if(!list&&suggestions.length){
@@ -137,19 +149,20 @@ function commerceAutocomplete(input,values,event){
    list.id='ratib-commerce-suggest-'+input.id.replace(/[^a-zA-Z0-9_-]/g,'-');
    input.setAttribute('list',list.id);input.after(list);
   }
-  if(list)list.replaceChildren(...suggestions.map(value=>{
-   const option=document.createElement('option');option.value=value;return option;
+  if(list)list.replaceChildren(...suggestions.slice(0,25).map(item=>{
+   const option=document.createElement('option');option.value=item.fill;return option;
   }));
  }
  const kind=String(event?.inputType||'');
- if(event?.isComposing||kind.startsWith('delete')||(kind&&!kind.startsWith('insert')))return;
+ if(kind.startsWith('delete')||(kind&&!kind.startsWith('insert')))return;
  if(document.activeElement!==input||input.selectionStart!==input.selectionEnd||
    input.selectionEnd!==input.value.length||suggestions.length!==1)return;
- const match=suggestions[0],before=input.value;
- if(!match.toLocaleLowerCase('ar').startsWith(before.toLocaleLowerCase('ar'))||match.length<=before.length)return;
+ const before=input.value,match=suggestions[0].fill;
+ if(!commerceNormalize(match).startsWith(commerceNormalize(before))||match.length<=before.length)return;
  input.value=match;
  try{input.setSelectionRange(before.length,match.length);}catch(_){}
 }
+
 function commerceResolveProduct(index){
  if(!draft)return;
  const input=$('rc-product-search-'+index),hidden=$('rc-product-'+index);
@@ -1104,7 +1117,11 @@ function bind(){
   if(productInput&&draft){
    const k=Number(productInput[1]);commerceResolveProduct(k);
    if(!e.isComposing&&!e.target.value.includes(' — ')){
-    const matches=data().products.map(commerceProductLabel);
+    const matches=data().products.map(p=>({value:commerceProductLabel(p),aliases:[
+     {search:commerceProductLabel(p),fill:commerceProductLabel(p)},
+     {search:p.name,fill:p.name},
+     {search:p.sku,fill:commerceProductLabel(p)}
+    ]}));
     commerceAutocomplete(e.target,matches,e);
     commerceResolveProduct(k);
    }

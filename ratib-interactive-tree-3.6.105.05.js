@@ -6,9 +6,9 @@
  const ID='ratibInteractiveAccountsTree';
  let root=null, mount=null, shell=null,treeBox=null,detailsBox=null,detailsPanel=null,statsBox=null,searchBox=null,filterBox=null;
  let model=[],nodes=new Map(),selected='',openNodes=new Set(),lastQuery='',lastFilter='all',initialized=false,ready=false;
- let simpleView=false,simpleOpenNodes=new Set();
+ let simpleView=true,simpleOpenNodes=new Set(['simple:cash','simple:cashbox','simple:bank']);
  const SIMPLE_KEY='ratib-account-tree-simple-view';
- try{simpleView=window.localStorage.getItem(SIMPLE_KEY)==='1';}catch(_){}
+ try{const saved=window.localStorage.getItem(SIMPLE_KEY);simpleView=saved===null?true:saved==='1';}catch(_){}
  function norm(s){return String(s==null?'':s).normalize('NFKC').replace(/[\u064b-\u065f\u0670]/g,'').trim().toLocaleLowerCase('ar');}
  function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(x){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[x];});}
  function money(n){return Number(n||0).toLocaleString('en-US',{maximumFractionDigits:6});}
@@ -413,5 +413,5 @@
   // Leave the account pager and its navigation/click handlers untouched.
  }
  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',install,{once:true});else install();
- window.RatibInteractiveTree={refresh:function(){if(ready)refresh();},version:'3.6.105.09'};
+ window.RatibInteractiveTree={refresh:function(){if(ready)refresh();},setSimple:function(enabled){simpleView=Boolean(enabled);try{window.localStorage.setItem(SIMPLE_KEY,simpleView?'1':'0');}catch(_){}if(ready){dismissDetails(false);renderView();}},version:'3.6.105.11'};
 })();

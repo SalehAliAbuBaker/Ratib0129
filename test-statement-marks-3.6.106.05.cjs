@@ -6,6 +6,8 @@ const html=fs.readFileSync('index.html','utf8'),sw=fs.readFileSync('sw.js','utf8
 assert(html.includes('const RATIB_RELEASE={"version":"3.6.106.05"'));
 assert(sw.includes('v200-trial-statement-marks-3.6.106.05'));
 assert(sw.includes('"./ratib-statement-marks-3.6.106.05.js"'));
+assert(!src.includes('touch-action:pan-y'),'Currency swipe must remain available');
+assert(src.includes('suppress.id===idFor(row)&&Date.now()<suppress.expires'),'Contextmenu must not toggle a mark twice');
 new Function(src);
 (async()=>{
  const dom=new JSDOM('<!doctype html><html><head></head><body><div id="pageAccountOperations"><div id="accountOperationsStandalonePanel"><div class="account-currency-track"><div class="account-statement-row" data-tx-id="a">A</div><div class="account-statement-row" data-tx-id="b">B</div></div></div></div></body></html>',{url:'https://ratibtrial.pages.dev/',runScripts:'outside-only'});

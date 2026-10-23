@@ -82,7 +82,7 @@ function init(){
  const style=document.createElement('style');style.id='ratib-statement-reference-marks-css';
  style.textContent=[
   '@media screen {',
-  '.account-statement-row[data-tx-id]{-webkit-touch-callout:none;touch-action:pan-y}',
+  '.account-statement-row[data-tx-id]{-webkit-touch-callout:none;touch-action:auto}',
   '.account-statement-row[data-tx-id].ratib-statement-marked{background:color-mix(in srgb,#f6d46b 28%,var(--card))!important;border-inline-start:5px solid #bf8b15!important;box-shadow:inset 0 0 0 1px #d1a72f66!important}',
   '.account-statement-row[data-tx-id].ratib-statement-marked::after{content:"★ معلّمة";display:block;grid-column:1/-1;text-align:right;font-size:.74rem;font-weight:800;color:#926713}',
   '.account-statement-row[data-tx-id].ratib-statement-mark-mode{cursor:crosshair;user-select:none;-webkit-user-select:none}',
@@ -111,7 +111,7 @@ function init(){
   const row=e.target.closest?.(ROW);
   if(!row||!row.closest(PANEL)||excluded(e))return;
   e.preventDefault();
-  if(!press?.fired)longPress(row);
+  if(!(suppress&&suppress.id===idFor(row)&&Date.now()<suppress.expires)&&!press?.fired)longPress(row);
   stopPress();
  },true);
  document.addEventListener('click',e=>{

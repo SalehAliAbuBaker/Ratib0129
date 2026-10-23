@@ -324,7 +324,7 @@ d.warehouses=[{id:'main',name:'المخزن الرئيسي'}];store.set('commerc
  assert(style.includes('.ratib-commerce-shortcuts[data-rc-button-size="large"]'),'main commerce launch controls resizable');
  const sidebarScript=fs.readFileSync(path.join(__dirname,'ratib-sidebar-3.6.124.js'),'utf8');
  assert(sidebarScript.includes("function syncSidebarVersion()")&&sidebarScript.includes("footer.append(version)"),'visible sidebar footer bound to current release');
- assert(/document\.addEventListener\('focusin',e=>\{\s*ratibPrepareEditableNumber\(e\.target\)/.test(sidebar),'numeric field formatting is retained while focused');
+ assert(/document\.addEventListener\('focusin',e=>\{\s*ratibPrepareEditableNumber\(e\.target\)/.test(sidebarScript),'numeric field formatting is retained while focused');
  assert(!sidebarScript.includes('ratibSelectField('),'focus and click must never select all user text');
  const ledger=fs.readFileSync(path.join(__dirname,'index.html'),'utf8');
  assert(ledger.includes("return record?record.title+' — '+record.number")||ledger.includes("const commercial=ratibCommerceStatementName(t);if(commercial"),'ledger displays actual invoice name');

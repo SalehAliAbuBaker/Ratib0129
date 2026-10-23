@@ -3918,6 +3918,9 @@ function loadGis() {
 // interactive=false → محاولة صامتة (prompt none) لا تُظهر نافذة؛ تفشل إن احتاج الأمر موافقة المستخدم.
 async function getDriveToken(interactive) {
   if (_cloudToken && Date.now() < _cloudTokenExp - 60000) return _cloudToken;
+  // No Google popup or account navigation may start from a timer/background task.
+  // A fresh sign-in requires a direct, explicit click inside Ratib.
+  if (!interactive) throw new Error('يحتاج النسخ السحابي إلى تسجيل الدخول بإذن منك. افتح راتب واضغط «نسخ الآن».');
   const cfg = getCloudCfg();
   if (!cfg.clientId) throw new Error('أدخل معرّف عميل Google أولاً');
   if (!_cloudOriginOk()) throw new Error('يلزم فتح التطبيق من رابط https (مثل GitHub Pages)، لا من ملف محلي');
@@ -3928,20 +3931,36 @@ async function getDriveToken(interactive) {
     if (interactive) throw new Error('اكتمل تجهيز تسجيل الدخول إلى Google. اضغط «نسخ الآن» مرة أخرى لمنح الإذن من راتب.');
   }
   return new Promise((resolve, reject) => {
-    const client = google.accounts.oauth2.initTokenClient({
-      client_id: cfg.clientId,
-      scope: DRIVE_SCOPE,
-      login_hint: cfg.email || undefined,
-      callback: (resp) => {
-        if (resp && resp.access_token) {
-          _cloudToken = resp.access_token;
-          _cloudTokenExp = Date.now() + (Number(resp.expires_in || 3600) * 1000);
-          resolve(_cloudToken);
-        } else { reject(new Error((resp && (resp.error_description || resp.error)) || 'رُفض الإذن')); }
-      },
-      error_callback: (err) => reject(new Error((err && (err.message || err.type)) || 'تعذّر الحصول على الإذن'))
-    });
-    client.requestAccessToken({ prompt: interactive ? '' : 'none' });
+    let finished = false;
+    const settle = (err, value) => {
+      if (finished) return;
+      finished = true;
+      clearTimeout(deadline);
+      if (err) reject(err); else resolve(value);
+    };
+    // Google may leave a mobile popup unresolved when Chrome switches activities.
+    const deadline = setTimeout(() => settle(new Error('لم يكتمل تسجيل الدخول إلى Google. عد إلى راتب وحاول «نسخ الآن» مجددًا، ولا تدخل إلى تطبيق آخر.')), 120000);
+    try {
+      const client = google.accounts.oauth2.initTokenClient({
+        client_id: cfg.clientId,
+        scope: DRIVE_SCOPE,
+        login_hint: cfg.email || undefined,
+        callback: (resp) => {
+          if (resp && resp.access_token) {
+            _cloudToken = resp.access_token;
+            _cloudTokenExp = Date.now() + (Number(resp.expires_in || 3600) * 1000);
+            settle(null, _cloudToken);
+          } else settle(new Error((resp && (resp.error_description || resp.error)) || 'لم يمنح Google إذن الوصول'));
+        },
+        error_callback: (err) => {
+          const detail = err && (err.message || err.type) || '';
+          settle(new Error(/popup_failed_to_open|popup_closed|popup_blocked/i.test(detail)
+            ? 'لم تُفتح نافذة Google داخل مسار راتب. افتح راتب مباشرة في Chrome وأعد المحاولة.'
+            : 'فشل تفويض Google Drive: ' + (detail || 'استجابة غير معروفة')));
+        }
+      });
+      client.requestAccessToken({ prompt: cfg.email ? '' : 'select_account' });
+    } catch (error) { settle(error); }
   });
 }
 
@@ -4004,7 +4023,10 @@ async function uploadCloudBackup(token, folderId, name, content) {
 }
 
 async function runCloudBackup(interactive) {
-  if (_cloudBusy) return false;
+  if (_cloudBusy) {
+    if (interactive) showToast('هناك محاولة نسخ قائمة؛ انتظر نتيجتها قبل إعادة الطلب.', 'warn');
+    return false;
+  }
   const cfg = getCloudCfg();
   if (!cfg.enabled) return false;
   _cloudBusy = true; refreshCloudBackupUI();
@@ -4024,7 +4046,8 @@ async function runCloudBackup(interactive) {
     const files = await listCloudBackups(token, folderId);
     let name = baseName + '.json', suffix = 1;
     while (files.some(f => f.name === name)) name = `${baseName}-${suffix++}.json`;
-    await uploadCloudBackup(token, folderId, name, JSON.stringify(payload));
+    const uploaded = await uploadCloudBackup(token, folderId, name, JSON.stringify(payload));
+    if (!uploaded || !uploaded.id || uploaded.name !== name) throw new Error('لم يؤكد Google Drive إنشاء ملف النسخة الاحتياطية.');
     try {
       const about = await (await driveFetch('https://www.googleapis.com/drive/v3/about?fields=user(emailAddress)', {}, token)).json();
       const actual = (about.user && about.user.emailAddress || '').toLowerCase();
@@ -4065,8 +4088,10 @@ function refreshCloudBackupUI() {
   const statusEl = $('cloudBackupStatus'), lastEl = $('cloudBackupLastTime'), warnEl = $('cloudBackupWarn');
   if (!statusEl) return;
   const active = cfg.enabled && cfg.clientId;
-  statusEl.textContent = _cloudBusy ? '⏳ جارٍ رفع النسخة...'
-    : active ? `✅ السحابة مفعّلة — يومياً الساعة ${cfg.time}` : 'غير مفعّل';
+  statusEl.textContent = _cloudBusy ? '⏳ جارٍ الاتصال ورفع النسخة...'
+    : cfg.lastError ? '⚠️ لم يكتمل آخر نسخ سحابي'
+    : active && cfg.lastTime ? `✅ آخر نسخة سحابية ناجحة — النسخ اليومي ${cfg.time}`
+    : active ? '☁️ إعدادات السحابة محفوظة — لم يتم تأكيد رفع نسخة بعد' : 'غير مفعّل';
   if (lastEl) {
     const parts = [];
     if (cfg.lastTime) parts.push(`آخر نسخة سحابية: ${new Date(cfg.lastTime).toLocaleString('ar-EG')}`);
@@ -4149,7 +4174,7 @@ function initCloudBackup() {
     _cloudToken = null; _cloudTokenExp = 0;
     saveCloudCfg({ enabled: true, email, clientId, time, lastError: '' });
     refreshCloudBackupUI();
-    showToast('تم حفظ الإعدادات، جارٍ طلب إذن Google وتنفيذ أول نسخة...', 'success');
+    showToast('حُفظت إعدادات السحابة. لم تُرفع نسخة حتى يؤكد Google Drive نجاح الحفظ.', 'info');
     await runCloudBackup(true); // ضغطة مستخدم صريحة: يجوز إظهار نافذة الإذن
   });
   $('cloudRunNowBtn')?.addEventListener('click', () => { runCloudBackup(true); });
@@ -4161,6 +4186,8 @@ function initCloudBackup() {
     refreshCloudBackupUI(); showToast('تم إيقاف النسخ السحابي', 'warn');
   });
   refreshCloudBackupUI();
+  // Preload Google's own script only; requesting a token is always click-initiated.
+  if (_cloudOriginOk() && navigator.onLine !== false) loadGis().catch(() => {});
   setInterval(checkCloudBackupDue, 60000);
   document.addEventListener('visibilitychange', () => { if (!document.hidden) checkCloudBackupDue(); });
   setTimeout(checkCloudBackupDue, 4000); // فحص "ما فاته" عند فتح التطبيق
@@ -8925,7 +8952,60 @@ function proceedAppInit() {
   initCloudBackup();
   initReminderNotifications();
   pushInitialHistoryBuffer();
+  ratibRestoreBackgroundView();
+  ratibBindBackgroundView();
   window.RatibFirstRunSetup?.start?.();
+}
+
+/* Ratib official 3.6.106 — preserve the active screen across Android/PWA background recreation.
+ * The view is stored in Ratib's existing protected application store, not in plain localStorage.
+ * Never restore before vault unlock; explicit Exit clears the snapshot.
+ */
+const RATIB_RESUME_VIEW_KEY='ratib_ui_resume_view_v1';
+let _ratibResumeListenersReady=false;
+let _ratibResumeRestored=false;
+let _ratibResumeSaveTimer=null;
+function ratibRememberBackgroundView(){
+  if(!window.__ratibProceedInitialized||_appExited||_exitPromise||_restoringAppView||window.RatibFirstRunSetup?.isActive?.())return;
+  try{
+    const lock=document.getElementById('lockScreen');
+    if(lock?.style.display==='flex')return;
+    const view=captureAppView();
+    if(!view||!TABS_ORDER.includes(view.tab))return;
+    // Keyboard focus and transient dropdowns are not part of the restored document state.
+    view.focusId=null;view.openDropdowns=[];
+    store.set(RATIB_RESUME_VIEW_KEY,{format:1,savedAt:Date.now(),view});
+  }catch(error){console.warn('Ratib background screen snapshot:',error);}
+}
+function ratibRestoreBackgroundView(){
+  if(_ratibResumeRestored||window.RatibFirstRunSetup?.isActive?.())return;
+  _ratibResumeRestored=true;
+  let saved=null;
+  try{saved=store.get(RATIB_RESUME_VIEW_KEY,null);}catch(error){console.warn('Ratib screen state read:',error);return;}
+  if(!saved||saved.format!==1||!saved.view||!TABS_ORDER.includes(saved.view.tab))return;
+  try{
+    restoreAppView(saved.view);
+    // Restoring the selection alone is not sufficient: render its financial statement.
+    if(saved.view.tab==='pageReports'&&saved.view.reportSection==='statement'){
+      const selected=selReportAccount?.getValue();
+      if(selected&&selected!=='ALL'||!window.RatibSimpleAccounts?.isSimple?.())runAccountStatement();
+    }
+    requestAnimationFrame(()=>window.scrollTo({top:Number(saved.view.scrollY)||0,behavior:'instant'}));
+  }catch(error){
+    console.warn('Ratib background screen restore:',error);
+    // Leave the accounting data and protected vault untouched if a view is obsolete.
+  }
+}
+function ratibBindBackgroundView(){
+  if(_ratibResumeListenersReady)return;_ratibResumeListenersReady=true;
+  const save=()=>{clearTimeout(_ratibResumeSaveTimer);_ratibResumeSaveTimer=null;ratibRememberBackgroundView();};
+  const persist=()=>{save();flushStorage().catch(()=>{});};
+  const defer=()=>{if(_appExited||_exitPromise)return;clearTimeout(_ratibResumeSaveTimer);_ratibResumeSaveTimer=setTimeout(save,350);};
+  document.addEventListener('visibilitychange',()=>{if(document.hidden)persist();});
+  window.addEventListener('pagehide',persist);
+  document.addEventListener('click',defer,true);
+  document.addEventListener('change',defer,true);
+  window.addEventListener('scroll',defer,{passive:true});
 }
 
 // زر الوضع الليلي 🌙 كان موجوداً بالواجهة بلا أي كود يشغّله إطلاقاً (نفس نمط
@@ -8972,6 +9052,7 @@ function performRealExit(){
           const draft=buildMultiVoucherData('draft');store.set('multi_voucher_drafts',[...store.get('multi_voucher_drafts',[]).filter(item=>item.id!==draft.id),draft]);
         }else if(!document.getElementById('cashFlowCard')?.classList.contains('hidden')){const draft=captureSingleDraft();if(draft.amount||draft.note||draft.recipient)store.set('single_voucher_draft_v1',draft);}
       }
+      store.remove(RATIB_RESUME_VIEW_KEY);
       await flushStorage();const cfg=getSecurityConfig();
       clearTimeout(_draftTimer);clearTimeout(_reminderTimer);clearTimeout(_autoBackupTimer);clearTimeout(_storageTimer);
       _vaultCryptoKey=null;_vaultUnlocked=false;for(const key of Object.keys(_memStore))delete _memStore[key];
@@ -9258,7 +9339,7 @@ function initCompatibilityImprovements(){
   document.getElementById('saveAndAddVoucherBtn')?.addEventListener('click',()=>{_saveAndAddAnother=true;document.getElementById('commitVoucherBtn').click();});
   document.getElementById('cashFlowCard')?.addEventListener('input',saveSingleDraftSoon);document.getElementById('cashFlowCard')?.addEventListener('change',saveSingleDraftSoon);
   document.getElementById('enableReminderNotificationsBtn')?.addEventListener('click',async()=>{if(typeof Notification==='undefined'){showToast('إشعارات النظام غير مدعومة؛ التذكيرات داخل التطبيق تعمل.','info');return;}const permission=await Notification.requestPermission();showToast(permission==='granted'?'تم تفعيل إشعارات التذكيرات':'ستستمر التذكيرات داخل التطبيق',permission==='granted'?'success':'info');scheduleReminderCheck();});
-  document.addEventListener('visibilitychange',()=>{if(_appExited)return;if(document.hidden){clearTimeout(_reminderTimer);flushStorage().catch(()=>{});}else{scheduleReminderCheck();updateProDashboard();}});
+  document.addEventListener('visibilitychange',()=>{if(_appExited)return;if(document.hidden){ratibRememberBackgroundView();clearTimeout(_reminderTimer);flushStorage().catch(()=>{});}else{scheduleReminderCheck();updateProDashboard();}});
    window.addEventListener('focus',()=>{if(!_appExited&&!document.hidden)scheduleReminderCheck();});
    window.addEventListener('pageshow',()=>{if(!_appExited&&!document.hidden)scheduleReminderCheck();});
   document.addEventListener('keydown',e=>{

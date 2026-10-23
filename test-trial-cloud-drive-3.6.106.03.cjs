@@ -3,9 +3,9 @@ const assert=require('node:assert/strict'),fs=require('node:fs');
 const html=fs.readFileSync('index.html','utf8');
 const sw=fs.readFileSync('sw.js','utf8');
 const pkg=require('./package.json');
-assert.equal(pkg.version,'3.6.106.04');
-assert(html.includes('const RATIB_RELEASE={"version":"3.6.106.04"'));
-assert(sw.includes('v199-trial-statement-mobile-cols-3.6.106.04'));
+assert.equal(pkg.version,'3.6.106.05');
+assert(html.includes('const RATIB_RELEASE={"version":"3.6.106.05"'));
+assert(sw.includes('v200-trial-statement-marks-3.6.106.05'));
 assert(html.includes("if (!interactive) throw new Error('يحتاج النسخ السحابي"));
 assert(html.includes("client.requestAccessToken({ prompt: cfg.email ? '' : 'select_account' })"));
 assert(html.includes("const deadline = setTimeout(() => settle("));
@@ -15,4 +15,4 @@ assert(html.includes("showToast('حُفظت إعدادات السحابة. لم 
 assert(html.includes("cfg.lastError ? '⚠️ لم يكتمل آخر نسخ سحابي'"));
 assert(!html.includes("client.requestAccessToken({ prompt: interactive ? '' : 'none' })"));
 for(const source of [...html.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script>/gi)].map(m=>m[1]).filter(Boolean))new Function(source);
-console.log('PASS 3.6.106.04: Google auth only on explicit action, timeout and verified cloud upload');
+console.log('PASS 3.6.106.05: Google auth only on explicit action, timeout and verified cloud upload');

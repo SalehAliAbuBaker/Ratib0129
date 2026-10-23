@@ -7,7 +7,7 @@
 #ratibInteractiveAccountsTree .rit-node,#ratibInteractiveAccountsTree .rit-detail-head{display:flex;align-items:center;gap:9px}
 #ratibInteractiveAccountsTree .rit-switch{justify-content:space-between;flex-wrap:wrap;padding:10px 12px;background:var(--card);border:1px solid var(--border);border-radius:13px;margin:0 0 12px;font-weight:800}
 #ratibInteractiveAccountsTree .rit-switch-buttons{display:flex;gap:6px;flex-wrap:wrap}
-#ratibInteractiveAccountsTree .rit-btn{font:700 .84rem inherit;cursor:pointer;border:1px solid var(--border);color:var(--text);background:var(--card);padding:8px 10px;min-height:38px;white-space:normal;text-align:center;border-radius:9px;line-height:1.4;width:auto!important;margin:0!important}
+#ratibInteractiveAccountsTree .rit-btn{font-size:.84rem;font-weight:700;font-family:inherit;cursor:pointer;border:1px solid var(--border);color:var(--text);background:var(--card);padding:8px 10px;min-height:38px;white-space:normal;text-align:center;border-radius:9px;line-height:1.4;width:auto!important;margin:0!important}
 #ratibInteractiveAccountsTree .rit-btn.rit-selected,#ratibInteractiveAccountsTree .rit-btn.rit-primary{background:var(--accent);border-color:var(--accent);color:#fff}
 #ratibInteractiveAccountsTree .rit-head{justify-content:space-between;flex-wrap:wrap;margin:15px 0}
 #ratibInteractiveAccountsTree .rit-head h2{margin:0;color:var(--accent);font-size:1.24rem}

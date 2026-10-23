@@ -1543,7 +1543,7 @@ body.ratib-sidebar-open,body.ratib-about-open{overflow:hidden}
 }
 </style>
 <link rel="stylesheet" href="./ratib-login-3.6.124.css?v=3.6.131">
-<link rel="stylesheet" href="./ratib-commerce-3.6.131.css?v=3.6.105.12">
+<link rel="stylesheet" href="./ratib-commerce-3.6.131.css?v=3.6.105.13">
 
 <style id="ratib-commerce-ledger-actions-3.6.138">
 #pageLedger .rc-ledger-operations{display:flex;align-items:center;justify-content:flex-start;gap:5px;flex-wrap:wrap;padding:6px 8px;margin-top:4px}
@@ -1557,7 +1557,7 @@ body.ratib-sidebar-open,body.ratib-about-open{overflow:hidden}
 <link rel="stylesheet" href="./ratib-interface-font-3.6.148.css?v=3.6.148">
 <link rel="stylesheet" href="./ratib-feedback-3.6.149.css?v=3.6.149">
 <link rel="stylesheet" href="./ratib-country-currency-3.6.151.css?v=3.6.151">
-<link rel="stylesheet" href="./ratib-interactive-tree-3.6.105.05.css?v=3.6.105.12">
+<link rel="stylesheet" href="./ratib-interactive-tree-3.6.105.05.css?v=3.6.105.13">
 </head>
 <body>
 
@@ -1588,7 +1588,7 @@ body.ratib-sidebar-open,body.ratib-about-open{overflow:hidden}
     <div class="header-tools"><div class="header-actions">
       <button class="icon-btn" id="themeBtn" title="الوضع الليلي">🌙</button>
       <button class="icon-btn" id="sidebarMenuBtn" aria-haspopup="dialog" aria-controls="appSidebar" aria-expanded="false" title="الإعدادات" aria-label="فتح الإعدادات">⚙</button>
-    </div><small id="appVersionLabel" class="app-version">الإصدار 3.6.105.12 (تجريبية)</small></div>
+    </div><small id="appVersionLabel" class="app-version">الإصدار 3.6.105.13 (تجريبية)</small></div>
   </header>
   <div class="summary-toolbar hidden no-print" id="storageFeedback"><span id="persistentSaveStatus" hidden aria-hidden="true">جاهز</span><button type="button" id="retryStorageBtn" class="btn btn-ghost hidden">إعادة محاولة الحفظ</button></div>
 <div class="app-update-banner hidden no-print" id="appUpdateBanner" role="status"><span id="appUpdateMessage">يتوفر تحديث لراتب. هل تريد تطبيقه؟</span><button type="button" class="btn btn-ghost" id="applyAppUpdateBtn">موافق، تطبيق التحديث</button><div id="appUpdateDetails" class="hidden"></div></div>
@@ -1635,7 +1635,7 @@ body.ratib-sidebar-open,body.ratib-about-open{overflow:hidden}
       <img src="Icons/icon-192.png" width="72" height="72" alt="" decoding="async">
       <h2 id="ratibAboutTitle">راتب</h2>
       <p class="ratib-about-subtitle">للتنظيم والتدبير المالي</p>
-      <p class="ratib-about-version">الإصدار 3.6.105.12 (تجريبية)</p>
+      <p class="ratib-about-version">الإصدار 3.6.105.13 (تجريبية)</p>
       <p id="ratibAboutDescription">إدارة الحسابات والسندات والميزانية، ومتابعة العمليات والتقارير المالية، مع حفظ البيانات على جهازك ودعم العمل دون الإنترنت.</p>
       <button type="button" class="btn btn-primary" id="closeRatibAboutBtn">إغلاق</button>
     </div>
@@ -2873,14 +2873,14 @@ body.ratib-sidebar-open,body.ratib-about-open{overflow:hidden}
 
 </div>
 
-<script src="./ratib-first-run-3.6.105.11.js?v=3.6.105.12"></script>
+<script src="./ratib-first-run-3.6.105.11.js?v=3.6.105.13"></script>
 <script>
 // ===== تسجيل Service Worker (يفعّل العمل دون إنترنت بعد أول زيارة) =====
 // يُسجَّل بعد اكتمال تحميل الصفحة حتى لا يؤخر أول عرض للتطبيق. يعمل فقط عبر HTTPS
 // (أو localhost أثناء التطوير) — هذا شرط أساسي من المتصفح نفسه لأي Service Worker.
 let _briefAppNoticeTimer=null;
 let _releaseSummaryDisplayed=false;
-const RATIB_RELEASE={"version":"3.6.105.12","highlights":[],"changes":["تصحيح الأخطاء في بعض الأجهزة"]};
+const RATIB_RELEASE={"version":"3.6.105.13","highlights":[],"changes":["تصحيح الأخطاء في بعض الأجهزة"]};
 window.ratibCurrentTrialVersion=()=>String(RATIB_RELEASE.version);
 window.ratibCurrentTrialVersionLabel=()=>`الإصدار ${RATIB_RELEASE.version} (تجريبية)`;
 window.ratibSyncTrialVersion=()=>{
@@ -7062,6 +7062,13 @@ function runAccountStatement() {
   const periodTitleEl = document.getElementById('statementPeriodTitle');
   if (periodTitleEl) periodTitleEl.textContent = `الفترة: ${periodTitle}`;
 
+  // The beginner view must never silently show all advanced balances.
+  if(window.RatibSimpleAccounts?.isSimple?.()&&(!selectedAccount||selectedAccount==='ALL')){
+    document.getElementById('singleAccountTableBox')?.classList.add('hidden');
+    document.getElementById('allAccountsSummaryBox')?.classList.add('hidden');
+    if(typeof showToast==='function')showToast('اختر حسابًا من المجموعات المبسطة لعرض كشفه.','warn');
+    return;
+  }
   const isAll = (!selectedAccount || selectedAccount === 'ALL');
   document.getElementById('singleAccountTableBox')?.classList.toggle('hidden', isAll);
   document.getElementById('allAccountsSummaryBox')?.classList.toggle('hidden', !isAll);
@@ -7817,9 +7824,19 @@ function initCanonicalLiveAccountsTreePage(){
 }
 const _legacyUpdateSearchableData=updateSearchableData;
 function updateSearchableData(){
-  const cat=getCanonicalCatalog(), items=[];cat.forEach(x=>x.details.forEach(d=>items.push({id:d[1],text:d[1],accountId:String(d[0]),group:`${x.main} > ${x.group} > ${x.sub}`})));
+  const cat=getCanonicalCatalog(),items=[],reportItems=[];
+  const simpleMode=window.RatibSimpleAccounts?.isSimple?.()===true;
+  cat.forEach(x=>x.details.forEach(d=>{
+   const detail={id:d[1],text:d[1],accountId:String(d[0]),group:`${x.main} > ${x.group} > ${x.sub}`};
+   items.push(detail);
+   if(!simpleMode)reportItems.push(detail);
+   else{const group=window.RatibSimpleAccounts.groupOf(x);if(group)reportItems.push({...detail,group:group.label});}
+  }));
   selDebitAcc.setItems(items);selCreditAcc.setItems(items);if(multiSourceAcc)multiSourceAcc.setItems(items);if(selEditDebitAcc)selEditDebitAcc.setItems(items);if(selEditCreditAcc)selEditCreditAcc.setItems(items);if(selDefaultIncomeDebit)selDefaultIncomeDebit.setItems(items);if(selDefaultSpendCredit)selDefaultSpendCredit.setItems(items);
-  const defs=getDefaultAccountsConfig(), okInc=items.some(i=>i.id===defs.incomeDebit)?defs.incomeDebit:'', okSpd=items.some(i=>i.id===defs.spendCredit)?defs.spendCredit:'';selDefaultIncomeDebit?.setValue(okInc,okInc);selDefaultSpendCredit?.setValue(okSpd,okSpd);const prev=selReportAccount.getValue();const safePrev=items.some(i=>i.id===prev)?prev:'ALL';selReportAccount.setItems([{id:'ALL',text:'📋 ملخص كافة الحسابات والصناديق (تجميعي)',group:'عرض عام'},...items]);selReportAccount.setValue(safePrev,safePrev==='ALL'?'📋 ملخص كافة الحسابات والصناديق (تجميعي)':'');
+  const defs=getDefaultAccountsConfig(), okInc=items.some(i=>i.id===defs.incomeDebit)?defs.incomeDebit:'', okSpd=items.some(i=>i.id===defs.spendCredit)?defs.spendCredit:'';selDefaultIncomeDebit?.setValue(okInc,okInc);selDefaultSpendCredit?.setValue(okSpd,okSpd);const prev=selReportAccount.getValue(),safePrev=reportItems.some(i=>i.id===prev)?prev:(simpleMode?'':'ALL');
+  const fullSummary={id:'ALL',text:'📋 ملخص كافة الحسابات والصناديق (تجميعي)',group:'عرض عام'};
+  selReportAccount.setItems(simpleMode?reportItems:[fullSummary,...reportItems]);
+  selReportAccount.setValue(safePrev,safePrev==='ALL'?fullSummary.text:'');
 }
 function getAccountPagerBalances(){
   const balances={};
@@ -8453,16 +8470,23 @@ function ratibAggregateOwner(t){
 function renderAccountsPager(){
   const tabs=document.getElementById('accountsPagerTabs'),track=document.getElementById('accountsPagerTrack');
   if(!tabs||!track)return;
-  const catalog=getCanonicalCatalog(), balances=getAccountPagerBalances();
+  const catalog=getCanonicalCatalog(),balances=getAccountPagerBalances();
+  const simpleMode=window.RatibSimpleAccounts?.isSimple?.()===true;
+  const simpleApi=window.RatibSimpleAccounts;
+  document.getElementById('accountsPagerCard')?.classList.toggle('ratib-simple-accounts-mode',simpleMode);
   const query=normalizeParentQuery(document.getElementById('accountsPagerSearchInput')?.value||'');
   const matches=(value)=>ratibAccountSearchMatch(value,query);
   // لا تُخفِ الحسابات الرئيسية أو التجميعية التي لم تعد تحتها حسابات تفصيلية.
   const parentMatches=x=>[x.mainCode,x.main,x.groupCode,x.group,x.subCode,x.sub].some(matches);
-  const mains=[...new Map(catalog.map(x=>[x.main,x])).values()].filter(main=>catalog.some(x=>x.main===main.main&&(parentMatches(x)||x.details.some(d=>matches(`${d[0]} ${d[1]} ${x.mainCode} ${x.main} ${x.groupCode} ${x.group} ${x.subCode} ${x.sub}`)))));
+  const mains=simpleMode?simpleApi.GROUPS.filter(group=>!query||
+     matches(group.label+' '+group.hint)||catalog.some(x=>simpleApi.classify(x)===group.id&&
+       x.details.some(d=>matches([d[0],d[1],group.label].join(' ')))))
+     .map(group=>({main:group.label,mainCode:group.id})):
+     [...new Map(catalog.map(x=>[x.main,x])).values()].filter(main=>catalog.some(x=>x.main===main.main&&(parentMatches(x)||x.details.some(d=>matches(`${d[0]} ${d[1]} ${x.mainCode} ${x.main} ${x.groupCode} ${x.group} ${x.subCode} ${x.sub}`)))));
   tabs.innerHTML='';track.innerHTML='';document.getElementById('accountOperationsPanel')?.classList.add('hidden');
   if(!mains.length){
     const msg=document.createElement('div');msg.className='accounts-empty';
-    const old=getHistoricalAccountCodeOwners(query);
+    const old=simpleMode?[]:getHistoricalAccountCodeOwners(query);
     msg.textContent=old.length?'الرقم غير مستخدم في الدليل الحالي، لكنه ظهر في السجل القديم باسم: '+old.map(x=>x.name).join('، ')+'. يمكن إعادة استخدام الرقم إذا لم يكن مخصصاً لحساب نشط.':(query?'لا توجد حسابات نشطة مطابقة للاسم أو الرقم.':'لا توجد تصنيفات حسابات متاحة.');
     track.appendChild(msg);return;
   }
@@ -8473,7 +8497,11 @@ function renderAccountsPager(){
     const title=document.createElement('div');title.className='accounts-pager-slide-title';
     const activeTxs=getAllTransactions().filter(t=>t.status!=='reversed'&&t.status!=='deleted');
     const latest={};activeTxs.forEach(t=>{const date=t.isoDate||t.date||'';[t.debitAccount,t.creditAccount].filter(Boolean).forEach(n=>{if(!latest[n]||date>latest[n])latest[n]=date;});});
-    const baseItems=catalog.filter(x=>x.main===main.main).flatMap(x=>x.details.filter(d=>matches(`${d[0]} ${d[1]} ${x.mainCode} ${x.main} ${x.groupCode} ${x.group} ${x.subCode} ${x.sub}`)).map(d=>({code:d[0],name:d[1],level:'المستوى الرابع — تفصيلي (يقبل الحركة)',path:`${x.main} > ${x.group} > ${x.sub}`,main:x.main})));
+    const baseItems=catalog.filter(x=>simpleMode?simpleApi.classify(x)===main.mainCode:x.main===main.main)
+      .flatMap(x=>x.details.filter(d=>simpleMode?
+        (!query||matches(main.main)||matches([d[0],d[1]].join(' '))):
+        matches(`${d[0]} ${d[1]} ${x.mainCode} ${x.main} ${x.groupCode} ${x.group} ${x.subCode} ${x.sub}`))
+      .map(d=>({code:d[0],name:d[1],level:'المستوى الرابع — تفصيلي (يقبل الحركة)',path:simpleMode?'':`${x.main} > ${x.group} > ${x.sub}`,main:x.main})));
     const accountItems=[];
     const currencyBalance=(name,currency)=>{let total=0,count=0,last='';activeTxs.forEach(t=>{const e=getAccountEntry(t,[name]);if(!e)return;const c=e.currency||'YER';if(c!==currency)return;total+=(e.side==='debit'?-1:1)*getAccountDisplayAmount(e);count++;const d=getAccountOpsDate(t);if(d>last)last=d;});return {total,count,last};};
     baseItems.forEach(base=>{
@@ -8486,10 +8514,10 @@ function renderAccountsPager(){
     });
     accountItems.forEach(a=>{const x=currencyBalance(a.name,a.currency);a.currencyTotal=x.total;a.currencyCount=x.count;a.currencyLast=x.last;});
     accountItems.sort((a,b)=>{const ad=a.currencyLast||'',bd=b.currencyLast||'';return (bd?1:0)-(ad?1:0)||bd.localeCompare(ad)||a.name.localeCompare(b.name,'ar')||a.currency.localeCompare(b.currency);});
-    title.innerHTML=`<span>حسابات ${esc(main.main)}</span><small>${accountItems.length} حساب / عملة</small>`;slide.appendChild(title);
-    if(!query){const picker=document.createElement('details');picker.style.cssText='margin:8px 0;padding:9px;border:1px solid var(--border);border-radius:10px';const label=document.createElement('summary');label.textContent='كشوف الحسابات الرئيسية والتجميعية والفرعية';label.style.cssText='cursor:pointer;font-weight:700';picker.append(label);ratibAggregateParents(catalog,main).forEach(p=>picker.append(ratibAggregateCard(p)));slide.append(picker);}
+    title.innerHTML=`<span>${simpleMode?esc(main.main):'حسابات '+esc(main.main)}</span><small>${accountItems.length} حساب / عملة</small>`;slide.appendChild(title);
+    if(!query&&!simpleMode){const picker=document.createElement('details');picker.style.cssText='margin:8px 0;padding:9px;border:1px solid var(--border);border-radius:10px';const label=document.createElement('summary');label.textContent='كشوف الحسابات الرئيسية والتجميعية والفرعية';label.style.cssText='cursor:pointer;font-weight:700';picker.append(label);ratibAggregateParents(catalog,main).forEach(p=>picker.append(ratibAggregateCard(p)));slide.append(picker);}
     // في البحث باسم أو رقم الحساب: أظهر المستويات العليا نفسها، لا الحسابات التفصيلية وحدها.
-    if(query){
+    if(query&&!simpleMode){
       const seenParents=new Set(),parents=[];
       catalog.filter(x=>x.main===main.main).forEach(x=>{
         [
@@ -8504,12 +8532,13 @@ function renderAccountsPager(){
       });
       parents.forEach(p=>slide.appendChild(ratibAggregateCard({...p,mainCode:main.mainCode})));
     }
-    if(!accountItems.length){const empty=document.createElement('div');empty.className='accounts-empty';empty.textContent='لا توجد حسابات تفصيلية ضمن هذا التصنيف.';slide.appendChild(empty)}
+    if(!accountItems.length){const empty=document.createElement('div');empty.className='accounts-empty';empty.textContent=simpleMode?'لا توجد حسابات في هذه المجموعة بعد.':'لا توجد حسابات تفصيلية ضمن هذا التصنيف.';slide.appendChild(empty)}
     accountItems.forEach(account=>{
       const amount=account.currencyTotal,positive=amount>=0,activityCount=account.currencyCount;
       const card=document.createElement('div');card.className='account-sub-card';card.title='فتح عمليات الحساب بهذه العملة';card.setAttribute('role','button');card.setAttribute('tabindex','0');card.setAttribute('aria-label',`فتح عمليات حساب ${account.name} ${account.currencyLabel}`);
       const currencyBadge=account.currencyLabel?`<b class="account-currency-badge">${esc(account.currencyLabel)}</b>`:'';
-      const name=document.createElement('span');name.className='account-sub-name';name.innerHTML=`${esc(account.name)} ${currencyBadge}<small class="account-sub-path">${esc(account.path)}</small><small class="account-sub-meta"><span>تفصيلي · يقبل الحركة</span><span>${activityCount} عملية</span><span>${account.currencyLast?`آخر حركة ${esc(account.currencyLast)}`:'لم تُسجل حركة بعد'}</span></small>`;
+      const name=document.createElement('span');name.className='account-sub-name';
+      name.innerHTML=`${esc(account.name)} ${currencyBadge}${simpleMode?'':'<small class="account-sub-path">'+esc(account.path)+'</small>'}<small class="account-sub-meta"><span>${simpleMode?'رقم '+esc(account.code):'تفصيلي · يقبل الحركة'}</span><span>${activityCount} عملية</span><span>${account.currencyLast?`آخر حركة ${esc(account.currencyLast)}`:'لم تُسجل حركة بعد'}</span></small>`;
       const amountEl=document.createElement('span');amountEl.className=`account-sub-balance ${positive?'credit':'debit'}`;amountEl.innerHTML=`<b>${Math.abs(amount).toLocaleString()}${account.currencyLabel?' '+esc(account.currencyLabel):''}</b><small>${positive?'دائن':'مدين'}</small>`;
       const arrow=document.createElement('span');arrow.className='account-sub-arrow';arrow.textContent='←';
       const open=()=>openAccountFromPager(account.name,[account.name],account.currency);card.append(name,amountEl,arrow);card.addEventListener('click',open);card.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();open();}});slide.appendChild(card);
@@ -8526,10 +8555,14 @@ function renderAccountsPager(){
 function accountsPagerCandidates(query){
   const q=normalizeParentQuery(query||'');if(!q)return [];
   const found=[],seen=new Set();
+  const simpleMode=window.RatibSimpleAccounts?.isSimple?.()===true;
   getCanonicalCatalog().forEach(parent=>parent.details.forEach(d=>{
     const code=String(d[0]||''),name=String(d[1]||''),key=code+'|'+name;
-    if(seen.has(key))return;seen.add(key);
-    const group=parent.main+' > '+parent.group+' > '+parent.sub;
+    if(seen.has(key))return;
+    const category=window.RatibSimpleAccounts?.groupOf(parent);
+    if(simpleMode&&!category)return;
+    seen.add(key);
+    const group=simpleMode?category.label:parent.main+' > '+parent.group+' > '+parent.sub;
     if(ratibAccountSearchMatch([name,code,group].join(' '),q))found.push({code,name,group});
   }));
   return found;
@@ -8587,6 +8620,18 @@ function initAccountsPagerAutocomplete(){
   document.addEventListener('click',e=>{if(!input.parentElement.contains(e.target))hide();});
 }
 initAccountsPagerAutocomplete();
+window.addEventListener('ratib:account-view-change',()=>{
+  // Keep accounting/posting selectors complete; refresh only browsing and reports.
+  updateSearchableData();
+  if(!document.getElementById('pageAccountsTree')?.classList.contains('hidden'))renderAccountsPager();
+  const popup=document.getElementById('accountsPagerSuggestions');if(popup){popup.hidden=true;popup.replaceChildren();}
+});
+window.addEventListener('storage',event=>{
+  if(event.key===window.RatibSimpleAccounts?.KEY){
+    updateSearchableData();
+    if(!document.getElementById('pageAccountsTree')?.classList.contains('hidden'))renderAccountsPager();
+  }
+});
 function setAccountsPagerActive(index,remember=true){
   const tabs=document.getElementById('accountsPagerTabs'),track=document.getElementById('accountsPagerTrack');if(!tabs||!track)return;
   const max=Math.max(0,track.children.length-1),safe=Math.max(0,Math.min(index,max));
@@ -12214,7 +12259,7 @@ try{currenciesUi();sync();}catch(e){console.error('Ratib 3.6.12 initialization',
 <script src="./ratib-license-draft.js?v=3.6.151" defer></script>
 <script src="./ratib-ui-v3.6.37.js?v=2" defer></script>
 <script src="./ratib-favorites-v3.js?v=3.6.137" defer></script>
-<script src="./ratib-voice-dictation-3.6.117.js?v=3.6.105.12" defer></script>
+<script src="./ratib-voice-dictation-3.6.117.js?v=3.6.105.13" defer></script>
 <script src="./ratib-import-manager.js?v=2" defer></script>
 <script src="./ratib-annual-close.js?v=1" defer></script>
 <script src="./ratib-fiscal-ledger.js?v=1" defer></script>
@@ -12232,9 +12277,10 @@ try{currenciesUi();sync();}catch(e){console.error('Ratib 3.6.12 initialization',
 <script src="./ratib-report-buttons-3.6.106.js?v=3.6.106" defer></script>
 <script src="./ratib-print-logo-3.6.108.js?v=3.6.111" defer></script>
 <div id="ratibSpecialPrintHost" aria-hidden="true"></div>
-<script src="./ratib-sidebar-3.6.124.js?v=3.6.105.12" defer></script>
-<script src="./ratib-commerce-3.6.131.js?v=3.6.105.12" defer></script>
-<script src="./ratib-interactive-tree-3.6.105.05.js?v=3.6.105.12" defer></script>
+<script src="./ratib-sidebar-3.6.124.js?v=3.6.105.13" defer></script>
+<script src="./ratib-commerce-3.6.131.js?v=3.6.105.13" defer></script>
+<script src="./ratib-simple-accounts-3.6.105.13.js?v=3.6.105.13" defer></script>
+<script src="./ratib-interactive-tree-3.6.105.05.js?v=3.6.105.13" defer></script>
 <script src="./ratib-login-3.6.124.js?v=3.6.153" defer></script>
 <script src="./ratib-trial-home-sidebar-3.6.143.js?v=3.6.143" defer></script>
 <script src="./ratib-trial-ui-3.6.143.js?v=3.6.153" defer></script>

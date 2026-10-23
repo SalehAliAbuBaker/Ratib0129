@@ -1523,11 +1523,37 @@ body.ratib-sidebar-open,body.ratib-about-open{overflow:hidden}
 #pageAccountOperations .account-statement-row[data-tx-id]>span:nth-child(1){grid-column:span 4;font-size:.77rem;color:var(--muted);white-space:nowrap}
 #pageAccountOperations .account-statement-row[data-tx-id]>span:nth-child(2){grid-column:span 8;font-size:.77rem;text-align:left;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 #pageAccountOperations .account-statement-row[data-tx-id]>span:nth-child(3){grid-column:1/-1;font-size:.86rem;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;line-height:1.45!important}
-#pageAccountOperations .account-statement-row[data-tx-id]>span:nth-child(n+4){grid-column:span 4;direction:ltr;text-align:center;font-size:.76rem!important;overflow-wrap:anywhere;font-variant-numeric:tabular-nums}
-#pageAccountOperations .account-statement-row[data-tx-id]>span:nth-child(4):before{content:'مدين'}
-#pageAccountOperations .account-statement-row[data-tx-id]>span:nth-child(5):before{content:'دائن'}
-#pageAccountOperations .account-statement-row[data-tx-id]>span:nth-child(6):before{content:'الرصيد'}
-#pageAccountOperations .account-statement-row[data-tx-id]>span:nth-child(n+4):before{display:block;direction:rtl;font-size:.68rem;color:var(--muted);font-weight:600}
+
+/* القيم المحاسبية ترتبط بأسماء الحقول، لا بموقعها بعد إضافة الحساب المقابل. */
+#pageAccountOperations .account-statement-row[data-tx-id]>span[data-statement-col="counterpart"]{
+ grid-column:1/-1!important;direction:rtl!important;text-align:right!important;
+ font-size:.79rem!important;overflow-wrap:anywhere;line-height:1.5!important;
+ border-top:1px dashed var(--border);padding-top:4px;color:var(--text)
+}
+#pageAccountOperations .account-statement-row[data-tx-id]>span[data-statement-col="counterpart"]::before{
+ content:'الحساب المقابل: '!important;display:inline!important;
+ direction:rtl;color:var(--muted);font-weight:700
+}
+#pageAccountOperations .account-statement-row[data-tx-id]>span.debit,
+#pageAccountOperations .account-statement-row[data-tx-id]>span.credit,
+#pageAccountOperations .account-statement-row[data-tx-id]>span.balance{
+ grid-column:span 4!important;direction:ltr!important;text-align:center!important;
+ font-size:.76rem!important;min-width:0!important;overflow-wrap:anywhere;
+ font-variant-numeric:tabular-nums
+}
+#pageAccountOperations .account-statement-row[data-tx-id]>span.debit::before,
+#pageAccountOperations .account-statement-row[data-tx-id]>span.credit::before,
+#pageAccountOperations .account-statement-row[data-tx-id]>span.balance::before{
+ display:block!important;direction:rtl!important;font-size:.68rem!important;
+ color:var(--muted);font-weight:700
+}
+#pageAccountOperations .account-statement-row[data-tx-id]>span.debit::before{content:'مدين'!important}
+#pageAccountOperations .account-statement-row[data-tx-id]>span.credit::before{content:'دائن'!important}
+#pageAccountOperations .account-statement-row[data-tx-id]>span.balance::before{content:'الرصيد'!important}
+#pageAccountOperations .account-statement-row[data-tx-id]>span.debit:empty::after,
+#pageAccountOperations .account-statement-row[data-tx-id]>span.credit:empty::after{
+ content:'—';display:block;color:var(--muted);font-weight:400
+}
 #pageAccountOperations .account-statement-row[data-tx-id] .ratib-match-mark{font-size:.66rem!important;padding:2px!important;white-space:nowrap}
 #pageAccountOperations .account-statement-row.opening{display:grid!important;grid-template-columns:1fr 2fr!important;gap:4px!important;padding:7px!important}
 #pageAccountOperations .account-statement-row.opening span:nth-child(2),#pageAccountOperations .account-statement-row.opening span:nth-child(4),#pageAccountOperations .account-statement-row.opening span:nth-child(5){display:none}
@@ -1543,7 +1569,7 @@ body.ratib-sidebar-open,body.ratib-about-open{overflow:hidden}
 }
 </style>
 <link rel="stylesheet" href="./ratib-login-3.6.124.css?v=3.6.131">
-<link rel="stylesheet" href="./ratib-commerce-3.6.131.css?v=3.6.106.03">
+<link rel="stylesheet" href="./ratib-commerce-3.6.131.css?v=3.6.106.04">
 
 <style id="ratib-commerce-ledger-actions-3.6.138">
 #pageLedger .rc-ledger-operations{display:flex;align-items:center;justify-content:flex-start;gap:5px;flex-wrap:wrap;padding:6px 8px;margin-top:4px}
@@ -1557,7 +1583,7 @@ body.ratib-sidebar-open,body.ratib-about-open{overflow:hidden}
 <link rel="stylesheet" href="./ratib-interface-font-3.6.148.css?v=3.6.148">
 <link rel="stylesheet" href="./ratib-feedback-3.6.149.css?v=3.6.149">
 <link rel="stylesheet" href="./ratib-country-currency-3.6.151.css?v=3.6.151">
-<link rel="stylesheet" href="./ratib-interactive-tree-3.6.105.05.css?v=3.6.106.03">
+<link rel="stylesheet" href="./ratib-interactive-tree-3.6.105.05.css?v=3.6.106.04">
 </head>
 <body>
 
@@ -1588,7 +1614,7 @@ body.ratib-sidebar-open,body.ratib-about-open{overflow:hidden}
     <div class="header-tools"><div class="header-actions">
       <button class="icon-btn" id="themeBtn" title="الوضع الليلي">🌙</button>
       <button class="icon-btn" id="sidebarMenuBtn" aria-haspopup="dialog" aria-controls="appSidebar" aria-expanded="false" title="الإعدادات" aria-label="فتح الإعدادات">⚙</button>
-    </div><small id="appVersionLabel" class="app-version">الإصدار 3.6.106.03 (تجريبية)</small></div>
+    </div><small id="appVersionLabel" class="app-version">الإصدار 3.6.106.04 (تجريبية)</small></div>
   </header>
   <div class="summary-toolbar hidden no-print" id="storageFeedback"><span id="persistentSaveStatus" hidden aria-hidden="true">جاهز</span><button type="button" id="retryStorageBtn" class="btn btn-ghost hidden">إعادة محاولة الحفظ</button></div>
 <div class="app-update-banner hidden no-print" id="appUpdateBanner" role="status"><span id="appUpdateMessage">يتوفر تحديث لراتب. هل تريد تطبيقه؟</span><button type="button" class="btn btn-ghost" id="applyAppUpdateBtn">موافق، تطبيق التحديث</button><div id="appUpdateDetails" class="hidden"></div></div>
@@ -1635,7 +1661,7 @@ body.ratib-sidebar-open,body.ratib-about-open{overflow:hidden}
       <img src="Icons/icon-192.png" width="72" height="72" alt="" decoding="async">
       <h2 id="ratibAboutTitle">راتب</h2>
       <p class="ratib-about-subtitle">للتنظيم والتدبير المالي</p>
-      <p class="ratib-about-version">الإصدار 3.6.106.03 (تجريبية)</p>
+      <p class="ratib-about-version">الإصدار 3.6.106.04 (تجريبية)</p>
       <p id="ratibAboutDescription">إدارة الحسابات والسندات والميزانية، ومتابعة العمليات والتقارير المالية، مع حفظ البيانات على جهازك ودعم العمل دون الإنترنت.</p>
       <button type="button" class="btn btn-primary" id="closeRatibAboutBtn">إغلاق</button>
     </div>
@@ -2873,14 +2899,14 @@ body.ratib-sidebar-open,body.ratib-about-open{overflow:hidden}
 
 </div>
 
-<script src="./ratib-first-run-3.6.105.11.js?v=3.6.106.03"></script>
+<script src="./ratib-first-run-3.6.105.11.js?v=3.6.106.04"></script>
 <script>
 // ===== تسجيل Service Worker (يفعّل العمل دون إنترنت بعد أول زيارة) =====
 // يُسجَّل بعد اكتمال تحميل الصفحة حتى لا يؤخر أول عرض للتطبيق. يعمل فقط عبر HTTPS
 // (أو localhost أثناء التطوير) — هذا شرط أساسي من المتصفح نفسه لأي Service Worker.
 let _briefAppNoticeTimer=null;
 let _releaseSummaryDisplayed=false;
-const RATIB_RELEASE={"version":"3.6.106.03","highlights":[],"changes":["تصحيح الأخطاء في بعض الأجهزة"]};
+const RATIB_RELEASE={"version":"3.6.106.04","highlights":[],"changes":["تصحيح الأخطاء في بعض الأجهزة"]};
 window.ratibCurrentTrialVersion=()=>String(RATIB_RELEASE.version);
 window.ratibCurrentTrialVersionLabel=()=>`الإصدار ${RATIB_RELEASE.version} (تجريبية)`;
 window.ratibSyncTrialVersion=()=>{
@@ -8958,7 +8984,7 @@ function proceedAppInit() {
 }
 
 
-/* Ratib trial 3.6.106.03 — preserve the active screen across Android/PWA background recreation.
+/* Ratib trial 3.6.106.04 — preserve the active screen across Android/PWA background recreation.
  * The view is stored in Ratib's existing protected application store, not in plain localStorage.
  * Never restore before vault unlock; explicit Exit clears the snapshot.
  */
@@ -12341,7 +12367,7 @@ try{currenciesUi();sync();}catch(e){console.error('Ratib 3.6.12 initialization',
 <script src="./ratib-license-draft.js?v=3.6.151" defer></script>
 <script src="./ratib-ui-v3.6.37.js?v=2" defer></script>
 <script src="./ratib-favorites-v3.js?v=3.6.137" defer></script>
-<script src="./ratib-voice-dictation-3.6.117.js?v=3.6.106.03" defer></script>
+<script src="./ratib-voice-dictation-3.6.117.js?v=3.6.106.04" defer></script>
 <script src="./ratib-import-manager.js?v=2" defer></script>
 <script src="./ratib-annual-close.js?v=1" defer></script>
 <script src="./ratib-fiscal-ledger.js?v=1" defer></script>
@@ -12356,13 +12382,13 @@ try{currenciesUi();sync();}catch(e){console.error('Ratib 3.6.12 initialization',
 <script src="./ratib-amount-edit-3.6.97.js?v=3.6.158" defer></script>
 <script src="./ratib-special-reports-3.6.102.js?v=3.6.114" defer></script>
 <script src="./ratib-fx-autofill-3.6.105.js?v=3.6.107" defer></script>
-<script src="./ratib-report-buttons-3.6.106.js?v=3.6.106.03" defer></script>
+<script src="./ratib-report-buttons-3.6.106.js?v=3.6.106.04" defer></script>
 <script src="./ratib-print-logo-3.6.108.js?v=3.6.111" defer></script>
 <div id="ratibSpecialPrintHost" aria-hidden="true"></div>
-<script src="./ratib-sidebar-3.6.124.js?v=3.6.106.03" defer></script>
-<script src="./ratib-commerce-3.6.131.js?v=3.6.106.03" defer></script>
-<script src="./ratib-simple-accounts-3.6.105.13.js?v=3.6.106.03" defer></script>
-<script src="./ratib-interactive-tree-3.6.105.05.js?v=3.6.106.03" defer></script>
+<script src="./ratib-sidebar-3.6.124.js?v=3.6.106.04" defer></script>
+<script src="./ratib-commerce-3.6.131.js?v=3.6.106.04" defer></script>
+<script src="./ratib-simple-accounts-3.6.105.13.js?v=3.6.106.04" defer></script>
+<script src="./ratib-interactive-tree-3.6.105.05.js?v=3.6.106.04" defer></script>
 <script src="./ratib-login-3.6.124.js?v=3.6.153" defer></script>
 <script src="./ratib-trial-home-sidebar-3.6.143.js?v=3.6.143" defer></script>
 <script src="./ratib-trial-ui-3.6.143.js?v=3.6.153" defer></script>

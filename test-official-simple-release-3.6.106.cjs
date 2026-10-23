@@ -6,7 +6,7 @@ const release='3.6.106';
 assert.equal(pkg.version,release);
 assert(html.includes('const RATIB_RELEASE={"version":"'+release+'"'));
 assert(sw.includes('const APP_RELEASE={"version":"'+release+'"'));
-assert(sw.includes("v196-official-bg-cloud-stability-"+release));
+assert(sw.includes("v197-official-oauth-identity-badge-"+release));
 assert(html.includes('id="appVersionLabel" class="app-version">الإصدار '+release));
 assert(!html.includes('الإصدار '+release+' (تجريبية)'));
 assert(html.includes('window.ratibCurrentTrialVersionLabel=()=>'));

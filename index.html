@@ -2386,8 +2386,8 @@ body.ratib-sidebar-open,body.ratib-about-open{overflow:hidden}
 
           <p style="color:var(--muted);font-weight:700;font-size:0.9rem;margin-bottom:10px;">اربط حساب Google الخاص بك مباشرة؛ لا يلزم إنشاء مشروع أو إدخال معرّف تقني. يتطلب الربط فتح التطبيق من موقع HTTPS.</p>
           <label for="cloudUploadDestination" style="font-weight:700;">مجلد رفع النسخة اليدوية</label>
-          <select id="cloudUploadDestination" style="margin-bottom:8px;"><option value="trial">Ratib Trial Backups — التجريبية (الافتراضي)</option><option value="official">Ratib Backups — الرسمية (إذا سمحت الصلاحيات)</option></select>
-          <p style="font-size:.8rem;color:var(--muted);margin-bottom:8px;">النسخ التلقائي يُحفظ في مجلد التجريبية فقط. النسخ الموجودة لن تُستبدل.</p>
+          <select id="cloudUploadDestination" style="margin-bottom:8px;"><option value="official">Ratib Backups — الرسمية (الافتراضي)</option><option value="trial">Ratib Trial Backups — التجريبية (اختياري)</option></select>
+          <p style="font-size:.8rem;color:var(--muted);margin-bottom:8px;">النسخ التلقائي يُحفظ في مجلد الرسمية فقط. النسخ الموجودة لن تُستبدل.</p>
           <div style="display:flex; gap:8px; flex-wrap:wrap;">
             <button class="btn btn-primary" id="cloudSaveBtn" style="margin-top:0; font-size:1.05rem;">💾 حفظ وتفعيل السحابة</button>
             <button class="btn btn-ghost" id="cloudRunNowBtn" style="margin-top:0; font-size:1.05rem; display:none;">☁️ نسخ الآن</button>
@@ -3883,12 +3883,12 @@ async function refreshAutoBackupUI() {
 // وعند فتحه لاحقاً يُنفَّذ ما فاته. (2) يستخدم معرّف OAuth المدمج ورابط https مُصرَّحاً به.
 // (3) صلاحية drive.file فقط: يرى التطبيق الملفات التي أنشأها هو، ولا يقرأ بقية Drive.
 const CLOUD_CFG_KEY = 'cloud_backup_cfg';
-const CLOUD_FOLDER_NAME = 'Ratib Trial Backups';
-const CLOUD_LEGACY_FOLDER_NAME = 'Ratib Backups';
-const CLOUD_LEGACY_PREFIX = 'ratib-cloud-';
-const CLOUD_FILE_PREFIX = 'ratib-trial-cloud-';
+const CLOUD_FOLDER_NAME = 'Ratib Backups';
+const CLOUD_LEGACY_FOLDER_NAME = 'Ratib Trial Backups';
+const CLOUD_LEGACY_PREFIX = 'ratib-trial-cloud-';
+const CLOUD_FILE_PREFIX = 'ratib-cloud-';
 const DRIVE_SCOPE = 'https://www.googleapis.com/auth/drive.file';
-const RATIB_GOOGLE_CLIENT_ID = '127962228897-qmia501m05ikjfajldb1lus689qupbml.apps.googleusercontent.com';
+const RATIB_GOOGLE_CLIENT_ID = '127962228897-k19m5nstjaun38k38348er1c9cf8vemb.apps.googleusercontent.com';
 let _cloudToken = null, _cloudTokenExp = 0, _cloudBusy = false, _gisPromise = null, _cloudNotifiedThisSession = false;
 
 function getCloudCfg() {
@@ -4002,15 +4002,15 @@ async function listCloudBackups(token, folderId, origin = 'trial') {
 }
 
 async function listBothCloudBackups(token) {
-  const trialId = await findDriveFolder(token, CLOUD_FOLDER_NAME);
-  const officialId = await findDriveFolder(token, CLOUD_LEGACY_FOLDER_NAME);
+  const trialId = await findDriveFolder(token, CLOUD_LEGACY_FOLDER_NAME);
+  const officialId = await findDriveFolder(token, CLOUD_FOLDER_NAME);
   const trialFiles = await listCloudBackups(token, trialId, 'trial');
   const officialFiles = await listCloudBackups(token, officialId, 'official');
   return { files: [...trialFiles, ...officialFiles].sort((a,b) => (b.createdTime || b.name).localeCompare(a.createdTime || a.name)), officialVisible: !!officialId };
 }
 
 async function pruneCloudBackups(token, folderId) {
-  // لا يحذف راتب التجريبي أي نسخ سحابية قائمة؛ الحذف التلقائي القديم عُطّل لأمان البيانات.
+  // لا تحذف النسخة الرسمية أي نسخ سحابية قائمة؛ الحذف التلقائي معطّل لحماية البيانات.
 }
 
 async function uploadCloudBackup(token, folderId, name, content) {
@@ -4032,16 +4032,16 @@ async function runCloudBackup(interactive) {
   _cloudBusy = true; refreshCloudBackupUI();
   try {
     const token = await getDriveToken(interactive);
-    const dest = interactive ? (document.getElementById('cloudUploadDestination')?.value || 'trial') : 'trial';
+    const dest = interactive ? (document.getElementById('cloudUploadDestination')?.value || 'official') : 'official';
     let folderId;
-    if (dest === 'official') {
+    if (dest === 'trial') {
       folderId = await findDriveFolder(token, CLOUD_LEGACY_FOLDER_NAME);
-      if (!folderId) throw new Error('لم يمنح Google للتجريبية صلاحية الوصول إلى مجلد الرسمية. لا يمكن الرفع إليه بهذه الصلاحية؛ اختر مجلد التجريبية.');
-      if (!confirm('سترفع نسخة جديدة إلى مجلد الرسمية دون استبدال نسخ موجودة. متابعة؟')) return false;
+      if (!folderId) throw new Error('مجلد التجريبية غير ظاهر بصلاحيات Google الحالية؛ لم تُرفع أي نسخة إلى مجلد آخر.');
+      if (!confirm('سترفع نسخة جديدة إلى مجلد التجريبية دون استبدال نسخ موجودة. متابعة؟')) return false;
     } else folderId = await ensureDriveFolder(token);
     const now = new Date();
     const payload = await buildBackupPayload();
-    const prefix = dest === 'official' ? CLOUD_LEGACY_PREFIX : CLOUD_FILE_PREFIX;
+    const prefix = dest === 'official' ? CLOUD_FILE_PREFIX : CLOUD_LEGACY_PREFIX;
     const baseName = `${prefix}${backupStamp(now)}`;
     const files = await listCloudBackups(token, folderId);
     let name = baseName + '.json', suffix = 1;
@@ -4124,12 +4124,12 @@ async function openCloudRestoreModal() {
     if (!officialVisible) {
       const warn = document.createElement('p');
       warn.style.cssText = 'color:var(--muted);line-height:1.7;font-size:.9rem;';
-      warn.textContent = 'مجلد Ratib Backups القديم غير ظاهر لهذا التطبيق بصلاحية Google الحالية (drive.file). هذا لا يعني أن ملفاتك حُذفت. يمكنك تنزيل نسخة من Google Drive يدويًا واستيرادها من خيار الاستعادة المحلية، أو منح الوصول للملفات بطريقة يدعمها Google.';
+      warn.textContent = 'مجلد Ratib Backups الرسمي غير ظاهر بصلاحية Google الحالية (drive.file). هذا لا يعني أن ملفاتك حُذفت. يمكنك تنزيل نسخة من Google Drive يدويًا واستيرادها من خيار الاستعادة المحلية، أو منح الوصول للملفات بطريقة يدعمها Google.';
       list.appendChild(warn);
     }
     if (!files.length) {
       const empty = document.createElement('p');
-      empty.textContent = 'لا توجد نسخ متاحة للتجريبية ضمن صلاحيات Google الحالية.';
+      empty.textContent = 'لا توجد نسخ احتياطية متاحة ضمن صلاحيات Google الحالية.';
       list.appendChild(empty); return;
     }
     files.slice(0,80).forEach(f => {
@@ -12358,7 +12358,7 @@ try{currenciesUi();sync();}catch(e){console.error('Ratib 3.6.12 initialization',
 <script src="./ratib-report-buttons-3.6.106.js?v=3.6.106" defer></script>
 <script src="./ratib-print-logo-3.6.108.js?v=3.6.111" defer></script>
 <div id="ratibSpecialPrintHost" aria-hidden="true"></div>
-<script src="./ratib-sidebar-3.6.124.js?v=3.6.106" defer></script>
+<script src="./ratib-sidebar-3.6.124.js?v=3.6.106&officialBadge=2" defer></script>
 <script src="./ratib-commerce-3.6.131.js?v=3.6.106" defer></script>
 <script src="./ratib-simple-accounts-3.6.105.13.js?v=3.6.106" defer></script>
 <script src="./ratib-interactive-tree-3.6.105.05.js?v=3.6.106" defer></script>

@@ -6,7 +6,7 @@ const pkg=require('./package.json');
 assert.equal(pkg.version,'3.6.106');
 assert(html.includes('const RATIB_RELEASE={"version":"3.6.106","build":"p10601"'));
 assert(sw.includes('const APP_RELEASE={"version":"3.6.106","build":"p10601"'));
-assert(sw.includes('v196-official-bg-cloud-stability-3.6.106'));
+assert(sw.includes('v197-official-oauth-identity-badge-3.6.106'));
 assert(!html.includes('الإصدار 3.6.106 (تجريبية)'));
 assert(html.includes("const RATIB_RESUME_VIEW_KEY='ratib_ui_resume_view_v1'"));
 assert(html.includes('ratibRestoreBackgroundView();\n  ratibBindBackgroundView();'));

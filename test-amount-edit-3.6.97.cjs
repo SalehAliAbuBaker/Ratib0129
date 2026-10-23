@@ -20,13 +20,14 @@ const document={activeElement:null,addEventListener:(name,fn)=>events.set(name,f
 vm.runInNewContext(fs.readFileSync(require.resolve('./ratib-amount-edit-3.6.97.js'),'utf8'),{
   document,HTMLInputElement:Input,WeakSet,Event:class{constructor(type){this.type=type}}
 });
-const emit=(name,target,extras={})=>events.get(name)({target,...extras});
+const emit=(name,target,extras={})=>events.get(name)?.({target,...extras});
 const a=new Input('1,000,000');
+a.setSelectionRange(2,5);
 emit('pointerdown',a);document.activeElement=a;emit('focusin',a);emit('click',a);
-assert.deepEqual([a.selectionStart,a.selectionEnd],[0,9],'first tap selects the complete existing amount');
-const selected=a.selectCount;
+assert.deepEqual([a.selectionStart,a.selectionEnd],[2,5],'first tap preserves any native selection');
+assert.equal(a.selectCount,0,'money field never forces select all');
 a.setSelectionRange(3,3);emit('pointerdown',a);emit('click',a);
-assert.equal(a.selectCount,selected,'second tap must not reselect');
+assert.equal(a.selectCount,0,'second tap must not reselect');
 assert.equal(a.selectionStart,3,'native caret position remains');
 a.value='1,050,000';a.setSelectionRange(4,4);emit('input',a);
 assert.equal(a.value,'1,050,000');
@@ -43,9 +44,9 @@ assert.ok(prevented);
 assert.equal(a.value,'050,000','separator deletion removes digit rather than re-adding comma');
 assert.ok(a.events.includes('input'),'existing financial listeners receive the edit');
 const b=new Input('4.567');document.activeElement=b;emit('focusin',b);
-assert.deepEqual([b.selectionStart,b.selectionEnd],[0,5]);
+assert.deepEqual([b.selectionStart,b.selectionEnd],[0,0],'focus must never force entire rate selected');
 b.value='4.567';b.setSelectionRange(3,3);emit('input',b);
 assert.equal(b.value,'4.567','fractional exchange rates are retained');
 const skip=new Input('123','number');document.activeElement=skip;emit('focusin',skip);
 assert.equal(skip.selectCount,0,'native number inputs are not changed');
-console.log('PASS 3.6.97 amount/rate first tap, caret, thousands, Arabic digits, separator deletion, rates, isolation');
+console.log('PASS 3.6.156 amount/rate native selection, caret, grouping, Arabic digits, separator deletion, isolation');

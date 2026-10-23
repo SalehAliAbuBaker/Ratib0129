@@ -303,7 +303,7 @@ d.warehouses=[{id:'main',name:'المخزن الرئيسي'}];store.set('commerc
  assert(choice.includes('type="hidden"'),'posted account reference is stored separately');
  const mapping=T.accounts(T.data());
  assert(mapping.includes('rc-search-acc-sales')&&mapping.includes('rc-search-acc-inventory'),'link accounts are searchable and editable');
- const fake={value:'صندوق',dataset:{},setSelectionRange(){}};
+ const fake={value:'صندوق',dataset:{},getAttribute(){return null;},setAttribute(){},setSelectionRange(){}};
  const hidden={value:'صندوق'};
  const originalLookup=state.document.getElementById;
  state.document.getElementById=id=>id==='rc-search-acc-cash'?fake:id==='rc-acc-cash'?hidden:originalLookup(id);
@@ -324,7 +324,8 @@ d.warehouses=[{id:'main',name:'المخزن الرئيسي'}];store.set('commerc
  assert(style.includes('.ratib-commerce-shortcuts[data-rc-button-size="large"]'),'main commerce launch controls resizable');
  const sidebarScript=fs.readFileSync(path.join(__dirname,'ratib-sidebar-3.6.124.js'),'utf8');
  assert(sidebarScript.includes("function syncSidebarVersion()")&&sidebarScript.includes("footer.append(version)"),'visible sidebar footer bound to current release');
- assert(sidebarScript.includes("document.addEventListener('focusin',e=>ratibSelectField"),'focus selects the full editable text');
+ assert(/document\.addEventListener\('focusin',e=>\{\s*ratibPrepareEditableNumber\(e\.target\)/.test(sidebarScript),'numeric field formatting is retained while focused');
+ assert(!sidebarScript.includes('ratibSelectField('),'focus and click must never select all user text');
  const ledger=fs.readFileSync(path.join(__dirname,'index.html'),'utf8');
  assert(ledger.includes("return record?record.title+' — '+record.number")||ledger.includes("const commercial=ratibCommerceStatementName(t);if(commercial"),'ledger displays actual invoice name');
  assert(ledger.includes('const mode=ratibStatementDocumentLabel(t);'),'account statement UI uses real invoice names');

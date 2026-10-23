@@ -3,7 +3,7 @@ const assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('nod
 const html=fs.readFileSync('index.html','utf8');
 const sw=fs.readFileSync('sw.js','utf8');
 const pack=require('./package.json');
-const release=sw.match(/const APP_RELEASE=\{"version":"(3\.6\.\d+)"/)?.[1];
+const release=sw.match(/const APP_RELEASE=\{"version":"(3\.6\.\d+(?:\.\d+)?)"/)?.[1];
 assert.ok(release, 'SW must declare trial release version');
 assert.equal(pack.version,release);
 assert.ok(html.includes('الإصدار '+release), 'Visible release must match package and worker');

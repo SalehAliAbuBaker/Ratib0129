@@ -260,7 +260,7 @@ function ratibTrialVersion(){
 }
 function syncSidebarVersion(){
  const v=ratibTrialVersion();if(!/^\d+\.\d+\.\d+$/.test(v))return;
- const label='الإصدار '+v;
+ const label='الإصدار '+v+' (تجريبية)';
  const footer=$('sidebarCurrentVersion');if(footer)footer.textContent=label;
  const header=$('appVersionLabel');if(header)header.textContent=label;
  const about=document.querySelector('.ratib-about-version');if(about)about.textContent=label;
@@ -301,6 +301,8 @@ function ratibEditableText(el){
 }
 function ratibSelectInitialValue(el){
  if(!ratibEditableText(el)||!el.value)return;
+  // Do not force Android cut/copy selection on account input; preserve manual selection.
+  if(el.matches?.('input.searchable-input,input.rit-search,input#accountsPagerSearchInput,input[id^="rc-search-"],input#rc-partyName,input#ratibQuickAccountName,input#ratibQuickParentSearch'))return;
  // Do not summon Android's floating selection toolbar on a normal tap
  // within incoming/outgoing commerce documents; long-press remains native.
  if(el.closest('#pageCommerce .rc-app[data-rc-mode="in"], #pageCommerce .rc-app[data-rc-mode="out"]'))return;

@@ -1,0 +1,130 @@
+name: Inspect live Ratib trial deployment
+on:
+  push:
+    branches: [trial]
+    paths: ['.github/workflows/ratib-live-trial-diagnostic.yml', 'index.html', 'sw.js', 'ratib-navigation-v3.js', 'ratib-navigation-v3.6.149.js', 'check-trial-version.html']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  compare-live-release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Compare deployed Cloudflare HTML and worker with trial branch
+        shell: bash
+        run: |
+          set -eu
+          echo '--- LOCAL TRIAL GIT CONTENT ---'
+          node -e "const fs=require('fs');const x=fs.readFileSync('index.html','utf8');console.log('HEAD:',process.env.GITHUB_SHA,'version:',(x.match(/const RATIB_RELEASE=\\{\\\"version\\\":\\\"([^\\\"]+)/)||[])[1]);"
+          echo '--- CLOUDFLARE LIVE SITE (NOT USER CACHE) ---'
+          curl --location --silent --show-error --fail --retry 3 --max-time 40 \
+            --dump-header /tmp/ratib-live-headers.txt \
+            "https://ratibtrial.pages.dev/?verify=${GITHUB_SHA}" \
+            --output /tmp/ratib-live.html
+          echo 'HEADERS:'
+          grep -Ei '^(HTTP/|server:|date:|cf-cache-status:|cache-control:|etag:|last-modified:)' /tmp/ratib-live-headers.txt || true
+          node - <<'NODE'
+          const fs=require('fs');const text=fs.readFileSync('/tmp/ratib-live.html','utf8');
+          console.log('LIVE HTML LENGTH:',text.length);
+          console.log('LIVE RATIB_RELEASE:',text.match(/const RATIB_RELEASE=\{"version":"([^"]+)/)?.[1]||'not found');
+          console.log('LIVE appVersionLabel:',text.match(/id="appVersionLabel"[^>]*>([^<]*)/)?.[1]||'not found');
+          console.log('LIVE static 3.6.123:',text.includes('3.6.123'));
+          console.log('LIVE has 3.6.149 feedback:',text.includes('ratib-feedback-3.6.149.js'));
+          console.log('LOCAL HTML exactly equals LIVE:',text===fs.readFileSync('index.html','utf8'));
+          NODE
+          echo '--- CLOUDFLARE LIVE SERVICE WORKER ---'
+          curl --location --silent --show-error --fail --retry 3 --max-time 40 \
+            "https://ratibtrial.pages.dev/sw.js?verify=${GITHUB_SHA}" \
+            --output /tmp/ratib-live-sw.js
+          node - <<'NODE'
+          const fs=require('fs');const text=fs.readFileSync('/tmp/ratib-live-sw.js','utf8');
+          console.log('LIVE SW LENGTH:',text.length);
+          console.log('LIVE APP_RELEASE:',text.match(/const APP_RELEASE=\{"version":"([^"]+)/)?.[1]||'not found');
+          console.log('LIVE CACHE_VERSION:',text.match(/const CACHE_VERSION='([^']+)/)?.[1]||'not found');
+          console.log('LOCAL WORKER exactly equals LIVE:',text===fs.readFileSync('sw.js','utf8'));
+          NODE
+
+      - name: Probe mobile clients and cache bypass paths
+        shell: bash
+        run: |
+          set -eu
+          for target in '' 'index.html' 'sw.js' 'ratib-feedback-3.6.149.js'; do
+            for profile in desktop android; do
+              url="https://ratibtrial.pages.dev/${target}?diag=${GITHUB_SHA}-${profile}"
+              echo "PROBE target=${target:-root} profile=${profile}"
+              if [ "${profile}" = android ]; then
+                agent='Mozilla/5.0 (Linux; Android 17; SM-S938B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Mobile Safari/537.36'
+              else
+                agent='curl/8.0'
+              fi
+              curl -L -fsS --max-time 25 -A "${agent}" -H 'Cache-Control: no-cache' -H 'Pragma: no-cache' --dump-header /tmp/ratib-probe-header -o /tmp/ratib-probe.html "${url}"
+              grep -iE '^(HTTP/|cf-ray:|cf-cache-status:|cache-control:|location:)' /tmp/ratib-probe-header | tail -6 || true
+              TARGET="${target}" node - <<'NODE'
+          const fs=require('fs'),s=fs.readFileSync('/tmp/ratib-probe.html','utf8');const name=process.env.TARGET;
+          console.log('PROBE RESULT:',name||'root','length:',s.length,'release:',s.match(/RATIB_RELEASE=\{"version":"([^"]+)/)?.[1]||s.match(/APP_RELEASE=\{"version":"([^"]+)/)?.[1]||'none','old123:',s.includes('3.6.123'),'new149:',s.includes('3.6.149'));
+          NODE
+            done
+          done
+
+      - name: Verify standalone release diagnostic page
+        shell: bash
+        run: |
+          set -eu
+          curl -fLsS --max-time 35 --dump-header /tmp/trial-check-headers "https://ratibtrial.pages.dev/check-trial-version.html?trial_probe=${GITHUB_SHA}" -o /tmp/trial-check-html
+          node - <<'NODE'
+          const fs=require('fs');const body=fs.readFileSync('/tmp/trial-check-html','utf8'),headers=fs.readFileSync('/tmp/trial-check-headers','utf8');
+          const version=body.match(/const RATIB_RELEASE=\{"version":"([^"]+)/)?.[1]||'not present';
+          const label=body.match(/id="appVersionLabel"[^>]*>([^<]+)/)?.[1]||'not present';
+          const checker=body.includes('فحص إصدار راتب التجريبي');
+          console.log('FALLBACK/DIAGNOSTIC PAGE: bytes='+body.length+' checker='+checker+' sourceRelease='+version+' appLabel='+label);
+          console.log('HEADERS:',headers.split(/\r?\n/).filter(x=>/^(HTTP\/|cf-ray:|location:|cache-control:)/i.test(x)).join(' | '));
+          NODE
+
+      - name: Confirm navigation asset deployment at current time
+        shell: bash
+        run: |
+          set -eu
+          echo "Checking exact navigation resource requested by current GitHub trial at $(date -u +'%Y-%m-%d %H:%M:%S UTC')"
+          curl -fLsS --max-time 30 -D /tmp/check-nav-headers "https://ratibtrial.pages.dev/ratib-navigation-v3.6.149.js?fresh=${GITHUB_SHA}-$(date +%s)" -o /tmp/check-nav-body
+          curl -fLsS --max-time 30 "https://ratibtrial.pages.dev/?fresh=${GITHUB_SHA}-$(date +%s)" -o /tmp/check-home-body
+          node - <<'NODE'
+          const fs=require('fs');
+          const nav=fs.readFileSync('/tmp/check-nav-body','utf8');
+          const local=fs.readFileSync('ratib-navigation-v3.6.149.js','utf8');
+          const home=fs.readFileSync('/tmp/check-home-body','utf8');
+          console.log('NAV_BODY_LENGTH:',nav.length);
+          console.log('LOCAL_NAV_LENGTH:',local.length);
+          console.log('NAV_MATCH:',nav===local);
+          console.log('HOME_HAS_NAV_TAG:',home.includes('ratib-navigation-v3.6.149.js?v='+fs.readFileSync('index.html','utf8').match(/RATIB_RELEASE=\{\"version\":\"([^\"]+)/)?.[1]));
+          console.log('HOME_RELEASE:',home.match(/RATIB_RELEASE=\{"version":"([^"]+)/)?.[1]||'not found');
+          console.log('NAV_FIRST_120:',nav.slice(0,120).replace(/\s+/g,' '));
+          NODE
+
+      - name: Check deployed immutable navigation resource
+        shell: bash
+        run: |
+          set -eu
+          for attempt in 1 2 3 4 5 6 7 8 9 10 11 12; do
+            curl -fLsS --retry 2 --max-time 30 "https://ratibtrial.pages.dev/ratib-navigation-v3.6.149.js?verify=${GITHUB_SHA}-${attempt}" -o /tmp/ratib-live-navigation.js || true
+            curl -fLsS --retry 2 --max-time 30 "https://ratibtrial.pages.dev/?verify=${GITHUB_SHA}-${attempt}" -o /tmp/ratib-live-page.html || true
+            if node - <<'NODE'
+          const fs=require('fs');
+          const local=fs.readFileSync('ratib-navigation-v3.6.149.js','utf8');
+          const live=fs.readFileSync('/tmp/ratib-live-navigation.js','utf8');
+          const page=fs.readFileSync('/tmp/ratib-live-page.html','utf8');
+          const sourceVersion=fs.readFileSync('index.html','utf8').match(/RATIB_RELEASE=\{\"version\":\"([^\"]+)/)?.[1];
+          const liveVersion=page.match(/RATIB_RELEASE=\{\"version\":\"([^\"]+)/)?.[1];
+          const correct=live===local&&sourceVersion===liveVersion&&!live.includes('RATIB_RELEASE.version=VERSION')&&page.includes('ratib-navigation-v3.6.149.js?v='+sourceVersion);
+          console.log('NAV DEPLOY CHECK: matched='+correct+' bytes='+live.length+' new script referenced by page='+page.includes('ratib-navigation-v3.6.149.js?v='+sourceVersion));
+          process.exit(correct?0:1);
+          NODE
+            then
+              echo 'PASS: Cloudflare serves the new immutable navigation asset and current HTML'
+              exit 0
+            fi
+            echo "Waiting for Cloudflare Pages to deploy new navigation resource (attempt ${attempt})"
+            [ "$attempt" = "12" ] || sleep 10
+          done
+          echo 'FAIL: Cloudflare Pages still serves older navigation or HTML'
+          exit 1

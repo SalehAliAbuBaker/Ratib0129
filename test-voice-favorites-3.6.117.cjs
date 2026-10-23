@@ -7,7 +7,7 @@ const sw=fs.readFileSync('sw.js','utf8');
 for(const [file,source] of [['voice',voice],['favorites',fav],['worker',sw]])assert.doesNotThrow(()=>new vm.Script(source),file+' must parse');
 assert.match(html,/ratib-voice-dictation-3\.6\.117\.js\?v=3\.6\.\d+/);
 assert.match(html,/ratib-favorites-v3\.js\?v=3\.6\.\d+/,'favorites asset version must exist and is allowed to advance');
-const release=sw.match(/const APP_RELEASE=\{"version":"(3\.6\.\d+)"/)?.[1];
+const release=sw.match(/const APP_RELEASE=\{"version":"(3\.6\.\d+(?:\.\d+)?)"/)?.[1];
 assert.ok(release, 'Current trial release must exist');
 assert.ok(html.includes('الإصدار '+release), 'Visible version must follow current release');
 assert.ok(sw.includes('const CACHE_VERSION=')&&sw.includes(release), 'Offline cache must follow current release');

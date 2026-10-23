@@ -43,7 +43,7 @@ new Function(src);
  assert.equal(w.RatibStatementMarks.count(),2);
  panel.querySelector('[data-statement-mark-action="clear"]').click();
  assert.equal(w.RatibStatementMarks.count(),0);
- assert.deepEqual(saved.get('ratib_statement_card_marks_v1'),[]);
+ assert.deepEqual(Array.from(saved.get('ratib_statement_card_marks_v1')),[]);
  w.close();
  console.log('PASS multiple reference marks, persistence, rerender, account isolation, and normal voucher clicks');
 })().catch(e=>{console.error(e);process.exitCode=1;});

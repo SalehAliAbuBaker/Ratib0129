@@ -1543,7 +1543,7 @@ body.ratib-sidebar-open,body.ratib-about-open{overflow:hidden}
 }
 </style>
 <link rel="stylesheet" href="./ratib-login-3.6.124.css?v=3.6.131">
-<link rel="stylesheet" href="./ratib-commerce-3.6.131.css?v=3.6.106.02">
+<link rel="stylesheet" href="./ratib-commerce-3.6.131.css?v=3.6.106.03">
 
 <style id="ratib-commerce-ledger-actions-3.6.138">
 #pageLedger .rc-ledger-operations{display:flex;align-items:center;justify-content:flex-start;gap:5px;flex-wrap:wrap;padding:6px 8px;margin-top:4px}
@@ -1557,7 +1557,7 @@ body.ratib-sidebar-open,body.ratib-about-open{overflow:hidden}
 <link rel="stylesheet" href="./ratib-interface-font-3.6.148.css?v=3.6.148">
 <link rel="stylesheet" href="./ratib-feedback-3.6.149.css?v=3.6.149">
 <link rel="stylesheet" href="./ratib-country-currency-3.6.151.css?v=3.6.151">
-<link rel="stylesheet" href="./ratib-interactive-tree-3.6.105.05.css?v=3.6.106.02">
+<link rel="stylesheet" href="./ratib-interactive-tree-3.6.105.05.css?v=3.6.106.03">
 </head>
 <body>
 
@@ -1588,7 +1588,7 @@ body.ratib-sidebar-open,body.ratib-about-open{overflow:hidden}
     <div class="header-tools"><div class="header-actions">
       <button class="icon-btn" id="themeBtn" title="الوضع الليلي">🌙</button>
       <button class="icon-btn" id="sidebarMenuBtn" aria-haspopup="dialog" aria-controls="appSidebar" aria-expanded="false" title="الإعدادات" aria-label="فتح الإعدادات">⚙</button>
-    </div><small id="appVersionLabel" class="app-version">الإصدار 3.6.106.02 (تجريبية)</small></div>
+    </div><small id="appVersionLabel" class="app-version">الإصدار 3.6.106.03 (تجريبية)</small></div>
   </header>
   <div class="summary-toolbar hidden no-print" id="storageFeedback"><span id="persistentSaveStatus" hidden aria-hidden="true">جاهز</span><button type="button" id="retryStorageBtn" class="btn btn-ghost hidden">إعادة محاولة الحفظ</button></div>
 <div class="app-update-banner hidden no-print" id="appUpdateBanner" role="status"><span id="appUpdateMessage">يتوفر تحديث لراتب. هل تريد تطبيقه؟</span><button type="button" class="btn btn-ghost" id="applyAppUpdateBtn">موافق، تطبيق التحديث</button><div id="appUpdateDetails" class="hidden"></div></div>
@@ -1635,7 +1635,7 @@ body.ratib-sidebar-open,body.ratib-about-open{overflow:hidden}
       <img src="Icons/icon-192.png" width="72" height="72" alt="" decoding="async">
       <h2 id="ratibAboutTitle">راتب</h2>
       <p class="ratib-about-subtitle">للتنظيم والتدبير المالي</p>
-      <p class="ratib-about-version">الإصدار 3.6.106.02 (تجريبية)</p>
+      <p class="ratib-about-version">الإصدار 3.6.106.03 (تجريبية)</p>
       <p id="ratibAboutDescription">إدارة الحسابات والسندات والميزانية، ومتابعة العمليات والتقارير المالية، مع حفظ البيانات على جهازك ودعم العمل دون الإنترنت.</p>
       <button type="button" class="btn btn-primary" id="closeRatibAboutBtn">إغلاق</button>
     </div>
@@ -2873,14 +2873,14 @@ body.ratib-sidebar-open,body.ratib-about-open{overflow:hidden}
 
 </div>
 
-<script src="./ratib-first-run-3.6.105.11.js?v=3.6.106.02"></script>
+<script src="./ratib-first-run-3.6.105.11.js?v=3.6.106.03"></script>
 <script>
 // ===== تسجيل Service Worker (يفعّل العمل دون إنترنت بعد أول زيارة) =====
 // يُسجَّل بعد اكتمال تحميل الصفحة حتى لا يؤخر أول عرض للتطبيق. يعمل فقط عبر HTTPS
 // (أو localhost أثناء التطوير) — هذا شرط أساسي من المتصفح نفسه لأي Service Worker.
 let _briefAppNoticeTimer=null;
 let _releaseSummaryDisplayed=false;
-const RATIB_RELEASE={"version":"3.6.106.02","highlights":[],"changes":["تصحيح الأخطاء في بعض الأجهزة"]};
+const RATIB_RELEASE={"version":"3.6.106.03","highlights":[],"changes":["تصحيح الأخطاء في بعض الأجهزة"]};
 window.ratibCurrentTrialVersion=()=>String(RATIB_RELEASE.version);
 window.ratibCurrentTrialVersionLabel=()=>`الإصدار ${RATIB_RELEASE.version} (تجريبية)`;
 window.ratibSyncTrialVersion=()=>{
@@ -3918,6 +3918,9 @@ function loadGis() {
 // interactive=false → محاولة صامتة (prompt none) لا تُظهر نافذة؛ تفشل إن احتاج الأمر موافقة المستخدم.
 async function getDriveToken(interactive) {
   if (_cloudToken && Date.now() < _cloudTokenExp - 60000) return _cloudToken;
+  // No Google popup or account navigation may start from a timer/background task.
+  // A fresh sign-in requires a direct, explicit click inside Ratib.
+  if (!interactive) throw new Error('يحتاج النسخ السحابي إلى تسجيل الدخول بإذن منك. افتح راتب واضغط «نسخ الآن».');
   const cfg = getCloudCfg();
   if (!cfg.clientId) throw new Error('أدخل معرّف عميل Google أولاً');
   if (!_cloudOriginOk()) throw new Error('يلزم فتح التطبيق من رابط https (مثل GitHub Pages)، لا من ملف محلي');
@@ -3928,20 +3931,36 @@ async function getDriveToken(interactive) {
     if (interactive) throw new Error('اكتمل تجهيز تسجيل الدخول إلى Google. اضغط «نسخ الآن» مرة أخرى لمنح الإذن من راتب.');
   }
   return new Promise((resolve, reject) => {
-    const client = google.accounts.oauth2.initTokenClient({
-      client_id: cfg.clientId,
-      scope: DRIVE_SCOPE,
-      login_hint: cfg.email || undefined,
-      callback: (resp) => {
-        if (resp && resp.access_token) {
-          _cloudToken = resp.access_token;
-          _cloudTokenExp = Date.now() + (Number(resp.expires_in || 3600) * 1000);
-          resolve(_cloudToken);
-        } else { reject(new Error((resp && (resp.error_description || resp.error)) || 'رُفض الإذن')); }
-      },
-      error_callback: (err) => reject(new Error((err && (err.message || err.type)) || 'تعذّر الحصول على الإذن'))
-    });
-    client.requestAccessToken({ prompt: interactive ? '' : 'none' });
+    let finished = false;
+    const settle = (err, value) => {
+      if (finished) return;
+      finished = true;
+      clearTimeout(deadline);
+      if (err) reject(err); else resolve(value);
+    };
+    // Google may leave a mobile popup unresolved when Chrome switches activities.
+    const deadline = setTimeout(() => settle(new Error('لم يكتمل تسجيل الدخول إلى Google. عد إلى راتب وحاول «نسخ الآن» مجددًا، ولا تدخل إلى تطبيق آخر.')), 120000);
+    try {
+      const client = google.accounts.oauth2.initTokenClient({
+        client_id: cfg.clientId,
+        scope: DRIVE_SCOPE,
+        login_hint: cfg.email || undefined,
+        callback: (resp) => {
+          if (resp && resp.access_token) {
+            _cloudToken = resp.access_token;
+            _cloudTokenExp = Date.now() + (Number(resp.expires_in || 3600) * 1000);
+            settle(null, _cloudToken);
+          } else settle(new Error((resp && (resp.error_description || resp.error)) || 'لم يمنح Google إذن الوصول'));
+        },
+        error_callback: (err) => {
+          const detail = err && (err.message || err.type) || '';
+          settle(new Error(/popup_failed_to_open|popup_closed|popup_blocked/i.test(detail)
+            ? 'لم تُفتح نافذة Google داخل مسار راتب. افتح راتب مباشرة في Chrome وأعد المحاولة.'
+            : 'فشل تفويض Google Drive: ' + (detail || 'استجابة غير معروفة')));
+        }
+      });
+      client.requestAccessToken({ prompt: cfg.email ? '' : 'select_account' });
+    } catch (error) { settle(error); }
   });
 }
 
@@ -4004,7 +4023,10 @@ async function uploadCloudBackup(token, folderId, name, content) {
 }
 
 async function runCloudBackup(interactive) {
-  if (_cloudBusy) return false;
+  if (_cloudBusy) {
+    if (interactive) showToast('هناك محاولة نسخ قائمة؛ انتظر نتيجتها قبل إعادة الطلب.', 'warn');
+    return false;
+  }
   const cfg = getCloudCfg();
   if (!cfg.enabled) return false;
   _cloudBusy = true; refreshCloudBackupUI();
@@ -4024,7 +4046,8 @@ async function runCloudBackup(interactive) {
     const files = await listCloudBackups(token, folderId);
     let name = baseName + '.json', suffix = 1;
     while (files.some(f => f.name === name)) name = `${baseName}-${suffix++}.json`;
-    await uploadCloudBackup(token, folderId, name, JSON.stringify(payload));
+    const uploaded = await uploadCloudBackup(token, folderId, name, JSON.stringify(payload));
+    if (!uploaded || !uploaded.id || uploaded.name !== name) throw new Error('لم يؤكد Google Drive إنشاء ملف النسخة الاحتياطية.');
     try {
       const about = await (await driveFetch('https://www.googleapis.com/drive/v3/about?fields=user(emailAddress)', {}, token)).json();
       const actual = (about.user && about.user.emailAddress || '').toLowerCase();
@@ -4065,8 +4088,10 @@ function refreshCloudBackupUI() {
   const statusEl = $('cloudBackupStatus'), lastEl = $('cloudBackupLastTime'), warnEl = $('cloudBackupWarn');
   if (!statusEl) return;
   const active = cfg.enabled && cfg.clientId;
-  statusEl.textContent = _cloudBusy ? '⏳ جارٍ رفع النسخة...'
-    : active ? `✅ السحابة مفعّلة — يومياً الساعة ${cfg.time}` : 'غير مفعّل';
+  statusEl.textContent = _cloudBusy ? '⏳ جارٍ الاتصال ورفع النسخة...'
+    : cfg.lastError ? '⚠️ لم يكتمل آخر نسخ سحابي'
+    : active && cfg.lastTime ? `✅ آخر نسخة سحابية ناجحة — النسخ اليومي ${cfg.time}`
+    : active ? '☁️ إعدادات السحابة محفوظة — لم يتم تأكيد رفع نسخة بعد' : 'غير مفعّل';
   if (lastEl) {
     const parts = [];
     if (cfg.lastTime) parts.push(`آخر نسخة سحابية: ${new Date(cfg.lastTime).toLocaleString('ar-EG')}`);
@@ -4149,7 +4174,7 @@ function initCloudBackup() {
     _cloudToken = null; _cloudTokenExp = 0;
     saveCloudCfg({ enabled: true, email, clientId, time, lastError: '' });
     refreshCloudBackupUI();
-    showToast('تم حفظ الإعدادات، جارٍ طلب إذن Google وتنفيذ أول نسخة...', 'success');
+    showToast('حُفظت إعدادات السحابة. لم تُرفع نسخة حتى يؤكد Google Drive نجاح الحفظ.', 'info');
     await runCloudBackup(true); // ضغطة مستخدم صريحة: يجوز إظهار نافذة الإذن
   });
   $('cloudRunNowBtn')?.addEventListener('click', () => { runCloudBackup(true); });
@@ -4161,6 +4186,8 @@ function initCloudBackup() {
     refreshCloudBackupUI(); showToast('تم إيقاف النسخ السحابي', 'warn');
   });
   refreshCloudBackupUI();
+  // Preload Google's own script only; requesting a token is always click-initiated.
+  if (_cloudOriginOk() && navigator.onLine !== false) loadGis().catch(() => {});
   setInterval(checkCloudBackupDue, 60000);
   document.addEventListener('visibilitychange', () => { if (!document.hidden) checkCloudBackupDue(); });
   setTimeout(checkCloudBackupDue, 4000); // فحص "ما فاته" عند فتح التطبيق
@@ -8931,7 +8958,7 @@ function proceedAppInit() {
 }
 
 
-/* Ratib trial 3.6.106.02 — preserve the active screen across Android/PWA background recreation.
+/* Ratib trial 3.6.106.03 — preserve the active screen across Android/PWA background recreation.
  * The view is stored in Ratib's existing protected application store, not in plain localStorage.
  * Never restore before vault unlock; explicit Exit clears the snapshot.
  */
@@ -12314,7 +12341,7 @@ try{currenciesUi();sync();}catch(e){console.error('Ratib 3.6.12 initialization',
 <script src="./ratib-license-draft.js?v=3.6.151" defer></script>
 <script src="./ratib-ui-v3.6.37.js?v=2" defer></script>
 <script src="./ratib-favorites-v3.js?v=3.6.137" defer></script>
-<script src="./ratib-voice-dictation-3.6.117.js?v=3.6.106.02" defer></script>
+<script src="./ratib-voice-dictation-3.6.117.js?v=3.6.106.03" defer></script>
 <script src="./ratib-import-manager.js?v=2" defer></script>
 <script src="./ratib-annual-close.js?v=1" defer></script>
 <script src="./ratib-fiscal-ledger.js?v=1" defer></script>
@@ -12329,13 +12356,13 @@ try{currenciesUi();sync();}catch(e){console.error('Ratib 3.6.12 initialization',
 <script src="./ratib-amount-edit-3.6.97.js?v=3.6.158" defer></script>
 <script src="./ratib-special-reports-3.6.102.js?v=3.6.114" defer></script>
 <script src="./ratib-fx-autofill-3.6.105.js?v=3.6.107" defer></script>
-<script src="./ratib-report-buttons-3.6.106.js?v=3.6.106.02" defer></script>
+<script src="./ratib-report-buttons-3.6.106.js?v=3.6.106.03" defer></script>
 <script src="./ratib-print-logo-3.6.108.js?v=3.6.111" defer></script>
 <div id="ratibSpecialPrintHost" aria-hidden="true"></div>
-<script src="./ratib-sidebar-3.6.124.js?v=3.6.106.02" defer></script>
-<script src="./ratib-commerce-3.6.131.js?v=3.6.106.02" defer></script>
-<script src="./ratib-simple-accounts-3.6.105.13.js?v=3.6.106.02" defer></script>
-<script src="./ratib-interactive-tree-3.6.105.05.js?v=3.6.106.02" defer></script>
+<script src="./ratib-sidebar-3.6.124.js?v=3.6.106.03" defer></script>
+<script src="./ratib-commerce-3.6.131.js?v=3.6.106.03" defer></script>
+<script src="./ratib-simple-accounts-3.6.105.13.js?v=3.6.106.03" defer></script>
+<script src="./ratib-interactive-tree-3.6.105.05.js?v=3.6.106.03" defer></script>
 <script src="./ratib-login-3.6.124.js?v=3.6.153" defer></script>
 <script src="./ratib-trial-home-sidebar-3.6.143.js?v=3.6.143" defer></script>
 <script src="./ratib-trial-ui-3.6.143.js?v=3.6.153" defer></script>

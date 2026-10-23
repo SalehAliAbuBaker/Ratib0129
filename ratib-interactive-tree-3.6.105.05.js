@@ -118,28 +118,18 @@
  // cost of sales are NOT incorrectly presented as everyday operating expenses.
  function simpleCategory(n){
   if(n.kind!=='detail')return '';
-  let ancestor=n.parent,sub=null,main=null,group=null;
-  while(ancestor){
+  let sub=null,group=null,main=null;
+  for(let ancestor=n.parent;ancestor;ancestor=ancestor.parent){
    if(ancestor.kind==='sub'&&!sub)sub=ancestor;
    if(ancestor.kind==='group'&&!group)group=ancestor;
    if(ancestor.kind==='main'&&!main)main=ancestor;
-   ancestor=ancestor.parent;
   }
-  const mainCode=String(main?.code||''),subCode=String(sub?.code||''),groupCode=String(group?.code||'');
-  const branch=norm([sub?.name,group?.name].filter(Boolean).join(' '));
-  if(subCode==='1101'||(mainCode==='1'&&/نقد|صندوق|صناديق|بنوك|بنك|خزين/.test(branch))){
-   // If a cash/bank sub-account is explicitly named as a bank, keep it in the bank folder.
-   return /بنك|بنوك|مصرف|bank/i.test(norm(n.name+' '+(sub?.name||'')))?'bank':'cashbox';
-  }
-  if(subCode==='1102'||(mainCode==='1'&&/عملاء|مدينون|ذمم مدين/.test(branch)))return 'clients';
-  if(subCode==='2101'||(mainCode==='2'&&/مورد|دائنون|ذمم دائن/.test(branch)))return 'suppliers';
-  if(mainCode==='5'&&groupCode!=='51'&&
-     !/بضاعة مباعة|مشتريات|تكلفة المبيعات|تكلفة البضاعة/.test(branch)){
-   return 'expenses';
-  }
-  if(mainCode==='5'&&/مصروف|مصاريف|نفقات/.test(branch)&&
-     !/بضاعة مباعة|مشتريات|تكلفة المبيعات|تكلفة البضاعة/.test(branch))return 'expenses';
-  return '';
+  const classification=window.RatibSimpleAccounts?.classify({
+   mainCode:main?.code,main:main?.name,groupCode:group?.code,group:group?.name,
+   subCode:sub?.code,sub:sub?.name,code:n.code,name:n.name
+  })||'';
+  if(classification!=='cash')return classification;
+  return /بنك|بنوك|مصرف|bank/i.test(norm(n.name+' '+(sub?.name||'')))?'bank':'cashbox';
  }
  function simpleNode(n){
   const selectedRow=selected===n.key;
@@ -168,17 +158,18 @@
     '<span class="rit-simple-group-balance">'+groupBalances(leaves)+'</span></button></div>';
  }
  function renderSimple(q){
-  const buckets={cashbox:[],bank:[],clients:[],suppliers:[],expenses:[]};
+  const buckets={cashbox:[],bank:[],clients:[],suppliers:[],income:[],expenses:[]};
   for(const n of nodes.values()){
    const bucket=simpleCategory(n);
    if(bucket)buckets[bucket].push(n);
   }
   Object.values(buckets).forEach(list=>list.sort((a,b)=>a.name.localeCompare(b.name,'ar')));
   const configs=[
-   {key:'cash',title:'1 ـ النقدية',children:[['cashbox','الصناديق المحلية'],['bank','البنوك']]},
-   {key:'receivables',title:'2 ـ الذمم المدينة',children:[['clients','العملاء']]},
-   {key:'payables',title:'3 ـ الذمم الدائنة',children:[['suppliers','الموردون']]},
-   {key:'expenses',title:'4 ـ المصاريف',children:[['expenses',null]]}
+   {key:'cash',title:'الصناديق والبنوك',children:[['cashbox','الصناديق'],['bank','البنوك']]},
+   {key:'clients',title:'أموال لي عند الآخرين',children:[['clients',null]]},
+   {key:'suppliers',title:'أموال عليّ للآخرين',children:[['suppliers',null]]},
+   {key:'income',title:'الدخل والإيرادات',children:[['income',null]]},
+   {key:'expenses',title:'المصروفات',children:[['expenses',null]]}
   ];
   let html='';
   for(const config of configs){
@@ -208,7 +199,7 @@
    }
    html+='</div>';
   }
-  return html||'<div class="rit-empty">لا توجد حسابات تطابق البحث ضمن المجموعات الأربع. استخدم العرض المحاسبي للاطلاع على جميع الحسابات.</div>';
+  return html||'<div class="rit-empty">لا توجد حسابات تطابق البحث ضمن المجموعات الخمس. استخدم العرض المحاسبي للاطلاع على جميع الحسابات.</div>';
  }
  function syncViewControls(){
   mount.classList.toggle('rit-simple-mode',simpleView);
@@ -312,8 +303,9 @@
   if(action==='dismiss-details'){dismissDetails();return;}
   if(action==='simple'||action==='full'){
    simpleView=action==='simple';dismissDetails(false);
-   try{window.localStorage.setItem(SIMPLE_KEY,simpleView?'1':'0');}catch(_){}
-   renderView();return;
+   if(window.RatibSimpleAccounts)window.RatibSimpleAccounts.setSimple(simpleView);
+   else {try{window.localStorage.setItem(SIMPLE_KEY,simpleView?'1':'0');}catch(_){}renderView();}
+   return;
   }
   if(action==='simple-toggle'){
    const id=String(key||'');if(simpleOpenNodes.has(id))simpleOpenNodes.delete(id);else simpleOpenNodes.add(id);
@@ -413,5 +405,16 @@
   // Leave the account pager and its navigation/click handlers untouched.
  }
  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',install,{once:true});else install();
- window.RatibInteractiveTree={refresh:function(){if(ready)refresh();},setSimple:function(enabled){simpleView=Boolean(enabled);try{window.localStorage.setItem(SIMPLE_KEY,simpleView?'1':'0');}catch(_){}if(ready){dismissDetails(false);renderView();}},version:'3.6.105.11'};
+ window.addEventListener('ratib:account-view-change',event=>{
+  simpleView=!!event.detail?.simple;
+  if(ready){dismissDetails(false);renderView();}
+ });
+ window.addEventListener('storage',event=>{
+  if(event.key===SIMPLE_KEY){simpleView=window.RatibSimpleAccounts?.isSimple?.()??(event.newValue!=='0');if(ready)renderView();}
+ });
+ window.RatibInteractiveTree={refresh:function(){if(ready)refresh();},setSimple:function(enabled){
+  simpleView=Boolean(enabled);
+  if(window.RatibSimpleAccounts)window.RatibSimpleAccounts.setSimple(simpleView);
+  else {try{window.localStorage.setItem(SIMPLE_KEY,simpleView?'1':'0');}catch(_){}if(ready)renderView();}
+ },version:'3.6.105.13'};
 })();

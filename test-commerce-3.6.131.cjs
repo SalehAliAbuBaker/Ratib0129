@@ -303,7 +303,7 @@ d.warehouses=[{id:'main',name:'المخزن الرئيسي'}];store.set('commerc
  assert(choice.includes('type="hidden"'),'posted account reference is stored separately');
  const mapping=T.accounts(T.data());
  assert(mapping.includes('rc-search-acc-sales')&&mapping.includes('rc-search-acc-inventory'),'link accounts are searchable and editable');
- const fake={value:'صندوق',dataset:{},setSelectionRange(){}};
+ const fake={value:'صندوق',dataset:{},getAttribute(){return null;},setAttribute(){},setSelectionRange(){}};
  const hidden={value:'صندوق'};
  const originalLookup=state.document.getElementById;
  state.document.getElementById=id=>id==='rc-search-acc-cash'?fake:id==='rc-acc-cash'?hidden:originalLookup(id);

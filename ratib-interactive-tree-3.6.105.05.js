@@ -262,13 +262,15 @@
   html+='</div>';
   detailsBox.innerHTML=html;
  }
- function renderView(){
+ function renderView(options={}){
   if(!ready)return;
   const q=norm(searchBox.value),type=filterBox.value;
   syncViewControls();
+  // Do not rebuild the balance cards or movements panel for a mere expand/collapse.
   treeBox.innerHTML=simpleView?renderSimple(q):model.filter(n=>match(n,q,type,false)).map(n=>renderNode(n,0,q,type,false)).join('')||
     '<div class="rit-empty">لم يُعثر على حساب مطابق. جرّب اسمًا أو رقمًا مختلفًا.</div>';
-  renderDetails();if(!simpleView)makeStats();
+  if(options.details!==false)renderDetails();
+  if(options.stats!==false)makeStats();
  }
  function refresh(){
   if(!ready)return;
@@ -314,18 +316,31 @@
   }
   if(action==='simple-toggle'){
    const id=String(key||'');if(simpleOpenNodes.has(id))simpleOpenNodes.delete(id);else simpleOpenNodes.add(id);
-   renderView();return;
+   renderView({details:false,stats:false});return;
   }
   if(action==='expand'||action==='collapse'){
    openNodes=action==='collapse'?new Set():new Set([...nodes.values()].filter(node=>node.children.length).map(node=>node.key));
-   renderView();return;
+   renderView({details:false,stats:false});return;
   }
   if(action==='reset'){searchBox.value='';filterBox.value='all';simpleOpenNodes.clear();openNodes=new Set(model.map(n=>n.key));renderView();return;}
   if(action==='refresh'){refresh();return;}
   if(action==='toggle'&&n){
-   if(openNodes.has(n.key))openNodes.delete(n.key);else openNodes.add(n.key);renderView();return;
+   if(openNodes.has(n.key))openNodes.delete(n.key);else openNodes.add(n.key);
+   // Preserve the rest of the list rather than repainting all balances and details.
+   renderView({details:false,stats:false});return;
   }
-  if(action==='select'&&n){selected=n.key;renderView();revealDetails();return;}
+  if(action==='select'&&n){
+   selected=n.key;
+   // Only update the selected row; a full tree rebuild on each tap makes touch
+   // scrolling stutter and resets the scroll position on mobile.
+   for(const old of mount.querySelectorAll('.rit-node.selected')){
+    old.classList.remove('selected');
+    old.querySelector('[data-rit="select"]')?.setAttribute('aria-pressed','false');
+   }
+   btn.closest('.rit-node')?.classList.add('selected');
+   btn.setAttribute('aria-pressed','true');
+   renderDetails();revealDetails();return;
+  }
   if(action==='add'){openAccountModal(null);return;}
   if(action==='add-child'&&n){dismissDetails(false);openAccountModal(n);return;}
   if(action==='edit'&&n){
@@ -397,5 +412,5 @@
   // Leave the account pager and its navigation/click handlers untouched.
  }
  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',install,{once:true});else install();
- window.RatibInteractiveTree={refresh:function(){if(ready)refresh();},version:'3.6.105.08'};
+ window.RatibInteractiveTree={refresh:function(){if(ready)refresh();},version:'3.6.105.09'};
 })();

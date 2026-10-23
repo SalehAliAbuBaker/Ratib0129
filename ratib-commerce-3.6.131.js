@@ -315,14 +315,17 @@ function paint(){
  if(['adjust','transfer'].includes(view))body=movementForm(db);
  if(view==='movements')body=movements(db);if(view==='records')body=records(db);if(view==='summary')body=summary(db);
  if(view==='detail')body=showDocument(db);
- const tabMarkup=panels.map(x=>{
-  const button='<button type="button" class="'+(view===x[0]?'active':'')+'" data-rc-view="'+x[0]+'"><span class="rc-tab-icon" aria-hidden="true">'+(commerceTabIcons[x[0]]||'◉')+'</span><span>'+x[1]+'</span></button>';
-  if(x[0]!=='new')return button;
-  const toggle=button.replace('data-rc-view="new"','data-rc-toggle-new="1" aria-haspopup="menu" aria-expanded="'+(newMenuOpen?'true':'false')+'"');
-  return '<div class="rc-new-menu-wrap">'+toggle+'<div class="rc-new-menu" role="menu" '+(newMenuOpen?'':'hidden')+'>'+types[mode].map(title=>'<button type="button" role="menuitem" data-rc-direct-type="'+esc(title)+'"><span aria-hidden="true">'+(commerceDocIcons[title]||'▣')+'</span> '+esc(title)+'</button>').join('')+'</div></div>';
- }).join('');
- const header=mode==='stock'?'المخزون':mode==='in'?'الوارد':'الصادر';
- $('pageCommerce').innerHTML='<div class="rc-app" data-rc-button-size="'+commerceButtonSize()+'"><div class="rc-head"><h2>'+({'stock':'📦 ','in':'📥 ','out':'📤 '}[mode]||'')+header+'</h2>'+(view==='detail'?'':'<button type="button" class="btn btn-ghost" data-rc-back="1">↪️ رجوع</button>')+'</div><div class="rc-tabs">'+tabMarkup+'</div>'+body+'</div>';
+ const renderTab=x=>{
+ const button='<button type="button" class="'+(view===x[0]?'active':'')+'" data-rc-view="'+x[0]+'"><span class="rc-tab-icon" aria-hidden="true">'+(commerceTabIcons[x[0]]||'◉')+'</span><span>'+x[1]+'</span></button>';
+ if(x[0]!=='new')return button;
+ const toggle=button.replace('data-rc-view="new"','data-rc-toggle-new="1" aria-haspopup="menu" aria-expanded="'+(newMenuOpen?'true':'false')+'"');
+ return '<div class="rc-new-menu-wrap">'+toggle+'<div class="rc-new-menu" role="menu" '+(newMenuOpen?'':'hidden')+'>'+types[mode].map(title=>'<button type="button" role="menuitem" data-rc-direct-type="'+esc(title)+'"><span aria-hidden="true">'+(commerceDocIcons[title]||'▣')+'</span> '+esc(title)+'</button>').join('')+'</div></div>';
+};
+const tabMarkup=mode==='stock'?panels.map(renderTab).join(''):
+ panels.filter(x=>['new','records'].includes(x[0])).map(renderTab).join('')+
+ '<details class="rc-tab-more"><summary>⋮ المزيد</summary><div class="rc-tab-more-menu">'+panels.filter(x=>!['new','records'].includes(x[0])).map(renderTab).join('')+'</div></details>';
+const header=mode==='stock'?'المخزون':mode==='in'?'الوارد':'الصادر';
+ $('pageCommerce').innerHTML='<div class="rc-app" data-rc-mode="'+mode+'" data-rc-button-size="'+commerceButtonSize()+'"><div class="rc-head"><h2>'+({'stock':'📦 ','in':'📥 ','out':'📤 '}[mode]||'')+header+'</h2>'+(view==='detail'?'':'<button type="button" class="btn btn-ghost" data-rc-back="1" aria-label="الرجوع">← <span class="rc-back-label">رجوع</span></button>')+'</div><div class="rc-tabs">'+tabMarkup+'</div>'+body+'</div>';
 }
 function filteredCatalogProducts(db){
  const term=catalogSearch.trim().toLocaleLowerCase();
@@ -433,21 +436,24 @@ function invoice(db){
  if(ret&&orig){draft.currency=orig.currency||'YER';draft.exchangeRate=orig.exchangeRate||1;}
  const originals=ret?db.invoices.filter(d=>d.kind===dir()&&(d.id===draft.origin||(d.lines||[]).some(l=>leftToReturn(db,d.id,l.product,lineUnit(db,l))>0))):[];
  const partySuggestions=[...db.people.map(p=>p.name),...leaf().map(x=>x.id)];
- const form='<form id="rc-invoice-form"><div class="rc-grid">'+
+ const form='<form id="rc-invoice-form"><div class="rc-grid rc-invoice-fields">'+
  (ret?fld('نوع المستند','<strong>مرتجع '+(mode==='in'?'الوارد':'الصادر')+'</strong>'):'')+
  fld('رقم المستند / الفاتورة',inp('number','text',draft.number,'required maxlength="40"'))+
  fld('التاريخ',inp('date','date',draft.date,'required'))+
- fld('المخزن',sel('warehouse',db.warehouses,draft.warehouse))+
+ '<div class="rc-full rc-optional-supplier">'+fld('اسم '+(mode==='in'?'المورد':'العميل')+' على الفاتورة (اختياري)',inp('displayPartyName','text',draft.displayPartyName||'','maxlength="140" autocomplete="off" placeholder="اكتب اسمًا أو اترك الحقل فارغًا" list="rc-parties"'))+'</div>'+
+ '<div class="rc-full rc-section-title">الحسابات</div>'+
+ '<div class="rc-full rc-wide-account">'+fld('المخزن',sel('warehouse',db.warehouses,draft.warehouse))+'</div>'+
  (ret?fld('المستند الأصلي',sel('origin',originals.map(x=>({id:x.id,name:x.number+' — '+docName(x)})),draft.origin)):'')+
- fld(mode==='in'?'المورد أو صاحب الحساب':'العميل أو صاحب الحساب',inp('partyName','text',draft.partyName,'required maxlength="140" autocomplete="off" list="rc-parties"')+'<datalist id="rc-parties">'+[...new Set(partySuggestions)].map(n=>'<option value="'+esc(n)+'"></option>').join('')+'</datalist>')+
- fld('اسم '+(mode==='in'?'المورد':'العميل')+' على الفاتورة (اختياري)',inp('displayPartyName','text',draft.displayPartyName||'','maxlength="140" autocomplete="off" placeholder="اكتب اسمًا أو اترك الحقل فارغًا" list="rc-parties"'))+
- fld('الحساب الفرعي للطرف (من شجرة الحسابات)',commerceSmartAccount('partyAccount',leaf(),draft.partyAccount||db.accounts[mode==='in'?'payable':'receivable']))+
+ '<div class="rc-full rc-wide-account">'+fld(mode==='in'?'المورد أو صاحب الحساب':'العميل أو صاحب الحساب',inp('partyName','text',draft.partyName,'required maxlength="140" autocomplete="off" list="rc-parties"')+'<datalist id="rc-parties">'+[...new Set(partySuggestions)].map(n=>'<option value="'+esc(n)+'"></option>').join('')+'</datalist>')+'</div>'+
+ 
+ '<div class="rc-full rc-wide-account">'+fld('الحساب الفرعي للطرف (من شجرة الحسابات)',commerceSmartAccount('partyAccount',leaf(),draft.partyAccount||db.accounts[mode==='in'?'payable':'receivable']))+'</div>'+
+ '<div class="rc-full rc-section-title">العملة والتسوية</div>'+
  fld('طريقة التسوية','<select id="rc-payment"><option value="credit" '+(draft.payment==='credit'?'selected':'')+'>آجل / على الحساب</option><option value="cash" '+(draft.payment==='cash'?'selected':'')+'>نقدي</option></select>')+
  fld('عملة المستند',ret?'<strong>'+esc(commerceCurrencyName(draft.currency||'YER'))+' (عملة المستند الأصلي)</strong>':sel('currency',COMMERCE_CURRENCIES,draft.currency||'YER'))+
  (draft.currency!=='YER'?fld('سعر الصرف (ريال يمني لكل 1 '+esc(draft.currency)+')',ret?'<strong>'+esc(draft.exchangeRate)+'</strong>':inp('exchangeRate','number',draft.exchangeRate||'','required min="0.000001" step="any" inputmode="decimal"')):'')+
  (draft.currency!=='YER'?'<div class="rc-full rc-note">أدخل أسعار الأصناف بعملة المستند المحددة، وأدخل سعر صرف موثقًا بالريال اليمني؛ لا تُحوّل أسعار بطاقة الصنف تلقائيًا.</div><div class="rc-full rc-fx-preview" id="rc-fx-preview">الإجمالي بالعملة الأصلية: <b>'+f(draft.lines.reduce((v,l)=>v+n(l.qty)*n(l.price),0))+' '+esc(draft.currency)+'</b> · المعادل اليمني: <b>'+((Number.isFinite(n(draft.exchangeRate))&&n(draft.exchangeRate)>0)?f(rnd(draft.lines.reduce((v,l)=>v+n(l.qty)*n(l.price),0)*n(draft.exchangeRate))):'حدّد سعر الصرف')+' YER</b></div>':'')+
- '<div class="rc-full">'+fld('البيان / الملاحظات','<textarea id="rc-note" rows="2" placeholder="ملاحظة المستند">'+esc(draft.note)+'</textarea>')+'</div></div>'+
- '<div class="rc-scroll"><table class="rc-lines"><thead><tr><th>الصنف</th><th>الوحدة</th><th>العدد</th><th>السعر</th><th>الإجمالي</th><th></th></tr></thead><tbody>'+
+ '<details class="rc-full rc-notes-fold"><summary>الملاحظات (اختياري)</summary>'+fld('البيان / الملاحظات','<textarea id="rc-note" rows="2" placeholder="ملاحظة المستند">'+esc(draft.note)+'</textarea>')+'</details></div>'+
+ '<div class="rc-section-title rc-items-title">الأصناف</div><div class="rc-scroll rc-items-scroll"><table class="rc-lines"><thead><tr><th>الصنف</th><th>الوحدة</th><th>العدد</th><th>السعر</th><th>الإجمالي</th><th></th></tr></thead><tbody>'+
  draft.lines.map((l,i)=>{
   const available=ret?(orig?.lines||[]).filter(x=>
     leftToReturn(db,orig.id,x.product,lineUnit(db,x))>0||
@@ -459,9 +465,13 @@ function invoice(db){
  }).join('')+'</tbody></table></div>'+
  '<div class="rc-actions no-print"><button type="button" class="btn btn-ghost" data-rc-add="1">＋ إضافة صنف</button>'+
  '<strong class="rc-grand">الإجمالي: <span id="rc-grand">'+f(draft.lines.reduce((a,l)=>a+n(l.qty)*n(l.price),0))+'</span> '+esc(draft.currency||'YER')+'</strong></div>'+
- (!ret?'<div class="rc-document-actions rc-draft-actions no-print">'+[['view','◉','المشاهدة'],['preview','▣','المعاينة'],['print','▤','الطباعة'],['pdf','▣','PDF'],['share','⇧','المشاركة'],['search','⌕','البحث'],['back','↪','الرجوع']].map(([action,icon,label])=>'<button type="button" class="rc-doc-action" data-rc-draft-action="'+action+'"><span class="rc-tool-icon" aria-hidden="true">'+icon+'</span><small>'+label+'</small></button>').join('')+'</div>':'<div class="rc-actions no-print"><button type="button" class="btn btn-ghost" data-rc-draft-preview="1">👁 معاينة</button></div>')+
- '<div class="rc-actions no-print"><button type="submit" class="btn btn-primary">'+(editingDocId?'💾 حفظ تعديل المستند':'💾 اعتماد وحفظ المستند')+'</button>'+(editingDocId?'<button type="button" class="btn btn-ghost" data-rc-cancel-edit="1">إلغاء التعديل</button>':'')+'</div></form><div id="rc-draft-view"></div>'+
- '<p class="rc-note">جميع البنود بسعرها وإجماليها؛ لا يوجد تحويل تلقائي بين الوحدة الرئيسية والفرعية قبل اعتماده. يمنع الحفظ غير المتوازن أو صرف كمية غير متاحة.</p>';
+ (!ret?'<div class="rc-document-actions rc-draft-actions rc-compact-actions no-print">'+
+ '<button type="button" class="rc-doc-action" data-rc-draft-action="preview"><span class="rc-tool-icon" aria-hidden="true">◉</span><small>المعاينة</small></button>'+
+ '<details class="rc-action-more"><summary>⋮ إجراءات</summary><div class="rc-action-more-menu">'+
+ [['view','◉','المشاهدة'],['print','▤','الطباعة'],['pdf','▣','PDF'],['share','⇧','المشاركة'],['search','⌕','البحث'],['back','↪','الرجوع']].map(([action,icon,label])=>'<button type="button" class="rc-doc-action" data-rc-draft-action="'+action+'"><span class="rc-tool-icon" aria-hidden="true">'+icon+'</span><small>'+label+'</small></button>').join('')+
+ '</div></details></div>':'<div class="rc-actions no-print"><button type="button" class="btn btn-ghost" data-rc-draft-preview="1">👁 معاينة</button></div>')+
+ '<div class="rc-actions rc-invoice-save no-print"><button type="submit" class="btn btn-primary">'+(editingDocId?'💾 حفظ تعديل المستند':'💾 اعتماد وحفظ المستند')+'</button>'+(editingDocId?'<button type="button" class="btn btn-ghost" data-rc-cancel-edit="1">إلغاء التعديل</button>':'')+'</div></form><div id="rc-draft-view"></div>'+
+ '<details class="rc-invoice-help no-print"><summary>تعليمات المستند</summary><p class="rc-note">جميع البنود بسعرها وإجماليها؛ لا يوجد تحويل تلقائي بين الوحدة الرئيسية والفرعية قبل اعتماده. يمنع الحفظ غير المتوازن أو صرف كمية غير متاحة.</p></details>';
  const headings='<h3 class="rc-document-selected-name">'+esc(ret?'مرتجع مخزني — '+(mode==='in'?'الوارد':'الصادر'):draft.title)+'</h3>';
  return '<section class="rc-card rc-invoice-card">'+headings+form+'</section>';
 }

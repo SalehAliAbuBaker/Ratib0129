@@ -438,3 +438,52 @@
 #pageCommerce .rc-new-menu[hidden]{display:none!important}
 #pageCommerce .rc-new-menu button{display:flex;align-items:center;gap:8px;width:100%;min-height:44px;text-align:right;border:0;box-shadow:none;background:transparent;padding:9px 10px;white-space:normal;font-weight:800}
 #pageCommerce .rc-new-menu button:hover,#pageCommerce .rc-new-menu button:focus-visible{background:var(--bg);color:var(--accent);outline:1px solid var(--accent)}
+
+/* Ratib 3.6.105.03 trial: invoice UI only, no posting or print changes */
+#pageCommerce .rc-app[data-rc-mode="in"] .rc-head,#pageCommerce .rc-app[data-rc-mode="out"] .rc-head{background:var(--accent);padding:8px 12px;border-radius:10px;min-height:43px;flex-direction:row-reverse;color:#fff}
+#pageCommerce .rc-app[data-rc-mode="in"] .rc-head h2,#pageCommerce .rc-app[data-rc-mode="out"] .rc-head h2{color:#fff;font-size:1.08rem}
+#pageCommerce .rc-app[data-rc-mode="in"] [data-rc-back],#pageCommerce .rc-app[data-rc-mode="out"] [data-rc-back]{color:#fff;background:transparent;border-color:transparent;min-height:30px}
+#pageCommerce .rc-app[data-rc-mode="in"] .rc-tabs,#pageCommerce .rc-app[data-rc-mode="out"] .rc-tabs{display:grid;grid-template-columns:1fr 1fr .75fr;gap:6px;align-items:stretch}
+#pageCommerce .rc-app[data-rc-mode="in"] .rc-new-menu-wrap,#pageCommerce .rc-app[data-rc-mode="out"] .rc-new-menu-wrap{display:block;width:100%}
+#pageCommerce .rc-app[data-rc-mode="in"] .rc-new-menu-wrap>button,#pageCommerce .rc-app[data-rc-mode="out"] .rc-new-menu-wrap>button{width:100%}
+#pageCommerce .rc-tab-more{position:relative;min-width:0}
+#pageCommerce .rc-tab-more>summary{display:flex;align-items:center;justify-content:center;min-height:var(--rc-btn-height,43px);padding:var(--rc-btn-padding,7px 9px);font-weight:800;list-style:none;cursor:pointer;background:var(--card);border:1px solid var(--border);border-radius:9px;color:var(--text)}
+#pageCommerce .rc-tab-more-menu{position:absolute;top:calc(100% + 5px);left:0;z-index:65;display:grid;gap:5px;min-width:min(80vw,220px);padding:7px;background:var(--card);border:1px solid var(--border);box-shadow:var(--shadow);border-radius:9px}
+#pageCommerce .rc-tab-more-menu>button{width:100%;justify-content:flex-start}
+#pageCommerce .rc-invoice-card .rc-invoice-fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;align-items:start}
+#pageCommerce .rc-invoice-card .rc-invoice-fields>.rc-full{grid-column:1/-1;min-width:0}
+#pageCommerce .rc-invoice-card .rc-section-title{background:var(--bg);color:var(--accent);font-weight:800;border-radius:8px;padding:8px}
+#pageCommerce .rc-invoice-card .rc-wide-account{min-width:0}
+#pageCommerce .rc-invoice-card .rc-wide-account .rc-field-label{white-space:normal!important;line-height:1.5!important}
+#pageCommerce .rc-invoice-card .rc-wide-account input,#pageCommerce .rc-invoice-card .rc-wide-account select{width:100%;max-width:100%;min-width:0;text-overflow:clip}
+#pageCommerce .rc-invoice-card .rc-notes-fold{border:1px solid var(--border);border-radius:9px}
+#pageCommerce .rc-invoice-card .rc-notes-fold>summary{cursor:pointer;list-style:none;padding:10px;background:var(--bg);color:var(--accent);font-weight:800}
+#pageCommerce .rc-invoice-card .rc-notes-fold[open] .rc-field{margin:7px}
+#pageCommerce .rc-invoice-card .rc-items-title{margin:10px 0 5px}
+#pageCommerce .rc-invoice-card .rc-compact-actions{display:flex;justify-content:flex-start;align-items:stretch;gap:7px;overflow:visible;margin:8px 0 3px}
+#pageCommerce .rc-invoice-card .rc-compact-actions>.rc-doc-action{width:auto;min-width:100px;padding:6px 10px}
+#pageCommerce .rc-invoice-card .rc-action-more{position:relative}
+#pageCommerce .rc-invoice-card .rc-action-more>summary{display:flex;align-items:center;min-height:47px;border:1px solid var(--border);border-radius:9px;color:var(--accent);padding:6px 10px;cursor:pointer;font-weight:800;list-style:none}
+#pageCommerce .rc-invoice-card .rc-action-more-menu{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:5px;position:absolute;z-index:70;bottom:calc(100% + 5px);right:0;width:min(85vw,300px);padding:7px;background:var(--card);border:1px solid var(--border);border-radius:9px;box-shadow:var(--shadow)}
+#pageCommerce .rc-invoice-card .rc-action-more-menu .rc-doc-action{min-height:47px}
+#pageCommerce .rc-invoice-card .rc-invoice-save>.btn-primary{flex:1;min-height:47px!important}
+#pageCommerce .rc-invoice-help>summary{cursor:pointer;font-size:.76rem;padding:4px;color:var(--muted)}
+#pageCommerce .rc-invoice-help .rc-note{padding:6px;margin:2px 0}
+@media(max-width:650px){
+ #pageCommerce .rc-app[data-rc-mode="in"] .rc-back-label,#pageCommerce .rc-app[data-rc-mode="out"] .rc-back-label{display:none}
+ #pageCommerce .rc-invoice-card .rc-items-scroll{overflow:visible}
+ #pageCommerce .rc-invoice-card .rc-lines{display:block;min-width:0;width:100%}
+ #pageCommerce .rc-invoice-card .rc-lines thead{display:none}
+ #pageCommerce .rc-invoice-card .rc-lines tbody{display:grid;gap:7px}
+ #pageCommerce .rc-invoice-card .rc-lines tbody tr{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px;padding:7px;border:1px solid var(--border);border-radius:9px;min-width:0}
+ #pageCommerce .rc-invoice-card .rc-lines tbody td{display:block;border:0;min-width:0!important;padding:2px;white-space:normal}
+ #pageCommerce .rc-invoice-card .rc-lines tbody td:first-child{grid-column:1/-1}
+ #pageCommerce .rc-invoice-card .rc-lines tbody td:nth-child(2)::before{content:"الوحدة"}
+ #pageCommerce .rc-invoice-card .rc-lines tbody td:nth-child(3)::before{content:"الكمية"}
+ #pageCommerce .rc-invoice-card .rc-lines tbody td:nth-child(4)::before{content:"السعر"}
+ #pageCommerce .rc-invoice-card .rc-lines tbody td:nth-child(2)::before,#pageCommerce .rc-invoice-card .rc-lines tbody td:nth-child(3)::before,#pageCommerce .rc-invoice-card .rc-lines tbody td:nth-child(4)::before{display:block;font-size:.72rem;color:var(--muted)}
+ #pageCommerce .rc-invoice-card .rc-lines tbody td:nth-child(5){color:var(--accent);font-weight:800}
+ #pageCommerce .rc-invoice-card .rc-lines tbody td:nth-child(5)::before{content:"الإجمالي: "}
+ #pageCommerce .rc-invoice-card .rc-lines tbody td:last-child{display:flex;justify-content:flex-end}
+ #pageCommerce .rc-invoice-card .rc-lines input,#pageCommerce .rc-invoice-card .rc-lines select{width:100%;max-width:100%;box-sizing:border-box}
+}

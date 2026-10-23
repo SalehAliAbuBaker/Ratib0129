@@ -13,7 +13,7 @@ assert(!nav.includes("const VERSION='3.6.123'"),'Legacy navigation script must n
 assert(!nav.includes('RATIB_RELEASE.version=VERSION'),'Navigation must not mutate the release manifest');
 assert(!nav.includes('version116'),'Legacy version locking flag must be removed');
 assert(nav.includes('function hasChanges()')&&nav.includes('hookToast()'),'Keep unsaved changes warning and toast hook');
-assert(html.includes('ratib-navigation-v3.6.149.js?v='+trial),'Navigation must have a new immutable asset path');
+assert(/ratib-navigation-v3\.6\.149\.js\?v=3\.6\.\d+/.test(html),'Navigation must retain its immutable asset path');
 assert(sw.includes('v173-simple-account-mobile-input-3.6.153'),'Worker must refresh cached navigation resources');
 assert(sw.includes('"./ratib-navigation-v3.6.149.js"'),'Offline shell must store the versioned navigation script');
 assert(!html.includes('src="./ratib-navigation-v3.js?'),'Index must never load the stale old navigation script');

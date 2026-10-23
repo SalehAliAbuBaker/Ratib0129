@@ -2,7 +2,7 @@
 const assert=require('node:assert/strict'),fs=require('node:fs');
 const html=fs.readFileSync('index.html','utf8'),worker=fs.readFileSync('sw.js','utf8');
 const version='3.6.106.02';
-assert.match(html,/const RATIB_RELEASE=\\{"version":"3\\.6\\.106\\.02"/);
+assert(html.includes('const RATIB_RELEASE={"version":"'+version+'"'));
 assert(worker.includes('v197-trial-background-resume-'+version));
 assert(html.includes("const RATIB_RESUME_VIEW_KEY='ratib_ui_resume_view_v1'"));
 assert(html.includes("function ratibRememberBackgroundView()"));
@@ -14,6 +14,7 @@ assert(html.includes("restoreAppView(saved.view)"));
 assert(html.includes("if(saved.view.tab==='pageReports'&&saved.view.reportSection==='statement')"));
 assert(html.includes("ratibRestoreBackgroundView();\n  ratibBindBackgroundView();"));
 assert(html.includes("store.remove(RATIB_RESUME_VIEW_KEY);\n      await flushStorage();const cfg"));
+assert(html.includes("if(document.hidden){ratibRememberBackgroundView();clearTimeout(_reminderTimer);flushStorage().catch(()=>{});}"));
 assert(html.includes("document.addEventListener('visibilitychange',()=>{if(document.hidden)persist();})"));
-for(const raw of [...html.matchAll(/<script\\b[^>]*>([\\s\\S]*?)<\\/script>/gi)].map(m=>m[1]).filter(Boolean))new Function(raw);
-console.log('PASS '+version+': protected screen restoration after unlock, exit clearing, offline release');
+for(const source of [...html.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script>/gi)].map(m=>m[1]).filter(Boolean))new Function(source);
+console.log('PASS '+version+': protected view restoration after unlock, explicit exit, background storage flush');

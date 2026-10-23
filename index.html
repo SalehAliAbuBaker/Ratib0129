@@ -9313,7 +9313,7 @@ function initCompatibilityImprovements(){
   document.getElementById('saveAndAddVoucherBtn')?.addEventListener('click',()=>{_saveAndAddAnother=true;document.getElementById('commitVoucherBtn').click();});
   document.getElementById('cashFlowCard')?.addEventListener('input',saveSingleDraftSoon);document.getElementById('cashFlowCard')?.addEventListener('change',saveSingleDraftSoon);
   document.getElementById('enableReminderNotificationsBtn')?.addEventListener('click',async()=>{if(typeof Notification==='undefined'){showToast('إشعارات النظام غير مدعومة؛ التذكيرات داخل التطبيق تعمل.','info');return;}const permission=await Notification.requestPermission();showToast(permission==='granted'?'تم تفعيل إشعارات التذكيرات':'ستستمر التذكيرات داخل التطبيق',permission==='granted'?'success':'info');scheduleReminderCheck();});
-  document.addEventListener('visibilitychange',()=>{if(_appExited)return;if(document.hidden){clearTimeout(_reminderTimer);flushStorage().catch(()=>{});}else{scheduleReminderCheck();updateProDashboard();}});
+  document.addEventListener('visibilitychange',()=>{if(_appExited)return;if(document.hidden){ratibRememberBackgroundView();clearTimeout(_reminderTimer);flushStorage().catch(()=>{});}else{scheduleReminderCheck();updateProDashboard();}});
    window.addEventListener('focus',()=>{if(!_appExited&&!document.hidden)scheduleReminderCheck();});
    window.addEventListener('pageshow',()=>{if(!_appExited&&!document.hidden)scheduleReminderCheck();});
   document.addEventListener('keydown',e=>{

@@ -1,0 +1,15 @@
+'use strict';
+const assert=require('node:assert/strict'),fs=require('node:fs');
+const html=fs.readFileSync('index.html','utf8'),sw=fs.readFileSync('sw.js','utf8'),pkg=JSON.parse(fs.readFileSync('package.json','utf8'));
+const version='3.6.106.01';
+assert.equal(pkg.version,version);
+assert(html.includes('const RATIB_RELEASE={"version":"'+version+'"'));
+assert(sw.includes('const APP_RELEASE={"version":"'+version+'"'));
+assert(sw.includes('v196-trial-after-official-'+version));
+assert(html.includes('الإصدار '+version+' (تجريبية)'));
+assert(html.includes('ratib-simple-accounts-3.6.105.13.js?v='+version));
+assert(html.includes('ratib-voice-dictation-3.6.117.js?v='+version));
+assert(sw.includes('"./ratib-simple-accounts-3.6.105.13.js"'));
+assert(html.includes('this.wrap.classList.contains('+"'voucher-account-search'"+')'), 'Exact typed voucher accounts must retain their IDs');
+for(const source of [...html.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script>/gi)].map(m=>m[1]).filter(Boolean))new Function(source);
+console.log('PASS trial '+version+': correct version, same five-group app and exact account IDs');

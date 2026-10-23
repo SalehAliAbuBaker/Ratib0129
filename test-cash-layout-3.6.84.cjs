@@ -34,5 +34,5 @@ assert.match(css,/td:nth-child\(2\)\s*>\s*#ratibLockCounter/);
 assert.match(css,/\.multi-voucher-source-row\s*>\s*#ratibLockSource/);
 assert.match(sw,/const CACHE_VERSION='v\d+-[^']+'/);
 assert(sw.includes('ratib-cash-layout-3.6.84.css'));
-assert.match(sw,/const APP_RELEASE=\{"version":"3\.6\.\d+"/);
+assert.match(sw,/const APP_RELEASE=\{"version":"3\.6\.\d+(?:\.\d{2})?"/);
 console.log('Ratib cash voucher 3.6.84 layout regression checks passed');

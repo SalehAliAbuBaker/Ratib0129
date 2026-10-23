@@ -11,7 +11,8 @@ assert(head>0&&tail>head,'Main application must expose original searchable accou
 const original=html.slice(head,tail);
 new Function(original+';return SearchableSelect;');
 new Function(voice);
-assert(/3\.6\.156/.test(html)&&/3\.6\.156/.test(sw),'App and worker version updated');
+const trial=html.match(/const RATIB_RELEASE=\{"version":"([^"]+)"/)?.[1];
+assert(trial&&sw.includes('"version":"'+trial+'"'),'App and worker version updated');
 assert(html.includes("this.isSimpleAccount=['wrapDebitAcc','wrapCreditAcc'].includes(wrapId)"),'Both simple journal dropdowns use a visible portal');
 assert(voice.includes('ratibSimpleVoiceDebit')&&voice.includes('ratibSimpleVoiceCredit'),'Dedicated voice buttons present');
 

@@ -19,6 +19,7 @@ function positive(v,label,allowZero=false){const d=label==='سعر الوحدة'
 function sel(id,items,selected=''){return '<select id="rc-'+id+'"><option value="">اختر</option>'+items.map(x=>'<option value="'+esc(x.id)+'" '+(String(x.id)===String(selected)?'selected':'')+'>'+esc(x.name)+'</option>').join('')+'</select>';}
 function inp(id,type='text',val='',extra=''){return '<input type="'+type+'" id="rc-'+id+'" value="'+esc(val)+'" '+extra+'>';}
 function fld(label,ctl){return '<label class="rc-field"><span class="rc-field-label">'+esc(label)+'</span>'+ctl+'</label>';}
+function commerceInlineField(label,ctl){return '<label class="rc-field rc-inline-field"><span class="rc-inline-label">'+esc(label)+'</span>'+ctl+'</label>';}
 function wrap(t,c){return '<section class="rc-card"><h3>'+t+'</h3>'+c+'</section>';}
 function table(labels,rows){return '<div class="rc-scroll"><table><thead><tr>'+labels.map(x=>'<th>'+x+'</th>').join('')+'</tr></thead><tbody>'+rows.map(row=>'<tr>'+row.map(x=>'<td>'+x+'</td>').join('')+'</tr>').join('')+'</tbody></table></div>';}
 const types={in:['أمر توريد','توريد مخزني','فاتورة مشتريات'],out:['أمر صرف','صرف مخزني','فاتورة مبيعات']};
@@ -71,10 +72,10 @@ function commerceMovementSidesMarkup(db,transfer,direction,warehouse,to){
  return '<div class="rc-posting-preview rc-full" id="rc-movement-posting-preview">'+entries.map(x=>
  '<div class="rc-posting-pair"><span class="rc-posting-note">'+esc(x.note)+'</span><div class="rc-posting-account rc-posting-debit"><b>م — مدين</b><span>'+esc(x.debit)+'</span></div><div class="rc-posting-account rc-posting-credit"><b>د — دائن</b><span>'+esc(x.credit)+'</span></div></div>').join('')+'</div>';
 }
-function commerceSmartAccount(id,items,selected){
+function commerceSmartAccount(id,items,selected,placeholder='ابحث برقم الحساب أو اسمه'){
  const current=items.find(x=>String(x.id)===String(selected));
  return '<div class="rc-smart-account">'+
-  '<input type="search" id="rc-search-'+esc(id)+'" list="rc-account-list-'+esc(id)+'" autocomplete="off" value="'+esc(current?.name||'')+'" placeholder="ابحث برقم الحساب أو اسمه" aria-label="اختيار الحساب الفرعي">'+
+  '<input type="search" id="rc-search-'+esc(id)+'" list="rc-account-list-'+esc(id)+'" autocomplete="off" value="'+esc(current?.name||'')+'" placeholder="'+esc(placeholder)+'" aria-label="'+esc(placeholder)+'">'+
   '<input type="hidden" id="rc-'+esc(id)+'" value="'+esc(current?.id||'')+'">'+
   '<datalist id="rc-account-list-'+esc(id)+'">'+items.map(x=>'<option value="'+esc(x.name)+'"></option>').join('')+'</datalist>'+
   '<button type="button" id="rc-add-account-'+esc(id)+'" data-rc-create-account="'+esc(id)+'" class="btn btn-ghost rc-create-account-btn" hidden style="display:none;width:auto;margin-top:5px;padding:6px 10px;font-size:.85rem">＋ إضافة حساب جديد</button></div>';
@@ -388,8 +389,16 @@ function accounts(db){
 function records(db){
  const docs=db.invoices.filter(d=>mode==='in'?['purchase','purchase_return'].includes(d.kind):['sale','sale_return'].includes(d.kind));
  const filtered=docs.filter(d=>!query||[d.number,docName(d),d.partyName,d.date,d.note].join(' ').toLocaleLowerCase().includes(query.toLocaleLowerCase()));
+ const cards=filtered.slice().reverse().map(x=>'<article class="rc-record-item">'+
+  '<header class="rc-record-heading"><strong>'+esc(docName(x))+'</strong><span>'+esc(x.number)+'</span></header>'+
+  '<div class="rc-record-meta"><span><b>التاريخ:</b> '+esc(x.date)+'</span><span><b>الطرف:</b> '+esc(x.partyName||'—')+'</span>'+
+  '<span><b>الإجمالي:</b> '+f(x.total)+' '+esc(x.currency||'YER')+'</span><span><b>المعادل YER:</b> '+f(x.baseTotal??x.total)+'</span></div>'+
+  '<div class="rc-record-buttons no-print"><button type="button" class="btn btn-ghost" data-rc-detail="'+esc(x.id)+'">مشاهدة</button>'+
+  '<details class="rc-record-more"><summary>⋮ إجراءات</summary><div class="rc-record-more-menu">'+
+  [['edit','تعديل'],['clone','استنساخ'],['delete','حذف']].map(([action,label])=>'<button type="button" class="btn btn-ghost" data-rc-doc-op="'+action+'" data-doc="'+esc(x.id)+'">'+label+'</button>').join('')+
+  '</div></details></div></article>').join('');
  return wrap('سجل مستندات '+(mode==='in'?'الوارد':'الصادر'),'<div class="rc-search no-print">'+inp('query','search',query,'placeholder="ابحث برقم المستند أو التاريخ أو الطرف..."')+'<button type="button" class="btn btn-ghost" data-rc-search="1">🔎 بحث</button></div>'+
- table(['رقم المستند','المسمى','التاريخ','الطرف','إجمالي المستند','المعادل YER','المشاهدة'],filtered.slice().reverse().map(x=>[esc(x.number),esc(docName(x)),esc(x.date),esc(x.partyName||'—'),f(x.total)+' '+esc(x.currency||'YER'),f(x.baseTotal??x.total),'<div class="rc-record-tools"><button type="button" class="btn btn-ghost" data-rc-detail="'+esc(x.id)+'">مشاهدة</button><button type="button" class="btn btn-ghost" data-rc-doc-op="edit" data-doc="'+esc(x.id)+'">تعديل</button><button type="button" class="btn btn-ghost" data-rc-doc-op="clone" data-doc="'+esc(x.id)+'">استنساخ</button><button type="button" class="btn btn-ghost" data-rc-doc-op="delete" data-doc="'+esc(x.id)+'">حذف</button></div>'])));
+ '<p class="rc-record-count">عدد المستندات: '+filtered.length+'</p><div class="rc-record-list">'+(cards||'<p class="rc-note">لا توجد مستندات مطابقة.</p>')+'</div>');
 }
 function summary(db){
  const sum=k=>db.invoices.filter(d=>d.kind===k).reduce((a,d)=>a+Number(d.baseTotal??d.total??0),0);
@@ -440,14 +449,14 @@ function invoice(db){
  (ret?fld('نوع المستند','<strong>مرتجع '+(mode==='in'?'الوارد':'الصادر')+'</strong>'):'')+
  fld('رقم المستند / الفاتورة',inp('number','text',draft.number,'required maxlength="40"'))+
  fld('التاريخ',inp('date','date',draft.date,'required'))+
- '<div class="rc-full rc-optional-supplier">'+fld('اسم '+(mode==='in'?'المورد':'العميل')+' على الفاتورة (اختياري)',inp('displayPartyName','text',draft.displayPartyName||'','maxlength="140" autocomplete="off" placeholder="اكتب اسمًا أو اترك الحقل فارغًا" list="rc-parties"'))+'</div>'+
- '<div class="rc-full rc-section-title">الحسابات</div>'+
- '<div class="rc-full rc-wide-account">'+fld('المخزن',sel('warehouse',db.warehouses,draft.warehouse))+'</div>'+
- (ret?fld('المستند الأصلي',sel('origin',originals.map(x=>({id:x.id,name:x.number+' — '+docName(x)})),draft.origin)):'')+
- '<div class="rc-full rc-wide-account">'+fld(mode==='in'?'المورد أو صاحب الحساب':'العميل أو صاحب الحساب',inp('partyName','text',draft.partyName,'required maxlength="140" autocomplete="off" list="rc-parties"')+'<datalist id="rc-parties">'+[...new Set(partySuggestions)].map(n=>'<option value="'+esc(n)+'"></option>').join('')+'</datalist>')+'</div>'+
- 
- '<div class="rc-full rc-wide-account">'+fld('الحساب الفرعي للطرف (من شجرة الحسابات)',commerceSmartAccount('partyAccount',leaf(),draft.partyAccount||db.accounts[mode==='in'?'payable':'receivable']))+'</div>'+
- '<div class="rc-full rc-section-title">العملة والتسوية</div>'+
+ '<div class="rc-full rc-optional-supplier">'+commerceInlineField('اسم '+(mode==='in'?'المورد':'العميل')+' على الفاتورة (اختياري)',inp('displayPartyName','text',draft.displayPartyName||'','maxlength="140" autocomplete="off" placeholder="اكتب اسمًا أو اترك الحقل فارغًا" list="rc-parties"'))+'</div>'+
+  '<div class="rc-full rc-account-fields">'+
+  '<div class="rc-wide-account">'+commerceInlineField('المخزن',sel('warehouse',db.warehouses,draft.warehouse).replace('<option value="">اختر</option>','<option value="">المخزن</option>'))+'</div>'+
+  '<div class="rc-wide-account">'+commerceInlineField(mode==='in'?'المورد أو صاحب الحساب':'العميل أو صاحب الحساب',inp('partyName','text',draft.partyName,'required maxlength="140" autocomplete="off" placeholder="'+(mode==='in'?'المورد أو صاحب الحساب':'العميل أو صاحب الحساب')+'" list="rc-parties"')+'<datalist id="rc-parties">'+[...new Set(partySuggestions)].map(n=>'<option value="'+esc(n)+'"></option>').join('')+'</datalist>')+'</div>'+
+  '<div class="rc-wide-account">'+commerceInlineField('حساب الطرف الآخر',commerceSmartAccount('partyAccount',leaf(),draft.partyAccount||db.accounts[mode==='in'?'payable':'receivable'],'حساب الطرف الآخر'))+'</div>'+
+  '</div>'+
+  (ret?'<div class="rc-full">'+fld('المستند الأصلي',sel('origin',originals.map(x=>({id:x.id,name:x.number+' — '+docName(x)})),draft.origin))+'</div>':'')+
+'<div class="rc-full rc-section-title">العملة والتسوية</div>'+
  fld('طريقة التسوية','<select id="rc-payment"><option value="credit" '+(draft.payment==='credit'?'selected':'')+'>آجل / على الحساب</option><option value="cash" '+(draft.payment==='cash'?'selected':'')+'>نقدي</option></select>')+
  fld('عملة المستند',ret?'<strong>'+esc(commerceCurrencyName(draft.currency||'YER'))+' (عملة المستند الأصلي)</strong>':sel('currency',COMMERCE_CURRENCIES,draft.currency||'YER'))+
  (draft.currency!=='YER'?fld('سعر الصرف (ريال يمني لكل 1 '+esc(draft.currency)+')',ret?'<strong>'+esc(draft.exchangeRate)+'</strong>':inp('exchangeRate','number',draft.exchangeRate||'','required min="0.000001" step="any" inputmode="decimal"')):'')+
@@ -465,13 +474,13 @@ function invoice(db){
  }).join('')+'</tbody></table></div>'+
  '<div class="rc-actions no-print"><button type="button" class="btn btn-ghost" data-rc-add="1">＋ إضافة صنف</button>'+
  '<strong class="rc-grand">الإجمالي: <span id="rc-grand">'+f(draft.lines.reduce((a,l)=>a+n(l.qty)*n(l.price),0))+'</span> '+esc(draft.currency||'YER')+'</strong></div>'+
- (!ret?'<div class="rc-document-actions rc-draft-actions rc-compact-actions no-print">'+
- '<button type="button" class="rc-doc-action" data-rc-draft-action="preview"><span class="rc-tool-icon" aria-hidden="true">◉</span><small>المعاينة</small></button>'+
- '<details class="rc-action-more"><summary>⋮ إجراءات</summary><div class="rc-action-more-menu">'+
- [['view','◉','المشاهدة'],['print','▤','الطباعة'],['pdf','▣','PDF'],['share','⇧','المشاركة'],['search','⌕','البحث'],['back','↪','الرجوع']].map(([action,icon,label])=>'<button type="button" class="rc-doc-action" data-rc-draft-action="'+action+'"><span class="rc-tool-icon" aria-hidden="true">'+icon+'</span><small>'+label+'</small></button>').join('')+
- '</div></details></div>':'<div class="rc-actions no-print"><button type="button" class="btn btn-ghost" data-rc-draft-preview="1">👁 معاينة</button></div>')+
- '<div class="rc-actions rc-invoice-save no-print"><button type="submit" class="btn btn-primary">'+(editingDocId?'💾 حفظ تعديل المستند':'💾 اعتماد وحفظ المستند')+'</button>'+(editingDocId?'<button type="button" class="btn btn-ghost" data-rc-cancel-edit="1">إلغاء التعديل</button>':'')+'</div></form><div id="rc-draft-view"></div>'+
- '<details class="rc-invoice-help no-print"><summary>تعليمات المستند</summary><p class="rc-note">جميع البنود بسعرها وإجماليها؛ لا يوجد تحويل تلقائي بين الوحدة الرئيسية والفرعية قبل اعتماده. يمنع الحفظ غير المتوازن أو صرف كمية غير متاحة.</p></details>';
+ '<div class="rc-actions rc-invoice-save rc-final-actions no-print">'+
+  '<button type="submit" class="btn btn-primary">'+(editingDocId?'💾 حفظ تعديل المستند':'💾 حفظ واعتماد المستند')+'</button>'+
+  '<details class="rc-action-more rc-final-more"><summary>⋮ الإجراءات</summary><div class="rc-action-more-menu">'+
+  [['preview','◉','المعاينة'],['view','◉','المشاهدة'],['print','▤','الطباعة'],['pdf','▣','PDF'],['share','⇧','المشاركة'],['search','⌕','البحث'],['back','↪','الرجوع']].map(([action,icon,label])=>'<button type="button" class="rc-doc-action" data-rc-draft-action="'+action+'"><span class="rc-tool-icon" aria-hidden="true">'+icon+'</span><small>'+label+'</small></button>').join('')+
+  (editingDocId?'<button type="button" class="rc-doc-action" data-rc-cancel-edit="1">إلغاء التعديل</button>':'<button type="submit" class="rc-doc-action rc-save-next" data-rc-save-next="1">حفظ واعتماد وفتح مستند جديد</button>')+
+  '</div></details></div></form><div id="rc-draft-view"></div>'+
+'<details class="rc-invoice-help no-print"><summary>تعليمات المستند</summary><p class="rc-note">جميع البنود بسعرها وإجماليها؛ لا يوجد تحويل تلقائي بين الوحدة الرئيسية والفرعية قبل اعتماده. يمنع الحفظ غير المتوازن أو صرف كمية غير متاحة.</p></details>';
  const headings='<h3 class="rc-document-selected-name">'+esc(ret?'مرتجع مخزني — '+(mode==='in'?'الوارد':'الصادر'):draft.title)+'</h3>';
  return '<section class="rc-card rc-invoice-card">'+headings+form+'</section>';
 }
@@ -714,7 +723,7 @@ async function persistDoc(doc,db){
   return true;
  }finally{loading=false;}
 }
-async function saveInvoice(){
+async function saveInvoice(openNext=false){
  if($('rc-search-partyAccount'))commerceChosenAccount('partyAccount','حساب الطرف');
  syncInvoice();const db=data(),d=draft;if(!d)throw Error('لا يوجد مستند قيد التحرير.');
  const kind=d.kind,ret=kind.endsWith('_return'),originalDoc=editingDocId?db.invoices.find(x=>x.id===editingDocId):null;
@@ -775,7 +784,14 @@ async function saveInvoice(){
  const prefix={purchase:'IN',sale:'OUT',purchase_return:'IR',sale_return:'OR'}[kind];
  const doc={id:originalDoc?.id||id(),kind,title:ret?'مرتجع '+(mode==='in'?'الوارد':'الصادر'):d.title,number:String(d.number).trim(),date:d.date,warehouse:d.warehouse,partyName:String(d.partyName).trim(),partyAccount:d.payment==='credit'?validatedAccount(d.partyAccount,'الحساب المقابل'):'',payment:d.payment,note:String(d.note||''),origin:ret?origin.id:'',currency,exchangeRate,baseTotal,displayPartyName:String(d.displayPartyName||'').trim(),total:rnd(total,moneyDecimals(currency)),cost:rnd(totalCost),lines:items,status:'posted',createdAt:originalDoc?.createdAt||new Date().toISOString(),...(originalDoc?{updatedAt:new Date().toISOString()}: {})};
  if(originalDoc)await commerceReplaceOrDelete(originalDoc,doc);
- else await persistDoc(doc,db);
+ else {
+  const saved=await persistDoc(doc,db);
+  if(saved&&openNext){
+   view=ret?'return':'new';editingDocId='';draft=newDraft();
+   if(!ret){draft.title=doc.title;draft.number=nextNumber(data(),doc.kind,doc.title);}
+   paint();
+  }
+ }
 }
 async function saveMovement(){
  const db=data(),transfer=view==='transfer',product=$('rc-product')?.value,warehouse=$('rc-warehouse')?.value,to=$('rc-target')?.value,direction=$('rc-direction')?.value,units=n($('rc-qty')?.value),dateValue=$('rc-date')?.value;
@@ -1059,8 +1075,13 @@ function bind(){
    paint();return;
   }
   if(e.target.id==='rc-catalog-group'){catalogGroup=e.target.value;refreshCatalogListing();return;}if(e.target.id==='rc-partyName'){const p=data().people.find(p=>p.name===e.target.value);if(p&&$('rc-partyAccount')){const account=leaf().find(x=>x.id===p.accountId);$('rc-partyAccount').value=account?.id||'';if($('rc-search-partyAccount'))$('rc-search-partyAccount').value=account?.name||'';}}if(e.target.id==='rc-import-file'){stageImportFile(e.target.files?.[0]);e.target.value='';return;}if(e.target.id==='rc-person-account'){const input=$('rc-name');if(input&&!input.value.trim())input.value=e.target.value;}});
+ let commercePointerFocus=null;
+ root.addEventListener('pointerdown',e=>{commercePointerFocus=e.target.closest('#pageCommerce form input, #pageCommerce form textarea');},true);
  root.addEventListener('focusin',e=>{
   const field=e.target;
+   const pointerFocus=field===commercePointerFocus;
+   commercePointerFocus=null;
+   if(pointerFocus)return; // Normal taps must not auto-select text or open Android's floating menu.
   if(!(field instanceof HTMLInputElement||field instanceof HTMLTextAreaElement)||
      !field.closest('#pageCommerce form')||field.disabled||field.readOnly||
      ['hidden','file','date','checkbox','radio'].includes(field.type)||!field.value)return;
@@ -1124,7 +1145,7 @@ function bind(){
    }else if(form==='rc-warehouse-form'){const accountId=commerceChosenAccount('warehouse-account','حساب المخزن',true),alias=$('rc-name').value.trim();if(!accountId)throw Error('اختر الحساب الفرعي أولًا.');if(db.warehouses.some(w=>w.id!==editingWarehouse&&w.accountId===accountId))throw Error('الحساب مرتبط بمخزن آخر.');const name=alias||accountId;const existing=db.warehouses.find(w=>w.id===editingWarehouse);if(existing)Object.assign(existing,{accountId,alias,name});else db.warehouses.push({id:id(),accountId,alias,name});save(db);await flushStorage();editingWarehouse=null;paint();}
    else if(form==='rc-person-form'){const accountId=commerceChosenAccount('person-account','حساب المورد أو العميل',true),name=$('rc-name').value.trim()||accountId;if(!accountId)throw Error('اختر حساب الطرف من شجرة الحسابات.');if(db.people.some(p=>p.accountId===accountId&&p.type===(mode==='in'?'vendor':'client')))throw Error('هذا الطرف مسجل مسبقًا.');db.people.push({id:id(),accountId,name,phone:$('rc-phone')?.value||'',type:mode==='in'?'vendor':'client'});save(db);await flushStorage();paint();}
    else if(form==='rc-accounts-form'){for(const key of Object.keys(db.accounts))db.accounts[key]=commerceChosenAccount('acc-'+key,key);save(db);await flushStorage();notify('تم حفظ ربط الحسابات','success');paint();}
-   else if(form==='rc-invoice-form')await saveInvoice();
+   else if(form==='rc-invoice-form')await saveInvoice(event.submitter?.hasAttribute('data-rc-save-next')===true);
    else if(form==='rc-movement-form')await saveMovement();
   }catch(error){console.error('Ratib commerce',error);notify(error.message||'تعذر الحفظ','error');}
  });

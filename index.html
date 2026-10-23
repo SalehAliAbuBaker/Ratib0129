@@ -8499,7 +8499,7 @@ function renderAccountsPager(){
     const latest={};activeTxs.forEach(t=>{const date=t.isoDate||t.date||'';[t.debitAccount,t.creditAccount].filter(Boolean).forEach(n=>{if(!latest[n]||date>latest[n])latest[n]=date;});});
     const baseItems=catalog.filter(x=>simpleMode?simpleApi.classify(x)===main.mainCode:x.main===main.main)
       .flatMap(x=>x.details.filter(d=>simpleMode?
-        (!query||matches(main.main)||matches([d[0],d[1]].join(' '))):
+        (!query||matches(main.main+' '+(simpleApi.GROUPS.find(g=>g.id===main.mainCode)?.hint||''))||matches([d[0],d[1]].join(' '))):
         matches(`${d[0]} ${d[1]} ${x.mainCode} ${x.main} ${x.groupCode} ${x.group} ${x.subCode} ${x.sub}`))
       .map(d=>({code:d[0],name:d[1],level:'المستوى الرابع — تفصيلي (يقبل الحركة)',path:simpleMode?'':`${x.main} > ${x.group} > ${x.sub}`,main:x.main})));
     const accountItems=[];

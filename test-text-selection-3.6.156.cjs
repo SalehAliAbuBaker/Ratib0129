@@ -42,6 +42,7 @@ assert.match(commerceSuggestions,/input\.value\s*=\s*match/,'One matching sugges
  const w=dom.window,d=w.document;
  w.normalizeParentQuery=x=>String(x??'').trim().toLocaleLowerCase('ar');
  w.highlightText=x=>x;
+ w.ratibAccountSearchMatch=(label,query)=>w.normalizeParentQuery(label).includes(w.normalizeParentQuery(query));
  w.eval(searchable+';window.SelectTest=SearchableSelect');
  const selected=new w.SelectTest({wrapId:'wrapDebitAcc',inputId:'inpDebitAcc',dropId:'dropDebitAcc',hiddenId:'valDebitAcc'});
  const matches=[

@@ -109,12 +109,15 @@ function commerceResolveAccount(input,event){
  const prefix=items.filter(x=>aliases(x).some(v=>commerceNormalize(v).startsWith(q)));
  if(prefix.length===1&&q.length>1){
   const account=prefix[0],partsOfAccount=parts(account);
-  set(account);
   commerceAutocomplete(input,[{value:account.name,aliases:[
    {search:account.name,fill:account.name},
    {search:partsOfAccount.code,fill:account.name},
    {search:partsOfAccount.name,fill:partsOfAccount.name}
   ]}],event);
+  // Only retain the posting account once the field is actually completed.
+  // A partially erased or manually edited term must not silently pick an account.
+  const completed=[account.name,partsOfAccount.name].some(v=>commerceNormalize(v)===commerceNormalize(input.value));
+  set(completed?account:null);
   offer(false);return;
  }
  set(null);

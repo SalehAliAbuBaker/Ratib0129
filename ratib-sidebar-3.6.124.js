@@ -279,27 +279,54 @@ document.addEventListener('paste',e=>{if(money(e.target)&&!acceptable(e.clipboar
 document.addEventListener('paste',e=>{const el=e.target;if(e.defaultPrevented||!money(el)||el.type!=='number')return;const raw=e.clipboardData?.getData('text')||'';if(!acceptable(raw))return;e.preventDefault();const value=normalize(raw).replace(/,/g,'');if(el.type==='number'){el.value=value;el.dispatchEvent(new Event('input',{bubbles:true}));return;}const a=el.selectionStart??el.value.length,b=el.selectionEnd??a;el.value=el.value.slice(0,a)+value+el.value.slice(b);el.dispatchEvent(new Event('input',{bubbles:true}));},true);
 document.addEventListener('input',e=>{const el=e.target;if(!money(el)||e.isComposing)return;const old=el.value;let v=normalize(old).replace(/[^\d,.\-]/g,'');v=(v.startsWith('-')?'-':'')+v.replace(/-/g,'');const p=v.indexOf('.');if(p>=0)v=v.slice(0,p+1)+v.slice(p+1).replace(/[.,]/g,'');else v=v.replace(/,{2,}/g,',');if(v===old)return;const at=el.selectionStart??old.length;const prefix=normalize(old.slice(0,at)).replace(/[^\d,.]/g,'');el.value=v;try{el.setSelectionRange(Math.min(prefix.length,v.length),Math.min(prefix.length,v.length));}catch(_){}},true);
 document.addEventListener('blur',e=>{const el=e.target;if(!money(el)||el.type==='number')return;const v=normalize(el.value);if(v.includes(',')&&!/^\d{1,3}(,\d{3})+(\.\d*)?$/.test(v))el.value=v.replace(/,/g,'');},true);
-// Select the complete current value on each tap/click for editable text controls.
-// Preserve numeric/date/password input types to avoid changing financial validation rules.
-function ratibCanSelectText(el){
- if(el instanceof HTMLTextAreaElement)return !el.disabled&&!el.readOnly;
- return el instanceof HTMLInputElement&&
-  ['text','search','tel','email','url','number'].includes(el.type)&&!el.disabled&&!el.readOnly;
-}
-function ratibSelectField(el){
- if(!ratibCanSelectText(el))return;
- // Some browsers do not support text selection on type=number. On commerce screens
- // temporarily expose it as a decimal text entry while focused, then restore on blur.
- if(el instanceof HTMLInputElement&&el.type==='number'&&el.closest('#pageCommerce')){
+// Never override native text selection or caret placement when the user taps a field.
+// Commerce's number input is still temporarily made editable text while focused,
+// so the existing numeric sanitizer continues to validate the typed digits.
+function ratibPrepareEditableNumber(el){
+ if(!(el instanceof HTMLInputElement)||el.disabled||el.readOnly)return;
+ if(el.type==='number'&&el.closest('#pageCommerce')){
   el.dataset.ratibNumericSelect='1';
   el.dataset.ratibPriorInputMode=el.getAttribute('inputmode')||'';
   el.type='text';el.setAttribute('inputmode','decimal');
  }
- try{el.select();}catch(_){}
- try{if(el.type!=='number'&&typeof el.setSelectionRange==='function')el.setSelectionRange(0,el.value.length);}catch(_){}
 }
-document.addEventListener('focusin',e=>ratibSelectField(e.target),true);
-document.addEventListener('click',e=>ratibSelectField(e.target),true);
+// On entering a filled field, select its complete text once. A second tap keeps
+// the browser's native caret/partial selection, so users can replace or edit words.
+// A long press/drag never triggers a second forced selection after the gesture.
+function ratibEditableText(el){
+ if(!el||el.disabled||el.readOnly)return false;
+ if(el instanceof HTMLTextAreaElement)return true;
+ return el instanceof HTMLInputElement&&
+  ['text','search','tel','email','url'].includes(el.type);
+}
+function ratibSelectInitialValue(el){
+ if(!ratibEditableText(el)||!el.value)return;
+ // Do not summon Android's floating selection toolbar on a normal tap
+ // within incoming/outgoing commerce documents; long-press remains native.
+ if(el.closest('#pageCommerce .rc-app[data-rc-mode="in"], #pageCommerce .rc-app[data-rc-mode="out"]'))return;
+ try{el.select();}catch(_){}
+}
+let ratibNewFocusPointer=null;
+document.addEventListener('pointerdown',e=>{
+ const el=e.target;
+ const incoming=ratibEditableText(el)||(el instanceof HTMLInputElement&&el.type==='number'&&el.closest('#pageCommerce'));
+ ratibNewFocusPointer=incoming&&document.activeElement!==el?
+  {el,time:Date.now(),x:e.clientX||0,y:e.clientY||0,moved:false}:null;
+},true);
+document.addEventListener('pointermove',e=>{
+ const p=ratibNewFocusPointer;
+ if(p&&(Math.abs((e.clientX||0)-p.x)>8||Math.abs((e.clientY||0)-p.y)>8))p.moved=true;
+},true);
+document.addEventListener('pointercancel',()=>{ratibNewFocusPointer=null;},true);
+document.addEventListener('focusin',e=>{
+ ratibPrepareEditableNumber(e.target);
+ ratibSelectInitialValue(e.target);
+},true);
+document.addEventListener('click',e=>{
+ const p=ratibNewFocusPointer;ratibNewFocusPointer=null;
+ if(!p||p.el!==e.target||p.moved||Date.now()-p.time>550)return;
+ if(document.activeElement===p.el)ratibSelectInitialValue(p.el);
+},false);
 document.addEventListener('focusout',e=>{
  const el=e.target;
  if(!(el instanceof HTMLInputElement)||el.dataset.ratibNumericSelect!=='1')return;

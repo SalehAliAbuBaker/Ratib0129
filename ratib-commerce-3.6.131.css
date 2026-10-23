@@ -438,3 +438,202 @@
 #pageCommerce .rc-new-menu[hidden]{display:none!important}
 #pageCommerce .rc-new-menu button{display:flex;align-items:center;gap:8px;width:100%;min-height:44px;text-align:right;border:0;box-shadow:none;background:transparent;padding:9px 10px;white-space:normal;font-weight:800}
 #pageCommerce .rc-new-menu button:hover,#pageCommerce .rc-new-menu button:focus-visible{background:var(--bg);color:var(--accent);outline:1px solid var(--accent)}
+
+/* Ratib 3.6.105.03 trial: invoice UI only, no posting or print changes */
+#pageCommerce .rc-app[data-rc-mode="in"] .rc-head,#pageCommerce .rc-app[data-rc-mode="out"] .rc-head{background:var(--accent);padding:8px 12px;border-radius:10px;min-height:43px;flex-direction:row-reverse;color:#fff}
+#pageCommerce .rc-app[data-rc-mode="in"] .rc-head h2,#pageCommerce .rc-app[data-rc-mode="out"] .rc-head h2{color:#fff;font-size:1.08rem}
+#pageCommerce .rc-app[data-rc-mode="in"] [data-rc-back],#pageCommerce .rc-app[data-rc-mode="out"] [data-rc-back]{color:#fff;background:transparent;border-color:transparent;min-height:30px}
+#pageCommerce .rc-app[data-rc-mode="in"] .rc-tabs,#pageCommerce .rc-app[data-rc-mode="out"] .rc-tabs{display:grid;grid-template-columns:1fr 1fr .75fr;gap:6px;align-items:stretch}
+#pageCommerce .rc-app[data-rc-mode="in"] .rc-new-menu-wrap,#pageCommerce .rc-app[data-rc-mode="out"] .rc-new-menu-wrap{display:block;width:100%}
+#pageCommerce .rc-app[data-rc-mode="in"] .rc-new-menu-wrap>button,#pageCommerce .rc-app[data-rc-mode="out"] .rc-new-menu-wrap>button{width:100%}
+#pageCommerce .rc-tab-more{position:relative;min-width:0}
+#pageCommerce .rc-tab-more>summary{display:flex;align-items:center;justify-content:center;min-height:var(--rc-btn-height,43px);padding:var(--rc-btn-padding,7px 9px);font-weight:800;list-style:none;cursor:pointer;background:var(--card);border:1px solid var(--border);border-radius:9px;color:var(--text)}
+#pageCommerce .rc-tab-more-menu{position:absolute;top:calc(100% + 5px);left:0;z-index:65;display:grid;gap:5px;min-width:min(80vw,220px);padding:7px;background:var(--card);border:1px solid var(--border);box-shadow:var(--shadow);border-radius:9px}
+#pageCommerce .rc-tab-more-menu>button{width:100%;justify-content:flex-start}
+#pageCommerce .rc-invoice-card .rc-invoice-fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;align-items:start}
+#pageCommerce .rc-invoice-card .rc-invoice-fields>.rc-full{grid-column:1/-1;min-width:0}
+#pageCommerce .rc-invoice-card .rc-section-title{background:var(--bg);color:var(--accent);font-weight:800;border-radius:8px;padding:8px}
+#pageCommerce .rc-invoice-card .rc-wide-account{min-width:0}
+#pageCommerce .rc-invoice-card .rc-wide-account .rc-field-label{white-space:normal!important;line-height:1.5!important}
+#pageCommerce .rc-invoice-card .rc-wide-account input,#pageCommerce .rc-invoice-card .rc-wide-account select{width:100%;max-width:100%;min-width:0;text-overflow:clip}
+#pageCommerce .rc-invoice-card .rc-notes-fold{border:1px solid var(--border);border-radius:9px}
+#pageCommerce .rc-invoice-card .rc-notes-fold>summary{cursor:pointer;list-style:none;padding:10px;background:var(--bg);color:var(--accent);font-weight:800}
+#pageCommerce .rc-invoice-card .rc-notes-fold[open] .rc-field{margin:7px}
+#pageCommerce .rc-invoice-card .rc-items-title{margin:10px 0 5px}
+#pageCommerce .rc-invoice-card .rc-compact-actions{display:flex;justify-content:flex-start;align-items:stretch;gap:7px;overflow:visible;margin:8px 0 3px}
+#pageCommerce .rc-invoice-card .rc-compact-actions>.rc-doc-action{width:auto;min-width:100px;padding:6px 10px}
+#pageCommerce .rc-invoice-card .rc-action-more{position:relative}
+#pageCommerce .rc-invoice-card .rc-action-more>summary{display:flex;align-items:center;min-height:47px;border:1px solid var(--border);border-radius:9px;color:var(--accent);padding:6px 10px;cursor:pointer;font-weight:800;list-style:none}
+#pageCommerce .rc-invoice-card .rc-action-more-menu{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:5px;position:absolute;z-index:70;bottom:calc(100% + 5px);right:0;width:min(85vw,300px);padding:7px;background:var(--card);border:1px solid var(--border);border-radius:9px;box-shadow:var(--shadow)}
+#pageCommerce .rc-invoice-card .rc-action-more-menu .rc-doc-action{min-height:47px}
+#pageCommerce .rc-invoice-card .rc-invoice-save>.btn-primary{flex:1;min-height:47px!important}
+#pageCommerce .rc-invoice-help>summary{cursor:pointer;font-size:.76rem;padding:4px;color:var(--muted)}
+#pageCommerce .rc-invoice-help .rc-note{padding:6px;margin:2px 0}
+@media(max-width:650px){
+ #pageCommerce .rc-app[data-rc-mode="in"] .rc-back-label,#pageCommerce .rc-app[data-rc-mode="out"] .rc-back-label{display:none}
+ #pageCommerce .rc-invoice-card .rc-items-scroll{overflow:visible}
+ #pageCommerce .rc-invoice-card .rc-lines{display:block;min-width:0;width:100%}
+ #pageCommerce .rc-invoice-card .rc-lines thead{display:none}
+ #pageCommerce .rc-invoice-card .rc-lines tbody{display:grid;gap:7px}
+ #pageCommerce .rc-invoice-card .rc-lines tbody tr{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px;padding:7px;border:1px solid var(--border);border-radius:9px;min-width:0}
+ #pageCommerce .rc-invoice-card .rc-lines tbody td{display:block;border:0;min-width:0!important;padding:2px;white-space:normal}
+ #pageCommerce .rc-invoice-card .rc-lines tbody td:first-child{grid-column:1/-1}
+ #pageCommerce .rc-invoice-card .rc-lines tbody td:nth-child(2)::before{content:"الوحدة"}
+ #pageCommerce .rc-invoice-card .rc-lines tbody td:nth-child(3)::before{content:"الكمية"}
+ #pageCommerce .rc-invoice-card .rc-lines tbody td:nth-child(4)::before{content:"السعر"}
+ #pageCommerce .rc-invoice-card .rc-lines tbody td:nth-child(2)::before,#pageCommerce .rc-invoice-card .rc-lines tbody td:nth-child(3)::before,#pageCommerce .rc-invoice-card .rc-lines tbody td:nth-child(4)::before{display:block;font-size:.72rem;color:var(--muted)}
+ #pageCommerce .rc-invoice-card .rc-lines tbody td:nth-child(5){color:var(--accent);font-weight:800}
+ #pageCommerce .rc-invoice-card .rc-lines tbody td:nth-child(5)::before{content:"الإجمالي: "}
+ #pageCommerce .rc-invoice-card .rc-lines tbody td:last-child{display:flex;justify-content:flex-end}
+ #pageCommerce .rc-invoice-card .rc-lines input,#pageCommerce .rc-invoice-card .rc-lines select{width:100%;max-width:100%;box-sizing:border-box}
+}
+
+/* trial invoice-and-records compact layout 3.6.105.06 — scoped to commerce */
+#pageCommerce .rc-app[data-rc-mode="in"] .rc-head,
+#pageCommerce .rc-app[data-rc-mode="out"] .rc-head{
+ display:flex!important;flex-direction:row!important;flex-wrap:nowrap!important;
+ align-items:center!important;justify-content:space-between!important;
+ min-height:0!important;margin:2px 0 6px!important;padding:8px 10px!important;
+ gap:8px!important;
+}
+#pageCommerce .rc-app[data-rc-mode="in"] .rc-head [data-rc-back],
+#pageCommerce .rc-app[data-rc-mode="out"] .rc-head [data-rc-back]{
+ flex:0 0 auto;width:auto!important;min-width:36px;min-height:32px!important;
+ padding:5px 7px!important;margin:0!important;
+}
+#pageCommerce .rc-app[data-rc-mode="in"] .rc-tabs,
+#pageCommerce .rc-app[data-rc-mode="out"] .rc-tabs{margin:5px 0 8px!important;gap:5px}
+#pageCommerce .rc-app[data-rc-mode="in"] .rc-tabs button,
+#pageCommerce .rc-app[data-rc-mode="out"] .rc-tabs button,
+#pageCommerce .rc-app[data-rc-mode="in"] .rc-tab-more>summary,
+#pageCommerce .rc-app[data-rc-mode="out"] .rc-tab-more>summary{
+ min-height:38px!important;padding:5px 6px!important;
+ font-size:.78rem!important;line-height:1.2!important;max-width:100%;
+}
+#pageCommerce .rc-app[data-rc-mode="in"] .rc-tab-icon,
+#pageCommerce .rc-app[data-rc-mode="out"] .rc-tab-icon{font-size:1rem!important}
+#pageCommerce .rc-app[data-rc-mode="in"] .rc-kpis,
+#pageCommerce .rc-app[data-rc-mode="out"] .rc-kpis{
+ grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:7px!important
+}
+#pageCommerce .rc-app[data-rc-mode="in"] .rc-kpis>div,
+#pageCommerce .rc-app[data-rc-mode="out"] .rc-kpis>div{
+ padding:8px 9px!important;min-height:54px;min-width:0;
+ font-size:.79rem!important;line-height:1.35!important
+}
+#pageCommerce .rc-app[data-rc-mode="in"] .rc-kpis strong,
+#pageCommerce .rc-app[data-rc-mode="out"] .rc-kpis strong{
+ margin-top:3px;font-size:1rem!important
+}
+#pageCommerce .rc-invoice-card .rc-optional-supplier{margin:0}
+#pageCommerce .rc-invoice-card .rc-account-fields{
+ display:grid;grid-template-columns:1fr;gap:7px;min-width:0;
+ padding:8px;border:1px solid var(--border);border-radius:10px;
+ background:var(--card);
+}
+#pageCommerce .rc-invoice-card .rc-inline-field{display:block;min-width:0}
+#pageCommerce .rc-invoice-card .rc-inline-label{
+ position:absolute!important;width:1px;height:1px;
+ padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);
+ white-space:nowrap;border:0;
+}
+#pageCommerce .rc-invoice-card .rc-inline-field input::placeholder{
+ color:var(--muted);opacity:1;font-weight:500
+}
+#pageCommerce .rc-invoice-card .rc-inline-field input,
+#pageCommerce .rc-invoice-card .rc-inline-field select{
+ display:block;box-sizing:border-box;max-width:100%;width:100%;
+ min-height:42px!important;padding:7px 9px!important;
+ line-height:1.4!important;
+}
+#pageCommerce .rc-invoice-card .rc-account-fields .rc-wide-account{min-width:0}
+#pageCommerce .rc-invoice-card .rc-final-actions{
+ display:grid!important;grid-template-columns:minmax(0,1.25fr) minmax(0,.75fr);
+ align-items:stretch;gap:7px;direction:rtl;margin:10px 0 4px!important;
+}
+#pageCommerce .rc-invoice-card .rc-final-actions>.btn-primary{
+ box-sizing:border-box;width:100%!important;min-width:0;
+ min-height:48px!important;margin:0!important;padding:6px 7px!important;
+ font-size:.87rem!important;line-height:1.35;white-space:normal
+}
+#pageCommerce .rc-invoice-card .rc-final-more{min-width:0;position:relative}
+#pageCommerce .rc-invoice-card .rc-final-more>summary{
+ box-sizing:border-box;display:flex;align-items:center;justify-content:center;
+ width:100%;min-height:48px;padding:6px;white-space:normal;
+ font-size:.86rem;line-height:1.3;
+}
+#pageCommerce .rc-invoice-card .rc-final-more .rc-action-more-menu{
+ box-sizing:border-box;grid-template-columns:repeat(2,minmax(0,1fr));
+ width:min(80vw,340px);max-height:57vh;overflow-y:auto;
+ right:auto;inset-inline-end:0;bottom:calc(100% + 5px);
+}
+#pageCommerce .rc-invoice-card .rc-final-more .rc-save-next{
+ grid-column:1/-1;min-height:42px;padding:8px;font-weight:800;
+ color:var(--accent);font-size:.82rem;line-height:1.4;
+}
+#pageCommerce .rc-record-count{margin:5px 0 8px;font-weight:700;color:var(--muted);font-size:.8rem}
+#pageCommerce .rc-record-list{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,370px),1fr));gap:9px}
+#pageCommerce .rc-record-item{
+ padding:10px;border:1px solid var(--border);background:var(--card);
+ border-radius:10px;min-width:0;box-sizing:border-box;
+}
+#pageCommerce .rc-record-heading{
+ display:flex;justify-content:space-between;align-items:center;gap:6px;
+ color:var(--accent);font-size:.95rem;margin-bottom:6px;
+}
+#pageCommerce .rc-record-heading>span{font-size:.78rem;direction:ltr;white-space:nowrap;color:var(--text)}
+#pageCommerce .rc-record-meta{
+ display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:5px 10px;
+ font-size:.77rem;line-height:1.45;
+}
+#pageCommerce .rc-record-meta>span{min-width:0;overflow-wrap:anywhere}
+#pageCommerce .rc-record-meta b{color:var(--muted)}
+#pageCommerce .rc-record-buttons{
+ display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-top:8px;direction:rtl
+}
+#pageCommerce .rc-record-buttons>.btn{box-sizing:border-box;width:100%;min-height:37px;margin:0;font-size:.8rem}
+#pageCommerce .rc-record-more{position:relative;min-width:0}
+#pageCommerce .rc-record-more>summary{
+ display:flex;align-items:center;justify-content:center;box-sizing:border-box;
+ min-height:37px;padding:6px;background:var(--card);color:var(--accent);
+ border:1px solid var(--border);border-radius:8px;list-style:none;
+ font-size:.8rem;font-weight:800;cursor:pointer
+}
+#pageCommerce .rc-record-more>summary::-webkit-details-marker,
+#pageCommerce .rc-final-more>summary::-webkit-details-marker{display:none}
+#pageCommerce .rc-record-more-menu{
+ position:absolute;z-index:75;top:calc(100% + 4px);inset-inline-end:0;
+ box-sizing:border-box;display:grid;gap:4px;
+ width:min(72vw,180px);padding:6px;background:var(--card);
+ border:1px solid var(--border);border-radius:9px;box-shadow:var(--shadow)
+}
+#pageCommerce .rc-record-more-menu>.btn{
+ box-sizing:border-box;width:100%;margin:0;min-height:36px;padding:6px;
+ font-size:.8rem;justify-content:center;
+}
+#pageCommerce .rc-record-more-menu [data-rc-doc-op="delete"]{color:var(--danger)}
+@media(max-width:390px){
+ #pageCommerce .rc-record-meta{gap:4px 6px;font-size:.72rem}
+ #pageCommerce .rc-invoice-card .rc-final-actions{grid-template-columns:minmax(0,1.3fr) minmax(0,.7fr)}
+ #pageCommerce .rc-invoice-card .rc-final-actions>.btn-primary{font-size:.78rem!important}
+}
+
+
+/* Trial 3.6.105.08 — unambiguous compact clear-row button (not delete row) */
+#pageCommerce .rc-invoice-card .rc-lines .rc-clear-line{
+ display:inline-flex!important;align-items:center!important;justify-content:center!important;
+ box-sizing:border-box;width:42px!important;max-width:42px!important;min-width:42px!important;
+ height:42px!important;min-height:42px!important;flex:0 0 42px!important;
+ margin:0!important;padding:0!important;line-height:1!important;
+ font-size:1.65rem!important;font-weight:800!important;
+ color:var(--accent)!important;border:1px solid var(--border)!important;
+ border-radius:9px!important;background:var(--bg)!important;
+ direction:ltr;unicode-bidi:isolate;cursor:pointer
+}
+#pageCommerce .rc-invoice-card .rc-lines .rc-clear-line:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+@media(max-width:650px){
+ #pageCommerce .rc-invoice-card .rc-lines tbody td:nth-child(5){grid-column:1!important;align-self:center}
+ #pageCommerce .rc-invoice-card .rc-lines tbody td:last-child{
+   grid-column:2!important;align-self:center;justify-content:flex-end!important;min-width:0!important
+ }
+}

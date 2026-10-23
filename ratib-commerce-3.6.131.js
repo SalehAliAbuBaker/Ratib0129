@@ -483,7 +483,7 @@ function invoice(db){
    ).map(x=>({id:x.product,name:db.products.find(p=>p.id===x.product)?.name||''})):db.products;
   const p=db.products.find(p=>p.id===l.product);
   const units=p?unitList(p).map(x=>({id:x,name:x})):[];
-  return '<tr><td>'+commerceProductInput(i,available,l.product)+'</td><td>'+sel('unit-'+i,units,l.unit)+'</td><td>'+inp('qty-'+i,'number',l.qty,'min="0" step="0.01" inputmode="decimal"')+'</td><td>'+inp('price-'+i,'number',l.price,'min="0" step="0.01" inputmode="decimal" '+(ret?'readonly':''))+'</td><td class="rc-line-total" data-total="'+i+'">'+f(n(l.qty)*n(l.price))+'</td><td><button type="button" class="btn btn-ghost" data-rc-remove="'+i+'" aria-label="حذف السطر">×</button></td></tr>';
+  return '<tr><td>'+commerceProductInput(i,available,l.product)+'</td><td>'+sel('unit-'+i,units,l.unit)+'</td><td>'+inp('qty-'+i,'number',l.qty,'min="0" step="0.01" inputmode="decimal"')+'</td><td>'+inp('price-'+i,'number',l.price,'min="0" step="0.01" inputmode="decimal" '+(ret?'readonly':''))+'</td><td class="rc-line-total" data-total="'+i+'">'+f(n(l.qty)*n(l.price))+'</td><td><button type="button" class="btn btn-ghost rc-clear-line" data-rc-remove="'+i+'" aria-label="تفريغ سطر الصنف" title="تفريغ بيانات هذا السطر">⌫</button></td></tr>';
  }).join('')+'</tbody></table></div>'+
  '<div class="rc-actions no-print"><button type="button" class="btn btn-ghost" data-rc-add="1">＋ إضافة صنف</button>'+
  '<strong class="rc-grand">الإجمالي: <span id="rc-grand">'+f(draft.lines.reduce((a,l)=>a+n(l.qty)*n(l.price),0))+'</span> '+esc(draft.currency||'YER')+'</strong></div>'+
@@ -1056,7 +1056,7 @@ function bind(){
    const d=hit('[data-rc-detail]');if(d){detailId=d.dataset.rcDetail;view='detail';paint();return;}
    const edit=hit('[data-rc-edit-product]');if(edit){editingProduct=edit.dataset.rcEditProduct||null;paint();return;}
    const add=hit('[data-rc-add]');if(add){syncInvoice();draft.lines.push({id:id(),product:'',unit:'',qty:1,price:0});paint();return;}
-   const del=hit('[data-rc-remove]');if(del){syncInvoice();draft.lines.splice(Number(del.dataset.rcRemove),1);if(!draft.lines.length)draft.lines=[{id:id(),product:'',unit:'',qty:1,price:0}];paint();return;}
+   const del=hit('[data-rc-remove]');if(del){syncInvoice();const index=Number(del.dataset.rcRemove);if(!draft||!Number.isInteger(index)||index<0||index>=draft.lines.length)return;draft.lines[index]={id:draft.lines[index].id||id(),product:'',unit:'',qty:1,price:0};paint();return;}
    if(hit('[data-rc-search]')){query=$('rc-query')?.value.trim()||'';paint();$('rc-query')?.focus();return;}
    const action=hit('[data-rc-action]');if(action){Promise.resolve(documentOutput(action.dataset.rcAction,action.dataset.doc)).catch(e=>notify(e.message||'تعذر إخراج المستند','error'));return;}
    if(hit('[data-rc-draft-preview]')){syncInvoice();const db=data(),d=draft;const lines=d.lines.filter(l=>l.product&&n(l.qty)>0).map(l=>({product:l.product,unit:l.unit,qty:n(l.qty),price:n(l.price),subtotal:rnd(n(l.qty)*n(l.price))}));if(!lines.length)throw Error('أدخل صنفًا لمعاينته.');previewDocument('',{kind:d.kind,title:d.title,number:d.number,date:d.date,warehouse:d.warehouse,partyName:d.partyName,note:d.note,lines,total:rnd(lines.reduce((a,l)=>a+l.subtotal,0))});return;}

@@ -8,7 +8,7 @@ const css=fs.readFileSync('ratib-quick-account-3.6.87.css','utf8');
 const html=fs.readFileSync('index.html','utf8');
 const sw=fs.readFileSync('sw.js','utf8');
 const pkg=JSON.parse(fs.readFileSync('package.json','utf8'));
-assert(Number(pkg.version.split('.').at(-1))>=87,'Quick-create regression remains active for later versions');
+assert(Number(pkg.version.split('.').slice(0,3).at(-1))>=87,'Quick-create regression remains active for later versions');
 const enabled=html.includes('ratib-quick-account-3.6.87.js');
 if(enabled){
  assert(html.includes('<script src="./ratib-quick-account-3.6.87.js?v=3.6.'),'Versioned JS asset must be linked');

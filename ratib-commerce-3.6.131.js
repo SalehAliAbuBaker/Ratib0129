@@ -217,7 +217,7 @@ function commerceAutocomplete(input,values,event,matchAnywhere=false){
  const before=input.value,match=suggestions[0].fill;
  if((!matchAnywhere&&!commerceNormalize(match).startsWith(commerceNormalize(before)))||match.length<=before.length)return;
  input.value=match;
- try{const prefix=commerceNormalize(match).startsWith(commerceNormalize(before));input.setSelectionRange(prefix?before.length:match.length,match.length);}catch(_){}
+ try{const prefix=commerceNormalize(match).startsWith(commerceNormalize(before));input.setSelectionRange(window.RatibVoiceFirstAccountActive?.(input)?match.length:(prefix?before.length:match.length),match.length);}catch(_){}
 }
 
 function commerceResolveProduct(index){

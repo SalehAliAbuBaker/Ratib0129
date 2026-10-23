@@ -11,7 +11,7 @@ const trial=html.match(/const RATIB_RELEASE=\{"version":"([^"]+)"/)?.[1];
 assert(trial&&worker.includes('"version":"'+trial+'"'),'Application and offline worker releases should match');
 assert(html.includes('الإصدار '+trial+' (تجريبية)'),'Trial banner must show release');
 assert(worker.includes(trial),'Cache identifier must contain release');
-assert(html.includes('ratib-voice-dictation-3.6.117.js?v=3.6.159'),'Original voice implementation must remain linked');
+assert(html.includes('ratib-voice-dictation-3.6.117.js?v='+trial),'Original voice implementation must remain linked');
 assert.doesNotMatch(source,/saveVoucher\(|saveTransaction\(|submitVoucher\(/);
 
 async function main(){

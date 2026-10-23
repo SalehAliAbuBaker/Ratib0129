@@ -32,6 +32,7 @@ assert(voice.includes('ratibSimpleVoiceDebit')&&voice.includes('ratibSimpleVoice
  const w=dom.window,d=w.document;
  w.normalizeParentQuery=x=>String(x||'').normalize('NFKC').trim().toLowerCase();
  w.highlightText=x=>String(x);
+ w.ratibAccountSearchMatch=(name,query)=>w.normalizeParentQuery(name).includes(w.normalizeParentQuery(query));
  let recognizer,started=0;
  class SpeechMock{
   start(){started++;}

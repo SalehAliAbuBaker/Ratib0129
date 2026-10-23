@@ -92,13 +92,21 @@ function commerceResolveAccount(input,event){
   if(visible)create.textContent='＋ إضافة حساب جديد «'+input.value.trim().slice(0,60)+'»';
  };
  if(!q){set(null);offer(false);return;}
- const matches=items.filter(x=>[x.name,x.id,x.name.split(' — ')[0]].some(v=>commerceNormalize(v)===q));
+ // Account choices appear as "number — name" while their canonical IDs are names.
+ // Match both forms, including direct Arabic name entry in purchase/sales party accounts.
+ const parts=x=>({code:String(x.name).split(' — ')[0],name:String(x.id)});
+ const aliases=x=>{const p=parts(x);return [x.name,p.code,p.name];};
+ const matches=items.filter(x=>aliases(x).some(v=>commerceNormalize(v)===q));
  if(matches.length===1){set(matches[0]);offer(false);return;}
- const prefix=items.filter(x=>[x.name,x.id,x.name.split(' — ')[0]].some(v=>commerceNormalize(v).startsWith(q)));
+ const prefix=items.filter(x=>aliases(x).some(v=>commerceNormalize(v).startsWith(q)));
  if(prefix.length===1&&q.length>1){
-  const account=prefix[0],name=account.name.split(' — ').slice(1).join(' — ');
+  const account=prefix[0],partsOfAccount=parts(account);
   set(account);
-  commerceAutocomplete(input,[{value:account.name,aliases:[{search:account.name,fill:account.name},{search:account.id,fill:account.id},{search:name,fill:name}]}],event);
+  commerceAutocomplete(input,[{value:account.name,aliases:[
+   {search:account.name,fill:account.name},
+   {search:partsOfAccount.code,fill:account.name},
+   {search:partsOfAccount.name,fill:partsOfAccount.name}
+  ]}],event);
   offer(false);return;
  }
  set(null);
@@ -1104,6 +1112,17 @@ function bind(){
     try{field.select();}catch(_){}
    }
   });
+ });
+ // Android keyboards and inline dictation may finalize text at compositionend
+ // without emitting an additional ordinary input event.
+ root.addEventListener('compositionstart',e=>{
+  if(e.target.id?.startsWith('rc-search-'))e.target.dataset.composing='1';
+ });
+ root.addEventListener('compositionend',e=>{
+  const field=e.target;
+  if(!field.id?.startsWith('rc-search-'))return;
+  field.dataset.composing='0';
+  requestAnimationFrame(()=>{if(field.isConnected)commerceResolveAccount(field,{inputType:'insertText'});});
  });
  root.addEventListener('input',e=>{
   if(e.target.id.startsWith('rc-search-')){commerceResolveAccount(e.target,e);return;}

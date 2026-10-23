@@ -93,3 +93,30 @@
  }
  #ratibInteractiveAccountsTree .rit-details{padding-bottom:18px}
 }
+
+/* 3.6.105.07 — clearer tree controls, separate optional daily-accounts view */
+#ratibInteractiveAccountsTree .rit-head-actions,#ratibInteractiveAccountsTree .rit-display-modes{display:flex;gap:7px;align-items:center;flex-wrap:wrap}
+#ratibInteractiveAccountsTree .rit-display-modes{padding:3px;background:var(--bg);border:1px solid var(--border);border-radius:12px}
+#ratibInteractiveAccountsTree .rit-display-modes .rit-btn{min-height:35px;font-size:.82rem;padding:6px 12px}
+#ratibInteractiveAccountsTree .rit-caret{direction:ltr;unicode-bidi:isolate;flex:0 0 31px;min-width:31px;height:32px;border-radius:8px;background:color-mix(in srgb,var(--accent) 12%,var(--card));border:1px solid color-mix(in srgb,var(--accent) 35%,var(--border));font-size:16px;font-weight:900;line-height:1;box-shadow:0 1px 2px #00000014}
+#ratibInteractiveAccountsTree .rit-caret span{display:inline-block;direction:ltr;unicode-bidi:isolate;transform:none}
+#ratibInteractiveAccountsTree .rit-caret:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+#ratibInteractiveAccountsTree .rit-caret.rit-none{background:none;border-color:transparent;box-shadow:none}
+#ratibInteractiveAccountsTree .rit-node-icon{background:color-mix(in srgb,var(--accent) 16%,var(--card));border:1px solid color-mix(in srgb,var(--accent) 32%,var(--border));font-size:1.17rem;font-weight:900;color:var(--accent)}
+#ratibInteractiveAccountsTree .rit-detail-symbol{border:1px solid color-mix(in srgb,var(--accent) 32%,var(--border));font-weight:900}
+#ratibInteractiveAccountsTree .rit-simple-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 12px 12px;margin-bottom:7px;border-bottom:1px solid var(--border);font-size:.87rem}
+#ratibInteractiveAccountsTree .rit-simple-heading small{color:var(--muted);font-size:.77rem}
+#ratibInteractiveAccountsTree .rit-simple-node{border-bottom:1px solid var(--border);border-radius:0}
+#ratibInteractiveAccountsTree .rit-simple-node .rit-node-main{padding:8px 0}
+#ratibInteractiveAccountsTree .rit-simple-node .rit-node-label b{font-size:.94rem}
+#ratibInteractiveAccountsTree.rit-simple-mode .rit-stats,
+#ratibInteractiveAccountsTree.rit-simple-mode .rit-advanced-only{display:none!important}
+#ratibInteractiveAccountsTree:not(.rit-simple-mode) .rit-simple-all{display:none!important}
+#ratibInteractiveAccountsTree.rit-simple-mode .rit-tree{max-height:min(73vh,900px)}
+@media(max-width:480px){
+ #ratibInteractiveAccountsTree .rit-head-actions{width:100%;justify-content:space-between}
+ #ratibInteractiveAccountsTree .rit-display-modes{flex:1 1 auto}
+ #ratibInteractiveAccountsTree .rit-display-modes .rit-btn{flex:1}
+ #ratibInteractiveAccountsTree .rit-caret{min-width:30px;flex-basis:30px}
+ #ratibInteractiveAccountsTree .rit-simple-node .rit-node-main{flex:1 1 auto}
+}

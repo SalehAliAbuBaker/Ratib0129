@@ -1,6 +1,6 @@
 // Ratib 3.1.9: cache identity is unique to this app's scope.
-const CACHE_VERSION='v180-smart-commerce-accounts-3.6.105.01';
-const APP_RELEASE={"version":"3.6.105.01","changes":["تصحيح الأخطاء في بعض الأجهزة"]};
+const CACHE_VERSION='v181-interactive-tree-3.6.105.02';
+const APP_RELEASE={"version":"3.6.105.02","highlights":["شجرة حسابات تفاعلية جديدة لعرض الحسابات والأرصدة والبحث فيها، مع إبقاء العرض السابق"],"changes":["تصحيح الأخطاء في بعض الأجهزة"]};
 const CACHE_PREFIX=`ratib:${self.registration.scope}:`;
 const CACHE_NAME=CACHE_PREFIX+CACHE_VERSION;
 const APP_SHELL=[
@@ -22,6 +22,8 @@ const APP_SHELL=[
   "./ratib-trial-home-sidebar-3.6.143.css",
   "./ratib-sidebar-3.6.124.js",
   "./ratib-commerce-3.6.131.js",
+  "./ratib-interactive-tree-3.6.105.02.js",
+  "./ratib-interactive-tree-3.6.105.02.css",
   "./ratib-commerce-3.6.131.css",
   "./ratib-login-3.6.124.js",
   "./ratib-login-3.6.124.css",

@@ -91,7 +91,8 @@
  }
  function pathText(n){return (n.path||[]).join(' ← ');}
  function isGroup(n){return n.kind!=='detail';}
- function searched(n,q){return norm(n.code+' '+n.name+' '+pathText(n)).includes(q);}
+ function accountWords(value,query){const words=norm(query).split(/\s+/).filter(Boolean),text=norm(value);return words.every(w=>text.includes(w));}
+  function searched(n,q){return accountWords(n.code+' '+n.name+' '+pathText(n),q);}
  function match(n,q,type,ancestorMatch){
   const allow=type==='all'||(type==='detail'?n.kind==='detail':isGroup(n));
   const own=(ancestorMatch||!q||searched(n,q))&&allow;
@@ -182,11 +183,11 @@
   let html='';
   for(const config of configs){
    const all=config.children.flatMap(item=>buckets[item[0]]||[]);
-   const rootMatches=!!q&&norm(config.title).includes(q);
+   const rootMatches=!!q&&accountWords(config.title,q);
    const children=config.children.map(([id,label])=>{
     const members=buckets[id]||[];
-    const subgroupMatches=!!q&&norm(label||'').includes(q);
-    const filtered=!q||rootMatches||subgroupMatches?members:members.filter(n=>norm(n.name+' '+n.code).includes(q));
+    const subgroupMatches=!!q&&accountWords(label||'',q);
+    const filtered=!q||rootMatches||subgroupMatches?members:members.filter(n=>accountWords(n.name+' '+n.code,q));
     return {id,label,filtered,shown:!q||rootMatches||subgroupMatches||filtered.length>0};
    });
    if(q&&!rootMatches&&!children.some(c=>c.shown))continue;

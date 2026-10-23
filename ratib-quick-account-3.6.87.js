@@ -11,6 +11,8 @@
   let current=null,busy=false;
 
   function inputCurrency(selector){
+    if(selector?.ratibExternal)return document.getElementById('rc-currency')?.value||
+      (typeof getGlobalCurrency==='function'?getGlobalCurrency():'YER');
     const field=selector?.input;
     const row=field?.closest('#multiVoucherLinesBody tr');
     if(row)return row.querySelector('.multi-line-currency')?.value||'YER';
@@ -131,7 +133,7 @@
     msg(accountExists(name)?'هذا الاسم مسجل بالفعل؛ اختره من القائمة بدل إنشاء حساب مكرر.':'',accountExists(name));
   }
   function open(selector,typed=''){
-    if(!isVoucherSelector(selector)||busy)return;
+    if((!isVoucherSelector(selector)&&!selector?.ratibExternal)||busy)return;
     buildModal();current={selector,inputId:selector.input.id,lineId:selector.input.closest('tr')?.querySelector('.multi-line-account')?.dataset.index??null,priorFocus:document.activeElement};
     selector.close();
     const host=document.getElementById(modalId);host.hidden=false;
@@ -243,5 +245,10 @@
     const found=choices.find(x=>x?.input?.id===id);
     if(found)open(found,found.input.value);
     return Boolean(found);
+  },openForExternalInput(input,choose){
+    if(!(input instanceof HTMLInputElement)||!input.isConnected||typeof choose!=='function')return false;
+    const selector={ratibExternal:true,input,close(){},choose};
+    open(selector,input.value);
+    return true;
   }};
 }());

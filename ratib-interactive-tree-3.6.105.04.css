@@ -1,9 +1,5 @@
-/* Ratib 3.6.105.05: account management only; statement account browser is untouched. */
-#pageSettings .rit-mode > #chartOfAccountsView,
-#pageSettings .rit-mode > #chartAccountSearchInput,
-#pageSettings .rit-mode > .rit-legacy-toolbar{display:none!important}
-#ratibInteractiveAccountsTree .rit-btn.rit-danger{color:var(--danger);border-color:var(--danger)}
-#ratibInteractiveAccountsTree .rit-btn.rit-danger:hover{background:color-mix(in srgb,var(--danger) 8%,var(--card))}
+/* Ratib 3.6.105.04: unified account tree and mobile detail sheet, styles scoped to accounts page. */
+#pageAccountsTree.rit-mode #accountsPagerCard{display:none!important}
 #ratibInteractiveAccountsTree{width:100%;margin:0 auto 18px;color:var(--text);font-family:inherit}
 #ratibInteractiveAccountsTree *{box-sizing:border-box}
 #ratibInteractiveAccountsTree .rit-switch,#ratibInteractiveAccountsTree .rit-head,

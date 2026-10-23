@@ -6,6 +6,9 @@
  const ID='ratibInteractiveAccountsTree';
  let root=null, mount=null, shell=null,treeBox=null,detailsBox=null,detailsPanel=null,statsBox=null,searchBox=null,filterBox=null;
  let model=[],nodes=new Map(),selected='',openNodes=new Set(),lastQuery='',lastFilter='all',initialized=false,ready=false;
+ let simpleView=false,showAllSimple=false,recentAccounts=new Map();
+ const SIMPLE_KEY='ratib-account-tree-simple-view';
+ try{simpleView=window.localStorage.getItem(SIMPLE_KEY)==='1';}catch(_){}
  function norm(s){return String(s==null?'':s).normalize('NFKC').replace(/[\u064b-\u065f\u0670]/g,'').trim().toLocaleLowerCase('ar');}
  function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(x){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[x];});}
  function money(n){return Number(n||0).toLocaleString('en-US',{maximumFractionDigits:6});}
@@ -52,6 +55,18 @@
    sub.parent=parent;parent.children.push(sub);
   }
   model=[...mains.values()];
+  recentAccounts=new Map();
+  try{
+   const transactions=typeof effectiveTransactions==='function'?effectiveTransactions():[];
+   for(const t of transactions){
+    if(t?.isOpeningBalance)continue;
+    const date=String(typeof getAccountOpsDate==='function'?getAccountOpsDate(t):(t?.isoDate||t?.date||''));
+    for(const name of new Set([t?.debitAccount,t?.creditAccount].filter(Boolean))){
+     const r=recentAccounts.get(name)||{count:0,last:''};
+     r.count++;if(date>r.last)r.last=date;recentAccounts.set(name,r);
+    }
+   }
+  }catch(error){console.warn('Ratib daily accounts index unavailable',error);}
   let summary=new Map();
   try{summary=computeAccountTreeBalanceSummary()||new Map();}
   catch(error){console.warn('Ratib interactive tree: balance summary unavailable',error);}
@@ -101,13 +116,42 @@
   const opened=!!q||openNodes.has(n.key),has=children.length>0;
   const sel=selected===n.key;
   const labels={main:'رئيسي',group:'تجميعي',sub:'تجميعي فرعي',detail:'حساب حركة'};
-  const toggle=has?'<button type="button" class="rit-caret" data-rit="toggle" data-key="'+esc(n.key)+'" aria-label="'+(opened?'طي':'توسيع')+' '+esc(n.name)+'" aria-expanded="'+opened+'">'+(opened?'⌄':'‹')+'</button>':'<span class="rit-caret rit-none"></span>';
+  const toggle=has?'<button type="button" class="rit-caret" data-rit="toggle" data-key="'+esc(n.key)+'" aria-label="'+(opened?'طي':'توسيع')+' '+esc(n.name)+'" aria-expanded="'+opened+'"><span aria-hidden="true">'+(opened?'▼':'◀')+'</span></button>':'<span class="rit-caret rit-none"></span>';
   const ico=isGroup(n)?'▣':'◉';
   const row='<div class="rit-node'+(sel?' selected':'')+'" style="--rit-depth:'+Math.min(depth,12)+'">'+toggle+
    '<button type="button" class="rit-node-main" data-rit="select" data-key="'+esc(n.key)+'" aria-pressed="'+sel+'">'+
    '<span class="rit-node-icon">'+ico+'</span><span class="rit-node-label"><b>'+esc(n.name)+'</b><small>'+esc(n.code)+' · '+labels[n.kind]+'</small></span></button>'+
    '<span class="rit-node-balance">'+balanceHtml(n)+'</span></div>';
   return '<div class="rit-branch">'+row+(has&&opened?'<div class="rit-children">'+children.map(x=>renderNode(x,depth+1,q,type,ancestorMatch||rawMatch)).join('')+'</div>':'')+'</div>';
+ }
+ function simpleNode(n){
+  const sel=selected===n.key;
+  return '<div class="rit-node rit-simple-node'+(sel?' selected':'')+'">'+
+    '<button type="button" class="rit-node-main" data-rit="select" data-key="'+esc(n.key)+'" aria-pressed="'+sel+'">'+
+    '<span class="rit-node-icon" aria-hidden="true">◉</span><span class="rit-node-label"><b>'+esc(n.name)+'</b><small>رقم '+esc(n.code)+'</small></span></button>'+
+    '<span class="rit-node-balance">'+balanceHtml(n)+'</span></div>';
+ }
+ function renderSimple(q){
+  const all=[...nodes.values()].filter(n=>n.kind==='detail');
+  const recent=all.filter(n=>recentAccounts.has(n.name)).sort((a,b)=>{
+   const x=recentAccounts.get(a.name),y=recentAccounts.get(b.name);
+   return y.last.localeCompare(x.last)||y.count-x.count||a.name.localeCompare(b.name,'ar');
+  });
+  const ordered=[...recent,...all.filter(n=>!recentAccounts.has(n.name)).sort((a,b)=>a.name.localeCompare(b.name,'ar'))];
+  const subset=q?ordered.filter(n=>norm(n.name+' '+n.code).includes(q)):
+   showAllSimple||!recent.length?ordered:recent.slice(0,30);
+  const hint=q?'نتائج البحث في جميع حسابات الحركة':showAllSimple||!recent.length?'كل حسابات الحركة':'الحسابات المستخدمة مؤخرًا';
+  const heading='<div class="rit-simple-heading"><b>'+hint+'</b><small>'+subset.length+' حساب</small></div>';
+  return heading+(subset.map(simpleNode).join('')||'<div class="rit-empty">لا توجد حسابات مطابقة للبحث.</div>');
+ }
+ function syncViewControls(){
+  mount.classList.toggle('rit-simple-mode',simpleView);
+  for(const btn of mount.querySelectorAll('[data-rit="simple"],[data-rit="full"]')){
+   const active=(btn.dataset.rit==='simple')===simpleView;
+   btn.classList.toggle('rit-selected',active);btn.setAttribute('aria-pressed',String(active));
+  }
+  const more=mount.querySelector('[data-rit="toggle-simple-all"]');
+  if(more){more.textContent=showAllSimple?'الحسابات اليومية فقط':'عرض جميع حسابات الحركة';more.hidden=!simpleView;}
  }
  function makeStats(){
   const list=[...nodes.values()],leaf=list.filter(n=>n.kind==='detail');
@@ -135,8 +179,8 @@
   if(!n){detailsBox.innerHTML='<p class="rit-muted">اختر حسابًا لعرض تفاصيله.</p>';return;}
   const isLeaf=n.kind==='detail';
   const kinds={main:'حساب رئيسي',group:'حساب تجميعي',sub:'حساب تجميعي فرعي',detail:'حساب حركة'};
-  let html='<div class="rit-detail-head"><span class="rit-detail-symbol">'+(isLeaf?'◉':'▣')+'</span><span><h3>'+esc(n.name)+'</h3><small>['+esc(n.code)+'] · '+kinds[n.kind]+'</small></span></div>'+
-    '<div class="rit-detail-item"><small>المسار المحاسبي</small><strong>'+esc(pathText(n))+'</strong></div>'+
+  let html='<div class="rit-detail-head"><span class="rit-detail-symbol">'+(isLeaf?'◉':'▣')+'</span><span><h3>'+esc(n.name)+'</h3><small>['+esc(n.code)+']'+(simpleView?'':' · '+kinds[n.kind])+'</small></span></div>'+
+    (simpleView?'':'<div class="rit-detail-item"><small>المسار المحاسبي</small><strong>'+esc(pathText(n))+'</strong></div>')+
     '<div class="rit-detail-item"><small>'+(isLeaf?'رصيد الحساب حسب العملة':'إجمالي أرصدة الحسابات التابعة حسب العملة')+'</small><div class="rit-detail-balances">'+balanceHtml(n)+'</div></div>';
   if(!isLeaf){
    html+='<div class="rit-detail-item"><small>الحسابات التفصيلية التابعة</small><strong>'+money(n.leafNames?.length||0)+' حساب</strong></div>';
@@ -158,9 +202,10 @@
  function renderView(){
   if(!ready)return;
   const q=norm(searchBox.value),type=filterBox.value;
-  treeBox.innerHTML=model.filter(n=>match(n,q,type,false)).map(n=>renderNode(n,0,q,type,false)).join('')||
+  syncViewControls();
+  treeBox.innerHTML=simpleView?renderSimple(q):model.filter(n=>match(n,q,type,false)).map(n=>renderNode(n,0,q,type,false)).join('')||
     '<div class="rit-empty">لم يُعثر على حساب مطابق. جرّب اسمًا أو رقمًا مختلفًا.</div>';
-  renderDetails();makeStats();
+  renderDetails();if(!simpleView)makeStats();
  }
  function refresh(){
   if(!ready)return;
@@ -199,11 +244,17 @@
   const btn=event.target.closest('[data-rit]');if(!btn||!mount.contains(btn))return;
   const action=btn.dataset.rit,key=btn.dataset.key,n=nodes.get(key||selected);
   if(action==='dismiss-details'){dismissDetails();return;}
+  if(action==='simple'||action==='full'){
+   simpleView=action==='simple';showAllSimple=false;dismissDetails(false);
+   try{window.localStorage.setItem(SIMPLE_KEY,simpleView?'1':'0');}catch(_){}
+   renderView();return;
+  }
+  if(action==='toggle-simple-all'){showAllSimple=!showAllSimple;renderView();return;}
   if(action==='expand'||action==='collapse'){
    openNodes=action==='collapse'?new Set():new Set([...nodes.values()].filter(node=>node.children.length).map(node=>node.key));
    renderView();return;
   }
-  if(action==='reset'){searchBox.value='';filterBox.value='all';openNodes=new Set(model.map(n=>n.key));renderView();return;}
+  if(action==='reset'){searchBox.value='';filterBox.value='all';showAllSimple=false;openNodes=new Set(model.map(n=>n.key));renderView();return;}
   if(action==='refresh'){refresh();return;}
   if(action==='toggle'&&n){
    if(openNodes.has(n.key))openNodes.delete(n.key);else openNodes.add(n.key);renderView();return;
@@ -241,9 +292,9 @@
   if(accountsLabel)accountsLabel.textContent='الحسابات';
   mount=document.createElement('section');mount.id=ID;mount.setAttribute('aria-label','شجرة الحسابات');
   mount.innerHTML=
-   '<div class="rit-shell"><div class="rit-head"><div><h2>شجرة الحسابات</h2><small>إدارة الحسابات والأرصدة والأسقف من الدليل المحاسبي</small></div><button type="button" class="rit-btn rit-primary" data-rit="add">＋ حساب جديد</button></div>'+
-   '<div class="rit-stats"></div><div class="rit-workspace"><div class="rit-panel"><div class="rit-panel-head"><b>الحسابات</b><div><button type="button" class="rit-btn" data-rit="expand">توسيع الكل</button><button type="button" class="rit-btn" data-rit="collapse">طي الكل</button></div></div>'+
-   '<div class="rit-filter"><input type="search" class="rit-search" placeholder="ابحث بالاسم أو رقم الحساب..." aria-label="البحث في الشجرة"><select class="rit-kind" aria-label="تصفية نوع الحساب"><option value="all">كل الحسابات</option><option value="detail">حسابات حركة</option><option value="group">حسابات تجميعية</option></select><small class="rit-mobile-hint">اضغط على اسم الحساب لعرض تفاصيله، وعلى السهم للطي والتوسيع.</small></div>'+
+   '<div class="rit-shell"><div class="rit-head"><div><h2>شجرة الحسابات</h2><small>إدارة الحسابات والأرصدة والأسقف من الدليل المحاسبي</small></div><div class="rit-head-actions"><div class="rit-display-modes" role="group" aria-label="طريقة عرض الحسابات"><button type="button" class="rit-btn" data-rit="simple">مبسطة</button><button type="button" class="rit-btn" data-rit="full">محاسبية</button></div><button type="button" class="rit-btn rit-primary" data-rit="add">＋ حساب جديد</button></div></div>'+
+   '<div class="rit-stats"></div><div class="rit-workspace"><div class="rit-panel"><div class="rit-panel-head"><b>الحسابات</b><div><button type="button" class="rit-btn rit-simple-all" data-rit="toggle-simple-all">عرض جميع حسابات الحركة</button><button type="button" class="rit-btn rit-advanced-only" data-rit="expand">توسيع الكل</button><button type="button" class="rit-btn rit-advanced-only" data-rit="collapse">طي الكل</button></div></div>'+
+   '<div class="rit-filter"><input type="search" class="rit-search" placeholder="ابحث بالاسم أو رقم الحساب..." aria-label="البحث في الشجرة"><select class="rit-kind rit-advanced-only" aria-label="تصفية نوع الحساب"><option value="all">كل الحسابات</option><option value="detail">حسابات حركة</option><option value="group">حسابات تجميعية</option></select><small class="rit-mobile-hint">اضغط على اسم الحساب لعرض تفاصيله، وعلى السهم للطي والتوسيع.</small></div>'+
    '<div class="rit-tree"></div><div class="rit-panel-foot"><button type="button" class="rit-btn" data-rit="reset">إعادة ضبط العرض</button><button type="button" class="rit-btn" data-rit="refresh">تحديث الأرصدة</button></div></div>'+
    '<aside class="rit-panel rit-detail-panel" aria-label="تفاصيل الحساب"><div class="rit-panel-head"><b>تفاصيل الحساب</b><button type="button" class="rit-btn rit-close-details" data-rit="dismiss-details" aria-label="إغلاق تفاصيل الحساب">✕ إغلاق</button></div><div class="rit-details"></div></aside></div>'+
    '<p class="rit-footnote">تُعرض الحسابات والأرصدة من بيانات راتب دون تغيير القيود أو إعدادات العملات.</p></div><button type="button" class="rit-mobile-backdrop" data-rit="dismiss-details" aria-label="إغلاق تفاصيل الحساب" tabindex="-1"></button>';
@@ -280,5 +331,5 @@
   // Leave the account pager and its navigation/click handlers untouched.
  }
  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',install,{once:true});else install();
- window.RatibInteractiveTree={refresh:function(){if(ready)refresh();},version:'3.6.105.05'};
+ window.RatibInteractiveTree={refresh:function(){if(ready)refresh();},version:'3.6.105.07'};
 })();

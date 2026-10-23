@@ -97,7 +97,15 @@ function commerceResolveAccount(input,event){
  const parts=x=>({code:String(x.name).split(' — ')[0],name:String(x.id)});
  const aliases=x=>{const p=parts(x);return [x.name,p.code,p.name];};
  const matches=items.filter(x=>aliases(x).some(v=>commerceNormalize(v)===q));
- if(matches.length===1){set(matches[0]);offer(false);return;}
+ if(matches.length===1){
+  const account=matches[0],p=parts(account);
+  set(account);
+  // A complete account number must display the resolved account as well.
+  if(q===commerceNormalize(p.code)){
+   commerceAutocomplete(input,[{value:account.name,aliases:[{search:p.code,fill:account.name}]}],event);
+  }
+  offer(false);return;
+ }
  const prefix=items.filter(x=>aliases(x).some(v=>commerceNormalize(v).startsWith(q)));
  if(prefix.length===1&&q.length>1){
   const account=prefix[0],partsOfAccount=parts(account);

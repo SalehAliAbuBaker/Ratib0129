@@ -1,6 +1,6 @@
 // Ratib 3.1.9: cache identity is unique to this app's scope.
-const CACHE_VERSION='v182-commerce-3.6.105.03';
-const APP_RELEASE={"version":"3.6.105.03","highlights":["تنظيم مستندات المخازن ونقل حقل اسم المورد الاختياري مباشرة تحت رقم الفاتورة والتاريخ"],"changes":["تصحيح الأخطاء في بعض الأجهزة"]};
+const CACHE_VERSION='v183-accounts-mobile-details-3.6.105.04';
+const APP_RELEASE={"version":"3.6.105.04","highlights":["أصبحت شجرة الحسابات هي العرض الأساسي؛ اضغط على الحساب في الجوال لعرض تفاصيله مباشرة."],"changes":["تصحيح الأخطاء في بعض الأجهزة"]};
 const CACHE_PREFIX=`ratib:${self.registration.scope}:`;
 const CACHE_NAME=CACHE_PREFIX+CACHE_VERSION;
 const APP_SHELL=[
@@ -22,8 +22,8 @@ const APP_SHELL=[
   "./ratib-trial-home-sidebar-3.6.143.css",
   "./ratib-sidebar-3.6.124.js",
   "./ratib-commerce-3.6.131.js",
-  "./ratib-interactive-tree-3.6.105.02.js",
-  "./ratib-interactive-tree-3.6.105.02.css",
+  "./ratib-interactive-tree-3.6.105.04.js",
+  "./ratib-interactive-tree-3.6.105.04.css",
   "./ratib-commerce-3.6.131.css",
   "./ratib-login-3.6.124.js",
   "./ratib-login-3.6.124.css",

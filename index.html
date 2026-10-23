@@ -5636,7 +5636,7 @@ class SearchableSelect {
       if(query&&exact.length===1&&!e.isComposing){
         const match=exact[0],typed=this.input.value;
         this.setValue(match.id,typed,match.accountId||'');
-        if(this.input.id==='inpReportAccount'&&this.onSelect)this.onSelect(match);
+        if(this.onSelect&&(this.input.id==='inpReportAccount'||this.wrap.classList.contains('voucher-account-search')))this.onSelect(match);
       }
       // Smart completion is only for a unique prefix and when the caret is at
       // the end, never while correcting text in the middle or deleting.

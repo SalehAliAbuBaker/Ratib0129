@@ -14,7 +14,7 @@ function fixture() {
   const saved = { cloud_backup_cfg: { enabled: true, email: '', time: '00:00', lastDate: '', lastTime: '', lastError: '' } };
   const state = { posts: 0, metadataGets: 0, snapshots: 0, remote: false, mode: 'normal', notifications: [], requestUrls: [], lastSaved: null, confirmed: true };
   const status = { textContent: '' }, last = { textContent: '' }, warn = { textContent: '', style: {} };
-  const documents = { cloudBackupStatus: status, cloudBackupLastTime: last, cloudBackupWarn: warn, cloudUploadDestination: { value: 'trial' }, cloudRunNowBtn: { disabled: false } };
+  const documents = { cloudBackupStatus: status, cloudBackupLastTime: last, cloudBackupWarn: warn, cloudUploadDestination: { value: 'trial' }, cloudRunNowBtn: { disabled: false, style: {} } };
   const store = {
     get(key, defaultValue) { return saved[key] ?? defaultValue; },
     _setSilent(key, value) { saved[key] = value; },

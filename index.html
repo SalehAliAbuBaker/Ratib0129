@@ -4029,7 +4029,7 @@ async function getDriveToken(interactive) {
         },
         error_callback: (err) => {
           const detail = err && (err.message || err.type) || '';
-          settle(new Error(/popup[\\s_-]*(?:failed[\\s_-]*to[\\s_-]*open|closed|blocked)/i.test(detail)
+          settle(new Error(/popup.*(?:failed.*open|closed|blocked)/i.test(detail)
             ? 'لم يكتمل تفويض Google. إذا ظهرت صفحة Google بخطأ 400 origin_mismatch، فتأكد من تسجيل https://ratibtrial.pages.dev ضمن مصادر JavaScript المسموحة لمعرّف التجريبية. وإلا فأعد محاولة الربط من Chrome.'
             : 'فشل تفويض Google Drive: ' + (detail || 'استجابة غير معروفة')));
         }

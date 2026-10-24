@@ -120,10 +120,10 @@ const api=context.__security,pin='462986',wrong='1246',data={'masar_plan':{trans
  assert.equal(open.encrypted,false);
  assert.deepEqual(JSON.parse(JSON.stringify(open.data)),before);
  const sw=fs.readFileSync('sw.js','utf8'),pkg=JSON.parse(fs.readFileSync('package.json','utf8'));
- assert.equal(pkg.version,'3.6.107.04');
- assert(html.includes('const RATIB_RELEASE={"version":"3.6.107.04"'));
- assert(sw.includes('v205-trial-vault-hardening-3.6.107.04'));
+ assert.equal(pkg.version,'3.6.107.05');
+ assert(html.includes('const RATIB_RELEASE={"version":"3.6.107.05"'));
+ assert(sw.includes('v206-trial-ui-back-oauth-3.6.107.05'));
  assert(!html.includes("sessionStorage.setItem(SESSION_KEY_CACHE,_b64(await crypto.subtle.exportKey('raw',key)))"));
  for(const inline of [...html.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script>/gi)].map(m=>m[1]).filter(Boolean))new Function(inline);
- console.log('PASS 3.6.107.04: encrypted backup roundtrip/wrong PIN, fail-closed locked backup, biometric-bound expiring cache, credential check, cache invalidation, unchanged accounting');
+ console.log('PASS 3.6.107.05: encrypted backup roundtrip/wrong PIN, fail-closed locked backup, biometric-bound expiring cache, credential check, cache invalidation, unchanged accounting');
 })().catch(e=>{console.error(e);process.exitCode=1;});

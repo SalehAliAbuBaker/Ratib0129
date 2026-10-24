@@ -5,7 +5,7 @@ const version='3.6.107.03';
 assert.equal(pkg.version,version);
 assert(html.includes('const RATIB_RELEASE={"version":"'+version+'"'));
 assert(sw.includes('const APP_RELEASE={"version":"'+version+'"'));
-assert(sw.includes('v203-trial-cloud-verification-'+version));
+assert(sw.includes('v204-trial-mobile-statement-marks-'+version));
 assert(html.includes('الإصدار '+version+' (تجريبية)'));
 assert(html.includes('ratib-simple-accounts-3.6.105.13.js?v='+version));
 assert(html.includes('ratib-voice-dictation-3.6.117.js?v='+version));

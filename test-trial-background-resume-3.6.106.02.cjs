@@ -1,9 +1,9 @@
 'use strict';
 const assert=require('node:assert/strict'),fs=require('node:fs');
 const html=fs.readFileSync('index.html','utf8'),worker=fs.readFileSync('sw.js','utf8');
-const version='3.6.106.05';
+const version='3.6.107.01';
 assert(html.includes('const RATIB_RELEASE={"version":"'+version+'"'));
-assert(worker.includes('v200-trial-statement-marks-'+version));
+assert(worker.includes('v202-trial-safe-text-'+version));
 assert(html.includes("const RATIB_RESUME_VIEW_KEY='ratib_ui_resume_view_v1'"));
 assert(html.includes("function ratibRememberBackgroundView()"));
 assert(html.includes("function ratibRestoreBackgroundView()"));

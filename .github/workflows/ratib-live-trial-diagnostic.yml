@@ -131,3 +131,20 @@ jobs:
           done
           echo 'FAIL: Cloudflare Pages still serves older navigation or HTML'
           exit 1
+
+      - name: Verify offline worker and HTML match trial
+        shell: bash
+        run: |
+          set -eu
+          for attempt in 1 2 3 4 5 6 7 8 9 10 11 12; do
+            curl -fLsS --retry 2 --max-time 30 "https://ratibtrial.pages.dev/sw.js?fresh=$GITHUB_SHA-$attempt" -o /tmp/ratib-current-worker.js || true
+            curl -fLsS --retry 2 --max-time 30 "https://ratibtrial.pages.dev/?fresh=$GITHUB_SHA-$attempt" -o /tmp/ratib-current-index.html || true
+            if cmp -s sw.js /tmp/ratib-current-worker.js && cmp -s index.html /tmp/ratib-current-index.html; then
+              echo "PASS: Cloudflare HTML and service worker both match Ratib trial 3.6.107.08"
+              exit 0
+            fi
+            echo "Waiting for Cloudflare HTML and offline worker to match trial (attempt $attempt)"
+            [ "$attempt" = "12" ] || sleep 10
+          done
+          echo "FAIL: Cloudflare HTML or offline worker still differs from published trial"
+          exit 1

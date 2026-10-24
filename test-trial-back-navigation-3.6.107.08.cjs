@@ -7,9 +7,9 @@ const fontCss=fs.readFileSync('ratib-interface-font-3.6.148.css','utf8');
 const sidebar=fs.readFileSync('ratib-sidebar-3.6.124.js','utf8');
 const commerce=fs.readFileSync('ratib-commerce-3.6.131.js','utf8');
 const sw=fs.readFileSync('sw.js','utf8'),pkg=require('./package.json');
-assert.equal(pkg.version,'3.6.107.08');
-assert(html.includes('const RATIB_RELEASE={"version":"3.6.107.08"'));
-assert(sw.includes('v209-trial-navigation-guard-3.6.107.08'));
+assert.equal(pkg.version,'3.6.107.09');
+assert(html.includes('const RATIB_RELEASE={"version":"3.6.107.09"'));
+assert(sw.includes('v210-trial-unlimited-budget-3.6.107.09'));
 for(const level of ['xsmall','small','medium','large','xlarge']){
  assert(sizeJs.includes("'"+level+"'"));
  assert(sizeCss.includes('data-ratib-button-size="'+level+'"'));
@@ -81,4 +81,4 @@ assert.equal(overlay.log.home,0);assert.deepEqual(overlay.log.go,[1]);
 assert.equal(simulate({tab:'pageDashboard',known:false,depth:-1}).log.exit,1);
 for(const script of [...html.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script>/gi)].map(m=>m[1]).filter(Boolean))new Function(script);
 new Function(commerce);new Function(sw);
-console.log('PASS 3.6.107.08: five sizes, guarded Android Back, voucher drafts, commerce warning and parse checks');
+console.log('PASS 3.6.107.09: five sizes, guarded Android Back, voucher drafts, commerce warning and parse checks');

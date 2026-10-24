@@ -149,10 +149,10 @@ function fixture() {
   assert(html.includes("const CLOUD_LEGACY_FOLDER_NAME = 'Ratib Backups'"));
   const sw = fs.readFileSync('sw.js','utf8');
   const pkg = JSON.parse(fs.readFileSync('package.json','utf8'));
-  assert.equal(pkg.version,'3.6.107.03');
-  assert(sw.includes("v204-trial-mobile-statement-marks-3.6.107.03"));
-  assert(html.includes('const RATIB_RELEASE={"version":"3.6.107.03"'));
+  assert.equal(pkg.version,'3.6.107.04');
+  assert(sw.includes("v205-trial-vault-hardening-3.6.107.04"));
+  assert(html.includes('const RATIB_RELEASE={"version":"3.6.107.04"'));
   for(const source of [...html.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script>/gi)].map(m=>m[1]).filter(Boolean))new Function(source);
   new Function(sw);
-  console.log('PASS trial 3.6.107.03: verified Drive metadata, durable interrupted uploads, no duplicates, OAuth/offline notifications, restore guards and unchanged finance surface');
+  console.log('PASS trial 3.6.107.04: verified Drive metadata, durable interrupted uploads, no duplicates, OAuth/offline notifications, restore guards and unchanged finance surface');
 })().catch(e => { console.error(e); process.exitCode=1; });

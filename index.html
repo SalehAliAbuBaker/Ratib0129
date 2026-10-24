@@ -1569,7 +1569,7 @@ body.ratib-sidebar-open,body.ratib-about-open{overflow:hidden}
 }
 </style>
 <link rel="stylesheet" href="./ratib-login-3.6.124.css?v=3.6.131">
-<link rel="stylesheet" href="./ratib-commerce-3.6.131.css?v=3.6.107.03">
+<link rel="stylesheet" href="./ratib-commerce-3.6.131.css?v=3.6.107.04">
 
 <style id="ratib-commerce-ledger-actions-3.6.138">
 #pageLedger .rc-ledger-operations{display:flex;align-items:center;justify-content:flex-start;gap:5px;flex-wrap:wrap;padding:6px 8px;margin-top:4px}
@@ -1583,7 +1583,7 @@ body.ratib-sidebar-open,body.ratib-about-open{overflow:hidden}
 <link rel="stylesheet" href="./ratib-interface-font-3.6.148.css?v=3.6.148">
 <link rel="stylesheet" href="./ratib-feedback-3.6.149.css?v=3.6.149">
 <link rel="stylesheet" href="./ratib-country-currency-3.6.151.css?v=3.6.151">
-<link rel="stylesheet" href="./ratib-interactive-tree-3.6.105.05.css?v=3.6.107.03">
+<link rel="stylesheet" href="./ratib-interactive-tree-3.6.105.05.css?v=3.6.107.04">
 </head>
 <body>
 
@@ -1614,7 +1614,7 @@ body.ratib-sidebar-open,body.ratib-about-open{overflow:hidden}
     <div class="header-tools"><div class="header-actions">
       <button class="icon-btn" id="themeBtn" title="الوضع الليلي">🌙</button>
       <button class="icon-btn" id="sidebarMenuBtn" aria-haspopup="dialog" aria-controls="appSidebar" aria-expanded="false" title="الإعدادات" aria-label="فتح الإعدادات">⚙</button>
-    </div><small id="appVersionLabel" class="app-version">الإصدار 3.6.107.03 (تجريبية)</small></div>
+    </div><small id="appVersionLabel" class="app-version">الإصدار 3.6.107.04 (تجريبية)</small></div>
   </header>
   <div class="summary-toolbar hidden no-print" id="storageFeedback"><span id="persistentSaveStatus" hidden aria-hidden="true">جاهز</span><button type="button" id="retryStorageBtn" class="btn btn-ghost hidden">إعادة محاولة الحفظ</button></div>
 <div class="app-update-banner hidden no-print" id="appUpdateBanner" role="status"><span id="appUpdateMessage">يتوفر تحديث لراتب. هل تريد تطبيقه؟</span><button type="button" class="btn btn-ghost" id="applyAppUpdateBtn">موافق، تطبيق التحديث</button><div id="appUpdateDetails" class="hidden"></div></div>
@@ -1661,7 +1661,7 @@ body.ratib-sidebar-open,body.ratib-about-open{overflow:hidden}
       <img src="Icons/icon-192.png" width="72" height="72" alt="" decoding="async">
       <h2 id="ratibAboutTitle">راتب</h2>
       <p class="ratib-about-subtitle">للتنظيم والتدبير المالي</p>
-      <p class="ratib-about-version">الإصدار 3.6.107.03 (تجريبية)</p>
+      <p class="ratib-about-version">الإصدار 3.6.107.04 (تجريبية)</p>
       <p id="ratibAboutDescription">إدارة الحسابات والسندات والميزانية، ومتابعة العمليات والتقارير المالية، مع حفظ البيانات على جهازك ودعم العمل دون الإنترنت.</p>
       <button type="button" class="btn btn-primary" id="closeRatibAboutBtn">إغلاق</button>
     </div>
@@ -2899,14 +2899,14 @@ body.ratib-sidebar-open,body.ratib-about-open{overflow:hidden}
 
 </div>
 
-<script src="./ratib-first-run-3.6.105.11.js?v=3.6.107.03"></script>
+<script src="./ratib-first-run-3.6.105.11.js?v=3.6.107.04"></script>
 <script>
 // ===== تسجيل Service Worker (يفعّل العمل دون إنترنت بعد أول زيارة) =====
 // يُسجَّل بعد اكتمال تحميل الصفحة حتى لا يؤخر أول عرض للتطبيق. يعمل فقط عبر HTTPS
 // (أو localhost أثناء التطوير) — هذا شرط أساسي من المتصفح نفسه لأي Service Worker.
 let _briefAppNoticeTimer=null;
 let _releaseSummaryDisplayed=false;
-const RATIB_RELEASE={"version":"3.6.107.03","highlights":[],"changes":["تصحيح الأخطاء في بعض الأجهزة"]};
+const RATIB_RELEASE={"version":"3.6.107.04","highlights":[],"changes":["تصحيح الأخطاء في بعض الأجهزة"]};
 window.ratibCurrentTrialVersion=()=>String(RATIB_RELEASE.version);
 window.ratibCurrentTrialVersionLabel=()=>`الإصدار ${RATIB_RELEASE.version} (تجريبية)`;
 window.ratibSyncTrialVersion=()=>{
@@ -3084,6 +3084,41 @@ function getSecurityConfig(){
   try{const raw=localStorage.getItem(SECURITY_CONFIG_KEY);if(raw)return _securityConfigCache=JSON.parse(raw);}catch(_){ }
   return _securityConfigCache={enabled:false,salt:null,bioCredentialId:null};
 }
+
+const VAULT_BIO_SESSION_MAX_AGE_MS = 24 * 60 * 60 * 1000;
+// Biometric fast-unlock needs a temporary key. Never cache one for PIN-only users.
+function clearVaultBiometricSession(){try{sessionStorage.removeItem(SESSION_KEY_CACHE);}catch(_){}}
+function readVaultBiometricSession(){
+  const cfg=getSecurityConfig();
+  if(!cfg.enabled||!cfg.bioCredentialId||!cfg.salt){clearVaultBiometricSession();return null;}
+  let stored;try{stored=sessionStorage.getItem(SESSION_KEY_CACHE);}catch(_){return null;}
+  if(!stored)return null;
+  try{
+    const entry=JSON.parse(stored);
+    if(entry?.version!==2||entry.credentialId!==cfg.bioCredentialId||entry.salt!==cfg.salt||
+       !Number.isFinite(entry.expiresAt)||entry.expiresAt<=Date.now()||
+       entry.expiresAt>Date.now()+VAULT_BIO_SESSION_MAX_AGE_MS||
+       typeof entry.key!=='string'||!/^[A-Za-z0-9+/]{43}=$/.test(entry.key)){
+      clearVaultBiometricSession();return null;
+    }
+    return entry;
+  }catch(_){clearVaultBiometricSession();return null;}
+}
+async function cacheVaultKeyForBiometrics(key){
+  const cfg=getSecurityConfig();
+  if(!cfg.enabled||!cfg.bioCredentialId||!_vaultUnlocked||!key){clearVaultBiometricSession();return false;}
+  try{
+    const raw=new Uint8Array(await crypto.subtle.exportKey('raw',key));
+    try{
+      sessionStorage.setItem(SESSION_KEY_CACHE,JSON.stringify({
+        version:2,credentialId:cfg.bioCredentialId,salt:cfg.salt,
+        expiresAt:Date.now()+VAULT_BIO_SESSION_MAX_AGE_MS,key:_b64(raw)
+      }));
+      return true;
+    }finally{raw.fill(0);}
+  }catch(_){clearVaultBiometricSession();return false;}
+}
+
 function saveSecurityConfigRaw(cfg){
   _securityConfigCache={...cfg};_pendingWrites.set(SECURITY_CONFIG_KEY,cloneData(cfg));scheduleStorageFlush();
 }
@@ -3233,14 +3268,14 @@ async function enableVaultEncryption(pin){
   const cfg={...getSecurityConfig(),enabled:true,salt:saltB64};
   await _replacePersistentData({[VAULT_BLOB_KEY]:blob,[SECURITY_CONFIG_KEY]:cfg});
   _securityConfigCache=cfg;_vaultBlob=blob;_vaultCryptoKey=key;_vaultUnlocked=true;
-  try{sessionStorage.setItem(SESSION_KEY_CACHE,_b64(await crypto.subtle.exportKey('raw',key)));}catch(_){ }
+  await cacheVaultKeyForBiometrics(key);
 }
 async function disableVaultEncryption(){
   await flushStorage();
   const cfg={enabled:false,salt:null,bioCredentialId:getSecurityConfig().bioCredentialId||null};
   await _replacePersistentData({...cloneData(_snapshotMemStore()),[SECURITY_CONFIG_KEY]:cfg});
   _securityConfigCache=cfg;_vaultCryptoKey=null;_vaultUnlocked=false;_vaultBlob=null;
-  try{sessionStorage.removeItem(SESSION_KEY_CACHE);}catch(_){ }
+  clearVaultBiometricSession();
 }
 async function _readVaultBlob(){
   if(_vaultBlob)return _vaultBlob;
@@ -3261,15 +3296,20 @@ async function tryUnlockVaultWithPin(pin){
   const cfg=getSecurityConfig();if(!cfg.enabled||!cfg.salt)return false;
   const blob=await _readVaultBlob();if(!blob)return false;
   const {key}=await deriveVaultKey(pin,cfg.salt);await _finishVaultUnlock(key,blob);
-  try{sessionStorage.setItem(SESSION_KEY_CACHE,_b64(await crypto.subtle.exportKey('raw',key)));}catch(_){ }
+  await cacheVaultKeyForBiometrics(key);
   return true;
 }
 async function tryUnlockVaultWithSessionKey(){
-  if(!getSecurityConfig().enabled)return false;
-  let cached;try{cached=sessionStorage.getItem(SESSION_KEY_CACHE);}catch(_){return false;}
-  const blob=await _readVaultBlob();if(!cached||!blob)return false;
-  const key=await crypto.subtle.importKey('raw',_fromB64(cached),{name:'AES-GCM'},true,['encrypt','decrypt']);
-  return _finishVaultUnlock(key,blob);
+  const entry=readVaultBiometricSession();if(!entry)return false;
+  const blob=await _readVaultBlob();if(!blob)return false;
+  try{
+    const raw=_fromB64(entry.key);
+    let key;try{key=await crypto.subtle.importKey('raw',raw,{name:'AES-GCM'},true,['encrypt','decrypt']);}
+    finally{raw.fill(0);}
+    const ok=await _finishVaultUnlock(key,blob);
+    if(ok)await cacheVaultKeyForBiometrics(key);
+    return ok;
+  }catch(error){clearVaultBiometricSession();throw error;}
 }
 
 
@@ -3292,7 +3332,7 @@ function boot() {
 
   // فتح سريع: فقط إذا سبق فتح القفل بالرقم السري في نفس جلسة المتصفح هذه
   // (sessionStorage تُمسح تلقائياً عند إغلاق التبويب) ونجح التحقق ببصمة الإصبع الفعلية.
-  if (window.PublicKeyCredential && cfg.bioCredentialId && sessionStorage.getItem(SESSION_KEY_CACHE)) {
+  if (window.PublicKeyCredential && cfg.bioCredentialId && readVaultBiometricSession()) {
     const bioBtn = document.getElementById('bioUnlockBtn');
     if (bioBtn) bioBtn.style.display = 'block';
   }
@@ -3346,7 +3386,7 @@ async function factoryResetApp(){
   try{
     clearTimeout(_draftTimer);clearTimeout(_autoBackupTimer);await flushStorage();await _replacePersistentData({});try{await _idbDelete('dir');}catch(_){ }
     for(const k of Object.keys(_memStore))delete _memStore[k];_securityConfigCache={enabled:false,salt:null,bioCredentialId:null};_vaultCryptoKey=null;_vaultUnlocked=false;_vaultBlob=null;
-    try{sessionStorage.removeItem(SESSION_KEY_CACHE);}catch(_){ }
+    clearVaultBiometricSession();
     hasUnsavedChanges=false;location.reload();
   }catch(e){showToast('تعذّرت إعادة التهيئة. أعد محاولة الحفظ قبل المتابعة.','error');}
 }
@@ -3365,7 +3405,10 @@ async function registerBiometricCredential() {
       authenticatorSelection: { authenticatorAttachment: "platform", userVerification: "required" }
     }});
     const cfg = getSecurityConfig();
+    if(!cred?.rawId||cred.type!=='public-key')throw new Error('لم يتم تسجيل بصمة معتمدة.');
     saveSecurityConfigRaw({ ...cfg, bioCredentialId: _b64(cred.rawId) });
+    await flushStorage();
+    await cacheVaultKeyForBiometrics(_vaultCryptoKey);
     return true;
   } catch (err) { alert('تعذّر تسجيل البصمة على هذا الجهاز.'); return false; }
 }
@@ -3373,6 +3416,7 @@ async function registerBiometricCredential() {
 // إيقاف البصمة: يحذف معرّف البصمة المسجَّل فقط (لا يمس القفل بالرقم السري ولا يمس بياناتك)
 function disableBiometricCredential() {
   const cfg = getSecurityConfig();
+  clearVaultBiometricSession();
   saveSecurityConfigRaw({ ...cfg, bioCredentialId: null });
   refreshBioSettingsUI();
   showToast('تم إيقاف الدخول بالبصمة', 'warn');
@@ -3385,13 +3429,15 @@ function disableBiometricCredential() {
 async function authenticateBiometric() {
   const cfg = getSecurityConfig();
   if (!window.PublicKeyCredential || !cfg.bioCredentialId) { alert('البصمة غير مُفعّلة على هذا الجهاز، الرجاء إدخال الرقم السري'); return; }
+  if(!readVaultBiometricSession()){alert('انتهت جلسة البصمة؛ أدخل الرقم السري مرة واحدة لتجديدها.');return;}
   try {
-    await navigator.credentials.get({ publicKey: {
+    const assertion=await navigator.credentials.get({ publicKey: {
       challenge: crypto.getRandomValues(new Uint8Array(32)),
       allowCredentials: [{ id: _fromB64(cfg.bioCredentialId), type: 'public-key' }],
       userVerification: 'required',
       timeout: 60000
     }});
+    if(!assertion?.rawId||assertion.type!=='public-key'||_b64(assertion.rawId)!==cfg.bioCredentialId)throw new Error('لم تطابق البصمة بيانات الجهاز المسجّل.');
     const ok = await tryUnlockVaultWithSessionKey();
     if (ok) { unlockAppScreen(); proceedAppInit(); showToast('تم التحقق بنجاح عبر البصمة', 'success'); }
     else { alert('انتهت صلاحية جلسة البصمة السريعة، الرجاء إدخال الرقم السري مرة واحدة لإعادة تفعيلها.'); }
@@ -3635,7 +3681,8 @@ document.addEventListener('DOMContentLoaded', () => {
    ========================================================================= */
 async function buildBackupPayload() {
   const cfg = getSecurityConfig();
-  if (cfg.enabled && _vaultCryptoKey) {
+  if (cfg.enabled) {
+    if(!_vaultUnlocked||!_vaultCryptoKey||!cfg.salt)throw new Error('الخزنة مقفلة؛ لا يمكن تصدير نسخة غير مشفّرة. افتح القفل بالرقم السري أولاً.');
     const blob = await encryptVaultBlob(_vaultCryptoKey, _snapshotMemStore());
     return { app: 'ratib', schema: APP_SCHEMA_VERSION, encrypted: true, salt: cfg.salt, blob, exportedAt: new Date().toISOString() };
   }
@@ -3710,8 +3757,8 @@ async function importBackupFile(file){
     else await _replacePersistentData({...restored,[SECURITY_CONFIG_KEY]:cfg});
     for(const k of Object.keys(_memStore))delete _memStore[k];Object.assign(_memStore,restored);
     _securityConfigCache=cfg;_vaultCryptoKey=key;_vaultUnlocked=!!cfg.enabled;_vaultBlob=blob;
-    if(cfg.enabled){try{sessionStorage.setItem(SESSION_KEY_CACHE,_b64(await crypto.subtle.exportKey('raw',key)));}catch(_){ }}
-    else try{sessionStorage.removeItem(SESSION_KEY_CACHE);}catch(_){ }
+    if(cfg.enabled)await cacheVaultKeyForBiometrics(key);
+    else clearVaultBiometricSession();
     clearTimeout(_draftTimer);clearTimeout(_autoBackupTimer);hasUnsavedChanges=false;
     showToast('اكتمل الاسترجاع والحفظ، سيُعاد فتح التطبيق.','info');setTimeout(()=>location.reload(),300);return true;
   }catch(e){console.error(e);showToast(e.message||'تعذّر استرجاع النسخة. لم يكتمل الاستبدال.','error',7000);return false;}
@@ -9092,7 +9139,7 @@ function proceedAppInit() {
 }
 
 
-/* Ratib trial 3.6.107.03 — preserve the active screen across Android/PWA background recreation.
+/* Ratib trial 3.6.107.04 — preserve the active screen across Android/PWA background recreation.
  * The view is stored in Ratib's existing protected application store, not in plain localStorage.
  * Never restore before vault unlock; explicit Exit clears the snapshot.
  */
@@ -12475,7 +12522,7 @@ try{currenciesUi();sync();}catch(e){console.error('Ratib 3.6.12 initialization',
 <script src="./ratib-license-draft.js?v=3.6.151" defer></script>
 <script src="./ratib-ui-v3.6.37.js?v=2" defer></script>
 <script src="./ratib-favorites-v3.js?v=3.6.137" defer></script>
-<script src="./ratib-voice-dictation-3.6.117.js?v=3.6.107.03" defer></script>
+<script src="./ratib-voice-dictation-3.6.117.js?v=3.6.107.04" defer></script>
 <script src="./ratib-import-manager.js?v=2" defer></script>
 <script src="./ratib-annual-close.js?v=1" defer></script>
 <script src="./ratib-fiscal-ledger.js?v=1" defer></script>
@@ -12490,13 +12537,13 @@ try{currenciesUi();sync();}catch(e){console.error('Ratib 3.6.12 initialization',
 <script src="./ratib-amount-edit-3.6.97.js?v=3.6.158" defer></script>
 <script src="./ratib-special-reports-3.6.102.js?v=3.6.114" defer></script>
 <script src="./ratib-fx-autofill-3.6.105.js?v=3.6.107" defer></script>
-<script src="./ratib-report-buttons-3.6.106.js?v=3.6.107.03" defer></script>
+<script src="./ratib-report-buttons-3.6.106.js?v=3.6.107.04" defer></script>
 <script src="./ratib-print-logo-3.6.108.js?v=3.6.111" defer></script>
 <div id="ratibSpecialPrintHost" aria-hidden="true"></div>
-<script src="./ratib-sidebar-3.6.124.js?v=3.6.107.03" defer></script>
-<script src="./ratib-commerce-3.6.131.js?v=3.6.107.03" defer></script>
-<script src="./ratib-simple-accounts-3.6.105.13.js?v=3.6.107.03" defer></script>
-<script src="./ratib-interactive-tree-3.6.105.05.js?v=3.6.107.03" defer></script>
+<script src="./ratib-sidebar-3.6.124.js?v=3.6.107.04" defer></script>
+<script src="./ratib-commerce-3.6.131.js?v=3.6.107.04" defer></script>
+<script src="./ratib-simple-accounts-3.6.105.13.js?v=3.6.107.04" defer></script>
+<script src="./ratib-interactive-tree-3.6.105.05.js?v=3.6.107.04" defer></script>
 <script src="./ratib-login-3.6.124.js?v=3.6.153" defer></script>
 <script src="./ratib-trial-home-sidebar-3.6.143.js?v=3.6.143" defer></script>
 <script src="./ratib-trial-ui-3.6.143.js?v=3.6.153" defer></script>
@@ -12504,7 +12551,7 @@ try{currenciesUi();sync();}catch(e){console.error('Ratib 3.6.12 initialization',
 <script src="./ratib-global-button-size-3.6.146.js?v=3.6.148" defer></script>
 <script src="./ratib-document-signatures-3.6.148.js?v=3.6.148" defer></script>
 <script src="./ratib-feedback-3.6.149.js?v=3.6.149" defer></script>
-<script src="./ratib-statement-marks-3.6.106.05.js?v=3.6.107.03" defer>
+<script src="./ratib-statement-marks-3.6.106.05.js?v=3.6.107.04" defer>
 </script>
 <script src="./ratib-country-currency-3.6.151.js?v=3.6.151" defer></script>
 </body>

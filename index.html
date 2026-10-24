@@ -1569,7 +1569,7 @@ body.ratib-sidebar-open,body.ratib-about-open{overflow:hidden}
 }
 </style>
 <link rel="stylesheet" href="./ratib-login-3.6.124.css?v=3.6.131">
-<link rel="stylesheet" href="./ratib-commerce-3.6.131.css?v=3.6.107.07">
+<link rel="stylesheet" href="./ratib-commerce-3.6.131.css?v=3.6.107.08">
 
 <style id="ratib-commerce-ledger-actions-3.6.138">
 #pageLedger .rc-ledger-operations{display:flex;align-items:center;justify-content:flex-start;gap:5px;flex-wrap:wrap;padding:6px 8px;margin-top:4px}
@@ -1579,11 +1579,11 @@ body.ratib-sidebar-open,body.ratib-about-open{overflow:hidden}
 <link rel="stylesheet" href="./ratib-trial-home-sidebar-3.6.143.css?v=3.6.143">
 <link rel="stylesheet" href="./ratib-trial-ui-3.6.143.css?v=3.6.143">
 <link rel="stylesheet" href="./ratib-dashboard-finance-3.6.144.css?v=3.6.144">
-<link rel="stylesheet" href="./ratib-global-button-size-3.6.146.css?v=3.6.107.07">
-<link rel="stylesheet" href="./ratib-interface-font-3.6.148.css?v=3.6.107.07">
+<link rel="stylesheet" href="./ratib-global-button-size-3.6.146.css?v=3.6.107.08">
+<link rel="stylesheet" href="./ratib-interface-font-3.6.148.css?v=3.6.107.08">
 <link rel="stylesheet" href="./ratib-feedback-3.6.149.css?v=3.6.149">
 <link rel="stylesheet" href="./ratib-country-currency-3.6.151.css?v=3.6.151">
-<link rel="stylesheet" href="./ratib-interactive-tree-3.6.105.05.css?v=3.6.107.07">
+<link rel="stylesheet" href="./ratib-interactive-tree-3.6.105.05.css?v=3.6.107.08">
 </head>
 <body>
 
@@ -1614,7 +1614,7 @@ body.ratib-sidebar-open,body.ratib-about-open{overflow:hidden}
     <div class="header-tools"><div class="header-actions">
       <button class="icon-btn" id="themeBtn" title="الوضع الليلي">🌙</button>
       <button class="icon-btn" id="sidebarMenuBtn" aria-haspopup="dialog" aria-controls="appSidebar" aria-expanded="false" title="الإعدادات" aria-label="فتح الإعدادات">⚙</button>
-    </div><small id="appVersionLabel" class="app-version">الإصدار 3.6.107.07 (تجريبية)</small></div>
+    </div><small id="appVersionLabel" class="app-version">الإصدار 3.6.107.08 (تجريبية)</small></div>
   </header>
   <div class="summary-toolbar hidden no-print" id="storageFeedback"><span id="persistentSaveStatus" hidden aria-hidden="true">جاهز</span><button type="button" id="retryStorageBtn" class="btn btn-ghost hidden">إعادة محاولة الحفظ</button></div>
 <div class="app-update-banner hidden no-print" id="appUpdateBanner" role="status"><span id="appUpdateMessage">يتوفر تحديث لراتب. هل تريد تطبيقه؟</span><button type="button" class="btn btn-ghost" id="applyAppUpdateBtn">موافق، تطبيق التحديث</button><div id="appUpdateDetails" class="hidden"></div></div>
@@ -1661,7 +1661,7 @@ body.ratib-sidebar-open,body.ratib-about-open{overflow:hidden}
       <img src="Icons/icon-192.png" width="72" height="72" alt="" decoding="async">
       <h2 id="ratibAboutTitle">راتب</h2>
       <p class="ratib-about-subtitle">للتنظيم والتدبير المالي</p>
-      <p class="ratib-about-version">الإصدار 3.6.107.07 (تجريبية)</p>
+      <p class="ratib-about-version">الإصدار 3.6.107.08 (تجريبية)</p>
       <p id="ratibAboutDescription">إدارة الحسابات والسندات والميزانية، ومتابعة العمليات والتقارير المالية، مع حفظ البيانات على جهازك ودعم العمل دون الإنترنت.</p>
       <button type="button" class="btn btn-primary" id="closeRatibAboutBtn">إغلاق</button>
     </div>
@@ -2899,14 +2899,14 @@ body.ratib-sidebar-open,body.ratib-about-open{overflow:hidden}
 
 </div>
 
-<script src="./ratib-first-run-3.6.105.11.js?v=3.6.107.07"></script>
+<script src="./ratib-first-run-3.6.105.11.js?v=3.6.107.08"></script>
 <script>
 // ===== تسجيل Service Worker (يفعّل العمل دون إنترنت بعد أول زيارة) =====
 // يُسجَّل بعد اكتمال تحميل الصفحة حتى لا يؤخر أول عرض للتطبيق. يعمل فقط عبر HTTPS
 // (أو localhost أثناء التطوير) — هذا شرط أساسي من المتصفح نفسه لأي Service Worker.
 let _briefAppNoticeTimer=null;
 let _releaseSummaryDisplayed=false;
-const RATIB_RELEASE={"version":"3.6.107.07","highlights":[],"changes":["تصحيح الأخطاء في بعض الأجهزة"]};
+const RATIB_RELEASE={"version":"3.6.107.08","highlights":[],"changes":["تصحيح الأخطاء في بعض الأجهزة"]};
 window.ratibCurrentTrialVersion=()=>String(RATIB_RELEASE.version);
 window.ratibCurrentTrialVersionLabel=()=>`الإصدار ${RATIB_RELEASE.version} (تجريبية)`;
 window.ratibSyncTrialVersion=()=>{
@@ -9141,7 +9141,7 @@ function proceedAppInit() {
 }
 
 
-/* Ratib trial 3.6.107.07 — preserve the active screen across Android/PWA background recreation.
+/* Ratib trial 3.6.107.08 — preserve the active screen across Android/PWA background recreation.
  * The view is stored in Ratib's existing protected application store, not in plain localStorage.
  * Never restore before vault unlock; explicit Exit clears the snapshot.
  */
@@ -9857,25 +9857,68 @@ function initNestedNavigation(){
   },true);
 }
 
+// A mobile Back gesture has already moved browser history by one entry.
+// Reconcile with Ratib's existing base guard; never add a new Back entry here.
+function ratibGestureDraftCheck(){
+  const single=document.getElementById('cashFlowCard'),multi=document.getElementById('multiVoucherCard');
+  const editingVoucher=currentActiveTab==='pageExpenses'&&hasUnsavedChanges&&
+    ((single&&!single.classList.contains('hidden'))||(multi&&!multi.classList.contains('hidden')));
+  if(editingVoucher){
+    if(!confirm('هذا السند لم يُعتمد بعد. هل تريد حفظ مسودة محلية والرجوع إلى الواجهة الرئيسية؟'))return false;
+    try{
+      if(multi&&!multi.classList.contains('hidden')){
+        const draft=buildMultiVoucherData('draft');
+        const stored=store.get('multi_voucher_drafts',[]);
+        const drafts=(Array.isArray(stored)?stored:[]).filter(item=>item.id!==draft.id);
+        drafts.push(draft);store.set('multi_voucher_drafts',drafts);
+        multiVoucherDraftId=draft.id;
+      }else{
+        store.set('single_voucher_draft_v1',captureSingleDraft());
+        updateDraftButton();
+      }
+      flushStorage().then(()=>showToast('تم حفظ المسودة محليًا','success'))
+        .catch(()=>showToast('تعذر تأكيد حفظ المسودة. اترك التطبيق مفتوحًا وأعد المحاولة.','error',7000));
+    }catch(error){showToast('تعذر حفظ المسودة؛ بقي المستند مفتوحًا.','error',7000);return false;}
+  }
+  if(currentActiveTab==='pageCommerce'&&window.RatibCommerce?.hasUnsavedDraft?.()){
+    if(!confirm('توجد تغييرات غير محفوظة في المستند. الرجوع إلى الرئيسية سيفقد هذه التغييرات. هل تريد المتابعة؟'))return false;
+  }
+  return true;
+}
+function ratibGestureDashboard(known,depth){
+  _appReplayDepth=null;
+  _appBackStack.length=0;_appSavedViews.clear();_appCurrentHistoryDepth=0;
+  _appHomeReset=!!(known&&depth>0);
+  const restoring=_restoringAppView;_restoringAppView=true;
+  try{navigateToTab('pageDashboard',false);}
+  finally{_restoringAppView=restoring;}
+  _appSavedViews.set(0,captureAppView());
+  if(!known){_appReplayDepth=0;history.forward();return;}
+  if(depth>0){history.go(-depth);return;}
+  recordAppHistory({page:'tab',tab:'pageDashboard'});
+  finishAppHistoryMovement();
+}
+
 function handleRatibPopState(){
   if(allowExit||_appExited){if(history.state?.ratibGuard||history.state?.page==='ratib_app_base')history.back();return;}
   if(!_appHistoryInitialized)return;
   const lock=document.getElementById('lockScreen');if(lock?.style.display==='flex')return;
   const state=history.state,known=state?.ratibGuard&&state.ratibSession===_appHistorySession,depth=known?Number(state.ratibDepth||0):-1;
   if(_appHomeReset&&known&&depth===0){_appHomeReset=false;_appCurrentHistoryDepth=0;_appSavedViews.set(0,captureAppView());recordAppHistory({page:'tab',tab:'pageDashboard'});finishAppHistoryMovement();return;}
-  if(_appReplayDepth!==null&&known&&depth===_appReplayDepth){_appReplayDepth=null;finishAppHistoryMovement();return;}
+  if(_appReplayDepth!==null&&known&&depth===_appReplayDepth){_appReplayDepth=null;if(currentActiveTab==='pageDashboard'&&_appBackStack.length===0)recordAppHistory({page:'tab',tab:'pageDashboard'});finishAppHistoryMovement();return;}
   // Reuse existing entries when closing an overlay or showing root confirmation.
   // Inserting a new entry from popstate makes subsequent phone Back gestures skippable.
   if(closeTransientAppUi()){_appReplayDepth=_appCurrentHistoryDepth;history.go(known?_appCurrentHistoryDepth-depth:1);return;}
-  // A physical Android Back gesture (or browser Back) from an internal screen
-  // always returns to Ratib's main dashboard, not to the exit confirmation.
-  // Keep editor elements intact; only the visual navigation stack is reset.
+  // All physical Back gestures from internal views land on the main dashboard.
+  // Preserve the original root guard so the next Back requests exit normally.
   if(currentActiveTab!=='pageDashboard'){
-    _appReplayDepth=null;_appHomeReset=false;
-    _appBackStack.length=0;_appSavedViews.clear();_appCurrentHistoryDepth=0;
-    navigateToTab('pageDashboard',false);
-    _appSavedViews.set(0,captureAppView());
-    finishAppHistoryMovement();
+    if(!ratibGestureDraftCheck()){
+      _appReplayDepth=_appCurrentHistoryDepth;
+      const steps=known?_appCurrentHistoryDepth-depth:1;
+      if(steps>0)history.go(steps);else history.forward();
+      return;
+    }
+    ratibGestureDashboard(known,depth);
     return;
   }
   _appSavedViews.set(_appCurrentHistoryDepth,captureAppView());
@@ -12535,7 +12578,7 @@ try{currenciesUi();sync();}catch(e){console.error('Ratib 3.6.12 initialization',
 <script src="./ratib-license-draft.js?v=3.6.151" defer></script>
 <script src="./ratib-ui-v3.6.37.js?v=2" defer></script>
 <script src="./ratib-favorites-v3.js?v=3.6.137" defer></script>
-<script src="./ratib-voice-dictation-3.6.117.js?v=3.6.107.07" defer></script>
+<script src="./ratib-voice-dictation-3.6.117.js?v=3.6.107.08" defer></script>
 <script src="./ratib-import-manager.js?v=2" defer></script>
 <script src="./ratib-annual-close.js?v=1" defer></script>
 <script src="./ratib-fiscal-ledger.js?v=1" defer></script>
@@ -12550,21 +12593,21 @@ try{currenciesUi();sync();}catch(e){console.error('Ratib 3.6.12 initialization',
 <script src="./ratib-amount-edit-3.6.97.js?v=3.6.158" defer></script>
 <script src="./ratib-special-reports-3.6.102.js?v=3.6.114" defer></script>
 <script src="./ratib-fx-autofill-3.6.105.js?v=3.6.107" defer></script>
-<script src="./ratib-report-buttons-3.6.106.js?v=3.6.107.07" defer></script>
+<script src="./ratib-report-buttons-3.6.106.js?v=3.6.107.08" defer></script>
 <script src="./ratib-print-logo-3.6.108.js?v=3.6.111" defer></script>
 <div id="ratibSpecialPrintHost" aria-hidden="true"></div>
-<script src="./ratib-sidebar-3.6.124.js?v=3.6.107.07" defer></script>
-<script src="./ratib-commerce-3.6.131.js?v=3.6.107.07" defer></script>
-<script src="./ratib-simple-accounts-3.6.105.13.js?v=3.6.107.07" defer></script>
-<script src="./ratib-interactive-tree-3.6.105.05.js?v=3.6.107.07" defer></script>
+<script src="./ratib-sidebar-3.6.124.js?v=3.6.107.08" defer></script>
+<script src="./ratib-commerce-3.6.131.js?v=3.6.107.08" defer></script>
+<script src="./ratib-simple-accounts-3.6.105.13.js?v=3.6.107.08" defer></script>
+<script src="./ratib-interactive-tree-3.6.105.05.js?v=3.6.107.08" defer></script>
 <script src="./ratib-login-3.6.124.js?v=3.6.153" defer></script>
 <script src="./ratib-trial-home-sidebar-3.6.143.js?v=3.6.143" defer></script>
 <script src="./ratib-trial-ui-3.6.143.js?v=3.6.153" defer></script>
 <script src="./ratib-dashboard-finance-3.6.144.js?v=3.6.153" defer></script>
-<script src="./ratib-global-button-size-3.6.146.js?v=3.6.107.07" defer></script>
+<script src="./ratib-global-button-size-3.6.146.js?v=3.6.107.08" defer></script>
 <script src="./ratib-document-signatures-3.6.148.js?v=3.6.148" defer></script>
 <script src="./ratib-feedback-3.6.149.js?v=3.6.149" defer></script>
-<script src="./ratib-statement-marks-3.6.106.05.js?v=3.6.107.07" defer>
+<script src="./ratib-statement-marks-3.6.106.05.js?v=3.6.107.08" defer>
 </script>
 <script src="./ratib-country-currency-3.6.151.js?v=3.6.151" defer></script>
 </body>

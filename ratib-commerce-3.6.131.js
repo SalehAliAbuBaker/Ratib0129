@@ -1242,5 +1242,11 @@ function commerceOpenDocument(docId){
  detailId=doc.id;view='detail';paint();
 }
 window.RatibCommerce={open,openFavorite,openDocument:commerceOpenDocument,documentAction:commerceDocumentOperation,render:paint,version:window.ratibCurrentTrialVersion?.()||'3.6.149'};
+window.RatibCommerce.hasUnsavedDraft=()=>{
+ if(view!=='new'||!draft)return false;
+ syncInvoice();
+ return !!(editingDocId||draft.partyName||draft.displayPartyName||draft.note||
+   draft.lines?.some(line=>line.product||Number(line.price)>0));
+};
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',bind,{once:true});else bind();
 })();

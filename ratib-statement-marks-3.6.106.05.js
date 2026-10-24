@@ -85,6 +85,12 @@ function init(){
   '.account-statement-row[data-tx-id]{-webkit-touch-callout:none;touch-action:auto}',
   '.account-statement-row[data-tx-id].ratib-statement-marked{background:color-mix(in srgb,#f6d46b 28%,var(--card))!important;border-inline-start:5px solid #bf8b15!important;box-shadow:inset 0 0 0 1px #d1a72f66!important}',
   '.account-statement-row[data-tx-id].ratib-statement-marked::after{content:"★ معلّمة";display:block;grid-column:1/-1;text-align:right;font-size:.74rem;font-weight:800;color:#926713}',
+  // Mobile statement cards force their white background with an ID-scoped !important rule.
+  // Use a more specific mobile-only selector so marked cards retain the desktop gold fill.
+  '@media screen and (max-width: 760px) {',
+  '#pageAccountOperations .account-statement-row[data-tx-id].ratib-statement-marked{background:#fbf0c9!important;background:color-mix(in srgb,#f6d46b 28%,var(--card))!important;border:1px solid #d7ab39!important;border-inline-start:5px solid #bf8b15!important;box-shadow:inset 0 0 0 1px #d1a72f66!important}',
+  '#pageReports .account-statement-row[data-tx-id].ratib-statement-marked,#pageAccountsTree .account-statement-row[data-tx-id].ratib-statement-marked{background:#fbf0c9!important;background:color-mix(in srgb,#f6d46b 28%,var(--card))!important;border-inline-start:5px solid #bf8b15!important;box-shadow:inset 0 0 0 1px #d1a72f66!important}',
+  '}',
   '.account-statement-row[data-tx-id].ratib-statement-mark-mode{cursor:crosshair;user-select:none;-webkit-user-select:none}',
   '.ratib-statement-markbar{display:flex;gap:8px;justify-content:space-between;align-items:center;flex-wrap:wrap;margin:5px 0 9px;padding:9px;border-radius:9px;border:1px solid #c5a447;background:color-mix(in srgb,#f5d985 16%,var(--card));font-size:.83rem;font-weight:750}',
   '.ratib-statement-markbar[hidden],.ratib-statement-markbar button[hidden]{display:none!important}',

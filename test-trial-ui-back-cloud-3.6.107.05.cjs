@@ -10,9 +10,9 @@ const fontCss=read('ratib-interface-font-3.6.148.css');
 const sw=read('sw.js');
 const pkg=require('./package.json');
 const levels=['xsmall','small','medium','large','xlarge'];
-assert.equal(pkg.version,'3.6.107.05');
-assert(html.includes('const RATIB_RELEASE={"version":"3.6.107.05"'));
-assert(sw.includes('v206-trial-ui-back-oauth-3.6.107.05'));
+assert.equal(pkg.version,'3.6.107.06');
+assert(html.includes('const RATIB_RELEASE={"version":"3.6.107.06"'));
+assert(sw.includes('v207-trial-oauth-origin-3.6.107.06'));
 for(const size of levels){
  assert(sizeJs.includes("'"+size+"'"),'missing size value '+size);
  assert(buttonCss.includes('data-ratib-button-size="'+size+'"'),'button CSS missing '+size);
@@ -21,7 +21,7 @@ for(const size of levels){
 }
 assert(sidebar.includes('<option value="medium">متوسط (الافتراضي)'));
 assert(sizeJs.includes("x==='normal'?'medium'"),'migrate earlier normal font preference');
-assert(html.includes("const RATIB_GOOGLE_CLIENT_ID = '127962228897-k19m5nstjaun38k38348er1c9cf8vemb.apps.googleusercontent.com'"));
+assert(html.includes("const RATIB_GOOGLE_CLIENT_ID = '127962228897-qmia501m05ikjfajldb1lus689qupbml.apps.googleusercontent.com'"));
 assert(html.includes("const CLOUD_FOLDER_NAME = 'Ratib Trial Backups'"),'trial backups must remain separate');
 assert(html.includes("const CLOUD_LEGACY_FOLDER_NAME = 'Ratib Backups'"),'restore/legacy browse must remain available');
 assert(html.includes('await verifyCloudFile(token, pending)'),'verify upload before success');
@@ -59,4 +59,4 @@ assert.equal(modal.counts.close,1,'one transient UI closes first');
 assert.equal(modal.counts.exit,0,'closing transient UI must never exit');
 for(const snippet of [...html.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script>/gi)].map(m=>m[1]).filter(Boolean))new Function(snippet);
 new Function(sizeJs);new Function(sw);
-console.log('PASS trial 3.6.107.05: five size levels, middle default, navigation to home, cloud isolation and syntax');
+console.log('PASS trial 3.6.107.06: five size levels, middle default, navigation to home, cloud isolation and syntax');

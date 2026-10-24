@@ -1569,7 +1569,7 @@ body.ratib-sidebar-open,body.ratib-about-open{overflow:hidden}
 }
 </style>
 <link rel="stylesheet" href="./ratib-login-3.6.124.css?v=3.6.131">
-<link rel="stylesheet" href="./ratib-commerce-3.6.131.css?v=3.6.107.01">
+<link rel="stylesheet" href="./ratib-commerce-3.6.131.css?v=3.6.107.02">
 
 <style id="ratib-commerce-ledger-actions-3.6.138">
 #pageLedger .rc-ledger-operations{display:flex;align-items:center;justify-content:flex-start;gap:5px;flex-wrap:wrap;padding:6px 8px;margin-top:4px}
@@ -1583,7 +1583,7 @@ body.ratib-sidebar-open,body.ratib-about-open{overflow:hidden}
 <link rel="stylesheet" href="./ratib-interface-font-3.6.148.css?v=3.6.148">
 <link rel="stylesheet" href="./ratib-feedback-3.6.149.css?v=3.6.149">
 <link rel="stylesheet" href="./ratib-country-currency-3.6.151.css?v=3.6.151">
-<link rel="stylesheet" href="./ratib-interactive-tree-3.6.105.05.css?v=3.6.107.01">
+<link rel="stylesheet" href="./ratib-interactive-tree-3.6.105.05.css?v=3.6.107.02">
 </head>
 <body>
 
@@ -1614,7 +1614,7 @@ body.ratib-sidebar-open,body.ratib-about-open{overflow:hidden}
     <div class="header-tools"><div class="header-actions">
       <button class="icon-btn" id="themeBtn" title="الوضع الليلي">🌙</button>
       <button class="icon-btn" id="sidebarMenuBtn" aria-haspopup="dialog" aria-controls="appSidebar" aria-expanded="false" title="الإعدادات" aria-label="فتح الإعدادات">⚙</button>
-    </div><small id="appVersionLabel" class="app-version">الإصدار 3.6.107.01 (تجريبية)</small></div>
+    </div><small id="appVersionLabel" class="app-version">الإصدار 3.6.107.02 (تجريبية)</small></div>
   </header>
   <div class="summary-toolbar hidden no-print" id="storageFeedback"><span id="persistentSaveStatus" hidden aria-hidden="true">جاهز</span><button type="button" id="retryStorageBtn" class="btn btn-ghost hidden">إعادة محاولة الحفظ</button></div>
 <div class="app-update-banner hidden no-print" id="appUpdateBanner" role="status"><span id="appUpdateMessage">يتوفر تحديث لراتب. هل تريد تطبيقه؟</span><button type="button" class="btn btn-ghost" id="applyAppUpdateBtn">موافق، تطبيق التحديث</button><div id="appUpdateDetails" class="hidden"></div></div>
@@ -1661,7 +1661,7 @@ body.ratib-sidebar-open,body.ratib-about-open{overflow:hidden}
       <img src="Icons/icon-192.png" width="72" height="72" alt="" decoding="async">
       <h2 id="ratibAboutTitle">راتب</h2>
       <p class="ratib-about-subtitle">للتنظيم والتدبير المالي</p>
-      <p class="ratib-about-version">الإصدار 3.6.107.01 (تجريبية)</p>
+      <p class="ratib-about-version">الإصدار 3.6.107.02 (تجريبية)</p>
       <p id="ratibAboutDescription">إدارة الحسابات والسندات والميزانية، ومتابعة العمليات والتقارير المالية، مع حفظ البيانات على جهازك ودعم العمل دون الإنترنت.</p>
       <button type="button" class="btn btn-primary" id="closeRatibAboutBtn">إغلاق</button>
     </div>
@@ -2899,14 +2899,14 @@ body.ratib-sidebar-open,body.ratib-about-open{overflow:hidden}
 
 </div>
 
-<script src="./ratib-first-run-3.6.105.11.js?v=3.6.107.01"></script>
+<script src="./ratib-first-run-3.6.105.11.js?v=3.6.107.02"></script>
 <script>
 // ===== تسجيل Service Worker (يفعّل العمل دون إنترنت بعد أول زيارة) =====
 // يُسجَّل بعد اكتمال تحميل الصفحة حتى لا يؤخر أول عرض للتطبيق. يعمل فقط عبر HTTPS
 // (أو localhost أثناء التطوير) — هذا شرط أساسي من المتصفح نفسه لأي Service Worker.
 let _briefAppNoticeTimer=null;
 let _releaseSummaryDisplayed=false;
-const RATIB_RELEASE={"version":"3.6.107.01","highlights":[],"changes":["تصحيح الأخطاء في بعض الأجهزة"]};
+const RATIB_RELEASE={"version":"3.6.107.02","highlights":[],"changes":["تصحيح الأخطاء في بعض الأجهزة"]};
 window.ratibCurrentTrialVersion=()=>String(RATIB_RELEASE.version);
 window.ratibCurrentTrialVersionLabel=()=>`الإصدار ${RATIB_RELEASE.version} (تجريبية)`;
 window.ratibSyncTrialVersion=()=>{
@@ -3691,16 +3691,16 @@ async function importBackupFile(file){
     const payload=JSON.parse(await file.text());
     if(!payload||typeof payload!=='object'||Array.isArray(payload))throw new Error('ملف النسخة الاحتياطية غير صالح.');
     if(Number(payload.schema||0)>APP_SCHEMA_VERSION)throw new Error('هذه النسخة من إصدار أحدث؛ حدّث التطبيق أولاً.');
-    if(payload.app!=='ratib'&&!confirm('هذه نسخة قديمة أو من تطبيق آخر. سيتم التحقق من بياناتها قبل الاسترجاع. متابعة؟'))return;
+    if(payload.app!=='ratib'&&!confirm('هذه نسخة قديمة أو من تطبيق آخر. سيتم التحقق من بياناتها قبل الاسترجاع. متابعة؟'))return false;
     let restored,importedKey=null;
     if(payload.encrypted){
-      const pin=prompt('أدخل الرقم السري المستخدم وقت إنشاء هذه النسخة:');if(!pin)return;
+      const pin=prompt('أدخل الرقم السري المستخدم وقت إنشاء هذه النسخة:');if(!pin)return false;
       try{importedKey=(await deriveVaultKey(pin,payload.salt)).key;restored=normalizeRestoredData(await decryptVaultBlob(importedKey,payload.blob));}
       catch(_){throw new Error('الرقم السري غير صحيح، أو النسخة تالفة.');}
     }else restored=normalizeRestoredData(payload.data||{});
     for(const k of Object.keys(restored))if(_storageInternalKeys.has(k))delete restored[k];
     const count=validateRestoredData(restored);
-    if(!confirm(`سيتم استبدال جميع البيانات الحالية بنسخة تحتوي ${count} حركة محاسبية. ستُجهّز نسخة أمان من البيانات الحالية للتنزيل قبل الاستبدال. متابعة؟`))return;
+    if(!confirm(`سيتم استبدال جميع البيانات الحالية بنسخة تحتوي ${count} حركة محاسبية. ستُجهّز نسخة أمان من البيانات الحالية للتنزيل قبل الاستبدال. متابعة؟`))return false;
     if(_pendingFinancialCompletion)throw new Error('أكمل حفظ السند المعلّق قبل استرجاع نسخة أخرى.');
     await flushStorage();
     const rollback=await buildBackupPayload();downloadBackupPayload(rollback,`ratib-before-restore-${backupStamp()}.json`);
@@ -3713,8 +3713,8 @@ async function importBackupFile(file){
     if(cfg.enabled){try{sessionStorage.setItem(SESSION_KEY_CACHE,_b64(await crypto.subtle.exportKey('raw',key)));}catch(_){ }}
     else try{sessionStorage.removeItem(SESSION_KEY_CACHE);}catch(_){ }
     clearTimeout(_draftTimer);clearTimeout(_autoBackupTimer);hasUnsavedChanges=false;
-    showToast('اكتمل الاسترجاع والحفظ، سيُعاد فتح التطبيق.','info');setTimeout(()=>location.reload(),300);
-  }catch(e){console.error(e);showToast(e.message||'تعذّر استرجاع النسخة. لم يكتمل الاستبدال.','error',7000);}
+    showToast('اكتمل الاسترجاع والحفظ، سيُعاد فتح التطبيق.','info');setTimeout(()=>location.reload(),300);return true;
+  }catch(e){console.error(e);showToast(e.message||'تعذّر استرجاع النسخة. لم يكتمل الاستبدال.','error',7000);return false;}
 }
 
 // ---- نسخ تلقائي لمجلد على الجهاز (Chrome/Edge على الكمبيوتر فقط) ----
@@ -3918,7 +3918,7 @@ const RATIB_GOOGLE_CLIENT_ID = '127962228897-qmia501m05ikjfajldb1lus689qupbml.ap
 let _cloudToken = null, _cloudTokenExp = 0, _cloudBusy = false, _gisPromise = null, _cloudNotifiedThisSession = false;
 
 function getCloudCfg() {
-  return Object.assign({ enabled: false, email: '', time: '21:00', lastDate: '', lastTime: '', lastError: '' }, store.get(CLOUD_CFG_KEY, {}) || {}, { clientId: RATIB_GOOGLE_CLIENT_ID });
+  return Object.assign({ enabled: false, email: '', time: '21:00', lastDate: '', lastTime: '', lastError: '', lastStatus: '', lastFileId: '', lastFileName: '', lastFolder: '', lastVerifiedAt: '', pendingUpload: null }, store.get(CLOUD_CFG_KEY, {}) || {}, { clientId: RATIB_GOOGLE_CLIENT_ID });
 }
 function saveCloudCfg(patch, silent = false) {
   const next = Object.assign(getCloudCfg(), patch, { clientId: RATIB_GOOGLE_CLIENT_ID });
@@ -3991,10 +3991,27 @@ async function getDriveToken(interactive) {
 }
 
 async function driveFetch(url, opts = {}, token) {
-  const res = await fetch(url, Object.assign({}, opts, { headers: Object.assign({ Authorization: 'Bearer ' + token }, opts.headers || {}) }));
-  if (res.status === 401) { _cloudToken = null; _cloudTokenExp = 0; }
-  if (!res.ok) { const t = await res.text().catch(() => ''); throw new Error(`Drive ${res.status}: ${t.slice(0, 160)}`); }
-  return res;
+  const timeoutMs = Number(opts.timeoutMs) || (opts.method === 'POST' ? 150000 : 60000);
+  const controller = new AbortController();
+  const deadline = setTimeout(() => controller.abort(), timeoutMs);
+  const { timeoutMs: ignoredTimeout, ...options } = opts;
+  try {
+    const res = await fetch(url, Object.assign({}, options, {
+      signal: controller.signal,
+      headers: Object.assign({ Authorization: 'Bearer ' + token }, options.headers || {})
+    }));
+    if (res.status === 401) { _cloudToken = null; _cloudTokenExp = 0; }
+    if (!res.ok) {
+      const t = await res.text().catch(() => '');
+      const error = new Error('Google Drive HTTP ' + res.status + ': ' + t.slice(0, 160));
+      error.status = res.status;
+      throw error;
+    }
+    return res;
+  } catch (error) {
+    if (error?.name === 'AbortError') throw new Error('انتهت مهلة استجابة Google Drive. حالة الرفع غير محسومة؛ سيجري التحقق قبل محاولة إنشاء نسخة جديدة.');
+    throw error;
+  } finally { clearTimeout(deadline); }
 }
 
 async function findDriveFolder(token, name) {
@@ -4040,7 +4057,7 @@ async function pruneCloudBackups(token, folderId) {
 }
 
 async function uploadCloudBackup(token, folderId, name, content) {
-  const boundary = 'ratibB' + Math.random().toString(36).slice(2);
+  const boundary = 'ratibB' + crypto.randomUUID().replaceAll('-', '');
   const meta = JSON.stringify({ name, parents: [folderId], mimeType: 'application/json' });
   const body = `--${boundary}\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n${meta}\r\n--${boundary}\r\nContent-Type: application/json\r\n\r\n${content}\r\n--${boundary}--`;
   return (await driveFetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id,name', {
@@ -4048,9 +4065,54 @@ async function uploadCloudBackup(token, folderId, name, content) {
   }, token)).json();
 }
 
+// Do not call the upload complete until Drive confirms the stored file, folder, name and byte length.
+async function verifyCloudFile(token, item) {
+  if (!item?.id) throw new Error('Google Drive لم يُرجع معرّف النسخة للتحقق منها.');
+  const response = await driveFetch('https://www.googleapis.com/drive/v3/files/' +
+    encodeURIComponent(item.id) + '?fields=id,name,parents,size,mimeType,trashed', {}, token);
+  const file = await response.json();
+  if (!file || file.id !== item.id || file.name !== item.name ||
+      !Array.isArray(file.parents) || !file.parents.includes(item.folderId) ||
+      file.trashed === true || file.mimeType !== 'application/json' ||
+      !Number.isFinite(Number(file.size)) || Number(file.size) !== item.bytes || item.bytes < 1) {
+    throw new Error('لم تتطابق بيانات النسخة الموجودة في Google Drive مع الملف المطلوب؛ لم يُعتمد نجاح الرفع.');
+  }
+  return file;
+}
+function cloudBackupSuccess(item) {
+  const now = new Date();
+  saveCloudCfg({
+    pendingUpload: null, lastStatus: 'verified', lastError: '',
+    lastDate: _todayStr(now), lastTime: now.toISOString(),
+    lastFileId: item.id, lastFileName: item.name,
+    lastFolder: item.destination === 'official' ? CLOUD_LEGACY_FOLDER_NAME : CLOUD_FOLDER_NAME,
+    lastVerifiedAt: now.toISOString()
+  }, true);
+}
+// Resolve a lost upload response before creating another file. A transient error preserves the pending record.
+async function recoverPendingCloudUpload(token, pending) {
+  if (!pending?.name || !pending?.folderId || !Number.isFinite(Number(pending.bytes))) return false;
+  let item = { ...pending };
+  if (!item.id) {
+    const files = await listCloudBackups(token, item.folderId);
+    const match = files.find(f => f.name === item.name);
+    if (!match) { saveCloudCfg({ pendingUpload: null }, true); return false; }
+    item.id = match.id;
+    saveCloudCfg({ pendingUpload: item }, true);
+  }
+  try {
+    await verifyCloudFile(token, item);
+  } catch (error) {
+    if (error?.status === 404) { saveCloudCfg({ pendingUpload: null }, true); return false; }
+    throw error;
+  }
+  cloudBackupSuccess(item);
+  return true;
+}
+
 async function runCloudBackup(interactive) {
   if (_cloudBusy) {
-    if (interactive) showToast('هناك محاولة نسخ قائمة؛ انتظر نتيجتها قبل إعادة الطلب.', 'warn');
+    if (interactive) showToast('هناك محاولة نسخ قائمة؛ راجع نتيجتها قبل إعادة الطلب.', 'warn');
     return false;
   }
   const cfg = getCloudCfg();
@@ -4058,34 +4120,48 @@ async function runCloudBackup(interactive) {
   _cloudBusy = true; refreshCloudBackupUI();
   try {
     const token = await getDriveToken(interactive);
+    // A previous POST might have succeeded even if the browser lost its response.
+    if (cfg.pendingUpload && await recoverPendingCloudUpload(token, cfg.pendingUpload)) {
+      if (interactive) showToast('تم تأكيد النسخة السابقة على Google Drive، دون رفع نسخة مكررة.', 'success');
+      return true;
+    }
     const dest = interactive ? (document.getElementById('cloudUploadDestination')?.value || 'trial') : 'trial';
     let folderId;
     if (dest === 'official') {
       folderId = await findDriveFolder(token, CLOUD_LEGACY_FOLDER_NAME);
-      if (!folderId) throw new Error('لم يمنح Google للتجريبية صلاحية الوصول إلى مجلد الرسمية. لا يمكن الرفع إليه بهذه الصلاحية؛ اختر مجلد التجريبية.');
-      if (!confirm('سترفع نسخة جديدة إلى مجلد الرسمية دون استبدال نسخ موجودة. متابعة؟')) return false;
+      if (!folderId) throw new Error('مجلد الرسمية غير متاح لصلاحية التجريبية الحالية؛ اختر مجلد التجريبية.');
+      if (!interactive || !confirm('سترفع نسخة جديدة إلى مجلد الرسمية دون استبدال النسخ الموجودة. متابعة؟')) return false;
     } else folderId = await ensureDriveFolder(token);
-    const now = new Date();
+    if (!folderId) throw new Error('تعذر تحديد مجلد النسخ السحابية في Google Drive.');
+    // Include all saved accounting updates before taking the backup snapshot.
+    await flushStorage();
     const payload = await buildBackupPayload();
+    const content = JSON.stringify(payload);
+    const now = new Date();
     const prefix = dest === 'official' ? CLOUD_LEGACY_PREFIX : CLOUD_FILE_PREFIX;
     const baseName = `${prefix}${backupStamp(now)}`;
     const files = await listCloudBackups(token, folderId);
     let name = baseName + '.json', suffix = 1;
     while (files.some(f => f.name === name)) name = `${baseName}-${suffix++}.json`;
-    const uploaded = await uploadCloudBackup(token, folderId, name, JSON.stringify(payload));
-    if (!uploaded || !uploaded.id || uploaded.name !== name) throw new Error('لم يؤكد Google Drive إنشاء ملف النسخة الاحتياطية.');
-    try {
-      const about = await (await driveFetch('https://www.googleapis.com/drive/v3/about?fields=user(emailAddress)', {}, token)).json();
-      const actual = (about.user && about.user.emailAddress || '').toLowerCase();
-      if (cfg.email && actual && actual !== cfg.email.trim().toLowerCase()) showToast(`تنبيه: رُفعت النسخة إلى حساب ${actual} وهو يختلف عن البريد المُدخل`, 'warn', 7000);
-    } catch (e) {}
-    saveCloudCfg({ lastDate: _todayStr(now), lastTime: now.toISOString(), lastError: '' }, true);
-    if (interactive) showToast('تم رفع النسخة السحابية بنجاح', 'success');
+    const pending = { id: null, name, folderId, destination: dest,
+      bytes: new TextEncoder().encode(content).length, attemptedAt: now.toISOString() };
+    // Persist intention first: unexpected WebView suspension must not trigger duplicate uploads.
+    saveCloudCfg({ pendingUpload: pending, lastStatus: 'uploading', lastError: '' }, true);
+    await flushStorage();
+    const uploaded = await uploadCloudBackup(token, folderId, name, content);
+    if (uploaded?.id) {
+      pending.id = uploaded.id;
+      saveCloudCfg({ pendingUpload: pending }, true);
+    }
+    await verifyCloudFile(token, pending);
+    cloudBackupSuccess(pending);
+    if (interactive) showToast('تم التحقق من حفظ النسخة السحابية على Google Drive بنجاح.', 'success');
     return true;
   } catch (e) {
     console.warn('فشل النسخ السحابي', e);
-    saveCloudCfg({ lastError: e.message || String(e) }, true);
-    if (interactive) showToast('تعذّر النسخ السحابي: ' + (e.message || e), 'error', 7000);
+    saveCloudCfg({ lastStatus: getCloudCfg().pendingUpload ? 'pending_verification' : 'error',
+      lastError: e.message || String(e) }, true);
+    if (interactive) showToast('تعذّر تأكيد النسخ السحابي: ' + (e.message || e), 'error', 7000);
     return false;
   } finally { _cloudBusy = false; refreshCloudBackupUI(); }
 }
@@ -4099,35 +4175,60 @@ function cloudBackupDue() {
   return now >= scheduled && cfg.lastDate !== _todayStr(now);
 }
 
-async function checkCloudBackupDue() {if(_appExited)return;
-  if (_cloudBusy || !cloudBackupDue()) return;
-  const ok = await runCloudBackup(false); // محاولة صامتة
+async function checkCloudBackupDue() {
+  if (_appExited || _cloudBusy || !cloudBackupDue()) return;
+  // Google popup must never be launched by a background timer or on page resume.
+  if (navigator.onLine === false || !_cloudToken || Date.now() >= _cloudTokenExp - 60000) {
+    const next = navigator.onLine === false ? 'offline' : 'needs_authorization';
+    if (getCloudCfg().lastStatus !== next) {
+      saveCloudCfg({ lastStatus: next }, true);
+      refreshCloudBackupUI();
+    }
+    if (!_cloudNotifiedThisSession) {
+      _cloudNotifiedThisSession = true;
+      showToast(next === 'offline'
+        ? 'لم تُنفّذ النسخة السحابية المستحقة لعدم وجود اتصال. بياناتك المحلية محفوظة.'
+        : 'النسخة السحابية اليومية مستحقة وتحتاج إذن Google. افتح النسخ الاحتياطي واضغط «نسخ الآن».',
+      'warn', 8000);
+    }
+    return;
+  }
+  const ok = await runCloudBackup(false);
   if (!ok && !_cloudNotifiedThisSession) {
     _cloudNotifiedThisSession = true;
-    showToast('النسخة السحابية اليومية مستحقة وتحتاج موافقتك — افتح الإعدادات ← النسخ الاحتياطي واضغط "نسخ الآن"', 'warn', 8000);
+    showToast('لم يتم تأكيد النسخ اليومي. افتح إعدادات النسخ الاحتياطي لمراجعة الحالة.', 'warn', 8000);
   }
 }
 
 function refreshCloudBackupUI() {
   const cfg = getCloudCfg();
-  const $ = (id) => document.getElementById(id);
+  const $ = id => document.getElementById(id);
   const statusEl = $('cloudBackupStatus'), lastEl = $('cloudBackupLastTime'), warnEl = $('cloudBackupWarn');
   if (!statusEl) return;
   const active = cfg.enabled && cfg.clientId;
-  statusEl.textContent = _cloudBusy ? '⏳ جارٍ الاتصال ورفع النسخة...'
-    : cfg.lastError ? '⚠️ لم يكتمل آخر نسخ سحابي'
-    : active && cfg.lastTime ? `✅ آخر نسخة سحابية ناجحة — النسخ اليومي ${cfg.time}`
-    : active ? '☁️ إعدادات السحابة محفوظة — لم يتم تأكيد رفع نسخة بعد' : 'غير مفعّل';
+  statusEl.textContent = _cloudBusy ? '⏳ جارٍ التواصل مع Google Drive والتحقق من النسخة...'
+    : !active ? 'غير مفعّل'
+    : cfg.pendingUpload ? '⚠️ توجد محاولة رفع غير محسومة؛ اضغط «نسخ الآن» للتحقق من الملف قبل إنشاء نسخة أخرى'
+    : cfg.lastStatus === 'needs_authorization' ? '🔑 النسخ اليومي مستحق؛ يحتاج إذن Google بالضغط على «نسخ الآن»'
+    : cfg.lastStatus === 'offline' ? '📴 النسخ السحابي مستحق لكن الإنترنت غير متاح؛ لم تُرفع نسخة جديدة'
+    : cfg.lastError ? '⚠️ فشل التحقق من آخر نسخة سحابية'
+    : cfg.lastFileId && cfg.lastVerifiedAt ? '✅ آخر نسخة مؤكدة في Google Drive — النسخ اليومي ' + cfg.time
+    : cfg.lastTime ? '☁️ يوجد رفع سابق مسجل؛ لم يُجرَ فحص محتواه وفق معيار التحقق الجديد'
+    : '☁️ إعدادات السحابة محفوظة — لم يُؤكَّد رفع نسخة بعد';
   if (lastEl) {
     const parts = [];
-    if (cfg.lastTime) parts.push(`آخر نسخة سحابية: ${new Date(cfg.lastTime).toLocaleString('ar-EG')}`);
-    if (cfg.lastError) parts.push(`آخر خطأ: ${cfg.lastError}`);
+    if (cfg.lastTime) parts.push('آخر نسخة ناجحة: ' + new Date(cfg.lastTime).toLocaleString('ar-EG'));
+    if (cfg.lastFileName) parts.push('الملف: ' + cfg.lastFileName);
+    if (cfg.lastFolder) parts.push('المجلد: ' + cfg.lastFolder);
+    if (cfg.lastVerifiedAt) parts.push('تأكيد Google: ' + new Date(cfg.lastVerifiedAt).toLocaleString('ar-EG'));
+    if (cfg.lastError) parts.push('آخر خطأ: ' + cfg.lastError);
     lastEl.textContent = parts.join(' | ');
   }
   if (warnEl) {
     const msgs = [];
     if (!getSecurityConfig().enabled) msgs.push('⚠️ القفل بالرقم السري غير مفعّل، فستُرفع النسخ بدون تشفير. فعّل الرقم السري ليُشفَّر محتواها قبل الرفع.');
-    if (!_cloudOriginOk()) msgs.push('⚠️ الربط مع Google لا يعمل من ملف محلي أو واتساب؛ افتح التطبيق من رابط https.');
+    if (!_cloudOriginOk()) msgs.push('⚠️ الربط مع Google يتطلب فتح التطبيق من رابط https معتمد، وليس من ملف محلي.');
+    if (cfg.pendingUpload) msgs.push('⚠️ لا تُنشئ نسخة ثانية قبل التحقق من محاولة الرفع السابقة.');
     warnEl.textContent = msgs.join(' '); warnEl.style.display = msgs.length ? 'block' : 'none';
   }
   const show = (id, on) => { const el = $(id); if (el) el.style.display = on ? 'inline-block' : 'none'; };
@@ -4135,7 +4236,6 @@ function refreshCloudBackupUI() {
   const runBtn = $('cloudRunNowBtn'); if (runBtn) runBtn.disabled = _cloudBusy;
   if (document.activeElement !== $('cloudEmailInput')) { const e = $('cloudEmailInput'); if (e) e.value = cfg.email || ''; }
   if (document.activeElement !== $('cloudTimeInput')) { const t = $('cloudTimeInput'); if (t) t.value = cfg.time || '21:00'; }
-
 }
 
 async function openCloudRestoreModal() {
@@ -4172,11 +4272,13 @@ async function openCloudRestoreModal() {
       btn.addEventListener('click', async () => {
         btn.disabled = true;
         try {
-          const res = await driveFetch(`https://www.googleapis.com/drive/v3/files/${f.id}?alt=media`, {}, token);
+          const currentToken = await getDriveToken(true);
+          const res = await driveFetch(`https://www.googleapis.com/drive/v3/files/${encodeURIComponent(f.id)}?alt=media`, {}, currentToken);
           const content = await res.text();
-          modal.classList.remove('show');
-          await importBackupFile(new File([content], f.name, { type: 'application/json' }));
-        } catch (e) { showToast('تعذّر تنزيل النسخة: ' + (e.message || e), 'error', 6000); btn.disabled = false; }
+          if (!content.trim()) throw new Error('ملف النسخة السحابية فارغ؛ لم تتغير بيانات الجهاز.');
+          const restored = await importBackupFile(new File([content], f.name, { type: 'application/json' }));
+          if (restored) modal.classList.remove('show');
+        } catch (e) { showToast('تعذّرت الاستعادة: ' + (e.message || e), 'error', 6000); } finally { btn.disabled = false; }
       });
       row.append(label, btn); list.appendChild(row);
     });
@@ -4197,7 +4299,7 @@ function initCloudBackup() {
     const time = $('cloudTimeInput')?.value || '21:00';
 
     if (email && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) { alert('صيغة البريد الإلكتروني غير صحيحة.'); return; }
-    _cloudToken = null; _cloudTokenExp = 0;
+    if (email !== getCloudCfg().email) { _cloudToken = null; _cloudTokenExp = 0; }
     saveCloudCfg({ enabled: true, email, clientId, time, lastError: '' });
     refreshCloudBackupUI();
     showToast('حُفظت إعدادات السحابة. لم تُرفع نسخة حتى يؤكد Google Drive نجاح الحفظ.', 'info');
@@ -8990,7 +9092,7 @@ function proceedAppInit() {
 }
 
 
-/* Ratib trial 3.6.107.01 — preserve the active screen across Android/PWA background recreation.
+/* Ratib trial 3.6.107.02 — preserve the active screen across Android/PWA background recreation.
  * The view is stored in Ratib's existing protected application store, not in plain localStorage.
  * Never restore before vault unlock; explicit Exit clears the snapshot.
  */
@@ -12373,7 +12475,7 @@ try{currenciesUi();sync();}catch(e){console.error('Ratib 3.6.12 initialization',
 <script src="./ratib-license-draft.js?v=3.6.151" defer></script>
 <script src="./ratib-ui-v3.6.37.js?v=2" defer></script>
 <script src="./ratib-favorites-v3.js?v=3.6.137" defer></script>
-<script src="./ratib-voice-dictation-3.6.117.js?v=3.6.107.01" defer></script>
+<script src="./ratib-voice-dictation-3.6.117.js?v=3.6.107.02" defer></script>
 <script src="./ratib-import-manager.js?v=2" defer></script>
 <script src="./ratib-annual-close.js?v=1" defer></script>
 <script src="./ratib-fiscal-ledger.js?v=1" defer></script>
@@ -12388,13 +12490,13 @@ try{currenciesUi();sync();}catch(e){console.error('Ratib 3.6.12 initialization',
 <script src="./ratib-amount-edit-3.6.97.js?v=3.6.158" defer></script>
 <script src="./ratib-special-reports-3.6.102.js?v=3.6.114" defer></script>
 <script src="./ratib-fx-autofill-3.6.105.js?v=3.6.107" defer></script>
-<script src="./ratib-report-buttons-3.6.106.js?v=3.6.107.01" defer></script>
+<script src="./ratib-report-buttons-3.6.106.js?v=3.6.107.02" defer></script>
 <script src="./ratib-print-logo-3.6.108.js?v=3.6.111" defer></script>
 <div id="ratibSpecialPrintHost" aria-hidden="true"></div>
-<script src="./ratib-sidebar-3.6.124.js?v=3.6.107.01" defer></script>
-<script src="./ratib-commerce-3.6.131.js?v=3.6.107.01" defer></script>
-<script src="./ratib-simple-accounts-3.6.105.13.js?v=3.6.107.01" defer></script>
-<script src="./ratib-interactive-tree-3.6.105.05.js?v=3.6.107.01" defer></script>
+<script src="./ratib-sidebar-3.6.124.js?v=3.6.107.02" defer></script>
+<script src="./ratib-commerce-3.6.131.js?v=3.6.107.02" defer></script>
+<script src="./ratib-simple-accounts-3.6.105.13.js?v=3.6.107.02" defer></script>
+<script src="./ratib-interactive-tree-3.6.105.05.js?v=3.6.107.02" defer></script>
 <script src="./ratib-login-3.6.124.js?v=3.6.153" defer></script>
 <script src="./ratib-trial-home-sidebar-3.6.143.js?v=3.6.143" defer></script>
 <script src="./ratib-trial-ui-3.6.143.js?v=3.6.153" defer></script>
@@ -12402,7 +12504,7 @@ try{currenciesUi();sync();}catch(e){console.error('Ratib 3.6.12 initialization',
 <script src="./ratib-global-button-size-3.6.146.js?v=3.6.148" defer></script>
 <script src="./ratib-document-signatures-3.6.148.js?v=3.6.148" defer></script>
 <script src="./ratib-feedback-3.6.149.js?v=3.6.149" defer></script>
-<script src="./ratib-statement-marks-3.6.106.05.js?v=3.6.107.01" defer>
+<script src="./ratib-statement-marks-3.6.106.05.js?v=3.6.107.02" defer>
 </script>
 <script src="./ratib-country-currency-3.6.151.js?v=3.6.151" defer></script>
 </body>

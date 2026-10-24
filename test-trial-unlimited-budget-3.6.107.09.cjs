@@ -3,10 +3,10 @@ const assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('nod
 const html=fs.readFileSync('index.html','utf8');
 const worker=fs.readFileSync('sw.js','utf8');
 const pkg=require('./package.json');
-assert.equal(pkg.version,'3.6.107.09');
-assert(html.includes('const RATIB_RELEASE={"version":"3.6.107.09"'));
-assert(worker.includes("v210-trial-unlimited-budget-3.6.107.09"));
-assert(worker.includes('const APP_RELEASE={"version":"3.6.107.09"'));
+assert.match(pkg.version,/^3\.6\.\d+(?:\.\d+)?$/);
+assert(html.includes('const RATIB_RELEASE={"version":"'+pkg.version+'"'));
+assert(worker.includes("const CACHE_VERSION='")&&worker.includes(pkg.version));
+assert(worker.includes('const APP_RELEASE={"version":"'+pkg.version+'"'));
 assert(!html.includes('MAX_BUDGET_CATS'));
 assert(!html.includes('slice(0, 2).map(c'));
 assert(!html.includes('بنود الميزانية هو 12'));

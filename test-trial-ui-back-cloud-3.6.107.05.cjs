@@ -10,9 +10,9 @@ const fontCss=read('ratib-interface-font-3.6.148.css');
 const sw=read('sw.js');
 const pkg=require('./package.json');
 const levels=['xsmall','small','medium','large','xlarge'];
-assert.equal(pkg.version,'3.6.107.08');
-assert(html.includes('const RATIB_RELEASE={"version":"3.6.107.08"'));
-assert(sw.includes('v209-trial-navigation-guard-3.6.107.08'));
+assert.equal(pkg.version,'3.6.107.09');
+assert(html.includes('const RATIB_RELEASE={"version":"3.6.107.09"'));
+assert(sw.includes('v210-trial-unlimited-budget-3.6.107.09'));
 for(const size of levels){
  assert(sizeJs.includes("'"+size+"'"),'missing size value '+size);
  assert(buttonCss.includes('data-ratib-button-size="'+size+'"'),'button CSS missing '+size);
@@ -59,4 +59,4 @@ assert.equal(modal.counts.close,1,'one transient UI closes first');
 assert.equal(modal.counts.exit,0,'closing transient UI must never exit');
 for(const snippet of [...html.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script>/gi)].map(m=>m[1]).filter(Boolean))new Function(snippet);
 new Function(sizeJs);new Function(sw);
-console.log('PASS trial 3.6.107.08: five size levels, middle default, navigation to home, cloud isolation and syntax');
+console.log('PASS trial 3.6.107.09: five size levels, middle default, navigation to home, cloud isolation and syntax');

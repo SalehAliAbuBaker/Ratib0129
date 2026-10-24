@@ -23,6 +23,6 @@ assert(html.includes('await verifyCloudFile(token, pending)'));
 assert(html.includes("const DRIVE_SCOPE = 'https://www.googleapis.com/auth/drive.file'"));
 assert(html.includes("client_id: cfg.clientId"));
 assert(html.includes("ضمن مصادر JavaScript المسموحة لمعرّف راتب الموحّد."));
-for(const source of [...html.matchAll(/<script\\b[^>]*>([\\s\\S]*?)<\\/script>/gi)].map(m=>m[1]).filter(Boolean))new Function(source);
+for(const source of [...html.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script>/gi)].map(m=>m[1]).filter(Boolean))new Function(source);
 new Function(sw);
 console.log('PASS trial 3.6.107.07: shared OAuth, isolated trial Drive path, guarded official write, current release and syntax');

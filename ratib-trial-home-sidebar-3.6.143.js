@@ -19,11 +19,13 @@
 
   function enhanceDashboard() {
     const carousel = byId('dashboardCarousel');
-    if (!carousel || carousel.dataset.ratibPolished === '1') return;
+    const commerce = document.querySelector('#dashboardHomeContent .ratib-commerce-shortcuts');
+    if (!carousel || !commerce || carousel.dataset.ratibPolished === '1') return;
     carousel.dataset.ratibPolished = '1';
 
     // The favorites star stays exactly at the intersection of the four navigation tiles.
-    // The dashboard follows the four financial navigation tiles; no commerce shortcut row remains.
+    // Only reorder the already existing dashboard and commerce blocks.
+    if (carousel.parentElement === commerce.parentElement) commerce.before(carousel);
     const card = byId('proDashboardCard');
     const period = card && card.querySelector('.dashboard-period');
     const kpis = card && card.querySelector('.pro-kpi-grid');

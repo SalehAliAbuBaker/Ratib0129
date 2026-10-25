@@ -8,10 +8,13 @@ assert.deepEqual(buttons.map(b=>b.getAttribute('onclick').match(/selectVoucherTy
 assert(buttons.every(b=>b.getAttribute('onclick').includes("navigateToTab('pageExpenses'")));
 assert.deepEqual([...d.querySelectorAll('#dashboardHomeContent .main-menu-grid > .main-menu-btn')].map(x=>x.textContent.trim()),['سجل العمليات','التقارير','الحسابات']);
 assert(d.getElementById('voucherSelectorCard').classList.contains('hidden'),'legacy selection screen hidden');
+assert.equal(d.getElementById('restoreSingleDraftBtn').parentElement.id,'pageExpenses','restore saved draft without opening chooser');
+assert(html.includes("getElementById('voucherSelectorCard').classList.add('hidden')"),'selector initializer must never reveal obsolete screen');
+assert(html.includes("navigateToTab('pageDashboard',false);return;"),'Back from form goes to home rather than chooser');
 for(const id of ['pageExpenses','cashFlowCard','multiVoucherCard','restoreSingleDraftBtn'])assert(d.getElementById(id),id+' preserved');
 assert(!fav.includes("['new-voucher','إضافة سند'"));
 assert(fav.includes("'new-voucher'].includes(id)"),'old pinned shortcut ignored');
-assert.equal(pkg.version,'3.6.109.04');
+assert.equal(pkg.version,'3.6.109.05');
 const app=JSON.parse(html.match(/const RATIB_RELEASE=(\{[^;]+\});/)[1]),worker=JSON.parse(sw.match(/const APP_RELEASE=(\{[^;]+\});/)[1]);
 assert.deepEqual(worker,app);assert.equal(app.changes.length,3);
 assert(d.getElementById('ratibAboutReleaseNotes').textContent.includes(pkg.version));

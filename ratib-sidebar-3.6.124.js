@@ -92,7 +92,7 @@ function title(c){return header(c)?.querySelector('span')?.textContent?.trim()||
 function keyFor(c){
  const t=title(c);if(c.dataset.ratibCreated==='buttonsize'||t.includes('حجم الأزرار'))return 'buttonsize';if(c.id==='notificationSoundCard'||t.includes('صوت إشعارات التذكيرات'))return 'sound';
  if(c.id==='ratibCurrencyManager'||t.includes('إدارة العملات'))return 'currencies';
- if(c.id==='ratibStatementOptions'||t.includes('عرض وطباعة كشف الحساب'))return 'printing';
+ if(c.id==='ratibStatementOptions'||t.includes('عرض وطباعة كشف الحساب')||t.includes('إعدادات الطباعة'))return 'printing';
  if(t.includes('الأمان وقفل الحماية'))return 'security';
  if(t.includes('ترويسة الكشوفات')||t.includes('الهوية والبيانات الشخصية'))return 'identity';
  if(t.includes('الحسابات الافتراضية للسندات'))return 'defaults';

@@ -8,7 +8,7 @@
  let model=[],nodes=new Map(),selected='',openNodes=new Set(),lastQuery='',lastFilter='all',initialized=false,ready=false;
  let simpleView=true,simpleOpenNodes=new Set(['simple:cash','simple:cashbox','simple:bank']);
  const SIMPLE_KEY='ratib-account-tree-simple-view';
- try{const saved=window.localStorage.getItem(SIMPLE_KEY);simpleView=saved===null?true:saved==='1';}catch(_){}
+ // One simplified presentation for every user, including old '0' preferences.
  function norm(s){return String(s==null?'':s).normalize('NFKC').replace(/[\u064b-\u065f\u0670]/g,'').trim().toLocaleLowerCase('ar');}
  function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(x){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[x];});}
  function money(n){return Number(n||0).toLocaleString('en-US',{maximumFractionDigits:6});}
@@ -128,7 +128,7 @@
    mainCode:main?.code,main:main?.name,groupCode:group?.code,group:group?.name,
    subCode:sub?.code,sub:sub?.name,code:n.code,name:n.name
   })||'';
-  if(classification!=='cash')return classification;
+  if(classification!=='cash')return classification||'other';
   return /بنك|بنوك|مصرف|bank/i.test(norm(n.name+' '+(sub?.name||'')))?'bank':'cashbox';
  }
  function simpleNode(n){
@@ -158,7 +158,7 @@
     '<span class="rit-simple-group-balance">'+groupBalances(leaves)+'</span></button></div>';
  }
  function renderSimple(q){
-  const buckets={cashbox:[],bank:[],clients:[],suppliers:[],income:[],expenses:[]};
+  const buckets={cashbox:[],bank:[],clients:[],suppliers:[],income:[],expenses:[],other:[]};
   for(const n of nodes.values()){
    const bucket=simpleCategory(n);
    if(bucket)buckets[bucket].push(n);
@@ -169,7 +169,8 @@
    {key:'clients',title:'أموال لي عند الآخرين',children:[['clients',null]]},
    {key:'suppliers',title:'أموال عليّ للآخرين',children:[['suppliers',null]]},
    {key:'income',title:'الدخل والإيرادات',children:[['income',null]]},
-   {key:'expenses',title:'المصروفات',children:[['expenses',null]]}
+   {key:'expenses',title:'المصروفات',children:[['expenses',null]]},
+   {key:'other',title:'حسابات أخرى',children:[['other',null]]}
   ];
   let html='';
   for(const config of configs){
@@ -199,10 +200,10 @@
    }
    html+='</div>';
   }
-  return html||'<div class="rit-empty">لا توجد حسابات تطابق البحث ضمن المجموعات الخمس. استخدم العرض المحاسبي للاطلاع على جميع الحسابات.</div>';
+  return html||'<div class="rit-empty">لا توجد حسابات تطابق البحث. جرّب اسمًا أو رقمًا آخر.</div>';
  }
  function syncViewControls(){
-  mount.classList.toggle('rit-simple-mode',simpleView);
+  simpleView=true;mount.classList.add('rit-simple-mode');
   for(const btn of mount.querySelectorAll('[data-rit="simple"],[data-rit="full"]')){
    const active=(btn.dataset.rit==='simple')===simpleView;
    btn.classList.toggle('rit-selected',active);btn.setAttribute('aria-pressed',String(active));
@@ -301,12 +302,6 @@
   const btn=event.target.closest('[data-rit]');if(!btn||!mount.contains(btn))return;
   const action=btn.dataset.rit,key=btn.dataset.key,n=nodes.get(key||selected);
   if(action==='dismiss-details'){dismissDetails();return;}
-  if(action==='simple'||action==='full'){
-   simpleView=action==='simple';dismissDetails(false);
-   if(window.RatibSimpleAccounts)window.RatibSimpleAccounts.setSimple(simpleView);
-   else {try{window.localStorage.setItem(SIMPLE_KEY,simpleView?'1':'0');}catch(_){}renderView();}
-   return;
-  }
   if(action==='simple-toggle'){
    const id=String(key||'');if(simpleOpenNodes.has(id))simpleOpenNodes.delete(id);else simpleOpenNodes.add(id);
    renderView({details:false,stats:false});return;
@@ -366,7 +361,7 @@
   if(accountsLabel)accountsLabel.textContent='الحسابات';
   mount=document.createElement('section');mount.id=ID;mount.setAttribute('aria-label','شجرة الحسابات');
   mount.innerHTML=
-   '<div class="rit-shell"><div class="rit-head"><div><h2>شجرة الحسابات</h2><small>إدارة الحسابات والأرصدة والأسقف من الدليل المحاسبي</small></div><div class="rit-head-actions"><div class="rit-display-modes" role="group" aria-label="طريقة عرض الحسابات"><button type="button" class="rit-btn" data-rit="simple">مبسطة</button><button type="button" class="rit-btn" data-rit="full">محاسبية</button></div><button type="button" class="rit-btn rit-primary" data-rit="add">＋ حساب جديد</button></div></div>'+
+   '<div class="rit-shell"><div class="rit-head"><div><h2>شجرة الحسابات المبسطة</h2><small>كل الحسابات والأرصدة في مجموعات واضحة دون تغيير بياناتها</small></div><div class="rit-head-actions"><button type="button" class="rit-btn rit-primary" data-rit="add">＋ حساب جديد</button></div></div>'+
    '<div class="rit-stats"></div><div class="rit-workspace"><div class="rit-panel"><div class="rit-panel-head"><b>الحسابات</b><div><button type="button" class="rit-btn rit-advanced-only" data-rit="expand">توسيع الكل</button><button type="button" class="rit-btn rit-advanced-only" data-rit="collapse">طي الكل</button></div></div>'+
    '<div class="rit-filter"><input type="search" class="rit-search" placeholder="ابحث بالاسم أو رقم الحساب..." aria-label="البحث في الشجرة"><select class="rit-kind rit-advanced-only" aria-label="تصفية نوع الحساب"><option value="all">كل الحسابات</option><option value="detail">حسابات حركة</option><option value="group">حسابات تجميعية</option></select><small class="rit-mobile-hint">اضغط على اسم الحساب لعرض تفاصيله، وعلى السهم للطي والتوسيع.</small></div>'+
    '<div class="rit-tree"></div><div class="rit-panel-foot"><button type="button" class="rit-btn" data-rit="reset">إعادة ضبط العرض</button><button type="button" class="rit-btn" data-rit="refresh">تحديث الأرصدة</button></div></div>'+
@@ -405,16 +400,16 @@
   // Leave the account pager and its navigation/click handlers untouched.
  }
  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',install,{once:true});else install();
- window.addEventListener('ratib:account-view-change',event=>{
-  simpleView=!!event.detail?.simple;
+ window.addEventListener('ratib:account-view-change',()=>{
+  simpleView=true;
   if(ready){dismissDetails(false);renderView();}
  });
  window.addEventListener('storage',event=>{
-  if(event.key===SIMPLE_KEY){simpleView=window.RatibSimpleAccounts?.isSimple?.()??(event.newValue!=='0');if(ready)renderView();}
+  if(event.key===SIMPLE_KEY){simpleView=true;if(ready)renderView();}
  });
  window.RatibInteractiveTree={refresh:function(){if(ready)refresh();},setSimple:function(enabled){
-  simpleView=Boolean(enabled);
-  if(window.RatibSimpleAccounts)window.RatibSimpleAccounts.setSimple(simpleView);
-  else {try{window.localStorage.setItem(SIMPLE_KEY,simpleView?'1':'0');}catch(_){}if(ready)renderView();}
+  simpleView=true;
+  if(window.RatibSimpleAccounts)window.RatibSimpleAccounts.setSimple(true);
+  else {try{window.localStorage.setItem(SIMPLE_KEY,'1');}catch(_){}if(ready)renderView();}
  },version:'3.6.105.13'};
 })();

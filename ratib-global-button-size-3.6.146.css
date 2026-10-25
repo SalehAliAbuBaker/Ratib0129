@@ -1,8 +1,10 @@
 /* Ratib 3.6.146 trial: compact/medium/large universal ACTION BUTTONS, not form controls. */
 @media screen {
+:root[data-ratib-button-size="xsmall"]{--rb-action-height:38px;--rb-action-font:.75rem;--rb-action-icon:17px;--rb-menu-height:40px;--rb-tile-height:72px;--rb-tile-icon:20px;--rb-com-gap:4px}
 :root[data-ratib-button-size="small"]{--rb-action-height:42px;--rb-action-font:.81rem;--rb-action-icon:19px;--rb-menu-height:44px;--rb-tile-height:80px;--rb-tile-icon:22px;--rb-com-gap:5px}
 :root[data-ratib-button-size="medium"],:root:not([data-ratib-button-size]){--rb-action-height:46px;--rb-action-font:.92rem;--rb-action-icon:22px;--rb-menu-height:49px;--rb-tile-height:89px;--rb-tile-icon:25px;--rb-com-gap:8px}
 :root[data-ratib-button-size="large"]{--rb-action-height:54px;--rb-action-font:1.02rem;--rb-action-icon:26px;--rb-menu-height:56px;--rb-tile-height:105px;--rb-tile-icon:29px;--rb-com-gap:10px}
+:root[data-ratib-button-size="xlarge"]{--rb-action-height:62px;--rb-action-font:1.12rem;--rb-action-icon:29px;--rb-menu-height:64px;--rb-tile-height:115px;--rb-tile-icon:32px;--rb-com-gap:12px}
 #pageSettings .ratib-global-size-card{display:flex;flex-direction:column;gap:9px;padding:8px 0}
 #pageSettings .ratib-global-size-card>label{display:block;font:.95rem/1.6 Tajawal,system-ui,sans-serif;font-weight:700;color:var(--text)}
 #pageSettings .ratib-global-size-card>select{width:100%;min-height:46px;max-width:380px;padding:8px 12px;border:1px solid var(--border);border-radius:10px;background:var(--card);color:var(--text);font:750 .95rem Tajawal,system-ui,sans-serif}

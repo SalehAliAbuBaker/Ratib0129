@@ -29,5 +29,5 @@ assert.match(css,/#ratibLockCounter/);
 assert.match(css,/grid-row:2!important;[\s\S]*?overflow-wrap:anywhere!important/);
 assert.match(sw,/const CACHE_VERSION='v\d+-[^']+'/);
 assert.match(sw,/ratib-cash-layout-3\.6\.85\.css/);
-assert.match(sw,/const APP_RELEASE=\{"version":"3\.6\.\d+"/);
+assert.match(sw,/const APP_RELEASE=\{"version":"3\.6\.\d+(?:\.\d{2})?"/);
 console.log('Ratib 3.6.85 approved account row parity and currency order regression: PASS');

@@ -637,3 +637,32 @@
    grid-column:2!important;align-self:center;justify-content:flex-end!important;min-width:0!important
  }
 }
+
+/* Shared defaults use the existing controls in Settings. */
+#ratibCommerceDefaults{margin-top:18px;color:var(--text)}
+#ratibCommerceDefaults .rc-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr));gap:10px}
+#ratibCommerceDefaults .rc-field{display:flex;flex-direction:column;gap:6px;min-width:0}
+#ratibCommerceDefaults .rc-note{color:var(--muted);font-size:.87rem;line-height:1.65}
+#ratibCommerceDefaults input{width:100%;box-sizing:border-box}
+
+#ratibCommerceDefaults .rc-smart-account>input[type="search"]{min-width:0;padding:8px;min-height:37px;border:1px solid var(--border);background:var(--card);color:var(--text);border-radius:8px;font:inherit}
+
+
+/* Invoice header: identical four-field sequence on purchases and sales. */
+#pageCommerce .rc-invoice-card .rc-account-fields.rc-invoice-core{
+ display:grid!important;grid-template-columns:minmax(0,1fr)!important;
+ gap:9px!important;padding:0!important;border:0!important;background:transparent!important;
+}
+#pageCommerce .rc-invoice-card .rc-invoice-core .rc-inline-field,
+#pageCommerce .rc-invoice-card .rc-optional-supplier .rc-inline-field{
+ display:flex;flex-direction:column;gap:5px;
+}
+#pageCommerce .rc-invoice-card .rc-invoice-core .rc-inline-label,
+#pageCommerce .rc-invoice-card .rc-optional-supplier .rc-inline-label{
+ position:static!important;width:auto!important;height:auto!important;
+ padding:0!important;margin:0!important;overflow:visible!important;
+ clip:auto!important;white-space:normal!important;border:0!important;
+ font-weight:700;line-height:1.5;color:var(--text);
+}
+#pageCommerce .rc-invoice-card .rc-invoice-core .rc-wide-account{margin:0;min-width:0}
+#pageCommerce .rc-invoice-card .rc-optional-supplier{padding:0!important}

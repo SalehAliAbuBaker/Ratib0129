@@ -62,19 +62,19 @@
     }
     const favorite=document.getElementById('ratibCenterFavorites');
     if(favorite){
-      if(!favorite.dataset.ratibCardReady){
-        const symbol=document.createElement('span');symbol.className='ratib-center-fav-icon';symbol.setAttribute('aria-hidden','true');symbol.append(icon('favorite'));
-        const label=document.createElement('span');label.className='ratib-center-fav-label';label.textContent='مفضلتي';
-        favorite.replaceChildren(symbol,label);favorite.title='مفضلتي';favorite.setAttribute('aria-label','فتح مفضلتي');
-        favorite.classList.add('main-menu-btn');favorite.dataset.ratibCardReady='1';
+      // The original floating ★ shortcut retains its click handler, preferences,
+      // idle timeout and existing menu. Undo only last release's card styling/markup.
+      if(favorite.dataset.ratibCardReady || favorite.classList.contains('main-menu-btn')){
+        favorite.replaceChildren(document.createTextNode('★'));
+        favorite.classList.remove('main-menu-btn');
+        delete favorite.dataset.ratibCardReady;
       }
-      const normal=[...grid.children].filter(el=>el.classList.contains('main-menu-btn')&&el!==favorite);
-      // Exactly four destinations; favorite is their equal-sized middle tile.
-      if(normal.length===4&&favorite.nextElementSibling!==normal[2]){
-        grid.insertBefore(favorite,normal[2]);
-      }
+      favorite.title='اختصاراتي';
+      favorite.setAttribute('aria-label','فتح قائمة اختصاراتي');
+      const menu=document.getElementById('ratibCenterFavoritesMenu');
+      if(menu && favorite.nextElementSibling!==menu)grid.insertBefore(favorite,menu);
     }
-    grid.classList.add('ratib-approved-home-row');
+    grid.classList.remove('ratib-approved-home-row');
   }
   let pending=false;
   function update(){pending=false;brand();voucherButtons();homeTiles();}

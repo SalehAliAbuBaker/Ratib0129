@@ -589,7 +589,7 @@ function invoice(db){
   '</div>'+
   // Retain legacy inputs for compatibility with existing draft and journal consumers.
   '<div class="rc-legacy-invoice-party" hidden style="display:none">'+
-  inp('partyName','text',draft.partyName||((mode==='in'?draft.creditAccount||creditDefault:draft.debitAccount||debitDefault)||''),'required maxlength="140"')+
+  inp('partyName','hidden',draft.partyName||((mode==='in'?draft.creditAccount||creditDefault:draft.debitAccount||debitDefault)||''),'maxlength="140"')+
   commerceSmartAccount('partyAccount',leaf(),draft.partyAccount||db.accounts[mode==='in'?'payable':'receivable'])+
   '</div>'
  :
@@ -1216,6 +1216,26 @@ function bind(root=$('pageCommerce')){
   }catch(e){notify(e.message||'تعذر فتح الأمر','error');}
  });
  root.addEventListener('change',e=>{
+    // Keep automatically selected accounts aligned with warehouse and payment changes.
+    if(draft&&$('rc-debitAccount')&&$('rc-creditAccount')){
+      const db=data(),input=e.target;
+      const changeAccount=(key,oldValue,newValue)=>{
+        const field=$('rc-'+key),search=$('rc-search-'+key);
+        if(!field||field.value!==oldValue||!newValue||!leafAccount(newValue))return;
+        field.value=newValue;
+        const found=leaf().find(x=>x.id===newValue);
+        if(search)search.value=found?.name||'';
+      };
+      if(input.id==='rc-warehouse'&&mode==='in'){
+        changeAccount('debitAccount',warehouseAccount(db,draft.warehouse),warehouseAccount(db,input.value));
+      }
+      if(input.id==='rc-payment'&&draft.payment!==input.value){
+        const oldCash=draft.payment==='cash';
+        const oldDefault=oldCash?db.accounts.cash:mode==='in'?(draft.partyAccount||db.accounts.payable):(draft.partyAccount||db.accounts.receivable);
+        const nextDefault=input.value==='cash'?db.accounts.cash:mode==='in'?db.accounts.payable:db.accounts.receivable;
+        changeAccount(mode==='in'?'creditAccount':'debitAccount',oldDefault,nextDefault);
+      }
+    }
     if(e.target.id.startsWith('rc-acc-')||['rc-partyAccount','rc-debitAccount','rc-creditAccount','rc-payment','rc-warehouse-account','rc-person-account'].includes(e.target.id)||(e.target.id==='rc-warehouse'&&draft)){
    const search=$('rc-search-'+e.target.id.slice(3));if(search){const match=leaf().find(x=>x.id===e.target.value);search.value=match?.name||'';}
    if(draft&&['rc-partyAccount','rc-debitAccount','rc-creditAccount','rc-payment','rc-warehouse'].includes(e.target.id)){

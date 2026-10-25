@@ -25,9 +25,12 @@ header .logo span::after{content:"للتنظيم والتدبير المالي";
 #ratibOpeningOverlay .ratib-opening-head{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
 #ratibOpeningOverlay .ratib-opening-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:14px 0}
 #ratibOpeningOverlay .ratib-opening-grid label{display:grid;gap:6px;font-weight:700}
-#ratibOpeningOverlay .ratib-opening-table{width:100%;border-collapse:collapse;min-width:650px}
+#ratibOpeningOverlay .ratib-opening-table{width:100%;border-collapse:collapse;table-layout:auto;min-width:1050px}
 #ratibOpeningOverlay .ratib-opening-table td,#ratibOpeningOverlay .ratib-opening-table th{padding:8px;border-bottom:1px solid var(--border)}
-#ratibOpeningOverlay .ratib-opening-table :is(input,select){width:100%;min-height:42px;color:var(--text);background:var(--card);border:1px solid var(--border);border-radius:8px;padding:6px}
+#ratibOpeningOverlay .ratib-opening-table :is(input,select,textarea){width:100%;min-height:42px;color:var(--text);background:var(--card);border:1px solid var(--border);border-radius:8px;padding:6px}
+#ratibOpeningOverlay .ratib-opening-table th:nth-child(4),#ratibOpeningOverlay .ratib-opening-table td:nth-child(4){min-width:380px;width:40%}
+#ratibOpeningOverlay .ratib-opening-table .opening-description{display:block;box-sizing:border-box;width:100%;min-width:350px;min-height:84px;max-width:none;resize:vertical;line-height:1.7;direction:rtl;text-align:right;white-space:pre-wrap;padding:8px 10px}
+
 #ratibOpeningOverlay .ratib-opening-table .opening-amount{direction:ltr;text-align:right;min-width:110px}
 #ratibOpeningOverlay .ratib-opening-table select{min-width:230px}
 #ratibOpeningOverlay .ratib-opening-totals{display:flex;gap:16px;justify-content:space-between;flex-wrap:wrap;margin:16px 0;padding:14px;background:color-mix(in srgb,var(--accent) 10%,var(--card));border:1px solid var(--border);border-radius:10px;font-weight:750}

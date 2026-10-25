@@ -132,10 +132,8 @@ async function commit(){
 }
 function mount(){
  if(!q("pageDashboard")||q("ratibOpeningOverlay"))return;
- const main=document.querySelector("#dashboardHomeContent .main-menu-grid");
- const launch=document.createElement("button");launch.type="button";launch.id="ratibOpeningLaunch";launch.className="main-menu-btn";launch.innerHTML='<span class="main-menu-icon" aria-hidden="true">⚖</span><span>القيد الافتتاحي</span>';
- launch.addEventListener("click",open);
- if(main)main.append(launch);
+ // Keep one opening-entry shortcut, within the five voucher types only.
+ // Four principal dashboard destinations remain a symmetric 2×2 grid on phones.
  const quick=document.querySelector(".ratib-quick-entry-grid");
  if(quick&&!q("ratibOpeningQuickLaunch")){const quickBtn=document.createElement("button");quickBtn.id="ratibOpeningQuickLaunch";quickBtn.type="button";quickBtn.textContent="قيد افتتاحي";quickBtn.addEventListener("click",open);quick.append(quickBtn);}
  const modal=document.createElement("div");modal.id="ratibOpeningOverlay";modal.className="modal-overlay no-print";modal.innerHTML=

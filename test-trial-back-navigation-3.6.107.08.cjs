@@ -5,7 +5,6 @@ const sizeJs=fs.readFileSync('ratib-global-button-size-3.6.146.js','utf8');
 const sizeCss=fs.readFileSync('ratib-global-button-size-3.6.146.css','utf8');
 const fontCss=fs.readFileSync('ratib-interface-font-3.6.148.css','utf8');
 const sidebar=fs.readFileSync('ratib-sidebar-3.6.124.js','utf8');
-const commerce=fs.readFileSync('ratib-commerce-3.6.131.js','utf8');
 const sw=fs.readFileSync('sw.js','utf8'),pkg=require('./package.json');
 assert.match(pkg.version,/^3\.6\.\d+(?:\.\d+)?$/);
 assert(html.includes('const RATIB_RELEASE={"version":"'+pkg.version+'"'));
@@ -18,7 +17,7 @@ for(const level of ['xsmall','small','medium','large','xlarge']){
 }
 assert(sidebar.includes('<option value="medium">متوسط (الافتراضي)'));
 assert(sizeJs.includes("x==='normal'?'medium'"));
-assert(commerce.includes('window.RatibCommerce.hasUnsavedDraft='));
+assert(!html.includes('ratib-commerce-3.6.131.js'),'stock module no longer loads');
 const from=html.indexOf('function ratibGestureDraftCheck(){'),to=html.indexOf('const _appBackStack=[];',from);
 assert(from>0&&to>from);
 const code=html.slice(from,to);
@@ -81,5 +80,5 @@ const overlay=simulate({tab:'pageReports',overlay:true});
 assert.equal(overlay.log.home,0);assert.deepEqual(overlay.log.go,[1]);
 assert.equal(simulate({tab:'pageDashboard',known:false,depth:-1}).log.exit,1);
 for(const script of [...html.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script>/gi)].map(m=>m[1]).filter(Boolean))new Function(script);
-new Function(commerce);new Function(sw);
+new Function(sw);
 console.log('PASS 3.6.107.09: five sizes, guarded Android Back, voucher drafts, commerce warning and parse checks');

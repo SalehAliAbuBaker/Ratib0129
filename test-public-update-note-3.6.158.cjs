@@ -13,7 +13,7 @@ assert.match(trial,/^3\.6\.\d+\.\d{2}$/,'Trial version must use current four-par
 assert.deepEqual(manifest.changes,[fixed],'Older installed versions must not show detailed release notes');
 assert(worker.includes(trial),'Offline cache must include the actual release');
 assert(html.includes('RATIB_RELEASE={"version":"'+trial+'"'));
-assert(html.includes('ratib-commerce-3.6.131.js?v='+trial),'Commerce script should be cache-busted for this release');
+assert(!html.includes('ratib-commerce-3.6.131.js'),'Retired commerce script must not load');
 const at=html.indexOf("const RATIB_PUBLIC_UPDATE_NOTE=");
 const until=html.indexOf('function showTransientAppNotice(',at);
 assert(at>0&&until>at);

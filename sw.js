@@ -1,6 +1,6 @@
 // Ratib 3.1.9: cache identity is unique to this app's scope.
-const CACHE_VERSION='v219-official-3.6.109-opening-note';
-const APP_RELEASE={"version":"3.6.109","build":"p10900","highlights":[],"changes":["تصحيح الأخطاء في بعض الأجهزة","توسيع حقل البيان في شاشة القيد الافتتاحي المستورد"]};
+const CACHE_VERSION='v220-official-trial-opening-note-fix';
+const APP_RELEASE={"version":"3.6.109","build":"p10900","highlights":[],"changes":["تصحيح الأخطاء في بعض الأجهزة","توسيع حقل البيان في شاشة القيد الافتتاحي المستورد","إصلاح تحميل النسخة التجريبية من التخزين المؤقت دون استبدالها بالصفحة الرسمية"]};
 const CACHE_PREFIX=`ratib:${self.registration.scope}:`;
 const CACHE_NAME=CACHE_PREFIX+CACHE_VERSION;
 const APP_SHELL=[
@@ -20,6 +20,11 @@ const APP_SHELL=[
   "./ratib-trial-ui-3.6.143.js",
   "./",
   "./index.html",
+  "./trial/index.html",
+  "./trial/ratib-license-draft.js",
+  "./trial/ratib-quick-favorites.js",
+  "./trial/ratib-import-manager.js",
+  "./trial/ratib-import-official.js",
   "./ratib-trial-home-sidebar-3.6.143.js",
   "./ratib-trial-home-sidebar-3.6.143.css",
   "./ratib-sidebar-3.6.124.js",
@@ -123,9 +128,12 @@ self.addEventListener('fetch', event => {
     const cache = await caches.open(CACHE_NAME);
     // Query parameters are used for cache busting by the HTML. In each release
     // the shell and HTML are installed atomically, so ignoring the query is safe.
+    const trialPrefix = new URL('./trial/',scope).pathname;
+    const trialNavigation = navigation && (url.pathname===trialPrefix.slice(0,-1) || url.pathname.startsWith(trialPrefix));
+    const navigationFallback = trialNavigation ? './trial/index.html' : './index.html';
     const cached = await cache.match(req, {ignoreSearch:true})
       || await cache.match(shellBase)
-      || (navigation ? await cache.match(new URL('./index.html',scope).href) : null);
+      || (navigation ? await cache.match(new URL(navigationFallback,scope).href) : null);
     if (cached) return cached;
     try {
       const response = await fetch(req);

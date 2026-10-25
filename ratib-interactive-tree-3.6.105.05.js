@@ -402,7 +402,9 @@
    const nowOpen=root.classList.contains('open');
    if(!nowOpen)dismissDetails(false);
    if(nowOpen&&!wasSectionOpen){
-    simpleOpenNodes.clear();selected='';dismissDetails(false);
+    simpleOpenNodes.clear();selected='';
+    if(searchBox)searchBox.value='';
+    dismissDetails(false);
     if(root.classList.contains('rit-mode'))refresh();
    }
    wasSectionOpen=nowOpen;
@@ -415,6 +417,7 @@
  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',install,{once:true});else install();
  window.addEventListener('ratib:account-view-change',()=>{
   simpleView=true;simpleOpenNodes.clear();selected='';
+  if(searchBox)searchBox.value='';
   if(ready){dismissDetails(false);renderView();}
  });
  window.addEventListener('storage',event=>{

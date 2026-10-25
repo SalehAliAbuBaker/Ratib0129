@@ -360,7 +360,7 @@ const themeBtn=document.getElementById('themeBtn');
 if(themeBtn){themeBtn.onclick=(e)=>{e.preventDefault();e.stopImmediatePropagation();const root=document.documentElement,next=root.dataset.theme==='dark'?'light':'dark';root.dataset.theme=next;try{localStorage.setItem('theme',JSON.stringify(next));}catch(_){}themeBtn.textContent=next==='dark'?'☀️':'🌙';};}
 function registerFavorite(id,label,icon,run,group){
  if(typeof id!=='string'||!/^[-:a-zA-Z0-9_]{1,120}$/.test(id)||typeof label!=='string'||!label.trim()||typeof run!=='function')return false;
- const groups=['السندات','المخزون','الوارد','الصادر','التقارير','الحسابات','الإعدادات','النسخ والتفعيل'];
+ const groups=['السندات','التقارير','الحسابات','الإعدادات','النسخ والتفعيل'];
  if(groups.includes(group))favoriteGroups[id]=group;
  addChoice(id,label.trim(),ICON_CHOICES.includes(icon)?icon:'📌',run);
  if(document.getElementById('ratibSettingsFavCatalog'))render();

@@ -4,7 +4,7 @@ const read=x=>fs.readFileSync(x,'utf8');
 const html=read('index.html'),home=read('ratib-trial-home-sidebar-3.6.143.js'),fav=read('ratib-favorites-v3.js'),feedback=read('ratib-feedback-3.6.149.js'),worker=read('sw.js'),currency=read('ratib-country-currency-3.6.151.js'),pkg=require('./package.json');
 assert.equal(pkg.version,'3.6.109.03');
 assert(html.includes('const RATIB_RELEASE={"version":"3.6.109.03"'));
-assert(worker.includes('v227-trial-accounting-types-only-3.6.109.03'));
+assert(worker.includes('v228-trial-retired-inventory-cleanup-3.6.109.03'));
 assert(worker.includes('"version":"3.6.109.03"'));
 const dom=new JSDOM(html,{url:'https://ratibtrial.pages.dev',runScripts:'outside-only'}),d=dom.window.document;
 const dashboard=d.getElementById('dashboardHomeContent');assert(dashboard);

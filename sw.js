@@ -1,5 +1,5 @@
 // Ratib 3.1.9: cache identity is unique to this app's scope.
-const CACHE_VERSION='v227-trial-accounting-types-only-3.6.109.03';
+const CACHE_VERSION='v228-trial-retired-inventory-cleanup-3.6.109.03';
 const APP_RELEASE={"version":"3.6.109.03","highlights":[],"changes":["تصحيح الأخطاء في بعض الأجهزة"]};
 const CACHE_PREFIX=`ratib:${self.registration.scope}:`;
 const CACHE_NAME=CACHE_PREFIX+CACHE_VERSION;

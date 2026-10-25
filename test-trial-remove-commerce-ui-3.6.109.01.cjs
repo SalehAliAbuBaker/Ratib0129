@@ -14,6 +14,7 @@ assert(!sw.includes('ratib-commerce-3.6.131.js')&&!sw.includes('ratib-commerce-3
 assert(!html.includes('data-commerce-ledger=')&&!html.includes('RatibCommerce?.documentAction'));
 assert(!html.includes('ratibCommerceStatementName('),'active document type resolver does not include commerce names');
 assert(!fav.includes('const commerceFavorites='));
+assert(!fav.includes("'المخزون','الوارد','الصادر'"),'retired inventory groups cannot be registered as new favorites');
 for(const p of ['index.html','trial/index.html']){
  const source=read(p);
  for(const s of ['function ratibIsRetiredCommerceTransaction(t)','function ratibActiveAccountingTransactions(txs)','ratibActiveAccountingTransactions(getAllTransactions())'])assert(source.includes(s),p+' must filter archived inventory entries before display/export');
@@ -34,6 +35,6 @@ assert(html.includes("return current.concat(..."),'financial journal remains int
 assert(html.includes("store.get('commerce_v1',null)"),'historic source data must remain recoverable in backups');
 assert(html.includes("const CLOUD_FOLDER_NAME = 'Ratib Trial Backups'"));
 assert(html.includes("const CLOUD_CFG_KEY = 'cloud_backup_cfg'"));
-assert(sw.includes('v227-trial-accounting-types-only-3.6.109.03'));
+assert(sw.includes('v228-trial-retired-inventory-cleanup-3.6.109.03'));
 d.window.close();
 console.log('PASS trial retired commerce: no active catalog, ledger, search, Excel, runtime or mutation');

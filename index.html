@@ -1569,7 +1569,7 @@ body.ratib-sidebar-open,body.ratib-about-open{overflow:hidden}
 }
 </style>
 <link rel="stylesheet" href="./ratib-login-3.6.124.css?v=3.6.131">
-<link rel="stylesheet" href="./ratib-commerce-3.6.131.css?v=3.6.108.07">
+<link rel="stylesheet" href="./ratib-commerce-3.6.131.css?v=3.6.109">
 
 <style id="ratib-commerce-ledger-actions-3.6.138">
 #pageLedger .rc-ledger-operations{display:flex;align-items:center;justify-content:flex-start;gap:5px;flex-wrap:wrap;padding:6px 8px;margin-top:4px}
@@ -1579,11 +1579,11 @@ body.ratib-sidebar-open,body.ratib-about-open{overflow:hidden}
 <link rel="stylesheet" href="./ratib-trial-home-sidebar-3.6.143.css?v=3.6.143">
 <link rel="stylesheet" href="./ratib-trial-ui-3.6.143.css?v=3.6.143">
 <link rel="stylesheet" href="./ratib-dashboard-finance-3.6.144.css?v=3.6.144">
-<link rel="stylesheet" href="./ratib-global-button-size-3.6.146.css?v=3.6.108.07">
-<link rel="stylesheet" href="./ratib-interface-font-3.6.148.css?v=3.6.108.07">
+<link rel="stylesheet" href="./ratib-global-button-size-3.6.146.css?v=3.6.109">
+<link rel="stylesheet" href="./ratib-interface-font-3.6.148.css?v=3.6.109">
 <link rel="stylesheet" href="./ratib-feedback-3.6.149.css?v=3.6.149">
 <link rel="stylesheet" href="./ratib-country-currency-3.6.151.css?v=3.6.151">
-<link rel="stylesheet" href="./ratib-interactive-tree-3.6.105.05.css?v=3.6.108.07">
+<link rel="stylesheet" href="./ratib-interactive-tree-3.6.105.05.css?v=3.6.109">
 </head>
 <body>
 
@@ -1614,7 +1614,7 @@ body.ratib-sidebar-open,body.ratib-about-open{overflow:hidden}
     <div class="header-tools"><div class="header-actions">
       <button class="icon-btn" id="themeBtn" title="الوضع الليلي">🌙</button>
       <button class="icon-btn" id="sidebarMenuBtn" aria-haspopup="dialog" aria-controls="appSidebar" aria-expanded="false" title="الإعدادات" aria-label="فتح الإعدادات">⚙</button>
-    </div><small id="appVersionLabel" class="app-version">الإصدار 3.6.108.07 (تجريبية)</small></div>
+    </div><small id="appVersionLabel" class="app-version">الإصدار 3.6.109</small></div>
   </header>
   <div class="summary-toolbar hidden no-print" id="storageFeedback"><span id="persistentSaveStatus" hidden aria-hidden="true">جاهز</span><button type="button" id="retryStorageBtn" class="btn btn-ghost hidden">إعادة محاولة الحفظ</button></div>
 <div class="app-update-banner hidden no-print" id="appUpdateBanner" role="status"><span id="appUpdateMessage">يتوفر تحديث لراتب. هل تريد تطبيقه؟</span><button type="button" class="btn btn-ghost" id="applyAppUpdateBtn">موافق، تطبيق التحديث</button><div id="appUpdateDetails" class="hidden"></div></div>
@@ -1661,7 +1661,7 @@ body.ratib-sidebar-open,body.ratib-about-open{overflow:hidden}
       <img src="Icons/icon-192.png" width="72" height="72" alt="" decoding="async">
       <h2 id="ratibAboutTitle">راتب</h2>
       <p class="ratib-about-subtitle">للتنظيم والتدبير المالي</p>
-      <p class="ratib-about-version">الإصدار 3.6.108.07 (تجريبية)</p>
+      <p class="ratib-about-version">الإصدار 3.6.109</p>
       <p id="ratibAboutDescription">إدارة الحسابات والسندات والميزانية، ومتابعة العمليات والتقارير المالية، مع حفظ البيانات على جهازك ودعم العمل دون الإنترنت.</p>
       <button type="button" class="btn btn-primary" id="closeRatibAboutBtn">إغلاق</button>
     </div>
@@ -2413,8 +2413,8 @@ body.ratib-sidebar-open,body.ratib-about-open{overflow:hidden}
 
           <p style="color:var(--muted);font-weight:700;font-size:0.9rem;margin-bottom:10px;">اربط حساب Google الخاص بك مباشرة؛ لا يلزم إنشاء مشروع أو إدخال معرّف تقني. يتطلب الربط فتح التطبيق من موقع HTTPS.</p>
           <label for="cloudUploadDestination" style="font-weight:700;">مجلد رفع النسخة اليدوية</label>
-          <select id="cloudUploadDestination" style="margin-bottom:8px;"><option value="trial">Ratib Trial Backups — التجريبية (الافتراضي)</option><option value="official">Ratib Backups — الرسمية (إذا سمحت الصلاحيات)</option></select>
-          <p style="font-size:.8rem;color:var(--muted);margin-bottom:8px;">النسخ التلقائي يُحفظ في مجلد التجريبية فقط. النسخ الموجودة لن تُستبدل.</p>
+          <select id="cloudUploadDestination" style="margin-bottom:8px;"><option value="official">Ratib Backups — الرسمية (الافتراضي)</option><option value="trial">Ratib Trial Backups — التجريبية (اختياري)</option></select>
+          <p style="font-size:.8rem;color:var(--muted);margin-bottom:8px;">النسخ التلقائي يُحفظ في مجلد النسخ الرسمية فقط. النسخ الموجودة لن تُستبدل.</p>
           <div style="display:flex; gap:8px; flex-wrap:wrap;">
             <button class="btn btn-primary" id="cloudSaveBtn" style="margin-top:0; font-size:1.05rem;">💾 حفظ وتفعيل السحابة</button>
             <button class="btn btn-ghost" id="cloudRunNowBtn" style="margin-top:0; font-size:1.05rem; display:none;">☁️ نسخ الآن</button>
@@ -2900,16 +2900,16 @@ body.ratib-sidebar-open,body.ratib-about-open{overflow:hidden}
 
 </div>
 
-<script src="./ratib-first-run-3.6.105.11.js?v=3.6.108.07"></script>
+<script src="./ratib-first-run-3.6.105.11.js?v=3.6.109"></script>
 <script>
 // ===== تسجيل Service Worker (يفعّل العمل دون إنترنت بعد أول زيارة) =====
 // يُسجَّل بعد اكتمال تحميل الصفحة حتى لا يؤخر أول عرض للتطبيق. يعمل فقط عبر HTTPS
 // (أو localhost أثناء التطوير) — هذا شرط أساسي من المتصفح نفسه لأي Service Worker.
 let _briefAppNoticeTimer=null;
 let _releaseSummaryDisplayed=false;
-const RATIB_RELEASE={"version":"3.6.108.07","highlights":[],"changes":["تصحيح الأخطاء في بعض الأجهزة"]};
+const RATIB_RELEASE={"version":"3.6.109","build":"p10900","highlights":[],"changes":["تصحيح الأخطاء في بعض الأجهزة"]};
 window.ratibCurrentTrialVersion=()=>String(RATIB_RELEASE.version);
-window.ratibCurrentTrialVersionLabel=()=>`الإصدار ${RATIB_RELEASE.version} (تجريبية)`;
+window.ratibCurrentTrialVersionLabel=()=>`الإصدار ${RATIB_RELEASE.version}`;
 window.ratibSyncTrialVersion=()=>{
  const label=window.ratibCurrentTrialVersionLabel();
  for(const id of ['appVersionLabel','sidebarCurrentVersion']){
@@ -3957,10 +3957,10 @@ async function refreshAutoBackupUI() {
 // وعند فتحه لاحقاً يُنفَّذ ما فاته. (2) يستخدم معرّف OAuth المدمج ورابط https مُصرَّحاً به.
 // (3) صلاحية drive.file فقط: يرى التطبيق الملفات التي أنشأها هو، ولا يقرأ بقية Drive.
 const CLOUD_CFG_KEY = 'cloud_backup_cfg';
-const CLOUD_FOLDER_NAME = 'Ratib Trial Backups';
-const CLOUD_LEGACY_FOLDER_NAME = 'Ratib Backups';
-const CLOUD_LEGACY_PREFIX = 'ratib-cloud-';
-const CLOUD_FILE_PREFIX = 'ratib-trial-cloud-';
+const CLOUD_FOLDER_NAME = 'Ratib Backups';
+const CLOUD_LEGACY_FOLDER_NAME = 'Ratib Trial Backups';
+const CLOUD_LEGACY_PREFIX = 'ratib-trial-cloud-';
+const CLOUD_FILE_PREFIX = 'ratib-cloud-';
 const DRIVE_SCOPE = 'https://www.googleapis.com/auth/drive.file';
 // Shared Ratib Web OAuth identity: both official and trial origins must be registered in Google Cloud.
 // Each release retains its separate backup folder, file prefix and local storage.
@@ -4031,7 +4031,7 @@ async function getDriveToken(interactive) {
         error_callback: (err) => {
           const detail = err && (err.message || err.type) || '';
           settle(new Error(/popup.*(?:failed.*open|closed|blocked)/i.test(detail)
-            ? 'لم يكتمل تفويض Google. إذا ظهرت صفحة Google بخطأ 400 origin_mismatch، فتأكد من تسجيل https://ratibtrial.pages.dev ضمن مصادر JavaScript المسموحة لمعرّف راتب الموحّد. وإلا فأعد محاولة الربط من Chrome.'
+            ? 'لم يكتمل تفويض Google. إذا ظهرت صفحة Google بخطأ 400 origin_mismatch، فتأكد من تسجيل https://salehaliabubaker.github.io ضمن مصادر JavaScript المسموحة لمعرّف راتب الموحّد. وإلا فأعد محاولة الربط من Chrome.'
             : 'فشل تفويض Google Drive: ' + (detail || 'استجابة غير معروفة')));
         }
       });
@@ -4081,7 +4081,7 @@ async function ensureDriveFolder(token) {
   return c.id;
 }
 
-async function listCloudBackups(token, folderId, origin = 'trial') {
+async function listCloudBackups(token, folderId, origin = 'official') {
   if (!folderId) return [];
   const q = encodeURIComponent(`'${folderId}' in parents and trashed=false`);
   let pageToken = '', results = [];
@@ -4095,15 +4095,15 @@ async function listCloudBackups(token, folderId, origin = 'trial') {
 }
 
 async function listBothCloudBackups(token) {
-  const trialId = await findDriveFolder(token, CLOUD_FOLDER_NAME);
-  const officialId = await findDriveFolder(token, CLOUD_LEGACY_FOLDER_NAME);
+  const trialId = await findDriveFolder(token, CLOUD_LEGACY_FOLDER_NAME);
+  const officialId = await findDriveFolder(token, CLOUD_FOLDER_NAME);
   const trialFiles = await listCloudBackups(token, trialId, 'trial');
   const officialFiles = await listCloudBackups(token, officialId, 'official');
   return { files: [...trialFiles, ...officialFiles].sort((a,b) => (b.createdTime || b.name).localeCompare(a.createdTime || a.name)), officialVisible: !!officialId };
 }
 
 async function pruneCloudBackups(token, folderId) {
-  // لا يحذف راتب التجريبي أي نسخ سحابية قائمة؛ الحذف التلقائي القديم عُطّل لأمان البيانات.
+  // لا يحذف راتب أي نسخ سحابية قائمة؛ الحذف التلقائي معطل لحماية البيانات.
 }
 
 async function uploadCloudBackup(token, folderId, name, content) {
@@ -4135,7 +4135,7 @@ async function cloudBackupSuccess(item) {
     pendingUpload: null, lastStatus: 'verified', lastError: '',
     lastDate: _todayStr(now), lastTime: now.toISOString(),
     lastFileId: item.id, lastFileName: item.name,
-    lastFolder: item.destination === 'official' ? CLOUD_LEGACY_FOLDER_NAME : CLOUD_FOLDER_NAME,
+    lastFolder: item.destination === 'trial' ? CLOUD_LEGACY_FOLDER_NAME : CLOUD_FOLDER_NAME,
     lastVerifiedAt: now.toISOString()
   }, true);
   // Confirmation must survive immediate app switching or Android process eviction.
@@ -4184,12 +4184,12 @@ async function runCloudBackup(interactive) {
       if (interactive) showToast('تم تأكيد النسخة السابقة على Google Drive، دون رفع نسخة مكررة.', 'success');
       return true;
     }
-    const dest = interactive ? (document.getElementById('cloudUploadDestination')?.value || 'trial') : 'trial';
+    const dest = interactive ? (document.getElementById('cloudUploadDestination')?.value || 'official') : 'official';
     let folderId;
-    if (dest === 'official') {
+    if (dest === 'trial') {
       folderId = await findDriveFolder(token, CLOUD_LEGACY_FOLDER_NAME);
-      if (!folderId) throw new Error('مجلد الرسمية غير متاح لصلاحية التجريبية الحالية؛ اختر مجلد التجريبية.');
-      if (!interactive || !confirm('سترفع نسخة جديدة إلى مجلد الرسمية دون استبدال النسخ الموجودة. متابعة؟')) return false;
+      if (!folderId) throw new Error('مجلد التجريبية غير ظاهر بصلاحيات Google الحالية؛ لن تُرفع النسخة إلى مجلد آخر.');
+      if (!interactive || !confirm('سترفع نسخة جديدة إلى مجلد التجريبية دون استبدال النسخ الموجودة. متابعة؟')) return false;
     } else folderId = await ensureDriveFolder(token);
     if (!folderId) throw new Error('تعذر تحديد مجلد النسخ السحابية في Google Drive.');
     // Include all saved accounting updates before taking the backup snapshot.
@@ -4197,7 +4197,7 @@ async function runCloudBackup(interactive) {
     const payload = await buildBackupPayload();
     const content = JSON.stringify(payload);
     const now = new Date();
-    const prefix = dest === 'official' ? CLOUD_LEGACY_PREFIX : CLOUD_FILE_PREFIX;
+    const prefix = dest === 'official' ? CLOUD_FILE_PREFIX : CLOUD_LEGACY_PREFIX;
     const baseName = `${prefix}${backupStamp(now)}`;
     const files = await listCloudBackups(token, folderId);
     let name = baseName + '.json', suffix = 1;
@@ -9179,7 +9179,7 @@ function proceedAppInit() {
 }
 
 
-/* Ratib trial 3.6.108.07 — preserve the active screen across Android/PWA background recreation.
+/* Ratib trial 3.6.109 — preserve the active screen across Android/PWA background recreation.
  * The view is stored in Ratib's existing protected application store, not in plain localStorage.
  * Never restore before vault unlock; explicit Exit clears the snapshot.
  */
@@ -12645,8 +12645,8 @@ try{currenciesUi();sync();}catch(e){console.error('Ratib 3.6.12 initialization',
 </script>
 <script src="./ratib-license-draft.js?v=3.6.151" defer></script>
 <script src="./ratib-ui-v3.6.37.js?v=2" defer></script>
-<script src="./ratib-favorites-v3.js?v=3.6.108.07" defer></script>
-<script src="./ratib-voice-dictation-3.6.117.js?v=3.6.108.07" defer></script>
+<script src="./ratib-favorites-v3.js?v=3.6.109" defer></script>
+<script src="./ratib-voice-dictation-3.6.117.js?v=3.6.109" defer></script>
 <script src="./ratib-import-manager.js?v=2" defer></script>
 <script src="./ratib-annual-close.js?v=1" defer></script>
 <script src="./ratib-fiscal-ledger.js?v=1" defer></script>
@@ -12661,21 +12661,21 @@ try{currenciesUi();sync();}catch(e){console.error('Ratib 3.6.12 initialization',
 <script src="./ratib-amount-edit-3.6.97.js?v=3.6.158" defer></script>
 <script src="./ratib-special-reports-3.6.102.js?v=3.6.114" defer></script>
 <script src="./ratib-fx-autofill-3.6.105.js?v=3.6.107" defer></script>
-<script src="./ratib-report-buttons-3.6.106.js?v=3.6.108.07" defer></script>
+<script src="./ratib-report-buttons-3.6.106.js?v=3.6.109" defer></script>
 <script src="./ratib-print-logo-3.6.108.js?v=3.6.111" defer></script>
 <div id="ratibSpecialPrintHost" aria-hidden="true"></div>
-<script src="./ratib-sidebar-3.6.124.js?v=3.6.108.07" defer></script>
-<script src="./ratib-commerce-3.6.131.js?v=3.6.108.07" defer></script>
-<script src="./ratib-simple-accounts-3.6.105.13.js?v=3.6.108.07" defer></script>
-<script src="./ratib-interactive-tree-3.6.105.05.js?v=3.6.108.07" defer></script>
-<script src="./ratib-login-3.6.124.js?v=3.6.108.07" defer></script>
+<script src="./ratib-sidebar-3.6.124.js?v=3.6.109" defer></script>
+<script src="./ratib-commerce-3.6.131.js?v=3.6.109" defer></script>
+<script src="./ratib-simple-accounts-3.6.105.13.js?v=3.6.109" defer></script>
+<script src="./ratib-interactive-tree-3.6.105.05.js?v=3.6.109" defer></script>
+<script src="./ratib-login-3.6.124.js?v=3.6.109" defer></script>
 <script src="./ratib-trial-home-sidebar-3.6.143.js?v=3.6.143" defer></script>
-<script src="./ratib-trial-ui-3.6.143.js?v=3.6.108.07" defer></script>
-<script src="./ratib-dashboard-finance-3.6.144.js?v=3.6.108.07" defer></script>
-<script src="./ratib-global-button-size-3.6.146.js?v=3.6.108.07" defer></script>
+<script src="./ratib-trial-ui-3.6.143.js?v=3.6.109" defer></script>
+<script src="./ratib-dashboard-finance-3.6.144.js?v=3.6.109" defer></script>
+<script src="./ratib-global-button-size-3.6.146.js?v=3.6.109" defer></script>
 <script src="./ratib-document-signatures-3.6.148.js?v=3.6.148" defer></script>
 <script src="./ratib-feedback-3.6.149.js?v=3.6.149" defer></script>
-<script src="./ratib-statement-marks-3.6.106.05.js?v=3.6.108.07" defer>
+<script src="./ratib-statement-marks-3.6.106.05.js?v=3.6.109" defer>
 </script>
 <script src="./ratib-country-currency-3.6.151.js?v=3.6.151" defer></script>
 </body>

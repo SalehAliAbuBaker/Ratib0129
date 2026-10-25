@@ -361,61 +361,12 @@ button.addEventListener('click',()=>{
  startSpeech(target);
 });
 
-/* Mobile account fields: first tap speaks, next tap types. Non-account fields
-   retain native behavior. Permission is requested only by a user gesture. */
-let ratibAccountFirstVoice=null,ratibVoiceBlockClick=null;
-const ratibVoiceOriginalModes=new WeakMap();
-function ratibAccountVoiceField(el){
- const input=el?.closest?.('input.searchable-input,input.rit-search,input#accountsPagerSearchInput,input[id^="rc-search-"],input#rc-partyName,input#ratibQuickAccountName,input#ratibQuickParentSearch');
- return input instanceof HTMLInputElement&&eligible(input)&&!input.closest('[hidden],[inert],#ratibVoiceSettingsCard')?input:null;
-}
-function ratibExitAccountVoice(){
- if(!ratibAccountFirstVoice)return;
- const input=ratibAccountFirstVoice,old=ratibVoiceOriginalModes.get(input);
- if(ratibVoiceOriginalModes.has(input)){
-  if(old===null)input.removeAttribute('inputmode');
-  else input.setAttribute('inputmode',old);
-  ratibVoiceOriginalModes.delete(input);
- }
- ratibAccountFirstVoice=null;ratibVoiceBlockClick=null;
-}
-window.RatibVoiceFirstAccountActive=input=>input===ratibAccountFirstVoice;
-document.addEventListener('pointerdown',event=>{
- if(event.pointerType!=='touch'||event.isPrimary===false||event.button>0)return;
- const input=ratibAccountVoiceField(event.target);
- if(!input){
-  if(!event.target.closest?.('#ratibVoiceButton,.ratib-simple-account-mic')){
-   if(ratibAccountFirstVoice&&listening)stop();
-   ratibExitAccountVoice();
-  }
-  return;
- }
- if(!visible||!Recognition){ratibExitAccountVoice();return;}
- if(ratibAccountFirstVoice===input){
-  ratibExitAccountVoice(); // On second tap, restore Android's native keyboard.
-  if(listening)stop();
-  if(document.activeElement===input)input.blur();
-  return;
- }
- if(ratibAccountFirstVoice&&listening)stop();
- ratibExitAccountVoice();ratibAccountFirstVoice=input;
- ratibVoiceOriginalModes.set(input,input.hasAttribute('inputmode')?input.getAttribute('inputmode'):null);
- input.setAttribute('inputmode','none'); // Speech keeps focus without soft keyboard.
- ratibVoiceBlockClick=input;
- event.preventDefault();event.stopImmediatePropagation();
- try{input.focus({preventScroll:true});}catch(_){input.focus();}
- remember(input);startSpeech(input);
- window.setTimeout(()=>{if(ratibVoiceBlockClick===input)ratibVoiceBlockClick=null;},650);
-},true);
-document.addEventListener('click',event=>{
- if(event.target===ratibVoiceBlockClick){
-  ratibVoiceBlockClick=null;
-  event.preventDefault();event.stopImmediatePropagation();
- }
-},true);
-window.addEventListener('pagehide',ratibExitAccountVoice);
-
+/* A field tap only focuses its input and opens the normal keyboard.
+   Speech recognition must be initiated by the microphone's own click.
+   Preserve the old query API for account auto-completion compatibility. */
+window.RatibVoiceFirstAccountActive=()=>false;
 window.addEventListener('pagehide',stop);
+
 
 async function requestMicrophoneAccess(targetId){
  const statusText=document.getElementById(typeof targetId==='string'?targetId:'ratibVoiceMicPermissionStatus');

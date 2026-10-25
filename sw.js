@@ -1,5 +1,5 @@
 // Ratib 3.1.9: cache identity is unique to this app's scope.
-const CACHE_VERSION='v223-trial-quick-entry-lazy-excel-3.6.109.03';
+const CACHE_VERSION='v224-trial-remove-legacy-import-3.6.109.03';
 const APP_RELEASE={"version":"3.6.109.03","highlights":[],"changes":["تصحيح الأخطاء في بعض الأجهزة"]};
 const CACHE_PREFIX=`ratib:${self.registration.scope}:`;
 const CACHE_NAME=CACHE_PREFIX+CACHE_VERSION;
@@ -67,12 +67,11 @@ const APP_SHELL=[
   "./ratib-reconciliation-print.js",
   "./ratib-favorites-v3.js",
   "./ratib-voice-dictation-3.6.117.js",
-  "./ratib-import-manager.js",
+  "./ratib-account-archive-compat.js",
   "./ratib-unified-output.js",
   "./vendor/chart.umd.min.js",
   "./vendor/chartjs-plugin-datalabels.min.js",
   "./vendor/xlsx.full.min.js",
-  "./assets/ratib-accounts-template.xlsx",
   "./vendor/tajawal-1.woff2",
   "./vendor/tajawal-10.woff2",
   "./vendor/tajawal-2.woff2",

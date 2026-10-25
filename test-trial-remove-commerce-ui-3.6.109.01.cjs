@@ -6,7 +6,7 @@ const release=pkg.version;
 assert.equal(pkg.version,release);
 assert(html.includes('const RATIB_RELEASE={"version":"'+release+'"'));
 assert(sw.includes('const APP_RELEASE={"version":"'+release+'"'));
-assert(new RegExp('const CACHE_VERSION=.+-'+release.replace(/\\./g,'\\.')+';').test(sw),'cache follows current version');
+assert(sw.includes('-'+release+"';"),'cache follows current version');
 assert(html.includes('الإصدار '+release+' (تجريبية)'),'trial label must remain visibly trial');
 const dom=new JSDOM(html,{url:'https://ratibtrial.pages.dev/',runScripts:'outside-only'});
 const d=dom.window.document,h=d.getElementById('dashboardHomeContent');

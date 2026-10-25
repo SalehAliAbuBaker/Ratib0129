@@ -87,8 +87,9 @@ function commercePostingSides(db,d){
  const name=k=>db.accounts[k]||'لم يحدد الحساب بعد',inventory=db.warehouses.find(w=>w.id===d.warehouse)?.accountId||name('inventory');
  const accountParty=d.partyAccount||db.accounts[mode==='in'?'payable':'receivable']||'لم يحدد الحساب بعد';
  const counter=d.payment==='cash'?name('cash'):accountParty;
- if(mode==='in')return [{debit:inventory,credit:counter,note:'قيمة الوارد'}];
- if(mode==='out')return [{debit:counter,credit:name('sales'),note:'قيمة الصادر'},{debit:name('cogs'),credit:inventory,note:'تكلفة البضاعة باليمني'}];
+ const debit=d.debitAccount||(mode==='in'?inventory:counter),credit=d.creditAccount||(mode==='in'?counter:name('sales'));
+ if(mode==='in')return [{debit,credit,note:'قيمة الوارد'}];
+ if(mode==='out')return [{debit,credit,note:'قيمة الصادر'},{debit:name('cogs'),credit:inventory,note:'تكلفة البضاعة باليمني'}];
  return [];
 }
 function commerceSidesMarkup(db,d){
@@ -496,7 +497,7 @@ function openAccountDefaults(){
  else if(typeof navigateToTab==='function')navigateToTab('pageSettings',true);
 }
 function orderCommerceAccounts(){
- const host=document.querySelector?.('#pageCommerce .rc-account-fields');if(!host)return;
+ const host=document.querySelector?.('#pageCommerce .rc-account-fields');if(!host||host.querySelector('#rc-debitAccount'))return;
  const warehouse=$('rc-warehouse')?.closest('.rc-wide-account'),party=$('rc-partyAccount')?.closest('.rc-wide-account');
  if(!warehouse||!party)return;
  const stockDebit=(mode==='in')!==(view==='return');
@@ -562,25 +563,50 @@ function leftToReturn(db,origin,pid,unit){
  const returned=db.invoices.filter(t=>t.origin===origin).flatMap(t=>t.lines).filter(l=>l.product===pid&&(!unit||lineUnit(db,l)===unit)).reduce((a,l)=>a+Number(l.qty||0),0);
  return rnd(original-returned);
 }
+function commerceSimpleInvoice(title){return title==='فاتورة مشتريات'||title==='فاتورة مبيعات';}
+function commerceInvoiceDebitDefault(db,d){
+ return ['purchase','purchase_return'].includes(d.kind)?warehouseAccount(db,d.warehouse):
+  d.payment==='cash'?db.accounts.cash:(d.partyAccount||db.accounts.receivable);
+}
+function commerceInvoiceCreditDefault(db,d){
+ return ['purchase','purchase_return'].includes(d.kind)?
+  (d.payment==='cash'?db.accounts.cash:(d.partyAccount||db.accounts.payable)):db.accounts.sales;
+}
+function commerceNameSuggestions(db){
+ return [...new Set(db.invoices.map(x=>String(x.displayPartyName||'').trim()).filter(Boolean))].slice(-120).reverse();
+}
 function invoice(db){
  const kind=view==='return'?(mode==='in'?'purchase_return':'sale_return'):dir(),ret=view==='return';
  if(!draft||draft.kind!==kind){draft=newDraft();editingDocId='';}
  if(!draftBaselines.has(draft))draftBaselines.set(draft,draftSignature(draft));
  const orig=db.invoices.find(x=>x.id===draft.origin);
  if(ret&&orig){draft.currency=orig.currency||'YER';draft.exchangeRate=orig.exchangeRate||1;}
+ const simpleInvoice=commerceSimpleInvoice(draft.title)&&!ret;
+ if(simpleInvoice){
+  if(draft.debitAccount===undefined)draft.debitAccount=commerceInvoiceDebitDefault(db,draft)||'';
+  if(draft.creditAccount===undefined)draft.creditAccount=commerceInvoiceCreditDefault(db,draft)||'';
+ }
  const originals=ret?db.invoices.filter(d=>d.kind===dir()&&(d.id===draft.origin||(d.lines||[]).some(l=>leftToReturn(db,d.id,l.product,lineUnit(db,l))>0))):[];
  const partySuggestions=[...db.people.map(p=>p.name),...leaf().map(x=>x.id)];
  const form='<form id="rc-invoice-form"><div class="rc-grid rc-invoice-fields">'+
  (ret?fld('نوع المستند','<strong>مرتجع '+(mode==='in'?'الوارد':'الصادر')+'</strong>'):'')+
  fld('رقم المستند / الفاتورة',inp('number','text',draft.number,'required maxlength="40"'))+
  fld('التاريخ',inp('date','date',draft.date,'required'))+
+ (simpleInvoice?(
+ '<div class="rc-full rc-optional-supplier">'+commerceInlineField('اكتب اسم',inp('displayPartyName','text',draft.displayPartyName||'','maxlength="140" autocomplete="off" placeholder="اكتب اسم" list="rc-free-names"'))+
+ '<datalist id="rc-free-names">'+commerceNameSuggestions(db).map(x=>'<option value="'+esc(x)+'"></option>').join('')+'</datalist></div>'+
+ '<div class="rc-full rc-account-fields">'+
+ '<div class="rc-wide-account">'+commerceInlineField('حساب الطرف المدين',commerceSmartAccount('debitAccount',leaf(),draft.debitAccount,'حساب الطرف المدين'))+'</div>'+
+ '<div class="rc-wide-account">'+commerceInlineField('حساب الطرف الدائن',commerceSmartAccount('creditAccount',leaf(),draft.creditAccount,'حساب الطرف الدائن'))+'</div>'+
+ '<div class="rc-wide-account">'+commerceInlineField('المخزن',sel('warehouse',db.warehouses,draft.warehouse).replace('<option value="">اختر</option>','<option value="">المخزن</option>'))+'</div>'+
+ '</div>'):(
  '<div class="rc-full rc-optional-supplier">'+commerceInlineField('اسم '+(mode==='in'?'المورد':'العميل')+' على الفاتورة (اختياري)',inp('displayPartyName','text',draft.displayPartyName||'','maxlength="140" autocomplete="off" placeholder="اكتب اسمًا أو اترك الحقل فارغًا" list="rc-parties"'))+'</div>'+
-  '<div class="rc-full rc-account-fields">'+
-  '<div class="rc-wide-account">'+commerceInlineField('المخزن',sel('warehouse',db.warehouses,draft.warehouse).replace('<option value="">اختر</option>','<option value="">المخزن</option>'))+'</div>'+
-  '<div class="rc-wide-account">'+commerceInlineField(mode==='in'?'المورد أو صاحب الحساب':'العميل أو صاحب الحساب',inp('partyName','text',draft.partyName,'required maxlength="140" autocomplete="off" placeholder="'+(mode==='in'?'المورد أو صاحب الحساب':'العميل أو صاحب الحساب')+'" list="rc-parties"')+'<datalist id="rc-parties">'+[...new Set(partySuggestions)].map(n=>'<option value="'+esc(n)+'"></option>').join('')+'</datalist>')+'</div>'+
-  '<div class="rc-wide-account">'+commerceInlineField('حساب الطرف الآخر',commerceSmartAccount('partyAccount',leaf(),draft.partyAccount||db.accounts[mode==='in'?'payable':'receivable'],'حساب الطرف الآخر'))+'</div>'+
-  '</div>'+
-  (ret?'<div class="rc-full">'+fld('المستند الأصلي',sel('origin',originals.map(x=>({id:x.id,name:x.number+' — '+docName(x)})),draft.origin))+'</div>':'')+
+ '<div class="rc-full rc-account-fields">'+
+ '<div class="rc-wide-account">'+commerceInlineField('المخزن',sel('warehouse',db.warehouses,draft.warehouse).replace('<option value="">اختر</option>','<option value="">المخزن</option>'))+'</div>'+
+ '<div class="rc-wide-account">'+commerceInlineField(mode==='in'?'المورد أو صاحب الحساب':'العميل أو صاحب الحساب',inp('partyName','text',draft.partyName,'required maxlength="140" autocomplete="off" placeholder="'+(mode==='in'?'المورد أو صاحب الحساب':'العميل أو صاحب الحساب')+'" list="rc-parties"')+'<datalist id="rc-parties">'+[...new Set(partySuggestions)].map(n=>'<option value="'+esc(n)+'"></option>').join('')+'</datalist>')+'</div>'+
+ '<div class="rc-wide-account">'+commerceInlineField('حساب الطرف الآخر',commerceSmartAccount('partyAccount',leaf(),draft.partyAccount||db.accounts[mode==='in'?'payable':'receivable'],'حساب الطرف الآخر'))+'</div>'+
+ '</div>'))+
+ (ret?'<div class="rc-full">'+fld('المستند الأصلي',sel('origin',originals.map(x=>({id:x.id,name:x.number+' — '+docName(x)})),draft.origin))+'</div>':'')+
 '<div class="rc-full rc-section-title">العملة والتسوية</div>'+
  fld('طريقة التسوية','<select id="rc-payment"><option value="credit" '+(draft.payment==='credit'?'selected':'')+'>آجل / على الحساب</option><option value="cash" '+(draft.payment==='cash'?'selected':'')+'>نقدي</option></select>')+
  fld('عملة المستند',ret?'<strong>'+esc(commerceCurrencyName(draft.currency||'YER'))+' (عملة المستند الأصلي)</strong>':sel('currency',COMMERCE_CURRENCIES,draft.currency||'YER'))+

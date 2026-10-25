@@ -99,9 +99,11 @@ function draw(){
   const choices=[{value:ALL_CASH,label:'جميع الصناديق والبنوك'},...accounts];
   const account=options('ratibPulseAccount',choices,byId('ratibPulseAccount')?.value||lastAccount);
   const all=validEntries(account,accounts);
-  const currencies=[...new Set(all.map(x=>x.currency))].sort();
-  if(!currencies.length){const fallback=typeof getRatibBaseCurrency==='function'?getRatibBaseCurrency():'YER';currencies.push(/^[A-Z]{3}$/.test(fallback)?fallback:'YER');}
-  const currency=options('ratibPulseCurrency',currencies.map(c=>({value:c,label:typeof accountCurrencyLabel==='function'?accountCurrencyLabel(c):c})),byId('ratibPulseCurrency')?.value||lastCurrency);
+  const baseCurrency=typeof getRatibBaseCurrency==='function'?getRatibBaseCurrency():'YER';
+  const preferred=/^[A-Z]{3}$/.test(baseCurrency)?baseCurrency:'YER';
+  const currencies=[...new Set(all.map(x=>x.currency))].sort((a,b)=>a===preferred?-1:b===preferred?1:a.localeCompare(b));
+  if(!currencies.length)currencies.push(preferred);
+  const currency=options('ratibPulseCurrency',currencies.map(c=>({value:c,label:typeof accountCurrencyLabel==='function'?accountCurrencyLabel(c):c})),byId('ratibPulseCurrency')?.value||lastCurrency||preferred);
   lastAccount=account;lastCurrency=currency;
   const scope=period();let beginning=0,receipts=0,payments=0;visible=[];
   for(const e of all){

@@ -12,6 +12,38 @@ const today=()=>new Date().toLocaleDateString('en-CA');
 let mode='stock',view='products',draft=null,editingDocId='',loading=false,editingProduct=null,query='',detailId='',previewId='',pendingImport=null,editingWarehouse=null,previewDraft=null;
 let catalogSearch='',catalogGroup='',catalogSearchVisible=false,catalogGroupVisible=false;
 let newMenuOpen=false;
+const draftBaselines=new WeakMap(),approvedDepartures=new WeakMap();
+const draftSignature=value=>JSON.stringify(value,(_key,v)=>typeof v==='number'?String(v):v);
+function hasUnsavedDraft(){
+ if(!['new','return'].includes(view)||!draft)return false;
+ syncInvoice();
+ return !!editingDocId||draftSignature(draft)!==draftBaselines.get(draft);
+}
+function requestLeave(){
+ if(!hasUnsavedDraft())return true;
+ const signature=draftSignature(draft);
+ if(approvedDepartures.get(draft)===signature)return true;
+ if(!window.confirm('توجد تغييرات غير محفوظة في المستند. مغادرة الشاشة قد تفقدها. هل تريد المتابعة؟'))return false;
+ approvedDepartures.set(draft,signature);return true;
+}
+function captureView(){
+ if(['new','return'].includes(view))syncInvoice();
+ return JSON.parse(JSON.stringify({format:1,mode,view,draft,editingDocId,detailId,query,newMenuOpen,
+  baseline:draft?draftBaselines.get(draft):null,catalogSearch,catalogGroup,catalogSearchVisible,catalogGroupVisible}));
+}
+function restoreView(snapshot){
+ if(!snapshot||snapshot.format!==1||!['stock','in','out'].includes(snapshot.mode)||
+  !['products','warehouses','movements','summary','accounts','new','return','records','people','detail','adjust','transfer'].includes(snapshot.view))return false;
+ const state=JSON.parse(JSON.stringify(snapshot));
+ if(state.draft&&(!Array.isArray(state.draft.lines)||!['purchase','sale','purchase_return','sale_return'].includes(state.draft.kind)))return false;
+ mode=state.mode;view=state.view;draft=state.draft||null;editingDocId=state.editingDocId||'';
+ detailId=state.detailId||'';query=state.query||'';newMenuOpen=!!state.newMenuOpen;
+ catalogSearch=state.catalogSearch||'';catalogGroup=state.catalogGroup||'';
+ catalogSearchVisible=!!state.catalogSearchVisible;catalogGroupVisible=!!state.catalogGroupVisible;
+ if(draft)draftBaselines.set(draft,state.baseline||'');
+ paint();return true;
+}
+
 function data(){const base=fresh(),v=store.get('commerce_v1',null);if(!v||typeof v!=='object')return base;const x=JSON.parse(JSON.stringify(v));return {...base,...x,products:Array.isArray(x.products)?x.products:[],warehouses:Array.isArray(x.warehouses)?x.warehouses:base.warehouses,people:Array.isArray(x.people)?x.people:[],invoices:Array.isArray(x.invoices)?x.invoices:[],accounts:{...base.accounts,...(x.accounts||{})}};}
 function save(x){store.set('commerce_v1',x);}
 function notify(t,k='info'){if(typeof showToast==='function')showToast(t,k);else alert(t);}
@@ -511,6 +543,7 @@ function leftToReturn(db,origin,pid,unit){
 function invoice(db){
  const kind=view==='return'?(mode==='in'?'purchase_return':'sale_return'):dir(),ret=view==='return';
  if(!draft||draft.kind!==kind){draft=newDraft();editingDocId='';}
+ if(!draftBaselines.has(draft))draftBaselines.set(draft,draftSignature(draft));
  const orig=db.invoices.find(x=>x.id===draft.origin);
  if(ret&&orig){draft.currency=orig.currency||'YER';draft.exchangeRate=orig.exchangeRate||1;}
  const originals=ret?db.invoices.filter(d=>d.kind===dir()&&(d.id===draft.origin||(d.lines||[]).some(l=>leftToReturn(db,d.id,l.product,lineUnit(db,l))>0))):[];
@@ -609,7 +642,7 @@ function commerceInvoiceKind(kind){
 function commerceOpenInvoice(docId,clone=false){
  const source=data().invoices.find(x=>x.id===docId);
  if(!source||!commerceInvoiceKind(source.kind))throw Error('مستند الوارد أو الصادر غير موجود.');
- open(['purchase','purchase_return'].includes(source.kind)?'purchase':'sale');
+ if(open(['purchase','purchase_return'].includes(source.kind)?'purchase':'sale')===false)return false;
  view=source.kind.endsWith('_return')?'return':'new';
  editingDocId=clone?'':source.id;
  draft={
@@ -1031,6 +1064,7 @@ async function documentOutput(action,docId){
 }
 
 function open(target='stock'){
+ if(!requestLeave())return false;
  mode=target==='purchase'?'in':target==='sale'?'out':['stock','in','out'].includes(target)?target:'stock';
  view=mode==='stock'?'products':'records';newMenuOpen=false;draft=null;editingDocId='';editingProduct=null;query='';detailId='';catalogSearch='';catalogGroup='';catalogSearchVisible=false;catalogGroupVisible=false;
  navigateToTab('pageCommerce',true);paint();
@@ -1045,7 +1079,7 @@ function openFavorite(target,screen='products'){
  const directTitle=rest.join(':');
  if(!available.includes(pageTitle))throw Error('وظيفة المفضلة غير متاحة.');
  if(directTitle&&(!['in','out'].includes(source)||pageTitle!=='new'||!types[source].includes(directTitle)))throw Error('نوع المستند غير صحيح.');
- open(target);
+ if(open(target)===false)return false;
  view=pageTitle;
  if(pageTitle==='new'&&!directTitle){view='records';newMenuOpen=true;}
  if(directTitle){editingDocId='';draft=newDraft();draft.title=directTitle;draft.number=nextNumber(data(),draft.kind,directTitle);}
@@ -1090,7 +1124,7 @@ function bind(){
    if(hit('[data-rc-confirm-import]')){confirmProductImport().catch(e=>notify(e.message,'error'));return;}
    if(hit('[data-rc-cancel-import]')){pendingImport=null;paint();return;}
    const warehouseEdit=hit('[data-rc-edit-warehouse]');if(warehouseEdit){editingWarehouse=warehouseEdit.dataset.rcEditWarehouse;paint();return;}
-   if(hit('[data-rc-cancel-edit]')){editingDocId='';draft=null;view='records';paint();return;}
+   if(hit('[data-rc-cancel-edit]')){if(!requestLeave())return;editingDocId='';draft=null;view='records';paint();return;}
     const docOperation=hit('[data-rc-doc-op]');if(docOperation){Promise.resolve(commerceDocumentOperation(docOperation.dataset.rcDocOp,docOperation.dataset.doc)).catch(e=>notify(e.message||'تعذر إجراء العملية','error'));return;}
     if(hit('[data-rc-back]')){if(view==='detail'){view='records';paint();}else if(typeof goBackInApp==='function')goBackInApp();return;}
    if(hit('[data-rc-toggle-new]')){
@@ -1104,12 +1138,11 @@ function bind(){
     if(view==='new'&&draft)syncInvoice();
     if(editingDocId&&view==='new'&&draft?.title!==chosen){notify('لا يمكن تغيير نوع المستند أثناء التعديل؛ استنسخه في النوع المطلوب.','warn');return;}
     if(view==='new'&&draft?.title===chosen){newMenuOpen=false;paint();return;}
-    const dirty=view==='new'&&draft&&(draft.partyName||draft.note||draft.displayPartyName||draft.lines?.some(l=>l.product||Number(l.price)>0));
-    if(dirty&&typeof window.confirm==='function'&&!window.confirm('ستُفقد بيانات المستند غير المحفوظة عند اختيار نوع مختلف. هل تريد المتابعة؟'))return;
+    if(!requestLeave())return;
     view='new';draft=newDraft();draft.title=chosen;draft.number=nextNumber(data(),draft.kind,chosen);
     editingDocId='';newMenuOpen=false;paint();return;
    }
-   const v=hit('[data-rc-view]');if(v){newMenuOpen=false;view=v.dataset.rcView;draft=null;editingDocId='';editingProduct=null;query='';paint();return;}
+   const v=hit('[data-rc-view]');if(v){if(v.dataset.rcView!==view&&!requestLeave())return;if(v.dataset.rcView===view)return;newMenuOpen=false;view=v.dataset.rcView;draft=null;editingDocId='';editingProduct=null;query='';paint();return;}
    const d=hit('[data-rc-detail]');if(d){detailId=d.dataset.rcDetail;view='detail';paint();return;}
    const edit=hit('[data-rc-edit-product]');if(edit){editingProduct=edit.dataset.rcEditProduct||null;paint();return;}
    const add=hit('[data-rc-add]');if(add){syncInvoice();draft.lines.push({id:id(),product:'',unit:'',qty:1,price:0});paint();return;}
@@ -1238,15 +1271,13 @@ function bind(){
 function commerceOpenDocument(docId){
  const doc=data().invoices.find(d=>d.id===docId);
  if(!doc)throw Error('المستند التجاري غير موجود؛ قد يكون محذوفًا.');
- open(['purchase','purchase_return'].includes(doc.kind)?'purchase':'sale');
+ if(open(['purchase','purchase_return'].includes(doc.kind)?'purchase':'sale')===false)return false;
  detailId=doc.id;view='detail';paint();
 }
 window.RatibCommerce={open,openFavorite,openDocument:commerceOpenDocument,documentAction:commerceDocumentOperation,render:paint,version:window.ratibCurrentTrialVersion?.()||'3.6.149'};
-window.RatibCommerce.hasUnsavedDraft=()=>{
- if(view!=='new'||!draft)return false;
- syncInvoice();
- return !!(editingDocId||draft.partyName||draft.displayPartyName||draft.note||
-   draft.lines?.some(line=>line.product||Number(line.price)>0));
-};
+window.RatibCommerce.hasUnsavedDraft=hasUnsavedDraft;
+window.RatibCommerce.requestLeave=requestLeave;
+window.RatibCommerce.captureView=captureView;
+window.RatibCommerce.restoreView=restoreView;
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',bind,{once:true});else bind();
 })();

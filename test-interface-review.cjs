@@ -131,6 +131,20 @@ async function run(){
    assert(label.includes(({budget:'بنود الميزانية',printing:'إعدادات الطباعة',security:'الأمان'})[key]));
   }
  });
+ await test('Commerce draft survives the application screen snapshot and restore pipeline',async()=>{
+  load('ratib-commerce-3.6.131.js');
+  w.RatibCommerce.openFavorite('purchase','new:فاتورة مشتريات');await pause(30);
+  d.getElementById('rc-note').value='مسودة تستعاد مع الشاشة';
+  d.getElementById('rc-number').value='PI-resume';
+  const snapshot=JSON.parse(JSON.stringify(code(w,'captureAppView()')));
+  assert.equal(snapshot.commerce.draft.note,'مسودة تستعاد مع الشاشة');
+  w.RatibCommerce.openFavorite('stock','products');
+  w.__commerceResumeTest=snapshot;code(w,'restoreAppView(__commerceResumeTest)');await pause(30);
+  assert.equal(d.getElementById('rc-note').value,'مسودة تستعاد مع الشاشة');
+  assert.equal(d.getElementById('rc-number').value,'PI-resume');
+  assert.equal(w.RatibCommerce.captureView().mode,'in');
+  delete w.__commerceResumeTest;
+ });
  assert.deepEqual(f.errors,[]);fixtures.forEach(x=>x.dom.window.close());
 }
 run().then(()=>process.exit(0)).catch(e=>{console.error(e.stack);process.exit(1)});

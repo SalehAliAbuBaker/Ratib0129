@@ -165,7 +165,7 @@ d.warehouses=[{id:'main',name:'المخزن الرئيسي'}];store.set('commerc
   assert(form.includes('id="rc-account-list-debitAccount"')&&form.includes('id="rc-account-list-creditAccount"'),title+' must permit chart lookup on both sides');
   assert(form.includes('id="rc-partyName"')&&form.includes('type="hidden"'),title+' legacy party remains internal');
  }
- const invoiceTestDb=T.data();
+ const invoiceTestDb={...T.data(),accounts:{...T.data().accounts,cash:'صندوق',receivable:'عملاء',payable:'موردون',inventory:'مخزون',sales:'مبيعات',cogs:'تكلفة'}};
  const purchasePost=T.makeJournal({id:'invoice-core-test-p',kind:'purchase',title:'فاتورة مشتريات',number:'PI-TEST',date:'2026-10-25',
   warehouse:'main',partyName:'موردون',partyAccount:'موردون',debitAccount:'عملاء',creditAccount:'صندوق',payment:'credit',currency:'YER',exchangeRate:1,total:20,baseTotal:20,cost:20},invoiceTestDb);
  assert.equal(purchasePost[0].debitAccount,'عملاء','purchase debit selector must reach the real financial journal');

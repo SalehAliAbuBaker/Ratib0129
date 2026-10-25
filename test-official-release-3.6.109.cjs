@@ -5,14 +5,14 @@ const sw=fs.readFileSync('sw.js','utf8');
 const sidebar=fs.readFileSync('ratib-sidebar-3.6.124.js','utf8');
 const voice=fs.readFileSync('ratib-voice-dictation-3.6.117.js','utf8');
 const pkg=require('./package.json');
-assert.equal(pkg.version,'3.6.109');
-assert(index.includes('const RATIB_RELEASE={"version":"3.6.109","build":"p10900"'));
-assert(sw.includes('const APP_RELEASE={"version":"3.6.109","build":"p10900"'));
-assert(sw.includes("v218-official-3.6.109"));
-assert(index.includes('id="appVersionLabel" class="app-version">الإصدار 3.6.109</small>'));
-assert(index.includes('class="ratib-about-version">الإصدار 3.6.109</p>'));
+assert.equal(pkg.version,'3.6.109.01');
+assert(index.includes('const RATIB_RELEASE={"version":"3.6.109.01","build":"p10901"'));
+assert(sw.includes('const APP_RELEASE={"version":"3.6.109.01","build":"p10901"'));
+assert(sw.includes("v219-official-simple-home-3.6.109.01"));
+assert(index.includes('id="appVersionLabel" class="app-version">الإصدار 3.6.109.01</small>'));
+assert(index.includes('class="ratib-about-version">الإصدار 3.6.109.01</p>'));
 assert(index.includes('window.ratibCurrentTrialVersionLabel=()=>`الإصدار ${RATIB_RELEASE.version}`'));
-assert(!index.includes('الإصدار 3.6.109 (تجريبية)'));
+assert(!index.includes('الإصدار 3.6.109.01 (تجريبية)'));
 assert(sidebar.includes("const label='الإصدار '+v;")&&!sidebar.includes("const label='الإصدار '+v+' (تجريبية)'"));
 assert(index.includes("const CLOUD_FOLDER_NAME = 'Ratib Backups'"));
 assert(index.includes("const CLOUD_LEGACY_FOLDER_NAME = 'Ratib Trial Backups'"));
@@ -34,4 +34,4 @@ assert(voice.includes("button.addEventListener('click'"),'mic remains explicit')
 assert(index.includes('function ratibRestorePrintScreen()'));
 for(const [name,source] of [['sw',sw],['sidebar',sidebar],['voice',voice]])assert.doesNotThrow(()=>new Function(source),name+' must parse');
 // The full embedded-script parse is already covered by the shared regression suite.
-console.log('PASS official 3.6.109: release, production identity, preserved data keys and voice/print fixes');
+console.log('PASS official 3.6.109.01: release, production identity, preserved data keys and voice/print fixes');

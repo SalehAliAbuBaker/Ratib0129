@@ -1,0 +1,186 @@
+/* Trial-only Ratib Al-Muyassar: equal home actions, centered green favorites,
+   compact account management tree. Never applies to accounting printouts. */
+@media screen {
+  #mainWrap > header .logo > span::before,
+  #mainWrap > header .logo > span::after { content:none!important; display:none!important }
+  #mainWrap > header .logo > span { font-size:inherit!important; display:flex!important; flex-direction:column!important; line-height:1.2!important; gap:3px; }
+  #mainWrap > header .logo > span > strong { color:var(--accent-strong); font-weight:850;font-size:clamp(1.12rem,3.7vw,1.5rem); }
+  #mainWrap > header .logo > span > small { color:var(--muted);font-size:.76rem;font-weight:600; }
+
+  /* All five voucher categories stay in one aligned row, including on phones. */
+  #dashboardHomeContent .ratib-quick-entry-grid {
+    display:grid!important;
+    grid-template-columns:repeat(5,minmax(0,1fr))!important;
+    grid-template-rows:minmax(69px,auto)!important;
+    gap:9px!important;
+    overflow:visible!important;
+  }
+  #dashboardHomeContent .ratib-quick-entry-grid > button {
+    width:100%!important;
+    height:100%!important;
+    min-width:0!important;
+    min-height:69px!important;
+    padding:9px 5px!important;
+    display:flex!important;
+    flex-direction:column!important;
+    align-items:center!important;
+    justify-content:center!important;
+    gap:6px!important;
+    font-weight:750!important;
+    font-size:clamp(.75rem,1.4vw,.94rem)!important;
+    line-height:1.35!important;
+    white-space:normal!important;
+    text-align:center!important;
+    border:1px solid var(--border)!important;
+    border-radius:13px!important;
+    background:var(--card)!important;
+    color:var(--text)!important;
+    transition:background .15s,border-color .15s,transform .15s;
+    overflow-wrap:anywhere;
+  }
+  #dashboardHomeContent .ratib-quick-entry-grid > button:is(:hover,:focus-visible) {
+    border-color:var(--accent)!important;
+    background:color-mix(in srgb,var(--accent) 7%,var(--card))!important;
+  }
+  #dashboardHomeContent .ratib-quick-entry-grid .ratib-quick-voucher-icon{
+    display:inline-flex;align-items:center;justify-content:center;
+    width:25px;height:25px;flex:0 0 25px;color:var(--accent-strong);
+  }
+  #dashboardHomeContent .ratib-quick-entry-grid .ratib-quick-voucher-icon svg{
+    width:25px;height:25px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;
+  }
+  /* 4 original departments + favorites card = 5 identical grid cells. */
+  #dashboardHomeContent .main-menu-grid.ratib-favorites-cross,
+  #dashboardHomeContent .main-menu-grid.ratib-approved-home-row {
+    display:grid!important;
+    grid-template-columns:repeat(5,minmax(0,1fr))!important;
+    grid-template-areas:none!important;
+    grid-auto-rows:minmax(112px,auto);
+    direction:rtl!important;
+    align-items:stretch!important;
+    gap:12px!important;
+    overflow:visible!important;
+    position:relative!important;
+  }
+  #dashboardHomeContent .main-menu-grid > :is(.main-menu-btn,#ratibCenterFavorites){
+    grid-area:auto!important;
+    grid-column:auto!important;
+    grid-row:auto!important;
+    position:relative!important;
+    left:auto!important;top:auto!important;
+    transform:none!important;
+    width:100%!important;height:100%!important;
+    min-width:0!important;max-width:none!important;
+    min-height:112px!important;
+    margin:0!important;
+    display:flex!important;flex-direction:column!important;
+    justify-content:center!important;align-items:center!important;
+    text-align:center!important;gap:9px!important;
+    padding:12px 6px!important;
+    border-radius:14px!important;
+    border:1px solid var(--border)!important;
+    background:var(--card)!important;
+    color:var(--text)!important;
+    box-shadow:0 3px 10px rgba(86,60,17,.06)!important;
+    white-space:normal!important;
+    font:750 clamp(.82rem,1.55vw,1rem)/1.35 Tajawal,system-ui,sans-serif!important;
+    overflow-wrap:anywhere;
+  }
+  #dashboardHomeContent .main-menu-grid .main-menu-icon{
+    display:grid!important;place-items:center!important;
+    width:31px!important;height:31px!important;
+    font-size:1.45rem!important;color:var(--accent-strong)!important;
+  }
+  #dashboardHomeContent .main-menu-grid .main-menu-icon svg,
+  #dashboardHomeContent .main-menu-grid .ratib-center-fav-icon svg{
+    width:29px!important;height:29px!important;
+    stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;
+  }
+  /* The favorite is green by design, not an old-theme residue. */
+  #dashboardHomeContent .main-menu-grid #ratibCenterFavorites {
+    border:2px solid #0B6046!important;
+    color:#0B6046!important;
+    background:color-mix(in srgb,#0B6046 5%,var(--card))!important;
+    z-index:2!important;
+    cursor:pointer!important;
+  }
+  #dashboardHomeContent .main-menu-grid #ratibCenterFavorites:is(:hover,:focus-visible),
+  #dashboardHomeContent .main-menu-grid #ratibCenterFavorites[aria-expanded="true"]{
+    background:color-mix(in srgb,#0B6046 13%,var(--card))!important;
+  }
+  #dashboardHomeContent #ratibCenterFavorites .ratib-center-fav-icon{
+    display:inline-flex;align-items:center;justify-content:center;height:31px;width:31px;flex:none;
+  }
+  #dashboardHomeContent #ratibCenterFavorites .ratib-center-fav-label{
+    font-size:inherit;font-weight:800;line-height:1.3;
+  }
+  #dashboardHomeContent #ratibCenterFavoritesMenu {
+    position:absolute!important;
+    top:calc(100% + 8px)!important;
+    left:50%!important;
+    transform:translateX(-50%)!important;
+    right:auto!important;
+    margin:0!important;
+    width:min(320px,calc(100vw - 32px))!important;
+    max-height:min(55vh,420px)!important;
+    z-index:999!important;
+    border-color:var(--border)!important;
+  }
+  [data-theme="dark"] #dashboardHomeContent #ratibCenterFavorites {
+    color:#80D8AD!important;border-color:#42A87B!important;background:#0B604622!important;
+  }
+  [data-theme="dark"] #dashboardHomeContent #ratibCenterFavorites .ratib-center-fav-icon{color:#80D8AD!important;}
+
+  /* Account tree: no balance, debit or credit amounts until an account is opened. */
+  #ratibInteractiveAccountsTree .rit-tree .rit-node-balance,
+  #ratibInteractiveAccountsTree .rit-tree .rit-simple-group-balance{
+    display:none!important;
+  }
+  #ratibInteractiveAccountsTree .rit-tree .rit-node{
+    flex-wrap:nowrap!important;min-height:47px!important;padding:4px 8px!important;
+  }
+  #ratibInteractiveAccountsTree .rit-tree .rit-node-main{
+    flex:1 1 auto!important;width:100%!important;min-width:0!important;min-height:43px!important;
+  }
+  #ratibInteractiveAccountsTree .rit-tree .rit-simple-group-button{
+    min-height:51px!important;gap:10px!important;
+  }
+  #ratibInteractiveAccountsTree .rit-tree .rit-simple-node .rit-node-label{flex:1 1 auto;}
+  #ratibInteractiveAccountsTree .rit-detail-balances,
+  #ratibInteractiveAccountsTree .rit-movement{display:flex;} /* Details remain intact after selection */
+}
+@media screen and (max-width:700px) {
+  #dashboardHomeContent .main-menu-grid.ratib-favorites-cross,
+  #dashboardHomeContent .main-menu-grid.ratib-approved-home-row{
+    gap:5px!important;grid-auto-rows:minmax(93px,auto)!important;
+  }
+  #dashboardHomeContent .main-menu-grid > :is(.main-menu-btn,#ratibCenterFavorites){
+    min-height:93px!important;
+    padding:8px 2px!important;
+    gap:6px!important;
+    font-size:clamp(.63rem,2.4vw,.81rem)!important;
+    line-height:1.32!important;
+  }
+  #dashboardHomeContent .main-menu-grid .main-menu-icon,
+  #dashboardHomeContent #ratibCenterFavorites .ratib-center-fav-icon{
+    width:25px!important;height:25px!important;
+  }
+  #dashboardHomeContent .main-menu-grid .main-menu-icon svg,
+  #dashboardHomeContent .main-menu-grid .ratib-center-fav-icon svg{
+    width:24px!important;height:24px!important;
+  }
+  #dashboardHomeContent .ratib-quick-entry-grid{gap:5px!important;grid-template-rows:minmax(72px,auto)!important}
+  #dashboardHomeContent .ratib-quick-entry-grid > button{
+    min-height:72px!important;
+    padding:7px 2px!important;
+    gap:5px!important;
+    font-size:clamp(.62rem,2.35vw,.79rem)!important;
+  }
+  #dashboardHomeContent .ratib-quick-entry-grid .ratib-quick-voucher-icon,
+  #dashboardHomeContent .ratib-quick-entry-grid .ratib-quick-voucher-icon svg{
+    width:23px!important;height:23px!important;
+  }
+}
+@media print{
+  #ratibCenterFavorites,#ratibCenterFavoritesMenu{display:none!important}
+}

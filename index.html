@@ -8507,7 +8507,11 @@ function buildPdfFromCanvases(canvases,pageSize=ratibPaperLandscape()?[842,595]:
 // independent from the native print dialog and restore the screen on return.
 function ratibRestorePrintScreen(){
   window.__ratibPrintCleanup?.();
-  document.body?.classList.remove('trial-printing');
+  // A previous Android WebView print can leave the body in a print-only mode.
+  for(const name of Array.from(document.body?.classList||[])){
+    if(name.startsWith('printing-')||name==='trial-printing'||name==='account-print-mode')
+      document.body.classList.remove(name);
+  }
 }
 function printRatibDocument(bodyClass){
   window.RatibPrintLogo?.syncPrint();

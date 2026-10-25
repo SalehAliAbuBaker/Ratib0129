@@ -12,8 +12,8 @@ assert.deepEqual(links.map(b=>b.textContent.trim()),['سند قبض / صرف','�
 assert(links.every(b=>b.getAttribute('onclick').includes("navigateToTab('pageExpenses'")));
 assert.equal(d.querySelectorAll('#dashboardHomeContent .main-menu-grid .main-menu-btn').length,4,'existing sections remain available');
 assert(html.includes("async function exportTrialExcel(){try{await ensureSpreadsheet();"));
-assert(html.includes("async function exportOpeningImport(kind){try{if(kind!=='pdf')await ensureSpreadsheet();"));
-assert(html.includes("await ensureSpreadsheet();\n  const csv="));
+assert(!html.includes('exportOpeningImport('),'old import export removed');
+assert(!html.includes('readExternalImportFile('),'old import reader removed');
 assert(commerce.includes("if(action==='export'||action==='template'){await window.ratibEnsureSpreadsheet?.()"));
 assert(commerce.includes("reader.onload=async()=>{try{\n await window.ratibEnsureSpreadsheet?.()"));
 assert(worker.includes('"./vendor/xlsx.full.min.js"'),'offline shell keeps Excel available');

@@ -8,7 +8,8 @@
 const byId=id=>document.getElementById(id);
 const iso=x=>/^\d{4}-\d{2}-\d{2}$/.test(String(x||''));
 const fmt=(n,c)=>new Intl.NumberFormat('en-US',{maximumFractionDigits:3}).format(Math.abs(n)<1e-8?0:n)+(c?' '+c:'');
-let expanded=false,root=null,kind='',visible=[],lastAccount='',lastCurrency='',refreshPending=false;
+const ALL_CASH='__all_cash_and_banks__';
+let expanded=false,root=null,kind='',visible=[],lastAccount=ALL_CASH,lastCurrency='',refreshPending=false;
 function today(){
  if(typeof getLocalTodayISO==='function'){const d=getLocalTodayISO();if(iso(d))return d;}
  const d=new Date();return new Date(d.getTime()-d.getTimezoneOffset()*60000).toISOString().slice(0,10);
@@ -25,6 +26,11 @@ function cashAccounts(){
   if(!cash)continue;
   for(const d of r.details||[]){
    const name=String(d[1]||'').trim(),id=String(d[0]||'');
+   // Do not include a client/receivables account just because its parent was
+   // misclassified as liquid cash. Example: 1102xx = receivables, not banks.
+   const receivableCode=/^1102\d*/.test(id);
+   const explicitlyCash=/صندوق|نقد|بنك|مصرف|خزين/.test(name);
+   if(receivableCode&&!explicitlyCash)continue;
    if(name&&!names.has(name))names.set(name,{value:name,label:name+(id?' — '+id:'')});
   }
  }
@@ -40,22 +46,36 @@ function options(id,opts,wanted){
  target.value=values.includes(wanted)?wanted:(values[0]||'');
  return target.value;
 }
-function validEntries(account){
+function validEntries(account,accounts){
  const list=typeof ratibActiveAccountingTransactions==='function'?ratibActiveAccountingTransactions(getAllTransactions()):getAllTransactions();
- const result=[];
+ const cashNames=new Set((accounts||[]).map(a=>a.value));
+ const isAll=account===ALL_CASH,results=[];
  for(const t of list){
   if(!t||['reversed','deleted','draft','pending','cancelled','void'].includes(String(t.status||'').toLowerCase()))continue;
   if(t.status&&!['posted','approved','confirmed'].includes(String(t.status).toLowerCase()))continue;
   const date=typeof getAccountOpsDate==='function'?getAccountOpsDate(t):String(t.isoDate||'');
   if(!iso(date))continue;
-  const leg=getAccountEntry(t,[account]);
+  // One voucher line is an accounting movement. For the consolidated cash
+  // view, a transfer from one included cash account to another is internal:
+  // both sides cancel; it must not inflate receipts or payments.
+  let scopeName=account;
+  if(isAll){
+   if(t.isOpeningBalance&&t.openingBalance)scopeName=cashNames.has(t.openingBalance.account)?t.openingBalance.account:'';
+   else{
+    const d=cashNames.has(t.debitAccount),c=cashNames.has(t.creditAccount);
+    if(d&&c)continue;
+    scopeName=d?t.debitAccount:c?t.creditAccount:'';
+   }
+   if(!scopeName)continue;
+  }
+  const leg=getAccountEntry(t,[scopeName]);
   if(!leg||leg.bothSides||(leg.side!=='debit'&&leg.side!=='credit'))continue;
   const amount=Number(typeof getAccountDisplayAmount==='function'?getAccountDisplayAmount(leg):leg.foreignAmount??leg.amount);
   const currency=String(leg.currency||t.currency||'YER').toUpperCase();
   if(!Number.isFinite(amount)||amount<=0||!/^[A-Z]{3}$/.test(currency))continue;
-  result.push({t,date,amount,currency,side:leg.side,opening:!!t.isOpeningBalance,note:String(leg.line?.note||t.multiVoucher?.note||t.note||'')});
+  results.push({t,date,amount,currency,side:leg.side,opening:!!t.isOpeningBalance,note:String(leg.line?.note||t.multiVoucher?.note||t.note||''),account:scopeName});
  }
- return result;
+ return results;
 }
 function period(){
  const value=byId('ratibPulsePeriod')?.value||'month',last=today();
@@ -76,8 +96,9 @@ function draw(){
  try{
   const accounts=cashAccounts();
   if(!accounts.length){byId('ratibPulseReadout').hidden=true;help('لا توجد حسابات نقدية معرفة في دليل الحسابات.');return;}
-  const account=options('ratibPulseAccount',accounts,byId('ratibPulseAccount')?.value||lastAccount);
-  const all=validEntries(account);
+  const choices=[{value:ALL_CASH,label:'جميع الصناديق والبنوك'},...accounts];
+  const account=options('ratibPulseAccount',choices,byId('ratibPulseAccount')?.value||lastAccount);
+  const all=validEntries(account,accounts);
   const currencies=[...new Set(all.map(x=>x.currency))].sort();
   if(!currencies.length){const fallback=typeof getRatibBaseCurrency==='function'?getRatibBaseCurrency():'YER';currencies.push(/^[A-Z]{3}$/.test(fallback)?fallback:'YER');}
   const currency=options('ratibPulseCurrency',currencies.map(c=>({value:c,label:typeof accountCurrencyLabel==='function'?accountCurrencyLabel(c):c})),byId('ratibPulseCurrency')?.value||lastCurrency);
@@ -99,7 +120,7 @@ function draw(){
   byId('ratibPulseIncome').textContent=fmt(receipts,currency);
   byId('ratibPulseExpense').textContent=fmt(payments,currency);
   byId('ratibPulseNet').textContent=fmt(receipts-payments,currency);
-  help('حركة '+scope.label+' — '+visible.length+' حركة مرحّلة. الأرصدة الافتتاحية ليست مقبوضات.');
+  help('حركة '+scope.label+' — '+visible.length+' حركة مرحّلة'+(account===ALL_CASH?' في جميع الصناديق والبنوك (دون التحويلات الداخلية)':'')+'. الأرصدة الافتتاحية ليست مقبوضات.');
   const circum=2*Math.PI*71,total=receipts+payments,g=total?circum*receipts/total:0,p=total?circum*payments/total:0;
   arc('ratibPulseGreenArc',g,0);arc('ratibPulseGoldArc',p,g);
   if(kind)details(kind);
@@ -153,7 +174,11 @@ function mount(){
   if(!appReady()||!lastAccount||!lastCurrency||typeof openAccountFromPager!=='function')return;
   try{
    const {from,last}=period();
-   openAccountFromPager(lastAccount,[lastAccount],lastCurrency,false);
+   const all=lastAccount===ALL_CASH;
+   const selected=all?cashAccounts().map(a=>a.value):[lastAccount];
+   if(!selected.length)return;
+   const name=all?'الصناديق والبنوك':lastAccount;
+   openAccountFromPager(name,selected,lastCurrency,all);
    if(typeof accountOpsState==='object'){
     accountOpsState.from=from;accountOpsState.to=last;
     accountOpsState.currency=lastCurrency;accountOpsState.activeCurrency=lastCurrency;
@@ -162,7 +187,7 @@ function mount(){
    const fromField=byId('accountOpsFromDate'),toField=byId('accountOpsToDate'),currencyField=byId('accountOpsCurrencyFilter');
    if(fromField)fromField.value=from;if(toField)toField.value=last;
    if(currencyField)currencyField.value=lastCurrency;
-   if(typeof renderAccountOperations==='function')renderAccountOperations(lastAccount,[lastAccount]);
+   if(typeof renderAccountOperations==='function')renderAccountOperations(name,selected);
   }catch(e){help('تعذر فتح كشف الحساب، ويمكن فتحه يدويًا من شجرة الحسابات.');}
  });
  // No timers or persistence: refresh on user activity/foreground and when the

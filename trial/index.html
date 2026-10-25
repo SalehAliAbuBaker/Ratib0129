@@ -5,13 +5,13 @@
 <base href="../">
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>راتب للتنظيم والتدبير المالي — دفتر الميزانية الآمن</title>
+<title>راتب الميسر — للتنظيم والتدبير المالي (تجريبي)</title>
 <meta name="description" content="تطبيق عربي لإدارة السندات والميزانية والتقارير المالية">
 <meta name="color-scheme" content="light dark">
-<meta name="theme-color" content="#0284c7">
+<meta name="theme-color" content="#C89B3C">
 
-<link rel="icon" type="image/png" sizes="192x192" href="Icons/icon-192.png">
-<link rel="icon" type="image/png" sizes="512x512" href="Icons/icon-512.png">
+<link rel="icon" type="image/svg+xml" href="./trial/ratib-gold-icon.svg">
+
 <link rel="apple-touch-icon" sizes="180x180" href="Icons/apple-touch-icon.png">
 <link href="./vendor/tajawal.css" rel="stylesheet">
 
@@ -1244,6 +1244,7 @@ body.ratib-sidebar-open,body.ratib-about-open{overflow:hidden}
   #multiVoucherCard.spend-voucher.statement-return-voucher .multi-voucher-actions>.btn-danger{flex:1 1 100%!important}
 }
 </style>
+<link rel="stylesheet" href="./trial/ratib-gold.css?v=20261025-1">
 </head>
 <body>
 <div id="ratibTrialBanner" style="position:relative;z-index:99999;background:#fff3cd;color:#643c00;border-bottom:2px solid #db9e15;text-align:center;padding:9px 12px;font-family:Tahoma,sans-serif;font-weight:700;direction:rtl">🧪 نسخة تجريبية مستقلة — الإصدار 3.6.60. يمكن نسخ البيانات الرسمية للتجربة بإذن منك، ولا تنتقل التعديلات التجريبية إلى التطبيق الرسمي. يلزم الاتصال بالإنترنت. <span id="ratibTrialCounter" style="display:inline-block;margin-right:12px;padding:2px 8px;border-radius:10px;background:#fff">السندات المجانية: 0 / 20</span></div>
@@ -1271,7 +1272,7 @@ body.ratib-sidebar-open,body.ratib-about-open{overflow:hidden}
   </div>
 
   <header class="no-print">
-    <div class="logo"><img class="app-brand-icon" src="Icons/icon-192.png" width="44" height="44" alt="" decoding="async"><span>راتب للتنظيم والتدبير المالي</span></div>
+    <div class="logo"><img class="app-brand-icon" src="./trial/ratib-gold-icon.svg" width="44" height="44" alt="" decoding="async"><span>راتب الميسر — للتنظيم والتدبير المالي</span></div>
     <div class="header-tools"><div class="header-actions">
       <button class="icon-btn" id="themeBtn" title="الوضع الليلي">🌙</button>
       <button class="icon-btn" id="sidebarMenuBtn" aria-haspopup="dialog" aria-controls="appSidebar" aria-expanded="false" title="القائمة الجانبية" aria-label="فتح القائمة الجانبية">☰</button>
@@ -1284,7 +1285,7 @@ body.ratib-sidebar-open,body.ratib-about-open{overflow:hidden}
   <div class="sidebar-overlay no-print" id="sidebarOverlay" aria-hidden="true"></div>
   <aside class="app-sidebar no-print" id="appSidebar" role="dialog" aria-modal="true" aria-labelledby="sidebarTitle" aria-hidden="true" tabindex="-1" inert>
     <div class="sidebar-head">
-      <div class="sidebar-brand"><img src="Icons/icon-192.png" width="44" height="44" alt="" decoding="async"><div><strong id="sidebarTitle">راتب</strong><small>التنظيم والتدبير المالي</small></div></div>
+      <div class="sidebar-brand"><img src="./trial/ratib-gold-icon.svg" width="44" height="44" alt="" decoding="async"><div><strong id="sidebarTitle">راتب الميسر</strong><small>التنظيم والتدبير المالي</small></div></div>
       <button type="button" class="icon-btn" id="closeSidebarBtn" aria-label="إغلاق القائمة"><svg class="sidebar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="m6 6 12 12M18 6 6 18"/></svg></button>
     </div>
     <nav class="sidebar-nav" aria-label="أدوات راتب">
@@ -1318,8 +1319,8 @@ body.ratib-sidebar-open,body.ratib-about-open{overflow:hidden}
   </aside>
   <div class="modal-overlay no-print" id="ratibAboutModal" role="dialog" aria-modal="true" aria-labelledby="ratibAboutTitle" aria-describedby="ratibAboutDescription" aria-hidden="true" tabindex="-1" inert>
     <div class="modal-content ratib-about-card">
-      <img src="Icons/icon-192.png" width="72" height="72" alt="" decoding="async">
-      <h2 id="ratibAboutTitle">راتب</h2>
+      <img src="./trial/ratib-gold-icon.svg" width="72" height="72" alt="" decoding="async">
+      <h2 id="ratibAboutTitle">راتب الميسر</h2>
       <p class="ratib-about-subtitle">للتنظيم والتدبير المالي</p>
       <p class="ratib-about-version">الإصدار 3.6.60 — تجريبي</p>
       <p id="ratibAboutDescription">إدارة الحسابات والسندات والميزانية، ومتابعة العمليات والتقارير المالية، مع حفظ البيانات على جهازك ودعم العمل دون الإنترنت.</p>
@@ -4148,7 +4149,8 @@ function exportTransactionsCsv() {
   const rows=[['رقم السند','التاريخ','النوع','المدين','الدائن','المبلغ','العملة','الحالة','البيان']];
   getAllTransactions().forEach(t=>rows.push([t.seqNum||'',t.isoDate||t.date||'',getTransactionDisplayType(t)||'',t.debitAccount||'',t.creditAccount||'',t.amount||0,t.currency||'',t.status||'posted',Object.values(t.execution||{})[0]?.note||'']));
   const table=`<table dir="rtl" border="1"><thead><tr>${rows[0].map(h=>`<th>${String(h)}</th>`).join('')}</tr></thead><tbody>${rows.slice(1).map(r=>`<tr>${r.map(v=>`<td>${String(v??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}</td>`).join('')}</tr>`).join('')}</tbody></table>`;
-  const blob=new Blob([`\ufeff<html><head><meta charset="utf-8"></head><body>${table}</body></html>`],{type:'application/vnd.ms-excel;charset=utf-8'});
+  const blob=new Blob([`\ufeff<html><head><meta charset="utf-8"></head><body>${table}<script src="./trial/ratib-opening.js?v=20261025-1" defer></script>
+</body></html>`],{type:'application/vnd.ms-excel;charset=utf-8'});
   const a=document.createElement('a');a.download=`Ratib_transactions_${monthKey()}.xls`;a.href=URL.createObjectURL(blob);a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000);showToast('تم تنزيل سجل العمليات بصيغة Excel','success');
 }
 
@@ -4382,7 +4384,7 @@ function getMasterPlan(){
   if(changed)store.set('plan',p);return p;
 }
 
-function getTransactionDisplayType(t){if(t?.isOpeningBalance)return 'سند قيد مركب — أرصدة مستوردة';return t?.isMultiVoucher?cashVoucherTitle(t.multiVoucher?.mode):(t?.type||'عملية');}
+function getTransactionDisplayType(t){if(t?.isOpeningBalance)return t.openingBalanceManual?'قيد افتتاحي':'سند قيد مركب — أرصدة مستوردة';return t?.isMultiVoucher?cashVoucherTitle(t.multiVoucher?.mode):(t?.type||'عملية');}
 function getNextVoucherNumber(mode) {
   const allTxs = getAllTransactions();
   return allTxs.filter(t => t.voucherMode === mode).reduce((max, t) => Math.max(max, Number(t.seqNum) || 0), 0) + 1;
@@ -10378,7 +10380,7 @@ function importedOpeningRecords(item,transactions=getAllTransactions()){
 function importedOpeningDocument(item,transactions=getAllTransactions()){
  const records=importedOpeningRecords(item,transactions);if(!records.length)throw Error('لا توجد بنود نشطة لهذا القيد المستورد.');
  const first=records[0],currencies=[...new Set(records.map(t=>t.openingBalance.baseCurrency))],totals=currencies.map(currency=>({currency,debit:records.filter(t=>t.openingBalance.baseCurrency===currency).reduce((n,t)=>n+Number(t.openingBalance.baseDebit),0),credit:records.filter(t=>t.openingBalance.baseCurrency===currency).reduce((n,t)=>n+Number(t.openingBalance.baseCredit),0)}));
- return {...first,isImportedOpeningVoucher:true,type:'سند قيد مركب — أرصدة مستوردة',voucherMode:'multi-entry',_siblingCount:records.length,records,totals,amount:totals.length===1?totals[0].debit:0,currency:totals.length===1?totals[0].currency:'',debitAccount:[...new Set(records.filter(t=>Number(t.openingBalance.debit)||Number(t.openingBalance.baseDebit)).map(t=>t.openingBalance.account))].join('، '),creditAccount:[...new Set(records.filter(t=>Number(t.openingBalance.credit)||Number(t.openingBalance.baseCredit)).map(t=>t.openingBalance.account))].join('، ')};
+ return {...first,isImportedOpeningVoucher:true,type:first.openingBalanceManual?'قيد افتتاحي':'سند قيد مركب — أرصدة مستوردة',voucherMode:'multi-entry',_siblingCount:records.length,records,totals,amount:totals.length===1?totals[0].debit:0,currency:totals.length===1?totals[0].currency:'',debitAccount:[...new Set(records.filter(t=>Number(t.openingBalance.debit)||Number(t.openingBalance.baseDebit)).map(t=>t.openingBalance.account))].join('، '),creditAccount:[...new Set(records.filter(t=>Number(t.openingBalance.credit)||Number(t.openingBalance.baseCredit)).map(t=>t.openingBalance.account))].join('، ')};
 }
 const importedOpeningOldGroup=groupLedgerItemsForDisplay;
 function groupImportedOpeningItems(txs){
@@ -10459,7 +10461,7 @@ function buildImportedOpeningVoucher(state,data){
   if(account.length===1)o.accountId=account[0].code;else o.accountId=old.openingBalance.accountId||'';
   o.sourceRef=String(o.sourceRef||'').slice(0,250);o.note=String(o.note||'').slice(0,2000);if(old&&['debit','credit','baseDebit','baseCredit','currency','baseCurrency'].some(k=>String(o[k])!==String(old.openingBalance[k])))delete o.exchangeRate;o.valuationReview=(!Number(o.debit)&&!Number(o.credit)&&Boolean(Number(o.baseDebit)||Number(o.baseCredit)))||Boolean(Number(o.debit)&&Number(o.baseCredit)||Number(o.credit)&&Number(o.baseDebit));
   const baseAmount=Number(o.baseDebit)+Number(o.baseCredit),side=baseAmount?(Number(o.baseCredit)?'credit':'debit'):(Number(o.credit)?'credit':'debit');
-  const next={...(old||{id:state.key+'_added_'+Date.now()+'_'+index,isOpeningBalance:true,importBatchId:current[0].importBatchId,status:'posted',isExpense:false,distribution:{},execution:{},schemaVersion:3}),openingBalance:o,importVoucherId:state.key,voucherMode:'opening',seqNum:Number(seq),isoDate:draft.isoDate,date:draft.isoDate,timestamp:new Date(draft.isoDate+'T00:00:00Z').getTime(),amount:baseAmount,currency:o.baseCurrency,debitAccount:side==='debit'?o.account:'',creditAccount:side==='credit'?o.account:'',debitAccountId:side==='debit'?o.accountId:'',creditAccountId:side==='credit'?o.accountId:'',type:'سند قيد مركب — أرصدة مستوردة'};
+  const next={...(old||{id:state.key+'_added_'+Date.now()+'_'+index,isOpeningBalance:true,importBatchId:current[0].importBatchId,openingBalanceManual:current[0]?.openingBalanceManual===true,status:'posted',isExpense:false,distribution:{},execution:{},schemaVersion:3}),openingBalance:o,importVoucherId:state.key,voucherMode:'opening',seqNum:Number(seq),isoDate:draft.isoDate,date:draft.isoDate,timestamp:new Date(draft.isoDate+'T00:00:00Z').getTime(),amount:baseAmount,currency:o.baseCurrency,debitAccount:side==='debit'?o.account:'',creditAccount:side==='credit'?o.account:'',debitAccountId:side==='debit'?o.accountId:'',creditAccountId:side==='credit'?o.accountId:'',type:current[0]?.openingBalanceManual?'قيد افتتاحي':'سند قيد مركب — أرصدة مستوردة'};
   if(old&&JSON.stringify(importedRecordOriginal(next))!==JSON.stringify(importedRecordOriginal(old)))next.importEditHistory=[...(old.importEditHistory||[]),{at:stamp,before:importedRecordOriginal(old),after:importedRecordOriginal(next)}];
   return next;
  });

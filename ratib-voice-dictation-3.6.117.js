@@ -355,6 +355,7 @@ function startSpeech(target){
  try{engine.start();active(true);}catch(error){engine=null;speechTarget=null;active(false);notify('تعذر تشغيل الميكروفون: '+error.message,'warn');}
 }
 button.addEventListener('click',()=>{
+ if(listening){pendingButtonTarget=null;stop();return;}
  const target=micTarget()||pendingButtonTarget;
  pendingButtonTarget=null;
  if(!target){notify('اختر أولًا حقلًا قابلًا للإدخال.','warn');return;}

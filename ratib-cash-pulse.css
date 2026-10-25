@@ -73,3 +73,77 @@
  #ratibCashPulse .ratib-pulse-entry{flex-wrap:wrap}
 }
 @media print{#ratibCashPulse{display:none!important}}
+
+/* Gold theme consistency: inherit the app's Arabic typeface and semantic text colors. */
+@media screen {
+ #ratibCashPulse,
+ #ratibCashPulse :is(button,select,strong,small,span,b,p,label,div){
+  font-family:inherit!important;
+  letter-spacing:normal!important;
+ }
+ #ratibCashPulse{color:var(--text)!important;font-size:inherit;line-height:1.48!important}
+ #ratibCashPulse :is(.ratib-pulse-toggle,.ratib-pulse-details-title>b){
+  color:var(--accent-strong)!important
+ }
+ #ratibCashPulse :is(.ratib-pulse-center strong,.ratib-pulse-val strong,.ratib-pulse-entry strong){
+  color:var(--text)!important;font-variant-numeric:tabular-nums;
+ }
+ #ratibCashPulse :is(.ratib-pulse-muted,.ratib-pulse-center small,.ratib-pulse-val small,.ratib-pulse-filters label){
+  color:var(--muted)!important
+ }
+ #ratibCashPulse .ratib-pulse-toggle-left{font-weight:800!important}
+ #ratibCashPulse .ratib-pulse-circle-wrap{width:min(100%,188px)!important}
+ #ratibCashPulse .ratib-pulse-ring{
+  display:block;width:100%;height:100%;border:0!important;background:transparent!important;
+ }
+ /* Other application themes have global svg/circle fill rules. Scope and
+    override them to prevent an opaque black pie filling the entire dial. */
+ #ratibCashPulse svg.ratib-pulse-ring circle{
+  fill:none!important;
+  fill-opacity:0!important;
+  stroke-opacity:1!important;
+  stroke-width:16px!important;
+ }
+ #ratibCashPulse svg.ratib-pulse-ring .ratib-pulse-track{
+  stroke:color-mix(in srgb,var(--muted) 19%,transparent)!important;
+ }
+ #ratibCashPulse svg.ratib-pulse-ring .ratib-pulse-green{stroke:#15825B!important}
+ #ratibCashPulse svg.ratib-pulse-ring .ratib-pulse-gold{stroke:var(--accent)!important}
+ #ratibCashPulse svg.ratib-pulse-ring .ratib-pulse-arc:is(:hover,:focus-visible){stroke-width:19px!important}
+ /* A 2x2 metric card layout on desktop and mobile (never inline cramped labels). */
+ #ratibCashPulse .ratib-pulse-values{
+  display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  gap:9px!important;align-items:stretch!important
+ }
+ #ratibCashPulse .ratib-pulse-val{
+  display:flex!important;flex-direction:column!important;
+  justify-content:space-between!important;align-items:stretch!important;
+  gap:7px!important;min-width:0!important;
+  border-radius:11px!important;padding:10px!important;
+  overflow-wrap:anywhere!important
+ }
+ #ratibCashPulse .ratib-pulse-val small{line-height:1.5!important;overflow-wrap:anywhere}
+ #ratibCashPulse .ratib-pulse-val strong{
+  font-size:clamp(.78rem,1.7vw,.96rem)!important;white-space:normal!important;
+  line-height:1.45!important;overflow-wrap:anywhere!important;
+  text-align:start!important
+ }
+ #ratibCashPulse .ratib-pulse-center strong{
+  font-size:clamp(.87rem,1.95vw,1.13rem)!important;
+  direction:ltr;unicode-bidi:isolate;overflow-wrap:anywhere!important;
+ }
+ #ratibCashPulse .ratib-pulse-entry strong{
+  white-space:normal!important;overflow-wrap:anywhere!important
+ }
+ [data-theme="dark"] #ratibCashPulse .ratib-pulse-symbol{
+  background:color-mix(in srgb,var(--accent) 9%,var(--card));
+ }
+}
+@media screen and (max-width:600px) {
+ #ratibCashPulse .ratib-pulse-circle-wrap{width:min(176px,58vw)!important}
+ #ratibCashPulse .ratib-pulse-visual{gap:8px!important}
+ #ratibCashPulse .ratib-pulse-values{gap:8px!important}
+ #ratibCashPulse .ratib-pulse-val{padding:9px 7px!important}
+ #ratibCashPulse .ratib-pulse-val strong{font-size:clamp(.72rem,3.35vw,.92rem)!important}
+ #ratibCashPulse .ratib-pulse-center strong{font-size:clamp(.81rem,3.5vw,1rem)!important}
+}

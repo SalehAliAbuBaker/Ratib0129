@@ -7,9 +7,9 @@ const dom=new JSDOM(html,{url:'https://ratibtrial.pages.dev/',runScripts:'outsid
 const d=dom.window.document;
 assert.equal(d.querySelector('script[src="./vendor/xlsx.full.min.js"]'),null,'Excel cannot block first paint');
 const links=[...d.querySelectorAll('#dashboardHomeContent .ratib-quick-entry-grid button')];
-assert.deepEqual(links.map(b=>b.textContent.trim()),['سند قبض / صرف','قيد بسيط','قيد مركب']);
+assert.deepEqual(links.map(b=>b.textContent.trim()),['سند قبض','سند صرف','قيد بسيط','قيد مركب']);
 assert(links.every(b=>b.getAttribute('onclick').includes("navigateToTab('pageExpenses'")));
-assert.equal(d.querySelectorAll('#dashboardHomeContent .main-menu-grid .main-menu-btn').length,4,'existing sections remain available');
+assert.equal(d.querySelectorAll('#dashboardHomeContent .main-menu-grid .main-menu-btn').length,3,'three remaining navigation sections');
 assert(html.includes("async function exportTrialExcel(){try{await ensureSpreadsheet();"));
 assert(!html.includes('exportOpeningImport('),'old import export removed');
 assert(!html.includes('readExternalImportFile('),'old import reader removed');

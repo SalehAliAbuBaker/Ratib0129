@@ -2,7 +2,7 @@
 'use strict';
 const assert=require('node:assert/strict'),fs=require('node:fs'),{JSDOM}=require('jsdom');
 const html=fs.readFileSync('index.html','utf8'),worker=fs.readFileSync('sw.js','utf8');
-const fixed='تصحيح الأخطاء في بعض الأجهزة';
+const fixed='تحديث السندات وترقيم النسخة التجريبية';
 const line=worker.split('\n').find(x=>x.startsWith('const APP_RELEASE='));
 assert(line,'Worker release manifest must exist');
 const manifest=JSON.parse(line.slice('const APP_RELEASE='.length).replace(/;$/,''));
@@ -10,7 +10,8 @@ const trial=html.match(/const RATIB_RELEASE=\{"version":"([^"]+)"/)?.[1];
 assert(trial,'Current trial version must exist in app');
 assert.equal(manifest.version,trial,'Worker and page must share one release version');
 assert.match(trial,/^3\.6\.\d+\.\d{2}$/,'Trial version must use current four-part numbering');
-assert.deepEqual(manifest.changes,[fixed],'Older installed versions must not show detailed release notes');
+assert(manifest.changes.length>=3,'Manifest must describe the release');
+assert.equal(manifest.highlights[0],'إدخال مباشر للقبض والصرف والقيود دون شاشة إضافة');
 assert(worker.includes(trial),'Offline cache must include the actual release');
 assert(html.includes('RATIB_RELEASE={"version":"'+trial+'"'));
 assert(!html.includes('ratib-commerce-3.6.131.js'),'Retired commerce script must not load');

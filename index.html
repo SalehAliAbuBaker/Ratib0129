@@ -14,11 +14,11 @@
 <style id="ratib-quick-entry-trial">
 #dashboardHomeContent .ratib-quick-entry{margin:8px 0 15px}
 #dashboardHomeContent .ratib-quick-entry-label{font-size:.94rem;font-weight:700;margin:0 2px 9px;color:var(--muted)}
-#dashboardHomeContent .ratib-quick-entry-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+#dashboardHomeContent .ratib-quick-entry-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
 #dashboardHomeContent .ratib-quick-entry-grid button{min-width:0;min-height:45px;padding:9px 6px;border:1.5px solid var(--border);border-radius:11px;background:var(--card);color:var(--text);font:inherit;font-size:.9rem;font-weight:700;cursor:pointer;box-shadow:var(--shadow)}
 #dashboardHomeContent .ratib-quick-entry-grid button:hover,#dashboardHomeContent .ratib-quick-entry-grid button:focus-visible{border-color:var(--accent);outline-offset:2px}
 #dashboardHomeContent .ratib-quick-entry-grid button:active{transform:scale(.98)}
-@media(max-width:400px){#dashboardHomeContent .ratib-quick-entry-grid{gap:5px}#dashboardHomeContent .ratib-quick-entry-grid button{font-size:.81rem;padding:7px 3px}}
+@media(max-width:600px){#dashboardHomeContent .ratib-quick-entry-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:5px}#dashboardHomeContent .ratib-quick-entry-grid button{font-size:.81rem;padding:7px 3px}}
 @media print{#dashboardHomeContent .ratib-quick-entry{display:none!important}}
 </style>
 <style id="ratib-compact-actions-style">
@@ -911,7 +911,7 @@ body.ratib-sidebar-open,body.ratib-about-open{overflow:hidden}
 #ratibAboutModal{z-index:7002;backdrop-filter:none;background:rgba(10,26,22,.4)}
 .ratib-about-card{max-width:380px;text-align:center;padding:24px;border-radius:16px;border:1px solid var(--border);box-shadow:0 8px 24px rgba(10,26,22,.14)}
 .ratib-about-card>img{display:block;margin:0 auto 14px;border-radius:16px}.ratib-about-card h2{font-size:1.6rem;font-weight:800;color:#0d5b45;line-height:1.3;margin:0}.ratib-about-subtitle{font-size:1rem;margin:3px 0 10px;color:var(--muted)}.ratib-about-version{display:inline-block;font-size:.8rem;border:1px solid #d2b462;border-radius:20px;padding:3px 12px;margin-bottom:16px;color:var(--text)}
-#ratibAboutDescription{font-size:.95rem;line-height:1.8;color:var(--muted)}.ratib-about-card .btn{min-height:44px;background:#0d5b45;border-color:#0d5b45;margin-top:20px;font-size:1rem;color:#fff}.ratib-about-card .btn:focus-visible{outline:2px solid #0d5b45;outline-offset:3px}
+#ratibAboutDescription{font-size:.95rem;line-height:1.8;color:var(--muted)}.ratib-about-changes{text-align:right;padding:10px;margin:12px 0;border:1px solid var(--border);border-radius:9px}.ratib-about-changes h3{font-size:.95rem;margin:0 0 8px}.ratib-about-changes ul{margin:0;padding-inline-start:20px;font-size:.84rem;line-height:1.8}.ratib-about-card .btn{min-height:44px;background:#0d5b45;border-color:#0d5b45;margin-top:20px;font-size:1rem;color:#fff}.ratib-about-card .btn:focus-visible{outline:2px solid #0d5b45;outline-offset:3px}
 [data-theme="dark"] .ratib-about-card h2{color:#9bd7bc}[data-theme="dark"] .ratib-about-card .btn{background:#9bd7bc;border-color:#9bd7bc;color:#10291f}
 #cloudBackupSection:focus{outline:2px solid var(--accent);outline-offset:6px;border-radius:6px}
 @media(max-width:700px){.app-sidebar{width:min(340px,88vw)}}
@@ -1573,11 +1573,11 @@ body.ratib-sidebar-open,body.ratib-about-open{overflow:hidden}
 <link rel="stylesheet" href="./ratib-trial-home-sidebar-3.6.143.css?v=3.6.143">
 <link rel="stylesheet" href="./ratib-trial-ui-3.6.143.css?v=3.6.143">
 <link rel="stylesheet" href="./ratib-dashboard-finance-3.6.144.css?v=3.6.144">
-<link rel="stylesheet" href="./ratib-global-button-size-3.6.146.css?v=3.6.109.03">
-<link rel="stylesheet" href="./ratib-interface-font-3.6.148.css?v=3.6.109.03">
+<link rel="stylesheet" href="./ratib-global-button-size-3.6.146.css?v=3.6.109.04">
+<link rel="stylesheet" href="./ratib-interface-font-3.6.148.css?v=3.6.109.04">
 <link rel="stylesheet" href="./ratib-feedback-3.6.149.css?v=3.6.149">
 <link rel="stylesheet" href="./ratib-country-currency-3.6.151.css?v=3.6.151">
-<link rel="stylesheet" href="./ratib-interactive-tree-3.6.105.05.css?v=3.6.109.03">
+<link rel="stylesheet" href="./ratib-interactive-tree-3.6.105.05.css?v=3.6.109.04">
 </head>
 <body>
 
@@ -1608,7 +1608,7 @@ body.ratib-sidebar-open,body.ratib-about-open{overflow:hidden}
     <div class="header-tools"><div class="header-actions">
       <button class="icon-btn" id="themeBtn" title="الوضع الليلي">🌙</button>
       <button class="icon-btn" id="sidebarMenuBtn" aria-haspopup="dialog" aria-controls="appSidebar" aria-expanded="false" title="الإعدادات" aria-label="فتح الإعدادات">⚙</button>
-    </div><small id="appVersionLabel" class="app-version">الإصدار 3.6.109.03 (تجريبية)</small></div>
+    </div><small id="appVersionLabel" class="app-version">الإصدار 3.6.109.04 (تجريبية)</small></div>
   </header>
   <div class="summary-toolbar hidden no-print" id="storageFeedback"><span id="persistentSaveStatus" hidden aria-hidden="true">جاهز</span><button type="button" id="retryStorageBtn" class="btn btn-ghost hidden">إعادة محاولة الحفظ</button></div>
 <div class="app-update-banner hidden no-print" id="appUpdateBanner" role="status"><span id="appUpdateMessage">يتوفر تحديث لراتب. هل تريد تطبيقه؟</span><button type="button" class="btn btn-ghost" id="applyAppUpdateBtn">موافق، تطبيق التحديث</button><div id="appUpdateDetails" class="hidden"></div></div>
@@ -1655,7 +1655,10 @@ body.ratib-sidebar-open,body.ratib-about-open{overflow:hidden}
       <img src="Icons/icon-192.png" width="72" height="72" alt="" decoding="async">
       <h2 id="ratibAboutTitle">راتب</h2>
       <p class="ratib-about-subtitle">للتنظيم والتدبير المالي</p>
-      <p class="ratib-about-version">الإصدار 3.6.109.03 (تجريبية)</p>
+      <p class="ratib-about-version">الإصدار 3.6.109.04 (تجريبية)</p>
+      <section id="ratibAboutReleaseNotes" class="ratib-about-changes" aria-label="مستجدات الإصدار">
+        <h3>الجديد في 3.6.109.04</h3><ul><li>اختصارات منفصلة لسند القبض والصرف والقيد البسيط والمركب دون شاشة إضافة مكررة</li><li>إزالة مستندات المخزون والفواتير من المنطق النشط مع المحافظة على القيود التاريخية</li><li>إظهار سجل تغييرات الإصدار وتطبيق ترقيم متسلسل لكل تحديث</li></ul>
+      </section>
       <p id="ratibAboutDescription">إدارة الحسابات والسندات والميزانية، ومتابعة العمليات والتقارير المالية، مع حفظ البيانات على جهازك ودعم العمل دون الإنترنت.</p>
       <button type="button" class="btn btn-primary" id="closeRatibAboutBtn">إغلاق</button>
     </div>
@@ -1671,20 +1674,18 @@ body.ratib-sidebar-open,body.ratib-about-open{overflow:hidden}
   <div id="pageDashboard" class="">
     <div id="dashboardHomeContent">
 
-      <section class="ratib-quick-entry no-print" aria-label="إدخال سريع">
-        <h2 class="ratib-quick-entry-label">ابدأ بسرعة</h2>
+      <section class="ratib-quick-entry no-print" aria-label="إدخال السندات مباشرة">
+        <h2 class="ratib-quick-entry-label">سند جديد</h2>
         <div class="ratib-quick-entry-grid">
-          <button type="button" onclick="navigateToTab('pageExpenses',true);selectVoucherTypeDirect('spend')">سند قبض / صرف</button>
+          <button type="button" onclick="navigateToTab('pageExpenses',true);selectVoucherTypeDirect('income')">سند قبض</button>
+          <button type="button" onclick="navigateToTab('pageExpenses',true);selectVoucherTypeDirect('spend')">سند صرف</button>
           <button type="button" onclick="navigateToTab('pageExpenses',true);selectVoucherTypeDirect('entry')">قيد بسيط</button>
           <button type="button" onclick="navigateToTab('pageExpenses',true);selectMultiVoucherType()">قيد مركب</button>
         </div>
       </section>
 
       <div class="main-menu-grid no-print" aria-label="الأقسام الرئيسية">
-        <button class="main-menu-btn" onclick="navigateToTab('pageExpenses', true)">
-          <span class="main-menu-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16v10H4zM8 7V5h12v8M12 10a2 2 0 1 0 0 4 2 2 0 0 0 0-4M7 12h.01M17 12h.01"/></svg></span>
-          <span>إضافة</span>
-        </button>
+        
         <button class="main-menu-btn" onclick="navigateToTab('pageLedger', true)">
           <span class="main-menu-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M8 5H5v16h14V5h-3M8 3h8v4H8zM8 11h8M8 15h8M8 18h5"/></svg></span>
           <span>سجل العمليات</span>
@@ -1710,7 +1711,7 @@ body.ratib-sidebar-open,body.ratib-about-open{overflow:hidden}
   </div>
 
 <div id="pageExpenses" class="hidden">
-  <div class="card no-print" id="voucherSelectorCard">
+  <div class="card no-print hidden" id="voucherSelectorCard" aria-hidden="true">
     <h2><span>📝 اختر نوع السند للإدخال المباشر</span></h2>
     <button type="button" class="btn btn-ghost hidden" id="restoreSingleDraftBtn">استعادة مسودة السند</button>
       <div class="voucher-type-grid">
@@ -2814,14 +2815,14 @@ body.ratib-sidebar-open,body.ratib-about-open{overflow:hidden}
 
 </div>
 
-<script src="./ratib-first-run-3.6.105.11.js?v=3.6.109.03"></script>
+<script src="./ratib-first-run-3.6.105.11.js?v=3.6.109.04"></script>
 <script>
 // ===== تسجيل Service Worker (يفعّل العمل دون إنترنت بعد أول زيارة) =====
 // يُسجَّل بعد اكتمال تحميل الصفحة حتى لا يؤخر أول عرض للتطبيق. يعمل فقط عبر HTTPS
 // (أو localhost أثناء التطوير) — هذا شرط أساسي من المتصفح نفسه لأي Service Worker.
 let _briefAppNoticeTimer=null;
 let _releaseSummaryDisplayed=false;
-const RATIB_RELEASE={"version":"3.6.109.03","highlights":[],"changes":["تصحيح الأخطاء في بعض الأجهزة"]};
+const RATIB_RELEASE={"version":"3.6.109.04","highlights":["إدخال مباشر للقبض والصرف والقيود دون شاشة إضافة"],"changes":["اختصارات منفصلة لسند القبض والصرف والقيد البسيط والمركب دون شاشة إضافة مكررة","إزالة مستندات المخزون والفواتير من المنطق النشط مع المحافظة على القيود التاريخية","إظهار سجل تغييرات الإصدار وتطبيق ترقيم متسلسل لكل تحديث"]};
 window.ratibCurrentTrialVersion=()=>String(RATIB_RELEASE.version);
 window.ratibCurrentTrialVersionLabel=()=>`الإصدار ${RATIB_RELEASE.version} (تجريبية)`;
 window.ratibSyncTrialVersion=()=>{
@@ -2835,7 +2836,7 @@ window.ratibSyncTrialVersion=()=>{
 };
 document.addEventListener('DOMContentLoaded',window.ratibSyncTrialVersion);
 window.addEventListener('load',window.ratibSyncTrialVersion);
-const RATIB_PUBLIC_UPDATE_NOTE='تصحيح الأخطاء في بعض الأجهزة';
+const RATIB_PUBLIC_UPDATE_NOTE='تحديث السندات وترقيم النسخة التجريبية';
 function showAppReleaseDetails(release){
   const box=document.getElementById('appUpdateDetails');if(!box)return;box.replaceChildren();
   if(!release||typeof release.version!=='string'){box.classList.add('hidden');return;}
@@ -12043,9 +12044,9 @@ try{currenciesUi();sync();}catch(e){console.error('Ratib 3.6.12 initialization',
 </script>
 <script src="./ratib-license-draft.js?v=3.6.151" defer></script>
 <script src="./ratib-ui-v3.6.37.js?v=2" defer></script>
-<script src="./ratib-favorites-v3.js?v=3.6.109.03" defer></script>
-<script src="./ratib-voice-dictation-3.6.117.js?v=3.6.109.03" defer></script>
-<script src="./ratib-account-archive-compat.js?v=3.6.109.03" defer></script>
+<script src="./ratib-favorites-v3.js?v=3.6.109.04" defer></script>
+<script src="./ratib-voice-dictation-3.6.117.js?v=3.6.109.04" defer></script>
+<script src="./ratib-account-archive-compat.js?v=3.6.109.04" defer></script>
 <script src="./ratib-annual-close.js?v=1" defer></script>
 <script src="./ratib-fiscal-ledger.js?v=1" defer></script>
 <script src="./ratib-statement-prior-year.js?v=1" defer></script>
@@ -12059,20 +12060,20 @@ try{currenciesUi();sync();}catch(e){console.error('Ratib 3.6.12 initialization',
 <script src="./ratib-amount-edit-3.6.97.js?v=3.6.158" defer></script>
 <script src="./ratib-special-reports-3.6.102.js?v=3.6.114" defer></script>
 <script src="./ratib-fx-autofill-3.6.105.js?v=3.6.107" defer></script>
-<script src="./ratib-report-buttons-3.6.106.js?v=3.6.109.03" defer></script>
+<script src="./ratib-report-buttons-3.6.106.js?v=3.6.109.04" defer></script>
 <script src="./ratib-print-logo-3.6.108.js?v=3.6.111" defer></script>
 <div id="ratibSpecialPrintHost" aria-hidden="true"></div>
-<script src="./ratib-sidebar-3.6.124.js?v=3.6.109.03" defer></script>
-<script src="./ratib-simple-accounts-3.6.105.13.js?v=3.6.109.03" defer></script>
-<script src="./ratib-interactive-tree-3.6.105.05.js?v=3.6.109.03" defer></script>
-<script src="./ratib-login-3.6.124.js?v=3.6.109.03" defer></script>
+<script src="./ratib-sidebar-3.6.124.js?v=3.6.109.04" defer></script>
+<script src="./ratib-simple-accounts-3.6.105.13.js?v=3.6.109.04" defer></script>
+<script src="./ratib-interactive-tree-3.6.105.05.js?v=3.6.109.04" defer></script>
+<script src="./ratib-login-3.6.124.js?v=3.6.109.04" defer></script>
 <script src="./ratib-trial-home-sidebar-3.6.143.js?v=3.6.143" defer></script>
-<script src="./ratib-trial-ui-3.6.143.js?v=3.6.109.03" defer></script>
-<script src="./ratib-dashboard-finance-3.6.144.js?v=3.6.109.03" defer></script>
-<script src="./ratib-global-button-size-3.6.146.js?v=3.6.109.03" defer></script>
+<script src="./ratib-trial-ui-3.6.143.js?v=3.6.109.04" defer></script>
+<script src="./ratib-dashboard-finance-3.6.144.js?v=3.6.109.04" defer></script>
+<script src="./ratib-global-button-size-3.6.146.js?v=3.6.109.04" defer></script>
 <script src="./ratib-document-signatures-3.6.148.js?v=3.6.148" defer></script>
 <script src="./ratib-feedback-3.6.149.js?v=3.6.149" defer></script>
-<script src="./ratib-statement-marks-3.6.106.05.js?v=3.6.109.03" defer>
+<script src="./ratib-statement-marks-3.6.106.05.js?v=3.6.109.04" defer>
 </script>
 <script src="./ratib-country-currency-3.6.151.js?v=3.6.151" defer></script>
 </body>

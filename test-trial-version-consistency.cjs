@@ -19,6 +19,7 @@ assert(html.includes('id="appVersionLabel" class="app-version">'+label),'Top bar
 assert(html.includes('class="ratib-about-version">'+label),'About screen must match release');
 assert(html.includes('window.ratibCurrentTrialVersionLabel=()=>'),'Central version label must exist');
 assert(html.includes("document.addEventListener('DOMContentLoaded',window.ratibSyncTrialVersion)"),'Version sync must run at startup');
+assert(html.includes('id="ratibAboutReleaseNotes"'),'Release changes visible in About dialog');
 assert(file('ratib-sidebar-3.6.124.js').includes('window.ratibCurrentTrialVersion?.()'),'Sidebar must read primary release instead of commerce module metadata');
 assert(!html.includes('ratib-commerce-3.6.131.js'),'Retired inventory module must not be loaded');
 for(const moduleName of [

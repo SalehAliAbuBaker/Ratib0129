@@ -19,7 +19,7 @@ async function page(id){
  return !document.getElementById(id)?.classList.contains('hidden');
 }
 const sidebar=action=>()=>document.querySelector('[data-sidebar-action="'+action+'"]')?.click();
-for(const [id,label,target] of [['home','الرئيسية','pageDashboard'],['new-voucher','إضافة سند','pageExpenses'],['reports-home','التقارير','pageReports']])addChoice(id,label,'🏠',()=>page(target));
+for(const [id,label,target] of [['home','الرئيسية','pageDashboard'],['reports-home','التقارير','pageReports']])addChoice(id,label,'🏠',()=>page(target));
 for(const [id,label,mode] of [['receipt','سند قبض','income'],['payment','سند صرف','spend'],['simple-entry','سند قيد بسيط','entry'],['multi-entry','سند قيد متعدد','multi-entry']]){
  addChoice(id,label,'🧾',async()=>{if(!await page('pageExpenses'))return;if(mode==='multi-entry')window.selectMultiVoucherType?.();else window.selectVoucherTypeDirect?.(mode);});
 }
@@ -106,7 +106,7 @@ function discoverSettings(){
 discoverSettings();discoverReports();
 const migrated={pageLedger:'ledger',pageAccountsTree:'account-tree'};
 let selected=[];
-try{const saved=localStorage.getItem(KEY);const v=JSON.parse(saved??localStorage.getItem(oldKey)??'[]');if(Array.isArray(v))selected=[...new Set(v.map(id=>saved?id:migrated[id]).filter(id=>typeof id==='string'&&id.length<180&&!['new-reminder','reminders-list','legacy-import','import-management'].includes(id)&&!id.startsWith('commerce:')&&id!=='settings:commerce'&&!id.startsWith('setting:ratibCommerce')))];}catch(_){}
+try{const saved=localStorage.getItem(KEY);const v=JSON.parse(saved??localStorage.getItem(oldKey)??'[]');if(Array.isArray(v))selected=[...new Set(v.map(id=>saved?id:migrated[id]).filter(id=>typeof id==='string'&&id.length<180&&!['new-reminder','reminders-list','legacy-import','import-management','new-voucher'].includes(id)&&!id.startsWith('commerce:')&&id!=='settings:commerce'&&!id.startsWith('setting:ratibCommerce')))];}catch(_){}
 const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(selected));}catch(e){console.warn('تعذر حفظ المفضلة',e);}};
 const css=document.createElement('style');css.textContent=`
 .ratib-quick-btn{font-size:1.15rem!important;min-width:38px;min-height:38px}
@@ -136,7 +136,7 @@ renderOptions();renderCurrent();renderSettings();renderShortcutBar();
 function groupOf(id){
  if(['receipt','payment','simple-entry','multi-entry'].includes(id))return 'السندات';
  if(['trial-balance','budget-analysis','annual-close','movement-report','position-report','reports-home'].includes(id)||id.startsWith('report:'))return 'التقارير';
- if(['home','new-voucher'].includes(id))return 'السندات';
+ if(id==='home')return 'السندات';
  if(favoriteGroups[id])return favoriteGroups[id];
  if(id.startsWith('setting:')||id.startsWith('settings:')||id==='add-budget-item')return 'الإعدادات';
  if(['account-tree','add-account','ledger'].includes(id))return 'الحسابات';

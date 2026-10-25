@@ -146,8 +146,12 @@
     min-height:51px!important;gap:10px!important;
   }
   #ratibInteractiveAccountsTree .rit-tree .rit-simple-node .rit-node-label{flex:1 1 auto;}
-  #ratibInteractiveAccountsTree .rit-detail-balances,
-  #ratibInteractiveAccountsTree .rit-movement{display:flex;} /* Details remain intact after selection */
+  /* Legacy fallback chart follows the same privacy rule. */
+  #pageSettings #chartOfAccountsView .ratib-tree-balances,
+  #pageSettings #liveAccountsTreeView .ratib-tree-balances {
+    display:none!important;
+  }
+  /* Detail panel and ledger are deliberately NOT targeted. */
 }
 @media screen and (max-width:700px) {
   #dashboardHomeContent .main-menu-grid.ratib-favorites-cross,

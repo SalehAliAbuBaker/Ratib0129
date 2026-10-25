@@ -6,7 +6,7 @@ const sidebar=fs.readFileSync('ratib-sidebar-3.6.124.js','utf8');
 const html=fs.readFileSync('index.html','utf8');
 const sw=fs.readFileSync('sw.js','utf8');
 const version=html.match(/const RATIB_RELEASE=\{"version":"([^"]+)"/)?.[1];
-assert.match(version||'',/^3\.6\.\d+\.\d{2}$/,'Voice-first coverage must use the current trial release');
+assert.match(version||'',/^3\.6\.\d+$/,'Voice-first coverage must use the current trial release');
 assert(sw.includes('"version":"'+version+'"'));
 assert(sidebar.includes('Do not force Android cut/copy selection on account input'));
 assert.doesNotThrow(()=>new Function(voice));

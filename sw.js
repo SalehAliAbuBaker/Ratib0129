@@ -1,5 +1,5 @@
 // Ratib 3.1.9: cache identity is unique to this app's scope.
-const CACHE_VERSION='v236-trial-cash-pulse-all-bank-gold-theme-20261026';
+const CACHE_VERSION='v237-trial-cash-pulse-all-bank-gold-theme-20261026';
 const APP_RELEASE={"version":"3.6.109.05","highlights":["نبض الصندوق: كل الصناديق والبنوك أولًا ثم اختيار حساب محدد","توحيد ألوان وخط نبض الصندوق مع الهوية الذهبية"],"changes":["تصحيح المؤشر الدائري وتنسيق الأرصدة على الجوال","استبعاد التحويلات الداخلية من المقبوضات والمدفوعات الإجمالية","فصل كل عملة على حدة وحفظ منطق القيود المحاسبية دون تعديل","إظهار القيد الافتتاحي والخيارات السابقة دون تكرار"]};
 const CACHE_PREFIX=`ratib:${self.registration.scope}:`;
 const CACHE_NAME=CACHE_PREFIX+CACHE_VERSION;

@@ -1,4 +1,5 @@
 'use strict';
+const currentRelease=require('./tools/assert-release.cjs')();
 const fs=require('node:fs'),assert=require('node:assert/strict');
 const {JSDOM}=require('jsdom');
 const html=fs.readFileSync('index.html','utf8');
@@ -57,8 +58,8 @@ w.eval(marker);w.document.dispatchEvent(new w.Event('DOMContentLoaded'));
   assert(!cards[0].classList.contains('ratib-statement-marked'),'Long press again removes a mark');
   assert(cards[1].classList.contains('ratib-statement-marked'),'Other marked cards remain marked');
   assert.equal(w.RatibStatementMarks.count(),1);
-  assert(html.includes('const RATIB_RELEASE={"version":"3.6.107.09"'));
-  assert(fs.readFileSync('sw.js','utf8').includes("v210-trial-unlimited-budget-3.6.107.09"));
+  assert(html.includes('const RATIB_RELEASE={"version":"'+currentRelease+'"'));
+  assert(fs.readFileSync('sw.js','utf8').includes('-'+currentRelease));
   w.close();
   console.log('PASS mobile yellow marked cards override white CSS, preserve two-card selection, long-press removal and currency swipe');
 })().catch(error=>{console.error(error);process.exitCode=1;});

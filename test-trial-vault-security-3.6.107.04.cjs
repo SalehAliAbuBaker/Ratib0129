@@ -1,4 +1,5 @@
 'use strict';
+const currentRelease=require('./tools/assert-release.cjs')();
 const assert=require('node:assert/strict');
 const fs=require('node:fs');
 const vm=require('node:vm');
@@ -120,9 +121,9 @@ const api=context.__security,pin='462986',wrong='1246',data={'masar_plan':{trans
  assert.equal(open.encrypted,false);
  assert.deepEqual(JSON.parse(JSON.stringify(open.data)),before);
  const sw=fs.readFileSync('sw.js','utf8'),pkg=JSON.parse(fs.readFileSync('package.json','utf8'));
- assert.equal(pkg.version,'3.6.107.09');
- assert(html.includes('const RATIB_RELEASE={"version":"3.6.107.09"'));
- assert(sw.includes('v210-trial-unlimited-budget-3.6.107.09'));
+ assert.equal(pkg.version,currentRelease);
+ assert(html.includes('const RATIB_RELEASE={"version":"'+currentRelease+'"'));
+ assert(sw.includes('-'+currentRelease));
  assert(!html.includes("sessionStorage.setItem(SESSION_KEY_CACHE,_b64(await crypto.subtle.exportKey('raw',key)))"));
  for(const inline of [...html.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script>/gi)].map(m=>m[1]).filter(Boolean))new Function(inline);
  console.log('PASS 3.6.107.09: encrypted backup roundtrip/wrong PIN, fail-closed locked backup, biometric-bound expiring cache, credential check, cache invalidation, unchanged accounting');

@@ -1,4 +1,5 @@
 'use strict';
+const currentRelease=require('./tools/assert-release.cjs')();
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const vm = require('node:vm');
@@ -149,9 +150,9 @@ function fixture() {
   assert(html.includes("const CLOUD_LEGACY_FOLDER_NAME = 'Ratib Backups'"));
   const sw = fs.readFileSync('sw.js','utf8');
   const pkg = JSON.parse(fs.readFileSync('package.json','utf8'));
-  assert.equal(pkg.version,'3.6.107.09');
-  assert(sw.includes("v210-trial-unlimited-budget-3.6.107.09"));
-  assert(html.includes('const RATIB_RELEASE={"version":"3.6.107.09"'));
+  assert.equal(pkg.version,currentRelease);
+  assert(sw.includes('-'+currentRelease));
+  assert(html.includes('const RATIB_RELEASE={"version":"'+currentRelease+'"'));
   for(const source of [...html.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script>/gi)].map(m=>m[1]).filter(Boolean))new Function(source);
   new Function(sw);
   console.log('PASS trial 3.6.107.09: verified Drive metadata, durable interrupted uploads, no duplicates, OAuth/offline notifications, restore guards and unchanged finance surface');

@@ -176,7 +176,13 @@ function currentChoice(){
  if(visible('pageReports'))for(const [id,key] of [['reportsGroupBudgetHeader','budget-analysis'],['reportsGroupTrialHeader','trial-balance']])if(document.getElementById(id)?.classList.contains('open'))return key;
  if(visible('pageSettings')){
   const active=[...document.querySelectorAll('#pageSettings .settings-accordion-card')].find(card=>card.querySelector('.settings-accordion-body.open'));
-  if(active)return 'setting:'+(active.id||active.querySelector('[id]')?.id);
+  if(active){
+   const heading=active.querySelector('.settings-accordion-header');
+   const label=(heading?.querySelector('span')||heading)?.textContent.replace(/\p{Extended_Pictographic}|[\uFE0F▼]/gu,'').trim()||'';
+   const canonical=settingsCatalog.find(([,name])=>normalized(name)===normalized(label));
+   if(canonical)return 'settings:'+canonical[0];
+   return 'setting:'+(active.id||active.querySelector('[id]')?.id);
+  }
  }
  return null;
 }

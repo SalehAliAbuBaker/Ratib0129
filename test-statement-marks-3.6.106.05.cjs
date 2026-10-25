@@ -1,10 +1,11 @@
 'use strict';
+const currentRelease=require('./tools/assert-release.cjs')();
 const assert=require('node:assert/strict'),fs=require('node:fs');
 const {JSDOM}=require('jsdom');
 const src=fs.readFileSync('ratib-statement-marks-3.6.106.05.js','utf8');
 const html=fs.readFileSync('index.html','utf8'),sw=fs.readFileSync('sw.js','utf8');
-assert(html.includes('const RATIB_RELEASE={"version":"3.6.107.09"'));
-assert(sw.includes('v210-trial-unlimited-budget-3.6.107.09'));
+assert(html.includes('const RATIB_RELEASE={"version":"'+currentRelease+'"'));
+assert(sw.includes('-'+currentRelease));
 assert(sw.includes('"./ratib-statement-marks-3.6.106.05.js"'));
 assert(!src.includes('touch-action:pan-y'),'Currency swipe must remain available');
 assert(src.includes('suppress.id===idFor(row)&&Date.now()<suppress.expires'),'Contextmenu must not toggle a mark twice');

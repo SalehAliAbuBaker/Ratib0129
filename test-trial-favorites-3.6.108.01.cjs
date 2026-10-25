@@ -1,10 +1,10 @@
 /* Ratib 3.6.108.01: favorites catalog, retained settings and release coherence. */
 const assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('node:vm');
 const html=fs.readFileSync('index.html','utf8'),fav=fs.readFileSync('ratib-favorites-v3.js','utf8'),sw=fs.readFileSync('sw.js','utf8'),pkg=require('./package.json');
-assert.equal(pkg.version,'3.6.108.01');
+assert.equal(pkg.version,require('./tools/assert-release.cjs')());
 assert(html.includes('const RATIB_RELEASE={"version":"'+pkg.version+'"'));
 assert(sw.includes('const APP_RELEASE={"version":"'+pkg.version+'"'));
-assert(sw.includes("v211-trial-favorites-"+pkg.version));
+assert(sw.includes("-"+pkg.version));
 assert(html.includes('ratib-favorites-v3.js?v='+pkg.version));
 assert(html.includes('الإصدار '+pkg.version));
 for(const [label,fragment] of [

@@ -1,4 +1,5 @@
 'use strict';
+const currentRelease=require('./tools/assert-release.cjs')();
 const assert=require('node:assert/strict');
 const fs=require('node:fs');
 const vm=require('node:vm');
@@ -10,9 +11,9 @@ const fontCss=read('ratib-interface-font-3.6.148.css');
 const sw=read('sw.js');
 const pkg=require('./package.json');
 const levels=['xsmall','small','medium','large','xlarge'];
-assert.equal(pkg.version,'3.6.107.09');
-assert(html.includes('const RATIB_RELEASE={"version":"3.6.107.09"'));
-assert(sw.includes('v210-trial-unlimited-budget-3.6.107.09'));
+assert.equal(pkg.version,currentRelease);
+assert(html.includes('const RATIB_RELEASE={"version":"'+currentRelease+'"'));
+assert(sw.includes('-'+currentRelease));
 for(const size of levels){
  assert(sizeJs.includes("'"+size+"'"),'missing size value '+size);
  assert(buttonCss.includes('data-ratib-button-size="'+size+'"'),'button CSS missing '+size);

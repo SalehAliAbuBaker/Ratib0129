@@ -68,6 +68,9 @@ async function run(){
   }
  });
  await test('Settings favorites open their exact section and support persistent add/remove',async()=>{
+  const legacyIds=[...d.querySelectorAll('#pageSettings .settings-accordion-card')].filter(c=>c.id!=='ratibFavoritesSettingsCard'&&c.querySelector('.settings-accordion-header')).map(c=>'setting:'+(c.id||c.querySelector('[id]')?.id)).filter(id=>!id.endsWith('undefined'));
+  const prior=JSON.parse(w.localStorage.getItem('ratib.quickFavorites.v2')||'[]');
+  w.localStorage.setItem('ratib.quickFavorites.v2',JSON.stringify([...prior,...legacyIds]));
   open();const ids=[...d.querySelectorAll('[data-add^="setting:"]')].map(b=>b.dataset.add);assert(ids.length>=6);
   for(const id of ids){await choose(id);assert(!d.getElementById('pageSettings').classList.contains('hidden'));
    const anchor=d.getElementById(id.slice(8));const card=anchor.closest('.settings-accordion-card');assert(card.querySelector('.settings-accordion-body').classList.contains('open'),id);
@@ -111,6 +114,22 @@ async function run(){
   assert(!menu.classList.contains('open'));assert.equal(toggle.getAttribute('aria-expanded'),'false');
   assert(!d.getElementById('accountAdvancedSearchPanel').classList.contains('hidden'));
   toggle.click();d.getElementById('accountToolsCloseBtn').click();assert(!menu.classList.contains('open'));
+ });
+ await test('Current settings pin and open their exact card through the real sidebar',async()=>{
+  load('ratib-sidebar-3.6.124.js');await pause(30);
+  for(const key of ['budget','printing','security']){
+   w.RatibSettingsOpen(key);await pause(40);open();
+   const pin=d.getElementById('ratibPinCurrent');assert(!pin.hidden,key);
+   assert.equal(pin.dataset.pin,'settings:'+key);
+   if(!JSON.parse(w.localStorage.getItem('ratib.quickFavorites.v2')||'[]').includes(pin.dataset.pin))pin.click();
+   code(w,"navigateToTab('pageDashboard',true)");await pause(20);
+   await choose('settings:'+key);await pause(40);
+   assert(!d.getElementById('pageSettings').classList.contains('hidden'));
+   const card=d.querySelector('#pageSettings .ratib-settings-current');
+   assert(card&&card.querySelector('.settings-accordion-body.open'),key+' must open its exact detail card');
+   const label=card.querySelector('.settings-accordion-header span').textContent;
+   assert(label.includes(({budget:'بنود الميزانية',printing:'إعدادات الطباعة',security:'الأمان'})[key]));
+  }
  });
  assert.deepEqual(f.errors,[]);fixtures.forEach(x=>x.dom.window.close());
 }

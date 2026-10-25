@@ -1,11 +1,12 @@
 'use strict';
+const currentRelease=require('./tools/assert-release.cjs')();
 const assert=require('node:assert/strict'),fs=require('node:fs');
 const html=fs.readFileSync('index.html','utf8');
 const sw=fs.readFileSync('sw.js','utf8');
 const pkg=require('./package.json');
-assert.equal(pkg.version,'3.6.107.09');
-assert(html.includes('const RATIB_RELEASE={"version":"3.6.107.09"'));
-assert(sw.includes('v210-trial-unlimited-budget-3.6.107.09'));
+assert.equal(pkg.version,currentRelease);
+assert(html.includes('const RATIB_RELEASE={"version":"'+currentRelease+'"'));
+assert(sw.includes('-'+currentRelease));
 assert(html.includes("if (!interactive) throw new Error('يحتاج النسخ السحابي"));
 assert(html.includes("client.requestAccessToken({ prompt: cfg.email ? '' : 'select_account' })"));
 assert(html.includes("const deadline = setTimeout(() => settle("));

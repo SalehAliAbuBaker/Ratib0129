@@ -7747,7 +7747,7 @@ function updateSearchableData(){
    const detail={id:d[1],text:d[1],accountId:String(d[0]),group:`${x.main} > ${x.group} > ${x.sub}`};
    items.push(detail);
    if(!simpleMode)reportItems.push(detail);
-   else{const group=window.RatibSimpleAccounts.groupOf(x);if(group)reportItems.push({...detail,group:group.label});}
+   else{const group=window.RatibSimpleAccounts.displayGroupOf(x);reportItems.push({...detail,group:group.label});}
   }));
   selDebitAcc.setItems(items);selCreditAcc.setItems(items);if(multiSourceAcc)multiSourceAcc.setItems(items);if(selEditDebitAcc)selEditDebitAcc.setItems(items);if(selEditCreditAcc)selEditCreditAcc.setItems(items);if(selDefaultIncomeDebit)selDefaultIncomeDebit.setItems(items);if(selDefaultSpendCredit)selDefaultSpendCredit.setItems(items);
   const defs=getDefaultAccountsConfig(), okInc=items.some(i=>i.id===defs.incomeDebit)?defs.incomeDebit:'', okSpd=items.some(i=>i.id===defs.spendCredit)?defs.spendCredit:'';selDefaultIncomeDebit?.setValue(okInc,okInc);selDefaultSpendCredit?.setValue(okSpd,okSpd);const prev=selReportAccount.getValue(),safePrev=reportItems.some(i=>i.id===prev)?prev:(simpleMode?'':'ALL');
@@ -8418,7 +8418,7 @@ function renderAccountsPager(){
   // لا تُخفِ الحسابات الرئيسية أو التجميعية التي لم تعد تحتها حسابات تفصيلية.
   const parentMatches=x=>[x.mainCode,x.main,x.groupCode,x.group,x.subCode,x.sub].some(matches);
   const mains=simpleMode?simpleApi.GROUPS.filter(group=>!query||
-     matches(group.label+' '+group.hint)||catalog.some(x=>simpleApi.classify(x)===group.id&&
+     matches(group.label+' '+group.hint)||catalog.some(x=>simpleApi.displayGroupOf(x).id===group.id&&
        x.details.some(d=>matches([d[0],d[1],group.label].join(' ')))))
      .map(group=>({main:group.label,mainCode:group.id})):
      [...new Map(catalog.map(x=>[x.main,x])).values()].filter(main=>catalog.some(x=>x.main===main.main&&(parentMatches(x)||x.details.some(d=>matches(`${d[0]} ${d[1]} ${x.mainCode} ${x.main} ${x.groupCode} ${x.group} ${x.subCode} ${x.sub}`)))));
@@ -8436,7 +8436,7 @@ function renderAccountsPager(){
     const title=document.createElement('div');title.className='accounts-pager-slide-title';
     const activeTxs=getAllTransactions().filter(t=>t.status!=='reversed'&&t.status!=='deleted');
     const latest={};activeTxs.forEach(t=>{const date=t.isoDate||t.date||'';[t.debitAccount,t.creditAccount].filter(Boolean).forEach(n=>{if(!latest[n]||date>latest[n])latest[n]=date;});});
-    const baseItems=catalog.filter(x=>simpleMode?simpleApi.classify(x)===main.mainCode:x.main===main.main)
+    const baseItems=catalog.filter(x=>simpleMode?simpleApi.displayGroupOf(x).id===main.mainCode:x.main===main.main)
       .flatMap(x=>x.details.filter(d=>simpleMode?
         (!query||matches(main.main+' '+(simpleApi.GROUPS.find(g=>g.id===main.mainCode)?.hint||''))||matches([d[0],d[1]].join(' '))):
         matches(`${d[0]} ${d[1]} ${x.mainCode} ${x.main} ${x.groupCode} ${x.group} ${x.subCode} ${x.sub}`))

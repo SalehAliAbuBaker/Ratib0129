@@ -5038,8 +5038,6 @@ function navigateToTab(target, pushToHistory = true) {
     document.getElementById('pageDashboard').classList.remove('hidden');
     closeDashboardHome(false);
     updateProDashboard();
-    renderRemindersList();
-    renderRemindersChart();
     return;
   }
   backBtn.classList.remove('hidden');
@@ -5054,7 +5052,7 @@ function navigateToTab(target, pushToHistory = true) {
   else if (target === 'pageReports') { setupReportSections('pageReports', false); initReportsTab('accounts', false); }
   else if (target === 'pageAccountsTree') { initCanonicalLiveAccountsTreePage(); renderAccountsPager(); }
   else if (target === 'pageSettings') {initSettingsPage();window.RatibCommerce?.refreshDefaults?.();}
-  else if (target === 'pageDashboard') { updateProDashboard(); renderRemindersList(); renderRemindersChart(); }
+  else if (target === 'pageDashboard') { updateProDashboard(); }
 
 
 }
@@ -8993,7 +8991,7 @@ function performRealExit(){
       }
       store.remove(RATIB_RESUME_VIEW_KEY);
       await flushStorage();const cfg=getSecurityConfig();
-      clearTimeout(_draftTimer);clearTimeout(_reminderTimer);clearTimeout(_autoBackupTimer);clearTimeout(_storageTimer);
+      clearTimeout(_draftTimer);clearTimeout(_autoBackupTimer);clearTimeout(_storageTimer);
       _vaultCryptoKey=null;_vaultUnlocked=false;for(const key of Object.keys(_memStore))delete _memStore[key];
       try{sessionStorage.removeItem(SESSION_KEY_CACHE);}catch(_){ }
       hasUnsavedChanges=false;allowExit=true;_appExited=true;_appBackStack.length=0;_appSavedViews.clear();

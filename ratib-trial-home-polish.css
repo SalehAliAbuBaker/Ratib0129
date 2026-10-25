@@ -11,7 +11,7 @@
   grid-template-rows:auto!important;gap:9px!important;overflow:visible!important
  }
  #dashboardHomeContent .ratib-quick-entry-grid > button{
-  width:100%!important;min-width:0!important;min-height:75px!important;height:100%!important;
+  width:100%!important;min-width:0!important;min-height:79px!important;height:100%!important;
   display:flex!important;flex-direction:column!important;align-items:center!important;
   justify-content:center!important;gap:6px!important;padding:9px 5px!important;
   font:750 clamp(.77rem,1.4vw,.94rem)/1.35 Tajawal,system-ui,sans-serif!important;
@@ -26,7 +26,7 @@
  #dashboardHomeContent .ratib-quick-voucher-icon svg{width:24px;height:24px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
  /* Main departments: four in one desktop row; natural order, no stretched fifth card. */
  #dashboardHomeContent .main-menu-grid.ratib-favorites-cross{
-  --ratib-home-row-h:112px;--ratib-home-gap:12px;
+  --ratib-home-row-h:79px;--ratib-home-gap:9px;
   position:relative!important;overflow:visible!important;
   display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr))!important;
   grid-template-areas:none!important;grid-auto-rows:var(--ratib-home-row-h)!important;
@@ -100,11 +100,11 @@
   gap:8px!important;grid-template-rows:none!important
  }
  #dashboardHomeContent .ratib-quick-entry-grid > button{
-  min-height:77px!important;font-size:clamp(.81rem,3.4vw,.95rem)!important;
+  min-height:79px!important;font-size:clamp(.81rem,3.4vw,.95rem)!important;
   padding:9px 5px!important
  }
  #dashboardHomeContent .main-menu-grid.ratib-favorites-cross{
-  --ratib-home-row-h:101px;--ratib-home-gap:11px;
+  --ratib-home-row-h:79px;--ratib-home-gap:9px;
   grid-template-columns:repeat(2,minmax(0,1fr))!important;
   grid-template-areas:none!important
  }
@@ -120,3 +120,73 @@
  #dashboardHomeContent .main-menu-grid .main-menu-icon svg{width:27px!important;height:27px!important}
 }
 @media print{#ratibCenterFavorites,#ratibCenterFavoritesMenu{display:none!important}}
+
+/* 2026-10-25 — precisely equal voucher and main tile heights across devices. */
+@media screen{
+ #dashboardHomeContent .ratib-quick-entry-grid > button,
+ #dashboardHomeContent .main-menu-grid.ratib-favorites-cross > .main-menu-btn{
+  box-sizing:border-box!important;
+  min-height:79px!important;
+  max-height:none!important;
+  height:79px!important;
+  padding:7px 6px!important;
+  gap:5px!important;
+  border-radius:13px!important;
+  font-size:clamp(.79rem,1.4vw,.94rem)!important;
+  font-weight:750!important;
+  line-height:1.28!important;
+ }
+ #dashboardHomeContent .main-menu-grid.ratib-favorites-cross{grid-auto-rows:79px!important;}
+ #dashboardHomeContent .main-menu-grid .main-menu-icon{width:25px!important;height:25px!important;}
+ #dashboardHomeContent .main-menu-grid .main-menu-icon svg{width:25px!important;height:25px!important;}
+ #dashboardHomeContent .ratib-quick-voucher-icon,
+ #dashboardHomeContent .ratib-quick-voucher-icon svg{width:25px!important;height:25px!important;flex-basis:25px!important}
+ #dashboardHomeContent .ratib-quick-entry{position:relative;isolation:isolate;z-index:120}
+ #ratibCashVoucherMenu[hidden]{display:none!important}
+ #ratibCashVoucherMenu{
+  position:absolute;inset-inline-start:0;top:calc(100% + 6px);
+  z-index:121;width:min(315px,calc(100vw - 38px));
+  display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;
+  padding:10px;border:1px solid var(--border);
+  border-radius:13px;background:var(--card);
+  box-shadow:0 8px 26px #0002;
+ }
+ #ratibCashVoucherMenu .ratib-cash-choice-button{
+  width:100%;min-height:52px;border-radius:9px;
+  border:1px solid var(--border);color:var(--text);
+  background:color-mix(in srgb,var(--accent) 7%,var(--card));
+  font:750 .95rem Tajawal,system-ui,sans-serif;
+  cursor:pointer;
+ }
+ #ratibCashVoucherMenu .ratib-cash-choice-button:is(:hover,:focus-visible){
+  border-color:var(--accent);outline-offset:2px;
+  background:color-mix(in srgb,var(--accent) 12%,var(--card));
+ }
+ /* Beneficiary field already participates in draft, posting and print;
+    reveal it only in receipt/payment and make its optional status unambiguous. */
+ #multiVoucherCard.spend-voucher .multi-voucher-grid > label:has(#multiVoucherBeneficiary){
+  display:flex!important;flex-direction:column!important;align-items:stretch!important;
+  font-size:.91rem!important;line-height:1.5!important;font-weight:700!important;
+  grid-column:1/-1!important;grid-row:6!important;
+  width:100%!important;min-width:0!important;
+  margin:8px 0 5px!important;gap:7px!important;
+  color:var(--text)!important;
+ }
+ #multiVoucherCard.spend-voucher #multiVoucherBeneficiary{
+  display:block!important;box-sizing:border-box!important;
+  width:100%!important;min-height:45px!important;
+  margin:0!important;padding:8px 11px!important;
+  background:var(--card)!important;color:var(--text)!important;
+  font:600 .94rem Tajawal,system-ui,sans-serif!important;
+  border:1px solid var(--border)!important;border-radius:10px!important;
+ }
+}
+@media screen and (max-width:700px){
+ #dashboardHomeContent .ratib-quick-entry-grid > button,
+ #dashboardHomeContent .main-menu-grid.ratib-favorites-cross > .main-menu-btn{
+  height:79px!important;min-height:79px!important;
+  padding:7px 4px!important;font-size:clamp(.77rem,3.3vw,.94rem)!important;
+ }
+ #dashboardHomeContent .ratib-quick-entry-grid,
+ #dashboardHomeContent .main-menu-grid.ratib-favorites-cross{gap:9px!important}
+}

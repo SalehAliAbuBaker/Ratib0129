@@ -23,7 +23,7 @@ assert(html.includes("store.get('preferred_currency','YER')"),'existing selected
 assert(html.includes("function getGlobalCurrency()"),'currency state remains readable by reports');
 assert(html.includes("function getAllTransactions()"),'report inputs remain accounting documents');
 assert(html.includes("function getBudgetReportCurrency()"),'budget reports remain currency-selectable');
-assert(currency.includes("window.RatibCountryCurrency"),'country currencies including foreign currencies retained');
+assert(currency.includes('country_currency_settings_v1')&&currency.includes("currency:'OMR'")&&currency.includes("currency:'AED'"),'country currencies including OMR and AED retained');
 assert(html.includes("const CLOUD_FOLDER_NAME = 'Ratib Trial Backups'"),'trial backup destination unchanged');
 assert(html.includes("store.get('commerce_v1',null)"),'historic commerce records untouched');
 assert(html.includes("const RATIB_RESUME_VIEW_KEY='ratib_ui_resume_view_v1'"));

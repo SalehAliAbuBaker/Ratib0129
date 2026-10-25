@@ -143,11 +143,39 @@ d.warehouses=[{id:'main',name:'المخزن الرئيسي'}];store.set('commerc
  T.setDraft({kind:'purchase',title:'فاتورة مشتريات',number:'PI-00099',date:'2026-10-20',
   warehouse:'main',partyName:'',payment:'credit',note:'',lines:[{product:'a',unit:'حبة',qty:1,price:5}]});
  const editableInvoice=T.invoice(d);
- assert(/<input[^>]*id="rc-partyName"[^>]*\srequired(?:\s|>)/.test(editableInvoice),'accounting party still required');
+ assert(editableInvoice.includes('id="rc-debitAccount"')&&editableInvoice.includes('id="rc-creditAccount"'),'both accounting sides must use chart-of-accounts identifiers');
+ assert(editableInvoice.includes('id="rc-partyName"')&&editableInvoice.includes('type="hidden"'),'legacy accounting party is derived invisibly from the selected chart account');
  assert(editableInvoice.includes('id="rc-displayPartyName"')&&!/id="rc-displayPartyName"[^>]*\srequired/.test(editableInvoice),'separate optional printed recipient');
  T.setDraft({kind:'purchase',title:'أمر توريد',number:'PO-00099',date:'2026-10-20',
   warehouse:'main',partyName:'',payment:'credit',note:'',lines:[{product:'a',unit:'حبة',qty:1,price:5}]});
  assert(/<input[^>]*id="rc-partyName"[^>]*\srequired(?:\s|>)/.test(T.invoice(d)),'other vouchers still require a party');
+ // User-requested purchase and sale invoices: name is optional free text, then debit,
+ // credit and a registered warehouse in the same order, never a second party account.
+ for(const [kind,title,setup] of [
+  ['purchase','فاتورة مشتريات',()=>T.setInbound()],
+  ['sale','فاتورة مبيعات',()=>T.setOutbound()]
+ ]){
+  setup();
+  T.setDraft({kind,title,number:'TEST-001',date:'2026-10-25',warehouse:'main',partyName:'',payment:'credit',
+   displayPartyName:'اسم تجريبي حر',lines:[{product:'a',unit:'حبة',qty:1,price:5}]});
+  const form=T.invoice(T.data());
+  const indices=['id="rc-displayPartyName"','id="rc-search-debitAccount"','id="rc-search-creditAccount"','id="rc-warehouse"'].map(x=>form.indexOf(x));
+  assert(indices.every(x=>x>=0)&&indices.every((x,i)=>i===0||x>indices[i-1]),title+' must have ordered free name, debit, credit and warehouse');
+  assert(form.includes('id="rc-display-names"')&&form.includes('اسم تجريبي حر'),title+' name is independent of chart accounts');
+  assert(form.includes('id="rc-account-list-debitAccount"')&&form.includes('id="rc-account-list-creditAccount"'),title+' must permit chart lookup on both sides');
+  assert(form.includes('id="rc-partyName"')&&form.includes('type="hidden"'),title+' legacy party remains internal');
+ }
+ const invoiceTestDb=T.data();
+ const purchasePost=T.makeJournal({id:'invoice-core-test-p',kind:'purchase',title:'فاتورة مشتريات',number:'PI-TEST',date:'2026-10-25',
+  warehouse:'main',partyName:'موردون',partyAccount:'موردون',debitAccount:'عملاء',creditAccount:'صندوق',payment:'credit',currency:'YER',exchangeRate:1,total:20,baseTotal:20,cost:20},invoiceTestDb);
+ assert.equal(purchasePost[0].debitAccount,'عملاء','purchase debit selector must reach the real financial journal');
+ assert.equal(purchasePost[1].creditAccount,'صندوق','purchase credit selector must reach the real financial journal');
+ const salePost=T.makeJournal({id:'invoice-core-test-s',kind:'sale',title:'فاتورة مبيعات',number:'SI-TEST',date:'2026-10-25',
+  warehouse:'main',partyName:'عملاء',partyAccount:'عملاء',debitAccount:'صندوق',creditAccount:'مبيعات',payment:'credit',currency:'YER',exchangeRate:1,total:20,baseTotal:20,cost:10},invoiceTestDb);
+ assert.equal(salePost[0].debitAccount,'صندوق','sale debit selector must reach the real financial journal');
+ assert.equal(salePost[1].creditAccount,'مبيعات','sale credit selector must reach the real financial journal');
+ assert.equal(salePost.length,4,'sale must preserve inventory cost and stock journal lines');
+ T.setInbound();
  const css=fs.readFileSync(path.join(__dirname,'ratib-commerce-3.6.131.css'),'utf8');
  assert(css.includes('grid-auto-flow:column!important'),'signatures remain in one printed row');
  assert(css.includes('.rc-invoice-party-row')&&css.includes('text-align:right!important'),'invoice party right-aligned');

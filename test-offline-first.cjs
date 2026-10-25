@@ -32,6 +32,7 @@ async function requestWithNoNetwork(url,mode) {
   const cache={
     async match(request) {
       const target=new URL(typeof request==='string'?request:request.url,scope);
+      if (target.pathname === '/Ratib0129/trial/index.html') return new Response('CACHED TRIAL INDEX');
       if (target.pathname === '/Ratib0129/' || target.pathname.endsWith('/index.html'))
         return new Response('CACHED INDEX');
       if (target.pathname.endsWith('/ratib-theme.js'))
@@ -77,6 +78,9 @@ async function testLicence() {
   const page=await requestWithNoNetwork('./','navigate');
   assert.equal(page.text,'CACHED INDEX');
   assert.equal(page.attemptedNetwork,0,'offline page opening must use cache');
+  const trialPage=await requestWithNoNetwork('./trial/','navigate');
+  assert.equal(trialPage.text,'CACHED TRIAL INDEX','trial navigation must not display official application');
+  assert.equal(trialPage.attemptedNetwork,0);
   const script=await requestWithNoNetwork('./ratib-theme.js?v='+publishedVersion,'cors');
   assert.equal(script.text,'CACHED JS');
   assert.equal(script.attemptedNetwork,0,'offline JS must use installed assets');

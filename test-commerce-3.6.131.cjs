@@ -371,7 +371,8 @@ d.warehouses=[{id:'main',name:'المخزن الرئيسي'}];store.set('commerc
  assert.equal(T.data().invoices.length,failBefore,'missing FX rate must not save document');
  const fav=fs.readFileSync(path.join(__dirname,'ratib-favorites-v3.js'),'utf8');
  assert.doesNotThrow(()=>new vm.Script(fav),'favorites source parses');
- assert(fav.includes('commerceFavorites=')&&fav.includes('المخزون')&&fav.includes('الوارد')&&fav.includes('الصادر'));
+ assert(!fav.includes('commerceFavorites='),'retired home commerce choices should not show in favorites');
+ assert(fav.includes("!id.startsWith('commerce:')"),'old saved commerce shortcuts should be hidden');
  assert(fav.includes('<details class="fav-settings-group"')&&fav.includes('fav-settings-compact'),'grouped favorite detail panels');
  assert(fav.includes("ratib.quickFavorites.v2"),'existing favorites key unchanged');
  // Favorite navigation should accept only approved sections/types.

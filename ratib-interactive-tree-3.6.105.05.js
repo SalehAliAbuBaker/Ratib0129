@@ -76,10 +76,9 @@
    n.children.forEach(buildSums);
   };
   model.forEach(buildSums);
-  if(!nodes.has(selected)){
-   const first=[...nodes.values()].find(n=>n.kind==='detail')||model[0];
-   selected=first?first.key:'';
-  }
+  // Do not expose any balance by selecting a default account on first opening.
+  // Keep a user-selected account across refreshes; otherwise show a neutral hint.
+  if(!nodes.has(selected))selected='';
  }
  function balanceHtml(n){
   if(!n.sums||!n.sums.size)return '<span class="rit-muted">لا توجد حركات</span>';
@@ -232,7 +231,7 @@
  }
  function renderDetails(){
   const n=nodes.get(selected);
-  if(!n){detailsBox.innerHTML='<p class="rit-muted">اختر حسابًا لعرض تفاصيله.</p>';return;}
+  if(!n){detailsBox.innerHTML='<p class="rit-muted">اختر حسابًا من الشجرة لعرض أرصدته وحركاته.</p>';return;}
   const isLeaf=n.kind==='detail';
   const kinds={main:'حساب رئيسي',group:'حساب تجميعي',sub:'حساب تجميعي فرعي',detail:'حساب حركة'};
   let html='<div class="rit-detail-head"><span class="rit-detail-symbol">'+(isLeaf?'◉':'▣')+'</span><span><h3>'+esc(n.name)+'</h3><small>['+esc(n.code)+']'+(simpleView?'':' · '+kinds[n.kind])+'</small></span></div>'+

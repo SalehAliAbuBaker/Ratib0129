@@ -146,12 +146,21 @@ async function run(){
   delete w.__commerceResumeTest;
  });
  await test('Shared commerce defaults and debit-first document fields preserve accounting roles',async()=>{
-  for(const [target,screen,first] of [['purchase','new:فاتورة مشتريات','rc-warehouse'],['sale','new:فاتورة مبيعات','rc-partyAccount'],['purchase','return','rc-partyAccount'],['sale','return','rc-warehouse']]){
+  for(const [target,screen,first] of [['purchase','new:فاتورة مشتريات','rc-debitAccount'],['sale','new:فاتورة مبيعات','rc-debitAccount'],['purchase','return','rc-partyAccount'],['sale','return','rc-warehouse']]){
    w.RatibCommerce.openFavorite(target,screen);await pause(20);
    assert.equal(d.querySelector('#pageCommerce [data-rc-view="accounts"]'),null);
-   const boxes=[...d.querySelectorAll('.rc-account-fields [data-account-side]')];
-   assert.equal(boxes[0].dataset.accountSide,'debit');assert.equal(boxes[1].dataset.accountSide,'credit');
-   assert(boxes[0].querySelector('#'+first));
+   if(screen.startsWith('new:')){
+    const boxes=[...d.querySelectorAll('.rc-invoice-core .rc-wide-account')];
+    assert.equal(boxes.length,3);
+    assert(boxes[0].querySelector('#rc-debitAccount'),'first account must be debit');
+    assert(boxes[1].querySelector('#rc-creditAccount'),'second account must be credit');
+    assert(boxes[2].querySelector('#rc-warehouse'),'warehouse follows account fields');
+    assert(d.getElementById('rc-displayPartyName'),'optional free name appears separately above the accounts');
+   }else{
+    const boxes=[...d.querySelectorAll('.rc-account-fields [data-account-side]')];
+    assert.equal(boxes[0].dataset.accountSide,'debit');assert.equal(boxes[1].dataset.accountSide,'credit');
+    assert(boxes[0].querySelector('#'+first));
+   }
   }
   const before=JSON.stringify(code(w,"store.get('commerce_v1',null)"));
   w.RatibCommerce.openFavorite('purchase','accounts');await pause(40);

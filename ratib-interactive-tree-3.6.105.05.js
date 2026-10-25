@@ -109,7 +109,7 @@
   const row='<div class="rit-node'+(sel?' selected':'')+'" style="--rit-depth:'+Math.min(depth,12)+'">'+toggle+
    '<button type="button" class="rit-node-main" data-rit="select" data-key="'+esc(n.key)+'" aria-pressed="'+sel+'">'+
    '<span class="rit-node-icon">'+ico+'</span><span class="rit-node-label"><b>'+esc(n.name)+'</b><small>'+esc(n.code)+' · '+labels[n.kind]+'</small></span></button>'+
-   '<span class="rit-node-balance">'+balanceHtml(n)+'</span></div>';
+   '</div>';
   return '<div class="rit-branch">'+row+(has&&opened?'<div class="rit-children">'+children.map(x=>renderNode(x,depth+1,q,type,ancestorMatch||rawMatch)).join('')+'</div>':'')+'</div>';
  }
  // The simplified view is a presentation projection, not a new chart of accounts.
@@ -135,7 +135,7 @@
   return '<div class="rit-node rit-simple-node'+(selectedRow?' selected':'')+'">'+
    '<button type="button" class="rit-node-main" data-rit="select" data-key="'+esc(n.key)+'" aria-pressed="'+selectedRow+'">'+
    '<span class="rit-node-icon" aria-hidden="true">◉</span><span class="rit-node-label"><b>'+esc(n.name)+'</b><small>رقم '+esc(n.code)+'</small></span></button>'+
-   '<span class="rit-node-balance">'+balanceHtml(n)+'</span></div>';
+   '</div>';
  }
  function groupBalances(list){
   const sums=new Map();
@@ -154,7 +154,7 @@
     '<span class="rit-simple-arrow" aria-hidden="true">'+(open?'▼':'◀')+'</span>'+
     '<span class="rit-simple-group-icon" aria-hidden="true">'+(nesting?'▣':'▤')+'</span>'+
     '<span class="rit-simple-group-label"><b>'+esc(label)+'</b><small>'+leaves.length+' حساب</small></span>'+
-    '<span class="rit-simple-group-balance">'+groupBalances(leaves)+'</span></button></div>';
+    '</button></div>';
  }
  function renderSimple(q){
   const buckets={cashbox:[],bank:[],clients:[],suppliers:[],income:[],expenses:[],other:[]};

@@ -138,12 +138,11 @@ function install(){
  box.innerHTML='<h3>🎶 أصوات حفظ المستندات والتنبيهات</h3><p>أصوات مختلفة قصيرة، ومرتبطة بنجاح العملية الفعلي. يمكنك كتمها أو تغيير وضوحها.</p>'+
  '<label class="ratib-feedback-setting-row"><span>تفعيل جميع الأصوات</span><input type="checkbox" data-feedback-toggle="master"></label>'+
  '<label class="ratib-feedback-setting-row"><span>صوت نجاح الحفظ</span><input type="checkbox" data-feedback-toggle="save"></label>'+
- '<label class="ratib-feedback-setting-row"><span>أصوات التذكيرات</span><input type="checkbox" data-feedback-toggle="reminder"></label>'+
  '<label class="ratib-feedback-setting-row"><span>أصوات التحذيرات</span><input type="checkbox" data-feedback-toggle="warning"></label>'+
  '<label class="ratib-feedback-setting-row"><span>صوت الأخطاء</span><input type="checkbox" data-feedback-toggle="error"></label>'+
  '<div class="ratib-feedback-select-row"><label for="ratibFeedbackVolume">مستوى الصوت</label><select id="ratibFeedbackVolume" data-feedback-select="volume"><option value="low">منخفض</option><option value="medium">متوسط</option><option value="high">واضح</option></select></div>'+
  '<div class="ratib-feedback-select-row"><label for="ratibFeedbackStyle">طابع النغمة</label><select id="ratibFeedbackStyle" data-feedback-select="style"><option value="soft">هادئ</option><option value="balanced">متوازن</option><option value="clear">واضح</option></select></div>'+
- '<div class="ratib-feedback-try"><button type="button" data-feedback-test="save">تجربة الحفظ</button><button type="button" data-feedback-test="reminder">تجربة التذكير</button><button type="button" data-feedback-test="urgent">تجربة العاجل</button><button type="button" data-feedback-test="error">تجربة الخطأ</button></div>'+
+ '<div class="ratib-feedback-try"><button type="button" data-feedback-test="save">تجربة الحفظ</button><button type="button" data-feedback-test="error">تجربة الخطأ</button></div>'+
  '<button type="button" id="ratibFeedbackDefaults" class="btn btn-ghost">استعادة إعدادات الصوت الافتراضية</button>'+
  '<p class="ratib-feedback-guidance">قد يحتاج المتصفح إلى لمسة أولى لتفعيل الصوت. تنبيهات نسخة الويب تعمل أثناء فتح التطبيق، ولا تضمن إصدار صوت بعد إغلاقه.</p>';
  parent.append(box);
@@ -156,7 +155,7 @@ function install(){
  $('ratibFeedbackDefaults')?.addEventListener('click',()=>{write(DEFAULTS);toast('عادت إعدادات الأصوات الافتراضية.','info',3000,{silent:true});});
  syncUI();
 }
-window.RatibFeedback={toast,play,reminder,read,write,syncUI,install};
+window.RatibFeedback={toast,play,read,write,syncUI,install};
 document.addEventListener('pointerdown',unlock,{passive:true});
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',install,{once:true});else install();
 })();

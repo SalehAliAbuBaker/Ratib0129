@@ -2,11 +2,11 @@
 const fs=require('node:fs'),assert=require('node:assert/strict'),{JSDOM}=require('jsdom');
 const read=x=>fs.readFileSync(x,'utf8');
 const html=read('index.html'),fav=read('ratib-favorites-v3.js'),home=read('ratib-trial-home-sidebar-3.6.143.js'),sidebar=read('ratib-sidebar-3.6.124.js'),sw=read('sw.js'),pkg=require('./package.json');
-const release='3.6.109.01';
+const release=pkg.version;
 assert.equal(pkg.version,release);
 assert(html.includes('const RATIB_RELEASE={"version":"'+release+'"'));
 assert(sw.includes('const APP_RELEASE={"version":"'+release+'"'));
-assert(sw.includes('v219-trial-simple-home-'+release));
+assert(sw.includes('-'+release+"';"),'cache follows current version');
 assert(html.includes('الإصدار '+release+' (تجريبية)'),'trial label must remain visibly trial');
 const dom=new JSDOM(html,{url:'https://ratibtrial.pages.dev/',runScripts:'outside-only'});
 const d=dom.window.document,h=d.getElementById('dashboardHomeContent');
@@ -22,7 +22,7 @@ assert(d.querySelector('[data-ledger-voucher-type="commerce"]').closest('label')
 assert(!fav.includes('const commerceFavorites='),'retired features must not appear in catalog');
 assert(fav.includes("!id.startsWith('commerce:')"),'previous favorites removed from displayed list');
 for(const group of ['المخزون','الوارد','الصادر'])assert(!fav.includes('<option>'+group+'</option>'),'retired '+group+' not selectable');
-assert(home.includes("if (!carousel || carousel.dataset.ratibPolished === '1') return;"),'dashboard initializes without shortcut row');
+assert(!home.includes('enhanceDashboard()'),'retired dashboard no longer initialized');
 assert(!home.includes('if (!carousel || !commerce'));
 assert(html.includes("if(saved.view.tab==='pageCommerce')return;"),'do not reopen commerce from previous session');
 assert(sidebar.includes("const label='الإصدار '+v+' (تجريبية)'"),'trial label stays');

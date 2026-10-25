@@ -15,7 +15,7 @@ assert(html.includes("restoreAppView(saved.view)"));
 assert(html.includes("if(saved.view.tab==='pageReports'&&saved.view.reportSection==='statement')"));
 assert(html.includes("ratibRestoreBackgroundView();\n  ratibBindBackgroundView();"));
 assert(html.includes("store.remove(RATIB_RESUME_VIEW_KEY);\n      await flushStorage();const cfg"));
-assert(html.includes("if(document.hidden){ratibRememberBackgroundView();clearTimeout(_reminderTimer);flushStorage().catch(()=>{});}"));
+assert(html.includes("if(document.hidden){ratibRememberBackgroundView();flushStorage().catch(()=>{});}"),'background accounting flush survives removal of reminders');
 assert(html.includes("document.addEventListener('visibilitychange',()=>{if(document.hidden)persist();})"));
 for(const source of [...html.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script>/gi)].map(m=>m[1]).filter(Boolean))new Function(source);
 console.log('PASS '+version+': protected view restoration after unlock, explicit exit, background storage flush');

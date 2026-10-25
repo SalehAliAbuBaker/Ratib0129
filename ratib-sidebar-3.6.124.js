@@ -34,7 +34,7 @@ const settings=[
  ['backupsettings','النسخ الاحتياطي','backup'],
  ['favorites','مفضلتي','favorites'],
  ['voice','الإدخال الصوتي','mic'],
- ['sound','أصوات التنبيهات والتذكيرات','sound']
+ ['sound','أصوات حفظ المستندات والتنبيهات','sound']
 ];
 function icon(name){const n=document.createElementNS('http://www.w3.org/2000/svg','svg');n.setAttribute('class','sidebar-icon');n.setAttribute('viewBox','0 0 24 24');n.setAttribute('fill','none');n.setAttribute('stroke','currentColor');n.setAttribute('stroke-width','1.7');n.setAttribute('stroke-linecap','round');n.setAttribute('stroke-linejoin','round');n.setAttribute('aria-hidden','true');n.innerHTML=shapes[name]||shapes.settings;return n;}
 function make(label,ico,action,arrow){const b=document.createElement('button');b.type='button';b.append(icon(ico),Object.assign(document.createElement('span'),{textContent:label}));if(arrow){const a=icon('chevron');a.classList.add('ratib-menu-chevron');b.append(a);}b.addEventListener('click',action);return b;}

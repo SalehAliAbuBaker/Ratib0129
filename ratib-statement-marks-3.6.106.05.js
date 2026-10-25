@@ -2,10 +2,11 @@
 (function(){
 'use strict';
 const STORE_KEY='ratib_statement_card_marks_v1';
+const MODE_KEY='ratib_statement_mark_mode_v1';
 const ROW='.account-statement-row[data-tx-id]';
 const PANEL='#accountOperationsStandalonePanel,#reportAccountOpsPanel,#accountOperationsPanel,#accountOpsPanel';
 const WAIT=520,TOL=13;
-let marks=new Set(),loaded=false,mode=false,lastAccount='',press=null,suppress=null,scheduled=false;
+let marks=new Set(),loaded=false,mode=false,modeAccount='',lastAccount='',press=null,suppress=null,scheduled=false;
 const account=()=>typeof accountOpsState==='object'&&accountOpsState?String(accountOpsState.accountName||'').trim():'';
 const idFor=row=>JSON.stringify([account(),String(row.dataset.txId)]);
 function load(){
@@ -14,6 +15,9 @@ function load(){
  try{
   const raw=store.get(STORE_KEY,[]);
   marks=new Set(Array.isArray(raw)?raw.filter(x=>typeof x==='string').slice(0,5000):[]);
+  const savedMode=store.get(MODE_KEY,null);
+  modeAccount=savedMode?.enabled===true&&typeof savedMode.account==='string'?savedMode.account:'';
+  mode=!!modeAccount&&modeAccount===account();
   loaded=true;lastAccount=account();return true;
  }catch(e){console.warn('Statement reference marks unavailable',e);return false;}
 }
@@ -26,9 +30,17 @@ function persist(){
  try{store._setSilent(STORE_KEY,[...marks]);return true;}
  catch(e){console.warn('Statement mark persistence',e);if(typeof showToast==='function')showToast('تعذّر حفظ علامة البطاقة','error');return false;}
 }
+function setMode(enabled){
+ // Preserve selection mode through Android background/foreground view restoration.
+ // The account name prevents accidentally applying it to another statement.
+ mode=!!enabled&&!!account();
+ modeAccount=mode?account():'';
+ try{store._setSilent(MODE_KEY,{account:modeAccount,enabled:mode});}
+ catch(e){console.warn('Statement mark mode persistence',e);}
+}
 function repaint(){
  if(!load())return;
- if(lastAccount!==account()){mode=false;lastAccount=account();stopPress();}
+ if(lastAccount!==account()){mode=!!modeAccount&&modeAccount===account();lastAccount=account();stopPress();}
  const total=count();
  for(const panel of document.querySelectorAll(PANEL)){
   const cards=panel.querySelectorAll(ROW);
@@ -72,9 +84,10 @@ function toggle(row){
 function stopPress(){if(press){clearTimeout(press.timer);press=null;}}
 function longPress(row){
  if(!row?.isConnected)return;
- mode=true;
+ const previous=mode;
+ setMode(true);
  if(toggle(row))suppress={id:idFor(row),expires:Date.now()+750};
- else{mode=false;repaint();}
+ else{setMode(previous);repaint();}
 }
 function excluded(e){return !!e.target.closest?.('button,a,input,select,textarea,summary,[contenteditable="true"]');}
 function init(){
@@ -125,14 +138,14 @@ function init(){
   if(action){
    e.preventDefault();e.stopImmediatePropagation();
    if(!load())return;
-   if(action==='mode'){mode=!mode;repaint();}
+   if(action==='mode'){setMode(!mode);repaint();}
    if(action==='clear'){
     const total=count(),current=account();
     if(!total||total>1&&!confirm('إزالة جميع علامات هذا الحساب فقط؟'))return;
     const old=new Set(marks);
     for(const item of marks){try{if(JSON.parse(item)[0]===current)marks.delete(item);}catch(_){}}
     if(!persist())marks=old;
-    mode=false;repaint();
+    setMode(false);repaint();
    }
    return;
   }
@@ -156,6 +169,7 @@ function init(){
  });
  document.querySelectorAll('#pageAccountOperations,#pageReports,#pageAccountsTree').forEach(root=>observer.observe(root,{childList:true,subtree:true}));
  window.addEventListener('pageshow',schedule);
+ document.addEventListener('visibilitychange',()=>{if(!document.hidden)schedule();});
  window.RatibStatementMarks={refresh:schedule,count:()=>load()?count():0,isMarked:id=>load()&&marks.has(JSON.stringify([account(),String(id)])),isSelectionMode:()=>mode};
  schedule();
 }

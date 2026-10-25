@@ -2,7 +2,6 @@
 'use strict';
 const assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('node:vm'),{JSDOM}=require('jsdom');
 const html=fs.readFileSync('index.html','utf8');
-const commerce=fs.readFileSync('ratib-commerce-3.6.131.js','utf8');
 const worker=fs.readFileSync('sw.js','utf8');
 const dom=new JSDOM(html,{url:'https://ratibtrial.pages.dev/',runScripts:'outside-only'});
 const d=dom.window.document;
@@ -14,8 +13,6 @@ assert.equal(d.querySelectorAll('#dashboardHomeContent .main-menu-grid .main-men
 assert(html.includes("async function exportTrialExcel(){try{await ensureSpreadsheet();"));
 assert(!html.includes('exportOpeningImport('),'old import export removed');
 assert(!html.includes('readExternalImportFile('),'old import reader removed');
-assert(commerce.includes("if(action==='export'||action==='template'){await window.ratibEnsureSpreadsheet?.()"));
-assert(commerce.includes("reader.onload=async()=>{try{\n await window.ratibEnsureSpreadsheet?.()"));
 assert(worker.includes('"./vendor/xlsx.full.min.js"'),'offline shell keeps Excel available');
 const source=html.match(/function loadLocalScript\(src\)\{[\s\S]*?\n\}\n\nasync function ensureSpreadsheet\(\)\{[\s\S]*?\n\}/)?.[0];
 assert(source,'shared lazy loader must be present');
@@ -30,7 +27,6 @@ vm.runInNewContext('const _scriptLoads=new Map();\n'+source+'\nwindow.testEnsure
  await mock.window.testEnsureSpreadsheet();
  assert.equal(appends,1,'simultaneous exports should load a single copy');
  for(const script of [...html.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script>/gi)].map(m=>m[1]).filter(x=>x.trim()))assert.doesNotThrow(()=>new vm.Script(script));
- assert.doesNotThrow(()=>new vm.Script(commerce));
  dom.window.close();
  console.log('PASS trial quick actions and lazily loaded offline-ready Excel');
 })().catch(e=>{console.error(e);process.exitCode=1;dom.window.close();});

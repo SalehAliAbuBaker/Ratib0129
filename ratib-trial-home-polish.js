@@ -21,49 +21,6 @@ function brand(){
  const strong=document.createElement('strong'),small=document.createElement('small');strong.textContent='راتب الميسر';small.textContent='للتنظيم والتدبير المالي';el.replaceChildren(strong,small);
  el.setAttribute('aria-label','راتب الميسر — للتنظيم والتدبير المالي');
 }
-let cashMenu=null,cashTrigger=null,returnFocus=null;
-function dismissCashMenu(restore=false){
- if(!cashMenu||cashMenu.hidden)return;
- cashMenu.hidden=true;cashTrigger?.setAttribute('aria-expanded','false');
- if(restore)try{(returnFocus||cashTrigger)?.focus({preventScroll:true})}catch(_){}
-}
-function showCashMenu(trigger){
- if(!cashMenu)return;
- if(!cashMenu.hidden){dismissCashMenu(true);return;}
- cashTrigger=trigger;returnFocus=trigger;
- cashMenu.hidden=false;trigger.setAttribute('aria-expanded','true');
- cashMenu.querySelector('button')?.focus({preventScroll:true});
-}
-function installCashMenu(grid){
- if(document.getElementById('ratibCashVoucherMenu'))return;
- const section=grid.closest('section')||grid.parentElement;
- cashMenu=document.createElement('div');cashMenu.id='ratibCashVoucherMenu';cashMenu.className='ratib-cash-choice no-print';
- cashMenu.hidden=true;cashMenu.setAttribute('role','group');cashMenu.setAttribute('aria-label','اختر نوع السند');
- for(const [type,label] of [['income','سند قبض'],['spend','سند صرف']]){
-  const btn=document.createElement('button');btn.type='button';btn.className='ratib-cash-choice-button';btn.textContent=label;
-  btn.addEventListener('click',()=>{
-   dismissCashMenu(false);
-   if(typeof navigateToTab==='function'&&typeof selectVoucherTypeDirect==='function'){
-    navigateToTab('pageExpenses',true);selectVoucherTypeDirect(type);
-   }
-  });
-  cashMenu.append(btn);
- }
- section.append(cashMenu);
- document.addEventListener('pointerdown',e=>{
-  if(cashMenu&&!cashMenu.hidden&&!cashMenu.contains(e.target)&&!cashTrigger?.contains(e.target))dismissCashMenu(false);
- },true);
- document.addEventListener('keydown',e=>{
-  if(!cashMenu||cashMenu.hidden)return;
-  if(e.key==='Escape'){e.preventDefault();e.stopPropagation();dismissCashMenu(true);return;}
-  if(e.key==='Tab'){
-   const buttons=[...cashMenu.querySelectorAll('button')],ix=buttons.indexOf(document.activeElement);
-   if(ix<0)return;
-   if(e.shiftKey&&ix===0){e.preventDefault();buttons.at(-1).focus();}
-   else if(!e.shiftKey&&ix===buttons.length-1){e.preventDefault();buttons[0].focus();}
-  }
- },true);
-}
 function quickButtons(){
  const grid=document.querySelector('#dashboardHomeContent .ratib-quick-entry-grid');if(!grid)return;
  const original=[...grid.children].filter(b=>b.tagName==='BUTTON');
@@ -72,14 +29,11 @@ function quickButtons(){
   const spend=original.find(b=>b.getAttribute('onclick')?.includes("'spend'"));
   if(income&&spend){
    income.id='ratibCashUnifiedQuickBtn';
-   income.removeAttribute('onclick');income.onclick=null;
-   income.textContent='سند قبض / صرف';
-   spend.remove();
-   income.setAttribute('aria-haspopup','true');income.setAttribute('aria-expanded','false');income.setAttribute('aria-controls','ratibCashVoucherMenu');
-   income.addEventListener('click',()=>showCashMenu(income));
+   income.setAttribute('onclick',"navigateToTab('pageExpenses',true);selectVoucherTypeDirect('spend')");
+   income.textContent='سند صرف / قبض';spend.remove();
+   income.removeAttribute('aria-haspopup');income.removeAttribute('aria-expanded');income.removeAttribute('aria-controls');
   }
  }
- installCashMenu(grid);
  const keys={'ratibCashUnifiedQuickBtn':'cash','ratibOpeningQuickLaunch':'opening'};
  for(const btn of grid.querySelectorAll(':scope > button')){
   if(btn.dataset.ratibVoucherIcon)continue;

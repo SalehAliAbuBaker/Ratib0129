@@ -93,6 +93,20 @@
  }
  #ratibCashPulse .ratib-pulse-toggle-left{font-weight:800!important}
  #ratibCashPulse .ratib-pulse-circle-wrap{width:min(100%,188px)!important}
+ #ratibCashPulse .ratib-pulse-circle-wrap{
+  position:relative!important;display:block!important;aspect-ratio:1/1!important;
+  min-height:0!important;max-width:188px!important;
+ }
+ #ratibCashPulse .ratib-pulse-center{
+  position:absolute!important;inset:0!important;z-index:2!important;
+  display:flex!important;flex-direction:column!important;
+  align-items:center!important;justify-content:center!important;
+  pointer-events:none!important;gap:3px!important;
+  text-align:center!important;max-width:100%!important;box-sizing:border-box!important;
+  padding:32px 23px!important;
+ }
+ #ratibCashPulse .ratib-pulse-ring{transform:rotate(-90deg)!important}
+
  #ratibCashPulse .ratib-pulse-ring{
   display:block;width:100%;height:100%;border:0!important;background:transparent!important;
  }

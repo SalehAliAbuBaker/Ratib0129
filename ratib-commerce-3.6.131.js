@@ -143,7 +143,7 @@ function commerceAccountResults(input,matches){
  document.body.appendChild(pane);commerceAccountPane=pane;
 }
 document.addEventListener('pointerdown',event=>{
- if(commerceAccountPane&&!commerceAccountPane.contains(event.target)&&!event.target.closest?.('#pageCommerce .rc-smart-account input')){
+ if(commerceAccountPane&&!commerceAccountPane.contains(event.target)&&!event.target.closest?.('#pageCommerce .rc-smart-account input,#ratibCommerceDefaults .rc-smart-account input')){
    commerceAccountPane.remove();commerceAccountPane=null;
  }
 },true);
@@ -411,7 +411,8 @@ function leaf(){
  return [...chosen.values()];
 }
 function paint(){
- const db=data(),panels=mode==='stock'?[['products','بطاقة الصنف'],['warehouses','المخازن'],['movements','حركة المخزون'],['summary','تقارير المخزون'],['accounts','الحسابات']]:[['new','مستند جديد'],['return','مرتجعات'],['records','سجل المستندات'],['people',mode==='in'?'الموردون':'العملاء'],['summary','التقارير'],['accounts','ربط الحسابات']];
+ if(view==='accounts'){if($('pageCommerce'))$('pageCommerce').innerHTML='';openAccountDefaults();return;}
+ const db=data(),panels=mode==='stock'?[['products','بطاقة الصنف'],['warehouses','المخازن'],['movements','حركة المخزون'],['summary','تقارير المخزون']]:[['new','مستند جديد'],['return','مرتجعات'],['records','سجل المستندات'],['people',mode==='in'?'الموردون':'العملاء'],['summary','التقارير']];
  let body='';
  if(view==='products')body=products(db);if(view==='warehouses')body=warehouses(db);if(view==='people')body=people(db);if(view==='accounts')body=accounts(db);
  if(['new','return'].includes(view))body=invoice(db);
@@ -429,6 +430,7 @@ const tabMarkup=mode==='stock'?panels.map(renderTab).join(''):
  '<details class="rc-tab-more"><summary>⋮ المزيد</summary><div class="rc-tab-more-menu">'+panels.filter(x=>!['new','records'].includes(x[0])).map(renderTab).join('')+'</div></details>';
 const header=mode==='stock'?'المخزون':mode==='in'?'الوارد':'الصادر';
  $('pageCommerce').innerHTML='<div class="rc-app" data-rc-mode="'+mode+'" data-rc-button-size="'+commerceButtonSize()+'"><div class="rc-head"><h2>'+({'stock':'📦 ','in':'📥 ','out':'📤 '}[mode]||'')+header+'</h2>'+(view==='detail'?'':'<button type="button" class="btn btn-ghost" data-rc-back="1" aria-label="الرجوع">← <span class="rc-back-label">رجوع</span></button>')+'</div><div class="rc-tabs">'+tabMarkup+'</div>'+body+'</div>';
+ orderCommerceAccounts();
 }
 function filteredCatalogProducts(db){
  const term=catalogSearch.trim().toLocaleLowerCase();
@@ -484,9 +486,28 @@ function people(db){const type=mode==='in'?'vendor':'client';return wrap('إدا
  fld('رقم الهاتف',inp('phone','tel'))+'<button class="btn btn-primary">حفظ</button></form>')+
  wrap('السجل',table(['الاسم','الحساب الفرعي','الهاتف'],db.people.filter(p=>p.type===type).map(p=>[esc(p.name),esc(p.accountId||'—'),esc(p.phone||'—')])));}
 
+function refreshDefaults(){
+ const host=$('ratibCommerceDefaults');if(host)host.innerHTML=accounts(data());
+}
+function openAccountDefaults(){
+ if(!requestLeave())return false;
+ refreshDefaults();
+ if(window.RatibSettingsOpen)window.RatibSettingsOpen('defaults');
+ else if(typeof navigateToTab==='function')navigateToTab('pageSettings',true);
+}
+function orderCommerceAccounts(){
+ const host=document.querySelector?.('#pageCommerce .rc-account-fields');if(!host)return;
+ const warehouse=$('rc-warehouse')?.closest('.rc-wide-account'),party=$('rc-partyAccount')?.closest('.rc-wide-account');
+ if(!warehouse||!party)return;
+ const stockDebit=(mode==='in')!==(view==='return');
+ warehouse.dataset.accountSide=stockDebit?'debit':'credit';party.dataset.accountSide=stockDebit?'credit':'debit';
+ const first=stockDebit?warehouse:party,last=stockDebit?party:warehouse;
+ host.append(first,last);
+ const account=$('rc-search-partyAccount');if(account)account.setAttribute('aria-label','حساب الطرف الآخر — '+(stockDebit?'دائن':'مدين')+' (للتسوية الآجلة)');
+}
 function accounts(db){
  const names={cash:'الصندوق / البنك',receivable:'ذمم العملاء (الصادر الآجل)',payable:'ذمم الموردين (الوارد الآجل)',inventory:'حساب المخزون',sales:'إيرادات المبيعات',cogs:'تكلفة البضاعة المباعة',adjust:'فروق وتسويات المخزون'};
- return wrap('ربط الحسابات المحاسبية','<p class="rc-note">اختر حسابًا فرعيًا تفصيليًا من شجرة الحسابات بالبحث بالرقم أو الاسم. الربط قابل للتغيير، ولا يُسمح بالحسابات الرئيسية أو التجميعية. تعديل الربط لا يغيّر المستندات المحفوظة.</p><form id="rc-accounts-form" class="rc-grid">'+Object.keys(names).map(k=>fld(names[k],commerceSmartAccount('acc-'+k,leaf(),db.accounts[k]))).join('')+'<button class="btn btn-primary">حفظ الربط</button></form>');
+ return wrap('حسابات الفواتير والمخزون','<p class="rc-note">اختر حسابًا فرعيًا تفصيليًا من شجرة الحسابات بالبحث بالرقم أو الاسم. الربط قابل للتغيير، ولا يُسمح بالحسابات الرئيسية أو التجميعية. تعديل الربط لا يغيّر المستندات المحفوظة.</p><form id="rc-accounts-form" class="rc-grid">'+Object.keys(names).map(k=>fld(names[k],commerceSmartAccount('acc-'+k,leaf(),db.accounts[k]))).join('')+'<button class="btn btn-primary">حفظ الربط</button></form>');
 }
 function records(db){
  const docs=db.invoices.filter(d=>mode==='in'?['purchase','purchase_return'].includes(d.kind):['sale','sale_return'].includes(d.kind));
@@ -518,8 +539,9 @@ function movementForm(db){
  fld('التاريخ',inp('date','date',today(),'required'))+
  fld('الصنف',sel('product',db.products))+
  fld('الوحدة',sel('unit',unitList(db.products[0]||{unit:'حبة'}).map(x=>({id:x,name:x}))))+
- fld('المخزن المصدر',sel('warehouse',db.warehouses))+
- (transfer?fld('المخزن الوجهة',sel('target',db.warehouses)):fld('اتجاه التسوية','<select id="rc-direction"><option value="in">وارد</option><option value="out">صادر</option></select>'))+
+ (transfer?fld('المخزن الوجهة (مدين)',sel('target',db.warehouses)):'')+
+ fld(transfer?'المخزن المصدر (دائن)':'المخزن',sel('warehouse',db.warehouses))+
+ (transfer?'':fld('اتجاه التسوية','<select id="rc-direction"><option value="in">وارد</option><option value="out">صادر</option></select>'))+
  fld('الكمية',inp('qty','number',1,'min="0.01" step="0.01"'))+
  (transfer?'':fld('تكلفة الوحدة عند الإدخال (YER)',inp('cost','number',0,'min="0" step="0.01"')))+
  '<button type="submit" class="btn btn-primary">اعتماد الحركة</button></form>');
@@ -1073,6 +1095,7 @@ function openFavorite(target,screen='products'){
  const source=target==='purchase'?'in':target==='sale'?'out':target==='stock'?'stock':null;
  if(!source)throw Error('قسم غير معروف في مفضلتي.');
  const key=String(screen||'').trim();
+ if(key==='accounts')return openAccountDefaults();
  const available=source==='stock'?['products','warehouses','movements','summary','accounts']:
   ['return','records','people','summary','accounts','new'];
  const [pageTitle,...rest]=key.split(':');
@@ -1085,8 +1108,9 @@ function openFavorite(target,screen='products'){
  if(directTitle){editingDocId='';draft=newDraft();draft.title=directTitle;draft.number=nextNumber(data(),draft.kind,directTitle);}
  paint();
 }
-function bind(){
- const root=$('pageCommerce');if(!root)return;
+function bind(root=$('pageCommerce')){
+ if(!root||root.dataset?.ratibCommerceBound)return;
+ if(root.dataset)root.dataset.ratibCommerceBound='1';
  document.querySelector('.ratib-commerce-shortcuts')?.setAttribute('data-rc-button-size',commerceButtonSize());
  root.addEventListener('click',event=>{
   const hit=selector=>event.target.closest(selector);
@@ -1262,7 +1286,7 @@ function bind(){
     save(db);await flushStorage();editingProduct=null;paint();notify('تم حفظ بطاقة الصنف','success');
    }else if(form==='rc-warehouse-form'){const accountId=commerceChosenAccount('warehouse-account','حساب المخزن',true),alias=$('rc-name').value.trim();if(!accountId)throw Error('اختر الحساب الفرعي أولًا.');if(db.warehouses.some(w=>w.id!==editingWarehouse&&w.accountId===accountId))throw Error('الحساب مرتبط بمخزن آخر.');const name=alias||accountId;const existing=db.warehouses.find(w=>w.id===editingWarehouse);if(existing)Object.assign(existing,{accountId,alias,name});else db.warehouses.push({id:id(),accountId,alias,name});save(db);await flushStorage();editingWarehouse=null;paint();}
    else if(form==='rc-person-form'){const accountId=commerceChosenAccount('person-account','حساب المورد أو العميل',true),name=$('rc-name').value.trim()||accountId;if(!accountId)throw Error('اختر حساب الطرف من شجرة الحسابات.');if(db.people.some(p=>p.accountId===accountId&&p.type===(mode==='in'?'vendor':'client')))throw Error('هذا الطرف مسجل مسبقًا.');db.people.push({id:id(),accountId,name,phone:$('rc-phone')?.value||'',type:mode==='in'?'vendor':'client'});save(db);await flushStorage();paint();}
-   else if(form==='rc-accounts-form'){for(const key of Object.keys(db.accounts))db.accounts[key]=commerceChosenAccount('acc-'+key,key);save(db);await flushStorage();notify('تم حفظ ربط الحسابات','success');paint();}
+   else if(form==='rc-accounts-form'){for(const key of Object.keys(db.accounts))db.accounts[key]=commerceChosenAccount('acc-'+key,key);save(db);await flushStorage();notify('تم حفظ ربط الحسابات','success');refreshDefaults();}
    else if(form==='rc-invoice-form')await saveInvoice(event.submitter?.hasAttribute('data-rc-save-next')===true);
    else if(form==='rc-movement-form')await saveMovement();
   }catch(error){console.error('Ratib commerce',error);notify(error.message||'تعذر الحفظ','error');}
@@ -1279,5 +1303,8 @@ window.RatibCommerce.hasUnsavedDraft=hasUnsavedDraft;
 window.RatibCommerce.requestLeave=requestLeave;
 window.RatibCommerce.captureView=captureView;
 window.RatibCommerce.restoreView=restoreView;
-if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',bind,{once:true});else bind();
+window.RatibCommerce.refreshDefaults=refreshDefaults;
+window.RatibCommerce.openAccountDefaults=openAccountDefaults;
+function bindAll(){bind();bind($('ratibCommerceDefaults'));}
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',bindAll,{once:true});else bindAll();
 })();

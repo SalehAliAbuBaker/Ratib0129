@@ -145,6 +145,40 @@ async function run(){
   assert.equal(w.RatibCommerce.captureView().mode,'in');
   delete w.__commerceResumeTest;
  });
+ await test('Shared commerce defaults and debit-first document fields preserve accounting roles',async()=>{
+  for(const [target,screen,first] of [['purchase','new:فاتورة مشتريات','rc-warehouse'],['sale','new:فاتورة مبيعات','rc-partyAccount'],['purchase','return','rc-partyAccount'],['sale','return','rc-warehouse']]){
+   w.RatibCommerce.openFavorite(target,screen);await pause(20);
+   assert.equal(d.querySelector('#pageCommerce [data-rc-view="accounts"]'),null);
+   const boxes=[...d.querySelectorAll('.rc-account-fields [data-account-side]')];
+   assert.equal(boxes[0].dataset.accountSide,'debit');assert.equal(boxes[1].dataset.accountSide,'credit');
+   assert(boxes[0].querySelector('#'+first));
+  }
+  const before=JSON.stringify(code(w,"store.get('commerce_v1',null)"));
+  w.RatibCommerce.openFavorite('purchase','accounts');await pause(40);
+  assert(!d.getElementById('pageSettings').classList.contains('hidden'));
+  assert.equal(d.querySelectorAll('#rc-accounts-form').length,1);
+  assert(d.getElementById('ratibCommerceDefaults').contains(d.getElementById('rc-accounts-form')));
+  assert.equal(JSON.stringify(code(w,"store.get('commerce_v1',null)")),before,'moving settings does not mutate stored links');
+  const cashSearch=d.getElementById('rc-search-acc-cash');
+  const option=d.querySelector('#rc-account-list-acc-cash option');assert(option,'default account search lists leaf accounts');
+  cashSearch.value=option.value;cashSearch.dispatchEvent(new w.Event('input',{bubbles:true}));
+  const chosen=d.getElementById('rc-acc-cash').value;assert(chosen,'search resolves the chosen account in Settings');
+  const docsBefore=code(w,"JSON.stringify(store.get('commerce_v1',{}).invoices||[])");
+  d.getElementById('rc-accounts-form').dispatchEvent(new w.Event('submit',{bubbles:true,cancelable:true}));await pause(100);
+  assert.equal(code(w,"store.get('commerce_v1',{}).accounts.cash"),chosen);
+  assert.equal(code(w,"JSON.stringify(store.get('commerce_v1',{}).invoices||[])"),docsBefore,'saving defaults preserves existing documents');
+  for(const mode of ['income','spend']){
+   code(w,"navigateToTab('pageExpenses',true);selectVoucherTypeDirect('"+mode+"')");await pause(50);
+   const source=d.getElementById('wrapMultiSourceAcc'),table=d.querySelector('#multiVoucherCard .multi-voucher-table-wrap');
+   assert(source.compareDocumentPosition(table)&(mode==='income'?w.Node.DOCUMENT_POSITION_FOLLOWING:w.Node.DOCUMENT_POSITION_PRECEDING),mode+' debit before credit');
+   d.getElementById('ratibReverseSide').click();await pause(50);
+   assert(source.compareDocumentPosition(table)&(mode==='income'?w.Node.DOCUMENT_POSITION_PRECEDING:w.Node.DOCUMENT_POSITION_FOLLOWING),'reversed roles reorder without replacing inputs');
+  }
+  code(w,"selectMultiVoucherType();multiVoucherLines=[{...newMultiLine(),side:'credit'},{...newMultiLine(),side:'debit'}];renderMultiVoucherLines()");await pause(40);
+  const sides=[...d.querySelectorAll('#multiVoucherLinesBody .multi-line-side')];
+  assert.equal(sides[0].value,'debit');assert.equal(sides[0].dataset.index,'1');
+  assert.equal(code(w,'multiVoucherLines[0].side'),'credit','display sorting preserves original line identities');
+ });
  assert.deepEqual(f.errors,[]);fixtures.forEach(x=>x.dom.window.close());
 }
 run().then(()=>process.exit(0)).catch(e=>{console.error(e.stack);process.exit(1)});

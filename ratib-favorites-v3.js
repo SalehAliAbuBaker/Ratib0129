@@ -61,9 +61,9 @@ addChoice('import-management','إدارة الحسابات والأرصدة ال
 });
 addChoice('reminders-list','قائمة التذكيرات والمهام','🔔',async()=>{if(await page('pageDashboard'))document.getElementById('openAddReminderModalBtn')?.closest('.card')?.scrollIntoView({block:'start'});});
 const commerceFavorites=[
- ['stock','المخزون',[['products','بطاقة الصنف'],['warehouses','إدارة المخازن'],['movements','حركة المخزون'],['summary','تقارير المخزون'],['accounts','ربط حسابات المخزون']]],
- ['purchase','الوارد',[['new','مستند جديد — الوارد'],['new:أمر توريد','أمر توريد'],['new:توريد مخزني','توريد مخزني'],['new:فاتورة مشتريات','فاتورة مشتريات'],['return','مرتجعات الوارد'],['records','سجل مستندات الوارد'],['people','الموردون'],['summary','تقارير الوارد'],['accounts','ربط حسابات الوارد']]],
- ['sale','الصادر',[['new','مستند جديد — الصادر'],['new:أمر صرف','أمر صرف'],['new:صرف مخزني','صرف مخزني'],['new:فاتورة مبيعات','فاتورة مبيعات'],['return','مرتجعات الصادر'],['records','سجل مستندات الصادر'],['people','العملاء'],['summary','تقارير الصادر'],['accounts','ربط حسابات الصادر']]]
+ ['stock','المخزون',[['products','بطاقة الصنف'],['warehouses','إدارة المخازن'],['movements','حركة المخزون'],['summary','تقارير المخزون']]],
+ ['purchase','الوارد',[['new','مستند جديد — الوارد'],['new:أمر توريد','أمر توريد'],['new:توريد مخزني','توريد مخزني'],['new:فاتورة مشتريات','فاتورة مشتريات'],['return','مرتجعات الوارد'],['records','سجل مستندات الوارد'],['people','الموردون'],['summary','تقارير الوارد']]],
+ ['sale','الصادر',[['new','مستند جديد — الصادر'],['new:أمر صرف','أمر صرف'],['new:صرف مخزني','صرف مخزني'],['new:فاتورة مبيعات','فاتورة مبيعات'],['return','مرتجعات الصادر'],['records','سجل مستندات الصادر'],['people','العملاء'],['summary','تقارير الصادر']]]
 ];
 for(const [target,group,items] of commerceFavorites)for(const [screen,label] of items){
  const id='commerce:'+target+':'+screen;
@@ -71,6 +71,12 @@ for(const [target,group,items] of commerceFavorites)for(const [screen,label] of 
   if(!window.RatibCommerce?.openFavorite)throw Error('تعذر فتح قسم التجارة؛ حدّث التطبيق إلى الإصدار الجديد.');
   await window.RatibCommerce.openFavorite(target,screen);
  });
+}
+// Retain already selected legacy shortcuts, all pointing to the one settings location.
+for(const target of ['stock','purchase','sale']){
+ const legacy='commerce:'+target+':accounts';
+ let saved=[];try{saved=JSON.parse(localStorage.getItem(KEY)||'[]');}catch(_){}
+ if(Array.isArray(saved)&&saved.includes(legacy))addChoice(legacy,'حسابات الفواتير والمخزون','⚙️',()=>window.RatibCommerce?.openAccountDefaults?.());
 }
 const settingsCatalog=[
  ['tree','إدارة شجرة الحسابات والأسقف'],

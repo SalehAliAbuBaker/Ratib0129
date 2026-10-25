@@ -34,6 +34,7 @@ function simulate({tab='pageSettings',depth=0,known=true,dirty=false,commerceDir
   window:{RatibCommerce:{hasUnsavedDraft:()=>commerceDirty}},
   history:{state:known?{ratibGuard:true,ratibSession:'sess',ratibDepth:depth}:{page:'ratib_app_base'},go:n=>log.go.push(n),forward:()=>log.forward++,back:()=>{}},
   closeTransientAppUi:()=>overlay,
+  ratibRestorePrintScreen:()=>{}, // Popstate test extracts navigation without the global print module.
   confirm:()=>{log.confirmed++;return accept;},
   store:{get:()=>[],set:(k,val)=>log.stored.push([k,val])},
   captureSingleDraft:()=>({amount:'50',note:'test'}),

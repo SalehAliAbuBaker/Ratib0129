@@ -1,4 +1,4 @@
-/* Ratib 3.6.105.12: mobile account voice-first tap, manual typing second tap. */
+/* Trial regression: Android field taps preserve typing; microphone must be pressed explicitly. */
 'use strict';
 const fs=require('node:fs'),assert=require('node:assert/strict'),{JSDOM}=require('jsdom');
 const voice=fs.readFileSync('ratib-voice-dictation-3.6.117.js','utf8');
@@ -31,34 +31,36 @@ const touch=id=>{
  el(id).dispatchEvent(event);return event;
 };
 assert.equal(el('inpDebitAcc').getAttribute('inputmode'),'text');
-const first=touch('inpDebitAcc');
-assert(first.defaultPrevented,'First tap should not open keyboard');
-assert.equal(instances.length,1,'First tap starts dictation');
-assert.equal(el('inpDebitAcc').getAttribute('inputmode'),'none');
-assert.equal(w.RatibVoiceFirstAccountActive(el('inpDebitAcc')),true);
-const tapClick=new w.MouseEvent('click',{bubbles:true,cancelable:true});
-el('inpDebitAcc').dispatchEvent(tapClick);
-assert(tapClick.defaultPrevented,'First account tap cannot trigger Android menu');
+for(const id of ['inpDebitAcc','rc-search-partyAccount','rc-partyName']){
+ const tap=touch(id);
+ assert.equal(tap.defaultPrevented,false,id+' tap must keep native Android keyboard');
+ assert.equal(instances.length,0,'touching '+id+' must NOT start the microphone');
+ assert.notEqual(el(id).getAttribute('inputmode'),'none','keyboard input must be allowed');
+ assert.equal(w.RatibVoiceFirstAccountActive(el(id)),false);
+}
+el('inpDebitAcc').focus();
+const mic=el('ratibVoiceButton');
+assert(mic,'visible icon must exist');
+assert.equal(instances.length,0,'focusing alone must not start recording');
+mic.dispatchEvent(new w.Event('pointerdown',{bubbles:true,cancelable:true}));
+mic.click();
+assert.equal(instances.length,1,'mic click starts dictation only when requested');
 instances[0].onresult({resultIndex:0,results:[{0:{transcript:'صندوق النقدية'},isFinal:true}]});
-assert.equal(el('inpDebitAcc').value,'صندوق النقدية','Speech writes directly into account input');
-const second=touch('inpDebitAcc');
-assert(!second.defaultPrevented,'Second tap permits native keyboard');
-assert.equal(el('inpDebitAcc').getAttribute('inputmode'),'text','Second tap restores original input mode');
-assert.equal(instances.length,1,'Second tap cannot restart dictation');
-assert.equal(w.RatibVoiceFirstAccountActive(el('inpDebitAcc')),false);
-const manualInput=new w.Event('input',{bubbles:true});
-el('inpDebitAcc').value='صندوق آخر';el('inpDebitAcc').dispatchEvent(manualInput);
-assert.equal(el('inpDebitAcc').value,'صندوق آخر','Manual typing remains editable');
-const third=touch('rc-search-partyAccount');
-assert(third.defaultPrevented,'Commerce account input begins in speech mode');
-assert.equal(instances.length,2);
-touch('unrelatedNote');
-assert.equal(el('rc-search-partyAccount').getAttribute('inputmode'),null,'Leaving account restores input mode');
-assert.equal(w.RatibVoiceFirstAccountActive(el('rc-search-partyAccount')),false);
+assert.equal(el('inpDebitAcc').value,'صندوق النقدية','microphone dictation writes to requested input');
+mic.click();
+assert.equal(mic.dataset.listening,'false','second mic click stops dictation');
+touch('inpDebitAcc');el('inpDebitAcc').value='صندوق آخر';
+el('inpDebitAcc').dispatchEvent(new w.Event('input',{bubbles:true}));
+assert.equal(el('inpDebitAcc').value,'صندوق آخر','typing remains functional');
+el('rc-search-partyAccount').focus();
+mic.dispatchEvent(new w.Event('pointerdown',{bubbles:true,cancelable:true}));
+mic.click();
+assert.equal(instances.length,2,'other account requires a fresh mic press');
+mic.click();
 const setting=el('ratibVoiceVisible');setting.checked=false;
 setting.dispatchEvent(new w.Event('change',{bubbles:true}));
 const fallback=touch('rc-partyName');
-assert(!fallback.defaultPrevented,'Disabled speech preserves keyboard on first touch');
-assert.equal(instances.length,2,'Disabled speech does not start recording');
+assert(!fallback.defaultPrevented,'disabled voice preserves keyboard on first touch');
+assert.equal(instances.length,2,'disabled voice must not start recording');
 dom.window.close();
-console.log('PASS 3.6.105.12: voice-first, second-tap keyboard, transcription, account scope, disabled fallback');
+console.log('PASS trial: voice starts only on microphone press; account field taps preserve keyboard and manual edits');

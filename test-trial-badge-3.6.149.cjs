@@ -7,7 +7,7 @@ const sw=read('sw.js');
 const nav=read('ratib-navigation-v3.6.149.js');
 const trial=html.match(/const RATIB_RELEASE=\{"version":"([^"]+)"/)?.[1];
 const worker=sw.match(/const APP_RELEASE=\{"version":"([^"]+)"/)?.[1];
-assert(trial&&/^3\.6\.\d+$/.test(trial),'Trial must use the current four-part release');
+assert(trial&&/^3\.6\.\d+(?:\.\d+)?$/.test(trial),'Trial must use the current four-part release');
 assert.equal(worker,trial,'App shell and worker must share one release');
 assert(!nav.includes("const VERSION='3.6.123'"),'Legacy navigation script must not hardcode 3.6.123');
 assert(!nav.includes('RATIB_RELEASE.version=VERSION'),'Navigation must not mutate the release manifest');

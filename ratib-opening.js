@@ -57,9 +57,11 @@ function paint(){
 function showError(msg){q("ratibOpeningError").textContent=msg||"";}
 function open(){
  if(active)return;
- rows=[mk(),mk()];dirty=false;active=true;pendingChoice=false;busy=false;
- q("ratibOpeningDate").value=(typeof getLocalTodayISO==="function"?getLocalTodayISO():new Date().toISOString().slice(0,10)).slice(0,4)+"-01";
- q("ratibOpeningCurrency").value=code();showError("");q("ratibOpeningDecide").hidden=true;paint();
+ const draft=store.get("manual_opening_draft_v1",null);
+ rows=Array.isArray(draft?.rows)&&draft.rows.length?structuredClone(draft.rows).map(r=>({...mk(),account:String(r.account||""),debit:String(r.debit||""),credit:String(r.credit||""),note:String(r.note||"")})):[mk(),mk()];
+ dirty=false;active=true;pendingChoice=false;busy=false;
+ q("ratibOpeningDate").value=draft?.date||(typeof getLocalTodayISO==="function"?getLocalTodayISO():new Date().toISOString().slice(0,10)).slice(0,4)+"-01";
+ q("ratibOpeningCurrency").value=KNOWN_CURRENCIES.has(draft?.currency)?draft.currency:code();showError("");q("ratibOpeningDecide").hidden=true;paint();
  const modal=q("ratibOpeningOverlay");modal.classList.add("show");try{activateRatibOverlay(modal,document.activeElement);pushAppHistoryState();}catch(_){}
  q("ratibOpeningDate").focus();
 }
@@ -118,6 +120,7 @@ async function commit(){
    p.transactions.push({id:key+"_"+i,importVoucherId:key,openingBalanceManual:true,isOpeningBalance:true,openingBalance:o,seqNum:seq,isoDate:v.date,date:v.date,timestamp:new Date(v.date+"T00:00:00Z").getTime(),updatedAt:stamp,currency:v.currency,amount:base,debitAccount:d?r.name:"",creditAccount:c?r.name:"",debitAccountId:d?r.id:"",creditAccountId:c?r.id:"",voucherMode:"opening",type:"قيد افتتاحي",status:"posted",isExpense:false,distribution:{},execution:{},schemaVersion:3});
   }
   store.set("plan",p);
+  store.remove("manual_opening_draft_v1");
   try{audit("CREATE_OPENING_ENTRY",key,null,{date:v.date,currency:v.currency,accounts:v.details.map(r=>r.name),total:amount(v.sums.debit)});}catch(e){console.warn("Opening audit",e);}
   await flushStorage();
   try{window.RatibLicense?.recordCreated?.();}catch(_){}
@@ -133,6 +136,8 @@ function mount(){
  const launch=document.createElement("button");launch.type="button";launch.id="ratibOpeningLaunch";launch.className="main-menu-btn";launch.innerHTML='<span class="main-menu-icon" aria-hidden="true">⚖</span><span>القيد الافتتاحي</span>';
  launch.addEventListener("click",open);
  if(main)main.append(launch);
+ const quick=document.querySelector(".ratib-quick-entry-grid");
+ if(quick&&!q("ratibOpeningQuickLaunch")){const quickBtn=document.createElement("button");quickBtn.id="ratibOpeningQuickLaunch";quickBtn.type="button";quickBtn.textContent="قيد افتتاحي";quickBtn.addEventListener("click",open);quick.append(quickBtn);}
  const modal=document.createElement("div");modal.id="ratibOpeningOverlay";modal.className="modal-overlay no-print";modal.innerHTML=
  '<section class="modal-content" role="dialog" aria-modal="true" aria-labelledby="ratibOpeningTitle">'+
  '<div class="ratib-opening-head"><h2 id="ratibOpeningTitle">القيد الافتتاحي — إدخال الأرصدة</h2><button type="button" class="btn btn-ghost" id="ratibOpeningClose">رجوع</button></div>'+
@@ -142,7 +147,7 @@ function mount(){
  '<button type="button" class="btn btn-ghost" id="ratibOpeningAdd">+ إضافة حساب</button>'+
  '<div id="ratibOpeningTotals" class="ratib-opening-totals" aria-live="polite"></div><p id="ratibOpeningError" class="ratib-opening-error" role="alert"></p>'+
  '<div class="ratib-opening-actions"><button type="button" class="btn btn-ghost" id="ratibOpeningPreview">فحص التوازن</button><button type="button" class="btn btn-primary" id="ratibOpeningCommit">اعتماد وترحيل القيد</button></div>'+
- '<div id="ratibOpeningDecide" hidden><p class="ratib-opening-note">هناك تغييرات لم تُحفظ. ماذا تريد أن تفعل؟</p><div class="ratib-opening-actions"><button type="button" class="btn btn-ghost" id="ratibOpeningDiscard">خروج دون حفظ</button><button type="button" class="btn btn-ghost" id="ratibOpeningStay">إلغاء والبقاء</button></div><p class="ratib-opening-note">يمكنك اعتماد القيد بعد فحص التوازن؛ لا تُنشأ مسودة مالية تلقائيًا.</p></div>'+
+ '<div id="ratibOpeningDecide" hidden><p class="ratib-opening-note">هناك تغييرات لم تُحفظ. ماذا تريد أن تفعل؟</p><div class="ratib-opening-actions"><button type="button" class="btn btn-primary" id="ratibOpeningSaveDraft">حفظ مسودة والخروج</button><button type="button" class="btn btn-ghost" id="ratibOpeningDiscard">خروج دون حفظ</button><button type="button" class="btn btn-ghost" id="ratibOpeningStay">إلغاء والبقاء</button></div><p class="ratib-opening-note">حفظ المسودة لا يُنشئ قيدًا محاسبيًا ولا يؤثر على ميزان المراجعة.</p></div>'+
  '</section>';
  document.body.append(modal);
  q("ratibOpeningCurrency").innerHTML=[...KNOWN_CURRENCIES].map(c=>'<option value="'+safe(c)+'">'+safe(c)+" — "+safe(typeof accountCurrencyLabel==="function"?accountCurrencyLabel(c):c)+"</option>").join("");
@@ -150,6 +155,13 @@ function mount(){
  q("ratibOpeningAdd").onclick=()=>{rows.push(mk());dirty=true;paint();};
  q("ratibOpeningPreview").onclick=preview;q("ratibOpeningCommit").onclick=commit;
  q("ratibOpeningDate").addEventListener("change",()=>dirty=true);q("ratibOpeningCurrency").addEventListener("change",()=>{dirty=true;review();});
+ q("ratibOpeningSaveDraft").onclick=async()=>{
+  if(busy)return;busy=true;const btn=q("ratibOpeningSaveDraft");btn.disabled=true;
+  try{
+   store.set("manual_opening_draft_v1",{date:q("ratibOpeningDate").value,currency:q("ratibOpeningCurrency").value,rows:structuredClone(rows),savedAt:new Date().toISOString()});
+   await flushStorage();dirty=false;busy=false;close(true);showToast("حُفظت مسودة القيد الافتتاحي دون ترحيل.","success");
+  }catch(e){showError("تعذر حفظ المسودة: "+e.message);}finally{busy=false;btn.disabled=false;}
+ };
  q("ratibOpeningDiscard").onclick=()=>close(true);
  q("ratibOpeningStay").onclick=()=>{pendingChoice=false;q("ratibOpeningDecide").hidden=true;};
  // Prevent silent dismissal on Escape while the trial opening form is dirty.

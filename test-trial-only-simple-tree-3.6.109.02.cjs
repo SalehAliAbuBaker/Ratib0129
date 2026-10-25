@@ -4,7 +4,7 @@ const html=fs.readFileSync('index.html','utf8');
 const simple=fs.readFileSync('ratib-simple-accounts-3.6.105.13.js','utf8');
 const tree=fs.readFileSync('ratib-interactive-tree-3.6.105.05.js','utf8');
 const pkg=require('./package.json');
-assert.equal(pkg.version,'3.6.109.02');
+assert.equal(pkg.version,'3.6.109.03');
 const dom=new JSDOM('<!doctype html><html><body></body></html>',{url:'https://ratibtrial.pages.dev/',runScripts:'outside-only'});
 const w=dom.window;
 w.localStorage.setItem('ratib-account-tree-simple-view','0');
@@ -42,4 +42,4 @@ assert(html.includes('function renderChartOfAccounts()'),'existing create/edit a
 assert(html.includes("const CLOUD_FOLDER_NAME = 'Ratib Trial Backups'"),'trial backup isolation unchanged');
 for(const [name,src] of [['simple',simple],['interactive',tree]])assert.doesNotThrow(()=>new Function(src),name+' module must parse');
 dom.window.close();
-console.log('PASS trial 3.6.109.02: one simplified account tree, every account accessible, legacy financial storage intact');
+console.log('PASS trial 3.6.109.03: one simplified account tree, every account accessible, legacy financial storage intact');

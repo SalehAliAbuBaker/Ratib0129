@@ -6,7 +6,7 @@
  const ID='ratibInteractiveAccountsTree';
  let root=null, mount=null, shell=null,treeBox=null,detailsBox=null,detailsPanel=null,statsBox=null,searchBox=null,filterBox=null;
  let model=[],nodes=new Map(),selected='',openNodes=new Set(),lastQuery='',lastFilter='all',initialized=false,ready=false;
- let simpleView=true,simpleOpenNodes=new Set(['simple:cash','simple:cashbox','simple:bank']);
+ let simpleView=true,simpleOpenNodes=new Set(); // Five primary folders closed on first entry.
  const SIMPLE_KEY='ratib-account-tree-simple-view';
  // One simplified presentation for every user, including old '0' preferences.
  function norm(s){return String(s==null?'':s).normalize('NFKC').replace(/[\u064b-\u065f\u0670]/g,'').trim().toLocaleLowerCase('ar');}
@@ -169,7 +169,6 @@
    {key:'suppliers',title:'أموال عليّ للآخرين',children:[['suppliers',null]]},
    {key:'income',title:'الدخل والإيرادات',children:[['income',null]]},
    {key:'expenses',title:'المصروفات',children:[['expenses',null]]},
-   {key:'other',title:'حسابات أخرى',children:[['other',null]]}
   ];
   let html='';
   for(const config of configs){
@@ -199,7 +198,15 @@
    }
    html+='</div>';
   }
-  return html||'<div class="rit-empty">لا توجد حسابات تطابق البحث. جرّب اسمًا أو رقمًا آخر.</div>';
+  // Nonstandard accounts are retained; show an unobtrusive expandable section,
+  // rather than a sixth primary category. Search matches open it automatically.
+  const extras=buckets.other||[];
+  const filteredExtra=!q?extras:extras.filter(n=>accountWords(n.name+' '+n.code,q));
+  if(filteredExtra.length){
+    html+='<details class="rit-extra-accounts-entry"'+(q?' open':'')+'><summary>حسابات أخرى ('+filteredExtra.length+')</summary>'+
+      '<div class="rit-simple-accounts">'+filteredExtra.map(simpleNode).join('')+'</div></details>';
+  }
+  return html||'<div class="rit-empty">لا توجد حسابات تطابق البحث. جرّب اسمًا أو رقمًا مختلفًا.</div>';
  }
  function syncViewControls(){
   simpleView=true;mount.classList.add('rit-simple-mode');
@@ -360,7 +367,7 @@
   if(accountsLabel)accountsLabel.textContent='الحسابات';
   mount=document.createElement('section');mount.id=ID;mount.setAttribute('aria-label','شجرة الحسابات');
   mount.innerHTML=
-   '<div class="rit-shell"><div class="rit-head"><div><h2>شجرة الحسابات المبسطة</h2><small>كل الحسابات والأرصدة في مجموعات واضحة دون تغيير بياناتها</small></div><div class="rit-head-actions"><button type="button" class="rit-btn rit-primary" data-rit="add">＋ حساب جديد</button></div></div>'+
+   '<div class="rit-shell"><div class="rit-head"><div><h2>شجرة الحسابات المبسطة</h2><small>خمس مجموعات رئيسية مطوية، اضغط للتوسيع ثم اختر الحساب لعرض رصيده</small></div><div class="rit-head-actions"><button type="button" class="rit-btn rit-primary" data-rit="add">＋ حساب جديد</button></div></div>'+
    '<div class="rit-stats"></div><div class="rit-workspace"><div class="rit-panel"><div class="rit-panel-head"><b>الحسابات</b><div><button type="button" class="rit-btn rit-advanced-only" data-rit="expand">توسيع الكل</button><button type="button" class="rit-btn rit-advanced-only" data-rit="collapse">طي الكل</button></div></div>'+
    '<div class="rit-filter"><input type="search" class="rit-search" placeholder="ابحث بالاسم أو رقم الحساب..." aria-label="البحث في الشجرة"><select class="rit-kind rit-advanced-only" aria-label="تصفية نوع الحساب"><option value="all">كل الحسابات</option><option value="detail">حسابات حركة</option><option value="group">حسابات تجميعية</option></select><small class="rit-mobile-hint">اضغط على اسم الحساب لعرض تفاصيله، وعلى السهم للطي والتوسيع.</small></div>'+
    '<div class="rit-tree"></div><div class="rit-panel-foot"><button type="button" class="rit-btn" data-rit="reset">إعادة ضبط العرض</button><button type="button" class="rit-btn" data-rit="refresh">تحديث الأرصدة</button></div></div>'+
@@ -388,10 +395,17 @@
    }
   });
   window.addEventListener('resize',()=>{if(!onMobile())dismissDetails(false);},{passive:true});
-  // Refresh as account settings are opened or the canonical catalog is repainted.
+  // Returning to account administration starts with five closed primary groups.
+  // Do not discard user expansion on ordinary balance/catalog refreshes.
+  let wasSectionOpen=root.classList.contains('open');
   new MutationObserver(function(){
-   if(!root.classList.contains('open'))dismissDetails(false);
-   else if(root.classList.contains('rit-mode'))refresh();
+   const nowOpen=root.classList.contains('open');
+   if(!nowOpen)dismissDetails(false);
+   if(nowOpen&&!wasSectionOpen){
+    simpleOpenNodes.clear();selected='';dismissDetails(false);
+    if(root.classList.contains('rit-mode'))refresh();
+   }
+   wasSectionOpen=nowOpen;
   }).observe(root,{attributes:true,attributeFilter:['class']});
   if(canonicalChart)new MutationObserver(function(){
    if(root.classList.contains('rit-mode'))refresh();
@@ -400,7 +414,7 @@
  }
  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',install,{once:true});else install();
  window.addEventListener('ratib:account-view-change',()=>{
-  simpleView=true;
+  simpleView=true;simpleOpenNodes.clear();selected='';
   if(ready){dismissDetails(false);renderView();}
  });
  window.addEventListener('storage',event=>{

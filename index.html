@@ -11,6 +11,16 @@
   z-index:3;touch-action:manipulation
 }
 </style>
+<style id="ratib-quick-entry-trial">
+#dashboardHomeContent .ratib-quick-entry{margin:8px 0 15px}
+#dashboardHomeContent .ratib-quick-entry-label{font-size:.94rem;font-weight:700;margin:0 2px 9px;color:var(--muted)}
+#dashboardHomeContent .ratib-quick-entry-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+#dashboardHomeContent .ratib-quick-entry-grid button{min-width:0;min-height:45px;padding:9px 6px;border:1.5px solid var(--border);border-radius:11px;background:var(--card);color:var(--text);font:inherit;font-size:.9rem;font-weight:700;cursor:pointer;box-shadow:var(--shadow)}
+#dashboardHomeContent .ratib-quick-entry-grid button:hover,#dashboardHomeContent .ratib-quick-entry-grid button:focus-visible{border-color:var(--accent);outline-offset:2px}
+#dashboardHomeContent .ratib-quick-entry-grid button:active{transform:scale(.98)}
+@media(max-width:400px){#dashboardHomeContent .ratib-quick-entry-grid{gap:5px}#dashboardHomeContent .ratib-quick-entry-grid button{font-size:.81rem;padding:7px 3px}}
+@media print{#dashboardHomeContent .ratib-quick-entry{display:none!important}}
+</style>
 <style id="ratib-compact-actions-style">
 /* Ratib: three-action account statement toolbar, with all secondary actions preserved. */
 #pageAccountOperations .account-operations-screen-head{overflow:visible!important;z-index:30}
@@ -1006,7 +1016,7 @@ body.ratib-sidebar-open,body.ratib-about-open{overflow:hidden}
 .report-actions .btn{width:auto;flex:0 1 auto}
 @media screen{#pageReports .report-actions:not(.ratib-output-toolbar){display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}#pageReports .report-actions:not(.ratib-output-toolbar) .btn{width:100%;min-width:0;white-space:normal;flex:none}#accountStatementCard>h2>span:last-child{display:grid!important;grid-template-columns:repeat(2,46px)!important;gap:8px!important;align-items:center!important;justify-content:start!important}#accountStatementCard>h2>span:last-child>.icon-btn{width:46px!important;height:46px!important;margin:0!important}}
 @media(max-width:700px){.report-actions .btn{flex:1 1 95px}}
-</style><script src="./vendor/xlsx.full.min.js"></script>
+</style><!-- Excel loads on demand; available offline through APP_SHELL. -->
 <style id="ratib-approved-voucher-style">
 @media screen {
  #multiVoucherCard.spend-voucher{border:0;background:#f8fafc;max-width:720px;margin:auto;padding:12px!important;border-radius:16px}
@@ -1676,6 +1686,15 @@ body.ratib-sidebar-open,body.ratib-about-open{overflow:hidden}
   
   <div id="pageDashboard" class="">
     <div id="dashboardHomeContent">
+
+      <section class="ratib-quick-entry no-print" aria-label="إدخال سريع">
+        <h2 class="ratib-quick-entry-label">ابدأ بسرعة</h2>
+        <div class="ratib-quick-entry-grid">
+          <button type="button" onclick="navigateToTab('pageExpenses',true);selectVoucherTypeDirect('spend')">سند قبض / صرف</button>
+          <button type="button" onclick="navigateToTab('pageExpenses',true);selectVoucherTypeDirect('entry')">قيد بسيط</button>
+          <button type="button" onclick="navigateToTab('pageExpenses',true);selectMultiVoucherType()">قيد مركب</button>
+        </div>
+      </section>
 
       <div class="main-menu-grid no-print" aria-label="الأقسام الرئيسية">
         <button class="main-menu-btn" onclick="navigateToTab('pageExpenses', true)">
@@ -9150,6 +9169,13 @@ function loadLocalScript(src){
   _scriptLoads.set(src,p);return p;
 }
 
+async function ensureSpreadsheet(){
+  if(typeof XLSX!=='undefined')return;
+  await loadLocalScript('./vendor/xlsx.full.min.js');
+  if(typeof XLSX==='undefined')throw Error('تعذر تشغيل أدوات Excel. أعد فتح البرنامج وحاول مرة أخرى.');
+}
+window.ratibEnsureSpreadsheet=ensureSpreadsheet;
+
 async function ensureCharts(){
   if(typeof Chart==='undefined')await loadLocalScript('./vendor/chart.umd.min.js');
   if(typeof ChartDataLabels==='undefined')await loadLocalScript('./vendor/chartjs-plugin-datalabels.min.js');
@@ -11165,7 +11191,7 @@ function* renderTrialPdfPages(model){
 
 function downloadFinancialFile(blob,name){const url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(url),2000);}
 
-function exportTrialExcel(){try{const model=trialBuildModel(getAllTransactions(),trialFilters()),rows=[['راتب — ميزان المراجعة'],...trialFilterCaption(model.filters).map(s=>[s]),['فحص توازن المستندات بالتقييم المحفوظ',model.documentProof.balanced+' / '+model.documentProof.checked],['أطراف تحتاج تحويلًا للمعادل',model.documentProof.missingLegs],['حالة إجمالي المعادل',model.filters.mode==='paired'?trialBalanceComponentStatus(model).replaceAll('غير مكتمل','تقييم ناقص'):trialBalanceComponentStatus(model)],...(['dual','equivalent','paired'].includes(model.filters.mode)?trialBalanceBreakdownText(model).map(x=>[x]):[]),[],trialReportLabels(model),...trialReportRows(model).map(r=>r.values.map((v,i)=>i>2&&v!==''&&v!=='غير متاح'&&v!=='غير مكتمل'&&v!=='—'&&/^-?[\d,.]+$/.test(String(v))?Number(String(v).replace(/,/g,'')):v)),[],...model.totals.map(t=>['فرق '+t.currency,t.difference]),...model.warnings.map(w=>[w])];const sheet=XLSX.utils.aoa_to_sheet(rows),book=XLSX.utils.book_new();sheet['!cols']=model.filters.mode==='paired'?[{wch:15},{wch:38},{wch:16},{wch:21},{wch:21},{wch:21},{wch:21}]:[{wch:15},{wch:32},{wch:12},...trialColumns(model.filters).map(()=>({wch:20}))];book.Workbook={Views:[{RTL:true}]};XLSX.utils.book_append_sheet(book,sheet,'ميزان المراجعة');downloadFinancialFile(new Blob([XLSX.write(book,{bookType:'xlsx',type:'array'})],{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'}),'راتب-ميزان-المراجعة.xlsx');}catch(e){showToast('تعذر تصدير Excel: '+e.message,'error');}}
+async function exportTrialExcel(){try{await ensureSpreadsheet();const model=trialBuildModel(getAllTransactions(),trialFilters()),rows=[['راتب — ميزان المراجعة'],...trialFilterCaption(model.filters).map(s=>[s]),['فحص توازن المستندات بالتقييم المحفوظ',model.documentProof.balanced+' / '+model.documentProof.checked],['أطراف تحتاج تحويلًا للمعادل',model.documentProof.missingLegs],['حالة إجمالي المعادل',model.filters.mode==='paired'?trialBalanceComponentStatus(model).replaceAll('غير مكتمل','تقييم ناقص'):trialBalanceComponentStatus(model)],...(['dual','equivalent','paired'].includes(model.filters.mode)?trialBalanceBreakdownText(model).map(x=>[x]):[]),[],trialReportLabels(model),...trialReportRows(model).map(r=>r.values.map((v,i)=>i>2&&v!==''&&v!=='غير متاح'&&v!=='غير مكتمل'&&v!=='—'&&/^-?[\d,.]+$/.test(String(v))?Number(String(v).replace(/,/g,'')):v)),[],...model.totals.map(t=>['فرق '+t.currency,t.difference]),...model.warnings.map(w=>[w])];const sheet=XLSX.utils.aoa_to_sheet(rows),book=XLSX.utils.book_new();sheet['!cols']=model.filters.mode==='paired'?[{wch:15},{wch:38},{wch:16},{wch:21},{wch:21},{wch:21},{wch:21}]:[{wch:15},{wch:32},{wch:12},...trialColumns(model.filters).map(()=>({wch:20}))];book.Workbook={Views:[{RTL:true}]};XLSX.utils.book_append_sheet(book,sheet,'ميزان المراجعة');downloadFinancialFile(new Blob([XLSX.write(book,{bookType:'xlsx',type:'array'})],{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'}),'راتب-ميزان-المراجعة.xlsx');}catch(e){showToast('تعذر تصدير Excel: '+e.message,'error');}}
 
 function initTrialMulticurrency(){const card=document.getElementById('trialBalanceCard'),existing=card.querySelector('h2');const description=existing.nextElementSibling;if(description?.tagName==='P')description.textContent='يعرض الأرصدة الافتتاحية وحركة الفترة والأرصدة الختامية حسب المرشحات، مع فصل العملات وإظهار المعادل المتاح.';existing.querySelector('#printTrialBalanceBtn')?.remove();existing.querySelector('#shareTrialBalancePdfBtn')?.remove();const block=document.createElement('div');block.innerHTML=`<div class="report-actions no-print"><button type="button" class="btn btn-ghost" id="trialPreviewBtn">معاينة</button><button type="button" class="btn btn-ghost" id="printTrialBalanceBtn">طباعة</button><button type="button" class="btn btn-ghost" id="shareTrialBalancePdfBtn">تصدير PDF</button><button type="button" class="btn btn-primary" id="trialExcelBtn">تصدير Excel</button></div><div class="trial-filters no-print"><label>من تاريخ<input type="date" id="trialFrom"></label><label>إلى تاريخ<input type="date" id="trialTo"></label><label>مركز التكلفة<select id="trialCostCenter"></select></label><label>المشروع<select id="trialProject"></select></label><label>بند الميزانية<select id="trialBudget"></select></label><label>العملة الأساسية للعرض<select id="trialBase"></select></label><label>طريقة معادلة العملات<select id="trialFxMethod"><option value="entry">حسب قيم الإدخال المحفوظة في السندات</option><option value="approved" selected>حسب الإدخال ثم أسعار التقييم المعتمدة عند الحاجة</option></select></label><label>طريقة عرض العملات<select id="trialMode"><option value="paired" selected>الأصلية ومعادلها اليمني — النموذج الموحد</option><option value="original">جميع العملات الأصلية</option><option value="specific">عملة محددة</option><option value="equivalent">المعادل بالعملة الأساسية</option><option value="dual">الأصلية والمعادل</option></select></label><label>طريقة عرض التقرير<select id="trialPresentationMode" aria-label="طريقة عرض التقرير"><option value="brief" selected>مختصر — الخلاصة فقط</option><option value="detailed">تفصيلي — كافة الفحوص</option></select></label><label>مستوى الحسابات<select id="trialLevel"><option value="">جميع الحسابات</option><option value="1">التصنيف الرئيسي</option><option value="2">المجموعة</option><option value="3">المجموعة الفرعية</option><option value="4">الحساب التفصيلي</option></select></label><label id="trialCurrencyField" class="hidden">العملة المحددة<select id="trialCurrency"></select></label><label><span>اختصار أعمدة الأرصدة</span><input type="checkbox" id="trialCompact"></label></div>`;existing.after(block);document.getElementById('trialFrom').value=monthKey()+'-01';document.getElementById('trialTo').value=getLocalTodayISO();refreshTrialDimensions();document.getElementById('trialBase').value=getRatibBaseCurrency();if(getRatibBaseCurrency()!=='YER')document.getElementById('trialMode').value='dual';document.getElementById('trialBase').disabled=document.getElementById('trialMode').value==='paired';document.getElementById('trialBudget').value='general';block.querySelectorAll('input,select').forEach(el=>el.onchange=runTrialBalanceReport);document.getElementById('trialPreviewBtn').onclick=trialPreview;document.getElementById('printTrialBalanceBtn').onclick=printTrialReport;document.getElementById('shareTrialBalancePdfBtn').onclick=shareTrialBalancePdf;document.getElementById('trialExcelBtn').onclick=exportTrialExcel;document.getElementById('trialPreviewClose').onclick=closeTrialPreview;window.addEventListener('afterprint',()=>document.body.classList.remove('trial-printing'));}
 
@@ -11228,6 +11254,7 @@ function externalRenderRates(){const state=externalImportState,index=state.mappi
 
 async function readExternalImportFile(file){if(file.size>20*1024*1024)throw Error('ملف الاستيراد كبير جدًا.');const text=await file.text();if(/\.json$/i.test(file.name)||text.trim().startsWith('{'))return false;
   if(!/\.(xlsx|xls|csv|tsv)$/i.test(file.name))throw Error('الملفات المدعومة: XLSX وXLS وCSV وTSV وJSON المهيّأ لراتب. PDF يحتاج تحليلًا مساعدًا مستقلًا.');
+  await ensureSpreadsheet();
   const csv=/\.(csv|tsv)$/i.test(file.name),book=XLSX.read(csv?text:await file.arrayBuffer(),{type:csv?'string':'array',raw:csv,cellDates:false,cellFormula:true,cellNF:true,sheetRows:50002});if(!book.SheetNames.length)throw Error('لا توجد أوراق بيانات.');externalImportState={book,rows:[],headers:[],mapping:[],dataRows:[],fileName:file.name,rates:{},active:true};document.getElementById('externalImportSection').classList.remove('hidden');document.getElementById('externalSheet').innerHTML=book.SheetNames.map(s=>`<option>${esc(s)}</option>`).join('');document.getElementById('externalSourceName').value=file.name.replace(/\.[^.]+$/,'');externalChooseSheet();return true;
 }
 
@@ -11247,7 +11274,7 @@ function previewOpeningImport(){try{const rows=externalOpeningRows();const modal
 
 function printOpeningImport(){try{externalOpeningRows();document.getElementById('trialPrintHost').innerHTML=document.getElementById('trialPreviewContent').innerHTML;printRatibDocument('trial-printing');}catch(e){showToast(e.message,'warn');}}
 
-function exportOpeningImport(kind){try{const rows=externalOpeningRows(),labels=['الحساب','العملة','مدين أصلي','دائن أصلي','عملة التقييم','مدين تقييم','دائن تقييم'];if(kind==='pdf')downloadFinancialFile(buildPdfFromCanvases(renderPagedReportTable('راتب — معاينة القيد الافتتاحي',document.getElementById('legacyImportCutoff').value,labels,[250,80,160,160,110,170,170],rows)),'راتب-معاينة-القيد-الافتتاحي.pdf');else{const book=XLSX.utils.book_new(),sheet=XLSX.utils.aoa_to_sheet([['راتب — معاينة قبل الاعتماد'],['تاريخ القطع',document.getElementById('legacyImportCutoff').value],labels,...rows]);XLSX.utils.book_append_sheet(book,sheet,'القيد الافتتاحي');downloadFinancialFile(new Blob([XLSX.write(book,{bookType:'xlsx',type:'array'})]),'راتب-معاينة-القيد-الافتتاحي.xlsx');}}catch(e){showToast(e.message,'warn');}}
+async function exportOpeningImport(kind){try{if(kind!=='pdf')await ensureSpreadsheet();const rows=externalOpeningRows(),labels=['الحساب','العملة','مدين أصلي','دائن أصلي','عملة التقييم','مدين تقييم','دائن تقييم'];if(kind==='pdf')downloadFinancialFile(buildPdfFromCanvases(renderPagedReportTable('راتب — معاينة القيد الافتتاحي',document.getElementById('legacyImportCutoff').value,labels,[250,80,160,160,110,170,170],rows)),'راتب-معاينة-القيد-الافتتاحي.pdf');else{const book=XLSX.utils.book_new(),sheet=XLSX.utils.aoa_to_sheet([['راتب — معاينة قبل الاعتماد'],['تاريخ القطع',document.getElementById('legacyImportCutoff').value],labels,...rows]);XLSX.utils.book_append_sheet(book,sheet,'القيد الافتتاحي');downloadFinancialFile(new Blob([XLSX.write(book,{bookType:'xlsx',type:'array'})]),'راتب-معاينة-القيد-الافتتاحي.xlsx');}}catch(e){showToast(e.message,'warn');}}
 
 function initExternalImport(){const section=document.getElementById('externalImportSection'),input=document.getElementById('legacyImportFile'),jsonHandler=input.onchange;input.accept='.json,.xlsx,.xls,.csv,.tsv';document.getElementById('legacyImportCutoff').value=getLocalTodayISO();
   input.onchange=async e=>{if(legacyImportState.busy)return;const file=e.target.files?.[0];if(!file)return;section.classList.add('hidden');externalImportState.active=false;legacyImportState.payload=null;resetExternalImportApproval();try{if(!await readExternalImportFile(file))await jsonHandler(e);}catch(error){document.getElementById('legacyImportError').textContent=error.message;}};

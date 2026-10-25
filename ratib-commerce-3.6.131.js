@@ -341,7 +341,7 @@ async function productOutput(action,productId=''){
   else await shareRatibDocumentFile(new File([pdf],filename,{type:'application/pdf'}),'راتب — '+(selected?'بطاقة الصنف '+selected.name:'دليل الأصناف'));
   return;
  }
- if(action==='export'||action==='template'){if(typeof XLSX==='undefined')throw Error('مكتبة Excel غير متاحة.');const rows=action==='template'?[]:productRows(db);const sheet=XLSX.utils.aoa_to_sheet([['رقم الصنف','اسم الصنف','المجموعة','الوحدة الرئيسية','الوحدة الفرعية','سعر البيع YER','حد التنبيه'],...rows]);sheet['!cols']=[12,38,25,19,19,20,16].map(wch=>({wch}));const book=XLSX.utils.book_new();XLSX.utils.book_append_sheet(book,sheet,'الأصناف');XLSX.writeFile(book,action==='template'?'نموذج-استيراد-أصناف-راتب.xlsx':'راتب-دليل-الأصناف.xlsx',{compression:true});return;}
+ if(action==='export'||action==='template'){await window.ratibEnsureSpreadsheet?.();if(typeof XLSX==='undefined')throw Error('مكتبة Excel غير متاحة.');const rows=action==='template'?[]:productRows(db);const sheet=XLSX.utils.aoa_to_sheet([['رقم الصنف','اسم الصنف','المجموعة','الوحدة الرئيسية','الوحدة الفرعية','سعر البيع YER','حد التنبيه'],...rows]);sheet['!cols']=[12,38,25,19,19,20,16].map(wch=>({wch}));const book=XLSX.utils.book_new();XLSX.utils.book_append_sheet(book,sheet,'الأصناف');XLSX.writeFile(book,action==='template'?'نموذج-استيراد-أصناف-راتب.xlsx':'راتب-دليل-الأصناف.xlsx',{compression:true});return;}
  if(action==='import'){$('rc-import-file')?.click();return;}
 }
 
@@ -357,7 +357,8 @@ function stageProducts(rows,db){if(!Array.isArray(rows)||rows.length===0)throw E
  seen.add(sku);out.push({id:id(),sku,name,group,unitMain:main,unitSub:sub,unit:main,price:p,minimum:m});
  }if(!out.length)throw Error('لا توجد أصناف صالحة للاستيراد.');return out;
 }
-function stageImportFile(file){if(!file)return;const reader=new FileReader();reader.onerror=()=>notify('تعذر قراءة ملف Excel','error');reader.onload=()=>{try{
+function stageImportFile(file){if(!file)return;const reader=new FileReader();reader.onerror=()=>notify('تعذر قراءة ملف Excel','error');reader.onload=async()=>{try{
+ await window.ratibEnsureSpreadsheet?.();
  if(typeof XLSX==='undefined')throw Error('مكتبة Excel غير متاحة.');const wb=XLSX.read(reader.result,{type:'array'}),ws=wb.Sheets[wb.SheetNames[0]];
  if(!ws)throw Error('لا توجد ورقة Excel صالحة.');
  const rows=XLSX.utils.sheet_to_json(ws,{header:1,defval:'',raw:false});

@@ -161,3 +161,13 @@
  #ratibCashPulse .ratib-pulse-val strong{font-size:clamp(.72rem,3.35vw,.92rem)!important}
  #ratibCashPulse .ratib-pulse-center strong{font-size:clamp(.81rem,3.5vw,1rem)!important}
 }
+
+/* Size and SVG fill defenses for the trial Cash Pulse, including the gold theme. */
+@media screen {
+ #ratibCashPulse .ratib-pulse-circle-wrap{width:min(188px,100%)!important;height:auto!important;max-width:188px!important;aspect-ratio:1/1!important;overflow:hidden!important}
+ #ratibCashPulse svg.ratib-pulse-ring{display:block!important;box-sizing:border-box!important;width:100%!important;height:100%!important;max-width:188px!important;max-height:188px!important;background:transparent!important;overflow:hidden!important}
+ #ratibCashPulse svg.ratib-pulse-ring circle{fill:none!important;fill-opacity:0!important;stroke-width:16px!important}
+}
+@media screen and (max-width:600px){
+ #ratibCashPulse .ratib-pulse-circle-wrap{width:min(176px,58vw)!important;max-width:176px!important}
+}

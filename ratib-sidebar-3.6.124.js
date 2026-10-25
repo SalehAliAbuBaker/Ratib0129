@@ -260,7 +260,7 @@ function ratibTrialVersion(){
 }
 function syncSidebarVersion(){
  const v=ratibTrialVersion();if(!/^\d+\.\d+\.\d+$/.test(v))return;
- const label='الإصدار '+v+' (تجريبية)';
+ const label='الإصدار '+v;
  const footer=$('sidebarCurrentVersion');if(footer)footer.textContent=label;
  const header=$('appVersionLabel');if(header)header.textContent=label;
  const about=document.querySelector('.ratib-about-version');if(about)about.textContent=label;

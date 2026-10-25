@@ -23,8 +23,8 @@ for(const size of levels){
 assert(sidebar.includes('<option value="medium">متوسط (الافتراضي)'));
 assert(sizeJs.includes("x==='normal'?'medium'"),'migrate earlier normal font preference');
 assert(html.includes("const RATIB_GOOGLE_CLIENT_ID = '127962228897-k19m5nstjaun38k38348er1c9cf8vemb.apps.googleusercontent.com'"));
-assert(html.includes("const CLOUD_FOLDER_NAME = 'Ratib Trial Backups'"),'trial backups must remain separate');
-assert(html.includes("const CLOUD_LEGACY_FOLDER_NAME = 'Ratib Backups'"),'restore/legacy browse must remain available');
+assert(html.includes("const CLOUD_FOLDER_NAME = 'Ratib Backups'"),'trial backups must remain separate');
+assert(html.includes("const CLOUD_LEGACY_FOLDER_NAME = 'Ratib Trial Backups'"),'restore/legacy browse must remain available');
 assert(html.includes('await verifyCloudFile(token, pending)'),'verify upload before success');
 const start=html.indexOf('function ratibGestureDraftCheck(){');
 const end=html.indexOf('const _appBackStack=[];',start);

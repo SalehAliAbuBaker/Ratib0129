@@ -58,7 +58,7 @@ addChoice('legacy-import','استيراد من نظام آخر','📥',()=>docum
 addChoice('import-management','إدارة الحسابات والأرصدة المستوردة','📁',()=>{
  const launcher=[...document.querySelectorAll('#pageSettings button')].find(b=>b.textContent.trim()==='إدارة الحسابات المستوردة');launcher?.click();
 });
-// Trial 3.6.109.01: commerce favorites retired, saved accounting records are unchanged.
+// Trial 3.6.109.02: commerce and reminder favorites retired, saved accounting records are unchanged.
 const settingsCatalog=[
  ['tree','إدارة شجرة الحسابات والأسقف'],
  ['budget','إدارة بنود الميزانية / التكاليف'],
@@ -71,7 +71,7 @@ const settingsCatalog=[
  ['backupsettings','النسخ الاحتياطي'],
  ['favorites','مفضلتي'],
  ['voice','الإدخال الصوتي'],
- ['sound','أصوات التنبيهات والتذكيرات']
+ ['sound','أصوات حفظ المستندات والتنبيهات']
 ];
 for(const [key,label] of settingsCatalog)addChoice('settings:'+key,label,'⚙️',async()=>{
  if(typeof window.RatibSettingsOpen==='function'){window.RatibSettingsOpen(key);return;}

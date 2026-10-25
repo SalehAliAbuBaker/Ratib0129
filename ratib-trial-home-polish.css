@@ -1,190 +1,116 @@
-/* Trial-only Ratib Al-Muyassar: equal home actions, centered green favorites,
-   compact account management tree. Never applies to accounting printouts. */
+/* Ratib Al-Muyassar — trial-only responsive navigation, native green favorites.
+   Account and printing calculations deliberately left untouched. */
 @media screen {
-  #mainWrap > header .logo > span::before,
-  #mainWrap > header .logo > span::after { content:none!important; display:none!important }
-  #mainWrap > header .logo > span { font-size:inherit!important; display:flex!important; flex-direction:column!important; line-height:1.2!important; gap:3px; }
-  #mainWrap > header .logo > span > strong { color:var(--accent-strong); font-weight:850;font-size:clamp(1.12rem,3.7vw,1.5rem); }
-  #mainWrap > header .logo > span > small { color:var(--muted);font-size:.76rem;font-weight:600; }
-
-  /* All five voucher categories stay in one aligned row, including on phones. */
-  #dashboardHomeContent .ratib-quick-entry-grid {
-    display:grid!important;
-    grid-template-columns:repeat(5,minmax(0,1fr))!important;
-    grid-template-rows:minmax(69px,auto)!important;
-    gap:9px!important;
-    overflow:visible!important;
-  }
-  #dashboardHomeContent .ratib-quick-entry-grid > button {
-    width:100%!important;
-    height:100%!important;
-    min-width:0!important;
-    min-height:69px!important;
-    padding:9px 5px!important;
-    display:flex!important;
-    flex-direction:column!important;
-    align-items:center!important;
-    justify-content:center!important;
-    gap:6px!important;
-    font-weight:750!important;
-    font-size:clamp(.75rem,1.4vw,.94rem)!important;
-    line-height:1.35!important;
-    white-space:normal!important;
-    text-align:center!important;
-    border:1px solid var(--border)!important;
-    border-radius:13px!important;
-    background:var(--card)!important;
-    color:var(--text)!important;
-    transition:background .15s,border-color .15s,transform .15s;
-    overflow-wrap:anywhere;
-  }
-  #dashboardHomeContent .ratib-quick-entry-grid > button:is(:hover,:focus-visible) {
-    border-color:var(--accent)!important;
-    background:color-mix(in srgb,var(--accent) 7%,var(--card))!important;
-  }
-  #dashboardHomeContent .ratib-quick-entry-grid .ratib-quick-voucher-icon{
-    display:inline-flex;align-items:center;justify-content:center;
-    width:25px;height:25px;flex:0 0 25px;color:var(--accent-strong);
-  }
-  #dashboardHomeContent .ratib-quick-entry-grid .ratib-quick-voucher-icon svg{
-    width:25px;height:25px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;
-  }
-  /* 4 original departments + favorites card = 5 identical grid cells. */
-  #dashboardHomeContent .main-menu-grid.ratib-favorites-cross,
-  #dashboardHomeContent .main-menu-grid.ratib-approved-home-row {
-    display:grid!important;
-    grid-template-columns:repeat(5,minmax(0,1fr))!important;
-    grid-template-areas:none!important;
-    grid-auto-rows:minmax(112px,auto);
-    direction:rtl!important;
-    align-items:stretch!important;
-    gap:12px!important;
-    overflow:visible!important;
-    position:relative!important;
-  }
-  #dashboardHomeContent .main-menu-grid > :is(.main-menu-btn,#ratibCenterFavorites){
-    grid-area:auto!important;
-    grid-column:auto!important;
-    grid-row:auto!important;
-    position:relative!important;
-    left:auto!important;top:auto!important;
-    transform:none!important;
-    width:100%!important;height:100%!important;
-    min-width:0!important;max-width:none!important;
-    min-height:112px!important;
-    margin:0!important;
-    display:flex!important;flex-direction:column!important;
-    justify-content:center!important;align-items:center!important;
-    text-align:center!important;gap:9px!important;
-    padding:12px 6px!important;
-    border-radius:14px!important;
-    border:1px solid var(--border)!important;
-    background:var(--card)!important;
-    color:var(--text)!important;
-    box-shadow:0 3px 10px rgba(86,60,17,.06)!important;
-    white-space:normal!important;
-    font:750 clamp(.82rem,1.55vw,1rem)/1.35 Tajawal,system-ui,sans-serif!important;
-    overflow-wrap:anywhere;
-  }
-  #dashboardHomeContent .main-menu-grid .main-menu-icon{
-    display:grid!important;place-items:center!important;
-    width:31px!important;height:31px!important;
-    font-size:1.45rem!important;color:var(--accent-strong)!important;
-  }
-  #dashboardHomeContent .main-menu-grid .main-menu-icon svg,
-  #dashboardHomeContent .main-menu-grid .ratib-center-fav-icon svg{
-    width:29px!important;height:29px!important;
-    stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;
-  }
-  /* The favorite is green by design, not an old-theme residue. */
-  #dashboardHomeContent .main-menu-grid #ratibCenterFavorites {
-    border:2px solid #0B6046!important;
-    color:#0B6046!important;
-    background:color-mix(in srgb,#0B6046 5%,var(--card))!important;
-    z-index:2!important;
-    cursor:pointer!important;
-  }
-  #dashboardHomeContent .main-menu-grid #ratibCenterFavorites:is(:hover,:focus-visible),
-  #dashboardHomeContent .main-menu-grid #ratibCenterFavorites[aria-expanded="true"]{
-    background:color-mix(in srgb,#0B6046 13%,var(--card))!important;
-  }
-  #dashboardHomeContent #ratibCenterFavorites .ratib-center-fav-icon{
-    display:inline-flex;align-items:center;justify-content:center;height:31px;width:31px;flex:none;
-  }
-  #dashboardHomeContent #ratibCenterFavorites .ratib-center-fav-label{
-    font-size:inherit;font-weight:800;line-height:1.3;
-  }
-  #dashboardHomeContent #ratibCenterFavoritesMenu {
-    position:absolute!important;
-    top:calc(100% + 8px)!important;
-    left:50%!important;
-    transform:translateX(-50%)!important;
-    right:auto!important;
-    margin:0!important;
-    width:min(320px,calc(100vw - 32px))!important;
-    max-height:min(55vh,420px)!important;
-    z-index:999!important;
-    border-color:var(--border)!important;
-  }
-  [data-theme="dark"] #dashboardHomeContent #ratibCenterFavorites {
-    color:#80D8AD!important;border-color:#42A87B!important;background:#0B604622!important;
-  }
-  [data-theme="dark"] #dashboardHomeContent #ratibCenterFavorites .ratib-center-fav-icon{color:#80D8AD!important;}
-
-  /* Account tree: no balance, debit or credit amounts until an account is opened. */
-  #ratibInteractiveAccountsTree .rit-tree .rit-node-balance,
-  #ratibInteractiveAccountsTree .rit-tree .rit-simple-group-balance{
-    display:none!important;
-  }
-  #ratibInteractiveAccountsTree .rit-tree .rit-node{
-    flex-wrap:nowrap!important;min-height:47px!important;padding:4px 8px!important;
-  }
-  #ratibInteractiveAccountsTree .rit-tree .rit-node-main{
-    flex:1 1 auto!important;width:100%!important;min-width:0!important;min-height:43px!important;
-  }
-  #ratibInteractiveAccountsTree .rit-tree .rit-simple-group-button{
-    min-height:51px!important;gap:10px!important;
-  }
-  #ratibInteractiveAccountsTree .rit-tree .rit-simple-node .rit-node-label{flex:1 1 auto;}
-  /* Legacy fallback chart follows the same privacy rule. */
-  #pageSettings #chartOfAccountsView .ratib-tree-balances,
-  #pageSettings #liveAccountsTreeView .ratib-tree-balances {
-    display:none!important;
-  }
-  /* Detail panel and ledger are deliberately NOT targeted. */
+ #mainWrap > header .logo > span::before,
+ #mainWrap > header .logo > span::after{content:none!important;display:none!important}
+ #mainWrap > header .logo > span{font-size:inherit!important;display:flex!important;flex-direction:column!important;line-height:1.25!important;gap:3px}
+ #mainWrap > header .logo > span > strong{color:var(--accent-strong);font-weight:850;font-size:clamp(1.13rem,3.6vw,1.5rem)}
+ #mainWrap > header .logo > span > small{color:var(--muted);font-size:.77rem;font-weight:600}
+ #dashboardHomeContent .ratib-quick-entry-grid{
+  display:grid!important;grid-template-columns:repeat(5,minmax(0,1fr))!important;
+  grid-template-rows:auto!important;gap:9px!important;overflow:visible!important
+ }
+ #dashboardHomeContent .ratib-quick-entry-grid > button{
+  width:100%!important;min-width:0!important;min-height:75px!important;height:100%!important;
+  display:flex!important;flex-direction:column!important;align-items:center!important;
+  justify-content:center!important;gap:6px!important;padding:9px 5px!important;
+  font:750 clamp(.77rem,1.4vw,.94rem)/1.35 Tajawal,system-ui,sans-serif!important;
+  white-space:normal!important;text-align:center!important;overflow-wrap:anywhere;
+  border:1px solid var(--border)!important;border-radius:13px!important;
+  background:var(--card)!important;color:var(--text)!important
+ }
+ #dashboardHomeContent .ratib-quick-entry-grid > button:is(:hover,:focus-visible){
+  border-color:var(--accent)!important;background:color-mix(in srgb,var(--accent) 6%,var(--card))!important
+ }
+ #dashboardHomeContent .ratib-quick-voucher-icon{width:24px;height:24px;flex:0 0 24px;display:grid;place-items:center;color:var(--accent-strong)}
+ #dashboardHomeContent .ratib-quick-voucher-icon svg{width:24px;height:24px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+ /* Main departments: four in one desktop row; natural order, no stretched fifth card. */
+ #dashboardHomeContent .main-menu-grid.ratib-favorites-cross{
+  --ratib-home-row-h:112px;--ratib-home-gap:12px;
+  position:relative!important;overflow:visible!important;
+  display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr))!important;
+  grid-template-areas:none!important;grid-auto-rows:var(--ratib-home-row-h)!important;
+  gap:var(--ratib-home-gap)!important;direction:rtl!important;align-items:stretch!important
+ }
+ #dashboardHomeContent .main-menu-grid.ratib-favorites-cross > .main-menu-btn{
+  grid-area:auto!important;grid-column:auto!important;grid-row:auto!important;
+  width:100%!important;height:100%!important;min-width:0!important;min-height:var(--ratib-home-row-h)!important;
+  margin:0!important;display:flex!important;flex-direction:column!important;
+  align-items:center!important;justify-content:center!important;
+  gap:8px!important;padding:10px 7px!important;
+  border:1px solid var(--border)!important;border-radius:14px!important;
+  background:var(--card)!important;color:var(--text)!important;
+  font:750 clamp(.84rem,1.5vw,1rem)/1.3 Tajawal,system-ui,sans-serif!important;
+  text-align:center!important;box-shadow:0 3px 12px rgba(90,62,15,.05)!important
+ }
+ #dashboardHomeContent .main-menu-grid .main-menu-icon{width:30px!important;height:30px!important;display:grid!important;place-items:center!important;color:var(--accent-strong)!important}
+ #dashboardHomeContent .main-menu-grid .main-menu-icon svg{width:29px!important;height:29px!important}
+ /* Preserve original favorite button, shortcut menu, auto-close, and click handlers. */
+ #dashboardHomeContent .main-menu-grid.ratib-favorites-cross > #ratibCenterFavorites{
+  position:absolute!important;left:50%!important;top:calc(var(--ratib-home-row-h) / 2)!important;
+  transform:translate(-50%,-50%)!important;z-index:110!important;
+  display:grid!important;place-items:center!important;
+  width:48px!important;height:48px!important;min-width:48px!important;min-height:48px!important;
+  padding:0!important;margin:0!important;
+  border:2px solid #0B6046!important;border-radius:13px!important;
+  background:var(--card)!important;color:#0B6046!important;
+  box-shadow:0 3px 12px #0003!important;cursor:pointer!important;
+  font:700 23px/1 Tajawal,system-ui,sans-serif!important
+ }
+ #dashboardHomeContent .main-menu-grid.ratib-favorites-cross > #ratibCenterFavorites:is(:hover,:focus-visible),
+ #dashboardHomeContent .main-menu-grid.ratib-favorites-cross > #ratibCenterFavorites[aria-expanded="true"]{
+  background:color-mix(in srgb,#0B6046 10%,var(--card))!important
+ }
+ #dashboardHomeContent .main-menu-grid.ratib-favorites-cross > #ratibCenterFavoritesMenu{
+  position:absolute!important;left:50%!important;
+  top:calc(var(--ratib-home-row-h) / 2 + 28px)!important;
+  transform:translateX(-50%)!important;right:auto!important;
+  width:min(295px,calc(100vw - 32px))!important;z-index:111!important
+ }
+ [data-theme="dark"] #dashboardHomeContent #ratibCenterFavorites{border-color:#58B688!important;color:#95DEB8!important}
+ /* No account amounts, debit, or credit badges in the navigation tree. */
+ #ratibInteractiveAccountsTree .rit-tree .rit-node-balance,
+ #ratibInteractiveAccountsTree .rit-tree .rit-simple-group-balance{display:none!important}
+ #ratibInteractiveAccountsTree .rit-tree .rit-node{flex-wrap:nowrap!important;min-height:47px!important;padding:4px 8px!important}
+ #ratibInteractiveAccountsTree .rit-tree .rit-node-main{flex:1 1 auto!important;min-width:0!important;min-height:43px!important;width:100%!important}
+ #ratibInteractiveAccountsTree .rit-tree .rit-simple-group-button{min-height:53px!important;gap:10px!important}
+ #pageSettings #chartOfAccountsView .ratib-tree-balances,
+ #pageSettings #liveAccountsTreeView .ratib-tree-balances{display:none!important}
+ /* Details and account statements are not affected. */
+ #ratibInteractiveAccountsTree .rit-extra-accounts-entry{margin:10px 0 0;padding:7px 4px;border-top:1px dashed var(--border)}
+ #ratibInteractiveAccountsTree .rit-extra-accounts-entry button{
+  border:1px solid var(--border);border-radius:10px;width:100%;min-height:42px;
+  color:var(--muted);background:var(--card);font:650 .85rem Tajawal,system-ui,sans-serif;text-align:right;padding:8px 12px;cursor:pointer
+ }
+ #ratibInteractiveAccountsTree .rit-extra-accounts-entry .rit-simple-accounts{padding-top:5px}
 }
 @media screen and (max-width:700px) {
-  #dashboardHomeContent .main-menu-grid.ratib-favorites-cross,
-  #dashboardHomeContent .main-menu-grid.ratib-approved-home-row{
-    gap:5px!important;grid-auto-rows:minmax(93px,auto)!important;
-  }
-  #dashboardHomeContent .main-menu-grid > :is(.main-menu-btn,#ratibCenterFavorites){
-    min-height:93px!important;
-    padding:8px 2px!important;
-    gap:6px!important;
-    font-size:clamp(.63rem,2.4vw,.81rem)!important;
-    line-height:1.32!important;
-  }
-  #dashboardHomeContent .main-menu-grid .main-menu-icon,
-  #dashboardHomeContent #ratibCenterFavorites .ratib-center-fav-icon{
-    width:25px!important;height:25px!important;
-  }
-  #dashboardHomeContent .main-menu-grid .main-menu-icon svg,
-  #dashboardHomeContent .main-menu-grid .ratib-center-fav-icon svg{
-    width:24px!important;height:24px!important;
-  }
-  #dashboardHomeContent .ratib-quick-entry-grid{gap:5px!important;grid-template-rows:minmax(72px,auto)!important}
-  #dashboardHomeContent .ratib-quick-entry-grid > button{
-    min-height:72px!important;
-    padding:7px 2px!important;
-    gap:5px!important;
-    font-size:clamp(.62rem,2.35vw,.79rem)!important;
-  }
-  #dashboardHomeContent .ratib-quick-entry-grid .ratib-quick-voucher-icon,
-  #dashboardHomeContent .ratib-quick-entry-grid .ratib-quick-voucher-icon svg{
-    width:23px!important;height:23px!important;
-  }
+ #dashboardHomeContent .ratib-quick-entry-grid{
+  grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  gap:8px!important;grid-template-rows:none!important
+ }
+ #dashboardHomeContent .ratib-quick-entry-grid > button{
+  min-height:77px!important;font-size:clamp(.81rem,3.4vw,.95rem)!important;
+  padding:9px 5px!important
+ }
+ #dashboardHomeContent .ratib-quick-entry-grid > button:last-child:nth-child(odd){
+  grid-column:1/-1!important;justify-self:center!important;
+  width:calc((100% - 8px)/2)!important
+ }
+ #dashboardHomeContent .main-menu-grid.ratib-favorites-cross{
+  --ratib-home-row-h:101px;--ratib-home-gap:11px;
+  grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  grid-template-areas:none!important
+ }
+ #dashboardHomeContent .main-menu-grid.ratib-favorites-cross > .main-menu-btn{
+  min-height:var(--ratib-home-row-h)!important;font-size:clamp(.88rem,3.6vw,1rem)!important
+ }
+ #dashboardHomeContent .main-menu-grid.ratib-favorites-cross > #ratibCenterFavorites{
+  top:calc(var(--ratib-home-row-h) + var(--ratib-home-gap) / 2)!important
+ }
+ #dashboardHomeContent .main-menu-grid.ratib-favorites-cross > #ratibCenterFavoritesMenu{
+  top:calc(var(--ratib-home-row-h) + var(--ratib-home-gap) / 2 + 29px)!important
+ }
+ #dashboardHomeContent .main-menu-grid .main-menu-icon svg{width:27px!important;height:27px!important}
 }
-@media print{
-  #ratibCenterFavorites,#ratibCenterFavoritesMenu{display:none!important}
-}
+@media print{#ratibCenterFavorites,#ratibCenterFavoritesMenu{display:none!important}}

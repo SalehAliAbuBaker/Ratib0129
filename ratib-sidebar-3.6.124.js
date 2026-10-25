@@ -75,6 +75,16 @@ function css(){if($('ratibApprovedSidebarStyle'))return;const e=document.createE
 '#pageSettings.ratib-settings-reordered .ratib-inside-identity{margin:10px 0;border:1px solid var(--border)!important;border-radius:8px;padding:0!important;box-shadow:none!important}',
 '#pageSettings.ratib-settings-reordered .ratib-inside-identity>.settings-accordion-header{padding:10px 12px;min-height:48px;font:900 1rem Tajawal,sans-serif!important}',
 '#pageSettings.ratib-settings-reordered .ratib-inside-identity>.settings-accordion-body{margin:0!important;padding:12px}',
+'.ratib-settings-menu-caption{margin:5px 9px 3px;color:var(--muted);font-size:.86rem;font-weight:800}',
+'.ratib-settings-more-toggle{width:100%;display:flex;align-items:center;justify-content:flex-start;border-top:1px solid var(--border);margin-top:7px}',
+'#pageSettings:not(.ratib-settings-detail)>.ratib-settings-list-hidden{display:none!important}',
+'#pageSettings .ratib-settings-finder{padding:12px;margin:0 0 12px;background:var(--card);border:1px solid var(--border);border-radius:12px}',
+'#pageSettings .ratib-settings-finder label{display:block;font-weight:800;margin-bottom:6px}',
+'#pageSettings .ratib-settings-finder input{display:block;min-height:44px;width:100%;box-sizing:border-box;border:1px solid var(--border);border-radius:8px;padding:9px 12px;background:var(--bg);color:var(--text)}',
+'#pageSettings .ratib-settings-finder-actions{display:flex;align-items:center;gap:8px;justify-content:space-between;margin-top:8px;flex-wrap:wrap}',
+'#pageSettings .ratib-settings-finder-actions button{min-height:40px;padding:7px 10px;border:1px solid var(--border);border-radius:8px;background:var(--card);color:var(--text);font:inherit;font-weight:700;cursor:pointer}',
+'#pageSettings .ratib-settings-finder-actions button[aria-pressed=true]{border-color:var(--accent);color:var(--accent)}',
+'#pageSettings .ratib-settings-count{color:var(--muted);font-size:.85rem}',
 '#pageSettings #exportDataBtn,#pageSettings #importDataBtn,#pageSettings #restoreFromAutoBackupBtn,#pageSettings #cloudRunNowBtn,#pageSettings #cloudRestoreBtn{display:none!important}'
 ].join('\n');document.head.append(e);}
 function header(c){return c?.querySelector(':scope > .settings-accordion-header');}
@@ -116,6 +126,7 @@ function reorder(){
  }
  const order=settings.map(x=>map.get(x[0])).filter(Boolean);
  for(let i=0;i<order.length;i++){const c=order[i],key=keyFor(c);setTitle(c,key);if(page.children[i]!==c)page.insertBefore(c,page.children[i]||null);}
+ const finder=$('ratibSettingsFinder');if(finder&&page.firstElementChild!==finder)page.prepend(finder);
 }
 function setCardOpen(c,open){
  if(!c)return;
@@ -205,9 +216,45 @@ function openSetting(key){
  display();
 }
 window.RatibSettingsOpen=openSetting;
+function installSettingsFinder(){
+ const page=$('pageSettings');if(!page||$('ratibSettingsFinder'))return;
+ const box=document.createElement('section');box.id='ratibSettingsFinder';box.className='ratib-settings-finder no-print';
+ box.innerHTML='<label for="ratibSettingsSearch">ابحث عن الإعداد</label>'+
+  '<input type="search" id="ratibSettingsSearch" autocomplete="off" placeholder="اسم الإعداد، مثل العملات أو الطباعة">'+
+  '<div class="ratib-settings-finder-actions"><button type="button" id="ratibSettingsShowAll" aria-pressed="false">عرض جميع الإعدادات</button>'+
+  '<span class="ratib-settings-count" id="ratibSettingsCount" aria-live="polite"></span></div>';
+ page.prepend(box);
+ const search=$('ratibSettingsSearch'),allButton=$('ratibSettingsShowAll'),count=$('ratibSettingsCount');
+ const main=new Set(['tree','budget','defaults','currencies','backupsettings','security']);
+ let showAll=false;
+ const norm=s=>String(s||'').normalize('NFKC').replace(/[أإآ]/g,'ا').replace(/[\u064B-\u065F\u0670]/g,'').toLowerCase();
+ function render(){
+  const query=norm(search.value.trim());
+  const cards=[...page.querySelectorAll(':scope > .settings-accordion-card')];
+  let shown=0;
+  for(const card of cards){
+   const key=keyFor(card),name=title(card);
+   const visible=query?norm(name).includes(query):showAll||!key||main.has(key);
+   if(card.classList.contains('ratib-settings-list-hidden')===visible)card.classList.toggle('ratib-settings-list-hidden',!visible);
+   if(visible)shown++;
+  }
+  count.textContent=shown+' من '+cards.length+' إعداد';
+  allButton.setAttribute('aria-pressed',String(showAll));
+  allButton.textContent=showAll?'عرض الإعدادات الأساسية':'عرض جميع الإعدادات';
+ }
+ search.addEventListener('input',render);
+ allButton.addEventListener('click',()=>{showAll=!showAll;render();});
+ // Cards inserted by delayed modules remain discoverable, including advanced cards.
+ let queued=false;
+ new MutationObserver(()=>{
+  if(queued)return;queued=true;
+  queueMicrotask(()=>{queued=false;render();});
+ }).observe(page,{childList:true,subtree:false});
+ render();
+}
 function buildSidebar(){
  const aside=$('appSidebar'),nav=aside?.querySelector('.sidebar-nav');if(!aside||!nav||aside.dataset.ratibApproved==='1')return;
- css();reorder();installSettingsNavigation();
+ css();reorder();installSettingsNavigation();installSettingsFinder();
  // Preserve the existing header button and theme; change only its glyph and accessible name.
  const menuGear=$('sidebarMenuBtn');
  if(menuGear){
@@ -219,15 +266,25 @@ function buildSidebar(){
  const oldBackupGroup=$('sidebarBackupTitle')?.closest('.sidebar-group');const backupExtras=[...(oldBackupGroup?.querySelectorAll(':scope > button')||[])].filter(el=>!['backup','restore','drive'].includes(el.dataset.sidebarAction));
  const contact=$('sidebarContactMenu');
  // Display all ten current settings as first-level entries above backup, activation and help.
- const settingsItems=document.createDocumentFragment();
- for(const [key,label,ico] of settings){
-  if(key!=='identity'){settingsItems.append(make(label,ico,()=>openSetting(key)));continue;}
-  const group=document.createElement('div'),inner=document.createElement('div');inner.className='ratib-menu-subchildren';inner.hidden=false; // Security is visible when Settings opens.
-  const main=make(label,ico,()=>{inner.hidden=!inner.hidden;main.setAttribute('aria-expanded',String(!inner.hidden));},true);main.setAttribute('aria-expanded','true');
-  inner.append(make('بيانات الهوية','identity',()=>openSetting('identity')),make('إعدادات الأمان وقفل الحماية','lock',()=>openSetting('security')));
-  group.append(main,inner);settingsItems.append(group);
+ // Everyday tasks are visible; secondary preferences live in one optional group.
+ const settingsMenu=expandGroup('الإعدادات','settings'),root=settingsMenu.children;
+ const caption=document.createElement('p');caption.className='ratib-settings-menu-caption';caption.textContent='الإعدادات الأساسية';root.append(caption);
+ const essential=['tree','budget','defaults','currencies','backupsettings','security'];
+ for(const key of essential){
+  const item=settings.find(row=>row[0]===key);
+  root.append(make(key==='security'?'الأمان وقفل الحماية':item[1],key==='security'?'lock':item[2],()=>openSetting(key)));
  }
- const settingsMenu=expandGroup('الإعدادات','settings');settingsMenu.children.append(settingsItems);
+ const more=document.createElement('div'),details=document.createElement('div');
+ details.className='ratib-menu-subchildren';details.hidden=true;details.id='ratibMoreSettingsLinks';
+ const moreButton=make('خيارات إضافية','settings',()=>{
+  details.hidden=!details.hidden;moreButton.setAttribute('aria-expanded',String(!details.hidden));
+ },true);
+ moreButton.classList.add('ratib-settings-more-toggle');moreButton.setAttribute('aria-controls',details.id);moreButton.setAttribute('aria-expanded','false');
+ for(const key of ['identity','printing','buttonsize','favorites','voice','sound']){
+  const item=settings.find(row=>row[0]===key);
+  details.append(make(item[1],item[2],()=>openSetting(key)));
+ }
+ more.append(moreButton,details);root.append(more);
  const backup=expandGroup('النسخ المحلي والسحابي','cloud');
  const relabel=(el,label)=>{const span=el?.querySelector('span');if(span)span.textContent=label;return el;};
  if(existing.backup)backup.children.append(relabel(existing.backup,'حفظ نسخة احتياطية محلية'));

@@ -78,6 +78,16 @@
  #pageSettings #liveAccountsTreeView .ratib-tree-balances{display:none!important}
  /* Details and account statements are not affected. */
  #ratibInteractiveAccountsTree .rit-extra-accounts-entry{margin:10px 0 0;padding:7px 4px;border-top:1px dashed var(--border)}
+ #ratibInteractiveAccountsTree .rit-extra-accounts-entry summary{
+  display:list-item;list-style:revert;cursor:pointer;
+  color:var(--muted);font:650 .84rem Tajawal,system-ui,sans-serif;
+  padding:9px 12px;min-height:40px;border-radius:9px;
+ }
+ #ratibInteractiveAccountsTree .rit-extra-accounts-entry summary:hover,
+ #ratibInteractiveAccountsTree .rit-extra-accounts-entry summary:focus-visible{
+  color:var(--accent-strong);background:color-mix(in srgb,var(--accent) 6%,var(--card))
+ }
+
  #ratibInteractiveAccountsTree .rit-extra-accounts-entry button{
   border:1px solid var(--border);border-radius:10px;width:100%;min-height:42px;
   color:var(--muted);background:var(--card);font:650 .85rem Tajawal,system-ui,sans-serif;text-align:right;padding:8px 12px;cursor:pointer

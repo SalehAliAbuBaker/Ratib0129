@@ -4,6 +4,12 @@ require('./tools/assert-release.cjs')();
 const assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path');
 const file=name=>fs.readFileSync(path.join(__dirname,name),'utf8');
 const html=file('index.html'),sw=file('sw.js');
+const signatures=file('ratib-document-signatures-3.6.148.js');
+const signatureKeys=(signatures.match(/^const keys=\[(.*?)\];/m)?.[1]||'').match(/'[^']+'/g)?.map(x=>x.slice(1,-1));
+assert.deepEqual(signatureKeys,['payment','receipt','journal','compound','opening'],
+  'Document type dropdown must not show deleted commerce or return types');
+assert(signatures.includes("'مرتجع الوارد'")&&signatures.includes("'مرتجع الصادر'"),
+  'Previously issued commercial documents retain their signature-print definitions');
 const m=html.match(/const RATIB_RELEASE=\{"version":"(\d+\.\d+\.\d+(?:\.\d+)?)"/);
 const work=sw.match(/const APP_RELEASE=\{"version":"(\d+\.\d+\.\d+(?:\.\d+)?)"/);
 assert(m&&work,'Both trial release manifests must declare versions');

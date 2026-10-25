@@ -2,7 +2,7 @@
 const assert=require('node:assert/strict'),fs=require('node:fs');
 const html=fs.readFileSync('index.html','utf8'),sw=fs.readFileSync('sw.js','utf8');
 const version=html.match(/const RATIB_RELEASE=\{"version":"([^"]+)"/)?.[1];
-assert(['3.6.106','3.6.106.04','3.6.107'].includes(version));
+assert.equal(version,require('./tools/assert-release.cjs')());
 assert(sw.includes('const APP_RELEASE={"version":"'+version+'"'));
 const css=html.match(/<style id="ratib-compact-mobile-3\.6\.98">([\s\S]*?)<\/style>/)?.[1];
 assert(css,'Mobile statement card stylesheet missing');
@@ -17,7 +17,7 @@ assert(css.includes(selector+'.debit:empty::after'));
 assert(css.includes(selector+'.credit:empty::after'));
 assert(html.includes('const runningBalances=getAccountRunningBalances(txs,scope,opening)'));
 assert(html.includes('balance=runningBalances.get(t)'));
-assert(sw.includes(version==='3.6.107'?'v201-official-statement-marks-3.6.107':version==='3.6.106'?'v198-official-statement-mobile-cols-3.6.106':'v199-trial-statement-mobile-cols-3.6.106.04'));
+assert(sw.includes('-'+version));
 for(const source of [...html.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script>/gi)].map(m=>m[1]).filter(Boolean))new Function(source);
 new Function(sw);
 console.log('PASS mobile statement debit/credit/balance cards with optional counterpart — '+version);

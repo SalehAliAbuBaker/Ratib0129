@@ -4,13 +4,14 @@ const KEY='ratib.quickFavorites.v2';
 const oldKey='ratib.quickFavorites.v1';
 const choices=[];
 const byId=Object.create(null);
+const favoriteGroups=Object.create(null);
 const ICON_KEY='ratib.quickFavorites.icons.v1';
 const ICON_CHOICES=['🧾','💰','💵','📥','📤','📋','📑','📊','📈','⚖️','🏦','💼','📁','🗂️','🔒','⚙️','💾','☁️','🧮','🔔','🗓️','⭐','❤️','➕','🔎','🏠','📝','📌','🔧','👤'];
 let savedIcons={};
 try{const value=JSON.parse(localStorage.getItem(ICON_KEY)||'{}');if(value&&typeof value==='object'&&!Array.isArray(value))for(const [id,icon] of Object.entries(value))if(ICON_CHOICES.includes(icon))savedIcons[id]=icon;}catch(_){}
 function persistIcons(){try{localStorage.setItem(ICON_KEY,JSON.stringify(savedIcons));}catch(error){console.warn('تعذر حفظ أيقونات المفضلة',error);}}
 
-function addChoice(id,label,icon,run){if(byId[id])return;const item=[id,label,savedIcons[id]||icon];item.run=run;choices.push(item);byId[id]=item;}
+function addChoice(id,label,icon,run){if(byId[id]){byId[id][1]=label;byId[id].run=run;return;}const item=[id,label,savedIcons[id]||icon];item.run=run;choices.push(item);byId[id]=item;}
 async function page(id){
  if(typeof _appHistoryPending!=='undefined'&&_appHistoryPending)await _appHistoryPending.promise;
  if(typeof window.navigateToTab!=='function')return false;
@@ -18,11 +19,27 @@ async function page(id){
  return !document.getElementById(id)?.classList.contains('hidden');
 }
 const sidebar=action=>()=>document.querySelector('[data-sidebar-action="'+action+'"]')?.click();
+for(const [id,label,target] of [['home','الرئيسية','pageDashboard'],['new-voucher','إضافة سند','pageExpenses'],['reports-home','التقارير','pageReports']])addChoice(id,label,'🏠',()=>page(target));
 for(const [id,label,mode] of [['receipt','سند قبض','income'],['payment','سند صرف','spend'],['simple-entry','سند قيد بسيط','entry'],['multi-entry','سند قيد متعدد','multi-entry']]){
  addChoice(id,label,'🧾',async()=>{if(!await page('pageExpenses'))return;if(mode==='multi-entry')window.selectMultiVoucherType?.();else window.selectVoucherTypeDirect?.(mode);});
 }
 for(const [id,label,target] of [['budget-analysis','تحليل بنود الميزانية','reportsGroupBudgetHeader'],['trial-balance','ميزان المراجعة','reportsGroupTrialHeader']]){
  addChoice(id,label,'📑',async()=>{if(!await page('pageReports'))return;const button=document.getElementById(target);if(button&&!button.classList.contains('open'))button.click();});
+}
+async function openReportGroup(target){
+ if(!await page('pageReports'))return;
+ const heading=document.getElementById(target),section=document.getElementById(target.replace(/Header$/,'Body'));
+ if(!heading||heading.classList.contains('hidden')||heading.style.display==='none')throw Error('التقرير غير متاح في هذه النسخة.');
+ if(!section?.classList.contains('open'))heading.click();
+}
+for(const [id,label,target] of [['movement-report','حركة الحسابات','reportsGroupMovementHeader'],['position-report','المركز المالي','reportsGroupPositionHeader']])addChoice(id,label,'📊',()=>openReportGroup(target));
+function discoverReports(){
+ const builtIn=new Set(['reportsGroupBudgetHeader','reportsGroupTrialHeader','reportsGroupMovementHeader','reportsGroupPositionHeader','reportsGroupStatementHeader']);
+ document.querySelectorAll('#pageReports [id^="reportsGroup"][id$="Header"]').forEach(heading=>{
+  if(builtIn.has(heading.id)||heading.classList.contains('hidden')||heading.style.display==='none')return;
+  const label=heading.textContent.replace(/[\u{1F300}-\u{1FAFF}]/gu,'').trim();
+  if(label)addChoice('report:'+heading.id,label,'📑',()=>openReportGroup(heading.id));
+ });
 }
 addChoice('annual-close','الإغلاق السنوي','🔒',async()=>{if(await page('pageReports'))document.getElementById('yearToolOpen')?.click();});
 addChoice('ledger','سجل العمليات','📋',()=>page('pageLedger'));
@@ -44,9 +61,9 @@ addChoice('import-management','إدارة الحسابات والأرصدة ال
 });
 addChoice('reminders-list','قائمة التذكيرات والمهام','🔔',async()=>{if(await page('pageDashboard'))document.getElementById('openAddReminderModalBtn')?.closest('.card')?.scrollIntoView({block:'start'});});
 const commerceFavorites=[
- ['stock','المخزون',[['products','بطاقة الصنف'],['warehouses','إدارة المخازن'],['movements','حركة المخزون'],['summary','تقارير المخزون'],['accounts','ربط حسابات المخزون']]],
- ['purchase','الوارد',[['new:أمر توريد','أمر توريد'],['new:توريد مخزني','توريد مخزني'],['new:فاتورة مشتريات','فاتورة مشتريات'],['return','مرتجعات الوارد'],['records','سجل مستندات الوارد'],['people','الموردون'],['summary','تقارير الوارد'],['accounts','ربط حسابات الوارد']]],
- ['sale','الصادر',[['new:أمر صرف','أمر صرف'],['new:صرف مخزني','صرف مخزني'],['new:فاتورة مبيعات','فاتورة مبيعات'],['return','مرتجعات الصادر'],['records','سجل مستندات الصادر'],['people','العملاء'],['summary','تقارير الصادر'],['accounts','ربط حسابات الصادر']]]
+ ['stock','المخزون',[['products','بطاقة الصنف'],['warehouses','إدارة المخازن'],['movements','حركة المخزون'],['summary','تقارير المخزون']]],
+ ['purchase','الوارد',[['new','مستند جديد — الوارد'],['new:أمر توريد','أمر توريد'],['new:توريد مخزني','توريد مخزني'],['new:فاتورة مشتريات','فاتورة مشتريات'],['return','مرتجعات الوارد'],['records','سجل مستندات الوارد'],['people','الموردون'],['summary','تقارير الوارد']]],
+ ['sale','الصادر',[['new','مستند جديد — الصادر'],['new:أمر صرف','أمر صرف'],['new:صرف مخزني','صرف مخزني'],['new:فاتورة مبيعات','فاتورة مبيعات'],['return','مرتجعات الصادر'],['records','سجل مستندات الصادر'],['people','العملاء'],['summary','تقارير الصادر']]]
 ];
 for(const [target,group,items] of commerceFavorites)for(const [screen,label] of items){
  const id='commerce:'+target+':'+screen;
@@ -55,7 +72,38 @@ for(const [target,group,items] of commerceFavorites)for(const [screen,label] of 
   await window.RatibCommerce.openFavorite(target,screen);
  });
 }
+// Retain already selected legacy shortcuts, all pointing to the one settings location.
+for(const target of ['stock','purchase','sale']){
+ const legacy='commerce:'+target+':accounts';
+ let saved=[];try{saved=JSON.parse(localStorage.getItem(KEY)||'[]');}catch(_){}
+ if(Array.isArray(saved)&&saved.includes(legacy))addChoice(legacy,'حسابات الفواتير والمخزون','⚙️',()=>window.RatibCommerce?.openAccountDefaults?.());
+}
+const settingsCatalog=[
+ ['tree','إدارة شجرة الحسابات والأسقف'],
+ ['budget','إدارة بنود الميزانية / التكاليف'],
+ ['identity','الهوية والبيانات الشخصية'],
+ ['security','إعدادات الأمان وقفل الحماية'],
+ ['printing','إعدادات الطباعة'],
+ ['defaults','إعدادات الحسابات الافتراضية للسندات'],
+ ['buttonsize','حجم الأزرار والخط'],
+ ['currencies','إدارة العملات'],
+ ['backupsettings','النسخ الاحتياطي'],
+ ['favorites','مفضلتي'],
+ ['voice','الإدخال الصوتي'],
+ ['sound','أصوات التنبيهات والتذكيرات']
+];
+for(const [key,label] of settingsCatalog)addChoice('settings:'+key,label,'⚙️',async()=>{
+ if(typeof window.RatibSettingsOpen==='function'){window.RatibSettingsOpen(key);return;}
+ if(!await page('pageSettings'))return;
+ const card=[...document.querySelectorAll('#pageSettings .settings-accordion-card')].find(c=>(c.querySelector('.settings-accordion-header')?.textContent||'').includes(label));
+ if(!card)throw Error('الإعداد غير متاح في هذه النسخة.');
+ const head=card.querySelector('.settings-accordion-header');
+ if(!card.querySelector('.settings-accordion-body')?.classList.contains('open'))head?.click();
+ card.scrollIntoView?.({block:'start'});
+});
 function discoverSettings(){
+ const raw=(()=>{try{return JSON.parse(localStorage.getItem(KEY)||'[]');}catch(_){return [];}})();
+ const previous=new Set(Array.isArray(raw)?raw:[]);
  document.querySelectorAll('#pageSettings .settings-accordion-card').forEach(card=>{
   if(card.id==='ratibFavoritesSettingsCard')return;
   const heading=card.querySelector('.settings-accordion-header');
@@ -63,13 +111,24 @@ function discoverSettings(){
   const label=(heading.querySelector('span')||heading).textContent.replace(/\p{Extended_Pictographic}|[\uFE0F▼]/gu,'').trim();
   const anchor=card.id||card.querySelector('[id]')?.id;
   if(!anchor||!label)return;
-  addChoice('setting:'+anchor,label,'⚙️',async()=>{if(!await page('pageSettings'))return;const body=card.querySelector('.settings-accordion-body');if(body&&!body.classList.contains('open'))heading.click();heading.scrollIntoView?.({block:'center'});});
+  const legacyId='setting:'+anchor;
+  const hasNewShortcut=settingsCatalog.some(([,name])=>normalized(name)===normalized(label));
+  if(hasNewShortcut&&!previous.has(legacyId))return;
+  addChoice(legacyId,label,'⚙️',async()=>{
+   if(!await page('pageSettings'))return;
+   const node=document.getElementById(anchor),fresh=node?.closest('.settings-accordion-card')||node;
+   const head=fresh?.querySelector('.settings-accordion-header');
+   if(!fresh||!head)throw Error('لم يعد هذا الإعداد متاحًا.');
+   if(!fresh.querySelector('.settings-accordion-body')?.classList.contains('open'))head.click();
+   fresh.scrollIntoView?.({block:'center'});
+  });
  });
 }
-discoverSettings();
+
+discoverSettings();discoverReports();
 const migrated={pageLedger:'ledger',pageAccountsTree:'account-tree'};
 let selected=[];
-try{const saved=localStorage.getItem(KEY);const v=JSON.parse(saved??localStorage.getItem(oldKey)??'[]');if(Array.isArray(v))selected=[...new Set(v.map(id=>saved?id:migrated[id]).filter(id=>byId[id]))];}catch(_){}
+try{const saved=localStorage.getItem(KEY);const v=JSON.parse(saved??localStorage.getItem(oldKey)??'[]');if(Array.isArray(v))selected=[...new Set(v.map(id=>saved?id:migrated[id]).filter(id=>typeof id==='string'&&id.length<180))];}catch(_){}
 const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(selected));}catch(e){console.warn('تعذر حفظ المفضلة',e);}};
 const css=document.createElement('style');css.textContent=`
 .ratib-quick-btn{font-size:1.15rem!important;min-width:38px;min-height:38px}
@@ -92,14 +151,17 @@ panel.innerHTML='<div class="fav-box"><div class="fav-head"><strong>المفضل
 document.body.appendChild(panel);
 const escapeHtml=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 function render(){
-document.getElementById('ratibFavItems').innerHTML=selected.length?'<div class="fav-grid">'+selected.map((id,i)=>{const a=byId[id];return '<div class="fav-item"><button type="button" class="fav-item" style="width:100%" data-go="'+id+'">'+a[2]+' '+escapeHtml(a[1])+'</button><div class="fav-row"><button class="fav-small" data-up="'+id+'" '+(i===0?'disabled':'')+'>↑</button><button class="fav-small" data-down="'+id+'" '+(i===selected.length-1?'disabled':'')+'>↓</button><button class="fav-small" data-remove="'+id+'">حذف</button></div></div>';}).join('')+'</div>':'<p>لا توجد مفضلة بعد. اختر من الوظائف أدناه.</p>';
+discoverSettings();discoverReports();
+document.getElementById('ratibFavItems').innerHTML=selected.length?'<div class="fav-grid">'+selected.map((id,i)=>{const a=byId[id];if(!a)return '<div class="fav-item"><span>اختصار قديم غير متاح</span><button type="button" class="fav-small" data-remove="'+escapeHtml(id)+'">إزالة</button></div>';return '<div class="fav-item"><button type="button" class="fav-item" style="width:100%" data-go="'+id+'">'+a[2]+' '+escapeHtml(a[1])+'</button><div class="fav-row"><button class="fav-small" data-up="'+id+'" '+(i===0?'disabled':'')+'>↑</button><button class="fav-small" data-down="'+id+'" '+(i===selected.length-1?'disabled':'')+'>↓</button><button class="fav-small" data-remove="'+id+'">حذف</button></div></div>';}).join('')+'</div>':'<p>لا توجد مفضلة بعد. اختر من الوظائف أدناه.</p>';
 renderOptions();renderCurrent();renderSettings();renderShortcutBar();
 }
 function groupOf(id){
  if(id.startsWith('commerce:'))return ({stock:'المخزون',purchase:'الوارد',sale:'الصادر'})[id.split(':')[1]]||'المخزون';
  if(['receipt','payment','simple-entry','multi-entry'].includes(id))return 'السندات';
- if(['trial-balance','budget-analysis','annual-close'].includes(id))return 'التقارير';
- if(id.startsWith('setting:')||id==='add-budget-item')return 'الإعدادات';
+ if(['trial-balance','budget-analysis','annual-close','movement-report','position-report','reports-home'].includes(id)||id.startsWith('report:'))return 'التقارير';
+ if(['home','new-voucher'].includes(id))return 'السندات';
+ if(favoriteGroups[id])return favoriteGroups[id];
+ if(id.startsWith('setting:')||id.startsWith('settings:')||id==='add-budget-item')return 'الإعدادات';
  if(['account-tree','add-account','ledger','legacy-import','import-management'].includes(id))return 'الحسابات والاستيراد';
  if(['new-reminder','reminders-list'].includes(id))return 'التذكيرات';
  return 'النسخ والتفعيل';
@@ -120,7 +182,13 @@ function currentChoice(){
  if(visible('pageReports'))for(const [id,key] of [['reportsGroupBudgetHeader','budget-analysis'],['reportsGroupTrialHeader','trial-balance']])if(document.getElementById(id)?.classList.contains('open'))return key;
  if(visible('pageSettings')){
   const active=[...document.querySelectorAll('#pageSettings .settings-accordion-card')].find(card=>card.querySelector('.settings-accordion-body.open'));
-  if(active)return 'setting:'+(active.id||active.querySelector('[id]')?.id);
+  if(active){
+   const heading=active.querySelector('.settings-accordion-header');
+   const label=(heading?.querySelector('span')||heading)?.textContent.replace(/\p{Extended_Pictographic}|[\uFE0F▼]/gu,'').trim()||'';
+   const canonical=settingsCatalog.find(([,name])=>normalized(name)===normalized(label));
+   if(canonical)return 'settings:'+canonical[0];
+   return 'setting:'+(active.id||active.querySelector('[id]')?.id);
+  }
  }
  return null;
 }
@@ -132,7 +200,7 @@ function renderCurrent(){
 document.getElementById('ratibFavSearch').addEventListener('input',e=>{filterText=e.target.value;renderOptions();});
 document.getElementById('ratibFavGroup').addEventListener('change',e=>{filterGroup=e.target.value;renderOptions();});
 function close(){panel.classList.remove('open');}
-function open(){discoverSettings();filterText='';filterGroup='';document.getElementById('ratibFavSearch').value='';document.getElementById('ratibFavGroup').value='';render();panel.classList.add('open');panel.querySelector('[data-close]').focus();}
+function open(){discoverSettings();discoverReports();filterText='';filterGroup='';document.getElementById('ratibFavSearch').value='';document.getElementById('ratibFavGroup').value='';render();panel.classList.add('open');panel.querySelector('[data-close]').focus();}
 panel.addEventListener('click',e=>{if(e.target===panel){close();return;}const b=e.target.closest('button');if(!b)return;const d=b.dataset;
 if('close'in d){close();return;}
 if('settings'in d){close();openFavoritesSettings();return;}
@@ -188,6 +256,8 @@ favCompactStyle.textContent=`
 @media print{#ratibFavoritesSettingsCard{display:none!important}}`;
 document.head.appendChild(favCompactStyle);
 function openFavoritesSettings(){
+ discoverSettings();discoverReports();
+ if(typeof window.RatibSettingsOpen==='function'){window.RatibSettingsOpen('favorites');renderSettings();return;}
  if(typeof window.navigateToTab==='function')window.navigateToTab('pageSettings',true);
  const card=document.getElementById('ratibFavoritesSettingsCard');
  if(!card)return;
@@ -198,13 +268,14 @@ function openFavoritesSettings(){
 }
 const favExpandedGroups=new Set();
 function renderSettings(){
+ discoverSettings();discoverReports();
  const host=document.getElementById('ratibFavoritesSettingsCard');
  if(!host)return;
  const selectedRoot=host.querySelector('#ratibSettingsFavSelected');
  const catalogRoot=host.querySelector('#ratibSettingsFavCatalog');
  if(!selectedRoot||!catalogRoot)return;
  selectedRoot.innerHTML=selected.length?'<div class="fav-settings-grid">'+selected.map((id,i)=>{
-  const a=byId[id];if(!a)return '';
+  const a=byId[id];if(!a)return '<div class="fav-settings-item fav-settings-selected"><strong>اختصار قديم لم يعد متاحًا</strong><button type="button" class="btn btn-ghost" data-remove-fav="'+escapeHtml(id)+'">إزالة</button></div>';
   return '<div class="fav-settings-item fav-settings-selected"><strong>'+escapeHtml(a[1])+'</strong><div class="fav-settings-actions">'+
   '<label class="fav-icon-picker" aria-label="أيقونة الاختصار"><select data-fav-icon="'+escapeHtml(id)+'">'+ICON_CHOICES.map(icon=>'<option value="'+escapeHtml(icon)+'" '+(a[2]===icon?'selected':'')+'>'+escapeHtml(icon)+'</option>').join('')+'</select></label>'+
   '<button type="button" class="btn btn-ghost" data-move-up="'+escapeHtml(id)+'" '+(i===0?'disabled':'')+' title="تحريك لأعلى">↑</button>'+
@@ -244,7 +315,7 @@ function installFavoritesSettings(){
   const btn=e.target.closest('button');
   if(!btn)return;
   const id=btn.dataset.addFav||btn.dataset.removeFav||btn.dataset.moveUp||btn.dataset.moveDown;
-  if(!id||!byId[id])return;
+  if(!id||(!byId[id]&&!('removeFav'in btn.dataset)))return;
   const sourceGroup=btn.closest('.fav-settings-group');if(sourceGroup)favExpandedGroups.add(sourceGroup.dataset.group);
   if('addFav'in btn.dataset&&!selected.includes(id))selected.push(id);
   if('removeFav'in btn.dataset)selected=selected.filter(x=>x!==id);
@@ -311,7 +382,15 @@ const menuBtn=document.getElementById('sidebarMenuBtn');
 if(menuBtn){menuBtn.onclick=(e)=>{e.preventDefault();e.stopImmediatePropagation();if(typeof window.openRatibSidebar==='function')window.openRatibSidebar();};}
 const themeBtn=document.getElementById('themeBtn');
 if(themeBtn){themeBtn.onclick=(e)=>{e.preventDefault();e.stopImmediatePropagation();const root=document.documentElement,next=root.dataset.theme==='dark'?'light':'dark';root.dataset.theme=next;try{localStorage.setItem('theme',JSON.stringify(next));}catch(_){}themeBtn.textContent=next==='dark'?'☀️':'🌙';};}
-window.RatibQuickFavorites={open,close};
+function registerFavorite(id,label,icon,run,group){
+ if(typeof id!=='string'||!/^[-:a-zA-Z0-9_]{1,120}$/.test(id)||typeof label!=='string'||!label.trim()||typeof run!=='function')return false;
+ const groups=['السندات','المخزون','الوارد','الصادر','التقارير','الحسابات والاستيراد','الإعدادات','النسخ والتفعيل','التذكيرات'];
+ if(groups.includes(group))favoriteGroups[id]=group;
+ addChoice(id,label.trim(),ICON_CHOICES.includes(icon)?icon:'📌',run);
+ if(document.getElementById('ratibSettingsFavCatalog'))render();
+ return true;
+}
+window.RatibQuickFavorites={open,close,register:registerFavorite,refresh:()=>{discoverSettings();discoverReports();render();}};
 })();
 
 /* Load the approved unified output UI without touching accounting logic. */

@@ -96,7 +96,7 @@ jobs:
           console.log('NAV_BODY_LENGTH:',nav.length);
           console.log('LOCAL_NAV_LENGTH:',local.length);
           console.log('NAV_MATCH:',nav===local);
-          console.log('HOME_HAS_NAV_TAG:',home.includes('ratib-navigation-v3.6.149.js?v='+fs.readFileSync('index.html','utf8').match(/RATIB_RELEASE=\{\"version\":\"([^\"]+)/)?.[1]));
+          console.log('HOME_HAS_NAV_TAG:',home.includes(fs.readFileSync('index.html','utf8').match(/ratib-navigation-v3\\.6\\.149\\.js\\?v=[^\"]+/)?.[0]||'\\u0000'));
           console.log('HOME_RELEASE:',home.match(/RATIB_RELEASE=\{"version":"([^"]+)/)?.[1]||'not found');
           console.log('NAV_FIRST_120:',nav.slice(0,120).replace(/\s+/g,' '));
           NODE
@@ -115,8 +115,11 @@ jobs:
           const page=fs.readFileSync('/tmp/ratib-live-page.html','utf8');
           const sourceVersion=fs.readFileSync('index.html','utf8').match(/RATIB_RELEASE=\{\"version\":\"([^\"]+)/)?.[1];
           const liveVersion=page.match(/RATIB_RELEASE=\{\"version\":\"([^\"]+)/)?.[1];
-          const correct=live===local&&sourceVersion===liveVersion&&!live.includes('RATIB_RELEASE.version=VERSION')&&page.includes('ratib-navigation-v3.6.149.js?v='+sourceVersion);
-          console.log('NAV DEPLOY CHECK: matched='+correct+' bytes='+live.length+' new script referenced by page='+page.includes('ratib-navigation-v3.6.149.js?v='+sourceVersion));
+          const localPage=fs.readFileSync('index.html','utf8');
+          const localTag=localPage.match(/ratib-navigation-v3\.6\.149\.js\?v=[^"]+/)?.[0]||'';
+          const liveOAuth=page.includes("const RATIB_GOOGLE_CLIENT_ID = '127962228897-k19m5nstjaun38k38348er1c9cf8vemb.apps.googleusercontent.com'");
+          const correct=live===local&&sourceVersion===liveVersion&&!!localTag&&page.includes(localTag)&&liveOAuth&&!live.includes('RATIB_RELEASE.version=VERSION');
+          console.log('NAV DEPLOY CHECK: matched='+correct+' bytes='+live.length+' script tag matched='+page.includes(localTag)+' unified OAuth='+liveOAuth);
           process.exit(correct?0:1);
           NODE
             then
@@ -127,4 +130,21 @@ jobs:
             [ "$attempt" = "12" ] || sleep 10
           done
           echo 'FAIL: Cloudflare Pages still serves older navigation or HTML'
+          exit 1
+
+      - name: Verify offline worker and HTML match trial
+        shell: bash
+        run: |
+          set -eu
+          for attempt in 1 2 3 4 5 6 7 8 9 10 11 12; do
+            curl -fLsS --retry 2 --max-time 30 "https://ratibtrial.pages.dev/sw.js?fresh=$GITHUB_SHA-$attempt" -o /tmp/ratib-current-worker.js || true
+            curl -fLsS --retry 2 --max-time 30 "https://ratibtrial.pages.dev/?fresh=$GITHUB_SHA-$attempt" -o /tmp/ratib-current-index.html || true
+            if cmp -s sw.js /tmp/ratib-current-worker.js && cmp -s index.html /tmp/ratib-current-index.html; then
+              echo "PASS: Cloudflare HTML and service worker both match Ratib trial 3.6.107.08"
+              exit 0
+            fi
+            echo "Waiting for Cloudflare HTML and offline worker to match trial (attempt $attempt)"
+            [ "$attempt" = "12" ] || sleep 10
+          done
+          echo "FAIL: Cloudflare HTML or offline worker still differs from published trial"
           exit 1

@@ -68,6 +68,9 @@ async function run(){
   }
  });
  await test('Settings favorites open their exact section and support persistent add/remove',async()=>{
+  const legacyIds=[...d.querySelectorAll('#pageSettings .settings-accordion-card')].filter(c=>c.id!=='ratibFavoritesSettingsCard'&&c.querySelector('.settings-accordion-header')).map(c=>'setting:'+(c.id||c.querySelector('[id]')?.id)).filter(id=>!id.endsWith('undefined'));
+  const prior=JSON.parse(w.localStorage.getItem('ratib.quickFavorites.v2')||'[]');
+  w.localStorage.setItem('ratib.quickFavorites.v2',JSON.stringify([...prior,...legacyIds]));
   open();const ids=[...d.querySelectorAll('[data-add^="setting:"]')].map(b=>b.dataset.add);assert(ids.length>=6);
   for(const id of ids){await choose(id);assert(!d.getElementById('pageSettings').classList.contains('hidden'));
    const anchor=d.getElementById(id.slice(8));const card=anchor.closest('.settings-accordion-card');assert(card.querySelector('.settings-accordion-body').classList.contains('open'),id);
@@ -111,6 +114,79 @@ async function run(){
   assert(!menu.classList.contains('open'));assert.equal(toggle.getAttribute('aria-expanded'),'false');
   assert(!d.getElementById('accountAdvancedSearchPanel').classList.contains('hidden'));
   toggle.click();d.getElementById('accountToolsCloseBtn').click();assert(!menu.classList.contains('open'));
+ });
+ await test('Current settings pin and open their exact card through the real sidebar',async()=>{
+  load('ratib-sidebar-3.6.124.js');await pause(30);
+  for(const key of ['budget','printing','security']){
+   w.RatibSettingsOpen(key);await pause(40);open();
+   const pin=d.getElementById('ratibPinCurrent');assert(!pin.hidden,key);
+   assert.equal(pin.dataset.pin,'settings:'+key);
+   if(!JSON.parse(w.localStorage.getItem('ratib.quickFavorites.v2')||'[]').includes(pin.dataset.pin))pin.click();
+   code(w,"navigateToTab('pageDashboard',true)");await pause(20);
+   await choose('settings:'+key);await pause(40);
+   assert(!d.getElementById('pageSettings').classList.contains('hidden'));
+   const card=d.querySelector('#pageSettings .ratib-settings-current');
+   assert(card&&card.querySelector('.settings-accordion-body.open'),key+' must open its exact detail card');
+   const label=card.querySelector('.settings-accordion-header span').textContent;
+   assert(label.includes(({budget:'بنود الميزانية',printing:'إعدادات الطباعة',security:'الأمان'})[key]));
+  }
+ });
+ await test('Commerce draft survives the application screen snapshot and restore pipeline',async()=>{
+  load('ratib-commerce-3.6.131.js');
+  w.RatibCommerce.openFavorite('purchase','new:فاتورة مشتريات');await pause(30);
+  d.getElementById('rc-note').value='مسودة تستعاد مع الشاشة';
+  d.getElementById('rc-number').value='PI-resume';
+  const snapshot=JSON.parse(JSON.stringify(code(w,'captureAppView()')));
+  assert.equal(snapshot.commerce.draft.note,'مسودة تستعاد مع الشاشة');
+  w.RatibCommerce.openFavorite('stock','products');
+  w.__commerceResumeTest=snapshot;code(w,'restoreAppView(__commerceResumeTest)');await pause(30);
+  assert.equal(d.getElementById('rc-note').value,'مسودة تستعاد مع الشاشة');
+  assert.equal(d.getElementById('rc-number').value,'PI-resume');
+  assert.equal(w.RatibCommerce.captureView().mode,'in');
+  delete w.__commerceResumeTest;
+ });
+ await test('Shared commerce defaults and debit-first document fields preserve accounting roles',async()=>{
+  for(const [target,screen,first] of [['purchase','new:فاتورة مشتريات','rc-debitAccount'],['sale','new:فاتورة مبيعات','rc-debitAccount'],['purchase','return','rc-partyAccount'],['sale','return','rc-warehouse']]){
+   w.RatibCommerce.openFavorite(target,screen);await pause(20);
+   assert.equal(d.querySelector('#pageCommerce [data-rc-view="accounts"]'),null);
+   if(screen.startsWith('new:')){
+    const boxes=[...d.querySelectorAll('.rc-invoice-core .rc-wide-account')];
+    assert.equal(boxes.length,3);
+    assert(boxes[0].querySelector('#rc-debitAccount'),'first account must be debit');
+    assert(boxes[1].querySelector('#rc-creditAccount'),'second account must be credit');
+    assert(boxes[2].querySelector('#rc-warehouse'),'warehouse follows account fields');
+    assert(d.getElementById('rc-displayPartyName'),'optional free name appears separately above the accounts');
+   }else{
+    const boxes=[...d.querySelectorAll('.rc-account-fields [data-account-side]')];
+    assert.equal(boxes[0].dataset.accountSide,'debit');assert.equal(boxes[1].dataset.accountSide,'credit');
+    assert(boxes[0].querySelector('#'+first));
+   }
+  }
+  const before=JSON.stringify(code(w,"store.get('commerce_v1',null)"));
+  w.RatibCommerce.openFavorite('purchase','accounts');await pause(40);
+  assert(!d.getElementById('pageSettings').classList.contains('hidden'));
+  assert.equal(d.querySelectorAll('#rc-accounts-form').length,1);
+  assert(d.getElementById('ratibCommerceDefaults').contains(d.getElementById('rc-accounts-form')));
+  assert.equal(JSON.stringify(code(w,"store.get('commerce_v1',null)")),before,'moving settings does not mutate stored links');
+  const cashSearch=d.getElementById('rc-search-acc-cash');
+  const option=d.querySelector('#rc-account-list-acc-cash option');assert(option,'default account search lists leaf accounts');
+  cashSearch.value=option.value;cashSearch.dispatchEvent(new w.Event('input',{bubbles:true}));
+  const chosen=d.getElementById('rc-acc-cash').value;assert(chosen,'search resolves the chosen account in Settings');
+  const docsBefore=code(w,"JSON.stringify(store.get('commerce_v1',{}).invoices||[])");
+  d.getElementById('rc-accounts-form').dispatchEvent(new w.Event('submit',{bubbles:true,cancelable:true}));await pause(100);
+  assert.equal(code(w,"store.get('commerce_v1',{}).accounts.cash"),chosen);
+  assert.equal(code(w,"JSON.stringify(store.get('commerce_v1',{}).invoices||[])"),docsBefore,'saving defaults preserves existing documents');
+  for(const mode of ['income','spend']){
+   code(w,"navigateToTab('pageExpenses',true);selectVoucherTypeDirect('"+mode+"')");await pause(50);
+   const source=d.getElementById('wrapMultiSourceAcc'),table=d.querySelector('#multiVoucherCard .multi-voucher-table-wrap');
+   assert(source.compareDocumentPosition(table)&(mode==='income'?w.Node.DOCUMENT_POSITION_FOLLOWING:w.Node.DOCUMENT_POSITION_PRECEDING),mode+' debit before credit');
+   d.getElementById('ratibReverseSide').click();await pause(50);
+   assert(source.compareDocumentPosition(table)&(mode==='income'?w.Node.DOCUMENT_POSITION_PRECEDING:w.Node.DOCUMENT_POSITION_FOLLOWING),'reversed roles reorder without replacing inputs');
+  }
+  code(w,"selectMultiVoucherType();multiVoucherLines=[{...newMultiLine(),side:'credit'},{...newMultiLine(),side:'debit'}];renderMultiVoucherLines()");await pause(40);
+  const sides=[...d.querySelectorAll('#multiVoucherLinesBody .multi-line-side')];
+  assert.equal(sides[0].value,'debit');assert.equal(sides[0].dataset.index,'1');
+  assert.equal(code(w,'multiVoucherLines[0].side'),'credit','display sorting preserves original line identities');
  });
  assert.deepEqual(f.errors,[]);fixtures.forEach(x=>x.dom.window.close());
 }

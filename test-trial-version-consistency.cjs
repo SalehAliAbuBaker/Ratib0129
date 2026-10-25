@@ -1,12 +1,13 @@
 /* Regression: all visible Ratib trial release badges must read one release source. */
 'use strict';
+require('./tools/assert-release.cjs')();
 const assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path');
 const file=name=>fs.readFileSync(path.join(__dirname,name),'utf8');
 const html=file('index.html'),sw=file('sw.js');
-const m=html.match(/const RATIB_RELEASE=\{"version":"(\d+\.\d+\.\d+)"/);
-const work=sw.match(/const APP_RELEASE=\{"version":"(\d+\.\d+\.\d+)"/);
+const m=html.match(/const RATIB_RELEASE=\{"version":"(\d+\.\d+\.\d+(?:\.\d+)?)"/);
+const work=sw.match(/const APP_RELEASE=\{"version":"(\d+\.\d+\.\d+(?:\.\d+)?)"/);
 assert(m&&work,'Both trial release manifests must declare versions');
-const version=m[1],label='الإصدار '+version+' (تجريبية)';
+const version=m[1],label='الإصدار '+version;
 assert.equal(work[1],version,'Service worker and application versions must match');
 assert(html.includes('id="appVersionLabel" class="app-version">'+label),'Top bar must match release');
 assert(html.includes('class="ratib-about-version">'+label),'About screen must match release');

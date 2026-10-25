@@ -1523,6 +1523,7 @@ body.ratib-sidebar-open,body.ratib-about-open{overflow:hidden}
 #pageAccountOperations .account-statement-row[data-tx-id]>span:nth-child(1){grid-column:span 4;font-size:.77rem;color:var(--muted);white-space:nowrap}
 #pageAccountOperations .account-statement-row[data-tx-id]>span:nth-child(2){grid-column:span 8;font-size:.77rem;text-align:left;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 #pageAccountOperations .account-statement-row[data-tx-id]>span:nth-child(3){grid-column:1/-1;font-size:.86rem;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;line-height:1.45!important}
+
 /* القيم المحاسبية ترتبط بأسماء الحقول، لا بموقعها بعد إضافة الحساب المقابل. */
 #pageAccountOperations .account-statement-row[data-tx-id]>span[data-statement-col="counterpart"]{
  grid-column:1/-1!important;direction:rtl!important;text-align:right!important;
@@ -1568,7 +1569,7 @@ body.ratib-sidebar-open,body.ratib-about-open{overflow:hidden}
 }
 </style>
 <link rel="stylesheet" href="./ratib-login-3.6.124.css?v=3.6.131">
-<link rel="stylesheet" href="./ratib-commerce-3.6.131.css?v=3.6.107">
+<link rel="stylesheet" href="./ratib-commerce-3.6.131.css?v=3.6.109">
 
 <style id="ratib-commerce-ledger-actions-3.6.138">
 #pageLedger .rc-ledger-operations{display:flex;align-items:center;justify-content:flex-start;gap:5px;flex-wrap:wrap;padding:6px 8px;margin-top:4px}
@@ -1578,11 +1579,11 @@ body.ratib-sidebar-open,body.ratib-about-open{overflow:hidden}
 <link rel="stylesheet" href="./ratib-trial-home-sidebar-3.6.143.css?v=3.6.143">
 <link rel="stylesheet" href="./ratib-trial-ui-3.6.143.css?v=3.6.143">
 <link rel="stylesheet" href="./ratib-dashboard-finance-3.6.144.css?v=3.6.144">
-<link rel="stylesheet" href="./ratib-global-button-size-3.6.146.css?v=3.6.146">
-<link rel="stylesheet" href="./ratib-interface-font-3.6.148.css?v=3.6.148">
+<link rel="stylesheet" href="./ratib-global-button-size-3.6.146.css?v=3.6.109">
+<link rel="stylesheet" href="./ratib-interface-font-3.6.148.css?v=3.6.109">
 <link rel="stylesheet" href="./ratib-feedback-3.6.149.css?v=3.6.149">
 <link rel="stylesheet" href="./ratib-country-currency-3.6.151.css?v=3.6.151">
-<link rel="stylesheet" href="./ratib-interactive-tree-3.6.105.05.css?v=3.6.107">
+<link rel="stylesheet" href="./ratib-interactive-tree-3.6.105.05.css?v=3.6.109">
 </head>
 <body>
 
@@ -1613,7 +1614,7 @@ body.ratib-sidebar-open,body.ratib-about-open{overflow:hidden}
     <div class="header-tools"><div class="header-actions">
       <button class="icon-btn" id="themeBtn" title="الوضع الليلي">🌙</button>
       <button class="icon-btn" id="sidebarMenuBtn" aria-haspopup="dialog" aria-controls="appSidebar" aria-expanded="false" title="الإعدادات" aria-label="فتح الإعدادات">⚙</button>
-    </div><small id="appVersionLabel" class="app-version">الإصدار 3.6.107</small></div>
+    </div><small id="appVersionLabel" class="app-version">الإصدار 3.6.109</small></div>
   </header>
   <div class="summary-toolbar hidden no-print" id="storageFeedback"><span id="persistentSaveStatus" hidden aria-hidden="true">جاهز</span><button type="button" id="retryStorageBtn" class="btn btn-ghost hidden">إعادة محاولة الحفظ</button></div>
 <div class="app-update-banner hidden no-print" id="appUpdateBanner" role="status"><span id="appUpdateMessage">يتوفر تحديث لراتب. هل تريد تطبيقه؟</span><button type="button" class="btn btn-ghost" id="applyAppUpdateBtn">موافق، تطبيق التحديث</button><div id="appUpdateDetails" class="hidden"></div></div>
@@ -1660,7 +1661,7 @@ body.ratib-sidebar-open,body.ratib-about-open{overflow:hidden}
       <img src="Icons/icon-192.png" width="72" height="72" alt="" decoding="async">
       <h2 id="ratibAboutTitle">راتب</h2>
       <p class="ratib-about-subtitle">للتنظيم والتدبير المالي</p>
-      <p class="ratib-about-version">الإصدار 3.6.107</p>
+      <p class="ratib-about-version">الإصدار 3.6.109</p>
       <p id="ratibAboutDescription">إدارة الحسابات والسندات والميزانية، ومتابعة العمليات والتقارير المالية، مع حفظ البيانات على جهازك ودعم العمل دون الإنترنت.</p>
       <button type="button" class="btn btn-primary" id="closeRatibAboutBtn">إغلاق</button>
     </div>
@@ -2335,6 +2336,7 @@ body.ratib-sidebar-open,body.ratib-about-open{overflow:hidden}
         <input type="hidden" id="valDefaultSpendCredit">
       </div>
       <button class="btn btn-primary" id="saveDefaultAccountsBtn" style="margin-top: 4px;">💾 حفظ الحسابات الافتراضية</button>
+      <div id="ratibCommerceDefaults"></div>
     </div>
   </div>
 
@@ -2360,8 +2362,8 @@ body.ratib-sidebar-open,body.ratib-about-open{overflow:hidden}
     </div>
     <div class="settings-accordion-body" onclick="event.stopPropagation()">
       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
-        <p style="color:var(--muted);font-weight:700;margin-bottom:0;">البنود الأساسية العشرة ثابتة، ويمكن إضافة بندين اختياريين.</p>
-        <button class="btn btn-ghost" id="addCatBtn" style="width:auto; margin-top:0; padding:4px 10px; font-size:1rem;">➕ إضافة بند اختياري</button>
+        <p style="color:var(--muted);font-weight:700;margin-bottom:0;">البنود الأساسية محفوظة، ويمكن إضافة أي عدد من بنود الميزانية الجديدة دون حد أقصى.</p>
+        <button class="btn btn-ghost" id="addCatBtn" style="width:auto; margin-top:0; padding:4px 10px; font-size:1rem;">➕ إضافة بند جديد</button>
       </div>
       <div id="pctRows"></div>
       <div id="pctSum" style="text-align:center; font-weight:700; margin:12px 0; font-size:1.2rem;">المجموع: 100%</div>
@@ -2412,7 +2414,7 @@ body.ratib-sidebar-open,body.ratib-about-open{overflow:hidden}
           <p style="color:var(--muted);font-weight:700;font-size:0.9rem;margin-bottom:10px;">اربط حساب Google الخاص بك مباشرة؛ لا يلزم إنشاء مشروع أو إدخال معرّف تقني. يتطلب الربط فتح التطبيق من موقع HTTPS.</p>
           <label for="cloudUploadDestination" style="font-weight:700;">مجلد رفع النسخة اليدوية</label>
           <select id="cloudUploadDestination" style="margin-bottom:8px;"><option value="official">Ratib Backups — الرسمية (الافتراضي)</option><option value="trial">Ratib Trial Backups — التجريبية (اختياري)</option></select>
-          <p style="font-size:.8rem;color:var(--muted);margin-bottom:8px;">النسخ التلقائي يُحفظ في مجلد الرسمية فقط. النسخ الموجودة لن تُستبدل.</p>
+          <p style="font-size:.8rem;color:var(--muted);margin-bottom:8px;">النسخ التلقائي يُحفظ في مجلد النسخ الرسمية فقط. النسخ الموجودة لن تُستبدل.</p>
           <div style="display:flex; gap:8px; flex-wrap:wrap;">
             <button class="btn btn-primary" id="cloudSaveBtn" style="margin-top:0; font-size:1.05rem;">💾 حفظ وتفعيل السحابة</button>
             <button class="btn btn-ghost" id="cloudRunNowBtn" style="margin-top:0; font-size:1.05rem; display:none;">☁️ نسخ الآن</button>
@@ -2898,14 +2900,14 @@ body.ratib-sidebar-open,body.ratib-about-open{overflow:hidden}
 
 </div>
 
-<script src="./ratib-first-run-3.6.105.11.js?v=3.6.107"></script>
+<script src="./ratib-first-run-3.6.105.11.js?v=3.6.109"></script>
 <script>
 // ===== تسجيل Service Worker (يفعّل العمل دون إنترنت بعد أول زيارة) =====
 // يُسجَّل بعد اكتمال تحميل الصفحة حتى لا يؤخر أول عرض للتطبيق. يعمل فقط عبر HTTPS
 // (أو localhost أثناء التطوير) — هذا شرط أساسي من المتصفح نفسه لأي Service Worker.
 let _briefAppNoticeTimer=null;
 let _releaseSummaryDisplayed=false;
-const RATIB_RELEASE={"version":"3.6.107","build":"p10701","highlights":[],"changes":["تصحيح الأخطاء في بعض الأجهزة"]};
+const RATIB_RELEASE={"version":"3.6.109","build":"p10900","highlights":[],"changes":["تصحيح الأخطاء في بعض الأجهزة"]};
 window.ratibCurrentTrialVersion=()=>String(RATIB_RELEASE.version);
 window.ratibCurrentTrialVersionLabel=()=>`الإصدار ${RATIB_RELEASE.version}`;
 window.ratibSyncTrialVersion=()=>{
@@ -3083,6 +3085,41 @@ function getSecurityConfig(){
   try{const raw=localStorage.getItem(SECURITY_CONFIG_KEY);if(raw)return _securityConfigCache=JSON.parse(raw);}catch(_){ }
   return _securityConfigCache={enabled:false,salt:null,bioCredentialId:null};
 }
+
+const VAULT_BIO_SESSION_MAX_AGE_MS = 24 * 60 * 60 * 1000;
+// Biometric fast-unlock needs a temporary key. Never cache one for PIN-only users.
+function clearVaultBiometricSession(){try{sessionStorage.removeItem(SESSION_KEY_CACHE);}catch(_){}}
+function readVaultBiometricSession(){
+  const cfg=getSecurityConfig();
+  if(!cfg.enabled||!cfg.bioCredentialId||!cfg.salt){clearVaultBiometricSession();return null;}
+  let stored;try{stored=sessionStorage.getItem(SESSION_KEY_CACHE);}catch(_){return null;}
+  if(!stored)return null;
+  try{
+    const entry=JSON.parse(stored);
+    if(entry?.version!==2||entry.credentialId!==cfg.bioCredentialId||entry.salt!==cfg.salt||
+       !Number.isFinite(entry.expiresAt)||entry.expiresAt<=Date.now()||
+       entry.expiresAt>Date.now()+VAULT_BIO_SESSION_MAX_AGE_MS||
+       typeof entry.key!=='string'||!/^[A-Za-z0-9+/]{43}=$/.test(entry.key)){
+      clearVaultBiometricSession();return null;
+    }
+    return entry;
+  }catch(_){clearVaultBiometricSession();return null;}
+}
+async function cacheVaultKeyForBiometrics(key){
+  const cfg=getSecurityConfig();
+  if(!cfg.enabled||!cfg.bioCredentialId||!_vaultUnlocked||!key){clearVaultBiometricSession();return false;}
+  try{
+    const raw=new Uint8Array(await crypto.subtle.exportKey('raw',key));
+    try{
+      sessionStorage.setItem(SESSION_KEY_CACHE,JSON.stringify({
+        version:2,credentialId:cfg.bioCredentialId,salt:cfg.salt,
+        expiresAt:Date.now()+VAULT_BIO_SESSION_MAX_AGE_MS,key:_b64(raw)
+      }));
+      return true;
+    }finally{raw.fill(0);}
+  }catch(_){clearVaultBiometricSession();return false;}
+}
+
 function saveSecurityConfigRaw(cfg){
   _securityConfigCache={...cfg};_pendingWrites.set(SECURITY_CONFIG_KEY,cloneData(cfg));scheduleStorageFlush();
 }
@@ -3232,14 +3269,14 @@ async function enableVaultEncryption(pin){
   const cfg={...getSecurityConfig(),enabled:true,salt:saltB64};
   await _replacePersistentData({[VAULT_BLOB_KEY]:blob,[SECURITY_CONFIG_KEY]:cfg});
   _securityConfigCache=cfg;_vaultBlob=blob;_vaultCryptoKey=key;_vaultUnlocked=true;
-  try{sessionStorage.setItem(SESSION_KEY_CACHE,_b64(await crypto.subtle.exportKey('raw',key)));}catch(_){ }
+  await cacheVaultKeyForBiometrics(key);
 }
 async function disableVaultEncryption(){
   await flushStorage();
   const cfg={enabled:false,salt:null,bioCredentialId:getSecurityConfig().bioCredentialId||null};
   await _replacePersistentData({...cloneData(_snapshotMemStore()),[SECURITY_CONFIG_KEY]:cfg});
   _securityConfigCache=cfg;_vaultCryptoKey=null;_vaultUnlocked=false;_vaultBlob=null;
-  try{sessionStorage.removeItem(SESSION_KEY_CACHE);}catch(_){ }
+  clearVaultBiometricSession();
 }
 async function _readVaultBlob(){
   if(_vaultBlob)return _vaultBlob;
@@ -3260,15 +3297,20 @@ async function tryUnlockVaultWithPin(pin){
   const cfg=getSecurityConfig();if(!cfg.enabled||!cfg.salt)return false;
   const blob=await _readVaultBlob();if(!blob)return false;
   const {key}=await deriveVaultKey(pin,cfg.salt);await _finishVaultUnlock(key,blob);
-  try{sessionStorage.setItem(SESSION_KEY_CACHE,_b64(await crypto.subtle.exportKey('raw',key)));}catch(_){ }
+  await cacheVaultKeyForBiometrics(key);
   return true;
 }
 async function tryUnlockVaultWithSessionKey(){
-  if(!getSecurityConfig().enabled)return false;
-  let cached;try{cached=sessionStorage.getItem(SESSION_KEY_CACHE);}catch(_){return false;}
-  const blob=await _readVaultBlob();if(!cached||!blob)return false;
-  const key=await crypto.subtle.importKey('raw',_fromB64(cached),{name:'AES-GCM'},true,['encrypt','decrypt']);
-  return _finishVaultUnlock(key,blob);
+  const entry=readVaultBiometricSession();if(!entry)return false;
+  const blob=await _readVaultBlob();if(!blob)return false;
+  try{
+    const raw=_fromB64(entry.key);
+    let key;try{key=await crypto.subtle.importKey('raw',raw,{name:'AES-GCM'},true,['encrypt','decrypt']);}
+    finally{raw.fill(0);}
+    const ok=await _finishVaultUnlock(key,blob);
+    if(ok)await cacheVaultKeyForBiometrics(key);
+    return ok;
+  }catch(error){clearVaultBiometricSession();throw error;}
 }
 
 
@@ -3291,7 +3333,7 @@ function boot() {
 
   // فتح سريع: فقط إذا سبق فتح القفل بالرقم السري في نفس جلسة المتصفح هذه
   // (sessionStorage تُمسح تلقائياً عند إغلاق التبويب) ونجح التحقق ببصمة الإصبع الفعلية.
-  if (window.PublicKeyCredential && cfg.bioCredentialId && sessionStorage.getItem(SESSION_KEY_CACHE)) {
+  if (window.PublicKeyCredential && cfg.bioCredentialId && readVaultBiometricSession()) {
     const bioBtn = document.getElementById('bioUnlockBtn');
     if (bioBtn) bioBtn.style.display = 'block';
   }
@@ -3345,7 +3387,7 @@ async function factoryResetApp(){
   try{
     clearTimeout(_draftTimer);clearTimeout(_autoBackupTimer);await flushStorage();await _replacePersistentData({});try{await _idbDelete('dir');}catch(_){ }
     for(const k of Object.keys(_memStore))delete _memStore[k];_securityConfigCache={enabled:false,salt:null,bioCredentialId:null};_vaultCryptoKey=null;_vaultUnlocked=false;_vaultBlob=null;
-    try{sessionStorage.removeItem(SESSION_KEY_CACHE);}catch(_){ }
+    clearVaultBiometricSession();
     hasUnsavedChanges=false;location.reload();
   }catch(e){showToast('تعذّرت إعادة التهيئة. أعد محاولة الحفظ قبل المتابعة.','error');}
 }
@@ -3364,7 +3406,10 @@ async function registerBiometricCredential() {
       authenticatorSelection: { authenticatorAttachment: "platform", userVerification: "required" }
     }});
     const cfg = getSecurityConfig();
+    if(!cred?.rawId||cred.type!=='public-key')throw new Error('لم يتم تسجيل بصمة معتمدة.');
     saveSecurityConfigRaw({ ...cfg, bioCredentialId: _b64(cred.rawId) });
+    await flushStorage();
+    await cacheVaultKeyForBiometrics(_vaultCryptoKey);
     return true;
   } catch (err) { alert('تعذّر تسجيل البصمة على هذا الجهاز.'); return false; }
 }
@@ -3372,6 +3417,7 @@ async function registerBiometricCredential() {
 // إيقاف البصمة: يحذف معرّف البصمة المسجَّل فقط (لا يمس القفل بالرقم السري ولا يمس بياناتك)
 function disableBiometricCredential() {
   const cfg = getSecurityConfig();
+  clearVaultBiometricSession();
   saveSecurityConfigRaw({ ...cfg, bioCredentialId: null });
   refreshBioSettingsUI();
   showToast('تم إيقاف الدخول بالبصمة', 'warn');
@@ -3384,13 +3430,15 @@ function disableBiometricCredential() {
 async function authenticateBiometric() {
   const cfg = getSecurityConfig();
   if (!window.PublicKeyCredential || !cfg.bioCredentialId) { alert('البصمة غير مُفعّلة على هذا الجهاز، الرجاء إدخال الرقم السري'); return; }
+  if(!readVaultBiometricSession()){alert('انتهت جلسة البصمة؛ أدخل الرقم السري مرة واحدة لتجديدها.');return;}
   try {
-    await navigator.credentials.get({ publicKey: {
+    const assertion=await navigator.credentials.get({ publicKey: {
       challenge: crypto.getRandomValues(new Uint8Array(32)),
       allowCredentials: [{ id: _fromB64(cfg.bioCredentialId), type: 'public-key' }],
       userVerification: 'required',
       timeout: 60000
     }});
+    if(!assertion?.rawId||assertion.type!=='public-key'||_b64(assertion.rawId)!==cfg.bioCredentialId)throw new Error('لم تطابق البصمة بيانات الجهاز المسجّل.');
     const ok = await tryUnlockVaultWithSessionKey();
     if (ok) { unlockAppScreen(); proceedAppInit(); showToast('تم التحقق بنجاح عبر البصمة', 'success'); }
     else { alert('انتهت صلاحية جلسة البصمة السريعة، الرجاء إدخال الرقم السري مرة واحدة لإعادة تفعيلها.'); }
@@ -3634,7 +3682,8 @@ document.addEventListener('DOMContentLoaded', () => {
    ========================================================================= */
 async function buildBackupPayload() {
   const cfg = getSecurityConfig();
-  if (cfg.enabled && _vaultCryptoKey) {
+  if (cfg.enabled) {
+    if(!_vaultUnlocked||!_vaultCryptoKey||!cfg.salt)throw new Error('الخزنة مقفلة؛ لا يمكن تصدير نسخة غير مشفّرة. افتح القفل بالرقم السري أولاً.');
     const blob = await encryptVaultBlob(_vaultCryptoKey, _snapshotMemStore());
     return { app: 'ratib', schema: APP_SCHEMA_VERSION, encrypted: true, salt: cfg.salt, blob, exportedAt: new Date().toISOString() };
   }
@@ -3690,16 +3739,16 @@ async function importBackupFile(file){
     const payload=JSON.parse(await file.text());
     if(!payload||typeof payload!=='object'||Array.isArray(payload))throw new Error('ملف النسخة الاحتياطية غير صالح.');
     if(Number(payload.schema||0)>APP_SCHEMA_VERSION)throw new Error('هذه النسخة من إصدار أحدث؛ حدّث التطبيق أولاً.');
-    if(payload.app!=='ratib'&&!confirm('هذه نسخة قديمة أو من تطبيق آخر. سيتم التحقق من بياناتها قبل الاسترجاع. متابعة؟'))return;
+    if(payload.app!=='ratib'&&!confirm('هذه نسخة قديمة أو من تطبيق آخر. سيتم التحقق من بياناتها قبل الاسترجاع. متابعة؟'))return false;
     let restored,importedKey=null;
     if(payload.encrypted){
-      const pin=prompt('أدخل الرقم السري المستخدم وقت إنشاء هذه النسخة:');if(!pin)return;
+      const pin=prompt('أدخل الرقم السري المستخدم وقت إنشاء هذه النسخة:');if(!pin)return false;
       try{importedKey=(await deriveVaultKey(pin,payload.salt)).key;restored=normalizeRestoredData(await decryptVaultBlob(importedKey,payload.blob));}
       catch(_){throw new Error('الرقم السري غير صحيح، أو النسخة تالفة.');}
     }else restored=normalizeRestoredData(payload.data||{});
     for(const k of Object.keys(restored))if(_storageInternalKeys.has(k))delete restored[k];
     const count=validateRestoredData(restored);
-    if(!confirm(`سيتم استبدال جميع البيانات الحالية بنسخة تحتوي ${count} حركة محاسبية. ستُجهّز نسخة أمان من البيانات الحالية للتنزيل قبل الاستبدال. متابعة؟`))return;
+    if(!confirm(`سيتم استبدال جميع البيانات الحالية بنسخة تحتوي ${count} حركة محاسبية. ستُجهّز نسخة أمان من البيانات الحالية للتنزيل قبل الاستبدال. متابعة؟`))return false;
     if(_pendingFinancialCompletion)throw new Error('أكمل حفظ السند المعلّق قبل استرجاع نسخة أخرى.');
     await flushStorage();
     const rollback=await buildBackupPayload();downloadBackupPayload(rollback,`ratib-before-restore-${backupStamp()}.json`);
@@ -3709,11 +3758,11 @@ async function importBackupFile(file){
     else await _replacePersistentData({...restored,[SECURITY_CONFIG_KEY]:cfg});
     for(const k of Object.keys(_memStore))delete _memStore[k];Object.assign(_memStore,restored);
     _securityConfigCache=cfg;_vaultCryptoKey=key;_vaultUnlocked=!!cfg.enabled;_vaultBlob=blob;
-    if(cfg.enabled){try{sessionStorage.setItem(SESSION_KEY_CACHE,_b64(await crypto.subtle.exportKey('raw',key)));}catch(_){ }}
-    else try{sessionStorage.removeItem(SESSION_KEY_CACHE);}catch(_){ }
+    if(cfg.enabled)await cacheVaultKeyForBiometrics(key);
+    else clearVaultBiometricSession();
     clearTimeout(_draftTimer);clearTimeout(_autoBackupTimer);hasUnsavedChanges=false;
-    showToast('اكتمل الاسترجاع والحفظ، سيُعاد فتح التطبيق.','info');setTimeout(()=>location.reload(),300);
-  }catch(e){console.error(e);showToast(e.message||'تعذّر استرجاع النسخة. لم يكتمل الاستبدال.','error',7000);}
+    showToast('اكتمل الاسترجاع والحفظ، سيُعاد فتح التطبيق.','info');setTimeout(()=>location.reload(),300);return true;
+  }catch(e){console.error(e);showToast(e.message||'تعذّر استرجاع النسخة. لم يكتمل الاستبدال.','error',7000);return false;}
 }
 
 // ---- نسخ تلقائي لمجلد على الجهاز (Chrome/Edge على الكمبيوتر فقط) ----
@@ -3913,11 +3962,13 @@ const CLOUD_LEGACY_FOLDER_NAME = 'Ratib Trial Backups';
 const CLOUD_LEGACY_PREFIX = 'ratib-trial-cloud-';
 const CLOUD_FILE_PREFIX = 'ratib-cloud-';
 const DRIVE_SCOPE = 'https://www.googleapis.com/auth/drive.file';
+// Shared Ratib Web OAuth identity: both official and trial origins must be registered in Google Cloud.
+// Each release retains its separate backup folder, file prefix and local storage.
 const RATIB_GOOGLE_CLIENT_ID = '127962228897-k19m5nstjaun38k38348er1c9cf8vemb.apps.googleusercontent.com';
 let _cloudToken = null, _cloudTokenExp = 0, _cloudBusy = false, _gisPromise = null, _cloudNotifiedThisSession = false;
 
 function getCloudCfg() {
-  return Object.assign({ enabled: false, email: '', time: '21:00', lastDate: '', lastTime: '', lastError: '' }, store.get(CLOUD_CFG_KEY, {}) || {}, { clientId: RATIB_GOOGLE_CLIENT_ID });
+  return Object.assign({ enabled: false, email: '', time: '21:00', lastDate: '', lastTime: '', lastError: '', lastStatus: '', lastFileId: '', lastFileName: '', lastFolder: '', lastVerifiedAt: '', pendingUpload: null }, store.get(CLOUD_CFG_KEY, {}) || {}, { clientId: RATIB_GOOGLE_CLIENT_ID });
 }
 function saveCloudCfg(patch, silent = false) {
   const next = Object.assign(getCloudCfg(), patch, { clientId: RATIB_GOOGLE_CLIENT_ID });
@@ -3979,8 +4030,8 @@ async function getDriveToken(interactive) {
         },
         error_callback: (err) => {
           const detail = err && (err.message || err.type) || '';
-          settle(new Error(/popup_failed_to_open|popup_closed|popup_blocked/i.test(detail)
-            ? 'لم تُفتح نافذة Google داخل مسار راتب. افتح راتب مباشرة في Chrome وأعد المحاولة.'
+          settle(new Error(/popup.*(?:failed.*open|closed|blocked)/i.test(detail)
+            ? 'لم يكتمل تفويض Google. إذا ظهرت صفحة Google بخطأ 400 origin_mismatch، فتأكد من تسجيل https://salehaliabubaker.github.io ضمن مصادر JavaScript المسموحة لمعرّف راتب الموحّد. وإلا فأعد محاولة الربط من Chrome.'
             : 'فشل تفويض Google Drive: ' + (detail || 'استجابة غير معروفة')));
         }
       });
@@ -3990,10 +4041,27 @@ async function getDriveToken(interactive) {
 }
 
 async function driveFetch(url, opts = {}, token) {
-  const res = await fetch(url, Object.assign({}, opts, { headers: Object.assign({ Authorization: 'Bearer ' + token }, opts.headers || {}) }));
-  if (res.status === 401) { _cloudToken = null; _cloudTokenExp = 0; }
-  if (!res.ok) { const t = await res.text().catch(() => ''); throw new Error(`Drive ${res.status}: ${t.slice(0, 160)}`); }
-  return res;
+  const timeoutMs = Number(opts.timeoutMs) || (opts.method === 'POST' ? 150000 : 60000);
+  const controller = new AbortController();
+  const deadline = setTimeout(() => controller.abort(), timeoutMs);
+  const { timeoutMs: ignoredTimeout, ...options } = opts;
+  try {
+    const res = await fetch(url, Object.assign({}, options, {
+      signal: controller.signal,
+      headers: Object.assign({ Authorization: 'Bearer ' + token }, options.headers || {})
+    }));
+    if (res.status === 401) { _cloudToken = null; _cloudTokenExp = 0; }
+    if (!res.ok) {
+      const t = await res.text().catch(() => '');
+      const error = new Error('Google Drive HTTP ' + res.status + ': ' + t.slice(0, 160));
+      error.status = res.status;
+      throw error;
+    }
+    return res;
+  } catch (error) {
+    if (error?.name === 'AbortError') throw new Error('انتهت مهلة استجابة Google Drive. حالة الرفع غير محسومة؛ سيجري التحقق قبل محاولة إنشاء نسخة جديدة.');
+    throw error;
+  } finally { clearTimeout(deadline); }
 }
 
 async function findDriveFolder(token, name) {
@@ -4013,7 +4081,7 @@ async function ensureDriveFolder(token) {
   return c.id;
 }
 
-async function listCloudBackups(token, folderId, origin = 'trial') {
+async function listCloudBackups(token, folderId, origin = 'official') {
   if (!folderId) return [];
   const q = encodeURIComponent(`'${folderId}' in parents and trashed=false`);
   let pageToken = '', results = [];
@@ -4035,11 +4103,11 @@ async function listBothCloudBackups(token) {
 }
 
 async function pruneCloudBackups(token, folderId) {
-  // لا تحذف النسخة الرسمية أي نسخ سحابية قائمة؛ الحذف التلقائي معطّل لحماية البيانات.
+  // لا يحذف راتب أي نسخ سحابية قائمة؛ الحذف التلقائي معطل لحماية البيانات.
 }
 
 async function uploadCloudBackup(token, folderId, name, content) {
-  const boundary = 'ratibB' + Math.random().toString(36).slice(2);
+  const boundary = 'ratibB' + crypto.randomUUID().replaceAll('-', '');
   const meta = JSON.stringify({ name, parents: [folderId], mimeType: 'application/json' });
   const body = `--${boundary}\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n${meta}\r\n--${boundary}\r\nContent-Type: application/json\r\n\r\n${content}\r\n--${boundary}--`;
   return (await driveFetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id,name', {
@@ -4047,9 +4115,63 @@ async function uploadCloudBackup(token, folderId, name, content) {
   }, token)).json();
 }
 
+// Do not call the upload complete until Drive confirms the stored file, folder, name and byte length.
+async function verifyCloudFile(token, item) {
+  if (!item?.id) throw new Error('Google Drive لم يُرجع معرّف النسخة للتحقق منها.');
+  const response = await driveFetch('https://www.googleapis.com/drive/v3/files/' +
+    encodeURIComponent(item.id) + '?fields=id,name,parents,size,mimeType,trashed', {}, token);
+  const file = await response.json();
+  if (!file || file.id !== item.id || file.name !== item.name ||
+      !Array.isArray(file.parents) || !file.parents.includes(item.folderId) ||
+      file.trashed === true || file.mimeType !== 'application/json' ||
+      !Number.isFinite(Number(file.size)) || Number(file.size) !== item.bytes || item.bytes < 1) {
+    throw new Error('لم تتطابق بيانات النسخة الموجودة في Google Drive مع الملف المطلوب؛ لم يُعتمد نجاح الرفع.');
+  }
+  return file;
+}
+async function cloudBackupSuccess(item) {
+  const now = new Date();
+  saveCloudCfg({
+    pendingUpload: null, lastStatus: 'verified', lastError: '',
+    lastDate: _todayStr(now), lastTime: now.toISOString(),
+    lastFileId: item.id, lastFileName: item.name,
+    lastFolder: item.destination === 'trial' ? CLOUD_LEGACY_FOLDER_NAME : CLOUD_FOLDER_NAME,
+    lastVerifiedAt: now.toISOString()
+  }, true);
+  // Confirmation must survive immediate app switching or Android process eviction.
+  try {
+    await flushStorage();
+    return true;
+  } catch (error) {
+    console.warn('تعذّر تثبيت حالة النسخ السحابي محلياً', error);
+    showToast('النسخة مؤكدة في Google Drive، لكن تعذّر تثبيت حالة النسخ محلياً؛ افتح النسخ السحابي للتحقق عند العودة.', 'warn', 8000);
+    return false;
+  }
+}
+// Resolve a lost upload response before creating another file. A transient error preserves the pending record.
+async function recoverPendingCloudUpload(token, pending) {
+  if (!pending?.name || !pending?.folderId || !Number.isFinite(Number(pending.bytes))) return false;
+  let item = { ...pending };
+  if (!item.id) {
+    const files = await listCloudBackups(token, item.folderId);
+    const match = files.find(f => f.name === item.name);
+    if (!match) { saveCloudCfg({ pendingUpload: null }, true); return false; }
+    item.id = match.id;
+    saveCloudCfg({ pendingUpload: item }, true);
+  }
+  try {
+    await verifyCloudFile(token, item);
+  } catch (error) {
+    if (error?.status === 404) { saveCloudCfg({ pendingUpload: null }, true); return false; }
+    throw error;
+  }
+  await cloudBackupSuccess(item);
+  return true;
+}
+
 async function runCloudBackup(interactive) {
   if (_cloudBusy) {
-    if (interactive) showToast('هناك محاولة نسخ قائمة؛ انتظر نتيجتها قبل إعادة الطلب.', 'warn');
+    if (interactive) showToast('هناك محاولة نسخ قائمة؛ راجع نتيجتها قبل إعادة الطلب.', 'warn');
     return false;
   }
   const cfg = getCloudCfg();
@@ -4057,34 +4179,50 @@ async function runCloudBackup(interactive) {
   _cloudBusy = true; refreshCloudBackupUI();
   try {
     const token = await getDriveToken(interactive);
+    // A previous POST might have succeeded even if the browser lost its response.
+    if (cfg.pendingUpload && await recoverPendingCloudUpload(token, cfg.pendingUpload)) {
+      if (interactive) showToast('تم تأكيد النسخة السابقة على Google Drive، دون رفع نسخة مكررة.', 'success');
+      return true;
+    }
     const dest = interactive ? (document.getElementById('cloudUploadDestination')?.value || 'official') : 'official';
     let folderId;
     if (dest === 'trial') {
       folderId = await findDriveFolder(token, CLOUD_LEGACY_FOLDER_NAME);
-      if (!folderId) throw new Error('مجلد التجريبية غير ظاهر بصلاحيات Google الحالية؛ لم تُرفع أي نسخة إلى مجلد آخر.');
-      if (!confirm('سترفع نسخة جديدة إلى مجلد التجريبية دون استبدال نسخ موجودة. متابعة؟')) return false;
+      if (!folderId) throw new Error('مجلد التجريبية غير ظاهر بصلاحيات Google الحالية؛ لن تُرفع النسخة إلى مجلد آخر.');
+      if (!interactive || !confirm('سترفع نسخة جديدة إلى مجلد التجريبية دون استبدال النسخ الموجودة. متابعة؟')) return false;
     } else folderId = await ensureDriveFolder(token);
-    const now = new Date();
+    if (!folderId) throw new Error('تعذر تحديد مجلد النسخ السحابية في Google Drive.');
+    // Include all saved accounting updates before taking the backup snapshot.
+    await flushStorage();
     const payload = await buildBackupPayload();
+    const content = JSON.stringify(payload);
+    const now = new Date();
     const prefix = dest === 'official' ? CLOUD_FILE_PREFIX : CLOUD_LEGACY_PREFIX;
     const baseName = `${prefix}${backupStamp(now)}`;
     const files = await listCloudBackups(token, folderId);
     let name = baseName + '.json', suffix = 1;
     while (files.some(f => f.name === name)) name = `${baseName}-${suffix++}.json`;
-    const uploaded = await uploadCloudBackup(token, folderId, name, JSON.stringify(payload));
-    if (!uploaded || !uploaded.id || uploaded.name !== name) throw new Error('لم يؤكد Google Drive إنشاء ملف النسخة الاحتياطية.');
-    try {
-      const about = await (await driveFetch('https://www.googleapis.com/drive/v3/about?fields=user(emailAddress)', {}, token)).json();
-      const actual = (about.user && about.user.emailAddress || '').toLowerCase();
-      if (cfg.email && actual && actual !== cfg.email.trim().toLowerCase()) showToast(`تنبيه: رُفعت النسخة إلى حساب ${actual} وهو يختلف عن البريد المُدخل`, 'warn', 7000);
-    } catch (e) {}
-    saveCloudCfg({ lastDate: _todayStr(now), lastTime: now.toISOString(), lastError: '' }, true);
-    if (interactive) showToast('تم رفع النسخة السحابية بنجاح', 'success');
+    const pending = { id: null, name, folderId, destination: dest,
+      bytes: new TextEncoder().encode(content).length, attemptedAt: now.toISOString() };
+    // Persist intention first: unexpected WebView suspension must not trigger duplicate uploads.
+    saveCloudCfg({ pendingUpload: pending, lastStatus: 'uploading', lastError: '' }, true);
+    await flushStorage();
+    const uploaded = await uploadCloudBackup(token, folderId, name, content);
+    if (uploaded?.id) {
+      pending.id = uploaded.id;
+      saveCloudCfg({ pendingUpload: pending }, true);
+    }
+    await verifyCloudFile(token, pending);
+    const statusPersisted = await cloudBackupSuccess(pending);
+    if (interactive && statusPersisted) showToast('تم التحقق من حفظ النسخة السحابية على Google Drive بنجاح.', 'success');
     return true;
   } catch (e) {
     console.warn('فشل النسخ السحابي', e);
-    saveCloudCfg({ lastError: e.message || String(e) }, true);
-    if (interactive) showToast('تعذّر النسخ السحابي: ' + (e.message || e), 'error', 7000);
+    saveCloudCfg({ lastStatus: getCloudCfg().pendingUpload ? 'pending_verification' : 'error',
+      lastError: e.message || String(e) }, true);
+    // Preserve failures and pending verification state before the app is suspended.
+    try { await flushStorage(); } catch (storageError) { console.warn('تعذّر تثبيت خطأ النسخ السحابي', storageError); }
+    if (interactive) showToast('تعذّر تأكيد النسخ السحابي: ' + (e.message || e), 'error', 7000);
     return false;
   } finally { _cloudBusy = false; refreshCloudBackupUI(); }
 }
@@ -4098,35 +4236,60 @@ function cloudBackupDue() {
   return now >= scheduled && cfg.lastDate !== _todayStr(now);
 }
 
-async function checkCloudBackupDue() {if(_appExited)return;
-  if (_cloudBusy || !cloudBackupDue()) return;
-  const ok = await runCloudBackup(false); // محاولة صامتة
+async function checkCloudBackupDue() {
+  if (_appExited || _cloudBusy || !cloudBackupDue()) return;
+  // Google popup must never be launched by a background timer or on page resume.
+  if (navigator.onLine === false || !_cloudToken || Date.now() >= _cloudTokenExp - 60000) {
+    const next = navigator.onLine === false ? 'offline' : 'needs_authorization';
+    if (getCloudCfg().lastStatus !== next) {
+      saveCloudCfg({ lastStatus: next }, true);
+      refreshCloudBackupUI();
+    }
+    if (!_cloudNotifiedThisSession) {
+      _cloudNotifiedThisSession = true;
+      showToast(next === 'offline'
+        ? 'لم تُنفّذ النسخة السحابية المستحقة لعدم وجود اتصال. بياناتك المحلية محفوظة.'
+        : 'النسخة السحابية اليومية مستحقة وتحتاج إذن Google. افتح النسخ الاحتياطي واضغط «نسخ الآن».',
+      'warn', 8000);
+    }
+    return;
+  }
+  const ok = await runCloudBackup(false);
   if (!ok && !_cloudNotifiedThisSession) {
     _cloudNotifiedThisSession = true;
-    showToast('النسخة السحابية اليومية مستحقة وتحتاج موافقتك — افتح الإعدادات ← النسخ الاحتياطي واضغط "نسخ الآن"', 'warn', 8000);
+    showToast('لم يتم تأكيد النسخ اليومي. افتح إعدادات النسخ الاحتياطي لمراجعة الحالة.', 'warn', 8000);
   }
 }
 
 function refreshCloudBackupUI() {
   const cfg = getCloudCfg();
-  const $ = (id) => document.getElementById(id);
+  const $ = id => document.getElementById(id);
   const statusEl = $('cloudBackupStatus'), lastEl = $('cloudBackupLastTime'), warnEl = $('cloudBackupWarn');
   if (!statusEl) return;
   const active = cfg.enabled && cfg.clientId;
-  statusEl.textContent = _cloudBusy ? '⏳ جارٍ الاتصال ورفع النسخة...'
-    : cfg.lastError ? '⚠️ لم يكتمل آخر نسخ سحابي'
-    : active && cfg.lastTime ? `✅ آخر نسخة سحابية ناجحة — النسخ اليومي ${cfg.time}`
-    : active ? '☁️ إعدادات السحابة محفوظة — لم يتم تأكيد رفع نسخة بعد' : 'غير مفعّل';
+  statusEl.textContent = _cloudBusy ? '⏳ جارٍ التواصل مع Google Drive والتحقق من النسخة...'
+    : !active ? 'غير مفعّل'
+    : cfg.pendingUpload ? '⚠️ توجد محاولة رفع غير محسومة؛ اضغط «نسخ الآن» للتحقق من الملف قبل إنشاء نسخة أخرى'
+    : cfg.lastStatus === 'needs_authorization' ? '🔑 النسخ اليومي مستحق؛ يحتاج إذن Google بالضغط على «نسخ الآن»'
+    : cfg.lastStatus === 'offline' ? '📴 النسخ السحابي مستحق لكن الإنترنت غير متاح؛ لم تُرفع نسخة جديدة'
+    : cfg.lastError ? '⚠️ فشل التحقق من آخر نسخة سحابية'
+    : cfg.lastFileId && cfg.lastVerifiedAt ? '✅ آخر نسخة مؤكدة في Google Drive — النسخ اليومي ' + cfg.time
+    : cfg.lastTime ? '☁️ يوجد رفع سابق مسجل؛ لم يُجرَ فحص محتواه وفق معيار التحقق الجديد'
+    : '☁️ إعدادات السحابة محفوظة — لم يُؤكَّد رفع نسخة بعد';
   if (lastEl) {
     const parts = [];
-    if (cfg.lastTime) parts.push(`آخر نسخة سحابية: ${new Date(cfg.lastTime).toLocaleString('ar-EG')}`);
-    if (cfg.lastError) parts.push(`آخر خطأ: ${cfg.lastError}`);
+    if (cfg.lastTime) parts.push('آخر نسخة ناجحة: ' + new Date(cfg.lastTime).toLocaleString('ar-EG'));
+    if (cfg.lastFileName) parts.push('الملف: ' + cfg.lastFileName);
+    if (cfg.lastFolder) parts.push('المجلد: ' + cfg.lastFolder);
+    if (cfg.lastVerifiedAt) parts.push('تأكيد Google: ' + new Date(cfg.lastVerifiedAt).toLocaleString('ar-EG'));
+    if (cfg.lastError) parts.push('آخر خطأ: ' + cfg.lastError);
     lastEl.textContent = parts.join(' | ');
   }
   if (warnEl) {
     const msgs = [];
     if (!getSecurityConfig().enabled) msgs.push('⚠️ القفل بالرقم السري غير مفعّل، فستُرفع النسخ بدون تشفير. فعّل الرقم السري ليُشفَّر محتواها قبل الرفع.');
-    if (!_cloudOriginOk()) msgs.push('⚠️ الربط مع Google لا يعمل من ملف محلي أو واتساب؛ افتح التطبيق من رابط https.');
+    if (!_cloudOriginOk()) msgs.push('⚠️ الربط مع Google يتطلب فتح التطبيق من رابط https معتمد، وليس من ملف محلي.');
+    if (cfg.pendingUpload) msgs.push('⚠️ لا تُنشئ نسخة ثانية قبل التحقق من محاولة الرفع السابقة.');
     warnEl.textContent = msgs.join(' '); warnEl.style.display = msgs.length ? 'block' : 'none';
   }
   const show = (id, on) => { const el = $(id); if (el) el.style.display = on ? 'inline-block' : 'none'; };
@@ -4134,7 +4297,6 @@ function refreshCloudBackupUI() {
   const runBtn = $('cloudRunNowBtn'); if (runBtn) runBtn.disabled = _cloudBusy;
   if (document.activeElement !== $('cloudEmailInput')) { const e = $('cloudEmailInput'); if (e) e.value = cfg.email || ''; }
   if (document.activeElement !== $('cloudTimeInput')) { const t = $('cloudTimeInput'); if (t) t.value = cfg.time || '21:00'; }
-
 }
 
 async function openCloudRestoreModal() {
@@ -4149,12 +4311,12 @@ async function openCloudRestoreModal() {
     if (!officialVisible) {
       const warn = document.createElement('p');
       warn.style.cssText = 'color:var(--muted);line-height:1.7;font-size:.9rem;';
-      warn.textContent = 'مجلد Ratib Backups الرسمي غير ظاهر بصلاحية Google الحالية (drive.file). هذا لا يعني أن ملفاتك حُذفت. يمكنك تنزيل نسخة من Google Drive يدويًا واستيرادها من خيار الاستعادة المحلية، أو منح الوصول للملفات بطريقة يدعمها Google.';
+      warn.textContent = 'مجلد Ratib Backups القديم غير ظاهر لهذا التطبيق بصلاحية Google الحالية (drive.file). هذا لا يعني أن ملفاتك حُذفت. يمكنك تنزيل نسخة من Google Drive يدويًا واستيرادها من خيار الاستعادة المحلية، أو منح الوصول للملفات بطريقة يدعمها Google.';
       list.appendChild(warn);
     }
     if (!files.length) {
       const empty = document.createElement('p');
-      empty.textContent = 'لا توجد نسخ احتياطية متاحة ضمن صلاحيات Google الحالية.';
+      empty.textContent = 'لا توجد نسخ متاحة للتجريبية ضمن صلاحيات Google الحالية.';
       list.appendChild(empty); return;
     }
     files.slice(0,80).forEach(f => {
@@ -4171,11 +4333,13 @@ async function openCloudRestoreModal() {
       btn.addEventListener('click', async () => {
         btn.disabled = true;
         try {
-          const res = await driveFetch(`https://www.googleapis.com/drive/v3/files/${f.id}?alt=media`, {}, token);
+          const currentToken = await getDriveToken(true);
+          const res = await driveFetch(`https://www.googleapis.com/drive/v3/files/${encodeURIComponent(f.id)}?alt=media`, {}, currentToken);
           const content = await res.text();
-          modal.classList.remove('show');
-          await importBackupFile(new File([content], f.name, { type: 'application/json' }));
-        } catch (e) { showToast('تعذّر تنزيل النسخة: ' + (e.message || e), 'error', 6000); btn.disabled = false; }
+          if (!content.trim()) throw new Error('ملف النسخة السحابية فارغ؛ لم تتغير بيانات الجهاز.');
+          const restored = await importBackupFile(new File([content], f.name, { type: 'application/json' }));
+          if (restored) modal.classList.remove('show');
+        } catch (e) { showToast('تعذّرت الاستعادة: ' + (e.message || e), 'error', 6000); } finally { btn.disabled = false; }
       });
       row.append(label, btn); list.appendChild(row);
     });
@@ -4196,7 +4360,7 @@ function initCloudBackup() {
     const time = $('cloudTimeInput')?.value || '21:00';
 
     if (email && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) { alert('صيغة البريد الإلكتروني غير صحيحة.'); return; }
-    _cloudToken = null; _cloudTokenExp = 0;
+    if (email !== getCloudCfg().email) { _cloudToken = null; _cloudTokenExp = 0; }
     saveCloudCfg({ enabled: true, email, clientId, time, lastError: '' });
     refreshCloudBackupUI();
     showToast('حُفظت إعدادات السحابة. لم تُرفع نسخة حتى يؤكد Google Drive نجاح الحفظ.', 'info');
@@ -4244,7 +4408,7 @@ function validateTransaction(tx){
 
 function escapeRegExp(value) { return String(value).replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); }
 
-const MAX_BUDGET_CATS = 12; 
+// Budget categories are unlimited: existing custom records must never be truncated.
 const DEFAULT_CATS = [
   {id:'charity_gifts', name:'الصدقة والهبات', description:'الصدقات، الهبات، المساعدات، وأوجه العطاء الاختيارية.', color:'#10b981', pct:9},
   {id:'food_home', name:'الغذاء والاحتياجات المنزلية', description:'الطعام، الشراب، المياه، الغاز، المنظفات، والاحتياجات المنزلية البسيطة.', color:'#f59e0b', pct:15},
@@ -4633,8 +4797,8 @@ function getCats(){
   if (!Array.isArray(stored) || !stored.length) return DEFAULT_CATS.map(c => ({...c}));
   const coreIds = new Set(DEFAULT_CATS.map(c => c.id));
   const legacyIds = new Set(['ess','debt','charity','short','invest','trial','fuel']);
-  const custom = stored.filter(c => c && c.id && !coreIds.has(c.id) && !legacyIds.has(c.id)).slice(0, 2).map(c => ({...c, description: c.description || 'بند إضافي يحدده المستخدم.'}));
-  const normalized = [...DEFAULT_CATS.map(c => ({...c})), ...custom].slice(0, MAX_BUDGET_CATS);
+  const custom = stored.filter(c => c && c.id && !coreIds.has(c.id) && !legacyIds.has(c.id)).map(c => ({...c, description: c.description || 'بند إضافي يحدده المستخدم.'}));
+  const normalized = [...DEFAULT_CATS.map(c => ({...c})), ...custom];
   if (JSON.stringify(stored) !== JSON.stringify(normalized)) store.set('cats', normalized);
   return normalized;
 }
@@ -4689,12 +4853,11 @@ document.getElementById('resetPctsBtn')?.addEventListener('click', () => {
 });
 
 document.getElementById('addCatBtn')?.addEventListener('click', () => {
-  if (draftCats.length >= MAX_BUDGET_CATS) { alert('عذراً، الحد الأقصى لبنود الميزانية هو 12 بنداً.'); return; }
   const name = prompt('أدخل اسم البند الإضافي الجديد:');
   if (!name || !name.trim()) return;
   const desc = prompt('أدخل وصفاً مبسطاً للبند:') || 'بند إضافي مخصص.';
   const color = PALETTE[draftCats.length % PALETTE.length];
-  draftCats.push({ id: `custom_${Date.now()}`, name: name.trim(), description: desc.trim(), color, pct: 0 });
+  draftCats.push({ id: `custom_${Date.now()}_${Math.random().toString(36).slice(2,9)}`, name: name.trim(), description: desc.trim(), color, pct: 0 });
   renderCategoryRows();
 });
 
@@ -4790,13 +4953,19 @@ function fmt(amount, explicitCur = null){
   return formatted + ' ' + sym;
 }
 
-function esc(s){ return String(s ?? '').replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m])); }
+function esc(s){ return String(s ?? '').replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])); }
 
 function highlightText(text, query) {
-  if (!query || !query.trim()) return esc(text);
-  const safeText = esc(text);
-  const regex = new RegExp(`(${escapeRegExp(query.trim())})`, 'giu');
-  return safeText.replace(regex, '<span class="highlight-match">$1</span>');
+  const original = String(text ?? '');
+  if (!query || !String(query).trim()) return esc(original);
+  const regex = new RegExp(`(${escapeRegExp(String(query).trim())})`, 'giu');
+  let cursor = 0, output = '';
+  for (const match of original.matchAll(regex)) {
+    const start = match.index;
+    output += esc(original.slice(cursor, start)) + '<span class="highlight-match">' + esc(match[0]) + '</span>';
+    cursor = start + match[0].length;
+  }
+  return output + esc(original.slice(cursor));
 }
 
 function tafqit(value){return tafqitAccountCurrency(value,'YER');}
@@ -5155,9 +5324,12 @@ function setupReportSections(target = 'pageReports', autoOpen = true) {
 }
 
 function navigateToTab(target, pushToHistory = true) {
+  // Never leave a stale printing-* body class hiding interactive pages.
+  ratibRestorePrintScreen();
   if(_appExited||_exitPromise)return;
   if(_appHistoryPending&&!_restoringAppView){_appHistoryPending.promise.then(()=>navigateToTab(target,pushToHistory));return;}
   const next=target||'pageDashboard';
+  if(currentActiveTab==='pageCommerce'&&next!=='pageCommerce'&&!_restoringAppView&&window.RatibCommerce?.requestLeave?.()===false)return;
   if(currentActiveTab==='pageExpenses'&&next!=='pageExpenses')quickVoucherOrigin=null;
   if(next==='pageDashboard'&&!_restoringAppView)returnToAppHome();
   else if(pushToHistory&&currentActiveTab&&currentActiveTab!==next)rememberAppView();
@@ -5188,7 +5360,7 @@ function navigateToTab(target, pushToHistory = true) {
   if (target === 'pageExpenses') {initVoucherSelectorView();updateDraftButton();}
   else if (target === 'pageReports') { setupReportSections('pageReports', false); initReportsTab('accounts', false); }
   else if (target === 'pageAccountsTree') { initCanonicalLiveAccountsTreePage(); renderAccountsPager(); }
-  else if (target === 'pageSettings') initSettingsPage();
+  else if (target === 'pageSettings') {initSettingsPage();window.RatibCommerce?.refreshDefaults?.();}
   else if (target === 'pageDashboard') { updateProDashboard(); renderRemindersList(); renderRemindersChart(); }
 
 
@@ -5206,9 +5378,11 @@ document.getElementById('confirmExitAppBtn').addEventListener('click',performRea
 window.addEventListener('popstate',handleRatibPopState);
 
 function goBackInApp(){
+  ratibRestorePrintScreen();
   if(_appExited||_exitPromise)return Promise.resolve(false);
   if(_appHistoryPending)return _appHomeReset?_appHistoryPending.promise.then(goBackInApp):_appHistoryPending.promise;
   if(closeTransientAppUi())return Promise.resolve(true);
+  if(currentActiveTab==='pageCommerce'&&window.RatibCommerce?.requestLeave?.()===false)return Promise.resolve(false);
   if(_appBackStack.length&&_appHistoryInitialized&&history.state?.ratibSession===_appHistorySession){const result=beginAppHistoryMovement();history.back();return result;}
   const previous=_appBackStack.pop();if(previous){restoreAppView(typeof previous==='string'?{tab:previous}:previous);return;}
   if(currentActiveTab==='pageDashboard'){showExitModal();return;}
@@ -8329,15 +8503,32 @@ function buildPdfFromCanvases(canvases,pageSize=ratibPaperLandscape()?[842,595]:
   add(`trailer\n<< /Size ${count} /Root 1 0 R >>\nstartxref\n${xref}\n%%EOF`);return new Blob(parts,{type:'application/pdf'});
 }
 
-// Every print entry point keeps its prepared document until the print engine finishes.
+// Android WebViews do not always dispatch "afterprint". Keep app navigation
+// independent from the native print dialog and restore the screen on return.
+function ratibRestorePrintScreen(){
+  window.__ratibPrintCleanup?.();
+  // A previous Android WebView print can leave the body in a print-only mode.
+  for(const name of Array.from(document.body?.classList||[])){
+    if(name.startsWith('printing-')||name==='trial-printing'||name==='account-print-mode')
+      document.body.classList.remove(name);
+  }
+}
 function printRatibDocument(bodyClass){
   window.RatibPrintLogo?.syncPrint();
   if(typeof window.print!=='function'){showToast('الطباعة غير مدعومة في هذا المتصفح؛ استخدم تنزيل PDF.','warn');return false;}
-  window.__ratibPrintCleanup?.();
-  let timer;
+  ratibRestorePrintScreen();
+  let timer=null,finished=false,waitingForReturn=false;
+  const onFocus=()=>{if(waitingForReturn)cleanup();};
+  const onVisibility=()=>{if(!document.hidden&&waitingForReturn)cleanup();else if(document.hidden)waitingForReturn=true;};
+  const onPageShow=()=>cleanup();
   const cleanup=()=>{
-    clearTimeout(timer);document.body.classList.remove(bodyClass);
+    if(finished)return;
+    finished=true;clearTimeout(timer);
+    document.body.classList.remove(bodyClass);
     window.removeEventListener('afterprint',cleanup);
+    window.removeEventListener('focus',onFocus);
+    window.removeEventListener('pageshow',onPageShow);
+    document.removeEventListener('visibilitychange',onVisibility);
     if(window.__ratibPrintCleanup===cleanup)window.__ratibPrintCleanup=null;
   };
   window.__ratibPrintCleanup=cleanup;
@@ -8345,8 +8536,13 @@ function printRatibDocument(bodyClass){
   let style=document.getElementById('ratibDocumentPageStyle');
   if(!style){style=document.createElement('style');style.id='ratibDocumentPageStyle';document.head.append(style);}
   style.textContent='@media print{@page{size:A4 '+(ratibPaperLandscape()?'landscape':'portrait')+';margin:7mm}}';
-  window.addEventListener('afterprint',cleanup,{once:true});
-  timer=setTimeout(cleanup,60000);
+  window.addEventListener('afterprint',cleanup);
+  window.addEventListener('focus',onFocus);
+  window.addEventListener('pageshow',onPageShow);
+  document.addEventListener('visibilitychange',onVisibility);
+  // Some embedded Android browsers never fire afterprint, focus or pageshow.
+  // Unlike the previous one-minute fallback, unblock the app promptly.
+  timer=setTimeout(cleanup,8000);
   try{window.print();return true;}
   catch(e){cleanup();console.error(e);showToast('تعذّر فتح الطباعة؛ استخدم تنزيل PDF.','error');return false;}
 }
@@ -8982,7 +9178,8 @@ function proceedAppInit() {
   window.RatibFirstRunSetup?.start?.();
 }
 
-/* Ratib official 3.6.107 — preserve the active screen across Android/PWA background recreation.
+
+/* Ratib trial 3.6.109 — preserve the active screen across Android/PWA background recreation.
  * The view is stored in Ratib's existing protected application store, not in plain localStorage.
  * Never restore before vault unlock; explicit Exit clears the snapshot.
  */
@@ -9030,7 +9227,29 @@ function ratibBindBackgroundView(){
   window.addEventListener('pagehide',persist);
   document.addEventListener('click',defer,true);
   document.addEventListener('change',defer,true);
+  document.addEventListener('input',defer,true);
   window.addEventListener('scroll',defer,{passive:true});
+}
+
+function ratibOrderDocumentAccounts(){
+ const card=document.getElementById('multiVoucherCard');if(!card)return;
+ const body=document.getElementById('multiVoucherLinesBody');
+ if(!card.classList.contains('spend-voucher')){
+  if(body){const rows=[...body.children];rows.sort((a,b)=>(a.querySelector('.multi-line-side')?.value==='credit')-(b.querySelector('.multi-line-side')?.value==='credit'));for(let i=0;i<rows.length;i++)if(body.children[i]!==rows[i])body.insertBefore(rows[i],body.children[i]||null);}
+ }
+ const source=card.querySelector('.multi-voucher-source-row'),table=card.querySelector('.multi-voucher-table-wrap'),grid=card.querySelector('.multi-voucher-grid');
+ if(!source||!table||!grid)return;
+ let anchor=document.getElementById('ratibSourcePosition');
+ if(!anchor){anchor=document.createElement('span');anchor.id='ratibSourcePosition';anchor.hidden=true;source.before(anchor);}
+ let holder=document.getElementById('ratibOrderedCreditSource');
+ if(card.classList.contains('spend-voucher')&&document.getElementById('ratibHeaderSide')?.value==='credit'){
+  if(!holder){holder=document.createElement('div');holder.id='ratibOrderedCreditSource';holder.className='multi-voucher-grid';}
+  const after=card.querySelector('.spend-lines-toolbar')||table;
+  if(after.nextElementSibling!==holder)after.after(holder);
+  if(source.parentElement!==holder)holder.append(source);
+ }else{
+  if(anchor.nextElementSibling!==source)anchor.after(source);holder?.remove();
+ }
 }
 
 // زر الوضع الليلي 🌙 كان موجوداً بالواجهة بلا أي كود يشغّله إطلاقاً (نفس نمط
@@ -9606,6 +9825,7 @@ function entrycaptureAppView(){
     if(view.voucherView==='single')view.single=captureSingleDraft();
     if(view.voucherView==='multi')view.multi={lines:cloneData(multiVoucherLines),draftId:multiVoucherDraftId,returnTab:multiVoucherReturnTab,seq:document.getElementById('multiVoucherSeqBadge')?.textContent};
   }
+  if(tab==='pageCommerce')view.commerce=window.RatibCommerce?.captureView?.();
   if(tab==='pageSettings')view.settingsCats=cloneData(draftCats);
   return view;
 }
@@ -9627,6 +9847,7 @@ function entryrestoreAppView(view){
   _restoringAppView=true;
   try{
     navigateToTab(view.tab,false);
+    if(view.tab==='pageCommerce'&&view.commerce)window.RatibCommerce?.restoreView?.(view.commerce);
     if(view.tab==='pageExpenses'){
       if(view.voucherView==='single'&&view.single){selectVoucherTypeDirect(view.single.mode,true);isVoucherSplitActive=view.single.splitActive;voucherSplitMode=view.single.splitMode;voucherCatStates=cloneData(view.single.categoryStates);voucherSplitContainer.classList.toggle('hidden',!isVoucherSplitActive);toggleSplitBoxBtn.textContent=isVoucherSplitActive?'مفعل ✔':'معطل ✖';setVoucherSplitMode(voucherSplitMode);}
       else if(view.voucherView==='multi'&&view.multi){document.getElementById('voucherSelectorCard').classList.add('hidden');document.getElementById('cashFlowCard').classList.add('hidden');document.getElementById('multiVoucherCard').classList.remove('hidden');multiVoucherLines=cloneData(view.multi.lines);multiVoucherDraftId=view.multi.draftId;multiVoucherReturnTab=view.multi.returnTab;document.getElementById('multiVoucherSeqBadge').textContent=view.multi.seq||'';}
@@ -9698,16 +9919,72 @@ function initNestedNavigation(){
   },true);
 }
 
+// A mobile Back gesture has already moved browser history by one entry.
+// Reconcile with Ratib's existing base guard; never add a new Back entry here.
+function ratibGestureDraftCheck(){
+  const single=document.getElementById('cashFlowCard'),multi=document.getElementById('multiVoucherCard');
+  const editingVoucher=currentActiveTab==='pageExpenses'&&hasUnsavedChanges&&
+    ((single&&!single.classList.contains('hidden'))||(multi&&!multi.classList.contains('hidden')));
+  if(editingVoucher){
+    if(!confirm('هذا السند لم يُعتمد بعد. هل تريد حفظ مسودة محلية والرجوع إلى الواجهة الرئيسية؟'))return false;
+    try{
+      if(multi&&!multi.classList.contains('hidden')){
+        const draft=buildMultiVoucherData('draft');
+        const stored=store.get('multi_voucher_drafts',[]);
+        const drafts=(Array.isArray(stored)?stored:[]).filter(item=>item.id!==draft.id);
+        drafts.push(draft);store.set('multi_voucher_drafts',drafts);
+        multiVoucherDraftId=draft.id;
+      }else{
+        store.set('single_voucher_draft_v1',captureSingleDraft());
+        updateDraftButton();
+      }
+      flushStorage().then(()=>showToast('تم حفظ المسودة محليًا','success'))
+        .catch(()=>showToast('تعذر تأكيد حفظ المسودة. اترك التطبيق مفتوحًا وأعد المحاولة.','error',7000));
+    }catch(error){showToast('تعذر حفظ المسودة؛ بقي المستند مفتوحًا.','error',7000);return false;}
+  }
+  if(currentActiveTab==='pageCommerce'&&window.RatibCommerce?.hasUnsavedDraft?.()){
+    if(window.RatibCommerce.requestLeave){if(!window.RatibCommerce.requestLeave())return false;}
+    else if(!confirm('توجد تغييرات غير محفوظة في المستند. الرجوع إلى الرئيسية سيفقد هذه التغييرات. هل تريد المتابعة؟'))return false;
+  }
+  return true;
+}
+function ratibGestureDashboard(known,depth){
+  _appReplayDepth=null;
+  _appBackStack.length=0;_appSavedViews.clear();_appCurrentHistoryDepth=0;
+  _appHomeReset=!!(known&&depth>0);
+  const restoring=_restoringAppView;_restoringAppView=true;
+  try{navigateToTab('pageDashboard',false);}
+  finally{_restoringAppView=restoring;}
+  _appSavedViews.set(0,captureAppView());
+  if(!known){_appReplayDepth=0;history.forward();return;}
+  if(depth>0){history.go(-depth);return;}
+  recordAppHistory({page:'tab',tab:'pageDashboard'});
+  finishAppHistoryMovement();
+}
+
 function handleRatibPopState(){
+  ratibRestorePrintScreen();
   if(allowExit||_appExited){if(history.state?.ratibGuard||history.state?.page==='ratib_app_base')history.back();return;}
   if(!_appHistoryInitialized)return;
   const lock=document.getElementById('lockScreen');if(lock?.style.display==='flex')return;
   const state=history.state,known=state?.ratibGuard&&state.ratibSession===_appHistorySession,depth=known?Number(state.ratibDepth||0):-1;
   if(_appHomeReset&&known&&depth===0){_appHomeReset=false;_appCurrentHistoryDepth=0;_appSavedViews.set(0,captureAppView());recordAppHistory({page:'tab',tab:'pageDashboard'});finishAppHistoryMovement();return;}
-  if(_appReplayDepth!==null&&known&&depth===_appReplayDepth){_appReplayDepth=null;finishAppHistoryMovement();return;}
+  if(_appReplayDepth!==null&&known&&depth===_appReplayDepth){_appReplayDepth=null;if(currentActiveTab==='pageDashboard'&&_appBackStack.length===0)recordAppHistory({page:'tab',tab:'pageDashboard'});finishAppHistoryMovement();return;}
   // Reuse existing entries when closing an overlay or showing root confirmation.
   // Inserting a new entry from popstate makes subsequent phone Back gestures skippable.
   if(closeTransientAppUi()){_appReplayDepth=_appCurrentHistoryDepth;history.go(known?_appCurrentHistoryDepth-depth:1);return;}
+  // All physical Back gestures from internal views land on the main dashboard.
+  // Preserve the original root guard so the next Back requests exit normally.
+  if(currentActiveTab!=='pageDashboard'){
+    if(!ratibGestureDraftCheck()){
+      _appReplayDepth=_appCurrentHistoryDepth;
+      const steps=known?_appCurrentHistoryDepth-depth:1;
+      if(steps>0)history.go(steps);else history.forward();
+      return;
+    }
+    ratibGestureDashboard(known,depth);
+    return;
+  }
   _appSavedViews.set(_appCurrentHistoryDepth,captureAppView());
   if(known&&depth!==_appCurrentHistoryDepth){
     const view=_appSavedViews.get(depth)||_appBackStack[depth];
@@ -11474,6 +11751,7 @@ document.addEventListener('scroll',e=>{if(!e.target.closest?.('.searchable-dropd
   const side=q('ratibHeaderSide');if(side)side.value=headerSide;
   const label=q('ratibCounterSide');if(label)label.textContent=headerSide==='credit'?'مدين':'دائن';
   if(active()){syncMultiAutoBalance();updateMultiVoucherSummary()}
+  queueMicrotask(ratibOrderDocumentAccounts);
  }
  function setSide(s){if(s!=='debit'&&s!=='credit')return;headerSide=s;refreshSides();}
  function conversion(line){
@@ -12362,10 +12640,13 @@ try{currenciesUi();sync();}catch(e){console.error('Ratib 3.6.12 initialization',
 
 </script>
 
+<script>
+(()=>{const previous=renderMultiVoucherLines;renderMultiVoucherLines=function(...args){const result=previous.apply(this,args);queueMicrotask(ratibOrderDocumentAccounts);return result;};})();
+</script>
 <script src="./ratib-license-draft.js?v=3.6.151" defer></script>
 <script src="./ratib-ui-v3.6.37.js?v=2" defer></script>
-<script src="./ratib-favorites-v3.js?v=3.6.137" defer></script>
-<script src="./ratib-voice-dictation-3.6.117.js?v=3.6.107" defer></script>
+<script src="./ratib-favorites-v3.js?v=3.6.109" defer></script>
+<script src="./ratib-voice-dictation-3.6.117.js?v=3.6.109" defer></script>
 <script src="./ratib-import-manager.js?v=2" defer></script>
 <script src="./ratib-annual-close.js?v=1" defer></script>
 <script src="./ratib-fiscal-ledger.js?v=1" defer></script>
@@ -12380,21 +12661,22 @@ try{currenciesUi();sync();}catch(e){console.error('Ratib 3.6.12 initialization',
 <script src="./ratib-amount-edit-3.6.97.js?v=3.6.158" defer></script>
 <script src="./ratib-special-reports-3.6.102.js?v=3.6.114" defer></script>
 <script src="./ratib-fx-autofill-3.6.105.js?v=3.6.107" defer></script>
-<script src="./ratib-report-buttons-3.6.106.js?v=3.6.107" defer></script>
+<script src="./ratib-report-buttons-3.6.106.js?v=3.6.109" defer></script>
 <script src="./ratib-print-logo-3.6.108.js?v=3.6.111" defer></script>
 <div id="ratibSpecialPrintHost" aria-hidden="true"></div>
-<script src="./ratib-sidebar-3.6.124.js?v=3.6.107&officialBadge=2" defer></script>
-<script src="./ratib-commerce-3.6.131.js?v=3.6.107" defer></script>
-<script src="./ratib-simple-accounts-3.6.105.13.js?v=3.6.107" defer></script>
-<script src="./ratib-interactive-tree-3.6.105.05.js?v=3.6.107" defer></script>
-<script src="./ratib-login-3.6.124.js?v=3.6.153" defer></script>
+<script src="./ratib-sidebar-3.6.124.js?v=3.6.109" defer></script>
+<script src="./ratib-commerce-3.6.131.js?v=3.6.109" defer></script>
+<script src="./ratib-simple-accounts-3.6.105.13.js?v=3.6.109" defer></script>
+<script src="./ratib-interactive-tree-3.6.105.05.js?v=3.6.109" defer></script>
+<script src="./ratib-login-3.6.124.js?v=3.6.109" defer></script>
 <script src="./ratib-trial-home-sidebar-3.6.143.js?v=3.6.143" defer></script>
-<script src="./ratib-trial-ui-3.6.143.js?v=3.6.153" defer></script>
-<script src="./ratib-dashboard-finance-3.6.144.js?v=3.6.153" defer></script>
-<script src="./ratib-global-button-size-3.6.146.js?v=3.6.148" defer></script>
+<script src="./ratib-trial-ui-3.6.143.js?v=3.6.109" defer></script>
+<script src="./ratib-dashboard-finance-3.6.144.js?v=3.6.109" defer></script>
+<script src="./ratib-global-button-size-3.6.146.js?v=3.6.109" defer></script>
 <script src="./ratib-document-signatures-3.6.148.js?v=3.6.148" defer></script>
 <script src="./ratib-feedback-3.6.149.js?v=3.6.149" defer></script>
+<script src="./ratib-statement-marks-3.6.106.05.js?v=3.6.109" defer>
+</script>
 <script src="./ratib-country-currency-3.6.151.js?v=3.6.151" defer></script>
-<script src="./ratib-statement-marks-3.6.106.05.js?v=3.6.107" defer></script>
 </body>
 </html>

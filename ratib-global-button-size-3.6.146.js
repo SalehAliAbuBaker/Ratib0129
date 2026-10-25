@@ -2,19 +2,20 @@
    Presentation only; deliberately never changes accounting inputs or vouchers. */
 (()=>{'use strict';
  const KEY='ratib_ui_button_size_v1',LEGACY='commerce_button_size_v1',FONT_KEY='ratib_ui_font_size_v1';
- const FONT_CHOICES=['small','normal','large','xlarge'];
+ const FONT_CHOICES=['xsmall','small','medium','large','xlarge'];
+ const normalizeFont=x=>x==='normal'?'medium':FONT_CHOICES.includes(x)?x:'medium';
  const fontPref=()=>{
-  try{const value=localStorage.getItem(FONT_KEY);return FONT_CHOICES.includes(value)?value:'normal';}catch(_){return 'normal';}
+  try{const value=localStorage.getItem(FONT_KEY);return normalizeFont(value);}catch(_){return 'medium';}
  };
  const applyFont=(value,persist=true)=>{
-  const setting=FONT_CHOICES.includes(value)?value:'normal';
+  const setting=normalizeFont(value);
   document.documentElement.dataset.ratibFontSize=setting;
   if(persist)try{localStorage.setItem(FONT_KEY,setting);}catch(_){}
   const picker=document.getElementById('ratibGlobalFontSize');
   if(picker&&picker.value!==setting)picker.value=setting;
   return setting;
  };
- const choices=['small','medium','large'];
+ const choices=['xsmall','small','medium','large','xlarge'];
  const valid=x=>choices.includes(x)?x:null;
  const pref=()=>{
    try{return valid(localStorage.getItem(KEY))||valid(typeof store!=='undefined'?store.get(LEGACY,'medium'):localStorage.getItem(LEGACY))||'medium';}

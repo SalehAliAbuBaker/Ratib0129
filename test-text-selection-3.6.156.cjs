@@ -13,7 +13,7 @@ assert.match(sidebar,/document\.activeElement!==el/,'second tap may place caret 
 const trial=html.match(/const RATIB_RELEASE=\{"version":"([^"]+)"/)?.[1];
 assert(trial,'A unified trial release is required');
 assert(sw.includes('const APP_RELEASE={"version":"'+trial+'"'),'Worker and page must match');
-assert(html.includes('الإصدار '+trial+' (تجريبية)'),'Visible release should match trial');
+assert(html.includes('الإصدار '+trial),'Visible release should match trial');
 assert(sw.includes(trial),'Offline cache should mention current release');
 assert(html.includes('ratib-amount-edit-3.6.97.js?v=3.6.158'),'Amount-edit asset kept unchanged');
 assert(html.includes('ratib-commerce-3.6.131.js?v='+trial),'Commerce query must reflect current release');

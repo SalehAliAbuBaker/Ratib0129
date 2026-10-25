@@ -1569,13 +1569,7 @@ body.ratib-sidebar-open,body.ratib-about-open{overflow:hidden}
 }
 </style>
 <link rel="stylesheet" href="./ratib-login-3.6.124.css?v=3.6.131">
-<link rel="stylesheet" href="./ratib-commerce-3.6.131.css?v=3.6.109.03">
 
-<style id="ratib-commerce-ledger-actions-3.6.138">
-#pageLedger .rc-ledger-operations{display:flex;align-items:center;justify-content:flex-start;gap:5px;flex-wrap:wrap;padding:6px 8px;margin-top:4px}
-#pageLedger .rc-ledger-operations .btn{width:auto;min-height:34px;padding:5px 9px;margin:0;font-size:.76rem}
-#pageLedger .tx-log-item:has(.rc-ledger-operations) .single-del-btn{display:none!important}
-</style>
 <link rel="stylesheet" href="./ratib-trial-home-sidebar-3.6.143.css?v=3.6.143">
 <link rel="stylesheet" href="./ratib-trial-ui-3.6.143.css?v=3.6.143">
 <link rel="stylesheet" href="./ratib-dashboard-finance-3.6.144.css?v=3.6.144">
@@ -1892,7 +1886,7 @@ body.ratib-sidebar-open,body.ratib-about-open{overflow:hidden}
         <label><input type="checkbox" data-ledger-voucher-type="payment" checked>سند صرف</label>
         <label><input type="checkbox" data-ledger-voucher-type="simple" checked>قيد بسيط</label>
         <label><input type="checkbox" data-ledger-voucher-type="compound" checked>قيد مركب</label>
-        <label><input type="checkbox" data-ledger-voucher-type="commerce" checked>مستندات تجارية سابقة</label>
+        <label><input type="checkbox" data-ledger-voucher-type="opening" checked>قيد افتتاحي</label>
       </div>
       <button type="button" id="ledgerSelectAllTypes">تحديد الكل</button>
     </details>
@@ -2206,8 +2200,6 @@ body.ratib-sidebar-open,body.ratib-about-open{overflow:hidden}
   </div>
 </div>
 
-<div id="pageCommerce" class="hidden"></div>
-
 <div id="pageSettings" class="hidden">
   <div class="card settings-accordion-card no-print" id="notificationSoundCard" onclick="toggleSettingsCard(this)">
     <div class="settings-accordion-header"><span>🔊 أصوات حفظ المستندات والتنبيهات</span><span class="accordion-arrow">▼</span></div>
@@ -2293,7 +2285,6 @@ body.ratib-sidebar-open,body.ratib-about-open{overflow:hidden}
         <input type="hidden" id="valDefaultSpendCredit">
       </div>
       <button class="btn btn-primary" id="saveDefaultAccountsBtn" style="margin-top: 4px;">💾 حفظ الحسابات الافتراضية</button>
-      <div id="ratibCommerceDefaults" hidden aria-hidden="true"></div>
     </div>
   </div>
 
@@ -4386,10 +4377,20 @@ let currentLedgerSearchQuery = '', currentStatementSearchQuery = '', currentLedg
 let lastPrintedTx = null;
 let hasUnsavedChanges = false, lastFocusedElement = null, ledgerRenderTimer = null;
 let currentLedgerQuickFilter = 'all';
-let currentLedgerVoucherTypes=new Set(['receipt','payment','simple','compound','commerce']);
+// Only accounting vouchers are active; old commerce postings remain in historical storage.
+const RATIB_ACTIVE_VOUCHER_TYPES=Object.freeze(['receipt','payment','simple','compound','opening']);
+function ratibIsRetiredCommerceTransaction(t){
+ if(!t||typeof t!=='object')return false;
+ if(t.commerceId!=null&&String(t.commerceId).trim())return true;
+ if(/^com_/.test(String(t.multiVoucherId||t.multiVoucher?.id||'')))return true;
+ return /^(?:أمر توريد|توريد مخزني|فاتورة مشتريات|أمر صرف|صرف مخزني|فاتورة مبيعات|مرتجع الوارد|مرتجع الصادر|مرتجع مشتريات|مرتجع مبيعات|تحويل مخزني|تسوية مخزنية)(?:\s|$)/u.test(String(t.type||'').trim());
+}
+function ratibActiveAccountingTransactions(txs){return txs.filter(t=>!ratibIsRetiredCommerceTransaction(t));}
+
+let currentLedgerVoucherTypes=new Set(RATIB_ACTIVE_VOUCHER_TYPES);
 function ratibLedgerVoucherType(t){
- if(t.commerceId)return 'commerce';
- if(t.isImportedOpeningVoucher||t.isOpeningBalance)return 'compound';
+ if(ratibIsRetiredCommerceTransaction(t))return null;
+ if(t.isImportedOpeningVoucher||t.isOpeningBalance)return 'opening';
  const mode=t.voucherMode||t.multiVoucher?.mode||'';
  if(mode==='income')return 'receipt';
  if(mode==='spend')return 'payment';
@@ -4462,7 +4463,7 @@ function closeGlobalSearch() { document.getElementById('globalSearchModal').clas
 let globalSearchStatusFilter = 'all'; // 'all' | 'posted' | 'reversed'
 function renderGlobalSearch(q) {
   const box=document.getElementById('globalSearchResults'); if(!box)return; const query=q.trim().toLowerCase();
-  const txs=groupImportedOpeningItems(getAllTransactions()).slice().reverse()
+  const txs=groupImportedOpeningItems(ratibActiveAccountingTransactions(getAllTransactions())).slice().reverse()
     .filter(t=>{
       if(globalSearchStatusFilter==='posted') return t.status!=='reversed';
       if(globalSearchStatusFilter==='reversed') return t.status==='reversed';
@@ -4475,7 +4476,7 @@ function renderGlobalSearch(q) {
 
 function exportTransactionsCsv() {
   const rows=[['رقم السند','التاريخ','النوع','المدين','الدائن','المبلغ','العملة','الحالة','البيان']];
-  getAllTransactions().forEach(t=>rows.push([t.seqNum||'',t.isoDate||t.date||'',getTransactionDisplayType(t)||'',t.debitAccount||'',t.creditAccount||'',t.amount||0,t.currency||'',t.status||'posted',Object.values(t.execution||{})[0]?.note||'']));
+  ratibActiveAccountingTransactions(getAllTransactions()).forEach(t=>rows.push([t.seqNum||'',t.isoDate||t.date||'',getTransactionDisplayType(t)||'',t.debitAccount||'',t.creditAccount||'',t.amount||0,t.currency||'',t.status||'posted',Object.values(t.execution||{})[0]?.note||'']));
   const table=`<table dir="rtl" border="1"><thead><tr>${rows[0].map(h=>`<th>${String(h)}</th>`).join('')}</tr></thead><tbody>${rows.slice(1).map(r=>`<tr>${r.map(v=>`<td>${String(v??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}</td>`).join('')}</tr>`).join('')}</tbody></table>`;
   const blob=new Blob([`\ufeff<html><head><meta charset="utf-8"></head><body>${table}
 
@@ -4720,23 +4721,14 @@ function getMasterPlan(){
   if(changed)store.set('plan',p);return p;
 }
 
-function ratibCommerceStatementName(t){
- if(!t?.commerceId)return '';
- const item=store.get('commerce_v1',null)?.invoices?.find(d=>d.id===t.commerceId);
- if(item)return [item.title||'مستند تجاري',item.number].filter(Boolean).join(' — ');
- // Older or externally imported financial entries can retain a native title in their type/note.
- const type=String(t.type||t.multiVoucher?.note||'');
- const match=type.match(/(فاتورة مشتريات|فاتورة مبيعات|توريد مخزني|صرف مخزني|أمر توريد|أمر صرف|مرتجع الوارد|مرتجع الصادر)(?:\s+(?:رقم\s+)?([\w\-/]+))?/);
- return match?[match[1],match[2]||''].filter(Boolean).join(' — '):(type||'مستند تجاري');
-}
 function ratibStatementDocumentLabel(t){
- const commercial=ratibCommerceStatementName(t);if(commercial)return commercial;
+ if(ratibIsRetiredCommerceTransaction(t))return 'قيد محاسبي سابق';
  if(t.isOpeningBalance)return 'رصيد افتتاحي';
  return (t.voucherMode==='spend'?'سند صرف':t.voucherMode==='income'?'سند إيراد':t.voucherMode==='multi-entry'||t.isMultiVoucher?'سند قيد مركب':'قيد يومي')+' #'+(t.seqNum||'-');
 }
 function getTransactionDisplayType(t){
  if(t?.isOpeningBalance)return 'سند قيد مركب — أرصدة مستوردة';
- const commercial=ratibCommerceStatementName(t);if(commercial)return commercial;
+ if(ratibIsRetiredCommerceTransaction(t))return 'قيد محاسبي سابق';
  return t?.isMultiVoucher?cashVoucherTitle(t.multiVoucher?.mode):(t?.type||'عملية');
 }
 function getNextVoucherNumber(mode) {
@@ -4945,7 +4937,7 @@ function preparePrintVoucherTemplate(tx) {window.RatibPrintLogo?.syncPrint();if(
   window.RatibSignatureSettings?.fillVoucher?.(tx.voucherMode==='spend'?'payment':tx.voucherMode==='income'?'receipt':'journal');
 }
 
-const TABS_ORDER = ['pageDashboard', 'pageExpenses', 'pageLedger', 'pageReports', 'pageAccountsTree', 'pageAccountOperations', 'pageSettings', 'pageCommerce'];
+const TABS_ORDER = ['pageDashboard', 'pageExpenses', 'pageLedger', 'pageReports', 'pageAccountsTree', 'pageAccountOperations', 'pageSettings'];
 let allowExit = false;
 
 function pushAppHistoryState(){recordAppHistory({page:'ratib_app_entry',tab:currentActiveTab});}
@@ -5030,6 +5022,7 @@ function navigateToTab(target, pushToHistory = true) {
   ratibRestorePrintScreen();
   if(_appExited||_exitPromise)return;
   if(_appHistoryPending&&!_restoringAppView){_appHistoryPending.promise.then(()=>navigateToTab(target,pushToHistory));return;}
+  if(target==='pageCommerce')return navigateToTab('pageDashboard',pushToHistory);
   const next=target||'pageDashboard';
   if(currentActiveTab==='pageCommerce'&&next!=='pageCommerce'&&!_restoringAppView&&window.RatibCommerce?.requestLeave?.()===false)return;
   if(currentActiveTab==='pageExpenses'&&next!=='pageExpenses')quickVoucherOrigin=null;
@@ -6210,7 +6203,7 @@ function reverseTransactionById(itemId) {
     }
   }
   if (!tx) return false;
-  if(tx.commerceId){showToast('المستند التجاري مرتبط بالمخزون؛ التصحيح يكون بمرتجع أو تسوية داخل القسم التجاري، ولا يجوز إلغاء بند القيد وحده.','warn');return false;}
+  if(ratibIsRetiredCommerceTransaction(tx)){showToast('قيد أرشيفي محمي من الإلغاء الجزئي حفاظًا على توازنه.','warn');return false;}
   const before = structuredClone(tx);
   tx.status = 'reversed';
   tx.reversedAt = new Date().toISOString();
@@ -6233,7 +6226,7 @@ try{await completeFinancialSave(()=>{  showToast('تم إلغاء السند ب�
 async function deleteDocumentFromModal() {
   const item = pendingLongPressTx;
   if (!item) return;
-  if(item.commerceId){showToast('المستند التجاري محمي؛ استخدم المرتجعات أو تسويات المخزون بدل حذف قيده.','warn');return;}
+  if(ratibIsRetiredCommerceTransaction(item)){showToast('قيد أرشيفي محمي من الحذف الجزئي.','warn');return;}
   if(item.isOpeningBalance){document.getElementById('longPressConfirmModal').classList.remove('show');openImportedOpeningVoucher(item);showToast('راجع القيد المركب كاملًا؛ لا يُلغى بند منفرد بما يخل بتوازنه.','info');return;}
   const typed = prompt('لتأكيد حذف هذا المستند نهائياً، اكتب كلمة "حذف" في الخانة أدناه:');
   if (typed === null) return;
@@ -6274,7 +6267,7 @@ document.getElementById('clearAllTxsBtn')?.addEventListener('click', () => {
 
 let editVoucherCatStates = {}, editVoucherSplitMode = 'pct';
 
-function openTxModal(item) {if(item?.commerceId){showToast('مستند تجاري مرتبط بالمخزون؛ لا يعدل من شاشة السندات.','warn');return;}if(item&&!item.isOpeningBalance&&['income','spend'].includes(item.voucherMode)&&!item.isMultiVoucher)return openLegacyCashEditor(item);if(item?.isOpeningBalance)return openImportedOpeningVoucher(item);
+function openTxModal(item) {if(ratibIsRetiredCommerceTransaction(item)){showToast('حركة أرشيفية محفوظة؛ لا يمكن تعديلها كسند جديد.','warn');return;}if(item&&!item.isOpeningBalance&&['income','spend'].includes(item.voucherMode)&&!item.isMultiVoucher)return openLegacyCashEditor(item);if(item?.isOpeningBalance)return openImportedOpeningVoucher(item);
   activeEditingTx = item; lastPrintedTx = item; preparePrintVoucherTemplate(item);
   document.getElementById('modalSubtitle').textContent = `📅 تاريخ السند: ${item.date} | رقم السند: #${item.seqNum || '-'}`;
   setExistingAccountForEdit(selEditDebitAcc,item.debitAccount,item.debitAccountId);
@@ -6529,7 +6522,7 @@ document.querySelectorAll('#ledgerVoucherTypeFilter input[data-ledger-voucher-ty
 });
 document.getElementById('ledgerSelectAllTypes')?.addEventListener('click',()=>{
  document.querySelectorAll('#ledgerVoucherTypeFilter input[data-ledger-voucher-type]').forEach(box=>box.checked=true);
- currentLedgerVoucherTypes=new Set(['receipt','payment','simple','compound','commerce']);
+ currentLedgerVoucherTypes=new Set(RATIB_ACTIVE_VOUCHER_TYPES);
  const summary=document.getElementById('ledgerVoucherTypeSummary');if(summary)summary.textContent='نوع المستند: الكل (5)';
  ledgerVisibleLimit=50;renderAllData();
 });
@@ -6577,7 +6570,7 @@ function entrygroupLedgerItemsForDisplay(txs){
 function renderAllData(force=false) {
   if(currentActiveTab!=='pageLedger'&&!force){ledgerNeedsRender=true;updateProDashboard();return;}
   ledgerNeedsRender=false;
-  const sourceTxs = getAllTransactions();
+  const sourceTxs = ratibActiveAccountingTransactions(getAllTransactions());
   const allTxs = typeof ratibFiscalVisibleLedgerTransactions==='function'
     ? ratibFiscalVisibleLedgerTransactions(sourceTxs)
     : sourceTxs;
@@ -6622,7 +6615,7 @@ function renderAllData(force=false) {
         <div class="tx-title-area">
           <div class="tx-badge-group">
             ${item.seqNum ? `<span class="tx-num-tag">#${esc(item.seqNum)}</span>` : ''}
-            <span class="tx-badge">${item.commerceId ? getTransactionDisplayType(item).split(' — ')[0] : (item.voucherMode === 'spend' ? 'سند صرف' : (item.voucherMode === 'income' ? 'سند إيراد' : 'سند قيد'))}</span>
+            <span class="tx-badge">${item.voucherMode === 'spend' ? 'سند صرف' : item.voucherMode === 'income' ? 'سند قبض' : item.isOpeningBalance ? 'قيد افتتاحي' : item.isMultiVoucher ? 'قيد مركب' : 'قيد بسيط'}</span>
             <span class="tx-type-tag">${highlightText(getTransactionDisplayType(item), currentLedgerSearchQuery)}</span>
             ${statusChipHtml}
           </div>
@@ -6638,21 +6631,10 @@ function renderAllData(force=false) {
         <div class="tx-acc-row"><span>الدائن:</span><b>${esc(item.creditAccount)}</b></div>
         ${noteText ? `<div style="font-weight:700;">البيان: ${esc(noteText)}</div>` : ''}
       </div>
-      <div class="tx-dist">${item.commerceId ? '<span>فاتورة مرتبطة بالمخزون وبالقيد المحاسبي</span>' : distHtml}</div>
-      ${item.commerceId ? '<div class="rc-ledger-operations"><button type="button" class="btn btn-ghost" data-commerce-ledger="view">مشاهدة</button><button type="button" class="btn btn-ghost" data-commerce-ledger="edit">تعديل</button><button type="button" class="btn btn-ghost" data-commerce-ledger="clone">استنساخ</button><button type="button" class="btn btn-ghost" data-commerce-ledger="delete">حذف</button></div>' : ''}
+      <div class="tx-dist">${distHtml}</div>
     `;
 
     card.addEventListener('click', async (e) => {
-      if(item.commerceId){
-        e.stopPropagation();
-        const action=e.target.closest('[data-commerce-ledger]')?.dataset.commerceLedger||(e.target.closest('.single-del-btn')?'delete':'view');
-        try{
-          if(action==='view')window.RatibCommerce?.openDocument?.(item.commerceId);
-          else await window.RatibCommerce?.documentAction?.(action,item.commerceId);
-          if(!window.RatibCommerce?.openDocument)throw Error('وحدة المستندات التجارية غير جاهزة.');
-        }catch(error){showToast(error.message||'تعذر فتح الفاتورة','error');}
-        return;
-      }
       if (e.target.closest('.single-del-btn')) {
         if(item.isOpeningBalance){e.stopPropagation();openImportedOpeningVoucher(item);return;}
         e.stopPropagation(); 
@@ -6678,10 +6660,7 @@ function renderAllData(force=false) {
 }
 
 function openDocumentDetailsModal(item) {
-  if(item?.commerceId){
-    try{window.RatibCommerce?.openDocument?.(item.commerceId);}catch(error){showToast(error.message,'error');}
-    return;
-  }
+  if(ratibIsRetiredCommerceTransaction(item)){showToast('هذه حركة مالية أرشيفية لا تُحرر كسند جديد.','info');return;}
   pendingLongPressTx = item;
   
   const titleEl = document.getElementById('longPressModalTitle');
@@ -9913,7 +9892,7 @@ function applySpendDocument(d){cashLegacySource=d.legacySource||null;
 }
 
 function openMultiVoucherEditor(item){
-  if(item?.commerceId){showToast('هذا القيد تابع لفاتورة أو حركة مخزنية؛ استخدم القسم التجاري لتصحيحها.','warn');return;}
+  if(ratibIsRetiredCommerceTransaction(item)){showToast('هذا قيد أرشيفي لا يُعدل كسند جديد.','warn');return;}
   configureVoucherMode(['income','spend'].includes(item.multiVoucher?.mode)?item.multiVoucher.mode:'multi-entry');
   const restored=entryopenMultiVoucherEditor(item);
   applySpendDocument(restored||{});
@@ -12084,7 +12063,6 @@ try{currenciesUi();sync();}catch(e){console.error('Ratib 3.6.12 initialization',
 <script src="./ratib-print-logo-3.6.108.js?v=3.6.111" defer></script>
 <div id="ratibSpecialPrintHost" aria-hidden="true"></div>
 <script src="./ratib-sidebar-3.6.124.js?v=3.6.109.03" defer></script>
-<script src="./ratib-commerce-3.6.131.js?v=3.6.109.03" defer></script>
 <script src="./ratib-simple-accounts-3.6.105.13.js?v=3.6.109.03" defer></script>
 <script src="./ratib-interactive-tree-3.6.105.05.js?v=3.6.109.03" defer></script>
 <script src="./ratib-login-3.6.124.js?v=3.6.109.03" defer></script>

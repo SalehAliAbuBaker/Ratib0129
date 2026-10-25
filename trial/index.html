@@ -3890,6 +3890,16 @@ function getAllTransactions() {
   return current.concat(...(Array.isArray(history) ? history.map(h => Array.isArray(h.transactions) ? h.transactions : []) : []));
 }
 
+// Only accounting vouchers are active; old commerce postings remain in historical storage.
+const RATIB_ACTIVE_VOUCHER_TYPES=Object.freeze(['receipt','payment','simple','compound','opening']);
+function ratibIsRetiredCommerceTransaction(t){
+ if(!t||typeof t!=='object')return false;
+ if(t.commerceId!=null&&String(t.commerceId).trim())return true;
+ if(/^com_/.test(String(t.multiVoucherId||t.multiVoucher?.id||'')))return true;
+ return /^(?:أمر توريد|توريد مخزني|فاتورة مشتريات|أمر صرف|صرف مخزني|فاتورة مبيعات|مرتجع الوارد|مرتجع الصادر|مرتجع مشتريات|مرتجع مبيعات|تحويل مخزني|تسوية مخزنية)(?:\s|$)/u.test(String(t.type||'').trim());
+}
+function ratibActiveAccountingTransactions(txs){return txs.filter(t=>!ratibIsRetiredCommerceTransaction(t));}
+
 function effectiveTransactions(txs=getAllTransactions()) { return txs.filter(t => t.status !== 'reversed' && t.status !== 'deleted'); }
 
 function getReminders() { return store.get('reminders', []); }
@@ -4123,7 +4133,7 @@ function closeGlobalSearch() { document.getElementById('globalSearchModal').clas
 let globalSearchStatusFilter = 'all'; // 'all' | 'posted' | 'reversed'
 function renderGlobalSearch(q) {
   const box=document.getElementById('globalSearchResults'); if(!box)return; const query=q.trim().toLowerCase();
-  const txs=groupImportedOpeningItems(getAllTransactions()).slice().reverse()
+  const txs=groupImportedOpeningItems(ratibActiveAccountingTransactions(getAllTransactions())).slice().reverse()
     .filter(t=>{
       if(globalSearchStatusFilter==='posted') return t.status!=='reversed';
       if(globalSearchStatusFilter==='reversed') return t.status==='reversed';
@@ -4136,7 +4146,7 @@ function renderGlobalSearch(q) {
 
 function exportTransactionsCsv() {
   const rows=[['رقم السند','التاريخ','النوع','المدين','الدائن','المبلغ','العملة','الحالة','البيان']];
-  getAllTransactions().forEach(t=>rows.push([t.seqNum||'',t.isoDate||t.date||'',getTransactionDisplayType(t)||'',t.debitAccount||'',t.creditAccount||'',t.amount||0,t.currency||'',t.status||'posted',Object.values(t.execution||{})[0]?.note||'']));
+  ratibActiveAccountingTransactions(getAllTransactions()).forEach(t=>rows.push([t.seqNum||'',t.isoDate||t.date||'',getTransactionDisplayType(t)||'',t.debitAccount||'',t.creditAccount||'',t.amount||0,t.currency||'',t.status||'posted',Object.values(t.execution||{})[0]?.note||'']));
   const table=`<table dir="rtl" border="1"><thead><tr>${rows[0].map(h=>`<th>${String(h)}</th>`).join('')}</tr></thead><tbody>${rows.slice(1).map(r=>`<tr>${r.map(v=>`<td>${String(v??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}</td>`).join('')}</tr>`).join('')}</tbody></table>`;
   const blob=new Blob([`\ufeff<html><head><meta charset="utf-8"></head><body>${table}</body></html>`],{type:'application/vnd.ms-excel;charset=utf-8'});
   const a=document.createElement('a');a.download=`Ratib_transactions_${monthKey()}.xls`;a.href=URL.createObjectURL(blob);a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000);showToast('تم تنزيل سجل العمليات بصيغة Excel','success');
@@ -4372,7 +4382,7 @@ function getMasterPlan(){
   if(changed)store.set('plan',p);return p;
 }
 
-function getTransactionDisplayType(t){if(t?.isOpeningBalance)return 'سند قيد مركب — أرصدة مستوردة';return t?.isMultiVoucher?cashVoucherTitle(t.multiVoucher?.mode):(t?.type||'عملية');}
+function getTransactionDisplayType(t){if(ratibIsRetiredCommerceTransaction(t))return 'قيد محاسبي سابق';if(t?.isOpeningBalance)return 'سند قيد مركب — أرصدة مستوردة';return t?.isMultiVoucher?cashVoucherTitle(t.multiVoucher?.mode):(t?.type||'عملية');}
 function getNextVoucherNumber(mode) {
   const allTxs = getAllTransactions();
   return allTxs.filter(t => t.voucherMode === mode).reduce((max, t) => Math.max(max, Number(t.seqNum) || 0), 0) + 1;
@@ -6117,7 +6127,7 @@ function entrygroupLedgerItemsForDisplay(txs){
 function renderAllData(force=false) {
   if(currentActiveTab!=='pageLedger'&&!force){ledgerNeedsRender=true;updateProDashboard();return;}
   ledgerNeedsRender=false;
-  const sourceTxs = getAllTransactions();
+  const sourceTxs = ratibActiveAccountingTransactions(getAllTransactions());
   const allTxs = typeof ratibFiscalVisibleLedgerTransactions==='function'
     ? ratibFiscalVisibleLedgerTransactions(sourceTxs)
     : sourceTxs;

@@ -8,24 +8,15 @@ const DEFAULTS={
  receipt:['المحاسب / المدير','أمين الصندوق','المستفيد'],
  journal:['المحاسب / المدير','أمين الصندوق'],
  compound:['المعدّ','المراجع','المعتمد'],
- opening:['المعدّ','المراجع','المعتمد'],
- 'أمر توريد':['معدّ الطلب','المراجع','المعتمد'],
- 'توريد مخزني':['المسلّم','أمين المخزن المستلم','الفاحص','المعتمد'],
- 'فاتورة مشتريات':['مسؤول المشتريات','مراجع الحسابات','المعتمد'],
- 'أمر صرف':['طالب الصرف','المراجع','المعتمد'],
- 'صرف مخزني':['أمين المخزن المسلّم','المستلم','المراجع','المعتمد'],
- 'فاتورة مبيعات':['محرّر الفاتورة','المحاسب','المعتمد','العميل / المستلم'],
- 'مرتجع الوارد':['المسلّم','أمين المخزن المستلم','المراجع','المعتمد'],
- 'مرتجع الصادر':['أمين المخزن المسلّم','المستلم','المراجع','المعتمد']
+ opening:['المعدّ','المراجع','المعتمد']
 };
 const TITLES={payment:'سند صرف',receipt:'سند قبض',journal:'قيد بسيط',compound:'قيد مركب',opening:'قيد افتتاحي'};
-// Offer only the five active accounting voucher types in Settings.
-// Keep historical commerce definitions for printing existing archived documents.
+// Active accounting voucher types only; stored historical preferences remain untouched.
 const keys=['payment','receipt','journal','compound','opening'];
 const newDefault=key=>({enabled:DEFAULTS[key].length>0,people:DEFAULTS[key].map(label=>({label,name:''}))});
 const cleanText=(x,n=64)=>String(x==null?'':x).trim().slice(0,n);
 const htmlEscape=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-const safeKey=key=>Object.prototype.hasOwnProperty.call(DEFAULTS,key)?key:'';
+const safeKey=key=>keys.includes(key)?key:'';
 let state={};
 try{
  const raw=typeof store!=='undefined'&&typeof store.get==='function'?store.get(KEY,null):JSON.parse(localStorage.getItem(KEY)||'null');

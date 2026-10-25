@@ -1569,7 +1569,7 @@ body.ratib-sidebar-open,body.ratib-about-open{overflow:hidden}
 }
 </style>
 <link rel="stylesheet" href="./ratib-login-3.6.124.css?v=3.6.131">
-<link rel="stylesheet" href="./ratib-commerce-3.6.131.css?v=3.6.108.04">
+<link rel="stylesheet" href="./ratib-commerce-3.6.131.css?v=3.6.108.05">
 
 <style id="ratib-commerce-ledger-actions-3.6.138">
 #pageLedger .rc-ledger-operations{display:flex;align-items:center;justify-content:flex-start;gap:5px;flex-wrap:wrap;padding:6px 8px;margin-top:4px}
@@ -1579,11 +1579,11 @@ body.ratib-sidebar-open,body.ratib-about-open{overflow:hidden}
 <link rel="stylesheet" href="./ratib-trial-home-sidebar-3.6.143.css?v=3.6.143">
 <link rel="stylesheet" href="./ratib-trial-ui-3.6.143.css?v=3.6.143">
 <link rel="stylesheet" href="./ratib-dashboard-finance-3.6.144.css?v=3.6.144">
-<link rel="stylesheet" href="./ratib-global-button-size-3.6.146.css?v=3.6.108.04">
-<link rel="stylesheet" href="./ratib-interface-font-3.6.148.css?v=3.6.108.04">
+<link rel="stylesheet" href="./ratib-global-button-size-3.6.146.css?v=3.6.108.05">
+<link rel="stylesheet" href="./ratib-interface-font-3.6.148.css?v=3.6.108.05">
 <link rel="stylesheet" href="./ratib-feedback-3.6.149.css?v=3.6.149">
 <link rel="stylesheet" href="./ratib-country-currency-3.6.151.css?v=3.6.151">
-<link rel="stylesheet" href="./ratib-interactive-tree-3.6.105.05.css?v=3.6.108.04">
+<link rel="stylesheet" href="./ratib-interactive-tree-3.6.105.05.css?v=3.6.108.05">
 </head>
 <body>
 
@@ -1614,7 +1614,7 @@ body.ratib-sidebar-open,body.ratib-about-open{overflow:hidden}
     <div class="header-tools"><div class="header-actions">
       <button class="icon-btn" id="themeBtn" title="الوضع الليلي">🌙</button>
       <button class="icon-btn" id="sidebarMenuBtn" aria-haspopup="dialog" aria-controls="appSidebar" aria-expanded="false" title="الإعدادات" aria-label="فتح الإعدادات">⚙</button>
-    </div><small id="appVersionLabel" class="app-version">الإصدار 3.6.108.04 (تجريبية)</small></div>
+    </div><small id="appVersionLabel" class="app-version">الإصدار 3.6.108.05 (تجريبية)</small></div>
   </header>
   <div class="summary-toolbar hidden no-print" id="storageFeedback"><span id="persistentSaveStatus" hidden aria-hidden="true">جاهز</span><button type="button" id="retryStorageBtn" class="btn btn-ghost hidden">إعادة محاولة الحفظ</button></div>
 <div class="app-update-banner hidden no-print" id="appUpdateBanner" role="status"><span id="appUpdateMessage">يتوفر تحديث لراتب. هل تريد تطبيقه؟</span><button type="button" class="btn btn-ghost" id="applyAppUpdateBtn">موافق، تطبيق التحديث</button><div id="appUpdateDetails" class="hidden"></div></div>
@@ -1661,7 +1661,7 @@ body.ratib-sidebar-open,body.ratib-about-open{overflow:hidden}
       <img src="Icons/icon-192.png" width="72" height="72" alt="" decoding="async">
       <h2 id="ratibAboutTitle">راتب</h2>
       <p class="ratib-about-subtitle">للتنظيم والتدبير المالي</p>
-      <p class="ratib-about-version">الإصدار 3.6.108.04 (تجريبية)</p>
+      <p class="ratib-about-version">الإصدار 3.6.108.05 (تجريبية)</p>
       <p id="ratibAboutDescription">إدارة الحسابات والسندات والميزانية، ومتابعة العمليات والتقارير المالية، مع حفظ البيانات على جهازك ودعم العمل دون الإنترنت.</p>
       <button type="button" class="btn btn-primary" id="closeRatibAboutBtn">إغلاق</button>
     </div>
@@ -2900,14 +2900,14 @@ body.ratib-sidebar-open,body.ratib-about-open{overflow:hidden}
 
 </div>
 
-<script src="./ratib-first-run-3.6.105.11.js?v=3.6.108.04"></script>
+<script src="./ratib-first-run-3.6.105.11.js?v=3.6.108.05"></script>
 <script>
 // ===== تسجيل Service Worker (يفعّل العمل دون إنترنت بعد أول زيارة) =====
 // يُسجَّل بعد اكتمال تحميل الصفحة حتى لا يؤخر أول عرض للتطبيق. يعمل فقط عبر HTTPS
 // (أو localhost أثناء التطوير) — هذا شرط أساسي من المتصفح نفسه لأي Service Worker.
 let _briefAppNoticeTimer=null;
 let _releaseSummaryDisplayed=false;
-const RATIB_RELEASE={"version":"3.6.108.04","highlights":[],"changes":["تصحيح الأخطاء في بعض الأجهزة"]};
+const RATIB_RELEASE={"version":"3.6.108.05","highlights":[],"changes":["استمرار وضع تعليم بطاقات كشف الحساب عند الانتقال لتطبيق آخر والعودة.","تعزيز حفظ حالة النسخة السحابية بعد تأكيد Google Drive، مع حفظ أخطاء المحاولات."]};
 window.ratibCurrentTrialVersion=()=>String(RATIB_RELEASE.version);
 window.ratibCurrentTrialVersionLabel=()=>`الإصدار ${RATIB_RELEASE.version} (تجريبية)`;
 window.ratibSyncTrialVersion=()=>{
@@ -4129,7 +4129,7 @@ async function verifyCloudFile(token, item) {
   }
   return file;
 }
-function cloudBackupSuccess(item) {
+async function cloudBackupSuccess(item) {
   const now = new Date();
   saveCloudCfg({
     pendingUpload: null, lastStatus: 'verified', lastError: '',
@@ -4138,6 +4138,15 @@ function cloudBackupSuccess(item) {
     lastFolder: item.destination === 'official' ? CLOUD_LEGACY_FOLDER_NAME : CLOUD_FOLDER_NAME,
     lastVerifiedAt: now.toISOString()
   }, true);
+  // Confirmation must survive immediate app switching or Android process eviction.
+  try {
+    await flushStorage();
+    return true;
+  } catch (error) {
+    console.warn('تعذّر تثبيت حالة النسخ السحابي محلياً', error);
+    showToast('النسخة مؤكدة في Google Drive، لكن تعذّر تثبيت حالة النسخ محلياً؛ افتح النسخ السحابي للتحقق عند العودة.', 'warn', 8000);
+    return false;
+  }
 }
 // Resolve a lost upload response before creating another file. A transient error preserves the pending record.
 async function recoverPendingCloudUpload(token, pending) {
@@ -4156,7 +4165,7 @@ async function recoverPendingCloudUpload(token, pending) {
     if (error?.status === 404) { saveCloudCfg({ pendingUpload: null }, true); return false; }
     throw error;
   }
-  cloudBackupSuccess(item);
+  await cloudBackupSuccess(item);
   return true;
 }
 
@@ -4204,13 +4213,15 @@ async function runCloudBackup(interactive) {
       saveCloudCfg({ pendingUpload: pending }, true);
     }
     await verifyCloudFile(token, pending);
-    cloudBackupSuccess(pending);
-    if (interactive) showToast('تم التحقق من حفظ النسخة السحابية على Google Drive بنجاح.', 'success');
+    const statusPersisted = await cloudBackupSuccess(pending);
+    if (interactive && statusPersisted) showToast('تم التحقق من حفظ النسخة السحابية على Google Drive بنجاح.', 'success');
     return true;
   } catch (e) {
     console.warn('فشل النسخ السحابي', e);
     saveCloudCfg({ lastStatus: getCloudCfg().pendingUpload ? 'pending_verification' : 'error',
       lastError: e.message || String(e) }, true);
+    // Preserve failures and pending verification state before the app is suspended.
+    try { await flushStorage(); } catch (storageError) { console.warn('تعذّر تثبيت خطأ النسخ السحابي', storageError); }
     if (interactive) showToast('تعذّر تأكيد النسخ السحابي: ' + (e.message || e), 'error', 7000);
     return false;
   } finally { _cloudBusy = false; refreshCloudBackupUI(); }
@@ -9143,7 +9154,7 @@ function proceedAppInit() {
 }
 
 
-/* Ratib trial 3.6.108.04 — preserve the active screen across Android/PWA background recreation.
+/* Ratib trial 3.6.108.05 — preserve the active screen across Android/PWA background recreation.
  * The view is stored in Ratib's existing protected application store, not in plain localStorage.
  * Never restore before vault unlock; explicit Exit clears the snapshot.
  */
@@ -12608,8 +12619,8 @@ try{currenciesUi();sync();}catch(e){console.error('Ratib 3.6.12 initialization',
 </script>
 <script src="./ratib-license-draft.js?v=3.6.151" defer></script>
 <script src="./ratib-ui-v3.6.37.js?v=2" defer></script>
-<script src="./ratib-favorites-v3.js?v=3.6.108.04" defer></script>
-<script src="./ratib-voice-dictation-3.6.117.js?v=3.6.108.04" defer></script>
+<script src="./ratib-favorites-v3.js?v=3.6.108.05" defer></script>
+<script src="./ratib-voice-dictation-3.6.117.js?v=3.6.108.05" defer></script>
 <script src="./ratib-import-manager.js?v=2" defer></script>
 <script src="./ratib-annual-close.js?v=1" defer></script>
 <script src="./ratib-fiscal-ledger.js?v=1" defer></script>
@@ -12624,21 +12635,21 @@ try{currenciesUi();sync();}catch(e){console.error('Ratib 3.6.12 initialization',
 <script src="./ratib-amount-edit-3.6.97.js?v=3.6.158" defer></script>
 <script src="./ratib-special-reports-3.6.102.js?v=3.6.114" defer></script>
 <script src="./ratib-fx-autofill-3.6.105.js?v=3.6.107" defer></script>
-<script src="./ratib-report-buttons-3.6.106.js?v=3.6.108.04" defer></script>
+<script src="./ratib-report-buttons-3.6.106.js?v=3.6.108.05" defer></script>
 <script src="./ratib-print-logo-3.6.108.js?v=3.6.111" defer></script>
 <div id="ratibSpecialPrintHost" aria-hidden="true"></div>
-<script src="./ratib-sidebar-3.6.124.js?v=3.6.108.04" defer></script>
-<script src="./ratib-commerce-3.6.131.js?v=3.6.108.04" defer></script>
-<script src="./ratib-simple-accounts-3.6.105.13.js?v=3.6.108.04" defer></script>
-<script src="./ratib-interactive-tree-3.6.105.05.js?v=3.6.108.04" defer></script>
-<script src="./ratib-login-3.6.124.js?v=3.6.108.04" defer></script>
+<script src="./ratib-sidebar-3.6.124.js?v=3.6.108.05" defer></script>
+<script src="./ratib-commerce-3.6.131.js?v=3.6.108.05" defer></script>
+<script src="./ratib-simple-accounts-3.6.105.13.js?v=3.6.108.05" defer></script>
+<script src="./ratib-interactive-tree-3.6.105.05.js?v=3.6.108.05" defer></script>
+<script src="./ratib-login-3.6.124.js?v=3.6.108.05" defer></script>
 <script src="./ratib-trial-home-sidebar-3.6.143.js?v=3.6.143" defer></script>
-<script src="./ratib-trial-ui-3.6.143.js?v=3.6.108.04" defer></script>
-<script src="./ratib-dashboard-finance-3.6.144.js?v=3.6.108.04" defer></script>
-<script src="./ratib-global-button-size-3.6.146.js?v=3.6.108.04" defer></script>
+<script src="./ratib-trial-ui-3.6.143.js?v=3.6.108.05" defer></script>
+<script src="./ratib-dashboard-finance-3.6.144.js?v=3.6.108.05" defer></script>
+<script src="./ratib-global-button-size-3.6.146.js?v=3.6.108.05" defer></script>
 <script src="./ratib-document-signatures-3.6.148.js?v=3.6.148" defer></script>
 <script src="./ratib-feedback-3.6.149.js?v=3.6.149" defer></script>
-<script src="./ratib-statement-marks-3.6.106.05.js?v=3.6.108.04" defer>
+<script src="./ratib-statement-marks-3.6.106.05.js?v=3.6.108.05" defer>
 </script>
 <script src="./ratib-country-currency-3.6.151.js?v=3.6.151" defer></script>
 </body>

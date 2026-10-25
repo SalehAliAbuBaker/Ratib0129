@@ -7,7 +7,7 @@
  #mainWrap > header .logo > span > strong{color:var(--accent-strong);font-weight:850;font-size:clamp(1.13rem,3.6vw,1.5rem)}
  #mainWrap > header .logo > span > small{color:var(--muted);font-size:.77rem;font-weight:600}
  #dashboardHomeContent .ratib-quick-entry-grid{
-  display:grid!important;grid-template-columns:repeat(5,minmax(0,1fr))!important;
+  display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr))!important;
   grid-template-rows:auto!important;gap:9px!important;overflow:visible!important
  }
  #dashboardHomeContent .ratib-quick-entry-grid > button{
@@ -102,10 +102,6 @@
  #dashboardHomeContent .ratib-quick-entry-grid > button{
   min-height:77px!important;font-size:clamp(.81rem,3.4vw,.95rem)!important;
   padding:9px 5px!important
- }
- #dashboardHomeContent .ratib-quick-entry-grid > button:last-child:nth-child(odd){
-  grid-column:1/-1!important;justify-self:center!important;
-  width:calc((100% - 8px)/2)!important
  }
  #dashboardHomeContent .main-menu-grid.ratib-favorites-cross{
   --ratib-home-row-h:101px;--ratib-home-gap:11px;

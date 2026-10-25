@@ -1579,7 +1579,7 @@ body.ratib-sidebar-open,body.ratib-about-open{overflow:hidden}
 <link rel="stylesheet" href="./ratib-country-currency-3.6.151.css?v=3.6.151">
 <link rel="stylesheet" href="./ratib-interactive-tree-3.6.105.05.css?v=3.6.109.05">
 <link rel="stylesheet" href="./ratib-gold.css?v=20261025-1">
-<link rel="stylesheet" href="./ratib-trial-home-polish.css?v=20261025-3">
+<link rel="stylesheet" href="./ratib-trial-home-polish.css?v=20261025-4">
 </head>
 <body>
 
@@ -9847,7 +9847,7 @@ function configureVoucherMode(mode){
   card.querySelector('.multi-voucher-source-row>label').textContent=spend?cashSourceLabel()+(mode==='income'?' (مدين)':' (دائن)'):'حساب مرجعي (اختياري)';
   document.getElementById('inpMultiSourceAcc').placeholder=spend?'ابحث أو اختر '+cashSourceLabel():'اختر الحساب المرجعي (اختياري)';
   const base=document.getElementById('multiVoucherBaseCurrency');if(spend)for(const currency of KNOWN_CURRENCIES)if(![...base.options].some(o=>o.value===currency)){const option=document.createElement('option');option.value=currency;option.textContent=accountCurrencyLabel(currency);base.append(option);}base.parentElement.firstChild.textContent=spend?'العملة':'العملة الأساسية';for(const option of base.options)option.textContent=spend?accountCurrencyLabel(option.value):multiCurrencyLabel(option.value);
-  document.getElementById('multiVoucherBeneficiary').parentElement.firstChild.textContent=mode==='income'?'الدافع / المستفيد':'المستفيد';card.querySelectorAll('.spend-only').forEach(el=>el.classList.toggle('hidden',!spend));
+  document.getElementById('multiVoucherBeneficiary').parentElement.firstChild.textContent=mode==='income'?'المستفيد / الدافع (اختياري)':'المستفيد / المستلم (اختياري)';document.getElementById('multiVoucherBeneficiary').placeholder=mode==='income'?'اسم المستفيد أو الدافع (اختياري)':'اسم المستفيد أو المستلم (اختياري)';document.getElementById('multiVoucherBeneficiary').required=false;card.querySelectorAll('.spend-only').forEach(el=>el.classList.toggle('hidden',!spend));
   card.querySelector('.multi-voucher-table thead').innerHTML=spend?'<tr><th>#</th><th>الحساب</th><th>المبلغ</th><th>العملة</th><th id="spendEquivalentHead">القيمة المعادلة</th><th>بند الميزانية</th><th>ملاحظات البند</th><th>إجراء</th></tr>':'<tr><th>الجهة</th><th>الحساب</th><th>بند الميزانية</th><th>البيان</th><th>العملة</th><th>المبلغ</th><th>سعر الصرف</th><th>القيمة الأساسية</th><th>ملاحظات</th><th></th></tr>';
   document.getElementById('addMultiVoucherLineBtn').textContent=spend?'＋ إضافة بند':'＋ إضافة حساب';
   document.getElementById('commitMultiVoucherBtn').textContent=spend?(quickVoucherOrigin?'حفظ والعودة لكشف الحساب':'حفظ '+cashVoucherTitle(multiVoucherMode)):'اعتماد القيد المركب';
@@ -12132,7 +12132,7 @@ try{currenciesUi();sync();}catch(e){console.error('Ratib 3.6.12 initialization',
 <script src="./ratib-statement-marks-3.6.106.05.js?v=3.6.109.05" defer>
 </script>
 <script src="./ratib-country-currency-3.6.151.js?v=3.6.151" defer></script>
-<script src="./ratib-opening.js?v=20261025-3" defer></script>
-<script src="./ratib-trial-home-polish.js?v=20261025-3" defer></script>
+<script src="./ratib-opening.js?v=20261025-4" defer></script>
+<script src="./ratib-trial-home-polish.js?v=20261025-4" defer></script>
 </body>
 </html>

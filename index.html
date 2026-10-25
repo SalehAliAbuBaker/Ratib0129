@@ -1569,7 +1569,7 @@ body.ratib-sidebar-open,body.ratib-about-open{overflow:hidden}
 }
 </style>
 <link rel="stylesheet" href="./ratib-login-3.6.124.css?v=3.6.131">
-<link rel="stylesheet" href="./ratib-commerce-3.6.131.css?v=3.6.109.01">
+<link rel="stylesheet" href="./ratib-commerce-3.6.131.css?v=3.6.109.02">
 
 <style id="ratib-commerce-ledger-actions-3.6.138">
 #pageLedger .rc-ledger-operations{display:flex;align-items:center;justify-content:flex-start;gap:5px;flex-wrap:wrap;padding:6px 8px;margin-top:4px}
@@ -1579,11 +1579,11 @@ body.ratib-sidebar-open,body.ratib-about-open{overflow:hidden}
 <link rel="stylesheet" href="./ratib-trial-home-sidebar-3.6.143.css?v=3.6.143">
 <link rel="stylesheet" href="./ratib-trial-ui-3.6.143.css?v=3.6.143">
 <link rel="stylesheet" href="./ratib-dashboard-finance-3.6.144.css?v=3.6.144">
-<link rel="stylesheet" href="./ratib-global-button-size-3.6.146.css?v=3.6.109.01">
-<link rel="stylesheet" href="./ratib-interface-font-3.6.148.css?v=3.6.109.01">
+<link rel="stylesheet" href="./ratib-global-button-size-3.6.146.css?v=3.6.109.02">
+<link rel="stylesheet" href="./ratib-interface-font-3.6.148.css?v=3.6.109.02">
 <link rel="stylesheet" href="./ratib-feedback-3.6.149.css?v=3.6.149">
 <link rel="stylesheet" href="./ratib-country-currency-3.6.151.css?v=3.6.151">
-<link rel="stylesheet" href="./ratib-interactive-tree-3.6.105.05.css?v=3.6.109.01">
+<link rel="stylesheet" href="./ratib-interactive-tree-3.6.105.05.css?v=3.6.109.02">
 </head>
 <body>
 
@@ -1614,7 +1614,7 @@ body.ratib-sidebar-open,body.ratib-about-open{overflow:hidden}
     <div class="header-tools"><div class="header-actions">
       <button class="icon-btn" id="themeBtn" title="الوضع الليلي">🌙</button>
       <button class="icon-btn" id="sidebarMenuBtn" aria-haspopup="dialog" aria-controls="appSidebar" aria-expanded="false" title="الإعدادات" aria-label="فتح الإعدادات">⚙</button>
-    </div><small id="appVersionLabel" class="app-version">الإصدار 3.6.109.01 (تجريبية)</small></div>
+    </div><small id="appVersionLabel" class="app-version">الإصدار 3.6.109.02 (تجريبية)</small></div>
   </header>
   <div class="summary-toolbar hidden no-print" id="storageFeedback"><span id="persistentSaveStatus" hidden aria-hidden="true">جاهز</span><button type="button" id="retryStorageBtn" class="btn btn-ghost hidden">إعادة محاولة الحفظ</button></div>
 <div class="app-update-banner hidden no-print" id="appUpdateBanner" role="status"><span id="appUpdateMessage">يتوفر تحديث لراتب. هل تريد تطبيقه؟</span><button type="button" class="btn btn-ghost" id="applyAppUpdateBtn">موافق، تطبيق التحديث</button><div id="appUpdateDetails" class="hidden"></div></div>
@@ -1661,7 +1661,7 @@ body.ratib-sidebar-open,body.ratib-about-open{overflow:hidden}
       <img src="Icons/icon-192.png" width="72" height="72" alt="" decoding="async">
       <h2 id="ratibAboutTitle">راتب</h2>
       <p class="ratib-about-subtitle">للتنظيم والتدبير المالي</p>
-      <p class="ratib-about-version">الإصدار 3.6.109.01 (تجريبية)</p>
+      <p class="ratib-about-version">الإصدار 3.6.109.02 (تجريبية)</p>
       <p id="ratibAboutDescription">إدارة الحسابات والسندات والميزانية، ومتابعة العمليات والتقارير المالية، مع حفظ البيانات على جهازك ودعم العمل دون الإنترنت.</p>
       <button type="button" class="btn btn-primary" id="closeRatibAboutBtn">إغلاق</button>
     </div>
@@ -1696,50 +1696,13 @@ body.ratib-sidebar-open,body.ratib-about-open{overflow:hidden}
         </button>
       </div>
 
-      <div class="carousel-shell dashboard-carousel" id="dashboardCarousel" aria-label="لوحة القيادة والمهام">
-        <div class="carousel-track">
-          <section class="carousel-slide" id="pageDashboardKpi" aria-label="لوحة القيادة">
-            <div class="card no-print" id="proDashboardCard">
-              <h2><span>⚡ لوحة القيادة</span><span hidden aria-hidden="true" id="lastSavedLabel" style="font-size:0.95rem;color:var(--muted);font-weight:700">جاهز</span></h2>
-              <div class="dashboard-period no-print"><div class="dashboard-filter"><label for="dashboardPeriod">الفترة</label><select id="dashboardPeriod"><option value="all">كافة العمليات</option><option value="current">الشهر الحالي</option></select></div><div class="dashboard-filter"><label for="currency">عملة الملخصات</label><select id="currency" aria-label="عملة الملخصات"><option value="YER">ريال يمني</option><option value="SAR">ريال سعودي</option><option value="USD">دولار أمريكي</option></select></div></div>
-              <div id="proAlertsBox" style="font-size:1.05rem;font-weight:700;color:var(--muted)"></div>
-              <button class="open-tasks-cta" type="button" onclick="goCarousel('dashboardCarousel',1)">
-                <span style="position:relative;">🔔<span id="remindersBadge" class="hidden" style="position:absolute;top:-6px;left:-10px;background:var(--danger);color:#fff;font-size:0.7rem;min-width:16px;height:16px;border-radius:8px;display:flex;align-items:center;justify-content:center;padding:0 4px;">0</span></span><b>التذكيرات التي تحتاج إلى مراجعة</b><small>عرض المهام والتذكيرات وتوزيع الأولويات</small><i>‹</i>
-              </button>
-              <button class="dashboard-add-reminder-btn" type="button" onclick="openReminderModal(-1)">➕ إضافة مهمة جديدة</button>
-              <div class="pro-kpi-grid">
-                <button type="button" class="pro-kpi" onclick="openDashboardOperations('income')" aria-label="فتح عمليات الدخل"><small>إجمالي الدخل</small><strong id="proIncomeKpi">0</strong></button>
-                <button type="button" class="pro-kpi" onclick="openDashboardOperations('expense')" aria-label="فتح عمليات المصروف"><small>إجمالي المصروف</small><strong id="proExpenseKpi">0</strong></button>
-                <button type="button" class="pro-kpi" onclick="openDashboardOperations('net')" aria-label="فتح عمليات صافي التدفق"><small>صافي التدفق</small><strong id="proNetKpi">0</strong></button>
-                <button type="button" class="pro-kpi" onclick="openDashboardOperations('pending')" aria-label="فتح السندات غير المكتملة"><small>سندات غير مكتملة</small><strong id="proPendingKpi">0</strong></button>
-              </div>
-            </div>
-          </section>
-          <section class="carousel-slide task-carousel-card" id="pageReminders" aria-label="المهام والتذكيرات">
-            <div class="card no-print">
-              <h2><span>🔔 التذكيرات والمهام</span><button class="btn btn-ghost" id="openAddReminderModalBtn" style="width:auto; margin-top:0; padding:4px 10px; font-size:0.95rem;">➕ إضافة تذكير</button></h2>
-              <button type="button" class="btn btn-ghost" id="enableReminderNotificationsBtn">تفعيل إشعارات التذكيرات</button>
-              <small style="display:block;color:var(--muted);margin:6px 0 10px;line-height:1.5">تنبيهات نسخة الويب تعمل أثناء فتح التطبيق. الإشعارات بعد إغلاق المتصفح تتطلب خدمة إشعارات خلفية مستقلة؛ لا تغني عنها هذه الخاصية.</small>
-              <div class="interactive-orbit reminders-orbit" aria-label="ملخص دائري للمهام والتذكيرات">
-                <div class="orbit-center"><strong id="remindersTotalCount">0</strong><small>إجمالي المهام</small></div>
-                <button class="orbit-node orbit-normal" onclick="filterRemindersByPriority('عادية')">عادية</button>
-                <button class="orbit-node orbit-important" onclick="filterRemindersByPriority('مهمة')">مهمة</button>
-                <button class="orbit-node orbit-urgent" onclick="filterRemindersByPriority('عاجلة')">عاجلة</button>
-                <button class="orbit-node orbit-critical" onclick="filterRemindersByPriority('حرجة جداً')">حرجة</button>
-              </div>
-              <div class="chart-box" style="height: 160px; margin-bottom: 8px;"><canvas id="remindersChart"></canvas></div>
-              <div id="remindersListContainer" style="font-size: 1.05rem; margin-top: 8px;">
-                <div style="text-align: center; color: var(--muted); padding: 10px; font-weight:700;">لا توجد تذكيرات نشطة حالياً</div>
-              </div>
-            </div>
-          </section>
-        </div>
-        <div class="carousel-controls" aria-label="التنقل بين لوحة القيادة والمهام">
-          <button class="carousel-arrow" type="button" onclick="moveCarousel('dashboardCarousel',-1)" aria-label="السابق">‹</button>
-          <div class="carousel-dots"><button class="carousel-dot active" type="button" onclick="goCarousel('dashboardCarousel',0)" aria-label="لوحة القيادة"></button><button class="carousel-dot" type="button" onclick="goCarousel('dashboardCarousel',1)" aria-label="المهام والتذكيرات"></button></div>
-          <button class="carousel-arrow" type="button" onclick="moveCarousel('dashboardCarousel',1)" aria-label="التالي">›</button>
-        </div>
-      </div>
+      <!-- Trial 3.6.109.02: dashboard, tasks and reminders retired from homepage.
+           The hidden currency state remains for existing accounting reports and preferences. -->
+      <select id="currency" hidden aria-hidden="true" tabindex="-1">
+        <option value="YER">ريال يمني</option>
+        <option value="SAR">ريال سعودي</option>
+        <option value="USD">دولار أمريكي</option>
+      </select>
     </div>
   </div>
 
@@ -2894,14 +2857,14 @@ body.ratib-sidebar-open,body.ratib-about-open{overflow:hidden}
 
 </div>
 
-<script src="./ratib-first-run-3.6.105.11.js?v=3.6.109.01"></script>
+<script src="./ratib-first-run-3.6.105.11.js?v=3.6.109.02"></script>
 <script>
 // ===== تسجيل Service Worker (يفعّل العمل دون إنترنت بعد أول زيارة) =====
 // يُسجَّل بعد اكتمال تحميل الصفحة حتى لا يؤخر أول عرض للتطبيق. يعمل فقط عبر HTTPS
 // (أو localhost أثناء التطوير) — هذا شرط أساسي من المتصفح نفسه لأي Service Worker.
 let _briefAppNoticeTimer=null;
 let _releaseSummaryDisplayed=false;
-const RATIB_RELEASE={"version":"3.6.109.01","highlights":[],"changes":["تصحيح الأخطاء في بعض الأجهزة"]};
+const RATIB_RELEASE={"version":"3.6.109.02","highlights":[],"changes":["تصحيح الأخطاء في بعض الأجهزة"]};
 window.ratibCurrentTrialVersion=()=>String(RATIB_RELEASE.version);
 window.ratibCurrentTrialVersionLabel=()=>`الإصدار ${RATIB_RELEASE.version} (تجريبية)`;
 window.ratibSyncTrialVersion=()=>{
@@ -4559,11 +4522,15 @@ function checkAndNotifyDueReminders() {
   });
 }
 
-function initReminderNotifications(){scheduleReminderCheck();}
+function initReminderNotifications(){
+  // The trial home no longer offers tasks/reminders; do not start background notifications.
+  clearTimeout(_reminderTimer);_reminderTimer=null;
+}
 
 let remindersChartInstance = null;
 
 function updateProDashboard(){
+  if(!document.getElementById('proDashboardCard'))return; // Retired from the trial homepage.
   const txs=dashboardTransactions(),cur=getGlobalCurrency(),selected=txs.filter(t=>t.currency===cur);
   const income=selected.filter(t=>t.voucherMode==='income'&&(!t.isMultiVoucher||!!t.creditAccount)).reduce((sum,t)=>sum+Number(t.amount||0),0);
   const expense=selected.filter(t=>(t.isExpense||t.voucherMode==='spend')&&(!t.isMultiVoucher||!!t.debitAccount)).reduce((sum,t)=>sum+Number(t.amount||0),0);
@@ -5280,9 +5247,6 @@ function openDashboardHome(pushToHistory = true) {
   const home = document.getElementById('dashboardHomeContent');
   if (!home) return;
   currentActiveTab = 'pageDashboard';
-  updateProDashboard();
-  renderRemindersList();
-  requestAnimationFrame(() => { renderRemindersChart(); goCarousel('dashboardCarousel', carouselState.dashboardCarousel || 0); });
   home.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
@@ -9173,7 +9137,7 @@ function proceedAppInit() {
 }
 
 
-/* Ratib trial 3.6.109.01 — preserve the active screen across Android/PWA background recreation.
+/* Ratib trial 3.6.109.02 — preserve the active screen across Android/PWA background recreation.
  * The view is stored in Ratib's existing protected application store, not in plain localStorage.
  * Never restore before vault unlock; explicit Exit clears the snapshot.
  */
@@ -9490,6 +9454,7 @@ async function ensureCharts(){
 }
 
 function renderRemindersChart(){
+  if(!document.getElementById('remindersChart'))return;
   if(currentActiveTab!=='pageDashboard'||(carouselState.dashboardCarousel||0)!==1)return;
   const signature=JSON.stringify(getReminders());if(signature===_remindersChartSignature&&remindersChartInstance)return;
   ensureCharts().then(()=>{
@@ -9562,11 +9527,15 @@ function restoreSingleDraft(){
 }
 
 function scheduleReminderCheck(){
-  clearTimeout(_reminderTimer);if(document.hidden||_appExited)return;
+  // Keep saved reminders untouched but do not notify for a retired feature.
+  clearTimeout(_reminderTimer);_reminderTimer=null;return;
+  /* previous reminder notification scheduler retained for future data migration:
+  if(document.hidden||_appExited)return;
   checkAndNotifyDueReminders();
   const notified=new Set(getNotifiedReminderKeys()),now=Date.now();let next=Infinity;
   for(const r of getReminders()){if(notified.has(reminderKey(r)))continue;const when=new Date(`${r.date}T${r.time||'09:00'}:00`).getTime();if(Number.isFinite(when)&&when>now)next=Math.min(next,when-now);}
   _reminderTimer=setTimeout(scheduleReminderCheck,Number.isFinite(next)?Math.max(1000,Math.min(next,60000)):60000);
+  */
 }
 
 function initCompatibilityImprovements(){
@@ -12641,8 +12610,8 @@ try{currenciesUi();sync();}catch(e){console.error('Ratib 3.6.12 initialization',
 </script>
 <script src="./ratib-license-draft.js?v=3.6.151" defer></script>
 <script src="./ratib-ui-v3.6.37.js?v=2" defer></script>
-<script src="./ratib-favorites-v3.js?v=3.6.109.01" defer></script>
-<script src="./ratib-voice-dictation-3.6.117.js?v=3.6.109.01" defer></script>
+<script src="./ratib-favorites-v3.js?v=3.6.109.02" defer></script>
+<script src="./ratib-voice-dictation-3.6.117.js?v=3.6.109.02" defer></script>
 <script src="./ratib-import-manager.js?v=2" defer></script>
 <script src="./ratib-annual-close.js?v=1" defer></script>
 <script src="./ratib-fiscal-ledger.js?v=1" defer></script>
@@ -12657,21 +12626,21 @@ try{currenciesUi();sync();}catch(e){console.error('Ratib 3.6.12 initialization',
 <script src="./ratib-amount-edit-3.6.97.js?v=3.6.158" defer></script>
 <script src="./ratib-special-reports-3.6.102.js?v=3.6.114" defer></script>
 <script src="./ratib-fx-autofill-3.6.105.js?v=3.6.107" defer></script>
-<script src="./ratib-report-buttons-3.6.106.js?v=3.6.109.01" defer></script>
+<script src="./ratib-report-buttons-3.6.106.js?v=3.6.109.02" defer></script>
 <script src="./ratib-print-logo-3.6.108.js?v=3.6.111" defer></script>
 <div id="ratibSpecialPrintHost" aria-hidden="true"></div>
-<script src="./ratib-sidebar-3.6.124.js?v=3.6.109.01" defer></script>
-<script src="./ratib-commerce-3.6.131.js?v=3.6.109.01" defer></script>
-<script src="./ratib-simple-accounts-3.6.105.13.js?v=3.6.109.01" defer></script>
-<script src="./ratib-interactive-tree-3.6.105.05.js?v=3.6.109.01" defer></script>
-<script src="./ratib-login-3.6.124.js?v=3.6.109.01" defer></script>
+<script src="./ratib-sidebar-3.6.124.js?v=3.6.109.02" defer></script>
+<script src="./ratib-commerce-3.6.131.js?v=3.6.109.02" defer></script>
+<script src="./ratib-simple-accounts-3.6.105.13.js?v=3.6.109.02" defer></script>
+<script src="./ratib-interactive-tree-3.6.105.05.js?v=3.6.109.02" defer></script>
+<script src="./ratib-login-3.6.124.js?v=3.6.109.02" defer></script>
 <script src="./ratib-trial-home-sidebar-3.6.143.js?v=3.6.143" defer></script>
-<script src="./ratib-trial-ui-3.6.143.js?v=3.6.109.01" defer></script>
-<script src="./ratib-dashboard-finance-3.6.144.js?v=3.6.109.01" defer></script>
-<script src="./ratib-global-button-size-3.6.146.js?v=3.6.109.01" defer></script>
+<script src="./ratib-trial-ui-3.6.143.js?v=3.6.109.02" defer></script>
+<script src="./ratib-dashboard-finance-3.6.144.js?v=3.6.109.02" defer></script>
+<script src="./ratib-global-button-size-3.6.146.js?v=3.6.109.02" defer></script>
 <script src="./ratib-document-signatures-3.6.148.js?v=3.6.148" defer></script>
 <script src="./ratib-feedback-3.6.149.js?v=3.6.149" defer></script>
-<script src="./ratib-statement-marks-3.6.106.05.js?v=3.6.109.01" defer>
+<script src="./ratib-statement-marks-3.6.106.05.js?v=3.6.109.02" defer>
 </script>
 <script src="./ratib-country-currency-3.6.151.js?v=3.6.151" defer></script>
 </body>

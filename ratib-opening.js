@@ -46,8 +46,8 @@ function paint(){
   const tdAccount=document.createElement("td"),sel=document.createElement("select");sel.setAttribute("aria-label","الحساب");sel.innerHTML=options;
   const found=as.find(a=>a.name===r.account);sel.value=found?.id||"";sel.addEventListener("change",()=>{r.account=as.find(a=>a.id===sel.value)?.name||"";dirty=true;review();});tdAccount.append(sel);tr.append(tdAccount);
   for(const field of ["debit","credit","note"]){
-   const td=document.createElement("td"),input=document.createElement("input");input.type="text";input.value=r[field];input.setAttribute("aria-label",field==="debit"?"مدين":field==="credit"?"دائن":"البيان");
-   if(field!=="note"){input.className="opening-amount";input.inputMode="decimal";input.placeholder="0.000";}else input.placeholder="اختياري";
+   const td=document.createElement("td"),input=document.createElement(field==="note"?"textarea":"input");if(field!=="note")input.type="text";input.value=r[field];input.setAttribute("aria-label",field==="debit"?"مدين":field==="credit"?"دائن":"البيان");
+   if(field!=="note"){input.className="opening-amount";input.inputMode="decimal";input.placeholder="0.000";}else{input.className="opening-description";input.rows=3;input.maxLength=2000;input.placeholder="اكتب البيان التفصيلي للقيد الافتتاحي";}
    input.addEventListener("input",()=>{r[field]=input.value;dirty=true;review();});td.append(input);tr.append(td);
   }
   const del=document.createElement("td"),btn=document.createElement("button");btn.type="button";btn.className="btn btn-ghost";btn.textContent="حذف بند";btn.addEventListener("click",()=>{rows=rows.filter(x=>x.key!==r.key);dirty=true;paint();});del.append(btn);tr.append(del);el.append(tr);

@@ -1,6 +1,6 @@
 // Ratib 3.1.9: cache identity is unique to this app's scope.
-const CACHE_VERSION='v233-trial-two-column-favorite-original-tree-five-20261025';
-const APP_RELEASE={"version":"3.6.109.05","highlights":["استبعاد شاشة اختيار السند نهائيًا من المسار المعتاد"],"changes":["الرجوع من نماذج السندات يعيد المستخدم إلى الرئيسية دون شاشة اختيار مكررة","فتح نموذج القيد البسيط مباشرة عند الوصول إلى صفحة السندات من أي رابط عام","الإبقاء على زر استعادة المسودة خارج شاشة الاختيار الملغاة"]};
+const CACHE_VERSION='v234-trial-unified-cash-optional-beneficiary-20261025';
+const APP_RELEASE={"version":"3.6.109.05","highlights":["واجهة تجريبية بأزرار موحدة وإضافة حساب مباشر","سند قبض/صرف موحد مع اختيار العملية","إظهار المستفيد الاختياري في سندات القبض والصرف"],"changes":["القيد الافتتاحي بعد أنواع السندات، مع الحفاظ على بطاقة مفضلتي الخضراء","إظهار الحقل الاختياري المخزن في السند دون تغيير القيود السابقة","طي الحسابات الرئيسية افتراضيًا، وإظهار الأرصدة داخل التفاصيل فقط"]};
 const CACHE_PREFIX=`ratib:${self.registration.scope}:`;
 const CACHE_NAME=CACHE_PREFIX+CACHE_VERSION;
 const APP_SHELL=[

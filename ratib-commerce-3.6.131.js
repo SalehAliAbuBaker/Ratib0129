@@ -87,8 +87,8 @@ function commercePostingSides(db,d){
  const name=k=>db.accounts[k]||'لم يحدد الحساب بعد',inventory=db.warehouses.find(w=>w.id===d.warehouse)?.accountId||name('inventory');
  const accountParty=d.partyAccount||db.accounts[mode==='in'?'payable':'receivable']||'لم يحدد الحساب بعد';
  const counter=d.payment==='cash'?name('cash'):accountParty;
- if(mode==='in')return [{debit:inventory,credit:counter,note:'قيمة الوارد'}];
- if(mode==='out')return [{debit:counter,credit:name('sales'),note:'قيمة الصادر'},{debit:name('cogs'),credit:inventory,note:'تكلفة البضاعة باليمني'}];
+ if(mode==='in')return [{debit:d.debitAccount||inventory,credit:d.creditAccount||counter,note:'قيمة الوارد'}];
+ if(mode==='out')return [{debit:d.debitAccount||counter,credit:d.creditAccount||name('sales'),note:'قيمة الصادر'},{debit:name('cogs'),credit:inventory,note:'تكلفة البضاعة باليمني'}];
  return [];
 }
 function commerceSidesMarkup(db,d){
@@ -497,6 +497,8 @@ function openAccountDefaults(){
 }
 function orderCommerceAccounts(){
  const host=document.querySelector?.('#pageCommerce .rc-account-fields');if(!host)return;
+ // Purchase and sales invoices have their own fixed four-field order.
+ if(host.classList.contains('rc-invoice-core'))return;
  const warehouse=$('rc-warehouse')?.closest('.rc-wide-account'),party=$('rc-partyAccount')?.closest('.rc-wide-account');
  if(!warehouse||!party)return;
  const stockDebit=(mode==='in')!==(view==='return');
@@ -511,7 +513,7 @@ function accounts(db){
 }
 function records(db){
  const docs=db.invoices.filter(d=>mode==='in'?['purchase','purchase_return'].includes(d.kind):['sale','sale_return'].includes(d.kind));
- const filtered=docs.filter(d=>!query||[d.number,docName(d),d.partyName,d.date,d.note].join(' ').toLocaleLowerCase().includes(query.toLocaleLowerCase()));
+ const filtered=docs.filter(d=>!query||[d.number,docName(d),d.partyName,d.displayPartyName,d.date,d.note].join(' ').toLocaleLowerCase().includes(query.toLocaleLowerCase()));
  const cards=filtered.slice().reverse().map(x=>'<article class="rc-record-item">'+
   '<header class="rc-record-heading"><strong>'+esc(docName(x))+'</strong><span>'+esc(x.number)+'</span></header>'+
   '<div class="rc-record-meta"><span><b>التاريخ:</b> '+esc(x.date)+'</span><span><b>الطرف:</b> '+esc(x.partyName||'—')+'</span>'+
@@ -570,16 +572,33 @@ function invoice(db){
  if(ret&&orig){draft.currency=orig.currency||'YER';draft.exchangeRate=orig.exchangeRate||1;}
  const originals=ret?db.invoices.filter(d=>d.kind===dir()&&(d.id===draft.origin||(d.lines||[]).some(l=>leftToReturn(db,d.id,l.product,lineUnit(db,l))>0))):[];
  const partySuggestions=[...db.people.map(p=>p.name),...leaf().map(x=>x.id)];
+ const directInvoice=!ret&&((mode==='in'&&draft.title==='فاتورة مشتريات')||(mode==='out'&&draft.title==='فاتورة مبيعات'));
+ const debitDefault=mode==='in'?warehouseAccount(db,draft.warehouse):(draft.payment==='cash'?db.accounts.cash:(draft.partyAccount||db.accounts.receivable));
+ const creditDefault=mode==='in'?(draft.payment==='cash'?db.accounts.cash:(draft.partyAccount||db.accounts.payable)):db.accounts.sales;
+ const displaySuggestions=[...new Set([...db.invoices.filter(x=>['purchase','sale'].includes(x.kind)).map(x=>String(x.displayPartyName||'').trim()),...db.people.map(p=>String(p.name||'').trim())].filter(Boolean))];
  const form='<form id="rc-invoice-form"><div class="rc-grid rc-invoice-fields">'+
  (ret?fld('نوع المستند','<strong>مرتجع '+(mode==='in'?'الوارد':'الصادر')+'</strong>'):'')+
  fld('رقم المستند / الفاتورة',inp('number','text',draft.number,'required maxlength="40"'))+
  fld('التاريخ',inp('date','date',draft.date,'required'))+
- '<div class="rc-full rc-optional-supplier">'+commerceInlineField('اسم '+(mode==='in'?'المورد':'العميل')+' على الفاتورة (اختياري)',inp('displayPartyName','text',draft.displayPartyName||'','maxlength="140" autocomplete="off" placeholder="اكتب اسمًا أو اترك الحقل فارغًا" list="rc-parties"'))+'</div>'+
+ (directInvoice?
+  '<div class="rc-full rc-optional-supplier">'+commerceInlineField('اكتب اسم (اختياري)',inp('displayPartyName','text',draft.displayPartyName||'','maxlength="140" autocomplete="off" placeholder="اكتب اسمًا أو اترك الحقل فارغًا" list="rc-display-names"')+'<datalist id="rc-display-names">'+displaySuggestions.map(n=>'<option value="'+esc(n)+'"></option>').join('')+'</datalist>')+'</div>'+
+  '<div class="rc-full rc-account-fields rc-invoice-core">'+
+  '<div class="rc-wide-account rc-core-debit">'+commerceInlineField('حساب الطرف المدين',commerceSmartAccount('debitAccount',leaf(),draft.debitAccount||debitDefault,'حساب الطرف المدين — ابحث بالرقم أو الاسم'))+'</div>'+
+  '<div class="rc-wide-account rc-core-credit">'+commerceInlineField('حساب الطرف الدائن',commerceSmartAccount('creditAccount',leaf(),draft.creditAccount||creditDefault,'حساب الطرف الدائن — ابحث بالرقم أو الاسم'))+'</div>'+
+  '<div class="rc-wide-account rc-core-warehouse">'+commerceInlineField('المخزن',sel('warehouse',db.warehouses,draft.warehouse).replace('<option value="">اختر</option>','<option value="">اختر مخزنًا</option>'))+'</div>'+
+  '</div>'+
+  // Retain legacy inputs for compatibility with existing draft and journal consumers.
+  '<div class="rc-legacy-invoice-party" hidden style="display:none">'+
+  inp('partyName','text',draft.partyName||((mode==='in'?draft.creditAccount||creditDefault:draft.debitAccount||debitDefault)||''),'required maxlength="140"')+
+  commerceSmartAccount('partyAccount',leaf(),draft.partyAccount||db.accounts[mode==='in'?'payable':'receivable'])+
+  '</div>'
+ :
+  '<div class="rc-full rc-optional-supplier">'+commerceInlineField('اسم '+(mode==='in'?'المورد':'العميل')+' على الفاتورة (اختياري)',inp('displayPartyName','text',draft.displayPartyName||'','maxlength="140" autocomplete="off" placeholder="اكتب اسمًا أو اترك الحقل فارغًا" list="rc-parties"'))+'</div>'+
   '<div class="rc-full rc-account-fields">'+
   '<div class="rc-wide-account">'+commerceInlineField('المخزن',sel('warehouse',db.warehouses,draft.warehouse).replace('<option value="">اختر</option>','<option value="">المخزن</option>'))+'</div>'+
   '<div class="rc-wide-account">'+commerceInlineField(mode==='in'?'المورد أو صاحب الحساب':'العميل أو صاحب الحساب',inp('partyName','text',draft.partyName,'required maxlength="140" autocomplete="off" placeholder="'+(mode==='in'?'المورد أو صاحب الحساب':'العميل أو صاحب الحساب')+'" list="rc-parties"')+'<datalist id="rc-parties">'+[...new Set(partySuggestions)].map(n=>'<option value="'+esc(n)+'"></option>').join('')+'</datalist>')+'</div>'+
   '<div class="rc-wide-account">'+commerceInlineField('حساب الطرف الآخر',commerceSmartAccount('partyAccount',leaf(),draft.partyAccount||db.accounts[mode==='in'?'payable':'receivable'],'حساب الطرف الآخر'))+'</div>'+
-  '</div>'+
+  '</div>')+
   (ret?'<div class="rc-full">'+fld('المستند الأصلي',sel('origin',originals.map(x=>({id:x.id,name:x.number+' — '+docName(x)})),draft.origin))+'</div>':'')+
 '<div class="rc-full rc-section-title">العملة والتسوية</div>'+
  fld('طريقة التسوية','<select id="rc-payment"><option value="credit" '+(draft.payment==='credit'?'selected':'')+'>آجل / على الحساب</option><option value="cash" '+(draft.payment==='cash'?'selected':'')+'>نقدي</option></select>')+
@@ -641,6 +660,16 @@ function syncInvoice(){
  if(!draft)return;
  for(const key of ['doctype','number','date','warehouse','origin','partyName','displayPartyName','partyAccount','payment','currency','exchangeRate','note']){
   const element=$('rc-'+key);if(element)draft[key==='doctype'?'title':key]=element.value;
+ }
+ if($('rc-debitAccount')&&$('rc-creditAccount')){
+  draft.debitAccount=$('rc-debitAccount').value;
+  draft.creditAccount=$('rc-creditAccount').value;
+  // Accounting party comes strictly from the tree; the optional display name is never an account.
+  const counter=mode==='in'?draft.creditAccount:draft.debitAccount;
+  draft.partyName=counter||'';
+  draft.partyAccount=counter||'';
+  if($('rc-partyName'))$('rc-partyName').value=draft.partyName;
+  if($('rc-partyAccount'))$('rc-partyAccount').value=draft.partyAccount;
  }
  draft.lines.forEach((l,i)=>{
   for(const k of ['product','unit','qty','price']){const e=$('rc-'+k+'-'+i);if(e)l[k]=e.value;}
@@ -789,8 +818,11 @@ function makeJournal(doc,db){
  if(Math.abs(baseTotal-commerceBaseTotal(doc.total,currency,exchangeRate))>0.011)throw Error('المعادل اليمني لا يطابق سعر الصرف المعتمد؛ لن يتم الترحيل.');
  const post=(side,key,sum,foreign=false)=>{
   sum=rnd(sum);if(sum<=0)return;
-  const selected=key==='inventory'?warehouseAccount(db,doc.warehouse):
-   (key==='payable'||key==='receivable')?partyAccount(db,doc):a[key];
+  const mainDebit=doc.kind==='purchase'&&side==='debit'&&key==='inventory'||doc.kind==='sale'&&side==='debit'&&(key==='cash'||key==='receivable');
+  const mainCredit=doc.kind==='purchase'&&side==='credit'&&(key==='cash'||key==='payable')||doc.kind==='sale'&&side==='credit'&&key==='sales';
+  const selected=(mainDebit&&doc.debitAccount)||(mainCredit&&doc.creditAccount)||
+   (key==='inventory'?warehouseAccount(db,doc.warehouse):
+   (key==='payable'||key==='receivable')?partyAccount(db,doc):a[key]);
   if(!selected||!valid.has(selected))throw Error('ربط الحساب التفصيلي غير مكتمل: '+key);
   lines.push({side,account:selected,amount:sum,foreign:!!foreign&&currency!=='YER'});
  };
@@ -849,7 +881,10 @@ async function persistDoc(doc,db){
  }finally{loading=false;}
 }
 async function saveInvoice(openNext=false){
- if($('rc-search-partyAccount'))commerceChosenAccount('partyAccount','حساب الطرف');
+ if($('rc-debitAccount')&&$('rc-creditAccount')){
+  commerceChosenAccount('debitAccount','حساب الطرف المدين',true);
+  commerceChosenAccount('creditAccount','حساب الطرف الدائن',true);
+ }else if($('rc-search-partyAccount'))commerceChosenAccount('partyAccount','حساب الطرف');
  syncInvoice();const db=data(),d=draft;if(!d)throw Error('لا يوجد مستند قيد التحرير.');
  const kind=d.kind,ret=kind.endsWith('_return'),originalDoc=editingDocId?db.invoices.find(x=>x.id===editingDocId):null;
  if(editingDocId&&(!originalDoc||originalDoc.kind!==kind))throw Error('المستند الأصلي غير موجود أو تغير نوعه.');
@@ -862,6 +897,10 @@ async function saveInvoice(openNext=false){
  if(db.invoices.some(x=>x.number===d.number&&x.kind===kind&&x.id!==editingDocId))throw Error('رقم المستند مستخدم مسبقًا ضمن نفس النوع.');
  if(!String(d.partyName||'').trim())throw Error('حدد المورد أو العميل أو صاحب الحساب المحاسبي.');
  if(d.partyAccount)validatedAccount(d.partyAccount,'الحساب المقابل');
+ if(d.debitAccount||d.creditAccount){
+  validatedAccount(d.debitAccount,'حساب الطرف المدين');
+  validatedAccount(d.creditAccount,'حساب الطرف الدائن');
+ }
  if(!['cash','credit'].includes(d.payment))throw Error('طريقة التسوية غير صالحة.');
  const currency=ret?(origin?.currency||'YER'):(d.currency||'YER');
  const exchangeRate=commerceValidFx(currency,ret?(origin?.exchangeRate||1):d.exchangeRate);
@@ -907,7 +946,7 @@ async function saveInvoice(openNext=false){
   else throw Error('فرق التقريب في تكلفة الوارد غير صالح.');
  }
  const prefix={purchase:'IN',sale:'OUT',purchase_return:'IR',sale_return:'OR'}[kind];
- const doc={id:originalDoc?.id||id(),kind,title:ret?'مرتجع '+(mode==='in'?'الوارد':'الصادر'):d.title,number:String(d.number).trim(),date:d.date,warehouse:d.warehouse,partyName:String(d.partyName).trim(),partyAccount:d.payment==='credit'?validatedAccount(d.partyAccount,'الحساب المقابل'):'',payment:d.payment,note:String(d.note||''),origin:ret?origin.id:'',currency,exchangeRate,baseTotal,displayPartyName:String(d.displayPartyName||'').trim(),total:rnd(total,moneyDecimals(currency)),cost:rnd(totalCost),lines:items,status:'posted',createdAt:originalDoc?.createdAt||new Date().toISOString(),...(originalDoc?{updatedAt:new Date().toISOString()}: {})};
+ const doc={id:originalDoc?.id||id(),kind,title:ret?'مرتجع '+(mode==='in'?'الوارد':'الصادر'):d.title,number:String(d.number).trim(),date:d.date,warehouse:d.warehouse,partyName:String(d.partyName).trim(),partyAccount:d.payment==='credit'?validatedAccount(d.partyAccount,'الحساب المقابل'):'',debitAccount:d.debitAccount||'',creditAccount:d.creditAccount||'',payment:d.payment,note:String(d.note||''),origin:ret?origin.id:'',currency,exchangeRate,baseTotal,displayPartyName:String(d.displayPartyName||'').trim(),total:rnd(total,moneyDecimals(currency)),cost:rnd(totalCost),lines:items,status:'posted',createdAt:originalDoc?.createdAt||new Date().toISOString(),...(originalDoc?{updatedAt:new Date().toISOString()}: {})};
  if(originalDoc)await commerceReplaceOrDelete(originalDoc,doc);
  else {
   const saved=await persistDoc(doc,db);
@@ -1177,9 +1216,9 @@ function bind(root=$('pageCommerce')){
   }catch(e){notify(e.message||'تعذر فتح الأمر','error');}
  });
  root.addEventListener('change',e=>{
-    if(e.target.id.startsWith('rc-acc-')||['rc-partyAccount','rc-payment','rc-warehouse-account','rc-person-account'].includes(e.target.id)||(e.target.id==='rc-warehouse'&&draft)){
+    if(e.target.id.startsWith('rc-acc-')||['rc-partyAccount','rc-debitAccount','rc-creditAccount','rc-payment','rc-warehouse-account','rc-person-account'].includes(e.target.id)||(e.target.id==='rc-warehouse'&&draft)){
    const search=$('rc-search-'+e.target.id.slice(3));if(search){const match=leaf().find(x=>x.id===e.target.value);search.value=match?.name||'';}
-   if(draft&&['rc-partyAccount','rc-payment','rc-warehouse'].includes(e.target.id)){
+   if(draft&&['rc-partyAccount','rc-debitAccount','rc-creditAccount','rc-payment','rc-warehouse'].includes(e.target.id)){
     syncInvoice();const element=$('rc-posting-preview');
     if(element){const tmp=document.createElement('div');tmp.innerHTML=commerceSidesMarkup(data(),draft);element.innerHTML=tmp.firstElementChild?.innerHTML||'';}
    }
@@ -1231,7 +1270,15 @@ function bind(root=$('pageCommerce')){
   requestAnimationFrame(()=>{if(field.isConnected)commerceResolveAccount(field,{inputType:'insertText'});});
  });
  root.addEventListener('input',e=>{
-  if(e.target.id.startsWith('rc-search-')){commerceResolveAccount(e.target,e);return;}
+  if(e.target.id.startsWith('rc-search-')){
+   commerceResolveAccount(e.target,e);
+   if(draft&&['rc-search-debitAccount','rc-search-creditAccount'].includes(e.target.id)){
+    syncInvoice();
+    const preview=$('rc-posting-preview');
+    if(preview){const tmp=document.createElement('div');tmp.innerHTML=commerceSidesMarkup(data(),draft);preview.innerHTML=tmp.firstElementChild?.innerHTML||'';}
+   }
+   return;
+  }
   if(['rc-group','rc-name'].includes(e.target.id)&&!e.isComposing){
    const db=data();
    const suggestions=e.target.id==='rc-group'?db.products.map(p=>p.group):view==='products'?db.products.map(p=>p.name):view==='warehouses'?db.warehouses.map(w=>w.alias||w.name):db.people.map(p=>p.name);
@@ -1254,7 +1301,7 @@ function bind(root=$('pageCommerce')){
   }
   if(e.target.id==='rc-exchangeRate'&&draft){draft.exchangeRate=e.target.value;refreshTotals();return;}
   if(['rc-partyName','rc-displayPartyName'].includes(e.target.id)){
-   if(!e.isComposing)commerceAutocomplete(e.target,data().people.filter(p=>p.type===(mode==='in'?'vendor':'client')).map(p=>p.name),e);
+   if(!e.isComposing)commerceAutocomplete(e.target,e.target.id==='rc-displayPartyName'?[...new Set([...data().invoices.map(x=>x.displayPartyName),...data().people.map(p=>p.name)].filter(Boolean))]:data().people.filter(p=>p.type===(mode==='in'?'vendor':'client')).map(p=>p.name),e);
    if(e.target.id==='rc-partyName'){
     const p=data().people.find(p=>commerceNormalize(p.name)===commerceNormalize(e.target.value));
     if(p&&$('rc-partyAccount'))$('rc-partyAccount').value=p.accountId||'';

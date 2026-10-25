@@ -132,14 +132,16 @@ async function commit(){
 }
 function mount(){
  if(!q("pageDashboard")||q("ratibOpeningOverlay"))return;
- // Dedicated opening balances are a primary accounting module, not a day-to-day
- // voucher type. Keep exactly one shortcut and the 2×2 primary grid on phones.
- const main=document.querySelector("#dashboardHomeContent .main-menu-grid");
- if(main&&!q("ratibOpeningLaunch")){
+ // The opening balance has one shortcut, directly after the journal vouchers.
+ // No duplicated tile in the main department row.
+ q("ratibOpeningLaunch")?.remove();
+ const quick=document.querySelector("#dashboardHomeContent .ratib-quick-entry-grid");
+ if(quick&&!q("ratibOpeningQuickLaunch")){
   const launch=document.createElement("button");launch.type="button";
-  launch.id="ratibOpeningLaunch";launch.className="main-menu-btn";
-  launch.innerHTML='<span class="main-menu-icon" aria-hidden="true">⚖</span><span>القيد الافتتاحي</span>';
-  launch.addEventListener("click",open);main.append(launch);
+  launch.id="ratibOpeningQuickLaunch";
+  launch.textContent="قيد افتتاحي";
+  launch.addEventListener("click",open);
+  quick.append(launch);
  }
  const modal=document.createElement("div");modal.id="ratibOpeningOverlay";modal.className="modal-overlay no-print";modal.innerHTML=
  '<section class="modal-content" role="dialog" aria-modal="true" aria-labelledby="ratibOpeningTitle">'+

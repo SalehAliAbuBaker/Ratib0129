@@ -12,7 +12,7 @@ assert(!html.includes('slice(0, 2).map(c'));
 assert(!html.includes('بنود الميزانية هو 12'));
 assert(html.includes('يمكن إضافة أي عدد من بنود الميزانية الجديدة دون حد أقصى'));
 assert(html.includes('مجموع النسب يجب أن يساوي 100%'),'Percentage integrity remains mandatory');
-assert(html.includes("const CLOUD_FOLDER_NAME = 'Ratib Trial Backups'"));
+assert(html.includes("const CLOUD_FOLDER_NAME = 'Ratib Backups'"));
 assert(html.includes("const RATIB_GOOGLE_CLIENT_ID = '127962228897-k19m5nstjaun38k38348er1c9cf8vemb.apps.googleusercontent.com'"));
 const defStart=html.indexOf('const DEFAULT_CATS = [');
 const defEnd=html.indexOf('const DEFAULT_ACCOUNT_TREE',defStart);

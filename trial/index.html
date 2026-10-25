@@ -875,16 +875,6 @@ body.ratib-sidebar-open,body.ratib-about-open{overflow:hidden}
 }
 @media print{.cash-direction-control{display:none!important}}
 
-@media screen {
- .legacy-import-dialog{max-width:960px;max-height:90vh;overflow:auto}.legacy-import-dialog h2{font-size:1.1rem;margin:0}
- .legacy-import-options{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-block:12px}.legacy-import-options label{margin:0}
- .legacy-check{display:flex;align-items:flex-start;gap:8px;margin-block:14px;font-weight:500;line-height:1.6}.legacy-check input{width:22px!important;min-width:22px;height:22px!important;margin:3px 0 0;flex:0 0 22px}
- .legacy-import-section{border-top:1px solid var(--border);padding:10px 0}.legacy-import-section summary{cursor:pointer;min-height:36px}
- .legacy-table-wrap{overflow:auto;max-width:100%;max-height:420px}.legacy-table-wrap table{min-width:600px}.legacy-table-wrap td{vertical-align:top;font-size:.9rem}.legacy-table-wrap small{display:block;color:var(--muted)}
- .legacy-table-wrap input{min-width:100px;min-height:44px;direction:ltr;text-align:right;font-variant-numeric:tabular-nums}.legacy-table-wrap select{min-width:160px;min-height:44px}
- #legacyImportSummary{white-space:pre-line;background:var(--bg);padding:12px;border-radius:8px}#legacyImportError{color:var(--danger)}
- @media(max-width:600px){.legacy-import-options{grid-template-columns:1fr}.legacy-import-dialog{padding:14px!important}.legacy-import-dialog .spend-fx-actions{flex-direction:column}}
-}
 
 </style>
 <style>.financial-number-field{display:flex;align-items:center;gap:3px;min-width:0;width:100%}.financial-number-field input{min-width:0;flex:1;width:100%}.financial-calc-trigger{flex:0 0 30px;border:1px solid var(--border);background:var(--bg);color:var(--accent);border-radius:7px;min-height:38px;cursor:pointer;font-size:20px}.financial-calculator{max-width:370px!important}.financial-calculator output{display:block;font-size:1.35rem;font-weight:700;padding:12px 4px;overflow-wrap:anywhere}.financial-calculator small{display:block;color:var(--muted);margin-bottom:10px}.financial-calc-keys{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;direction:ltr}.financial-calc-keys button{min-height:44px;border:1px solid var(--border);background:var(--bg);color:var(--text);border-radius:8px;font-size:1.1rem}.voucher-general-note{grid-column:1/-1}.trial-filters{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin:12px 0}.trial-filters label,.external-import-controls label{display:flex;flex-direction:column;gap:4px;min-width:0}.trial-filters select,.trial-filters input{width:100%;min-width:0}.report-actions{display:flex;flex-wrap:wrap;gap:6px;margin:10px 0}.trial-table-wrap,.column-map-wrap{overflow:auto;max-width:100%;border:1px solid var(--border);border-radius:9px}.trial-table{min-width:1000px;width:100%;border-collapse:collapse;font-size:.92rem}.trial-table td,.trial-table th{padding:7px;border-bottom:1px solid var(--border);text-align:right;white-space:nowrap}.trial-table thead{background:color-mix(in srgb,var(--accent) 12%,var(--card))}.trial-account-heading{background:color-mix(in srgb,var(--accent) 7%,var(--card));font-weight:700}.trial-total-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:8px;margin-top:12px}.trial-total-cards article{padding:12px;border:1px solid var(--border);border-radius:8px}.trial-total-cards p{margin:5px 0}.trial-diagnostic{padding:8px;color:var(--muted);overflow-wrap:anywhere}.external-import-controls{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;margin:10px 0}.external-import-section{border:1px solid var(--border);border-radius:9px;padding:10px;margin:10px 0}.column-map-wrap table{min-width:660px}.column-map-wrap select{min-width:180px}.trial-print-preview{max-width:1100px!important}.trial-print-host{display:none}.trial-preview-content{overflow:auto}.trial-compact{min-width:650px}.column-map-confirm{margin:10px 0}.trial-row-code{direction:ltr}
@@ -1298,7 +1288,7 @@ body.ratib-sidebar-open,body.ratib-about-open{overflow:hidden}
         <h3 class="sidebar-caption" id="sidebarBackupTitle">النسخ الاحتياطي</h3>
         <button type="button" data-sidebar-action="backup"><svg class="sidebar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M4 3h13l3 3v15H4ZM8 3v6h8V3M8 21v-7h8v7"/></svg><span>إنشاء نسخة احتياطية</span></button>
         <button type="button" data-sidebar-action="restore"><svg class="sidebar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M4 13v7h16v-7M12 16V3m-4 4 4-4 4 4"/></svg><span>استعادة نسخة من ملف</span></button>
-        <button type="button" id="legacyImportSidebarBtn"><svg class="sidebar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M4 13v7h16v-7M12 16V3m-4 4 4-4 4 4"/></svg><span>استيراد البيانات من نظام سابق</span></button>
+        
         <button type="button" data-sidebar-action="drive"><svg class="sidebar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M7 17H6a4 4 0 0 1-.6-8 6.5 6.5 0 0 1 12.5-1 4.5 4.5 0 0 1 .1 9h-1M12 21V11m-3 3 3-3 3 3"/></svg><span>النسخ عبر Google Drive</span></button>
       </section>
       <section class="sidebar-group" aria-labelledby="sidebarHelpTitle">
@@ -8065,9 +8055,7 @@ function proceedAppInit() {
   initCanonicalLiveAccountsTreePage();
   initCompatibilityImprovements();
   updateProDashboard();
-  initLegacyImport();
   initTrialMulticurrency();
-  initExternalImport();
   initFinancialTools();
   initThemeToggle();
   initCloudBackup();
@@ -8655,7 +8643,7 @@ function closeTransientAppUi(){
   const sidebar=document.getElementById('appSidebar');
   if(sidebar?.classList.contains('show')){document.getElementById('closeSidebarBtn')?.click();return true;}
   const modals=[...document.querySelectorAll('.modal-overlay.show')];
-  if(modals.length){const modal=modals.find(m=>m===_ratibOverlayState?.surface)||modals.at(-1);if(modal.id==='exitConfirmModal')hideExitModal();else if(modal.id==='ratibAboutModal')closeRatibAbout();else if(modal.id==='spendFxModal')closeSpendFx();else if(modal.id==='legacyImportModal')closeLegacyImport();else if(modal.id==='importedRecordModal')closeImportedRecordEditor();else if(modal.id==='printPreviewModal'&&modal.dataset.importedOpening==='1')closeImportedOpeningPreview();else if(modal.id==='importedOpeningVoucherModal')closeImportedOpeningVoucher();else if(modal.id==='financialCalculatorModal')closeFinancialCalculator();else if(modal.id==='trialPreviewModal')closeTrialPreview();else modal.classList.remove('show');return true;}
+  if(modals.length){const modal=modals.find(m=>m===_ratibOverlayState?.surface)||modals.at(-1);if(modal.id==='exitConfirmModal')hideExitModal();else if(modal.id==='ratibAboutModal')closeRatibAbout();else if(modal.id==='spendFxModal')closeSpendFx();else if(modal.id==='importedRecordModal')closeImportedRecordEditor();else if(modal.id==='printPreviewModal'&&modal.dataset.importedOpening==='1')closeImportedOpeningPreview();else if(modal.id==='importedOpeningVoucherModal')closeImportedOpeningVoucher();else if(modal.id==='financialCalculatorModal')closeFinancialCalculator();else if(modal.id==='trialPreviewModal')closeTrialPreview();else modal.classList.remove('show');return true;}
   if(document.getElementById('accountScreenMenu')?.classList.contains('open')){closeAccountScreenMenu();return true;}
   const advanced=document.getElementById('accountAdvancedSearchPanel');
   if(currentActiveTab==='pageAccountOperations'&&advanced&&!advanced.classList.contains('hidden')){advanced.classList.add('hidden');return true;}
@@ -8790,7 +8778,7 @@ function initRatibSidebar(){
   document.getElementById('ratibAboutModal').addEventListener('click',event=>{if(event.target.id==='ratibAboutModal')closeRatibAbout();});
   document.addEventListener('keydown',event=>{
     const state=_ratibOverlayState;if(!state)return;
-    if(event.key==='Escape'){event.preventDefault();event.stopImmediatePropagation();if(state.surface===sidebar)closeRatibSidebar();else if(state.surface.id==='spendFxModal')closeSpendFx();else if(state.surface.id==='legacyImportModal')closeLegacyImport();else if(state.surface.id==='importedRecordModal')closeImportedRecordEditor();else if(state.surface.id==='printPreviewModal'&&state.surface.dataset.importedOpening==='1')closeImportedOpeningPreview();else if(state.surface.id==='importedOpeningVoucherModal')closeImportedOpeningVoucher();else if(state.surface.id==='financialCalculatorModal')closeFinancialCalculator();else if(state.surface.id==='trialPreviewModal')closeTrialPreview();else closeRatibAbout();return;}
+    if(event.key==='Escape'){event.preventDefault();event.stopImmediatePropagation();if(state.surface===sidebar)closeRatibSidebar();else if(state.surface.id==='spendFxModal')closeSpendFx();else if(state.surface.id==='importedRecordModal')closeImportedRecordEditor();else if(state.surface.id==='printPreviewModal'&&state.surface.dataset.importedOpening==='1')closeImportedOpeningPreview();else if(state.surface.id==='importedOpeningVoucherModal')closeImportedOpeningVoucher();else if(state.surface.id==='financialCalculatorModal')closeFinancialCalculator();else if(state.surface.id==='trialPreviewModal')closeTrialPreview();else closeRatibAbout();return;}
     if(event.key==='Tab'){
       const items=ratibOverlayFocusable(state.surface),first=items[0],last=items.at(-1),active=document.activeElement;
       if(!first){event.preventDefault();state.surface.focus();}
@@ -9177,119 +9165,15 @@ function legacyDecimal(value){
   if(units>BigInt(Number.MAX_SAFE_INTEGER))throw Error('المبلغ يتجاوز الدقة الآمنة للاستيراد.');return {raw,units,value:Number(raw),precision:fraction.length};
 }
 
-function legacyFingerprint(data){return JSON.stringify(Object.keys(data).sort().map(k=>[k,data[k]]));}
-
-function legacySourceFingerprint(payload,cutoff){return JSON.stringify([cutoff,payload.baseCurrency,payload.accounts.map(a=>[a.id,a.name]),payload.balances]);}
-
-function legacyPlanImport(payload,current,options={}){
-  if(payload?.format!=='ratib-legacy-import'||payload.version!==1)throw Error('اختر ملف استيراد راتب من نظام سابق، وليس نسخة استعادة.');
-  if(!Array.isArray(payload.accounts)||!Array.isArray(payload.balances)||payload.accounts.length>10000||payload.balances.length>50000)throw Error('صيغة الحسابات أو الأرصدة غير صالحة.');
-  const withChart=options.kind!=='balances',withBalances=options.kind!=='chart',cutoff=String(options.cutoff||payload.cutoff||'');
-  const sourceFingerprint=legacySourceFingerprint(payload,cutoff);
-  if(withBalances&&!options.replaceDocuments&&(current.ratib_trial_masar_legacy_import_batches||[]).some(b=>b.id!==options.replaceBatch&&b.sourceFingerprint===sourceFingerprint))throw Error('هذه الدفعة مستوردة بالفعل. استخدم مراجعة آخر دفعة لتعديلها دون تكرار الأرصدة.');
-  if(options.replaceDocuments&&!withBalances)throw Error('استبدال المستندات متاح عند استيراد الأرصدة؛ ألغِ هذا الخيار لاستيراد الدليل فقط.');
-  if(!/^\d{4}-\d{2}-\d{2}$/.test(cutoff)||new Date(cutoff+'T00:00:00Z').toISOString().slice(0,10)!==cutoff)throw Error('حدد تاريخ قطع صحيحًا.');
-  const curr=c=>{if(!/^[A-Z]{3}$/.test(String(c)))throw Error('رمز عملة غير صالح.');return c;};
-  const baseCurrency=curr(payload.baseCurrency),catalog=structuredClone(current.ratib_trial_masar_account_catalog||[]),codes={...(current.ratib_trial_masar_account_codes||{})};
-  const accountMap=new Map(),seenNames=new Set(),usedCodes=new Set(Object.values(codes).map(String)),seenIds=new Set(),added=[],matched=[],warnings=[],currencySet=new Set([baseCurrency]);
-  for(const row of catalog){for(const level of ['main','group','sub'])usedCodes.add(String(row[level+'Code']));for(const [code,name] of row.details){if(seenNames.has(name))throw Error('يوجد اسم مكرر في دليل راتب؛ راجعه قبل الاستيراد.');seenNames.add(name);usedCodes.add(String(code));}}
-  const unsafe=value=>['__proto__','constructor','prototype'].includes(value);const allocated=new Map();
-  let nextCode=900000;const allocate=name=>{if(allocated.has(name))return allocated.get(name);while(usedCodes.has(String(nextCode)))nextCode++;const code=String(nextCode++);usedCodes.add(code);codes[name]=code;allocated.set(name,code);return code;};
-  const importedNames=new Set();
-  for(const source of payload.accounts){
-    if(!source||typeof source.id!=='string'||!source.id||seenIds.has(source.id)||typeof source.name!=='string'||!source.name.trim()||source.name.length>250)throw Error('حساب مصدر ناقص أو معرف مكرر.');seenIds.add(source.id);
-    const name=source.name.trim();if(unsafe(name)||importedNames.has(name))throw Error('تكرر اسم حساب تفصيلي بالمصدر أو كان الاسم غير صالح.');importedNames.add(name);
-    const mapped=options.mapping?.[source.id]??source.matchCode??'',target=catalog.flatMap(r=>r.details.map(([code,name])=>({code:String(code),name,path:[r.main,r.group,r.sub,name]}))).find(a=>a.code===String(mapped));
-    if(mapped&&!target)throw Error('الحساب المطابق غير موجود في النسخة الحالية: '+name);
-    if(target){if(!options.mapping?.[source.id]&&source.matchName&&source.matchName!==target.name)throw Error('تغير اسم الحساب المطابق؛ أعد اختيار المطابقة: '+name);accountMap.set(source.id,target);matched.push({...source,target});continue;}
-    if(!withChart)throw Error('اختر حسابًا موجودًا لكل رصيد: '+name);
-    if(seenNames.has(name))throw Error('الاسم موجود بالفعل؛ اختر حسابه من قائمة المطابقة: '+name);
-    const parents=source.targetPath||source.path?.slice(0,-1);if(!Array.isArray(parents)||!parents.length||parents.some(p=>typeof p!=='string'||!p.trim()||p.length>250||unsafe(p)))throw Error('مسار الحساب غير صالح: '+name);
-    const main=parents[0],group=parents[1]||main,sub=parents.slice(2).join(' ← ')||group;
-    let row=catalog.find(r=>r.main===main&&r.group===group&&r.sub===sub);
-    if(!row){const nodeCode=(level,text)=>{const existingCode=catalog.find(r=>r[level]===text)?.[level+'Code'];if(existingCode)return String(existingCode);if(allocated.has(text))return allocated.get(text);const hints=(payload.hierarchy||[]).filter(h=>h.name===text);if(source.preferredCode!==undefined&&hints.length===1){const hint=String(hints[0].code||hints[0].id||'');if(!hint||usedCodes.has(hint))throw Error('رمز الحساب الرئيسي مستخدم؛ راجع الهيكل: '+text);usedCodes.add(hint);codes[text]=hint;allocated.set(text,hint);return hint;}return allocate(text);};row={main,mainCode:nodeCode('main',main),group,groupCode:nodeCode('group',group),sub,subCode:nodeCode('sub',sub),details:[]};catalog.push(row);}
-    let code;if(source.preferredCode!==undefined){code=String(source.preferredCode).trim();if(!code||code.length>100||usedCodes.has(code))throw Error('رمز الحساب مستخدم أو غير صالح؛ راجع مطابقة الحساب: '+name+' ('+code+').');usedCodes.add(code);codes[name]=code;allocated.set(name,code);}else code=allocate(name);row.details.push([code,name]);seenNames.add(name);const targetNew={code,name,path:[main,group,sub,name]};accountMap.set(source.id,targetNew);added.push({...source,target:targetNew});
-    if(parents.length>3)warnings.push('حُفظ المسار الكامل للحساب '+name+'؛ تظهر مستوياته الإضافية في اسم المجموعة الفرعية.');
-  }
-  const resolved=[],pairs=new Set(),totals={},nativeTotals={},batchId=options.batchId||'legacy_'+Date.now()+'_'+Math.random().toString(36).slice(2),records=[];let precision=2;
-  for(const b of withBalances?payload.balances:[]){
-    const account=accountMap.get(b.accountId);if(!account)throw Error('رصيد مرتبط بحساب غير موجود في ملف الدليل.');
-    const currency=curr(b.currency);currencySet.add(currency);const pair=account.code+'|'+currency;if(pairs.has(pair))throw Error('تكرر رصيد الحساب والعملة بعد المطابقة: '+account.name);pairs.add(pair);
-    const previousOpenings=(current.ratib_trial_masar_plan?.transactions||[]).concat(...(current.ratib_trial_masar_history||[]).map(h=>h.transactions||[]));
-    if(!options.replaceDocuments&&previousOpenings.some(t=>t.isOpeningBalance&&t.importBatchId!==options.replaceBatch&&!['reversed','deleted'].includes(t.status)&&t.openingBalance?.account===account.name&&t.openingBalance?.currency===currency))throw Error('يوجد رصيد افتتاحي سابق للحساب والعملة؛ راجع دفعة الاستيراد أو اعتمد الاستبدال صراحة: '+account.name+' / '+currency);
-    const debit=legacyDecimal(b.debit),credit=legacyDecimal(b.credit),baseDebit=legacyDecimal(b.baseDebit),baseCredit=legacyDecimal(b.baseCredit);
-    if(debit.value&&credit.value||baseDebit.value&&baseCredit.value)throw Error('يجب عرض رصيد صافي واحد لكل حساب وعملة.');
-    precision=Math.max(precision,debit.precision,credit.precision,baseDebit.precision,baseCredit.precision);
-    const t=totals[baseCurrency]??={debit:0n,credit:0n};t.debit+=baseDebit.units;t.credit+=baseCredit.units;
-    const native=nativeTotals[currency]??={debit:0n,credit:0n};native.debit+=debit.units;native.credit+=credit.units;
-    const valuationReview=(debit.value+credit.value===0&&baseDebit.value+baseCredit.value!==0)||(debit.value>0&&baseCredit.value>0)||(credit.value>0&&baseDebit.value>0);
-    if(valuationReview)warnings.push('حُفظ الرصيد والتقييم المستقلان دون استنتاج سعر: '+account.name+' ('+currency+').');
-    const opening={account:account.name,sourceAccountId:b.accountId,currency,debit:debit.raw,credit:credit.raw,baseCurrency,baseDebit:baseDebit.raw,baseCredit:baseCredit.raw,valuationReview,sourceRef:b.sourceRef||''};
-    const valuationSide=baseCredit.value>0?'credit':'debit',nativeSide=credit.value>0?'credit':'debit',side=baseDebit.value+baseCredit.value>0?valuationSide:nativeSide;
-    records.push({id:batchId+'_'+records.length,importBatchId:batchId,isOpeningBalance:true,openingBalance:opening,seqNum:records.length+1,isoDate:cutoff,date:cutoff,timestamp:new Date(cutoff+'T00:00:00Z').getTime(),currency:baseCurrency,amount:baseDebit.value+baseCredit.value,debitAccount:side==='debit'?account.name:'',creditAccount:side==='credit'?account.name:'',voucherMode:'opening',type:'رصيد افتتاحي مستورد',status:'posted',isExpense:false,distribution:{},execution:{},schemaVersion:3});
-    resolved.push(opening);
-  }
-  const importSeq=options.replaceBatch?((current[APP_STORAGE_PREFIX+'plan']?.transactions||[]).concat(...(current[APP_STORAGE_PREFIX+'history']||[]).map(h=>h.transactions||[])).find(t=>t.importBatchId===options.replaceBatch)?.seqNum||1):(current[APP_STORAGE_PREFIX+'plan']?.transactions||[]).concat(...(current[APP_STORAGE_PREFIX+'history']||[]).map(h=>h.transactions||[])).reduce((n,t)=>Math.max(n,Number(t.seqNum)||0),0)+1;
-  records.forEach(t=>{t.importVoucherId=batchId;t.seqNum=importSeq;t.type='سند قيد مركب — أرصدة مستوردة';});
-  for(const t of [...Object.values(totals),...Object.values(nativeTotals)])if(t.debit>BigInt(Number.MAX_SAFE_INTEGER)||t.credit>BigInt(Number.MAX_SAFE_INTEGER))throw Error('إجمالي الأرصدة يتجاوز الدقة الآمنة للاستيراد.');
-  for(const t of Object.values(totals))if(t.debit!==t.credit)throw Error('الأرصدة الافتتاحية غير متوازنة بعملة التقييم؛ راجع المعاينة.');
-  if(withBalances&&!records.length)throw Error('لا توجد أرصدة لاستيرادها.');
-  const data=structuredClone(current),tree={};for(const row of catalog){tree[row.main]??={subGroups:{},accounts:[]};tree[row.main].subGroups[row.sub]??=[];for(const [,name] of row.details)if(!tree[row.main].subGroups[row.sub].includes(name))tree[row.main].subGroups[row.sub].push(name);for(const level of ['main','group','sub'])codes[row[level]]=String(row[level+'Code']);for(const [code,name] of row.details)codes[name]=String(code);}
-  data.ratib_trial_masar_account_catalog=catalog;data.ratib_trial_masar_account_codes=codes;data.ratib_trial_masar_account_tree=tree;
-  data.ratib_trial_masar_account_currencies={...(data.ratib_trial_masar_account_currencies||{})};for(const b of payload.balances){const target=accountMap.get(b.accountId);if(!target)continue;const currency=curr(b.currency);currencySet.add(currency);data.ratib_trial_masar_account_currencies[target.name]=[...new Set([...(data.ratib_trial_masar_account_currencies[target.name]||[]),currency])];}
-  const removeBatch=withBalances?options.replaceBatch||'':'';
-  if(options.replaceDocuments){data.ratib_trial_masar_plan={...(data.ratib_trial_masar_plan||{}),month:options.month||cutoff.slice(0,7),transactions:[]};data.ratib_trial_masar_history=[];data.ratib_trial_masar_ledger=[];data.ratib_trial_masar_rollover_amount=0;data.ratib_trial_masar_multi_voucher_drafts=[];delete data.ratib_trial_masar_single_voucher_draft_v1;for(const key of Object.keys(data))if(/^ratib_trial_masar_tracker_\d{4}-\d{2}$/.test(key))delete data[key];}
-  else if(removeBatch){if(data.ratib_trial_masar_plan?.transactions)data.ratib_trial_masar_plan.transactions=data.ratib_trial_masar_plan.transactions.filter(t=>t.importBatchId!==removeBatch);for(const h of data.ratib_trial_masar_history||[])h.transactions=h.transactions.filter(t=>t.importBatchId!==removeBatch);}
-  data.ratib_trial_masar_plan??={month:options.month||cutoff.slice(0,7),transactions:[]};
-  if(withBalances)data.ratib_trial_masar_plan.transactions.push(...records);
-  const importPayload=structuredClone(payload);for(const a of importPayload.accounts){const target=accountMap.get(a.id);a.matchCode=target.code;a.matchName=target.name;}
-  data.ratib_trial_masar_legacy_import_batches=[...(options.replaceDocuments?[]:data.ratib_trial_masar_legacy_import_batches||[]).filter(b=>b.id!==removeBatch),{id:batchId,cutoff,sourceFingerprint:withBalances?sourceFingerprint:'',sourceLabel:String(payload.sourceLabel||'نظام سابق').slice(0,250),accounts:payload.accounts,hierarchy:payload.hierarchy||[],resolved,payload:importPayload}];
-  data.ratib_trial_masar_import_currencies=[...new Set([...(data.ratib_trial_masar_import_currencies||[]),...currencySet])];data.ratib_trial_masar_import_decimal_precision=Math.max(Number(data.ratib_trial_masar_import_decimal_precision)||2,precision);
-  const serializeTotals=v=>Object.fromEntries(Object.entries(v).map(([cur,t])=>[cur,{debit:Number(t.debit)/1e6,credit:Number(t.credit)/1e6,difference:Number(t.debit-t.credit)/1e6}]));
-  const old=(current.ratib_trial_masar_plan?.transactions||[]).concat(...(current.ratib_trial_masar_history||[]).map(h=>h.transactions||[]));
-  return {data,batchId,cutoff,added,matched,resolved,records,warnings,precision,currencies:[...currencySet],baseTotals:serializeTotals(totals),nativeTotals:serializeTotals(nativeTotals),removedDocuments:options.replaceDocuments?new Set(old.map(t=>importedOpeningKey(t)||t.multiVoucherId||t.id)).size:0,removedRows:options.replaceDocuments?old.length:0};
-}
-
-let legacyImportState={payload:null,mapping:{},replaceBatch:'',busy:false,committed:false,fingerprint:''},legacyReturnFocus=null;
-
+/* Historic imported accounting entries retained without new-import UI. */
 function loadLegacyCurrencies(){
   for(const code of store.get('import_currencies',[]))if(/^[A-Z]{3}$/.test(code))KNOWN_CURRENCIES.add(code);
   document.querySelectorAll('select').forEach(select=>{if(![...select.options].some(o=>['YER','SAR','USD'].includes(o.value)))return;for(const code of KNOWN_CURRENCIES)if(![...select.options].some(o=>o.value===code)){const option=document.createElement('option');option.value=code;option.textContent=accountCurrencyLabel(code);select.append(option);}});
 }
 
-function openLegacyImport(){
-  if(legacyImportState.busy)return;const modal=document.getElementById('legacyImportModal');if(modal.classList.contains('show')){legacyRenderPreview();return;}closeRatibSidebar();legacyReturnFocus=document.activeElement;modal.classList.add('show');activateRatibOverlay(modal,legacyReturnFocus);document.getElementById('legacyImportFile').focus();pushAppHistoryState();legacyRenderPreview();
-}
-
-function closeLegacyImport(){
-  if(legacyImportState.busy)return;const modal=document.getElementById('legacyImportModal');releaseRatibOverlay(modal);modal.classList.remove('show');legacyReturnFocus?.focus({preventScroll:true});if(legacyImportState.committed)location.reload();
-}
-
-function legacyImportOptions(){return {kind:document.getElementById('legacyImportKind').value,cutoff:document.getElementById('legacyImportCutoff').value,mapping:legacyImportState.mapping,replaceDocuments:document.getElementById('legacyReplaceDocuments').checked,replaceBatch:legacyImportState.replaceBatch,month:monthKey()};}
 
 function legacyCurrentData(){const data=cloneData(_snapshotMemStore());data.ratib_trial_masar_account_catalog??=cloneData(getCanonicalCatalog());return data;}
 
-function legacyCalculatePreview(){
-  const box=document.getElementById('legacyImportError'),summary=document.getElementById('legacyImportSummary'),apply=document.getElementById('applyLegacyImportBtn');box.textContent='';apply.disabled=true;
-  if(!legacyImportState.payload){summary.textContent='اختر ملفًا لبدء التحليل والمعاينة.';return null;}
-  try{const current=legacyCurrentData(),plan=legacyPlanImport(legacyImportState.payload,current,legacyImportOptions());legacyImportState.fingerprint=legacyFinancialFingerprint(current);
-    summary.textContent=`الحسابات: ${plan.added.length} إضافة، ${plan.matched.length} مطابقة.\nالأرصدة: ${plan.records.length} سطرًا بتاريخ ${plan.cutoff}.\nالمستندات التي ستستبدل: ${plan.removedDocuments} (${plan.removedRows} سطرًا).\n`+Object.entries(plan.baseTotals).map(([cur,t])=>`${cur}: مدين ${t.debit.toLocaleString('en-US',{maximumFractionDigits:6})} — دائن ${t.credit.toLocaleString('en-US',{maximumFractionDigits:6})} — الفرق ${t.difference}`).join('\n');
-    document.getElementById('legacyImportWarnings').innerHTML=plan.warnings.map(w=>`<li>${esc(w)}</li>`).join('')||'<li>لا توجد ملاحظات تقييم معلّمة.</li>';apply.disabled=!document.getElementById('legacyImportApprove').checked||legacyImportState.busy;return plan;
-  }catch(error){box.textContent=error.message;summary.textContent='المعاينة تحتاج تصحيحًا قبل الاستيراد.';return null;}
-}
-
-function legacyRenderPreview(){
-  const payload=legacyImportState.payload,body=document.getElementById('legacyImportMappings'),balances=document.getElementById('legacyImportBalances');body.innerHTML='';balances.innerHTML='';
-  if(payload){const choices=getCanonicalCatalog().flatMap(r=>r.details.map(([code,name])=>({code:String(code),name,path:[r.main,r.group,r.sub]})));
-    body.innerHTML=payload.accounts.map((account,index)=>{const selected=legacyImportState.mapping[account.id]??account.matchCode??'';return `<tr><td>${esc(account.name)}<small>${esc((account.path||[]).join(' ← '))}</small><small>المسار المقترح: ${esc((account.targetPath||[]).join(' ← '))}</small></td><td><select class="legacy-map" data-index="${index}" aria-label="مطابقة حساب ${index+1}"><option value="">إنشاء حساب جديد</option>${choices.map(c=>`<option value="${esc(c.code)}" ${c.code===String(selected)?'selected':''}>${esc(c.name+' — '+c.path.join(' ← '))}</option>`).join('')}</select></td></tr>`;}).join('');
-    body.querySelectorAll('select').forEach(el=>el.onchange=()=>{legacyImportState.mapping[payload.accounts[Number(el.dataset.index)].id]=el.value;document.getElementById('legacyImportApprove').checked=false;legacyCalculatePreview();});
-    balances.innerHTML=payload.balances.map((b,index)=>{const account=payload.accounts.find(a=>a.id===b.accountId);return `<tr><td>${esc(account?.name||b.accountId)}<small>${esc(b.currency)} / التقييم ${esc(payload.baseCurrency)}</small></td>${['debit','credit','baseDebit','baseCredit'].map(key=>`<td><input class="legacy-balance-input" data-index="${index}" data-field="${key}" inputmode="decimal" value="${esc(b[key]??'0')}" aria-label="${esc(account?.name||b.accountId)} ${key}"></td>`).join('')}</tr>`;}).join('');
-    balances.querySelectorAll('input').forEach(el=>el.oninput=()=>{payload.balances[Number(el.dataset.index)][el.dataset.field]=el.value;document.getElementById('legacyImportApprove').checked=false;legacyCalculatePreview();});
-  }
-  legacyCalculatePreview();document.getElementById('undoLegacyImportBtn').disabled=!store.get('legacy_import_undo',null);
-}
-
-function legacyFinancialFingerprint(data){const picked={};for(const k of Object.keys(data).sort())if(/^ratib_trial_masar_(?:plan|history|ledger|rollover_amount|account_catalog|account_tree|account_codes|account_currencies|accounts_list|multi_voucher_drafts|single_voucher_draft_v1|legacy_import_batches|import_currencies|import_decimal_precision|tracker_\d{4}-\d{2})$/.test(k))picked[k]=data[k];return legacyFingerprint(picked);}
 
 async function legacyPersistSnapshot(data){
   const cfg=getSecurityConfig();if(cfg.enabled&&!_vaultCryptoKey)throw Error('افتح قفل البيانات قبل الاستيراد.');
@@ -9298,34 +9182,6 @@ async function legacyPersistSnapshot(data){
   for(const k of Object.keys(_memStore))delete _memStore[k];Object.assign(_memStore,data);if(cfg.enabled)_vaultBlob=blob;hasUnsavedChanges=false;clearTimeout(_draftTimer);clearTimeout(_autoBackupTimer);loadLegacyCurrencies();
 }
 
-async function applyLegacyImport(){
-  if(legacyImportState.busy||!document.getElementById('legacyImportApprove').checked)return false;
-  const expected=legacyImportState.fingerprint,plan=legacyCalculatePreview();if(!plan)return false;if(expected!==legacyImportState.fingerprint){document.getElementById('legacyImportApprove').checked=false;document.getElementById('applyLegacyImportBtn').disabled=true;document.getElementById('legacyImportError').textContent='تغيرت البيانات بعد المعاينة؛ راجع النتائج ووافق عليها مجددًا.';return false;}legacyImportState.busy=true;document.getElementById('applyLegacyImportBtn').disabled=true;
-  try{await flushStorage();if(_pendingFinancialCompletion)throw Error('أكمل حفظ المستند المعلّق قبل الاستيراد.');const before=legacyCurrentData();
-    if(legacyImportState.fingerprint!==legacyFinancialFingerprint(before))throw Error('تغيرت بيانات راتب بعد المعاينة؛ أعد مراجعة النتائج.');
-    const backup=await buildBackupPayload();downloadBackupPayload(backup,`ratib-before-legacy-import-${backupStamp()}.json`);
-    delete before.ratib_trial_masar_legacy_import_undo;const fresh=legacyPlanImport(legacyImportState.payload,before,legacyImportOptions());delete fresh.data.ratib_trial_masar_legacy_import_undo;
-    fresh.data.ratib_trial_masar_legacy_import_undo={batchId:fresh.batchId,before,afterFingerprint:legacyFinancialFingerprint(fresh.data)};
-    await legacyPersistSnapshot(fresh.data);legacyImportState.committed=true;legacyImportState.replaceBatch=fresh.batchId;legacyImportState.mapping={};legacyImportState.payload=cloneData(fresh.data.ratib_trial_masar_legacy_import_batches.at(-1).payload);
-    updateSearchableData();document.getElementById('legacyImportSummary').textContent=`اكتمل الاستيراد: ${fresh.added.length} حسابًا جديدًا، ${fresh.matched.length} مطابقة، ${fresh.records.length} رصيدًا افتتاحيًا.\nحُفظت العملات والمبالغ والتقييم دون تقريب. نُزّلت نسخة الأمان.\n`+Object.entries(fresh.baseTotals).map(([c,t])=>`${c}: الفرق ${t.difference}`).join('\n');document.getElementById('legacyImportError').textContent='';document.getElementById('legacyImportApprove').checked=false;document.getElementById('undoLegacyImportBtn').disabled=false;return true;
-  }catch(error){document.getElementById('legacyImportError').textContent='لم يكتمل الاستيراد: '+error.message;return false;}finally{legacyImportState.busy=false;}
-}
-
-async function undoLegacyImport(){
-  if(legacyImportState.busy)return false;const undo=store.get('legacy_import_undo',null);if(!undo)return false;legacyImportState.busy=true;
-  try{await flushStorage();if(legacyFinancialFingerprint(legacyCurrentData())!==undo.afterFingerprint)throw Error('تغيرت البيانات المحاسبية بعد الاستيراد. احتفظ بنسخة الأمان وراجع الحركات الجديدة قبل استعادتها.');await legacyPersistSnapshot(undo.before);legacyImportState.committed=true;legacyImportState.payload=null;legacyImportState.replaceBatch='';legacyImportState.mapping={};document.getElementById('legacyImportSummary').textContent='تم التراجع عن دفعة الاستيراد كاملة واستعادة البيانات السابقة.';document.getElementById('legacyImportError').textContent='';document.getElementById('undoLegacyImportBtn').disabled=true;return true;}catch(error){document.getElementById('legacyImportError').textContent=error.message;return false;}finally{legacyImportState.busy=false;}
-}
-
-function loadLastLegacyImport(id=''){const batches=store.get('legacy_import_batches',[]),batch=id?batches.find(b=>b.id===id):batches.at(-1);if(!batch){showToast('لا توجد دفعة استيراد محفوظة.','info');return;}legacyImportState.payload=cloneData(batch.payload);legacyImportState.mapping={};legacyImportState.replaceBatch=batch.id;document.getElementById('legacyImportCutoff').value=batch.cutoff;document.getElementById('legacyImportKind').value='both';document.getElementById('legacyReplaceDocuments').checked=false;document.getElementById('legacyImportApprove').checked=false;legacyRenderPreview();}
-
-function initLegacyImport(){
-  loadLegacyCurrencies();document.getElementById('legacyImportSidebarBtn').onclick=openLegacyImport;
-  document.getElementById('closeLegacyImportBtn').onclick=closeLegacyImport;
-  document.getElementById('legacyImportModal').addEventListener('click',e=>{if(e.target.id==='legacyImportModal')closeLegacyImport();});
-  document.getElementById('legacyImportFile').onchange=async e=>{if(legacyImportState.busy)return;const file=e.target.files?.[0];if(!file)return;legacyImportState.payload=null;document.getElementById('legacyImportApprove').checked=false;document.getElementById('applyLegacyImportBtn').disabled=true;try{if(file.size>20*1024*1024)throw Error('ملف الاستيراد كبير جدًا.');const payload=JSON.parse((await file.text()).replace(/^\uFEFF/,''));if(payload.format!=='ratib-legacy-import'||!Array.isArray(payload.accounts)||!Array.isArray(payload.balances))throw Error('ليس ملف استيراد من نظام سابق مهيّأ لراتب.');legacyImportState.payload=payload;legacyImportState.mapping={};legacyImportState.replaceBatch='';document.getElementById('legacyImportCutoff').value=payload.cutoff||getLocalTodayISO();legacyRenderPreview();}catch(error){document.getElementById('legacyImportError').textContent=error.message;}};
-  for(const id of ['legacyImportKind','legacyImportCutoff','legacyReplaceDocuments'])document.getElementById(id).onchange=()=>{document.getElementById('legacyImportApprove').checked=false;legacyCalculatePreview();};
-  document.getElementById('legacyImportApprove').onchange=legacyCalculatePreview;document.getElementById('applyLegacyImportBtn').onclick=applyLegacyImport;document.getElementById('undoLegacyImportBtn').onclick=undoLegacyImport;document.getElementById('loadLegacyImportBtn').onclick=()=>loadLastLegacyImport();
-}
 
 function legacyNativeTransaction(t){if(!t.isOpeningBalance)return t;const o=t.openingBalance,side=Number(o.credit)>0?'credit':'debit';return {...t,amount:Number(o.debit)+Number(o.credit),currency:o.currency,debitAccount:side==='debit'?o.account:'',creditAccount:side==='credit'?o.account:''};}
 
@@ -9543,92 +9399,8 @@ function exportTrialExcel(){try{const model=trialBuildModel(getAllTransactions()
 
 function initTrialMulticurrency(){const card=document.getElementById('trialBalanceCard'),existing=card.querySelector('h2');const description=existing.nextElementSibling;if(description?.tagName==='P')description.textContent='يعرض الأرصدة الافتتاحية وحركة الفترة والأرصدة الختامية حسب المرشحات، مع فصل العملات وإظهار المعادل المتاح.';existing.querySelector('#printTrialBalanceBtn')?.remove();existing.querySelector('#shareTrialBalancePdfBtn')?.remove();const block=document.createElement('div');block.innerHTML=`<div class="report-actions no-print"><button type="button" class="btn btn-ghost" id="trialPreviewBtn">معاينة</button><button type="button" class="btn btn-ghost" id="printTrialBalanceBtn">طباعة</button><button type="button" class="btn btn-ghost" id="shareTrialBalancePdfBtn">تصدير PDF</button><button type="button" class="btn btn-primary" id="trialExcelBtn">تصدير Excel</button></div><div class="trial-filters no-print"><label>من تاريخ<input type="date" id="trialFrom"></label><label>إلى تاريخ<input type="date" id="trialTo"></label><label>مركز التكلفة<select id="trialCostCenter"></select></label><label>المشروع<select id="trialProject"></select></label><label>بند الميزانية<select id="trialBudget"></select></label><label>العملة الأساسية للعرض<select id="trialBase"></select></label><label>طريقة عرض العملات<select id="trialMode"><option value="original">جميع العملات الأصلية</option><option value="specific">عملة محددة</option><option value="equivalent">المعادل بالعملة الأساسية</option><option value="dual">الأصلية والمعادل</option></select></label><label>مستوى الحسابات<select id="trialLevel"><option value="">جميع الحسابات</option><option value="1">التصنيف الرئيسي</option><option value="2">المجموعة</option><option value="3">المجموعة الفرعية</option><option value="4">الحساب التفصيلي</option></select></label><label id="trialCurrencyField" class="hidden">العملة المحددة<select id="trialCurrency"></select></label><label><span>عرض مختصر</span><input type="checkbox" id="trialCompact"></label></div>`;existing.after(block);document.getElementById('trialFrom').value=monthKey()+'-01';document.getElementById('trialTo').value=getLocalTodayISO();refreshTrialDimensions();document.getElementById('trialBase').value='YER';document.getElementById('trialBudget').value='general';block.querySelectorAll('input,select').forEach(el=>el.onchange=runTrialBalanceReport);document.getElementById('trialPreviewBtn').onclick=trialPreview;document.getElementById('printTrialBalanceBtn').onclick=printTrialReport;document.getElementById('shareTrialBalancePdfBtn').onclick=shareTrialBalancePdf;document.getElementById('trialExcelBtn').onclick=exportTrialExcel;document.getElementById('trialPreviewClose').onclick=closeTrialPreview;window.addEventListener('afterprint',()=>document.body.classList.remove('trial-printing'));}
 
-const EXTERNAL_IMPORT_FIELDS={ignore:'تجاهل',code:'رمز الحساب',name:'اسم الحساب',parent:'رمز الحساب الأب',type:'نوع الحساب',currency:'العملة',debit:'الرصيد الافتتاحي المدين',credit:'الرصيد الافتتاحي الدائن',baseDebit:'مدين بالتقييم (اختياري)',baseCredit:'دائن بالتقييم (اختياري)'};
 
-const EXTERNAL_COLUMN_ALIASES={code:['رمز الحساب','رقم الحساب','كود الحساب','account code','account number','account no','code'],name:['اسم الحساب','الحساب','account name','name'],parent:['رمز الحساب الأب','رقم الحساب الأب','كود الحساب الأب','الحساب الأب','parent code','parent account','parent account code'],type:['نوع الحساب','تصنيف الحساب','account type','type'],currency:['العملة','عملة الحساب','currency','currency code'],debit:['الرصيد الافتتاحي المدين','رصيد مدين','مدين','opening debit','debit balance','debit'],credit:['الرصيد الافتتاحي الدائن','رصيد دائن','دائن','opening credit','credit balance','credit'],baseDebit:['مدين بالتقييم','مدين بالعملة الأساسية','base debit'],baseCredit:['دائن بالتقييم','دائن بالعملة الأساسية','base credit']};
-
-let externalImportState={book:null,rows:[],headers:[],mapping:[],fileName:'',rates:{},active:false};
-
-function externalHeaderKey(value){return String(value??'').normalize('NFKC').replace(/[\u064B-\u065Fـ]/g,'').replace(/[أإآ]/g,'ا').replace(/[_\-()\s]+/g,' ').trim().toLowerCase();}
-
-function externalSuggestMapping(headers,rows=[]){
-  const candidates=headers.map(h=>Object.keys(EXTERNAL_COLUMN_ALIASES).filter(k=>EXTERNAL_COLUMN_ALIASES[k].some(alias=>externalHeaderKey(alias)===externalHeaderKey(h))));
-  return candidates.map((list,index)=>{let key=list.length===1?list[0]:'ignore';if(key!=='ignore'&&candidates.filter(c=>c.includes(key)).length>1)key='ignore';const sample=rows.slice(0,8).map(r=>r[index]).filter(v=>v!==''&&v!==null&&v!==undefined);const valid=key==='currency'?sample.every(v=>externalCurrency(v)!==null):['debit','credit','baseDebit','baseCredit'].includes(key)?sample.every(v=>{try{externalAmount(v);return true;}catch{return false;}}):true;return {field:valid?key:'ignore',confidence:valid&&key!=='ignore'?'عنوان معروف وعينة متوافقة':'يلزم اختيار يدوي أو تجاهل'};});
-}
-
-function externalCurrency(value){const raw=String(value??'').trim().toUpperCase();if(/^[A-Z]{3}$/.test(raw))return raw;const names={'ريال يمني':'YER','يمني':'YER','ريال سعودي':'SAR','سعودي':'SAR','دولار':'USD','دولار أمريكي':'USD','درهم إماراتي':'AED','يورو':'EUR'};return names[String(value??'').trim()]||null;}
-
-function externalAmount(value,decimalSeparator='.'){
-  if(value===null||value===undefined||String(value).trim()==='')return '0';if(typeof value==='number')return legacyDecimal(financialDecimalText(value)).raw;
-  let text=String(value).trim().replace(/[٠-٩]/g,c=>String(c.charCodeAt(0)-1632)).replace(/[۰-۹]/g,c=>String(c.charCodeAt(0)-1776)).replace(/٫/g,'.').replace(/٬/g,',');
-  if(decimalSeparator===','){if(!/^(?:\d+|\d{1,3}(?:\.\d{3})+)(?:,\d+)?$/.test(text))throw Error('تنسيق المبلغ لا يطابق الفاصل العشري المختار.');text=text.replace(/\./g,'').replace(',','.');}
-  else if(text.includes(',')&&!/^\d{1,3}(?:,\d{3})+(?:\.\d+)?$/.test(text))throw Error('الفاصلة في المبلغ غير مؤكدة؛ اختر الفاصل العشري الصحيح.');
-  return legacyDecimal(financialDecimalText(text)).raw;
-}
-
-function externalAccountType(value){const key=externalHeaderKey(value),types={'اصول':'أصول','الاصول':'أصول',asset:'أصول',assets:'أصول','التزامات':'التزامات','الالتزامات':'التزامات',liability:'التزامات',liabilities:'التزامات','حقوق الملكية':'حقوق الملكية',equity:'حقوق الملكية','ايرادات':'إيرادات','الايرادات':'إيرادات',income:'إيرادات',revenue:'إيرادات','مصروفات':'مصروفات','المصروفات':'مصروفات',expense:'مصروفات',expenses:'مصروفات'};return types[key]||null;}
-
-function externalRowsToPayload(headers,rows,mapping,options={}){
-  const indices={};mapping.forEach((field,i)=>{if(!field||field==='ignore')return;if(indices[field]!==undefined)throw Error('كرر حقل المطابقة: '+EXTERNAL_IMPORT_FIELDS[field]);indices[field]=i;});for(const field of ['code','name'])if(indices[field]===undefined)throw Error('حدد '+EXTERNAL_IMPORT_FIELDS[field]+' قبل المعاينة.');
-  if(indices.parent===undefined&&indices.type===undefined)throw Error('حدد رمز الحساب الأب أو نوع الحساب لتحديد الهيكل؛ لا يُستنتج من ترتيب الأعمدة.');
-  if(options.kind!=='chart')for(const field of ['currency','debit','credit'])if(indices[field]===undefined)throw Error('حدد '+EXTERNAL_IMPORT_FIELDS[field]+' قبل معاينة الأرصدة.');
-  const cell=(r,k)=>indices[k]===undefined?'':r[indices[k]],nodes=new Map(),balances=[],seenCurrency=new Set();
-  for(let i=0;i<rows.length;i++){const row=rows[i];if(row.every(v=>v===null||v===undefined||String(v).trim()===''))continue;const code=String(cell(row,'code')).trim(),name=String(cell(row,'name')).trim(),parent=String(cell(row,'parent')).trim(),rawType=String(cell(row,'type')).trim(),type=externalAccountType(rawType);if(!code||!name)throw Error('رمز أو اسم الحساب ناقص في السطر '+(i+2));if(code.length>100||name.length>250||['__proto__','constructor','prototype'].includes(code))throw Error('رمز أو اسم غير صالح في السطر '+(i+2));if(rawType&&!type)throw Error('تصنيف غير معروف في السطر '+(i+2)+': '+rawType+'؛ صحح نوع الحساب.');
-    const previous=nodes.get(code);if(previous&&(previous.name!==name||previous.parent!==parent||previous.type!==type))throw Error('نفس الرمز يحمل اسمًا أو أبًا أو تصنيفًا مختلفًا: '+code);if(!previous)nodes.set(code,{id:code,code,name,parent,type});
-    const debit=externalAmount(cell(row,'debit'),options.decimalSeparator),credit=externalAmount(cell(row,'credit'),options.decimalSeparator);if(Number(debit)>0&&Number(credit)>0)throw Error('الرصيد المدين والدائن معًا في السطر '+(i+2)+'؛ أدخل صافي الرصيد.');
-    const rawCurrency=cell(row,'currency'),currency=externalCurrency(rawCurrency);if(!currency&&String(rawCurrency).trim())throw Error('عملة غير معروفة في السطر '+(i+2));if(!currency&&(Number(debit)||Number(credit)))throw Error('عملة الرصيد ناقصة في السطر '+(i+2));
-    if(currency){const pair=code+'|'+currency;if(seenCurrency.has(pair))throw Error('تكرر الحساب والعملة: '+code+' / '+currency);seenCurrency.add(pair);const baseCurrency=options.baseCurrency||'YER',rate=options.rates?.[currency];let baseDebit='',baseCredit='';
-      if(currency===baseCurrency){baseDebit=debit;baseCredit=credit;}else if(indices.baseDebit!==undefined&&indices.baseCredit!==undefined&&String(cell(row,'baseDebit')).trim()!==''&&String(cell(row,'baseCredit')).trim()!==''){baseDebit=externalAmount(cell(row,'baseDebit'),options.decimalSeparator);baseCredit=externalAmount(cell(row,'baseCredit'),options.decimalSeparator);}else if(Number(rate)>0){baseDebit=calculateFinancialExpression(debit+'*'+financialDecimalText(rate),6);baseCredit=calculateFinancialExpression(credit+'*'+financialDecimalText(rate),6);}else if(!Number(debit)&&!Number(credit)){baseDebit='0';baseCredit='0';}
-      balances.push({accountId:code,currency,debit,credit,baseDebit,baseCredit,sourceRef:'سطر '+(i+2)});}
-  }
-  if(!nodes.size)throw Error('لا توجد حسابات قابلة للقراءة.');const parentCodes=new Set([...nodes.values()].map(n=>n.parent).filter(Boolean)),hierarchy=[];
-  const ancestors=node=>{let path=[],seen=new Set([node.code]),p=node.parent;while(p){if(seen.has(p))throw Error('دورة في الحسابات الرئيسية والفرعية: '+node.code);seen.add(p);const parent=nodes.get(p);if(!parent)throw Error('الحساب الأب غير موجود في الملف: '+p);path.unshift(parent);p=parent.parent;}return path;};
-  const catalog=getCanonicalCatalog(),existing=catalog.flatMap(r=>r.details.map(([code,name])=>({code:String(code),name,type:r.main}))),accounts=[];
-  for(const node of nodes.values()){const parents=ancestors(node),type=node.type||parents.map(p=>p.type).find(Boolean);if(!type)throw Error('حدد تصنيف الحساب أو تصنيف أحد آبائه: '+node.name);hierarchy.push({...node,path:parents.map(p=>p.name)});
-    if(parentCodes.has(node.code)){if(balances.some(b=>b.accountId===node.code&&(Number(b.debit)||Number(b.credit))))throw Error('الحساب الرئيسي يحمل رصيدًا مباشرًا: '+node.name+'؛ راجع ارتباطه بحساب تفصيلي قبل الاستيراد.');continue;}
-    const same=existing.find(a=>a.code===node.code&&a.name===node.name&&externalAccountType(a.type)===type),main=catalog.find(r=>externalAccountType(r.main)===type)?.main||type,paths=parents.map(p=>p.name);if(paths.length&&externalAccountType(paths[0])===type)paths.shift();
-    accounts.push({id:node.code,name:node.name,path:[main,...paths,node.name],targetPath:[main,...(paths.length?paths:['حسابات مستوردة'])],preferredCode:node.code,...(same?{matchCode:same.code,matchName:same.name}:{})});}
-  const leafIds=new Set(accounts.map(a=>a.id));return {format:'ratib-legacy-import',version:1,sourceLabel:options.sourceLabel||'ملف خارجي',baseCurrency:options.baseCurrency||'YER',cutoff:options.cutoff,accounts,hierarchy,balances:balances.filter(b=>leafIds.has(b.accountId))};
-}
-
-function resetExternalImportApproval(){document.getElementById('externalColumnsApprove').checked=false;document.getElementById('legacyImportApprove').checked=false;document.getElementById('applyLegacyImportBtn').disabled=true;legacyImportState.payload=null;legacyImportState.mapping={};legacyImportState.replaceBatch='';legacyRenderPreview();}
-
-function externalChooseSheet(){const state=externalImportState,sheet=document.getElementById('externalSheet').value,worksheet=state.book.Sheets[sheet];if(!worksheet)return;const range=XLSX.utils.decode_range(worksheet['!ref']||'A1');if(range.e.r>50000||range.e.c>100)throw Error('يتجاوز الجدول 50000 سطر أو 100 عمود.');state.rows=XLSX.utils.sheet_to_json(worksheet,{header:1,defval:'',raw:true,blankrows:true});for(const [address,cell] of Object.entries(worksheet)){if(address.startsWith('!'))continue;if(cell.f&&cell.v===undefined)throw Error('صيغة بلا قيمة محفوظة في '+address+'؛ أعد حساب الملف واحفظه من Excel.');if(cell.t==='n'&&/^0+$/.test(cell.z||'')){const pos=XLSX.utils.decode_cell(address);if(state.rows[pos.r])state.rows[pos.r][pos.c]=String(cell.w||String(cell.v).padStart(cell.z.length,'0'));}}const rowBox=document.getElementById('externalHeaderRow');if(!state.rows.length)throw Error('ورقة فارغة.');let best=0,score=0;for(let i=0;i<Math.min(30,state.rows.length);i++){const matches=externalSuggestMapping(state.rows[i],state.rows.slice(i+1,i+9)).filter(m=>m.field!=='ignore').length;if(matches>score){best=i;score=matches;}}rowBox.value=best+1;externalRenderMapping();}
-
-function externalRenderMapping(){resetExternalImportApproval();const state=externalImportState,row=Number(document.getElementById('externalHeaderRow').value)-1;if(!Number.isInteger(row)||row<0||row>=state.rows.length)throw Error('حدد سطر عناوين صحيحًا.');state.headers=state.rows[row].map(String);state.dataRows=state.rows.slice(row+1);const suggested=externalSuggestMapping(state.headers,state.dataRows);state.mapping=suggested.map(m=>m.field);
-  document.getElementById('externalColumnMappings').innerHTML=state.headers.map((h,i)=>`<tr><td>${esc(h||'عمود بلا عنوان')}<small>${esc(suggested[i].confidence)}</small></td><td>${esc(state.dataRows.slice(0,3).map(r=>r[i]??'').join(' / '))}</td><td><select data-column="${i}" aria-label="مطابقة العمود ${i+1}">${Object.entries(EXTERNAL_IMPORT_FIELDS).map(([k,n])=>`<option value="${k}" ${state.mapping[i]===k?'selected':''}>${n}</option>`).join('')}</select></td></tr>`).join('');document.querySelectorAll('#externalColumnMappings select').forEach(el=>el.onchange=()=>{state.mapping[Number(el.dataset.column)]=el.value;resetExternalImportApproval();externalRenderRates();});externalRenderRates();}
-
-function externalRenderRates(){const state=externalImportState,index=state.mapping.indexOf('currency'),base=document.getElementById('externalBaseCurrency').value||'YER',currencies=new Set(index<0?[]:state.dataRows.map(r=>externalCurrency(r[index])).filter(Boolean));document.getElementById('externalRates').innerHTML=[...currencies].filter(c=>c!==base).map(c=>`<label>تقييم معتمد اختياري: 1 ${esc(c)} = <input inputmode="decimal" data-rate-currency="${esc(c)}" value="${esc(state.rates[c]||'')}" placeholder="سعر بعملة ${esc(base)}" aria-label="تقييم ${esc(c)} إلى ${esc(base)}"> ${esc(base)}</label>`).join('');document.querySelectorAll('#externalRates input').forEach(input=>input.oninput=()=>{state.rates[input.dataset.rateCurrency]=input.value;resetExternalImportApproval();});}
-
-async function readExternalImportFile(file){if(file.size>20*1024*1024)throw Error('ملف الاستيراد كبير جدًا.');const text=await file.text();if(/\.json$/i.test(file.name)||text.trim().startsWith('{'))return false;
-  if(!/\.(xlsx|xls|csv|tsv)$/i.test(file.name))throw Error('الملفات المدعومة: XLSX وXLS وCSV وTSV وJSON المهيّأ لراتب. PDF يحتاج تحليلًا مساعدًا مستقلًا.');
-  const csv=/\.(csv|tsv)$/i.test(file.name),book=XLSX.read(csv?text:await file.arrayBuffer(),{type:csv?'string':'array',raw:csv,cellDates:false,cellFormula:true,cellNF:true,sheetRows:50002});if(!book.SheetNames.length)throw Error('لا توجد أوراق بيانات.');externalImportState={book,rows:[],headers:[],mapping:[],dataRows:[],fileName:file.name,rates:{},active:true};document.getElementById('externalImportSection').classList.remove('hidden');document.getElementById('externalSheet').innerHTML=book.SheetNames.map(s=>`<option>${esc(s)}</option>`).join('');document.getElementById('externalSourceName').value=file.name.replace(/\.[^.]+$/,'');externalChooseSheet();return true;
-}
-
-function externalApproveColumns(){if(!document.getElementById('externalColumnsApprove').checked){showToast('راجع مطابقة الأعمدة ثم علّم على الموافقة.','warn');return;}try{const state=externalImportState,payload=externalRowsToPayload(state.headers,state.dataRows,state.mapping,{kind:document.getElementById('legacyImportKind').value,cutoff:document.getElementById('legacyImportCutoff').value,baseCurrency:document.getElementById('externalBaseCurrency').value,rates:state.rates,decimalSeparator:document.getElementById('externalDecimalSeparator').value,sourceLabel:document.getElementById('externalSourceName').value});legacyImportState.payload=payload;legacyImportState.mapping={};legacyImportState.replaceBatch='';document.getElementById('legacyImportApprove').checked=false;legacyRenderPreview();document.querySelector('#legacyImportBalances').closest('details').open=true;document.getElementById('legacyImportSummary').scrollIntoView({block:'center'});}catch(e){document.getElementById('legacyImportError').textContent=e.message;}}
-
-function saveExternalMapping(){try{const name=document.getElementById('externalSourceName').value.trim();if(!name||['__proto__','constructor','prototype'].includes(name))throw Error('اكتب اسم نظام صالح لحفظ المطابقة.');const settings=store.get('external_import_mappings',{});settings[name]={headers:externalImportState.headers.map(externalHeaderKey),mapping:externalImportState.mapping.slice()};store.set('external_import_mappings',settings);refreshExternalPresets();showToast('حُفظت المطابقة؛ ستبقى مراجعتها مطلوبة عند استخدامها.','success');}catch(e){showToast(e.message,'warn');}}
-
-function refreshExternalPresets(){const select=document.getElementById('externalPreset');select.innerHTML='<option value="">اختيار مطابقة محفوظة</option>'+Object.keys(store.get('external_import_mappings',{})).map(n=>`<option>${esc(n)}</option>`).join('');}
-
-function useExternalPreset(){const name=document.getElementById('externalPreset').value,preset=store.get('external_import_mappings',{})[name];if(!preset)return;const headers=externalImportState.headers.map(externalHeaderKey),mapped=headers.map(h=>{const indices=preset.headers.map((v,i)=>v===h?i:-1).filter(i=>i>=0);return h&&indices.length===1&&headers.filter(v=>v===h).length===1?preset.mapping[indices[0]]:'ignore';});externalImportState.mapping=mapped;document.querySelectorAll('#externalColumnMappings select').forEach(el=>el.value=mapped[Number(el.dataset.column)]);document.getElementById('externalSourceName').value=name;resetExternalImportApproval();externalRenderRates();}
-
-function downloadAccountTemplate(){const a=document.createElement('a');a.href='./assets/ratib-accounts-template.xlsx';a.download='راتب-نموذج-الحسابات.xlsx';a.click();}
-
-function externalOpeningRows(){const p=legacyImportState.payload;if(!p)throw Error('اختر ملفًا وأكمل المطابقة أولًا.');return p.balances.map(b=>[p.accounts.find(a=>a.id===b.accountId)?.name||b.accountId,b.currency,b.debit,b.credit,p.baseCurrency,b.baseDebit,b.baseCredit]);}
-
-function previewOpeningImport(){try{const rows=externalOpeningRows();const modal=document.getElementById('trialPreviewModal');document.getElementById('trialPreviewTitle').textContent='معاينة القيد الافتتاحي قبل الاستيراد';document.getElementById('trialPreviewContent').innerHTML=`<h1>راتب — القيد الافتتاحي</h1><p>تاريخ القطع: ${esc(document.getElementById('legacyImportCutoff').value)}</p><p>معاينة قبل الاعتماد؛ لا تحفظ أي حساب أو رصيد.</p><table class="trial-table"><thead><tr>${['الحساب','العملة','مدين أصلي','دائن أصلي','عملة التقييم','مدين تقييم','دائن تقييم'].map(h=>`<th>${h}</th>`).join('')}</tr></thead><tbody>${rows.map(row=>`<tr>${row.map(v=>`<td>${esc(v)}</td>`).join('')}</tr>`).join('')}</tbody></table><div class="report-actions"><button type="button" class="btn btn-ghost" onclick="printOpeningImport()">طباعة</button><button type="button" class="btn btn-ghost" onclick="exportOpeningImport('pdf')">تصدير PDF</button><button type="button" class="btn btn-ghost" onclick="exportOpeningImport('xlsx')">تصدير Excel</button></div>`;modal.classList.add('show');activateRatibOverlay(modal,document.activeElement);pushAppHistoryState();}catch(e){showToast(e.message,'warn');}}
-
-function printOpeningImport(){try{externalOpeningRows();document.getElementById('trialPrintHost').innerHTML=document.getElementById('trialPreviewContent').innerHTML;document.body.classList.add('trial-printing');window.print();}finally{setTimeout(()=>document.body.classList.remove('trial-printing'),1000);}}
-
-function exportOpeningImport(kind){try{const rows=externalOpeningRows(),labels=['الحساب','العملة','مدين أصلي','دائن أصلي','عملة التقييم','مدين تقييم','دائن تقييم'];if(kind==='pdf')downloadFinancialFile(buildPdfFromCanvases(renderPagedReportTable('راتب — معاينة القيد الافتتاحي',document.getElementById('legacyImportCutoff').value,labels,[250,80,160,160,110,170,170],rows)),'راتب-معاينة-القيد-الافتتاحي.pdf');else{const book=XLSX.utils.book_new(),sheet=XLSX.utils.aoa_to_sheet([['راتب — معاينة قبل الاعتماد'],['تاريخ القطع',document.getElementById('legacyImportCutoff').value],labels,...rows]);XLSX.utils.book_append_sheet(book,sheet,'القيد الافتتاحي');downloadFinancialFile(new Blob([XLSX.write(book,{bookType:'xlsx',type:'array'})]),'راتب-معاينة-القيد-الافتتاحي.xlsx');}}catch(e){showToast(e.message,'warn');}}
-
-function initExternalImport(){const section=document.getElementById('externalImportSection'),input=document.getElementById('legacyImportFile'),jsonHandler=input.onchange;input.accept='.json,.xlsx,.xls,.csv,.tsv';document.getElementById('legacyImportCutoff').value=getLocalTodayISO();
-  input.onchange=async e=>{if(legacyImportState.busy)return;const file=e.target.files?.[0];if(!file)return;section.classList.add('hidden');externalImportState.active=false;legacyImportState.payload=null;resetExternalImportApproval();try{if(!await readExternalImportFile(file))await jsonHandler(e);}catch(error){document.getElementById('legacyImportError').textContent=error.message;}};
-  const change=fn=>()=>{try{fn();}catch(e){document.getElementById('legacyImportError').textContent=e.message;}};document.getElementById('externalSheet').onchange=change(externalChooseSheet);document.getElementById('externalHeaderRow').onchange=change(externalRenderMapping);document.getElementById('externalBaseCurrency').onchange=()=>{externalImportState.rates={};resetExternalImportApproval();externalRenderRates();};document.getElementById('externalDecimalSeparator').onchange=resetExternalImportApproval;document.getElementById('externalPreviewBtn').onclick=externalApproveColumns;document.getElementById('saveExternalMappingBtn').onclick=saveExternalMapping;document.getElementById('externalPreset').onchange=useExternalPreset;document.getElementById('downloadAccountTemplateBtn').onclick=downloadAccountTemplate;document.getElementById('previewOpeningImportBtn').onclick=previewOpeningImport;refreshExternalPresets();
-  for(const id of ['legacyImportKind','legacyImportCutoff'])document.getElementById(id).addEventListener('change',()=>{if(externalImportState.active)resetExternalImportApproval();});
-  const tools=document.createElement('details');tools.className='external-import-section no-print';tools.innerHTML='<summary>استيراد الحسابات والأرصدة</summary><div class="report-actions"><button type="button" class="btn btn-primary" id="accountExcelImportBtn">استيراد الحسابات من Excel</button><button type="button" class="btn btn-ghost" id="accountTemplateBtn">تنزيل نموذج Excel</button><button type="button" class="btn btn-ghost" id="accountExternalImportBtn">استيراد بيانات من نظام خارجي</button></div>';document.getElementById('pageAccountsTree').prepend(tools);document.getElementById('accountExcelImportBtn').onclick=openLegacyImport;document.getElementById('accountExternalImportBtn').onclick=openLegacyImport;document.getElementById('accountTemplateBtn').onclick=downloadAccountTemplate;
-}
+/* External import parser and file mapping removed. */
 
 selfHealStorageFromIdb().then(boot).catch(error=>{showRatibFatalBanner(error.message||"تعذرت قراءة البيانات. لم يتم استبدالها.");});
 </script>
@@ -9642,27 +9414,6 @@ selfHealStorageFromIdb().then(boot).catch(error=>{showRatibFatalBanner(error.mes
     <p class="field-hint">يتحدث المعادل والإجمالي فور تغيير السعر. من تفاصيل البند يتغير سعره وحده؛ ومن رأس السند يتغير سعر بنود العملة المختارة. تبقى السندات السابقة بأسعارها المحفوظة.</p>
     <div class="spend-fx-actions"><button type="button" class="btn btn-primary" id="saveSpendFxBtn">تم</button><button type="button" class="btn btn-ghost" id="cancelSpendFxBtn">إلغاء</button></div>
   </div>
-</div>
-
-<div class="modal-overlay no-print" id="legacyImportModal" role="dialog" aria-modal="true" aria-labelledby="legacyImportTitle" tabindex="-1">
- <div class="modal-content legacy-import-dialog">
-  <div class="spend-fx-title"><h2 id="legacyImportTitle">استيراد البيانات من نظام سابق</h2><button type="button" class="icon-btn" id="closeLegacyImportBtn" aria-label="إغلاق الاستيراد">×</button></div>
-  <p class="field-hint">اختيار الملف لا يغيّر بياناتك. راجع المطابقة والأرصدة، ثم وافق على النتائج. تُنشأ نسخة أمان قبل التنفيذ.</p>
-  <div class="report-actions"><button type="button" class="btn btn-ghost" id="downloadAccountTemplateBtn">تنزيل نموذج Excel</button><button type="button" class="btn btn-ghost" id="previewOpeningImportBtn">معاينة القيد الافتتاحي</button></div>
-  <input type="file" accept=".json,application/json" id="legacyImportFile">
-  <div class="legacy-import-options"><label>ما تريد استيراده<select id="legacyImportKind"><option value="both">دليل الحسابات مع الأرصدة</option><option value="chart">دليل الحسابات فقط</option><option value="balances">الأرصدة لحسابات موجودة</option></select></label><label>تاريخ القطع<input type="date" id="legacyImportCutoff"></label></div>
-  <p class="field-hint">يدعم JSON المهيّأ لراتب وExcel وCSV وTSV. تبقى المعاينة والموافقة مطلوبة قبل أي استيراد. لا يُقرأ PDF مباشرة.</p>
-<section class="external-import-section hidden" id="externalImportSection"><h3>مطابقة أعمدة الملف</h3><div class="external-import-controls"><label>ورقة البيانات<select id="externalSheet"></select></label><label>رقم سطر عناوين الأعمدة<input type="number" min="1" max="50001" id="externalHeaderRow" value="1"></label><label>اسم النظام المصدر<input type="text" id="externalSourceName" autocomplete="off" maxlength="100"></label><label>مطابقة محفوظة<select id="externalPreset"></select></label><label>الفاصل العشري للبيانات النصية<select id="externalDecimalSeparator"><option value=".">نقطة . (مثل 1,250.75)</option><option value=",">فاصلة , (مثل 1.250,75)</option></select></label><label>عملة التقييم<select id="externalBaseCurrency"><option value="YER">YER</option><option value="SAR">SAR</option><option value="USD">USD</option><option value="AED">AED</option><option value="EUR">EUR</option></select></label></div><div class="column-map-wrap"><table class="report-table"><thead><tr><th>عنوان المصدر</th><th>عينة القيم</th><th>حقل راتب</th></tr></thead><tbody id="externalColumnMappings"></tbody></table></div><div class="external-import-controls" id="externalRates"></div><p class="field-hint">عند غياب تقييم المصدر أو سعر معتمد، تبقى خانات التقييم فارغة لتصحيحها في المعاينة؛ يُمنع الاستيراد حتى تكتمل وتتوازن. لا تُستنتج أسعار من الأرصدة.</p><label class="legacy-check column-map-confirm"><input type="checkbox" id="externalColumnsApprove"> راجعت الأعمدة والعينات وأؤكد المطابقة.</label><div class="report-actions"><button type="button" class="btn btn-primary" id="externalPreviewBtn">معاينة البيانات والأرصدة</button><button type="button" class="btn btn-ghost" id="saveExternalMappingBtn">حفظ المطابقة</button></div></section>
-
-  <label class="legacy-check"><input type="checkbox" id="legacyReplaceDocuments"> استبدال جميع المستندات والعمليات والمسودات الحالية بالأرصدة المستوردة. يحتفظ التطبيق بنسخة أمان قبل الاستبدال.</label>
-  <p id="legacyImportSummary" role="status"></p><p id="legacyImportError" role="alert"></p>
-  <details class="legacy-import-section"><summary>مطابقة الحسابات ومساراتها</summary><div class="legacy-table-wrap"><table class="report-table"><thead><tr><th>حساب المصدر ومساره</th><th>الحساب في راتب</th></tr></thead><tbody id="legacyImportMappings"></tbody></table></div></details>
-  <details class="legacy-import-section"><summary>الأرصدة الأصلية والتقييم — قابلة للمراجعة والتعديل</summary><div class="legacy-table-wrap"><table class="report-table"><thead><tr><th>الحساب / العملة</th><th>مدين أصلي</th><th>دائن أصلي</th><th>مدين بالتقييم</th><th>دائن بالتقييم</th></tr></thead><tbody id="legacyImportBalances"></tbody></table></div></details>
-  <details class="legacy-import-section"><summary>ملاحظات المراجعة</summary><ul id="legacyImportWarnings"></ul></details>
-  <label class="legacy-check"><input type="checkbox" id="legacyImportApprove"> راجعت النتائج وأوافق على استيرادها وفق الخيارات المحددة أعلاه.</label>
-  <div class="spend-fx-actions"><button type="button" class="btn btn-primary" id="applyLegacyImportBtn" disabled>نسخة أمان ثم استيراد</button><button type="button" class="btn btn-ghost" id="loadLegacyImportBtn">مراجعة آخر دفعة</button><button type="button" class="btn btn-ghost" id="undoLegacyImportBtn">التراجع عن آخر استيراد</button></div>
-  <p class="field-hint">مراجعة الدفعة وإعادة اعتمادها تستبدل افتتاحياتها فقط، وتحفظ العمليات الجديدة. التراجع الكامل متاح ما دامت البيانات المحاسبية لم تتغير بعد الاستيراد؛ وإلا تبقى نسخة الأمان متاحة للمراجعة والاستعادة.</p>
- </div>
 </div>
 
 <div class="modal-overlay no-print" id="financialCalculatorModal" role="dialog" aria-modal="true" aria-labelledby="financialCalcTitle" tabindex="-1"><div class="modal-content financial-calculator"><div class="spend-fx-title"><h2 id="financialCalcTitle">الحاسبة</h2><button type="button" class="icon-btn" id="financialCalcClose" aria-label="إغلاق الحاسبة">×</button></div><label>العملية<input id="financialCalcExpression" type="text" inputmode="decimal" autocomplete="off" dir="ltr"></label><output id="financialCalcResult" dir="ltr" aria-live="polite"></output><small id="financialCalcPrecision"></small><div class="financial-calc-keys"><button type="button" data-calc-key="clear">مسح</button><button type="button" data-calc-key="back">⌫</button><button type="button" data-calc-key="(">(</button><button type="button" data-calc-key=")">)</button><button type="button" data-calc-key="7">7</button><button type="button" data-calc-key="8">8</button><button type="button" data-calc-key="9">9</button><button type="button" data-calc-key="÷">÷</button><button type="button" data-calc-key="4">4</button><button type="button" data-calc-key="5">5</button><button type="button" data-calc-key="6">6</button><button type="button" data-calc-key="×">×</button><button type="button" data-calc-key="1">1</button><button type="button" data-calc-key="2">2</button><button type="button" data-calc-key="3">3</button><button type="button" data-calc-key="−">−</button><button type="button" data-calc-key="0">0</button><button type="button" data-calc-key=".">.</button><button type="button" data-calc-key="+">+</button></div><button type="button" class="btn btn-primary" id="financialCalcUse">استخدام النتيجة</button></div></div>
@@ -10478,8 +10229,6 @@ function closeImportedOpeningPreview(){const modal=document.getElementById('prin
 window.addEventListener('beforeunload',event=>{if(importedOpeningEdit?.dirty){event.preventDefault();event.returnValue='توجد تعديلات غير محفوظة في القيد المستورد.';}});
 function outputImportedOpeningEditor(kind){try{const result=buildImportedOpeningVoucher(importedOpeningEdit,legacyCurrentData()),item=result.records[0];if(kind==='pdf')downloadFinancialFile(importedOpeningPdf(item,result.records),'راتب-قيد-الأرصدة-المستوردة.pdf');else{importedOpeningPrint(item,result.records);if(kind==='preview'){openPrintPreview('printVoucherContainer','printing-voucher');const preview=document.getElementById('printPreviewModal');preview.dataset.importedOpening='1';preview.style.zIndex=String((parseInt(getComputedStyle(document.getElementById('importedOpeningVoucherModal')).zIndex)||9999)+1);activateRatibOverlay(preview,document.getElementById('importedOpeningPreview'));const confirm=document.getElementById('printPreviewConfirmBtn');confirm.onclick=()=>{closeImportedOpeningPreview();printRatibDocument('printing-voucher');};document.getElementById('printPreviewCancelBtn').onclick=closeImportedOpeningPreview;}else printRatibDocument('printing-voucher');}}catch(e){document.getElementById('importedOpeningError').textContent=e.message;}}
 
-const importedOpeningLaunch=document.createElement('button');importedOpeningLaunch.id='openImportedOpeningVoucherBtn';importedOpeningLaunch.type='button';importedOpeningLaunch.className='btn btn-ghost';importedOpeningLaunch.textContent='فتح قيد الأرصدة المستوردة';document.getElementById('loadLegacyImportBtn').after(importedOpeningLaunch);importedOpeningLaunch.onclick=()=>{const records=getAllTransactions().filter(t=>t.isOpeningBalance&&!['deleted','reversed'].includes(t.status)),selected=records.filter(t=>t.importBatchId===legacyImportState.replaceBatch),item=selected[0]||records.at(-1);if(!item){showToast('لا توجد أرصدة مستوردة محفوظة.','info');return;}closeLegacyImport();openImportedOpeningVoucher(item);};
-
 /* ratib-v3611: currency catalog, actual journal counterparts, and multi-entry edit actions. */
 (function(){
 'use strict';
@@ -10611,12 +10360,12 @@ try{currenciesUi();multiEditPrint();sync();}catch(e){console.error('Ratib 3.6.12
 <script src="./trial/ratib-license-draft.js?v=4" defer></script>
 <script src="./ratib-ui-v3.6.37.js?v=2" defer></script>
 <script src="./trial/ratib-quick-favorites.js?v=12" defer></script>
-<script src="./trial/ratib-import-manager.js?v=2" defer></script>
+<script src="./ratib-account-archive-compat.js?v=3.6.109.03" defer></script>
 <script src="./ratib-annual-close.js?v=1" defer></script>
 <script src="./ratib-fiscal-ledger.js?v=1" defer></script>
 <script src="./ratib-statement-prior-year.js?v=1" defer></script>
 <script src="./ratib-reconciliation-print.js?v=1" defer></script>
-<script src="./trial/ratib-import-official.js?v=1" defer></script>
+
 <script src="./ratib-accounting-3.6.59.js?v=3.6.59" defer></script>
 </body>
 </html>

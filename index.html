@@ -9571,26 +9571,53 @@ function initNestedNavigation(){
 
 // A mobile Back gesture has already moved browser history by one entry.
 // Reconcile with Ratib's existing base guard; never add a new Back entry here.
-function ratibGestureDraftCheck(){
+let _ratibDraftExitDialog=null;
+function ratibAskDraftExit(){
+ if(_ratibDraftExitDialog)return _ratibDraftExitDialog;
+ _ratibDraftExitDialog=new Promise(resolve=>{
+  const overlay=document.createElement('div');overlay.className='modal-overlay show no-print';overlay.id='ratibThreeWayExit';overlay.style.zIndex='2147483000';
+  const dialog=document.createElement('section');dialog.className='modal-content';dialog.setAttribute('role','dialog');dialog.setAttribute('aria-modal','true');dialog.setAttribute('aria-labelledby','ratibDraftExitTitle');dialog.style.cssText='width:min(530px,94vw);max-width:530px;padding:22px';
+  dialog.innerHTML='<h2 id="ratibDraftExitTitle">تغييرات غير محفوظة</h2><p style="line-height:1.7;margin:12px 0">هناك تغييرات في المستند لم تُحفظ. اختر طريقة الخروج.</p><div style="display:grid;gap:10px"><button type="button" class="btn btn-primary" data-choice="save">حفظ مسودة والخروج</button><button type="button" class="btn btn-ghost" data-choice="discard">خروج دون حفظ</button><button type="button" class="btn btn-ghost" data-choice="stay">إلغاء والبقاء في المستند</button></div>';
+  overlay.append(dialog);document.body.append(overlay);
+  const finish=value=>{overlay.remove();document.removeEventListener('keydown',onKey,true);_ratibDraftExitDialog=null;resolve(value);};
+  const onKey=e=>{if(e.key==='Escape'){e.preventDefault();e.stopImmediatePropagation();finish('stay');}};
+  document.addEventListener('keydown',onKey,true);
+  overlay.addEventListener('click',e=>{const choice=e.target.closest('[data-choice]')?.dataset.choice;if(choice)finish(choice);else if(e.target===overlay)finish('stay');});
+  dialog.querySelector('[data-choice="stay"]').focus();
+ });
+ return _ratibDraftExitDialog;
+}
+async function ratibGestureDraftCheck(){
   const single=document.getElementById('cashFlowCard'),multi=document.getElementById('multiVoucherCard');
   const editingVoucher=currentActiveTab==='pageExpenses'&&hasUnsavedChanges&&
     ((single&&!single.classList.contains('hidden'))||(multi&&!multi.classList.contains('hidden')));
   if(editingVoucher){
-    if(!confirm('هذا السند لم يُعتمد بعد. هل تريد حفظ مسودة محلية والرجوع إلى الواجهة الرئيسية؟'))return false;
-    try{
-      if(multi&&!multi.classList.contains('hidden')){
-        const draft=buildMultiVoucherData('draft');
-        const stored=store.get('multi_voucher_drafts',[]);
-        const drafts=(Array.isArray(stored)?stored:[]).filter(item=>item.id!==draft.id);
-        drafts.push(draft);store.set('multi_voucher_drafts',drafts);
-        multiVoucherDraftId=draft.id;
-      }else{
-        store.set('single_voucher_draft_v1',captureSingleDraft());
-        updateDraftButton();
-      }
-      flushStorage().then(()=>showToast('تم حفظ المسودة محليًا','success'))
-        .catch(()=>showToast('تعذر تأكيد حفظ المسودة. اترك التطبيق مفتوحًا وأعد المحاولة.','error',7000));
-    }catch(error){showToast('تعذر حفظ المسودة؛ بقي المستند مفتوحًا.','error',7000);return false;}
+    const choice=await ratibAskDraftExit();
+    if(choice==='stay')return false;
+    if(choice==='save'){
+      try{
+        if(multi&&!multi.classList.contains('hidden')){
+          const draft=buildMultiVoucherData('draft'),stored=store.get('multi_voucher_drafts',[]);
+          const drafts=(Array.isArray(stored)?stored:[]).filter(item=>item.id!==draft.id);
+          drafts.push(draft);store.set('multi_voucher_drafts',drafts);multiVoucherDraftId=draft.id;
+        }else{
+          clearTimeout(_draftTimer);_draftTimer=null;
+          store.set('single_voucher_draft_v1',captureSingleDraft());updateDraftButton();
+        }
+        await flushStorage();hasUnsavedChanges=false;showToast('تم حفظ المسودة محليًا','success');
+      }catch(error){showToast('تعذر تأكيد حفظ المسودة؛ بقي المستند مفتوحًا.','error',7000);return false;}
+    }else{
+      // Discard only the in-memory editor; never remove or change any posted transaction.
+      clearTimeout(_draftTimer);_draftTimer=null;
+      try{
+        if(multi&&!multi.classList.contains('hidden'))resetMultiVoucherForm();
+        else{
+          for(const id of ['voucherAmountInput','voucherRecipientInput','voucherNoteInput']){const input=document.getElementById(id);if(input)input.value='';}
+          try{selDebitAcc.setValue('','');selCreditAcc.setValue('','');}catch(_){}
+        }
+        hasUnsavedChanges=false;
+      }catch(error){showToast('تعذر تفريغ التعديلات غير المحفوظة؛ بقي المستند مفتوحًا.','error');return false;}
+    }
   }
   if(currentActiveTab==='pageCommerce'&&window.RatibCommerce?.hasUnsavedDraft?.()){
     if(window.RatibCommerce.requestLeave){if(!window.RatibCommerce.requestLeave())return false;}
@@ -9626,13 +9653,20 @@ function handleRatibPopState(){
   // All physical Back gestures from internal views land on the main dashboard.
   // Preserve the original root guard so the next Back requests exit normally.
   if(currentActiveTab!=='pageDashboard'){
-    if(!ratibGestureDraftCheck()){
+    ratibGestureDraftCheck().then(accepted=>{
+      if(!accepted){
+        _appReplayDepth=_appCurrentHistoryDepth;
+        const steps=known?_appCurrentHistoryDepth-depth:1;
+        if(steps>0)history.go(steps);else history.forward();
+        return;
+      }
+      ratibGestureDashboard(known,depth);
+    }).catch(error=>{
+      console.error('Ratib back navigation',error);
       _appReplayDepth=_appCurrentHistoryDepth;
       const steps=known?_appCurrentHistoryDepth-depth:1;
       if(steps>0)history.go(steps);else history.forward();
-      return;
-    }
-    ratibGestureDashboard(known,depth);
+    });
     return;
   }
   _appSavedViews.set(_appCurrentHistoryDepth,captureAppView());

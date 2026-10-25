@@ -1,76 +1,75 @@
-/* Ratib Al-Muyassar — trial-only, opt-in collapsed cash activity pulse. */
+/* Ratib trial: keep the main dashboard clear; reveal cash turnover only on request. */
 @media screen {
  #dashboardHomeContent .ratib-quick-entry-label{display:none!important}
  #dashboardHomeContent .ratib-quick-entry{margin-top:0!important}
- #ratibCashPulse{margin:13px 0 17px;direction:rtl;display:grid;justify-items:center;gap:0;isolation:isolate}
- #ratibCashPulse .rcp-trigger{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;cursor:pointer;
-  min-width:74px;min-height:61px;padding:5px 12px;border:1px solid var(--border);border-radius:18px;
-  color:var(--accent-strong);background:var(--card);font:750 .76rem Tajawal,system-ui,sans-serif;
-  box-shadow:0 3px 13px #0000000a}
- #ratibCashPulse .rcp-trigger:is(:hover,:focus-visible){border-color:var(--accent);outline-offset:3px}
- #ratibCashPulse .rcp-trigger svg{width:28px;height:28px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
- #ratibCashPulse .rcp-trigger[aria-expanded=true]{border-color:var(--accent);background:color-mix(in srgb,var(--accent) 7%,var(--card))}
- #ratibCashPulse .rcp-panel[hidden]{display:none!important}
- #ratibCashPulse .rcp-panel{box-sizing:border-box;justify-self:stretch;width:100%;max-width:760px;margin-top:9px;padding:15px;
-  border:1px solid var(--border);border-radius:16px;background:var(--card);color:var(--text);
-  box-shadow:0 6px 24px #0000000b;min-width:0}
- #ratibCashPulse .rcp-head{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
- #ratibCashPulse .rcp-title{margin:0;color:var(--accent-strong);font-size:1.09rem}
- #ratibCashPulse .rcp-close{width:37px;height:37px;min-width:37px;min-height:37px;border:1px solid var(--border);border-radius:9px;
-  background:var(--card);color:var(--muted);cursor:pointer;font-size:1.2rem}
- #ratibCashPulse .rcp-filters{display:grid;grid-template-columns:2fr 1fr 1fr;gap:9px;margin:12px 0}
- #ratibCashPulse label{display:grid;gap:4px;min-width:0;font-size:.8rem;font-weight:700;color:var(--muted)}
- #ratibCashPulse select,#ratibCashPulse input[type=date]{
-  box-sizing:border-box;min-height:42px;max-width:100%;width:100%;min-width:0;
-  padding:6px 8px;border:1px solid var(--border);border-radius:9px;background:var(--card);color:var(--text);
-  font:650 .88rem Tajawal,system-ui,sans-serif}
- #ratibCashPulse .rcp-custom[hidden]{display:none!important}
- #ratibCashPulse .rcp-custom{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;margin-bottom:10px}
- #ratibCashPulse .rcp-content{display:grid;grid-template-columns:minmax(0,230px) 1fr;gap:14px;align-items:center}
- #ratibCashPulse .rcp-chart{position:relative;width:min(100%,215px);aspect-ratio:1;justify-self:center}
- #ratibCashPulse .rcp-chart svg{width:100%;height:100%;overflow:visible;transform:rotate(-90deg)}
- #ratibCashPulse .rcp-ring-bg{fill:none;stroke:color-mix(in srgb,var(--muted) 15%,transparent);stroke-width:15}
- #ratibCashPulse .rcp-ring{fill:none;stroke-width:15;stroke-linecap:round;cursor:pointer;transition:stroke-dasharray .2s,stroke-dashoffset .2s,opacity .2s}
- #ratibCashPulse .rcp-ring:is(:hover,:focus-visible){opacity:.8;outline:none;stroke-width:18}
- #ratibCashPulse .rcp-in{stroke:#15825b}
- #ratibCashPulse .rcp-out{stroke:#c89b3c}
- #ratibCashPulse .rcp-chart-center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;
-  text-align:center;pointer-events:none;padding:37px 25px}
- #ratibCashPulse .rcp-chart-center small{font-size:.72rem;color:var(--muted)}
- #ratibCashPulse .rcp-chart-center strong{font-size:clamp(.98rem,2.7vw,1.35rem);font-weight:850;direction:ltr}
- #ratibCashPulse .rcp-chart-center span{font-size:.71rem;color:var(--muted)}
- #ratibCashPulse .rcp-metrics{display:grid;gap:8px}
- #ratibCashPulse .rcp-metric{display:flex;align-items:center;justify-content:space-between;gap:9px;text-align:right;
-  padding:11px 12px;border:1px solid var(--border);border-radius:11px;background:var(--card);
-  color:var(--text);font:700 .88rem Tajawal,system-ui,sans-serif;cursor:pointer}
- #ratibCashPulse .rcp-metric[disabled]{cursor:default;opacity:.8}
- #ratibCashPulse .rcp-metric:is(:hover,:focus-visible):not(:disabled){border-color:var(--accent)}
- #ratibCashPulse .rcp-metric[aria-pressed=true]{background:color-mix(in srgb,var(--accent) 8%,var(--card));border-color:var(--accent)}
- #ratibCashPulse .rcp-dot{display:inline-block;width:9px;height:9px;border-radius:50%;margin-inline-end:5px;background:var(--muted)}
- #ratibCashPulse .rcp-dot.rcp-green{background:#15825b}
- #ratibCashPulse .rcp-dot.rcp-gold{background:#c89b3c}
- #ratibCashPulse .rcp-amount{font-variant-numeric:tabular-nums;direction:ltr;unicode-bidi:isolate;font-size:.89rem}
- #ratibCashPulse .rcp-note{margin:9px 0 0;color:var(--muted);font-size:.77rem;line-height:1.65}
- #ratibCashPulse .rcp-movements{margin-top:12px;border-top:1px solid var(--border);padding-top:12px}
- #ratibCashPulse .rcp-movements[hidden]{display:none!important}
- #ratibCashPulse .rcp-move-heading{display:flex;gap:9px;align-items:center;justify-content:space-between;flex-wrap:wrap}
- #ratibCashPulse .rcp-move-heading strong{font-size:.95rem}
- #ratibCashPulse .rcp-statement-btn{border:1px solid var(--accent);border-radius:9px;background:var(--card);color:var(--accent-strong);
-  min-height:37px;padding:5px 11px;cursor:pointer;font:700 .78rem Tajawal,system-ui,sans-serif}
- #ratibCashPulse .rcp-list{display:grid;gap:5px;list-style:none;padding:0;margin:8px 0 0;max-height:285px;overflow:auto}
- #ratibCashPulse .rcp-list li button{box-sizing:border-box;display:flex;align-items:center;justify-content:space-between;gap:8px;
-  width:100%;padding:9px;border:1px solid var(--border);border-radius:8px;background:var(--card);color:var(--text);
-  font:600 .82rem Tajawal,system-ui,sans-serif;cursor:pointer;text-align:right}
- #ratibCashPulse .rcp-list li button:hover{border-color:var(--accent)}
- #ratibCashPulse .rcp-list li small{color:var(--muted);font-size:.75rem}
- #ratibCashPulse .rcp-error{color:#b42318}
- @media(max-width:580px){
-  #ratibCashPulse .rcp-panel{padding:11px}
-  #ratibCashPulse .rcp-filters{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
-  #ratibCashPulse .rcp-filters label:first-child{grid-column:1/-1}
-  #ratibCashPulse .rcp-content{grid-template-columns:minmax(0,1fr)}
-  #ratibCashPulse .rcp-chart{width:min(210px,70%);}
-  #ratibCashPulse .rcp-metrics{gap:6px}
- }
+ #ratibCashPulse{box-sizing:border-box;direction:rtl;margin:12px 0 16px;max-width:100%;min-width:0;
+   border:1px solid var(--border);background:var(--card);border-radius:14px;overflow:visible}
+ #ratibCashPulse .ratib-pulse-toggle{box-sizing:border-box;display:flex;align-items:center;justify-content:space-between;
+   gap:12px;width:100%;min-height:47px;padding:10px 14px;border:0;border-radius:13px;color:var(--accent-strong);
+   background:var(--card);font:750 .91rem Tajawal,system-ui,sans-serif;cursor:pointer}
+ #ratibCashPulse .ratib-pulse-toggle:is(:hover,:focus-visible){outline:2px solid var(--accent);outline-offset:1px}
+ #ratibCashPulse .ratib-pulse-toggle[aria-expanded="true"]{border-radius:13px 13px 0 0;background:color-mix(in srgb,var(--accent) 7%,var(--card))}
+ #ratibCashPulse .ratib-pulse-toggle-left{display:inline-flex;align-items:center;gap:9px}
+ #ratibCashPulse .ratib-pulse-symbol{display:grid;place-items:center;width:26px;height:26px;border-radius:50%;
+   border:2px solid var(--accent);font-size:1.15rem;line-height:1;background:color-mix(in srgb,var(--accent) 10%,var(--card))}
+ #ratibCashPulse #ratibPulseBody[hidden],
+ #ratibCashPulse #ratibPulseReadout[hidden],
+ #ratibCashPulse #ratibPulseDetails[hidden]{display:none!important}
+ #ratibCashPulse #ratibPulseBody{padding:12px 14px 15px;border-top:1px solid var(--border);min-width:0}
+ #ratibCashPulse .ratib-pulse-filters{display:grid;grid-template-columns:2fr 1fr 1fr;gap:9px;margin:0 0 12px}
+ #ratibCashPulse .ratib-pulse-filters label{display:grid;gap:5px;min-width:0;color:var(--muted);font-size:.8rem;font-weight:750}
+ #ratibCashPulse .ratib-pulse-filters select{box-sizing:border-box;min-height:42px;width:100%;min-width:0;max-width:100%;
+   padding:6px 9px;border:1px solid var(--border);border-radius:9px;background:var(--card);color:var(--text);
+   font:650 .87rem Tajawal,system-ui,sans-serif}
+ #ratibCashPulse .ratib-pulse-muted{font-size:.79rem;line-height:1.65;color:var(--muted);margin:4px 0 12px}
+ #ratibCashPulse .ratib-pulse-visual{display:grid;grid-template-columns:minmax(0,240px) 1fr;gap:16px;align-items:center}
+ #ratibCashPulse .ratib-pulse-circle-wrap{position:relative;width:min(100%,220px);aspect-ratio:1;justify-self:center}
+ #ratibCashPulse .ratib-pulse-ring{width:100%;height:100%;transform:rotate(-90deg);overflow:visible}
+ #ratibCashPulse .ratib-pulse-track{fill:none;stroke:color-mix(in srgb,var(--muted) 15%,transparent);stroke-width:18}
+ #ratibCashPulse .ratib-pulse-arc{fill:none;stroke-width:18;stroke-linecap:round;cursor:pointer;
+   transition:stroke-dasharray .22s,stroke-dashoffset .22s,opacity .15s}
+ #ratibCashPulse .ratib-pulse-arc:is(:hover,:focus-visible){stroke-width:21;opacity:.8;outline:none}
+ #ratibCashPulse .ratib-pulse-green{stroke:#15825B}
+ #ratibCashPulse .ratib-pulse-gold{stroke:#C89B3C}
+ #ratibCashPulse .ratib-pulse-center{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:center;
+   align-items:center;text-align:center;pointer-events:none;gap:4px;padding:38px 28px}
+ #ratibCashPulse .ratib-pulse-center small{color:var(--muted);font-size:.73rem}
+ #ratibCashPulse .ratib-pulse-center strong{direction:ltr;unicode-bidi:isolate;font-weight:850;font-size:clamp(.82rem,1.7vw,1.04rem);
+   text-wrap:balance;overflow-wrap:anywhere}
+ #ratibCashPulse .ratib-pulse-values{display:grid;gap:8px}
+ #ratibCashPulse .ratib-pulse-val{box-sizing:border-box;display:flex;align-items:center;justify-content:space-between;
+   width:100%;min-height:43px;gap:8px;padding:9px 12px;border:1px solid var(--border);border-radius:10px;
+   color:var(--text);background:var(--card);text-align:right;font:700 .89rem Tajawal,system-ui,sans-serif}
+ #ratibCashPulse button.ratib-pulse-val{cursor:pointer}
+ #ratibCashPulse button.ratib-pulse-val:is(:hover,:focus-visible){border-color:var(--accent);
+   background:color-mix(in srgb,var(--accent) 6%,var(--card))}
+ #ratibCashPulse .ratib-pulse-val small{font-size:.8rem;color:var(--muted)}
+ #ratibCashPulse .ratib-pulse-val strong{direction:ltr;unicode-bidi:isolate;font-variant-numeric:tabular-nums;font-size:.89rem}
+ #ratibCashPulse .ratib-pulse-dot{display:inline-block;width:10px;height:10px;margin-inline-end:6px;border-radius:50%}
+ #ratibCashPulse .ratib-pulse-dot.green{background:#15825B}
+ #ratibCashPulse .ratib-pulse-dot.gold{background:#C89B3C}
+ #ratibCashPulse .ratib-pulse-details{margin-top:12px;padding-top:11px;border-top:1px solid var(--border)}
+ #ratibCashPulse .ratib-pulse-details-title{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+ #ratibCashPulse .ratib-pulse-details-actions{display:flex;gap:7px;align-items:center}
+ #ratibCashPulse .ratib-pulse-details-actions button{min-height:36px;padding:5px 10px;border:1px solid var(--border);
+   border-radius:9px;background:var(--card);color:var(--text);font:700 .81rem Tajawal,system-ui,sans-serif;cursor:pointer}
+ #ratibCashPulse .ratib-pulse-details-actions .ratib-pulse-statement{color:var(--accent-strong);border-color:var(--accent)}
+ #ratibCashPulse .ratib-pulse-list{display:grid;gap:6px;max-height:315px;overflow:auto;margin-top:10px}
+ #ratibCashPulse .ratib-pulse-entry{box-sizing:border-box;display:flex;gap:9px;justify-content:space-between;
+   align-items:center;width:100%;min-height:43px;padding:8px 10px;border:1px solid var(--border);border-radius:9px;
+   color:var(--text);background:var(--card);font:650 .82rem Tajawal,system-ui,sans-serif;text-align:right;cursor:pointer}
+ #ratibCashPulse .ratib-pulse-entry:is(:hover,:focus-visible){border-color:var(--accent)}
+ #ratibCashPulse .ratib-pulse-entry span{min-width:0;overflow-wrap:anywhere}
+ #ratibCashPulse .ratib-pulse-entry strong{font-variant-numeric:tabular-nums;white-space:nowrap;font-size:.8rem}
+}
+@media screen and (max-width:600px){
+ #ratibCashPulse #ratibPulseBody{padding:10px 11px 13px}
+ #ratibCashPulse .ratib-pulse-filters{grid-template-columns:repeat(2,minmax(0,1fr))}
+ #ratibCashPulse .ratib-pulse-filters label:first-child{grid-column:1/-1}
+ #ratibCashPulse .ratib-pulse-visual{grid-template-columns:minmax(0,1fr);gap:9px}
+ #ratibCashPulse .ratib-pulse-circle-wrap{width:min(210px,66vw)}
+ #ratibCashPulse .ratib-pulse-values{gap:6px}
+ #ratibCashPulse .ratib-pulse-val{padding:8px;gap:5px}
+ #ratibCashPulse .ratib-pulse-entry{flex-wrap:wrap}
 }
 @media print{#ratibCashPulse{display:none!important}}

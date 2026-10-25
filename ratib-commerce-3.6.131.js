@@ -567,6 +567,18 @@ function leftToReturn(db,origin,pid,unit){
 function invoice(db){
  const kind=view==='return'?(mode==='in'?'purchase_return':'sale_return'):dir(),ret=view==='return';
  if(!draft||draft.kind!==kind){draft=newDraft();editingDocId='';}
+ // Initialize the four-field invoice defaults *before* recording its clean baseline.
+ // Otherwise simply opening a new invoice marks it as edited on Android resume.
+ if(!ret&&((mode==='in'&&draft.title==='فاتورة مشتريات')||(mode==='out'&&draft.title==='فاتورة مبيعات'))){
+  const defaultDebit=mode==='in'?warehouseAccount(db,draft.warehouse):(draft.payment==='cash'?db.accounts.cash:(draft.partyAccount||db.accounts.receivable));
+  const defaultCredit=mode==='in'?(draft.payment==='cash'?db.accounts.cash:(draft.partyAccount||db.accounts.payable)):db.accounts.sales;
+  draft.debitAccount=draft.debitAccount||defaultDebit||'';
+  draft.creditAccount=draft.creditAccount||defaultCredit||'';
+  const counter=mode==='in'?draft.creditAccount:draft.debitAccount;
+  draft.partyName=counter||'';
+  draft.partyAccount=counter||'';
+  draft.displayPartyName=draft.displayPartyName||'';
+ }
  if(!draftBaselines.has(draft))draftBaselines.set(draft,draftSignature(draft));
  const orig=db.invoices.find(x=>x.id===draft.origin);
  if(ret&&orig){draft.currency=orig.currency||'YER';draft.exchangeRate=orig.exchangeRate||1;}

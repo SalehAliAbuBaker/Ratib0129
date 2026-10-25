@@ -17,10 +17,20 @@ function today(){
 function appReady(){
  return !!window.__ratibProceedInitialized&&typeof getCanonicalCatalog==='function'&&typeof getAllTransactions==='function'&&typeof getAccountEntry==='function';
 }
+function pulseVisibleCatalog(){
+ const catalog=getCanonicalCatalog()||[];
+ try{
+  if(typeof window.ratibImportVisibleCatalog==='function'){
+   const visible=window.ratibImportVisibleCatalog(catalog);
+   if(Array.isArray(visible))return visible;
+  }
+ }catch(e){console.warn('Cash Pulse catalog projection',e);}
+ return catalog;
+}
 function detectedCashAccounts(){
  // Never infer cash accounts from transaction names alone. The user's actual
  // chart of accounts is authoritative, including manually added subgroups.
- const catalog=getCanonicalCatalog()||[],names=new Map();
+ const catalog=pulseVisibleCatalog(),names=new Map();
  const parents=typeof getSubgroupParents==='function'?getSubgroupParents():{};
  const normalize=v=>String(v??'').normalize('NFKC').replace(/[\u064B-\u065F\u0670\u0640]/g,'').replace(/[أإآٱ]/g,'ا').replace(/ى/g,'ي').replace(/ة/g,'ه').toLocaleLowerCase('ar');
  const cashWords=/نقد|صندوق|صناديق|بنك|بنوك|مصرف|خزين|كاش|محفظه|حساب جاري|cash|bank|wallet/i;
@@ -65,7 +75,7 @@ function saveExtraCash(){
 }
 function catalogAccounts(){
  const names=new Map();
- for(const row of getCanonicalCatalog()||[])for(const d of row.details||[]){
+ for(const row of pulseVisibleCatalog())for(const d of row.details||[]){
   const name=String(d[1]||'').trim(),code=String(d[0]||'');
   if(name&&!names.has(name))names.set(name,{value:name,label:name+(code?' — '+code:'')+' · '+String(row.sub||row.group||'')});
  }

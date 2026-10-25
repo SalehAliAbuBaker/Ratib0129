@@ -2,7 +2,7 @@
 const assert=require('node:assert/strict'),fs=require('node:fs'),{JSDOM}=require('jsdom');
 const html=fs.readFileSync('index.html','utf8'),css=fs.readFileSync('ratib-cash-pulse.css','utf8');
 const head=html.slice(0,html.indexOf('</head>'));
-assert.match(head,/<link rel="stylesheet" href="\.\/ratib-cash-pulse\.css\?v=3\.6\.109\.07">/,'The real page head must load Cash Pulse CSS');
+assert.match(head,/<link rel="stylesheet" href="\.\/ratib-cash-pulse\.css\?v=3\.6\.109\.08">/,'The real page head must load Cash Pulse CSS');
 assert.match(css,/#ratibCashPulse svg\.ratib-pulse-ring circle\{fill:none!important/);
 assert.match(css,/max-width:188px!important/);
 const d=new JSDOM('<!doctype html><html><body><div id="dashboardHomeContent"><div class="main-menu-grid"></div></div></body></html>',{
@@ -29,6 +29,7 @@ const transactions=[
  {id:'compound_1',multiVoucherId:'compound',isMultiVoucher:true,status:'posted',legs:[leg('بنك الكريمي',0,30)]},
  {id:'receivable',status:'posted',legs:[leg('عميل عام',200,0)]}
 ];
+w.ratibImportVisibleCatalog=catalog=>[...catalog,{mainCode:'1',subCode:'1101',group:'الأصول المتداولة',sub:'نقدية مستوردة',details:[['110106','صندوق مشروع مستورد']]}];
 w.getAllTransactions=()=>transactions;
 w.ratibActiveAccountingTransactions=items=>items;
 w.trialTransactionLegs=t=>t.legs;
@@ -47,8 +48,9 @@ for(const name of ['صندوق النقدية','بنك الكريمي','نقدي
  assert(accountOptions.includes(name),'Missing legitimate liquidity account: '+name);
 assert(!accountOptions.includes('عميل عام'),'Receivables cannot become cash');
 assert(!accountOptions.includes('قرض بنكي'),'Loan is not a bank balance');
+assert(accountOptions.includes('صندوق مشروع مستورد'),'Imported cashbox from the displayed tree must be included');
 const full=[...byId('ratibPulseAccountList').querySelectorAll('input[type=checkbox]')];
-assert.equal(full.length,8,'Every leaf account is available for explicit selection');
+assert.equal(full.length,9,'Imported and regular leaf accounts are available for explicit selection');
 const missing=full.find(x=>x.value==='حساب مخصص للسيولة');
 assert(missing&&!missing.checked&&!missing.disabled,'Unclassified account must appear as optional');
 missing.checked=true;missing.dispatchEvent(new w.Event('change',{bubbles:true}));
@@ -59,7 +61,7 @@ assert.equal(byId('ratibPulseBeginning').textContent,'50 YER');
 assert.equal(byId('ratibPulseIncome').textContent,'140 YER','Compound receipt must be net of internal cash legs');
 assert.equal(byId('ratibPulseExpense').textContent,'40 YER','Internal cash transfer is excluded');
 assert.equal(byId('ratibPulseClosing').textContent,'150 YER');
-assert.match(byId('ratibPulseStatus').textContent,/6 حساب نقدي وبنكي/);
+assert.match(byId('ratibPulseStatus').textContent,/7 حساب نقدي وبنكي/);
 byId('ratibPulseAccount').value='بنك الكريمي';
 byId('ratibPulseAccount').dispatchEvent(new w.Event('change'));
 assert.equal(byId('ratibPulseIncome').textContent,'30 YER','Individual bank view shows its internal transfer');

@@ -9205,7 +9205,12 @@ function captureSingleDraft(){
   return {version:1,mode:currentVoucherMode,date:value('voucherDateInput'),currency:value('voucherCurrencySelect'),amount:value('voucherAmountInput'),recipient:value('voucherRecipientInput'),note:value('voucherNoteInput'),debitAccount:selDebitAcc?.getValue()||'',creditAccount:selCreditAcc?.getValue()||'',splitActive:isVoucherSplitActive,splitMode:voucherSplitMode,categoryStates:cloneData(voucherCatStates),savedAt:new Date().toISOString()};
 }
 
+let _ratibSingleDraftPrior=null;
 function saveSingleDraftSoon(){
+  if(!hasUnsavedChanges){
+    const previous=store.get('single_voucher_draft_v1',null);
+    _ratibSingleDraftPrior={exists:previous!==null,value:previous===null?null:cloneData(previous)};
+  }
   hasUnsavedChanges=true;clearTimeout(_draftTimer);
   _draftTimer=setTimeout(()=>{_draftTimer=null;const draft=captureSingleDraft();if(draft.amount||draft.note||draft.recipient)store.set('single_voucher_draft_v1',draft);updateDraftButton();},500);
 }
@@ -9602,7 +9607,7 @@ async function ratibGestureDraftCheck(){
           clearTimeout(_draftTimer);_draftTimer=null;
           store.set('single_voucher_draft_v1',captureSingleDraft());updateDraftButton();
         }
-        await flushStorage();hasUnsavedChanges=false;showToast('تم حفظ المسودة محليًا','success');
+        await flushStorage();hasUnsavedChanges=false;_ratibSingleDraftPrior=null;showToast('تم حفظ المسودة محليًا','success');
       }catch(error){showToast('تعذر تأكيد حفظ المسودة؛ بقي المستند مفتوحًا.','error',7000);return false;}
     }else{
       // Discard only the in-memory editor; never remove or change any posted transaction.
@@ -9610,6 +9615,12 @@ async function ratibGestureDraftCheck(){
       try{
         if(multi&&!multi.classList.contains('hidden'))resetMultiVoucherForm();
         else{
+          if(_ratibSingleDraftPrior){
+            if(_ratibSingleDraftPrior.exists)store.set('single_voucher_draft_v1',cloneData(_ratibSingleDraftPrior.value));
+            else store.remove('single_voucher_draft_v1');
+            await flushStorage();
+          }
+          _ratibSingleDraftPrior=null;
           for(const id of ['voucherAmountInput','voucherRecipientInput','voucherNoteInput']){const input=document.getElementById(id);if(input)input.value='';}
           try{selDebitAcc.setValue('','');selCreditAcc.setValue('','');}catch(_){}
         }

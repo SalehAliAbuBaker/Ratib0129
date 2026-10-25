@@ -259,7 +259,7 @@ function ratibTrialVersion(){
  return String(window.ratibCurrentTrialVersion?.()||(typeof RATIB_RELEASE!=='undefined'?RATIB_RELEASE.version:'')||window.RatibCommerce?.version||'').trim();
 }
 function syncSidebarVersion(){
- const v=ratibTrialVersion();if(!/^\d+\.\d+\.\d+(?:\.\d+)?$/.test(v))return;
+ const v=ratibTrialVersion();if(!/^\d+\.\d+\.\d+$/.test(v))return;
  const label='الإصدار '+v;
  const footer=$('sidebarCurrentVersion');if(footer)footer.textContent=label;
  const header=$('appVersionLabel');if(header)header.textContent=label;

@@ -25,7 +25,7 @@ for(const row of [
 }
 assert.equal(api.displayGroupOf({mainCode:'1',main:'الأصول',subCode:'1101',sub:'البنوك'}).id,'cash');
 assert.equal(api.displayGroupOf({mainCode:'4',main:'الإيرادات'}).id,'income');
-assert(tree.includes("{key:'other',title:'حسابات أخرى'"),'account manager shows the catch-all group');
+assert(tree.includes('rit-extra-accounts-entry')&&tree.includes('حسابات أخرى ('),'account manager shows the catch-all group');
 assert(tree.includes("return classification||'other';"),'all account leaf nodes have a visible group');
 assert(tree.includes('<h2>شجرة الحسابات المبسطة</h2>'),'single clear tree title');
 assert(!tree.includes('data-rit="full">محاسبية</button>'),'no accounting-tree mode option');

@@ -19,9 +19,7 @@ const DEFAULTS={
  'مرتجع الصادر':['أمين المخزن المسلّم','المستلم','المراجع','المعتمد']
 };
 const TITLES={payment:'سند صرف',receipt:'سند قبض',journal:'قيد بسيط',compound:'قيد مركب',opening:'قيد افتتاحي'};
-// Only active accounting vouchers are configurable in Settings.
-// Legacy commerce defaults remain available to render previously saved documents.
-const keys=['payment','receipt','journal','compound','opening'];
+const keys=Object.keys(DEFAULTS);
 const newDefault=key=>({enabled:DEFAULTS[key].length>0,people:DEFAULTS[key].map(label=>({label,name:''}))});
 const cleanText=(x,n=64)=>String(x==null?'':x).trim().slice(0,n);
 const htmlEscape=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));

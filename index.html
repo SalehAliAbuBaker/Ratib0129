@@ -2200,20 +2200,11 @@ body.ratib-sidebar-open,body.ratib-about-open{overflow:hidden}
 <div id="pageCommerce" class="hidden"></div>
 
 <div id="pageSettings" class="hidden">
-  <div class="card settings-accordion-card no-print" id="notificationSoundCard" onclick="toggleSettingsCard(this)" style="border-right:6px solid var(--ok);">
-    <div class="settings-accordion-header">
-      <span>🔔 أصوات التنبيهات والتذكيرات</span><span style="display:flex;align-items:center;gap:8px"><span id="notificationSoundStatus" style="font-size:.9rem;color:var(--muted);">—</span><span class="accordion-arrow">▼</span></span>
-    </div>
-    <div class="settings-accordion-body" onclick="event.stopPropagation()">
-      <p style="color:var(--muted);font-weight:700;margin-bottom:10px;">يصدر التطبيق نغمة قصيرة عند استحقاق تذكير أثناء فتح التطبيق. قد يطلب المتصفح تفعيل الصوت من خلال ضغطة المستخدم الأولى.</p>
-      <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
-        <button type="button" class="btn btn-success" id="enableNotificationSoundBtn" style="width:auto;margin-top:0;">🔊 تفعيل الصوت</button>
-        <button type="button" class="btn btn-ghost" id="testNotificationSoundBtn" style="width:auto;margin-top:0;">🎵 اختبار النغمة</button>
-        <button type="button" class="btn btn-ghost" id="disableNotificationSoundBtn" style="width:auto;margin-top:0;">🔇 كتم الصوت</button>
-      </div>
-    </div>
+  <div class="card settings-accordion-card no-print" id="notificationSoundCard" onclick="toggleSettingsCard(this)">
+    <div class="settings-accordion-header"><span>🔊 أصوات حفظ المستندات والتنبيهات</span><span class="accordion-arrow">▼</span></div>
+    <div class="settings-accordion-body" onclick="event.stopPropagation()"></div>
   </div>
-  
+
   <div class="card settings-accordion-card" onclick="toggleSettingsCard(this)">
     <div class="settings-accordion-header">
       <span>🔒 إعدادات الأمان وقفل الحماية</span>
@@ -2402,40 +2393,6 @@ body.ratib-sidebar-open,body.ratib-about-open{overflow:hidden}
         <button class="icon-btn" id="closeCategoryModalBtn" style="width:38px; height:38px;">✕</button>
       </div>
       <div id="categoryTransactionsList" style="max-height: 60vh; overflow-y: auto;"></div>
-    </div>
-  </div>
-
-  <div class="modal-overlay" id="reminderModal">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h3 id="reminderModalTitle" style="font-size:1.25rem; color:var(--accent); font-weight:700;">⏰ إضافة أو تعديل تذكير</h3>
-        <button class="icon-btn" id="closeReminderModalBtn" style="width:38px; height:38px;">✕</button>
-      </div>
-      <input type="hidden" id="editReminderIndex" value="-1">
-      <div class="form-group">
-        <label>عنوان المهمة / التذكير:</label>
-        <input type="text" id="reminderTitleInput" placeholder="مثلاً: اجتماع لجنة الإغاثة...">
-      </div>
-      <div style="display:flex; gap:8px;">
-        <div class="form-group" style="flex:1;">
-          <label>التاريخ:</label>
-          <input type="date" id="reminderDateInput">
-        </div>
-        <div class="form-group" style="flex:1;">
-          <label>الوقت:</label>
-          <input type="time" id="reminderTimeInput">
-        </div>
-      </div>
-      <div class="form-group">
-        <label>درجة الأهمية:</label>
-        <select id="reminderPrioritySelect">
-          <option value="عادية">🟢 عادية</option>
-          <option value="مهمة">🟡 مهمة</option>
-          <option value="عاجلة">🟠 عاجلة</option>
-          <option value="حرجة جداً">🔴 حرجة جداً (قصوى)</option>
-        </select>
-      </div>
-      <button class="btn btn-primary" id="saveNewReminderBtn" style="margin-top: 8px;">💾 حفظ التذكير</button>
     </div>
   </div>
 
@@ -4478,239 +4435,18 @@ function getAllTransactions() {
 
 function effectiveTransactions(txs=getAllTransactions()) { return txs.filter(t => t.status !== 'reversed' && t.status !== 'deleted'); }
 
-function getReminders() { return store.get('reminders', []); }
-function saveReminders(list){store.set('reminders',list);scheduleReminderCheck();}
-
-function getDueReminderCounts() {
-  const list = getReminders();
-  let overdue = 0, today = 0;
-  list.forEach(r => { const s = getReminderDueState(r); if (s === 'overdue') overdue++; else if (s === 'today') today++; });
-  return { overdue, today };
-}
-
-// إشعارات المتصفح: تعمل فقط أثناء فتح التطبيق فعلياً بالمتصفح (لا يوجد Service Worker
-// يشتغل بالخلفية بعد إغلاق التبويب) — لذلك هي تنبيه إضافي وليست بديلاً كاملاً عن مراجعة
-// قسم "التذكيرات والمهام" بنفسك بين فترة وأخرى.
-function getNotifiedReminderKeys() { return store.get('notifiedReminderKeys', []); }
-function markReminderNotified(key) {
-  const keys = getNotifiedReminderKeys();
-  if (!keys.includes(key)) { keys.push(key); if (keys.length > 300) keys.splice(0, keys.length - 300); store.set('notifiedReminderKeys', keys); }
-}
-function reminderKey(r) { return `${r.title}|${r.date}|${r.time || ''}`; }
-
-function checkAndNotifyDueReminders() {
-  const list = getReminders();
-  const notifiedKeys = getNotifiedReminderKeys();
-  list.forEach(r => {
-    if (getReminderDueState(r) !== 'overdue' && getReminderDueState(r) !== 'today') return;
-    const due = new Date(`${r.date}T${r.time || '09:00'}:00`);
-    if (isNaN(due.getTime()) || due.getTime() > Date.now()) return;
-    const key = reminderKey(r);
-    if (notifiedKeys.includes(key)) return;
-    // تنبيه داخلي مضمون أثناء فتح التطبيق، حتى لو رفض المستخدم إذن إشعارات النظام.
-    if(window.RatibFeedback?.reminder){
-      window.RatibFeedback.reminder(r,()=>getReminders().findIndex(item=>reminderKey(item)===key),saveReminders,openReminderModal,renderRemindersList,updateProDashboard,getReminders);
-    }else{
-      showToast(`⏰ تذكير مستحق: ${r.title}`, 'warn', 10000);
-      try { window.playRatibNotificationSound?.(); } catch (e) {}
-    }
-    // إشعار النظام إضافة اختيارية، وليس شرطاً للصوت أو التنبيه الداخلي.
-    if (typeof Notification !== 'undefined' && Notification.permission === 'granted') {
-      try { new Notification('⏰ راتب - تذكير مستحق', { body: r.title, tag: key }); } catch (e) {}
-    }
-    markReminderNotified(key);
-  });
-}
-
-function initReminderNotifications(){
-  // The trial home no longer offers tasks/reminders; do not start background notifications.
-  clearTimeout(_reminderTimer);_reminderTimer=null;
-}
-
-let remindersChartInstance = null;
-
-function updateProDashboard(){
-  if(!document.getElementById('proDashboardCard'))return; // Retired from the trial homepage.
-  const txs=dashboardTransactions(),cur=getGlobalCurrency(),selected=txs.filter(t=>t.currency===cur);
-  const income=selected.filter(t=>t.voucherMode==='income'&&(!t.isMultiVoucher||!!t.creditAccount)).reduce((sum,t)=>sum+Number(t.amount||0),0);
-  const expense=selected.filter(t=>(t.isExpense||t.voucherMode==='spend')&&(!t.isMultiVoucher||!!t.debitAccount)).reduce((sum,t)=>sum+Number(t.amount||0),0);
-  for(const [id,value] of [['proIncomeKpi',income],['proExpenseKpi',expense],['proNetKpi',income-expense]]){const el=document.getElementById(id);if(el)el.textContent=fmt(value,cur);}
-  const pending=document.getElementById('proPendingKpi');if(pending)pending.textContent=String(txs.filter(t=>t.status==='draft'||t.status==='pending').length);
-  const alerts=[],ceilings=getAccountCeilings();
-  Object.entries(ceilings).forEach(([acc,c])=>{
-    if((c.currency||'YER')!==cur)return;
-    const balances=getCurrentAccountBalance(acc).byCurrency?.[cur]||{debit:0,credit:0},bal=balances.credit-balances.debit;
-    if(c.max!=null&&bal>Number(c.max))alerts.push(`⚠️ ${acc}: تجاوز السقف الأعلى (${cur})`);
-    if(c.min!=null&&bal<Number(c.min))alerts.push(`⚠️ ${acc}: تجاوز السقف الأدنى (${cur})`);
-  });
-  const due=getDueReminderCounts();if(due.overdue>0)alerts.push(`🔔 لديك ${due.overdue} تذكير متأخر يحتاج مراجعة`);else if(due.today>0)alerts.push(`📍 لديك ${due.today} مهمة مستحقة اليوم`);
-  const box=document.getElementById('proAlertsBox');if(box)box.innerHTML=alerts.length?alerts.map(esc).join('<br>'):'✅ لا توجد تنبيهات رقابية حالية';
-  const badge=document.getElementById('remindersBadge');if(badge){badge.textContent=String(due.overdue+due.today);badge.classList.toggle('hidden',due.overdue+due.today===0);}
-  const signature=JSON.stringify(getReminders());if(signature!==_remindersRenderSignature){_remindersRenderSignature=signature;renderRemindersList();}
-  renderRemindersChart();
-}
-
-function _renderRemindersChartReady() {
-  const list = getReminders();
-  const totalEl = document.getElementById('remindersTotalCount'); if (totalEl) totalEl.textContent = String(list.length);
-  const counts = { 'عادية': 0, 'مهمة': 0, 'عاجلة': 0, 'حرجة جداً': 0 };
-  list.forEach(r => { const p = r.priority || 'عادية'; if (counts[p] !== undefined) counts[p]++; else counts['عادية']++; });
-
-  const ctx = document.getElementById('remindersChart');
-  if (!ctx) return;
-  if (remindersChartInstance) remindersChartInstance.destroy();
-
-  remindersChartInstance = new Chart(ctx, {
-    type: 'doughnut',
-    data: {
-      labels: ['عادية', 'مهمة', 'عاجلة', 'حرجة جداً'],
-      datasets: [{
-        label: 'توزيع المهام',
-        data: [counts['عادية'], counts['مهمة'], counts['عاجلة'], counts['حرجة جداً']],
-        backgroundColor: ['#10b981', '#f59e0b', '#f97316', '#ef4444'],
-        borderWidth: 2,
-        hoverOffset: 8,
-        spacing: 3
-      }]
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      cutout: '68%',
-      plugins: {
-        legend: { position: 'bottom', labels: { font: { family: 'Tajawal', weight: '700', size: 12 }, usePointStyle: true, padding: 10 } },
-        datalabels: { color: '#fff', font: { weight: '700', size: 11 } }
-      }
-    }
-  });
-}
-
-// فلترة التذكيرات للعرض فقط دون تعديل المصفوفة المحفوظة.
-let activeReminderPriorityFilter=null;
-function filterRemindersByPriority(priority) {
-  activeReminderPriorityFilter=priority||null;
-  renderRemindersList();
-}
-
-function getReminderDueState(rem) {
-  if (!rem.date) return 'upcoming';
-  const now = new Date();
-  const due = new Date(`${rem.date}T${rem.time || '23:59'}:00`);
-  if (isNaN(due.getTime())) return 'upcoming';
-  if (due.getTime() < now.getTime()) return 'overdue';
-  const todayStr = getLocalTodayISO();
-  if (rem.date === todayStr) return 'today';
-  return 'upcoming';
-}
-
-function sortRemindersByDueDate(list) {
-  return list.map((r, i) => ({ r, i })).sort((a, b) => {
-    const da = new Date(`${a.r.date || '9999-12-31'}T${a.r.time || '23:59'}:00`).getTime();
-    const db = new Date(`${b.r.date || '9999-12-31'}T${b.r.time || '23:59'}:00`).getTime();
-    return da - db;
-  });
-}
-
-function renderRemindersList() {
-  const rawList = getReminders(), container = document.getElementById('remindersListContainer');
-  if (!container) return;
-  container.innerHTML='';
-  if(activeReminderPriorityFilter){
-    const clear=document.createElement('button');clear.type='button';clear.className='btn btn-ghost';
-    clear.style.cssText='margin:4px 0 8px;font-size:0.95rem;padding:6px';
-    clear.textContent='عرض كل المهام';clear.addEventListener('click',()=>filterRemindersByPriority(null));
-    container.appendChild(clear);
+// Obsolete dashboard update kept as a no-op for legacy financial callbacks.
+function updateProDashboard(){return;}
+// One-time cleanup after vault unlock: never delete journal, reports or currency records.
+function ratibPurgeObsoleteTasks(){
+  for(const key of ['reminders','notifiedReminderKeys','notification_sound_enabled']){
+    if(store.get(key,null)!==null)store.remove(key);
   }
-  const ordered=sortRemindersByDueDate(rawList).filter(({r})=>!activeReminderPriorityFilter||(r.priority||'عادية')===activeReminderPriorityFilter);
-  if(!ordered.length){
-    const empty=document.createElement('div');empty.style.cssText='text-align:center;color:var(--muted);padding:10px;font-weight:700;';
-    empty.textContent=rawList.length?'لا توجد مهام مطابقة للأولوية المحددة.':'لا توجد تذكيرات نشطة حالياً';
-    container.appendChild(empty);return;
+  const preferences=store.get('ratib_feedback_preferences_v1',null);
+  if(preferences&&typeof preferences==='object'&&!Array.isArray(preferences)&&Object.prototype.hasOwnProperty.call(preferences,'reminder')){
+    const safe={...preferences};delete safe.reminder;store.set('ratib_feedback_preferences_v1',safe);
   }
-  ordered.forEach(({ r: rem, i: idx }) => {
-    const list = rawList; // نعمل على المصفوفة الأصلية عبر idx الحقيقي حتى يبقى الحذف/التعديل صحيحاً
-    const item = document.createElement('div');
-    const priorityColor = rem.priority === 'حرجة جداً' ? 'var(--danger)' : (rem.priority === 'عاجلة' ? '#f97316' : (rem.priority === 'مهمة' ? 'var(--warn)' : 'var(--ok)'));
-    const isPartial = rem.status === 'partial';
-    const dueState = getReminderDueState(rem);
-    const dueBadge = dueState === 'overdue' ? '<span style="font-size:0.85rem; background:rgba(239,68,68,.16); color:var(--danger); padding:2px 8px; border-radius:8px; margin-right:4px;">⚠️ متأخر</span>'
-      : dueState === 'today' ? '<span style="font-size:0.85rem; background:color-mix(in srgb, var(--accent) 16%, transparent); color:var(--accent); padding:2px 8px; border-radius:8px; margin-right:4px;">📍 اليوم</span>' : '';
-    const borderColor = dueState === 'overdue' ? 'var(--danger)' : (isPartial ? 'var(--warn)' : 'var(--border)');
-    item.style.cssText = `display:flex; justify-content:space-between; align-items:center; background:var(--bg); border:2px solid ${borderColor}; border-radius:10px; padding:10px 12px; margin-bottom:6px; font-weight:700; font-size:1.05rem;`;
-    item.innerHTML = `
-      <div>
-        <b>📌 ${esc(rem.title)}</b> <span style="font-size:0.85rem; padding:2px 8px; border-radius:10px; background:${priorityColor}; color:#fff;">${esc(rem.priority || 'عادية')}</span>
-        ${dueBadge}
-        ${isPartial ? '<span style="font-size:0.85rem; background:rgba(245,158,11,0.15); color:var(--warn); padding:2px 6px; border-radius:6px; margin-right:4px;">⏳ قيد التنفيذ</span>' : ''}<br>
-        <small style="color:var(--muted); font-size:0.95rem;">📅 ${esc(rem.date)} | ⏰ ${esc(rem.time || 'وقت غير محدد')}</small>
-      </div>
-      <div style="display:flex; gap:4px; align-items:center;">
-        <button class="btn btn-success complete-partial-btn" data-idx="${idx}" title="إنجاز جزئي" style="width:auto; margin-top:0; padding:4px 8px; font-size:0.85rem;">⏳ جزئي</button>
-        <button class="btn btn-primary complete-full-btn" data-idx="${idx}" title="إنجاز كلي" style="width:auto; margin-top:0; padding:4px 8px; font-size:0.85rem; background:var(--ok);">✅ إنجاز</button>
-        <button class="del-btn edit-reminder-btn" data-idx="${idx}" style="color:var(--accent);">✏️</button>
-        <button class="del-btn del-reminder-btn" data-idx="${idx}">🗑️</button>
-      </div>
-    `;
-    item.querySelector('.complete-full-btn').addEventListener('click', () => {
-      list.splice(idx, 1); saveReminders(list); renderRemindersList(); renderRemindersChart(); updateProDashboard(); showToast('تم إنجاز المهمة بنجاح ✅', 'success');
-    });
-    item.querySelector('.complete-partial-btn').addEventListener('click', () => {
-      list[idx].status = list[idx].status === 'partial' ? 'normal' : 'partial';
-      saveReminders(list); renderRemindersList();
-      showToast(list[idx].status === 'partial' ? 'تم تعيين المهمة كـ إنجاز جزئي ⏳' : 'تمت العودة للحالة العادية', 'warn');
-    });
-    item.querySelector('.edit-reminder-btn').addEventListener('click', () => openReminderModal(idx));
-    item.querySelector('.del-reminder-btn').addEventListener('click', () => {
-      list.splice(idx, 1); saveReminders(list); renderRemindersList(); renderRemindersChart(); updateProDashboard(); showToast('تم حذف التذكير', 'warn');
-    });
-    container.appendChild(item);
-  });
 }
-
-function openReminderModal(editIndex = -1) {
-  const list = getReminders();
-  document.getElementById('editReminderIndex').value = editIndex;
-  if (editIndex >= 0 && list[editIndex]) {
-    document.getElementById('reminderModalTitle').textContent = '✏️ تعديل التذكير أو المهمة';
-    document.getElementById('reminderTitleInput').value = list[editIndex].title || '';
-    document.getElementById('reminderDateInput').value = list[editIndex].date || getLocalTodayISO();
-    document.getElementById('reminderTimeInput').value = list[editIndex].time || '09:00';
-    document.getElementById('reminderPrioritySelect').value = list[editIndex].priority || 'عادية';
-  } else {
-    document.getElementById('reminderModalTitle').textContent = '⏰ إضافة تذكير أو مهمة جديدة';
-    document.getElementById('reminderTitleInput').value = '';
-    document.getElementById('reminderDateInput').value = getLocalTodayISO();
-    document.getElementById('reminderTimeInput').value = '09:00';
-    document.getElementById('reminderPrioritySelect').value = 'عادية';
-  }
-  document.getElementById('reminderModal').classList.add('show');
-}
-
-document.getElementById('openAddReminderModalBtn')?.addEventListener('click', () => openReminderModal(-1));
-document.getElementById('closeReminderModalBtn')?.addEventListener('click', () => document.getElementById('reminderModal').classList.remove('show'));
-
-document.getElementById('saveNewReminderBtn')?.addEventListener('click', () => {
-  const title = document.getElementById('reminderTitleInput').value.trim();
-  const date = document.getElementById('reminderDateInput').value;
-  const time = document.getElementById('reminderTimeInput').value;
-  const priority = document.getElementById('reminderPrioritySelect').value;
-  const editIdx = Number(document.getElementById('editReminderIndex').value);
-
-  if (!title) { alert('يرجى إدخال عنوان التذكير'); return; }
-  const list = getReminders();
-  if (editIdx >= 0 && list[editIdx]) {
-    list[editIdx] = { ...list[editIdx], title, date, time, priority };
-    showToast('تم تعديل التذكير بنجاح', 'success');
-  } else {
-    list.push({ title, date, time, priority, status: 'normal' });
-    showToast('تمت إضافة التذكير بنجاح', 'success');
-  }
-  saveReminders(list);
-  document.getElementById('reminderModal').classList.remove('show');
-  renderRemindersList();
-  renderRemindersChart();
-  updateProDashboard();
-});
 
 function openGlobalSearch() { lastFocusedElement=document.activeElement; document.getElementById('globalSearchModal').classList.add('show'); const input=document.getElementById('globalSearchInput'); input.value=''; input.focus(); globalSearchStatusFilter='all'; document.querySelectorAll('#globalSearchStatusFilter .status-filter-btn').forEach(b=>b.classList.toggle('active', b.dataset.status==='all')); renderGlobalSearch(''); }
 function closeGlobalSearch() { document.getElementById('globalSearchModal').classList.remove('show'); if(lastFocusedElement?.focus)lastFocusedElement.focus(); }
@@ -5235,11 +4971,10 @@ function updateCarousel(el, index) {
     slide.style.display = active ? '' : 'none';
   });
   el.querySelectorAll('.carousel-dot').forEach((dot, i) => dot.classList.toggle('active', i === safe));
-  if(el?.id==='dashboardCarousel'&&index===1)renderRemindersChart();
 }
 function goCarousel(id, index) { updateCarousel(document.getElementById(id), index); }
 function moveCarousel(id, delta) { const el = document.getElementById(id); updateCarousel(el, (carouselState[id] || 0) + delta); }
-function initCarousels() { goCarousel('dashboardCarousel', 0); goCarousel('budgetCarousel', 0); }
+function initCarousels() { goCarousel('budgetCarousel', 0); }
 
 // من هذا الإصدار، الشاشة الرئيسية أصبحت موحّدة (لوحة القيادة + الأقسام معاً بدون تنقّل بينهما)،
 // فهاتين الدالتين صارتا فقط تُحدّثان البيانات وتمرّران لأعلى الشاشة بدل إخفاء/إظهار كتلتين منفصلتين.
@@ -9120,6 +8855,7 @@ function proceedAppInit() {
   renderCanonicalChartOfAccounts();
   initCanonicalLiveAccountsTreePage();
   initCompatibilityImprovements();
+  ratibPurgeObsoleteTasks();
   updateProDashboard();
   initLegacyImport();
   initTrialMulticurrency();
@@ -9129,7 +8865,6 @@ function proceedAppInit() {
   initFinancialTools();
   initThemeToggle();
   initCloudBackup();
-  initReminderNotifications();
   pushInitialHistoryBuffer();
   ratibRestoreBackgroundView();
   ratibBindBackgroundView();
@@ -9336,31 +9071,8 @@ function showExitedScreen(wasSecured) {
 })();
 
 
-/* ===== Budget shortcuts, collapse controls, and reminder sound ===== */
+/* ===== Budget shortcuts and report collapse controls ===== */
 (function installBudgetAndSoundControls(){
-  let notificationAudioContext=null;
-  const soundKey='notification_sound_enabled';
-  function soundEnabled(){return store.get(soundKey,true)!==false}
-  function setSoundStatus(){
-    const el=document.getElementById('notificationSoundStatus'); if(el)el.textContent=soundEnabled()?'مفعّل':'مكتوم';
-    ['enableNotificationSoundBtn','disableNotificationSoundBtn'].forEach(id=>{const b=document.getElementById(id);if(b)b.disabled=(id.startsWith('enable')?soundEnabled():!soundEnabled())});
-    window.RatibFeedback?.syncUI?.();
-  }
-  function playRatibNotificationSound(){
-    if(!soundEnabled()||typeof window==='undefined')return;
-    if(window.RatibFeedback?.play){window.RatibFeedback.play('reminder');return;}
-    const AC=window.AudioContext||window.webkitAudioContext; if(!AC)return;
-    notificationAudioContext=notificationAudioContext||new AC();
-    if(notificationAudioContext.state==='suspended')notificationAudioContext.resume();
-    const now=notificationAudioContext.currentTime;
-    [0,0.16].forEach((offset,i)=>{
-      const osc=notificationAudioContext.createOscillator(), gain=notificationAudioContext.createGain();
-      osc.type='sine'; osc.frequency.value=i?880:660;
-      gain.gain.setValueAtTime(0.0001,now+offset);gain.gain.exponentialRampToValueAtTime(0.12,now+offset+0.02);gain.gain.exponentialRampToValueAtTime(0.0001,now+offset+0.13);
-      osc.connect(gain);gain.connect(notificationAudioContext.destination);osc.start(now+offset);osc.stop(now+offset+0.15);
-    });
-  }
-  window.playRatibNotificationSound=playRatibNotificationSound;
   function installBudgetControls(){
     const status=(msg,type='success')=>{showToast(msg,type);const host=document.getElementById('budgetReportHost');if(host){let el=document.getElementById('budgetActionStatus');if(!el){el=document.createElement('div');el.id='budgetActionStatus';el.className='field-hint';host.prepend(el)}el.textContent=msg}};
     const prepareBudget=()=>{populateReportFilterOptions();updateSearchableData();toggleReportView('budget');};
@@ -9377,14 +9089,7 @@ function showExitedScreen(wasSecured) {
       document.getElementById('expandBudgetReportBtn').addEventListener('click',()=>{card()?.classList.remove('budget-collapsed');status('تم توسيع تفاصيل التقرير');});
     }
   }
-  function installSoundControls(){
-    setSoundStatus();
-    document.getElementById('enableNotificationSoundBtn')?.addEventListener('click',()=>{store.set(soundKey,true);playRatibNotificationSound();setSoundStatus();showToast('تم تفعيل صوت إشعارات التذكيرات','success')});
-    document.getElementById('disableNotificationSoundBtn')?.addEventListener('click',()=>{store.set(soundKey,false);setSoundStatus();showToast('تم كتم صوت إشعارات التذكيرات','warn')});
-    document.getElementById('testNotificationSoundBtn')?.addEventListener('click',()=>{store.set(soundKey,true);playRatibNotificationSound();setSoundStatus();showToast('تم تشغيل اختبار النغمة','success')});
-    document.addEventListener('pointerdown',()=>{if(!soundEnabled())return;try{const AC=window.AudioContext||window.webkitAudioContext;if(AC){notificationAudioContext=notificationAudioContext||new AC();if(notificationAudioContext.state==='suspended')notificationAudioContext.resume().catch(()=>{})}}catch(e){}},{once:false,passive:true});
-  }
-  function install(){installBudgetControls();installSoundControls()}
+  function install(){installBudgetControls();}
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',install,{once:true});else install();
 })();
 
@@ -9453,17 +9158,6 @@ async function ensureCharts(){
   if(!Chart.registry.plugins.get('datalabels'))Chart.register(ChartDataLabels);
 }
 
-function renderRemindersChart(){
-  if(!document.getElementById('remindersChart'))return;
-  if(currentActiveTab!=='pageDashboard'||(carouselState.dashboardCarousel||0)!==1)return;
-  const signature=JSON.stringify(getReminders());if(signature===_remindersChartSignature&&remindersChartInstance)return;
-  ensureCharts().then(()=>{
-    if(currentActiveTab!=='pageDashboard'||(carouselState.dashboardCarousel||0)!==1)return;
-    if(signature!==JSON.stringify(getReminders()))return renderRemindersChart();
-    _renderRemindersChartReady();_remindersChartSignature=signature;
-  }).catch(()=>{const box=document.getElementById('remindersListContainer');if(box)box.setAttribute('aria-label','قائمة التذكيرات متاحة؛ تعذر عرض الرسم.');});
-}
-
 async function renderBudgetChart(rows){
   const ctx=document.getElementById('reportChart');if(!ctx)return;
   const signature=JSON.stringify(rows.map(r=>[r.id,r.allocated,r.actualSpent]));ctx.dataset.summary=signature;
@@ -9526,31 +9220,19 @@ function restoreSingleDraft(){
   document.getElementById('voucherAmountInput').dispatchEvent(new Event('input',{bubbles:true}));showToast('تمت استعادة المسودة، راجعها قبل الترحيل','info');
 }
 
-function scheduleReminderCheck(){
-  // Keep saved reminders untouched but do not notify for a retired feature.
-  clearTimeout(_reminderTimer);_reminderTimer=null;return;
-  /* previous reminder notification scheduler retained for future data migration:
-  if(document.hidden||_appExited)return;
-  checkAndNotifyDueReminders();
-  const notified=new Set(getNotifiedReminderKeys()),now=Date.now();let next=Infinity;
-  for(const r of getReminders()){if(notified.has(reminderKey(r)))continue;const when=new Date(`${r.date}T${r.time||'09:00'}:00`).getTime();if(Number.isFinite(when)&&when>now)next=Math.min(next,when-now);}
-  _reminderTimer=setTimeout(scheduleReminderCheck,Number.isFinite(next)?Math.max(1000,Math.min(next,60000)):60000);
-  */
-}
-
 function initCompatibilityImprovements(){
   initExitButton();initExitDialog();initRatibSidebar();initNestedNavigation();ratibInitPaperOrientation();
   const currency=document.getElementById('currency');if(currency){currency.value=store.get('preferred_currency','YER');if(!KNOWN_CURRENCIES.has(currency.value))currency.value='YER';currency.addEventListener('change',()=>{store.set('preferred_currency',currency.value);ledgerVisibleLimit=50;updateProDashboard();if(activeReportTab==='budget')runBudgetReport();});}
   const budgetCurrency=document.getElementById('budgetReportCurrency');if(budgetCurrency){const preferred=store.get('budget_report_currency',getGlobalCurrency());budgetCurrency.value=KNOWN_CURRENCIES.has(preferred)?preferred:getGlobalCurrency();budgetCurrency.addEventListener('change',()=>{store.set('budget_report_currency',getBudgetReportCurrency());runBudgetReport();});}
-  document.getElementById('dashboardPeriod')?.addEventListener('change',updateProDashboard);
   document.getElementById('retryStorageBtn')?.addEventListener('click',retryPersistentSave);
   document.getElementById('restoreSingleDraftBtn')?.addEventListener('click',restoreSingleDraft);updateDraftButton();
   document.getElementById('saveAndAddVoucherBtn')?.addEventListener('click',()=>{_saveAndAddAnother=true;document.getElementById('commitVoucherBtn').click();});
   document.getElementById('cashFlowCard')?.addEventListener('input',saveSingleDraftSoon);document.getElementById('cashFlowCard')?.addEventListener('change',saveSingleDraftSoon);
-  document.getElementById('enableReminderNotificationsBtn')?.addEventListener('click',async()=>{if(typeof Notification==='undefined'){showToast('إشعارات النظام غير مدعومة؛ التذكيرات داخل التطبيق تعمل.','info');return;}const permission=await Notification.requestPermission();showToast(permission==='granted'?'تم تفعيل إشعارات التذكيرات':'ستستمر التذكيرات داخل التطبيق',permission==='granted'?'success':'info');scheduleReminderCheck();});
-  document.addEventListener('visibilitychange',()=>{if(_appExited)return;if(document.hidden){ratibRememberBackgroundView();clearTimeout(_reminderTimer);flushStorage().catch(()=>{});}else{scheduleReminderCheck();updateProDashboard();}});
-   window.addEventListener('focus',()=>{if(!_appExited&&!document.hidden)scheduleReminderCheck();});
-   window.addEventListener('pageshow',()=>{if(!_appExited&&!document.hidden)scheduleReminderCheck();});
+  // Keep protected screen snapshots working without a reminder scheduler.
+  document.addEventListener('visibilitychange',()=>{
+    if(_appExited)return;
+    if(document.hidden){ratibRememberBackgroundView();flushStorage().catch(()=>{});}
+  });
   document.addEventListener('keydown',e=>{
     if(_appExited||_exitPromise)return;
     if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='s'&&currentActiveTab==='pageExpenses'){e.preventDefault();if(!document.getElementById('multiVoucherCard').classList.contains('hidden'))saveMultiDraft();else if(!document.getElementById('cashFlowCard').classList.contains('hidden'))document.getElementById('commitVoucherBtn').click();}
@@ -9573,7 +9255,6 @@ let ledgerVisibleLimit=50;
 const _transactionSearchCache=new WeakMap();
 let _pendingFinancialCompletion=null;
 let _draftTimer=null,_saveAndAddAnother=false;
-let _reminderTimer=null;
 
 function validateRestoredData(data){
   if(!data||typeof data!=='object'||Array.isArray(data))throw new Error('محتوى النسخة الاحتياطية غير صالح.');

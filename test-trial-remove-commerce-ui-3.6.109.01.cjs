@@ -35,6 +35,6 @@ assert(html.includes("return current.concat(..."),'financial journal remains int
 assert(html.includes("store.get('commerce_v1',null)"),'historic source data must remain recoverable in backups');
 assert(html.includes("const CLOUD_FOLDER_NAME = 'Ratib Trial Backups'"));
 assert(html.includes("const CLOUD_CFG_KEY = 'cloud_backup_cfg'"));
-assert(sw.includes('v230-trial-no-voucher-chooser-3.6.109.05'));
+assert(sw.match(/const CACHE_VERSION='([^']+)'/)?.[1].endsWith('-'+JSON.parse(html.match(/const RATIB_RELEASE=(\{[^;]+\});/)[1]).version));
 d.window.close();
 console.log('PASS trial retired commerce: no active catalog, ledger, search, Excel, runtime or mutation');

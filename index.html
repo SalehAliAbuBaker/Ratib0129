@@ -4481,7 +4481,7 @@ function exportTransactionsCsv() {
   const rows=[['رقم السند','التاريخ','النوع','المدين','الدائن','المبلغ','العملة','الحالة','البيان']];
   ratibActiveAccountingTransactions(getAllTransactions()).forEach(t=>rows.push([t.seqNum||'',t.isoDate||t.date||'',getTransactionDisplayType(t)||'',t.debitAccount||'',t.creditAccount||'',t.amount||0,t.currency||'',t.status||'posted',Object.values(t.execution||{})[0]?.note||'']));
   const table=`<table dir="rtl" border="1"><thead><tr>${rows[0].map(h=>`<th>${String(h)}</th>`).join('')}</tr></thead><tbody>${rows.slice(1).map(r=>`<tr>${r.map(v=>`<td>${String(v??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}</td>`).join('')}</tr>`).join('')}</tbody></table>`;
-  const blob=new Blob([`\ufeff<html><head><meta charset="utf-8"><link rel="stylesheet" href="./ratib-cash-pulse.css?v=20261026-1">
+  const blob=new Blob([`\ufeff<html><head><meta charset="utf-8"><link rel="stylesheet" href="./ratib-cash-pulse.css?v=20261026-2">
 </head><body>${table}
 
 </body></html>`],{type:'application/vnd.ms-excel;charset=utf-8'});
@@ -12135,6 +12135,6 @@ try{currenciesUi();sync();}catch(e){console.error('Ratib 3.6.12 initialization',
 <script src="./ratib-country-currency-3.6.151.js?v=3.6.151" defer></script>
 <script src="./ratib-opening.js?v=20261025-4" defer></script>
 <script src="./ratib-trial-home-polish.js?v=20261025-4" defer></script>
-<script src="./ratib-cash-pulse.js?v=20261026-1" defer></script>
+<script src="./ratib-cash-pulse.js?v=20261026-2" defer></script>
 </body>
 </html>

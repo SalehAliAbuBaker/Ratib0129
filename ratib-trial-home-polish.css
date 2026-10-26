@@ -190,3 +190,28 @@
  #dashboardHomeContent .ratib-quick-entry-grid,
  #dashboardHomeContent .main-menu-grid.ratib-favorites-cross{gap:9px!important}
 }
+
+/* User-selected button/font size must win over the fixed trial home tile geometry.
+   Medium deliberately retains the approved 79px layout. Presentation only. */
+@media screen {
+ :root{--ratib-home-user-height:79px;--ratib-home-user-font:.86rem}
+ :root[data-ratib-button-size="xsmall"]{--ratib-home-user-height:64px;--ratib-home-user-font:.75rem}
+ :root[data-ratib-button-size="small"]{--ratib-home-user-height:72px;--ratib-home-user-font:.81rem}
+ :root[data-ratib-button-size="medium"]{--ratib-home-user-height:79px;--ratib-home-user-font:.86rem}
+ :root[data-ratib-button-size="large"]{--ratib-home-user-height:94px;--ratib-home-user-font:1rem}
+ :root[data-ratib-button-size="xlarge"]{--ratib-home-user-height:110px;--ratib-home-user-font:1.12rem}
+ #dashboardHomeContent .main-menu-grid.ratib-favorites-cross{
+   --ratib-home-row-h:var(--ratib-home-user-height)!important;
+   grid-auto-rows:var(--ratib-home-user-height)!important;
+ }
+ #dashboardHomeContent .ratib-quick-entry-grid>button,
+ #dashboardHomeContent .main-menu-grid.ratib-favorites-cross>.main-menu-btn{
+   min-height:var(--ratib-home-user-height)!important;
+   height:var(--ratib-home-user-height)!important;
+   font-size:calc(var(--ratib-home-user-font) * var(--ratib-font-scale,1))!important;
+ }
+ #dashboardHomeContent .main-menu-grid.ratib-favorites-cross>.main-menu-btn>span:not(.main-menu-icon),
+ #dashboardHomeContent .ratib-quick-entry-grid>button>span{
+   font-size:calc(var(--ratib-home-user-font) * var(--ratib-font-scale,1))!important;
+ }
+}

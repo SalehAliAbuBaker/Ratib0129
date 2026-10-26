@@ -1,71 +1,29 @@
 'use strict';
 const assert=require('node:assert/strict'),fs=require('node:fs'),{JSDOM}=require('jsdom');
-const html=fs.readFileSync('index.html','utf8'),
- css=fs.readFileSync('ratib-trial-spend-layout.css','utf8'),
- script=fs.readFileSync('ratib-trial-spend-layout.js','utf8');
-assert.match(html,/<link rel="stylesheet" href="\.\/ratib-trial-spend-layout\.css\?v=3\.6\.109\.11">/);
-assert.match(html,/<script src="\.\/ratib-trial-spend-layout\.js\?v=3\.6\.109\.11" defer><\/script>/);
-assert.match(html,/textarea aria-label="البيان العام للمدين \$\{number\+1\}" class="multi-line-note"/);
-assert(html.includes("multiVoucherMode==='spend'?"),'Only payment vouchers render the multiline debtor narration');
-assert(html.includes('placeholder="ملاحظات">`'),'Other vouchers keep their native single-line note');
-assert.match(html,/body\.querySelectorAll\('input,select,textarea'\)/);
-assert.match(css,/grid-template-columns:2fr 1fr!important/);
-assert.match(css,/tbody td:nth-child\(2\)\{grid-column:1\/-1!important;grid-row:1!important\}/,'Debtor account comes before amount tools');
-assert.match(css,/tbody td:nth-child\(3\)\{grid-column:1\/-1!important;grid-row:2!important\}/,'Debtor amount tools are the next row');
-assert.match(css,/grid-template-columns:1fr 2fr/);
-for(const n of ['1','2','3','4','5','6','7–10','11','12'])assert(script.includes("row('"+n+"'"));
-assert(!script.includes('store.set('),'Layout must never write accounting data');
-const dom=new JSDOM(html,{url:'https://ratibtrial.pages.dev',runScripts:'outside-only',pretendToBeVisual:true});
-const w=dom.window,d=w.document,card=d.getElementById('multiVoucherCard'),grid=card.querySelector('.multi-voucher-grid'),source=card.querySelector('.multi-voucher-source-row');
-card.classList.add('spend-voucher');card.classList.remove('hidden');
-function element(tag,cls,id){
- const el=d.createElement(tag);if(cls)el.className=cls;if(id)el.id=id;return el;
-}
-const controls=element('div','ratib-side-choice');
-controls.innerHTML='<select id="ratibHeaderSide"><option value="credit">دائن</option><option value="debit">مدين</option></select><button type="button" id="ratibReverseSide">⇄</button>';
-source.prepend(controls);
-const seq=element('label','spend-sequence');seq.innerHTML='<input id="spendSeqInput" readonly value="2026/11">';grid.prepend(seq);
-const cash=element('div','', 'ratibHeaderMoney');
-cash.innerHTML='<div class="ratib-money-row"><input id="ratibHeaderAmount" value="1000"><button type="button">▦</button></div>';
-grid.append(cash);
-const rate=element('label','', 'ratibHeaderFx');rate.innerHTML='<input id="ratibHeaderRate" value="412">';grid.append(rate);
-const budget=element('label','spend-budget-header');budget.innerHTML='<select id="spendHeaderBudget"><option value="general">عام</option></select>';grid.append(budget);
-const tools=element('div','spend-lines-toolbar');tools.innerHTML='<button type="button" id="addMultiVoucherLineBtn">＋ إضافة بند</button>';card.querySelector('.multi-voucher-table-wrap').before(tools);
-const row=d.createElement('tr');
-row.innerHTML='<td>1</td><td><select class="multi-line-account"><option value="مدين" selected>مدين</option></select></td><td><div class="ratib-money-row"><input class="multi-line-amount" value="1000"><button type="button">▦</button></div></td><td><select class="multi-line-currency"><option value="YER" selected>YER</option></select></td><td class="multi-line-base">1000</td><td><select class="multi-line-budget"><option value="general">عام</option></select></td><td><textarea class="multi-line-note">نص الدائن</textarea></td><td><button type="button">×</button></td>';
-d.getElementById('multiVoucherLinesBody').append(row);
-const originalNodes=['spendSeqInput','multiVoucherDate','ratibHeaderAmount','inpMultiSourceAcc','multiVoucherBaseCurrency','multiVoucherNote','multiVoucherBeneficiary','multiVoucherLinesBody','addMultiVoucherLineBtn','commitMultiVoucherBtn','multiVoucherBalance'].map(x=>d.getElementById(x));
-w.eval("var multiVoucherMode='spend';var multiSourceAcc={getValue(){return 'دائن'}}; function configureVoucherMode(mode){multiVoucherMode=mode;document.getElementById('multiVoucherCard').classList.toggle('spend-voucher',mode==='spend');};function renderMultiVoucherLines(){return true};function ratibOrderDocumentAccounts(){};function buildMultiVoucherData(){return {amount:1000}};function resetMultiVoucherForm(){};function applySpendDocument(d){return d};function computeAccountTreeBalanceSummary(){return new Map([['دائن',new Map([['YER',{debit:0,credit:2000}]])],['مدين',new Map([['YER',{debit:500,credit:0}]])]])}");
-w.eval(script);d.dispatchEvent(new w.Event('DOMContentLoaded'));
-return Promise.resolve().then(()=>{
- const api=w.RatibTrialSpendLayout;assert(api,'Module should initialize');
- api.refresh();
- assert.equal(d.getElementById('multiVoucherCard').classList.contains('spend-voucher'),true);
- assert.equal(w.eval('multiVoucherMode'),'spend');
- assert.deepEqual(Array.from(api.order),['1','2','3','4','5','6','7–10','11','12','13','14','15']);
- for(const node of originalNodes)assert(node.isConnected&&d.getElementById(node.id)===node,'Original control must be moved, not replaced: '+node.id);
- assert.equal(d.getElementById('ratibSpendCreditBalance').textContent,'الرصيد الحالي: 2,000 YER (دائن)');
- assert.match(row.querySelector('.ratib-spend-debit-balance').textContent,/500 YER/);
- assert.equal(row.querySelector('.ratib-spend-side-label').textContent,'مدين');
- assert.equal(d.getElementById('ratibSpendCreditEquivalent').textContent,'1,000');
- const cur=d.getElementById('multiVoucherBaseCurrency'),rate=d.getElementById('ratibHeaderRate');
- cur.value='SAR';rate.value='412';api.refresh();
- assert.equal(d.getElementById('ratibSpendCreditEquivalent').textContent,'412,000','YER equivalent reflects SAR amount × rate');
- rate.value='';api.refresh();
- assert.equal(d.getElementById('ratibSpendCreditEquivalent').textContent,'—','Never present a false conversion without a rate');
- cur.value='YER';rate.value='1';api.refresh();
- const source=d.getElementById('multiVoucherNote'),counter=row.querySelector('.multi-line-note');
- source.value='بيان عام';counter.value=source.value;counter.value='نص مستقل';
- assert.equal(source.value,'بيان عام','Editing debtor narration cannot change source narration');
- assert.equal(counter.value,'نص مستقل');
- const price=d.getElementById('ratibSpendPriceSource');price.value='مرجع صرف معتمد';
- assert.equal(w.buildMultiVoucherData().ratibSpendRateSource,'مرجع صرف معتمد','FX provenance travels with new voucher metadata');
- w.configureVoucherMode('income');
- return Promise.resolve().then(()=>{
-  assert(!d.getElementById('ratibSpendLayout'),'Non-spend vouchers must retain original form');
-  for(const node of originalNodes)assert(node.isConnected,'Original control must survive spend-to-income transition');
-  assert(!card.classList.contains('ratib-spend-layout-on'));
-  dom.window.close();
-  console.log('PASS: payment-only 12-line layout, native nodes, source and counter balances, narration independence, FX metadata and restore');
- });
-});
+const html=fs.readFileSync('index.html','utf8'),sw=fs.readFileSync('sw.js','utf8');
+assert(!html.includes('ratib-trial-spend-layout.js?v='),'Payment-only DOM relocation disabled');
+assert(!html.includes('ratib-trial-spend-layout.css?v='),'Payment-only styling disabled');
+assert(!sw.includes('"./ratib-trial-spend-layout.js"')&&!sw.includes('"./ratib-trial-spend-layout.css"'));
+assert(html.includes('id="ratib-trial-cash-parity"'),'Old multiline notes remain editable');
+assert(html.includes("multiVoucherMode==='spend'?ratibCashAccountItems(items):items"));
+assert(html.includes("mode==='spend'?ratibCashAccountItems(all):all"));
+assert(html.includes('return all.length?all:(multiSourceAcc?.items||[])'),'Counterpart accounts are unfiltered');
+assert(html.includes('في سند الصرف يجب اختيار حساب دائن من الصناديق أو البنوك فقط.'));
+assert(html.includes("multiVoucherMode==='spend'&&headerSide!=='credit"));
+assert(html.includes('textarea aria-label="البيان العام للمدين'),'Existing multiline payment notes preserved');
+assert(!html.includes('ratib-spend-layout-on'),'Shared cash voucher uses native receipt layout');
+const start=html.indexOf('function ratibCashAccountItems(items){'),end=html.indexOf('\nfunction multiCurrencyLabel(',start);
+assert(start>0&&end>start,'Cash classifier exists');
+const accounts=[
+ {mainCode:'1',main:'الأصول',group:'الأصول المتداولة',sub:'النقدية وما في حكمها',subCode:'1101',details:[['110101','صندوق النقدية الرئيسي'],['110102','حساب البنك الجاري']]},
+ {mainCode:'1',main:'الأصول',group:'الأصول المتداولة',sub:'العملاء والمدينون',subCode:'1102',details:[['110201','عميل نقدي'],['110202','بنك أمان فرعي']]},
+ {mainCode:'2',main:'الالتزامات',group:'التزامات غير متداولة',sub:'قروض',subCode:'2201',details:[['220101','قرض بنكي']]},
+ {mainCode:'1',main:'الأصول',group:'الأصول المتداولة',sub:'حسابات بنكية',subCode:'1199',details:[['119901','الحساب الجاري الجديد']]}
+];
+const all=accounts.flatMap(x=>x.details.map(([code,name])=>({id:name,text:name,accountId:code})));
+const classify=new Function('getCanonicalCatalog','normalizeParentQuery',html.slice(start,end)+';return ratibCashAccountItems;')(()=>accounts,x=>String(x||'').toLowerCase());
+assert.deepEqual(classify(all).map(x=>x.id),['صندوق النقدية الرئيسي','حساب البنك الجاري','بنك أمان فرعي','الحساب الجاري الجديد']);
+const dom=new JSDOM(html),d=dom.window.document,c=d.getElementById('multiVoucherCard');
+for(const id of ['multiVoucherDate','multiVoucherBaseCurrency','multiVoucherBeneficiary','multiVoucherNote','inpMultiSourceAcc','multiVoucherLinesBody','commitMultiVoucherBtn'])assert(c.contains(d.getElementById(id)),id+' must stay in the shared cash form');
+dom.window.close();
+console.log('PASS trial: native receipt layout in payment, credit cash/banks only, counterpart unrestricted and narration preserved');

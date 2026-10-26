@@ -1573,15 +1573,18 @@ body.ratib-sidebar-open,body.ratib-about-open{overflow:hidden}
 <link rel="stylesheet" href="./ratib-trial-home-sidebar-3.6.143.css?v=3.6.143">
 <link rel="stylesheet" href="./ratib-trial-ui-3.6.143.css?v=3.6.143">
 <link rel="stylesheet" href="./ratib-dashboard-finance-3.6.144.css?v=3.6.144">
-<link rel="stylesheet" href="./ratib-global-button-size-3.6.146.css?v=3.6.109.11">
-<link rel="stylesheet" href="./ratib-interface-font-3.6.148.css?v=3.6.109.11">
+<link rel="stylesheet" href="./ratib-global-button-size-3.6.146.css?v=3.6.109.12">
+<link rel="stylesheet" href="./ratib-interface-font-3.6.148.css?v=3.6.109.12">
 <link rel="stylesheet" href="./ratib-feedback-3.6.149.css?v=3.6.149">
 <link rel="stylesheet" href="./ratib-country-currency-3.6.151.css?v=3.6.151">
-<link rel="stylesheet" href="./ratib-interactive-tree-3.6.105.05.css?v=3.6.109.11">
+<link rel="stylesheet" href="./ratib-interactive-tree-3.6.105.05.css?v=3.6.109.12">
 <link rel="stylesheet" href="./ratib-gold.css?v=20261026-4">
 <link rel="stylesheet" href="./ratib-trial-home-polish.css?v=20261025-4">
-<link rel="stylesheet" href="./ratib-cash-pulse.css?v=3.6.109.11">
-<link rel="stylesheet" href="./ratib-trial-spend-layout.css?v=3.6.109.11">
+<link rel="stylesheet" href="./ratib-cash-pulse.css?v=3.6.109.12">
+<style id="ratib-trial-cash-parity">
+/* Reuse receipt layout while preserving payment narrations, including old multiline notes. */
+#multiVoucherCard.spend-voucher textarea.multi-line-note{height:44px;min-height:44px;box-sizing:border-box;line-height:1.4;padding:9px;resize:vertical}
+</style>
 </head>
 <body>
 
@@ -1612,7 +1615,7 @@ body.ratib-sidebar-open,body.ratib-about-open{overflow:hidden}
     <div class="header-tools"><div class="header-actions">
       <button class="icon-btn" id="themeBtn" title="الوضع الليلي">🌙</button>
       <button class="icon-btn" id="sidebarMenuBtn" aria-haspopup="dialog" aria-controls="appSidebar" aria-expanded="false" title="الإعدادات" aria-label="فتح الإعدادات">⚙</button>
-    </div><small id="appVersionLabel" class="app-version">الإصدار 3.6.109.11 (تجريبية)</small></div>
+    </div><small id="appVersionLabel" class="app-version">الإصدار 3.6.109.12 (تجريبية)</small></div>
   </header>
   <div class="summary-toolbar hidden no-print" id="storageFeedback"><span id="persistentSaveStatus" hidden aria-hidden="true">جاهز</span><button type="button" id="retryStorageBtn" class="btn btn-ghost hidden">إعادة محاولة الحفظ</button></div>
 <div class="app-update-banner hidden no-print" id="appUpdateBanner" role="status"><span id="appUpdateMessage">يتوفر تحديث لراتب. هل تريد تطبيقه؟</span><button type="button" class="btn btn-ghost" id="applyAppUpdateBtn">موافق، تطبيق التحديث</button><div id="appUpdateDetails" class="hidden"></div></div>
@@ -1659,9 +1662,9 @@ body.ratib-sidebar-open,body.ratib-about-open{overflow:hidden}
       <img src="./ratib-gold-icon.svg" width="72" height="72" alt="" decoding="async">
       <h2 id="ratibAboutTitle">راتب الميسر</h2>
       <p class="ratib-about-subtitle">للتنظيم والتدبير المالي</p>
-      <p class="ratib-about-version">الإصدار 3.6.109.11 (تجريبية)</p>
+      <p class="ratib-about-version">الإصدار 3.6.109.12 (تجريبية)</p>
       <section id="ratibAboutReleaseNotes" class="ratib-about-changes" aria-label="مستجدات الإصدار">
-        <h3>الجديد في 3.6.109.11</h3><ul><li>الرجوع من نماذج السندات يعيد المستخدم إلى الرئيسية دون شاشة اختيار مكررة</li><li>فتح نموذج القيد البسيط مباشرة عند الوصول إلى صفحة السندات من أي رابط عام</li><li>الإبقاء على زر استعادة المسودة خارج شاشة الاختيار الملغاة</li></ul>
+        <h3>الجديد في 3.6.109.12</h3><ul><li>الرجوع من نماذج السندات يعيد المستخدم إلى الرئيسية دون شاشة اختيار مكررة</li><li>فتح نموذج القيد البسيط مباشرة عند الوصول إلى صفحة السندات من أي رابط عام</li><li>الإبقاء على زر استعادة المسودة خارج شاشة الاختيار الملغاة</li></ul>
       </section>
       <p id="ratibAboutDescription">إدارة الحسابات والسندات والميزانية، ومتابعة العمليات والتقارير المالية، مع حفظ البيانات على جهازك ودعم العمل دون الإنترنت.</p>
       <button type="button" class="btn btn-primary" id="closeRatibAboutBtn">إغلاق</button>
@@ -2819,14 +2822,14 @@ body.ratib-sidebar-open,body.ratib-about-open{overflow:hidden}
 
 </div>
 
-<script src="./ratib-first-run-3.6.105.11.js?v=3.6.109.11"></script>
+<script src="./ratib-first-run-3.6.105.11.js?v=3.6.109.12"></script>
 <script>
 // ===== تسجيل Service Worker (يفعّل العمل دون إنترنت بعد أول زيارة) =====
 // يُسجَّل بعد اكتمال تحميل الصفحة حتى لا يؤخر أول عرض للتطبيق. يعمل فقط عبر HTTPS
 // (أو localhost أثناء التطوير) — هذا شرط أساسي من المتصفح نفسه لأي Service Worker.
 let _briefAppNoticeTimer=null;
 let _releaseSummaryDisplayed=false;
-const RATIB_RELEASE={"version":"3.6.109.11","highlights":["سند الصرف: حقل المعادل يعكس سعر الصرف الصحيح","ترتيب سند الصرف مع بقاء سند القبض دون تغيير"],"changes":["الرجوع من نماذج السندات يعيد المستخدم إلى الرئيسية دون شاشة اختيار مكررة","فتح نموذج القيد البسيط مباشرة عند الوصول إلى صفحة السندات من أي رابط عام","الإبقاء على زر استعادة المسودة خارج شاشة الاختيار الملغاة","إصلاح تحميل تنسيق نبض الصندوق لمنع الدائرة السوداء","إدراج جميع حسابات النقدية والبنوك وتصحيح صافي التحويلات الداخلية دون تعديل البيانات","إتاحة عرض جميع الحسابات في نبض الصندوق مع إضافة الحسابات النقدية الناقصة دون تعديل الأرصدة","زر سند صرف / قبض يفتح نموذج الصرف مباشرة دون نافذة اختيار وسيطة","توحيد قائمة نبض الصندوق مع حسابات شجرة الحسابات المستوردة","إعادة ترتيب حقول سند الصرف فقط في 12 سطرًا دون تعديل ترحيل الحسابات","إظهار رصيد الحسابين والمدين والدائن وحالة اتزان السند","حقل بيان المدين متعدد الأسطر وينسخ بيان الدائن أوليًا مع الحفاظ على التحرير المستقل","تنسيق الحفظ والإلغاء بنسبة ثلثين إلى ثلث","ضبط صف حساب المدين ورصيده قبل صف أدوات المدين، طبقًا للترتيب المعتمد","حساب المعادل من المبلغ وسعر الصرف إلى الريال اليمني دون التعديل في القيود","قصر تحويل بيان المدين إلى مربع متعدد الأسطر على سند الصرف وحده"]};
+const RATIB_RELEASE={"version":"3.6.109.12","highlights":["تطابق توزيع سند الصرف مع سند القبض في النسخة التجريبية","قصر الحساب الدائن في الصرف على الصناديق والبنوك"],"changes":["الرجوع من نماذج السندات يعيد المستخدم إلى الرئيسية دون شاشة اختيار مكررة","فتح نموذج القيد البسيط مباشرة عند الوصول إلى صفحة السندات من أي رابط عام","الإبقاء على زر استعادة المسودة خارج شاشة الاختيار الملغاة","إصلاح تحميل تنسيق نبض الصندوق لمنع الدائرة السوداء","إدراج جميع حسابات النقدية والبنوك وتصحيح صافي التحويلات الداخلية دون تعديل البيانات","إتاحة عرض جميع الحسابات في نبض الصندوق مع إضافة الحسابات النقدية الناقصة دون تعديل الأرصدة","زر سند صرف / قبض يفتح نموذج الصرف مباشرة دون نافذة اختيار وسيطة","توحيد قائمة نبض الصندوق مع حسابات شجرة الحسابات المستوردة","إلغاء التخطيط المنفصل لسند الصرف والاعتماد على نفس التوزيع الأصلي لسند القبض","الإبقاء على حقول الحسابات والمبلغ والعملة وسعر الصرف والبيان والحفظ والطباعة الموحدة","تصفية حسابات الطرف الدائن في سند الصرف إلى الصناديق والبنوك المصنفة ضمن الأصول","ترك جميع الحسابات التفصيلية متاحة للطرف المدين دون تقييدها بالصناديق أو البنوك","رفض حفظ سند الصرف إذا كان الحساب الدائن غير نقدي أو بنكي","منع عكس اتجاه سند الصرف إلى قيد يجعل الصندوق أو البنك مدينًا","الحفاظ على نصوص بيان المدين متعددة الأسطر في السندات المحفوظة دون فقدانها"]};
 window.ratibCurrentTrialVersion=()=>String(RATIB_RELEASE.version);
 window.ratibCurrentTrialVersionLabel=()=>`الإصدار ${RATIB_RELEASE.version} (تجريبية)`;
 window.ratibSyncTrialVersion=()=>{
@@ -7752,7 +7755,7 @@ function updateSearchableData(){
    if(!simpleMode)reportItems.push(detail);
    else{const group=window.RatibSimpleAccounts.displayGroupOf(x);reportItems.push({...detail,group:group.label});}
   }));
-  selDebitAcc.setItems(items);selCreditAcc.setItems(items);if(multiSourceAcc)multiSourceAcc.setItems(items);if(selEditDebitAcc)selEditDebitAcc.setItems(items);if(selEditCreditAcc)selEditCreditAcc.setItems(items);if(selDefaultIncomeDebit)selDefaultIncomeDebit.setItems(items);if(selDefaultSpendCredit)selDefaultSpendCredit.setItems(items);
+  selDebitAcc.setItems(items);selCreditAcc.setItems(items);if(multiSourceAcc)multiSourceAcc.setItems(multiVoucherMode==='spend'?ratibCashAccountItems(items):items);if(selEditDebitAcc)selEditDebitAcc.setItems(items);if(selEditCreditAcc)selEditCreditAcc.setItems(items);if(selDefaultIncomeDebit)selDefaultIncomeDebit.setItems(items);if(selDefaultSpendCredit)selDefaultSpendCredit.setItems(items);
   const defs=getDefaultAccountsConfig(), okInc=items.some(i=>i.id===defs.incomeDebit)?defs.incomeDebit:'', okSpd=items.some(i=>i.id===defs.spendCredit)?defs.spendCredit:'';selDefaultIncomeDebit?.setValue(okInc,okInc);selDefaultSpendCredit?.setValue(okSpd,okSpd);const prev=selReportAccount.getValue(),safePrev=reportItems.some(i=>i.id===prev)?prev:(simpleMode?'':'ALL');
   const fullSummary={id:'ALL',text:'📋 ملخص كافة الحسابات والصناديق (تجميعي)',group:'عرض عام'};
   selReportAccount.setItems(simpleMode?reportItems:[fullSummary,...reportItems]);
@@ -8586,8 +8589,21 @@ function setAccountsPagerActive(index,remember=true){
 let multiVoucherLines=[], multiVoucherDraftId='';
 function multiToday(){return typeof getLocalTodayISO==='function'?getLocalTodayISO():getLocalTodayISO();}
 function getMultiAccountItems(){
-  const current=multiSourceAcc?.items||[];if(current.length)return current;
-  const out=[];try{getCanonicalCatalog().forEach(x=>x.details.forEach(d=>out.push({id:d[1],text:d[1],accountId:String(d[0]),group:`${x.main} > ${x.group} > ${x.sub}`})))}catch(e){}return out;
+ const all=[];
+ try{getCanonicalCatalog().forEach(x=>(x.details||[]).forEach(d=>all.push({id:d[1],text:d[1],accountId:String(d[0]),group:`${x.main} > ${x.group} > ${x.sub}`})));}catch(e){console.warn('Ratib account options',e)}
+ return all.length?all:(multiSourceAcc?.items||[]);
+}
+function ratibCashAccountItems(items){
+ const eligible=new Set();
+ const cashBranch=/(نقد|صندوق|صناديق|بنك|بنوك|مصرف|مصارف)/;
+ const cashAccount=/(?:^|\s)(?:صندوق|الصناديق|بنك|البنك|بنوك|البنوك|مصرف|المصرف|مصارف|المصارف)(?:\s|$)/;
+ for(const group of getCanonicalCatalog()){
+   const asset=String(group.mainCode||'')==='1'||/أصول/.test(normalizeParentQuery(group.main));
+   if(!asset)continue;
+   const cashParent=String(group.subCode||'').startsWith('1101')||cashBranch.test(normalizeParentQuery([group.group,group.sub].join(' ')));
+   for(const [code,name] of group.details||[])if(cashParent||cashAccount.test(normalizeParentQuery(name)))eligible.add(String(code)+'|'+String(name));
+ }
+ return items.filter(item=>eligible.has(String(item.accountId)+'|'+String(item.id)));
 }
 function multiCurrencyLabel(c){return accountCurrencyLabel(c)+' '+c;}
 function entryselectMultiVoucherType(){
@@ -9844,7 +9860,13 @@ function suggestedSpendRate(currency,base){
 }
 
 function configureVoucherMode(mode){
-  multiVoucherMode=mode;const card=document.getElementById('multiVoucherCard'),spend=cashVoucherMode();card.classList.toggle('spend-voucher',spend);card.classList.toggle('statement-return-voucher',Boolean(spend&&quickVoucherOrigin));
+  multiVoucherMode=mode;
+ if(multiSourceAcc){
+  const all=getMultiAccountItems();
+  multiSourceAcc.setItems(mode==='spend'?ratibCashAccountItems(all):all);
+  if(mode==='spend'&&multiSourceAcc.hidden.value&&!multiSourceAcc.getValue())multiSourceAcc.setValue('','');
+ }
+ const card=document.getElementById('multiVoucherCard'),spend=cashVoucherMode();card.classList.toggle('spend-voucher',spend);card.classList.toggle('statement-return-voucher',Boolean(spend&&quickVoucherOrigin));
   card.querySelector('h2>span:first-child').textContent=cashVoucherTitle(mode);document.getElementById('cashDirectionSwitch').checked=mode==='income';document.getElementById('cashDirectionSwitch').setAttribute('aria-label',mode==='income'?'قبض: الحساب العلوي مدين':'صرف: الحساب العلوي دائن');card.classList.add('unified-voucher');document.getElementById('cashDirectionControl').classList.toggle('hidden',!spend);document.getElementById('cashLineHeading').textContent=spend?(mode==='income'?'بنود القبض':'بنود الصرف'):'بنود القيد';
   card.querySelector('.multi-voucher-source-row').classList.toggle('multi-optional-legacy-field',!spend);
   card.querySelector('.multi-voucher-source-row>label').textContent=spend?cashSourceLabel()+(mode==='income'?' (مدين)':' (دائن)'):'حساب مرجعي (اختياري)';
@@ -9871,7 +9893,9 @@ function resetMultiVoucherForm(){cashLegacySource=null;
   if(!cashVoucherMode())return entryresetMultiVoucherForm();
   multiVoucherDraftId='';multiVoucherLines=[];['multiVoucherBeneficiary','multiVoucherParty','multiVoucherNote'].forEach(id=>document.getElementById(id).value='');
   document.getElementById('multiVoucherDate').value=multiToday();document.getElementById('multiVoucherBaseCurrency').value=getRatibBaseCurrency();document.getElementById('spendHeaderBudget').innerHTML=spendBudgetOptions('general');
-  const source=multiVoucherMode==='income'?getDefaultAccountsConfig().incomeDebit||'':getDefaultAccountsConfig().spendCredit||'';multiSourceAcc.setValue(source,source);
+  const source=multiVoucherMode==='income'?getDefaultAccountsConfig().incomeDebit||'':getDefaultAccountsConfig().spendCredit||'';
+ const approved=multiVoucherMode!=='spend'||multiSourceAcc.items.some(x=>x.id===source)?source:'';
+ multiSourceAcc.setValue(approved,approved);
   document.getElementById('multiVoucherSeqBadge').textContent=`رقم: ${getNextVoucherNumber(multiVoucherMode)}`;syncSpendSequence();
   multiVoucherLines.push(newSpendLine());renderMultiVoucherLines();
 }
@@ -9927,6 +9951,7 @@ function validateMultiVoucher(){
   if(!KNOWN_CURRENCIES.has(spendBase()))return 'اختر عملة الحساب العلوي.';
   const accounts=new Set(getMultiAccountItems().map(x=>x.id)),cats=new Set(getCats().map(x=>x.id)),source=multiSourceAcc.getValue();
   if(!source||!accounts.has(source))return 'اختر الحساب العلوي من دليل الحسابات.';
+ if(multiVoucherMode==='spend'&&!ratibCashAccountItems(getMultiAccountItems()).some(x=>x.id===source&&x.accountId===multiSourceAcc.getAccountId()))return 'في سند الصرف يجب اختيار حساب دائن من الصناديق أو البنوك فقط.';
   const lines=multiVoucherLines.filter(l=>!l.autoBalance);
   if(!lines.length)return 'أضف بنداً واحداً على الأقل.';
   for(const line of lines){
@@ -11213,7 +11238,15 @@ document.addEventListener('scroll',e=>{if(!e.target.closest?.('.searchable-dropd
   if(active()){syncMultiAutoBalance();updateMultiVoucherSummary()}
   queueMicrotask(ratibOrderDocumentAccounts);
  }
- function setSide(s){if(s!=='debit'&&s!=='credit')return;headerSide=s;refreshSides();}
+ function setSide(s){
+ if(s!=='debit'&&s!=='credit')return;
+ if(active()&&multiVoucherMode==='spend'&&s!=='credit'){
+  q('ratibHeaderSide').value='credit';
+  showToast('سند الصرف: حساب الصندوق أو البنك دائن. استخدم سند القبض عند الإيداع.','warn');
+  return;
+ }
+ headerSide=s;refreshSides();
+}
  function conversion(line){
   const h=headerState(),amount=getCleanNumber(h.amount?.value),r=getCleanNumber(h.rate?.value),base=h.currency.value;
   if(!(amount>0))return;
@@ -11310,6 +11343,7 @@ document.addEventListener('scroll',e=>{if(!e.target.closest?.('.searchable-dropd
  const oldValidate=validateMultiVoucher;
  validateMultiVoucher=function(){
   if(active()){
+   if(multiVoucherMode==='spend'&&headerSide!=='credit')return 'في سند الصرف يجب أن يكون الصندوق أو البنك في الطرف الدائن.';
    const h=headerState(),n=getCleanNumber(h.amount.value),rate=getCleanNumber(h.rate.value);
    if(!(n>0)||!(h.currency.value==='YER'||rate>0))return 'أدخل مبلغ الحساب العلوي وسعر صرف صحيحاً.';
    const lines=multiVoucherLines.filter(l=>!l.autoBalance),total=lines.reduce((sum,l)=>sum+spendAmount(l),0);
@@ -12103,9 +12137,9 @@ try{currenciesUi();sync();}catch(e){console.error('Ratib 3.6.12 initialization',
 </script>
 <script src="./ratib-license-draft.js?v=3.6.151" defer></script>
 <script src="./ratib-ui-v3.6.37.js?v=2" defer></script>
-<script src="./ratib-favorites-v3.js?v=3.6.109.11" defer></script>
-<script src="./ratib-voice-dictation-3.6.117.js?v=3.6.109.11" defer></script>
-<script src="./ratib-account-archive-compat.js?v=3.6.109.11" defer></script>
+<script src="./ratib-favorites-v3.js?v=3.6.109.12" defer></script>
+<script src="./ratib-voice-dictation-3.6.117.js?v=3.6.109.12" defer></script>
+<script src="./ratib-account-archive-compat.js?v=3.6.109.12" defer></script>
 <script src="./ratib-annual-close.js?v=1" defer></script>
 <script src="./ratib-fiscal-ledger.js?v=1" defer></script>
 <script src="./ratib-statement-prior-year.js?v=1" defer></script>
@@ -12119,25 +12153,25 @@ try{currenciesUi();sync();}catch(e){console.error('Ratib 3.6.12 initialization',
 <script src="./ratib-amount-edit-3.6.97.js?v=3.6.158" defer></script>
 <script src="./ratib-special-reports-3.6.102.js?v=3.6.114" defer></script>
 <script src="./ratib-fx-autofill-3.6.105.js?v=3.6.107" defer></script>
-<script src="./ratib-report-buttons-3.6.106.js?v=3.6.109.11" defer></script>
+<script src="./ratib-report-buttons-3.6.106.js?v=3.6.109.12" defer></script>
 <script src="./ratib-print-logo-3.6.108.js?v=3.6.111" defer></script>
 <div id="ratibSpecialPrintHost" aria-hidden="true"></div>
-<script src="./ratib-sidebar-3.6.124.js?v=3.6.109.11" defer></script>
-<script src="./ratib-simple-accounts-3.6.105.13.js?v=3.6.109.11" defer></script>
+<script src="./ratib-sidebar-3.6.124.js?v=3.6.109.12" defer></script>
+<script src="./ratib-simple-accounts-3.6.105.13.js?v=3.6.109.12" defer></script>
 <script src="./ratib-interactive-tree-3.6.105.05.js?v=20261025-3" defer></script>
-<script src="./ratib-login-3.6.124.js?v=3.6.109.11" defer></script>
+<script src="./ratib-login-3.6.124.js?v=3.6.109.12" defer></script>
 <script src="./ratib-trial-home-sidebar-3.6.143.js?v=3.6.143" defer></script>
-<script src="./ratib-trial-ui-3.6.143.js?v=3.6.109.11" defer></script>
-<script src="./ratib-dashboard-finance-3.6.144.js?v=3.6.109.11" defer></script>
-<script src="./ratib-global-button-size-3.6.146.js?v=3.6.109.11" defer></script>
+<script src="./ratib-trial-ui-3.6.143.js?v=3.6.109.12" defer></script>
+<script src="./ratib-dashboard-finance-3.6.144.js?v=3.6.109.12" defer></script>
+<script src="./ratib-global-button-size-3.6.146.js?v=3.6.109.12" defer></script>
 <script src="./ratib-document-signatures-3.6.148.js?v=3.6.148" defer></script>
 <script src="./ratib-feedback-3.6.149.js?v=3.6.149" defer></script>
-<script src="./ratib-statement-marks-3.6.106.05.js?v=3.6.109.11" defer>
+<script src="./ratib-statement-marks-3.6.106.05.js?v=3.6.109.12" defer>
 </script>
 <script src="./ratib-country-currency-3.6.151.js?v=3.6.151" defer></script>
 <script src="./ratib-opening.js?v=20261026-4" defer></script>
-<script src="./ratib-trial-home-polish.js?v=3.6.109.11" defer></script>
-<script src="./ratib-cash-pulse.js?v=3.6.109.11" defer></script>
-<script src="./ratib-trial-spend-layout.js?v=3.6.109.11" defer></script>
+<script src="./ratib-trial-home-polish.js?v=3.6.109.12" defer></script>
+<script src="./ratib-cash-pulse.js?v=3.6.109.12" defer></script>
+
 </body>
 </html>

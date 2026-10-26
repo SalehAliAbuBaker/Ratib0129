@@ -4,12 +4,12 @@ const sidebar=fs.readFileSync('ratib-sidebar-3.6.124.js','utf8');
 const css=fs.readFileSync('ratib-theme.css','utf8');
 const nav=fs.readFileSync('ratib-navigation-v3.css','utf8');
 const sw=fs.readFileSync('sw.js','utf8');
-const html=fs.readFileSync('index.html','utf8'),gold=fs.readFileSync('ratib-gold.css','utf8'),pkg=require('./package.json');
+const html=fs.readFileSync('index.html','utf8'),goldStyle=fs.readFileSync('ratib-gold.css','utf8'),pkg=require('./package.json');
 assert.equal(pkg.version,'3.6.109.13');
 assert(html.includes('الإصدار 3.6.109.13 (تجريبية)'));
 assert(html.includes('./ratib-theme.css?v=3.6.109.13'));
 assert(html.includes('./ratib-gold.css?v=3.6.109.13'));
-assert(gold.includes(':root[data-ratib-palette="gold"]')&&!gold.includes('\n:root{--accent:#C89B3C'),'Legacy forced-gold defaults must no longer override other palettes');
+assert(goldStyle.includes(':root[data-ratib-palette="gold"]')&&!goldStyle.includes('\n:root{--accent:#C89B3C'),'Legacy forced-gold defaults must no longer override other palettes');
 assert(!html.includes('ratib-trial-spend-layout.js?v='),'Cash mode continues to share the native receipt component');
 const markup='<html lang="ar"><head><meta name="theme-color" content="#0d5b45"></head><body><button id="sidebarMenuBtn"></button><button id="backToMenuBtn"><span>رجوع</span></button><aside id="appSidebar"><div class="sidebar-nav"></div><div class="sidebar-footer"></div></aside><section id="pageSettings"></section></body></html>';
 function create(stored){

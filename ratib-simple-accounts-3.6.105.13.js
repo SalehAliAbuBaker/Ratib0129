@@ -40,9 +40,47 @@
   return '';
  }
  function groupOf(row){return GROUPS.find(g=>g.id===classify(row))||null;}
+ // This is a UI-only projection: values remain the ORIGINAL catalog paths, not virtual category ids.
+ const OTHER=Object.freeze({id:'other',label:'حسابات أخرى',hint:'حسابات خارج المجموعات المبسطة'});
+ const PARENT_GROUPS=Object.freeze([...GROUPS,OTHER]);
+ function parentCatalogOptions(catalog){
+  const result=[],seen=new Set();
+  for(const row of Array.isArray(catalog)?catalog:[]){
+   if(!row||!row.main||!row.group||!row.sub)continue;
+   const value=[row.main,row.group,row.sub].join('|||');
+   if(seen.has(value))continue;
+   seen.add(value);
+   const category=groupOf(row)||OTHER,code=String(row.subCode??'');
+   result.push({value,code,sub:String(row.sub),categoryId:category.id,categoryLabel:category.label,
+    label:'['+code+'] '+String(row.sub)});
+  }
+  return result;
+ }
+ function fillParentSelect(select,catalog,selectedValue='',query=''){
+  if(!select||!isSimple())return false;
+  const doc=select.ownerDocument,entries=parentCatalogOptions(catalog);
+  const words=norm(query).split(/\\s+/).filter(Boolean);
+  select.replaceChildren();
+  const placeholder=doc.createElement('option');placeholder.value='';placeholder.textContent='اختر الحساب الأب...';select.appendChild(placeholder);
+  for(const category of PARENT_GROUPS){
+   const members=entries.filter(entry=>entry.categoryId===category.id&&
+    words.every(word=>norm([entry.categoryLabel,entry.label,entry.sub,entry.code].join(' ')).includes(word)));
+   if(!members.length)continue;
+   const group=doc.createElement('optgroup');group.label=category.label;
+   for(const entry of members){
+    const option=doc.createElement('option');option.value=entry.value;option.textContent=entry.label;
+    group.appendChild(option);
+   }
+   select.appendChild(group);
+  }
+  // No silent fallback to a different account when the selected parent disappears.
+  select.value=entries.some(entry=>entry.value===selectedValue&&
+    [...select.options].some(option=>option.value===selectedValue))?selectedValue:'';
+  return true;
+ }
  function matches(value,query){
   const haystack=norm(value),words=norm(query).split(/\s+/).filter(Boolean);
   return words.every(word=>haystack.includes(word));
  }
- global.RatibSimpleAccounts=Object.freeze({KEY,GROUPS,isSimple,setSimple,classify,groupOf,matches});
+ global.RatibSimpleAccounts=Object.freeze({KEY,GROUPS,OTHER,PARENT_GROUPS,isSimple,setSimple,classify,groupOf,parentCatalogOptions,fillParentSelect,matches});
 })(window);

@@ -42,3 +42,43 @@
  @media(max-width:600px) {.wrap{padding:12px 10px 100px}.card:not(#accountStatementCard,#budgetReportCard,#trialBalanceCard){padding:12px;margin-bottom:12px}.header-actions{gap:6px}.form-group{margin-bottom:10px}.btn{padding:9px 10px}.modal-content{max-width:calc(100vw - 20px)}.multi-voucher-actions{gap:8px}.multi-voucher-actions>.btn{flex:1 1 44%;min-width:0}.main-menu-grid{gap:8px}}
 }
 @media print {.ratib-ui-icon{display:none!important}.ratib-ui-glyph{display:contents!important}.ratib-ui-original{display:inline!important}}
+
+
+/* Official selectable palettes. Green uses the unmodified existing :root settings.
+   This block is screen-only; financial exports and print styling are untouched. */
+@media screen {
+ :root[data-ratib-palette="gold"] {
+  --accent:#8a6323;--accent-strong:#8a6323;--teal:#8a6323;--violet:#8a6323;--bg:#faf7ef;--card:#fff;--text:#30281d;--muted:#766951;--border:#e7d9bc;--ui-gold:#c99b45;--shadow:0 3px 14px rgba(93,64,19,.07);
+ }
+ :root[data-ratib-palette="blue"] {
+  --accent:#1e4e86;--accent-strong:#1e4e86;--teal:#1e4e86;--violet:#1e4e86;--bg:#f3f7fc;--card:#fff;--text:#172b43;--muted:#617288;--border:#d6e3f2;--ui-gold:#4d86ba;--shadow:0 3px 14px rgba(23,65,113,.07);
+ }
+ :root[data-ratib-palette="emerald"] {
+  --accent:#047857;--accent-strong:#047857;--teal:#047857;--violet:#047857;--bg:#ecfdf5;--card:#fff;--text:#064e3b;--muted:#436e61;--border:#a7e8d1;--ui-gold:#10b981;--shadow:0 3px 14px rgba(4,120,87,.07);
+ }
+ :root[data-ratib-palette="gold"][data-theme="dark"],:root[data-ratib-palette="gold"] [data-theme="dark"] {
+  --accent:#edca83;--accent-strong:#edca83;--teal:#edca83;--violet:#edca83;--bg:#201b14;--card:#30291f;--text:#fff5e2;--muted:#d5c3a7;--border:#61503a;--ui-gold:#edca83;--shadow:0 3px 14px #0002;
+ }
+ :root[data-ratib-palette="blue"][data-theme="dark"],:root[data-ratib-palette="blue"] [data-theme="dark"] {
+  --accent:#9dcbfa;--accent-strong:#9dcbfa;--teal:#9dcbfa;--violet:#9dcbfa;--bg:#111f30;--card:#1b3047;--text:#edf6ff;--muted:#b1c6db;--border:#375570;--ui-gold:#9dcbfa;--shadow:0 3px 14px #0002;
+ }
+ :root[data-ratib-palette="emerald"][data-theme="dark"],:root[data-ratib-palette="emerald"] [data-theme="dark"] {
+  --accent:#6ee7b7;--accent-strong:#6ee7b7;--teal:#6ee7b7;--violet:#6ee7b7;--bg:#092a21;--card:#134235;--text:#ecfdf5;--muted:#a4d6c4;--border:#2d6c56;--ui-gold:#34d399;--shadow:0 3px 14px #0002;
+ }
+ #pageSettings .ratib-palette-settings{display:grid;gap:12px}
+ #pageSettings .ratib-palette-intro,#pageSettings .ratib-palette-note{margin:0;color:var(--muted);font-size:.9rem;line-height:1.7}
+ #pageSettings .ratib-palette-choices{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;border:0;margin:0;padding:0;min-width:0}
+ #pageSettings .ratib-palette-choices legend{grid-column:1/-1;font-weight:800;color:var(--text);padding:0 0 9px}
+ #pageSettings .ratib-palette-option{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;text-align:center;gap:7px;min-width:0;padding:14px 8px;border:1px solid var(--border);border-radius:12px;background:var(--card);color:var(--text);cursor:pointer}
+ #pageSettings .ratib-palette-option:has(input:checked){border:2px solid var(--accent);background:color-mix(in srgb,var(--accent) 7%,var(--card));padding:13px 7px}
+ #pageSettings .ratib-palette-option:focus-within{outline:2px solid var(--accent);outline-offset:2px}
+ #pageSettings .ratib-palette-option input{width:18px;height:18px;flex:none;margin:0;accent-color:var(--accent)}
+ #pageSettings .ratib-palette-swatch{width:29px;height:29px;flex:none;display:inline-block;border-radius:8px;border:1px solid #0002}
+ #pageSettings .ratib-palette-swatch-green{background:#0d5b45}
+ #pageSettings .ratib-palette-swatch-gold{background:#8a6323}
+ #pageSettings .ratib-palette-swatch-blue{background:#1e4e86}
+ #pageSettings .ratib-palette-swatch-emerald{background:#047857}
+ #pageSettings .ratib-palette-option>span:last-child{font-size:.93rem;font-weight:800;line-height:1.5}
+ #pageSettings .ratib-palette-option small{display:block;font-size:.75rem;font-weight:500;color:var(--muted)}
+ @media(max-width:540px){#pageSettings .ratib-palette-choices{grid-template-columns:1fr}#pageSettings .ratib-palette-option{justify-content:flex-start;flex-wrap:nowrap;text-align:right}}
+}

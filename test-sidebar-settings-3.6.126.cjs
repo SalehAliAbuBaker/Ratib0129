@@ -58,7 +58,7 @@ const essentials=['إدارة شجرة الحسابات والأسقف','إدا�
 for(let i=0;i<essentials.length;i++)assert(entries[i+1].textContent.includes(essentials[i]));
 const extra=settingsRoot.querySelector('#ratibMoreSettingsLinks');
 assert(extra?.hidden,'advanced preferences hidden until requested');
-assert.equal(extra.querySelectorAll(':scope > button').length,6);
+assert.equal(extra.querySelectorAll(':scope > button').length,7);
 groups[1].querySelector('button').click();
 assert(groups[0].querySelector('.ratib-menu-children').hidden,'other menu folds when another opens');
 groups[0].querySelector('button').click();
@@ -71,10 +71,10 @@ assert(page.querySelector('.ratib-settings-current').textContent.includes(essent
 doc.getElementById('backToMenuBtn').click();
 assert(!page.classList.contains('ratib-settings-detail'),'single back restores settings list');
 assert.equal(backs,1,'one app back');
-assert.equal(page.querySelectorAll(':scope > .settings-accordion-card').length,12);
+assert.equal(page.querySelectorAll(':scope > .settings-accordion-card').length,13);
 assert(doc.getElementById('ratibSettingsFinder'),'search control injected');
 const count=doc.getElementById('ratibSettingsCount');
-assert(count.textContent.includes('من 12'),'all card count reported');
+assert(count.textContent.includes('من 13'),'all card count reported');
 const search=doc.getElementById('ratibSettingsSearch');
 search.value='الطباعة';search.dispatchEvent(new w.Event('input',{bubbles:true}));
 const printCard=[...page.querySelectorAll(':scope > .settings-accordion-card')].find(c=>c.textContent.includes('إعدادات الطباعة'));

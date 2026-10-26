@@ -59,7 +59,7 @@
  function fillParentSelect(select,catalog,selectedValue='',query=''){
   if(!select||!isSimple())return false;
   const doc=select.ownerDocument,entries=parentCatalogOptions(catalog);
-  const words=norm(query).split(/\\s+/).filter(Boolean);
+  const words=norm(query).split(/\s+/).filter(Boolean);
   select.replaceChildren();
   const placeholder=doc.createElement('option');placeholder.value='';placeholder.textContent='اختر الحساب الأب...';select.appendChild(placeholder);
   for(const category of PARENT_GROUPS){

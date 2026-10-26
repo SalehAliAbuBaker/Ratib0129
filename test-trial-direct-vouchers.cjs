@@ -16,7 +16,7 @@ assert(!fav.includes("['new-voucher','إضافة سند'"));
 assert(fav.includes("'new-voucher'].includes(id)"),'old pinned shortcut ignored');
 assert.equal(pkg.version,'3.6.109.13');
 const app=JSON.parse(html.match(/const RATIB_RELEASE=(\{[^;]+\});/)[1]),worker=JSON.parse(sw.match(/const APP_RELEASE=(\{[^;]+\});/)[1]);
-assert.deepEqual(worker,app);assert.equal(app.changes.length,15);
+assert.deepEqual(worker,app);assert.equal(app.changes.length,17);
 assert(d.getElementById('ratibAboutReleaseNotes').textContent.includes(pkg.version));
 for(const s of [...html.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script>/gi)].map(m=>m[1]).filter(x=>x.trim()))assert.doesNotThrow(()=>new vm.Script(s));
 const polish=fs.readFileSync('ratib-trial-home-polish.js','utf8');

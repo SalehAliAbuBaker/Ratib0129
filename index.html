@@ -5303,6 +5303,7 @@ function populateEditAccountDetailParentSelect(accName){
 function populateEditAccountParentSelect(selectedKey) {
   const sel = document.getElementById('editAccountParentSelect'); if (!sel) return;
   const cat = getCanonicalCatalog();
+  if(window.RatibSimpleAccounts?.fillParentSelect?.(sel,cat,selectedKey||''))return;
   const seen = new Set(); sel.innerHTML = '';
   cat.forEach(x => {
     const key = catalogSubKey(x);
@@ -5700,6 +5701,8 @@ function updateParentAccountSelect() {
   const sel=document.getElementById('newAccountParentSelect');
   const parentSel=document.getElementById('newParentCategoryParentSelect');
   if(!sel||!parentSel)return;
+  // User-facing groups are virtual; every option retains its true catalog parent key.
+  if(window.RatibSimpleAccounts?.fillParentSelect?.(sel,cat))return;
   sel.innerHTML='';
   parentSel.innerHTML='<option value="">— حساب رئيسي مستقل (مستوى أول) —</option>';
   const seenMain=new Set(),seenGroup=new Set(),seenSub=new Set();
@@ -5843,9 +5846,21 @@ function openAddAccountModal(preParent = '') {
   updateParentAccountSelect();
   { const sel = document.getElementById('newAccountParentSelect');
     if (preParent) {
-      const alias = { 'الصناديق والبنوك': 'النقدية وما في حكمها' }, want = alias[preParent] || preParent;
-      const opt = [...sel.options].find(o => o.value === preParent || o.value.split('|||').includes(want));
-      if (opt) sel.value = opt.value;
+      const api=window.RatibSimpleAccounts;
+      if(api?.isSimple?.()){
+        const aliases={'الصناديق والبنوك':'cash','النقدية وما في حكمها':'cash',
+          'أموال لي عند الآخرين':'clients','العملاء والمدينون':'clients',
+          'أموال عليّ للآخرين':'suppliers','الموردون والدائنون':'suppliers',
+          'الدخل والإيرادات':'income','المصروفات':'expenses','حسابات أخرى':'other'};
+        const choices=api.parentCatalogOptions(getCanonicalCatalog());
+        const choice=choices.find(x=>x.value===preParent||x.sub===preParent)||
+          choices.find(x=>x.categoryId===aliases[preParent]);
+        if(choice&&[...sel.options].some(o=>o.value===choice.value))sel.value=choice.value;
+      }else{
+        const alias = { 'الصناديق والبنوك': 'النقدية وما في حكمها' }, want = alias[preParent] || preParent;
+        const opt = [...sel.options].find(o => o.value === preParent || o.value.split('|||').includes(want));
+        if (opt) sel.value = opt.value;
+      }
     }
     if (sel.selectedIndex < 0 && sel.options.length) sel.selectedIndex = 0; }
   document.getElementById('newAccountSubCodeInput').value = '';delete document.getElementById('newAccountSubCodeInput').dataset.manual;
@@ -5860,6 +5875,12 @@ function openAddAccountModal(preParent = '') {
 }
 
 function setAccountModalSubTab(tab) {
+  // Simple categories are not real first-level ledger parents. Prevent creating
+  // new accounting branches under a guessed legacy parent in this focused fix.
+  const simple=window.RatibSimpleAccounts?.isSimple?.()===true;
+  const mainTab=document.getElementById('tabAddParentAcc');
+  mainTab.hidden=simple;mainTab.disabled=simple;mainTab.style.display=simple?'none':'';
+  if(simple&&tab==='parent')tab='sub';
   document.getElementById('tabAddSubAcc').classList.toggle('active', tab === 'sub');
   document.getElementById('tabAddParentAcc').classList.toggle('active', tab === 'parent');
   document.getElementById('boxAddSubAcc').classList.toggle('hidden', tab !== 'sub');
@@ -5904,7 +5925,10 @@ document.getElementById('saveNewAccountTreeBtn').addEventListener('click', () =>
   document.getElementById('newAccountSubNameInput').focus();
   updateSearchableData();
   refreshAccountsTreesPreservingPosition();
-  showToast('تمت إضافة الحساب تحت: '+parent.main+' ← '+parent.group+' ← '+parent.sub,'success',4000);
+  const simpleCategory=window.RatibSimpleAccounts?.isSimple?.()===true?
+    (window.RatibSimpleAccounts.displayGroupOf(parent)?.label||'حسابات أخرى'):null;
+  showToast('تمت إضافة الحساب تحت: '+(simpleCategory?simpleCategory+' ← '+parent.sub:
+    parent.main+' ← '+parent.group+' ← '+parent.sub),'success',4000);
 });
 document.getElementById('saveNewParentCategoryBtn').addEventListener('click', () => {
   let code=normalizeParentQuery(document.getElementById('newParentCategoryCodeInput').value);

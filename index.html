@@ -844,6 +844,12 @@ button{user-select:none}
 #persistentSaveStatus{margin-inline-start:auto;font-size:.85rem}
 .app-update-banner{display:flex;align-items:center;justify-content:space-between;gap:8px;border:1px solid var(--accent);border-radius:8px;padding:8px 12px;margin-bottom:12px;font-size:.9rem}
 .app-update-banner .btn{width:auto;margin:0;font-size:.9rem;padding:6px 9px}
+#appUpdateBanner[data-pending="true"]{
+ position:fixed!important;left:12px;right:12px;top:max(10px,env(safe-area-inset-top));
+ margin:0 auto!important;max-width:660px;max-height:38dvh;overflow:auto;
+ z-index:10005!important;background:var(--card);color:var(--text);
+ box-shadow:0 10px 26px rgba(0,0,0,.25);border:2px solid var(--accent);
+}
 .offline-ready{font-size:.78rem;color:var(--muted);margin:0 0 6px}
 .offline-ready:empty{display:none}
 [data-state="error"]{color:var(--danger)!important}
@@ -2863,9 +2869,22 @@ if('serviceWorker' in navigator){
     let requestedReload=false;
     navigator.serviceWorker.register('./sw.js').then(reg=>{
       const banner=document.getElementById('appUpdateBanner'),button=document.getElementById('applyAppUpdateBtn');
-      const showUpdate=()=>{if(reg.waiting&&banner){clearTimeout(_briefAppNoticeTimer);banner.dataset.pending='true';document.getElementById('appUpdateMessage').textContent='يتوفر تحديث لراتب. هل تريد تطبيقه؟';button.textContent='موافق، تطبيق التحديث';showAppReleaseDetails(null);reg.waiting.postMessage({type:'GET_UPDATE_DETAILS'});button?.classList.remove('hidden');banner.classList.remove('hidden');}};
+      const showUpdate=()=>{if(reg.waiting&&banner){
+        // Keep the optional update notice reachable above the lock screen.
+        // Only the user's existing button click can activate a waiting update.
+        if(banner.parentElement!==document.body)document.body.appendChild(banner);
+        clearTimeout(_briefAppNoticeTimer);banner.dataset.pending='true';document.getElementById('appUpdateMessage').textContent='يتوفر تحديث لراتب. هل تريد تطبيقه؟';button.textContent='موافق، تطبيق التحديث';showAppReleaseDetails(null);reg.waiting.postMessage({type:'GET_UPDATE_DETAILS'});button?.classList.remove('hidden');banner.classList.remove('hidden');}};
       navigator.serviceWorker.addEventListener('message',event=>{if(event.data?.type==='UPDATE_DETAILS'&&event.source===reg.waiting&&banner.dataset.pending==='true')showAppReleaseDetails(event.data.release);});
       showUpdate();reg.addEventListener('updatefound',()=>{const worker=reg.installing;if(worker)worker.addEventListener('statechange',()=>{if(worker.state==='installed'&&navigator.serviceWorker.controller)showUpdate();});});
+      // Long-running installed PWAs need an explicit update check when foregrounded.
+      // The check never reloads the page or changes the stored financial data.
+      let lastUpdateCheck=0;
+      const checkForUpdate=()=>{const now=Date.now();if(now-lastUpdateCheck<60000)return;lastUpdateCheck=now;
+        reg.update().then(showUpdate).catch(()=>{});
+      };
+      checkForUpdate();
+      window.addEventListener('pageshow',checkForUpdate);
+      document.addEventListener('visibilitychange',()=>{if(!document.hidden)checkForUpdate();});
       button?.addEventListener('click',async()=>{
         button.disabled=true;
         try{

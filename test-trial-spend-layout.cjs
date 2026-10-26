@@ -3,11 +3,13 @@ const assert=require('node:assert/strict'),fs=require('node:fs'),{JSDOM}=require
 const html=fs.readFileSync('index.html','utf8'),
  css=fs.readFileSync('ratib-trial-spend-layout.css','utf8'),
  script=fs.readFileSync('ratib-trial-spend-layout.js','utf8');
-assert.match(html,/<link rel="stylesheet" href="\.\/ratib-trial-spend-layout\.css\?v=3\.6\.109\.09">/);
-assert.match(html,/<script src="\.\/ratib-trial-spend-layout\.js\?v=3\.6\.109\.09" defer><\/script>/);
+assert.match(html,/<link rel="stylesheet" href="\.\/ratib-trial-spend-layout\.css\?v=3\.6\.109\.10">/);
+assert.match(html,/<script src="\.\/ratib-trial-spend-layout\.js\?v=3\.6\.109\.10" defer><\/script>/);
 assert.match(html,/textarea aria-label="البيان العام للمدين \$\{number\+1\}" class="multi-line-note"/);
 assert.match(html,/body\.querySelectorAll\('input,select,textarea'\)/);
 assert.match(css,/grid-template-columns:2fr 1fr!important/);
+assert.match(css,/tbody td:nth-child\(2\)\{grid-column:1\/-1!important;grid-row:1!important\}/,'Debtor account comes before amount tools');
+assert.match(css,/tbody td:nth-child\(3\)\{grid-column:1\/-1!important;grid-row:2!important\}/,'Debtor amount tools are the next row');
 assert.match(css,/grid-template-columns:1fr 2fr/);
 for(const n of ['1','2','3','4','5','6','7–10','11','12'])assert(script.includes("row('"+n+"'"));
 assert(!script.includes('store.set('),'Layout must never write accounting data');

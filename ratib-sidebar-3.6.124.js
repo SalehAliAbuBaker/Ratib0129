@@ -2,6 +2,26 @@
 (function(){
 'use strict';
 const $=id=>document.getElementById(id);
+
+/* Official interface-only palette; green remains Ratib's default identity. */
+const RATIB_PALETTE_KEY='ratib.ui.palette.v1';
+const RATIB_PALETTE_COLORS=Object.freeze({green:'#0d5b45',gold:'#8a6323',blue:'#1e4e86'});
+function ratibStoredPalette(){
+ try{const value=localStorage.getItem(RATIB_PALETTE_KEY);return Object.prototype.hasOwnProperty.call(RATIB_PALETTE_COLORS,value)?value:'green';}
+ catch(_){return 'green';}
+}
+function ratibApplyPalette(value,persist=false){
+ if(!Object.prototype.hasOwnProperty.call(RATIB_PALETTE_COLORS,value))return false;
+ document.documentElement.dataset.ratibPalette=value;
+ const meta=document.querySelector('meta[name="theme-color"]');
+ if(meta)meta.setAttribute('content',RATIB_PALETTE_COLORS[value]);
+ if(persist){try{localStorage.setItem(RATIB_PALETTE_KEY,value);}catch(_){}}
+ document.querySelectorAll('#ratibPaletteSettingsCard input[name="ratibPalette"]').forEach(el=>{el.checked=el.value===value;});
+ return true;
+}
+ratibApplyPalette(ratibStoredPalette());
+window.RatibPalette=Object.freeze({get:()=>document.documentElement.dataset.ratibPalette||'green',set:value=>ratibApplyPalette(value,true)});
+
 // Password recovery remains unavailable; login retains the original warning only.
 const shapes={
  settings:'<path d="M9 3l-.6 3-2.6 1.5-2.8-1L1.5 9l2.2 2v3l-2.2 2L3 18.5l2.8-1L8.4 19l.6 3h3l.6-3 2.6-1.5 2.8 1 1.5-2.5-2.2-2v-3l2.2-2L18 6.5l-2.8 1L12.6 6 12 3Z" transform="translate(1 0) scale(1 .95)"/><circle cx="11.5" cy="12" r="3"/>',
@@ -30,6 +50,7 @@ const settings=[
  ['printing','إعدادات الطباعة','print'],
  ['defaults','إعدادات الحسابات الافتراضية للسندات','defaults'],
  ['buttonsize','حجم الأزرار والخط','settings'],
+ ['palette','ألوان واجهة راتب','settings'],
  ['currencies','إدارة العملات','currency'],
  ['backupsettings','النسخ الاحتياطي','backup'],
  ['favorites','مفضلتي','favorites'],
@@ -80,6 +101,7 @@ function css(){if($('ratibApprovedSidebarStyle'))return;const e=document.createE
 function header(c){return c?.querySelector(':scope > .settings-accordion-header');}
 function title(c){return header(c)?.querySelector('span')?.textContent?.trim()||'';}
 function keyFor(c){
+ if(c.dataset.ratibCreated==='palette'||title(c).includes('ألوان واجهة راتب'))return 'palette';
  const t=title(c);if(c.dataset.ratibCreated==='buttonsize'||t.includes('حجم الأزرار'))return 'buttonsize';if(c.id==='notificationSoundCard'||t.includes('صوت إشعارات التذكيرات'))return 'sound';
  if(c.id==='ratibCurrencyManager'||t.includes('إدارة العملات'))return 'currencies';
  if(c.id==='ratibStatementOptions'||t.includes('عرض وطباعة كشف الحساب'))return 'printing';
@@ -113,6 +135,21 @@ function reorder(){
    card.id='ratibButtonSizeSettingsCard';page.append(card);map.set('buttonsize',card);
    holder.querySelector('#ratibGlobalButtonSize').value=window.RatibButtonSizing?.get?.()||'medium';
    holder.querySelector('#ratibGlobalFontSize').value=window.RatibButtonSizing?.getFont?.()||'medium';
+ }
+ if(!map.has('palette')){
+   const holder=document.createElement('div');holder.className='ratib-palette-settings';
+   holder.innerHTML='<p class="ratib-palette-intro">الأخضر هو الهوية الأساسية لراتب، ويمكن اختيار لون آخر للواجهة على هذا الجهاز.</p>'+
+    '<fieldset class="ratib-palette-choices"><legend>اختر لون واجهة التطبيق</legend>'+
+    '<label class="ratib-palette-option"><input type="radio" name="ratibPalette" value="green"><span class="ratib-palette-swatch ratib-palette-swatch-green" aria-hidden="true"></span><span>الأخضر<small>الهوية الرسمية والافتراضية</small></span></label>'+
+    '<label class="ratib-palette-option"><input type="radio" name="ratibPalette" value="gold"><span class="ratib-palette-swatch ratib-palette-swatch-gold" aria-hidden="true"></span><span>الذهبي<small>مظهر بديل</small></span></label>'+
+    '<label class="ratib-palette-option"><input type="radio" name="ratibPalette" value="blue"><span class="ratib-palette-swatch ratib-palette-swatch-blue" aria-hidden="true"></span><span>الأزرق<small>مظهر بديل</small></span></label></fieldset>'+
+    '<p class="ratib-palette-note">يُطبق اللون فورًا ويُحفظ تلقائيًا على الجهاز. لا تتغير بيانات الحسابات والسندات أو ألوان الطباعة والتقارير أو دلالات التنبيه والخطأ.</p>';
+   const card=createCard('palette',holder);card.id='ratibPaletteSettingsCard';card.classList.add('no-print');
+   page.append(card);map.set('palette',card);
+   holder.querySelectorAll('input[name="ratibPalette"]').forEach(el=>{
+     el.checked=el.value===window.RatibPalette.get();
+     el.addEventListener('change',()=>{if(el.checked)ratibApplyPalette(el.value,true);});
+   });
  }
  const order=settings.map(x=>map.get(x[0])).filter(Boolean);
  for(let i=0;i<order.length;i++){const c=order[i],key=keyFor(c);setTitle(c,key);if(page.children[i]!==c)page.insertBefore(c,page.children[i]||null);}

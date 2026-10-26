@@ -6,9 +6,9 @@
  #ratibReportMenu .ratib-report-label .ratib-ui-glyph {display:none!important}
  #ratibReportMenu .ratib-report-icon {display:block!important;flex:none!important;width:25px;height:25px;margin:0!important}
  #ratibReportMenu .ratib-report-icon svg {display:block!important;width:25px;height:25px;color:var(--accent)}
- :is(button.ratib-back-control,button.back-to-menu-btn,#ledgerBackBtn,#ratibCashBackBtn,[data-account-action="close"]) {background:#0d5b45!important;border-color:#0d5b45!important;color:#fff!important;box-shadow:none!important}
- :is(button.ratib-back-control,button.back-to-menu-btn,#ledgerBackBtn,#ratibCashBackBtn,[data-account-action="close"]) :is(span,svg,.ratib-ui-glyph,.ratib-ui-icon) {color:#fff!important}
- :is(button.ratib-back-control,button.back-to-menu-btn,#ledgerBackBtn,#ratibCashBackBtn,[data-account-action="close"]):hover {background:#094533!important}
+ :is(button.ratib-back-control,button.back-to-menu-btn,#ledgerBackBtn,#ratibCashBackBtn,[data-account-action="close"]) {background:var(--accent-strong)!important;border-color:var(--accent-strong)!important;color:var(--card)!important;box-shadow:none!important}
+ :is(button.ratib-back-control,button.back-to-menu-btn,#ledgerBackBtn,#ratibCashBackBtn,[data-account-action="close"]) :is(span,svg,.ratib-ui-glyph,.ratib-ui-icon) {color:var(--card)!important}
+ :is(button.ratib-back-control,button.back-to-menu-btn,#ledgerBackBtn,#ratibCashBackBtn,[data-account-action="close"]):hover {background:color-mix(in srgb,var(--accent-strong) 80%,#000)!important}
  #ratibFavoritesPanel .fav-choice-group h3 {font-size:1rem;text-align:right;margin:16px 0 8px}
  #ratibFavoritesPanel .fav-item {min-height:48px;text-align:center;line-height:1.5}
  #ratibFavoritesPanel .fav-small {min-height:36px}

@@ -15,7 +15,6 @@ async function buttonFontCase(){
  const a=w.document.getElementById('ratibGlobalButtonSize'),b=w.document.getElementById('ratibGlobalFontSize');
  a.value='xlarge';a.dispatchEvent(new w.Event('change',{bubbles:true}));
  b.value='large';b.dispatchEvent(new w.Event('change',{bubbles:true}));
- assert.equal(w.document.documentElement.dataset.ratibButtonSize,undefined);
  assert.equal(w.document.documentElement.getAttribute('data-ratib-button-size'),'xlarge');
  assert.equal(w.document.documentElement.dataset.ratibFontSize,'large');
  assert.equal(w.localStorage.getItem('ratib_ui_button_size_v1'),'xlarge');
@@ -79,9 +78,10 @@ async function currencyCase(){
  usd.querySelector('button').click();await tick();
  assert.equal(records.currency_catalog_v1.find(x=>x.code==='USD').name,'الدولار المعدل','allow editing name without adding a rate');
  assert.equal(records.currency_catalog_v1.find(x=>x.code==='USD').reportRateYer,undefined,'no artificial FX rate');
- eur.querySelector('input[type=text]').value='';
- eur.querySelector('input[type=checkbox]').checked=false;
- eur.querySelector('button').click();await tick();
+ const updatedEur=[...w.document.querySelectorAll('.ratib-currency-item')].find(x=>x.querySelector('strong')?.textContent==='EUR');
+ updatedEur.querySelector('input[type=text]').value='';
+ updatedEur.querySelector('input[type=checkbox]').checked=false;
+ updatedEur.querySelector('button').click();await tick();
  assert.equal(records.currency_catalog_v1.find(x=>x.code==='EUR').active,false,'allow disabling without entering reference rate');
  assert.equal(records.currency_catalog_v1.find(x=>x.code==='EUR').reportRateYer,1200,'blank rate retains previously approved rate');
  assert.equal(JSON.stringify(ledger),before,'journal entries never change');

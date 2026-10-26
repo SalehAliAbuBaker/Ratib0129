@@ -1,6 +1,6 @@
 // Ratib 3.1.9: cache identity is unique to this app's scope.
 const CACHE_VERSION='v219-official-palette-green-3.6.109';
-const APP_RELEASE={"version":"3.6.109","build":"p10900","highlights":[],"changes":["تصحيح الأخطاء في بعض الأجهزة","إضافة ألوان الواجهة: الأخضر (الافتراضي)، والذهبي، والأزرق؛ مع حفظ الاختيار في الإعدادات"]};
+const APP_RELEASE={"version":"3.6.109","build":"p10900","highlights":[],"changes":["تصحيح الأخطاء في بعض الأجهزة"]};
 const CACHE_PREFIX=`ratib:${self.registration.scope}:`;
 const CACHE_NAME=CACHE_PREFIX+CACHE_VERSION;
 const APP_SHELL=[

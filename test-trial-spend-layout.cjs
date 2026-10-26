@@ -1,0 +1,57 @@
+'use strict';
+const assert=require('node:assert/strict'),fs=require('node:fs'),{JSDOM}=require('jsdom');
+const html=fs.readFileSync('index.html','utf8'),
+ css=fs.readFileSync('ratib-trial-spend-layout.css','utf8'),
+ script=fs.readFileSync('ratib-trial-spend-layout.js','utf8');
+assert.match(html,/<link rel="stylesheet" href="\.\/ratib-trial-spend-layout\.css\?v=3\.6\.109\.09">/);
+assert.match(html,/<script src="\.\/ratib-trial-spend-layout\.js\?v=3\.6\.109\.09" defer><\/script>/);
+assert.match(html,/textarea aria-label="البيان العام للمدين \$\{number\+1\}" class="multi-line-note"/);
+assert.match(html,/body\.querySelectorAll\('input,select,textarea'\)/);
+assert.match(css,/grid-template-columns:2fr 1fr!important/);
+assert.match(css,/grid-template-columns:1fr 2fr/);
+for(const n of ['1','2','3','4','5','6','7–10','11','12'])assert(script.includes("row('"+n+"'"));
+assert(!script.includes('store.set('),'Layout must never write accounting data');
+const dom=new JSDOM(html,{url:'https://ratibtrial.pages.dev',runScripts:'outside-only',pretendToBeVisual:true});
+const w=dom.window,d=w.document,card=d.getElementById('multiVoucherCard'),grid=card.querySelector('.multi-voucher-grid'),source=card.querySelector('.multi-voucher-source-row');
+card.classList.add('spend-voucher');card.classList.remove('hidden');
+function element(tag,cls,id){
+ const el=d.createElement(tag);if(cls)el.className=cls;if(id)el.id=id;return el;
+}
+const controls=element('div','ratib-side-choice');
+controls.innerHTML='<select id="ratibHeaderSide"><option value="credit">دائن</option><option value="debit">مدين</option></select><button type="button" id="ratibReverseSide">⇄</button>';
+source.prepend(controls);
+const cash=element('div','', 'ratibHeaderMoney');
+cash.innerHTML='<div class="ratib-money-row"><input id="ratibHeaderAmount" value="1000"><button type="button">▦</button></div>';
+grid.append(cash);
+const rate=element('label','', 'ratibHeaderFx');rate.innerHTML='<input id="ratibHeaderRate" value="412">';grid.append(rate);
+const budget=element('label','spend-budget-header');budget.innerHTML='<select id="spendHeaderBudget"><option value="general">عام</option></select>';grid.append(budget);
+const tools=element('div','spend-lines-toolbar');tools.innerHTML='<button type="button" id="addMultiVoucherLineBtn">＋ إضافة بند</button>';card.querySelector('.multi-voucher-table-wrap').before(tools);
+const row=d.createElement('tr');
+row.innerHTML='<td>1</td><td><select class="multi-line-account"><option value="مدين" selected>مدين</option></select></td><td><div class="ratib-money-row"><input class="multi-line-amount" value="1000"><button type="button">▦</button></div></td><td><select class="multi-line-currency"><option value="YER" selected>YER</option></select></td><td class="multi-line-base">1000</td><td><select class="multi-line-budget"><option value="general">عام</option></select></td><td><textarea class="multi-line-note">نص الدائن</textarea></td><td><button type="button">×</button></td>';
+d.getElementById('multiVoucherLinesBody').append(row);
+const originalNodes=['spendSeqInput','multiVoucherDate','ratibHeaderAmount','inpMultiSourceAcc','multiVoucherBaseCurrency','multiVoucherNote','multiVoucherBeneficiary','multiVoucherLinesBody','addMultiVoucherLineBtn','commitMultiVoucherBtn','multiVoucherBalance'].map(x=>d.getElementById(x));
+w.eval("var multiVoucherMode='spend';var multiSourceAcc={getValue(){return 'دائن'}}; function configureVoucherMode(mode){multiVoucherMode=mode;document.getElementById('multiVoucherCard').classList.toggle('spend-voucher',mode==='spend');};function renderMultiVoucherLines(){return true};function ratibOrderDocumentAccounts(){};function buildMultiVoucherData(){return {amount:1000}};function resetMultiVoucherForm(){};function applySpendDocument(d){return d};function computeAccountTreeBalanceSummary(){return new Map([['دائن',new Map([['YER',{debit:0,credit:2000}]])],['مدين',new Map([['YER',{debit:500,credit:0}]])]])}");
+w.eval(script);d.dispatchEvent(new w.Event('DOMContentLoaded'));
+return Promise.resolve().then(()=>{
+ const api=w.RatibTrialSpendLayout;assert(api,'Module should initialize');
+ assert.deepEqual(api.order,['1','2','3','4','5','6','7–10','11','12','13','14','15']);
+ for(const node of originalNodes)assert(node.isConnected&&d.getElementById(node.id)===node,'Original control must be moved, not replaced: '+node.id);
+ assert.equal(d.getElementById('ratibSpendCreditBalance').textContent,'الرصيد الحالي: 2,000 YER (دائن)');
+ assert.match(row.querySelector('.ratib-spend-debit-balance').textContent,/500 YER/);
+ assert.equal(row.querySelector('.ratib-spend-side-label').textContent,'مدين');
+ assert.equal(d.getElementById('ratibSpendCreditEquivalent').textContent,'1,000');
+ const source=d.getElementById('multiVoucherNote'),counter=row.querySelector('.multi-line-note');
+ source.value='بيان عام';counter.value=source.value;counter.value='نص مستقل';
+ assert.equal(source.value,'بيان عام','Editing debtor narration cannot change source narration');
+ assert.equal(counter.value,'نص مستقل');
+ const price=d.getElementById('ratibSpendPriceSource');price.value='مرجع صرف معتمد';
+ assert.equal(w.buildMultiVoucherData().ratibSpendRateSource,'مرجع صرف معتمد','FX provenance travels with new voucher metadata');
+ w.configureVoucherMode('income');
+ return Promise.resolve().then(()=>{
+  assert(!d.getElementById('ratibSpendLayout'),'Non-spend vouchers must retain original form');
+  for(const node of originalNodes)assert(node.isConnected,'Original control must survive spend-to-income transition');
+  assert(!card.classList.contains('ratib-spend-layout-on'));
+  dom.window.close();
+  console.log('PASS: payment-only 12-line layout, native nodes, source and counter balances, narration independence, FX metadata and restore');
+ });
+});

@@ -20,6 +20,7 @@ function element(tag,cls,id){
 const controls=element('div','ratib-side-choice');
 controls.innerHTML='<select id="ratibHeaderSide"><option value="credit">دائن</option><option value="debit">مدين</option></select><button type="button" id="ratibReverseSide">⇄</button>';
 source.prepend(controls);
+const seq=element('label','spend-sequence');seq.innerHTML='<input id="spendSeqInput" readonly value="2026/11">';grid.prepend(seq);
 const cash=element('div','', 'ratibHeaderMoney');
 cash.innerHTML='<div class="ratib-money-row"><input id="ratibHeaderAmount" value="1000"><button type="button">▦</button></div>';
 grid.append(cash);

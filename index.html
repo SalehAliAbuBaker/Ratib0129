@@ -6618,6 +6618,7 @@ function renderAllData(force=false) {
   container.innerHTML = '';
   txs.slice().reverse().slice(0,ledgerVisibleLimit).forEach(item => {
     const card = document.createElement('div'); card.className = 'tx-log-item';
+    card.dataset.ratibTxId=String(item.id);
     if (item.isExpense) card.style.borderRight = '6px solid var(--danger)';
     if (item.voucherMode === 'income') card.style.borderRight = '6px solid var(--ok)';
     
@@ -7811,6 +7812,8 @@ function ratibRestoreEditOriginAfterSave(){
   return true;
  }
  ratibEditReturnContext=null;quickVoucherOrigin=null;
+ document.getElementById('multiSavedNotice')?.classList.add('hidden');
+ document.getElementById('printPromptModal')?.classList.remove('show');
  try{
   const view=origin.view;
   if(view.tab==='pageLedger'&&origin.ledgerTypes)currentLedgerVoucherTypes=new Set(origin.ledgerTypes);
@@ -7826,9 +7829,9 @@ function ratibRestoreEditOriginAfterSave(){
     const rows=document.querySelectorAll('#pageAccountOperations [data-tx-id]');
     visible=[...rows].some(row=>row.dataset.txId===origin.id||row.dataset.txId===origin.groupId);
    }else if(view.tab==='pageLedger'){
-    // Ledger rows are re-rendered; matching the stored filter/period is enough.
-    // Do not change any filter just to force a modified voucher back into view.
-    visible=document.getElementById('ledgerList')?.querySelector('.tx-log-item')!==null;
+    // Do not relax filters just to force an edited voucher into view.
+    visible=[...document.querySelectorAll('#ledgerList .tx-log-item')].some(row=>
+     row.dataset.ratibTxId===origin.id||row.dataset.ratibTxId===origin.groupId);
    }
    if(!visible)showToast('حُفظ التعديل، وقد لا تظهر العملية بسبب عوامل التصفية الحالية.','info');
   };
@@ -12024,7 +12027,7 @@ function buildImportedOpeningVoucher(state,data){
 }
 async function saveImportedOpeningVoucher(){
  const state=importedOpeningEdit;if(!state||state.busy)return false;const error=document.getElementById('importedOpeningError'),button=document.getElementById('importedOpeningSave');state.busy=true;button.disabled=true;error.textContent='';const controls=[...document.getElementById('importedOpeningVoucherModal').querySelectorAll('input,select,button')].map(el=>({el,disabled:el.disabled}));controls.forEach(({el})=>el.disabled=true);
- try{await flushStorage();if(_pendingFinancialCompletion)throw Error('أكمل الحفظ المعلّق أولًا.');const result=buildImportedOpeningVoucher(state,legacyCurrentData());await legacyPersistSnapshot(result.data);state.busy=false;state.dirty=false;closeImportedOpeningVoucher();lastPrintedTx=result.records[0];pendingLongPressTx=null;activeEditingTx=null;try{updateSearchableData();renderAllData(true);updateProDashboard();runTrialBalanceReport();if(accountOpsState?.accountName)renderAccountOperations(accountOpsState.accountName,accountOpsState.scopeNames,accountOpsUi);}catch(e){showToast('حُفظ القيد؛ أعد فتح التقرير لتحديثه.','warn');}showToast('حُفظ القيد المركب بجميع أرصدته المحلية والأجنبية.','success');return true;}
+ try{await flushStorage();if(_pendingFinancialCompletion)throw Error('أكمل الحفظ المعلّق أولًا.');const result=buildImportedOpeningVoucher(state,legacyCurrentData());await legacyPersistSnapshot(result.data);state.busy=false;state.dirty=false;closeImportedOpeningVoucher();lastPrintedTx=result.records[0];pendingLongPressTx=null;activeEditingTx=null;try{updateSearchableData();renderAllData(true);updateProDashboard();runTrialBalanceReport();if(accountOpsState?.accountName)renderAccountOperations(accountOpsState.accountName,accountOpsState.scopeNames,accountOpsUi);}catch(e){showToast('حُفظ القيد؛ أعد فتح التقرير لتحديثه.','warn');}ratibRestoreEditOriginAfterSave();showToast('حُفظ القيد المركب بجميع أرصدته المحلية والأجنبية.','success');return true;}
  catch(e){error.textContent='لم يُحفظ القيد: '+e.message;return false;}finally{state.busy=false;controls.forEach(({el,disabled})=>el.disabled=disabled);button.disabled=false;}
 }
 function closeImportedOpeningPreview(){const modal=document.getElementById('printPreviewModal');modal.classList.remove('show');releaseRatibOverlay(modal);delete modal.dataset.importedOpening;modal.style.zIndex='';}

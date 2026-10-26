@@ -9,7 +9,7 @@ const byId=id=>document.getElementById(id);
 const iso=x=>/^\d{4}-\d{2}-\d{2}$/.test(String(x||''));
 const fmt=(n,c)=>new Intl.NumberFormat('en-US',{maximumFractionDigits:3}).format(Math.abs(n)<1e-8?0:n)+(c?' '+c:'');
 const ALL_CASH='__all_cash_and_banks__';
-let expanded=false,root=null,kind='',visible=[],lastAccount=ALL_CASH,lastCurrency='',refreshPending=false;
+let expanded=false,root=null,kind='',visible=[],lastAccount='',lastCurrency='',refreshPending=false;
 function today(){
  if(typeof getLocalTodayISO==='function'){const d=getLocalTodayISO();if(iso(d))return d;}
  const d=new Date();return new Date(d.getTime()-d.getTimezoneOffset()*60000).toISOString().slice(0,10);
@@ -22,7 +22,9 @@ function pulseVisibleCatalog(){
  try{
   if(typeof window.ratibImportVisibleCatalog==='function'){
    const visible=window.ratibImportVisibleCatalog(catalog);
-   if(Array.isArray(visible))return visible;
+   // Include the canonical chart as well as imported/tree-projected accounts;
+   // projections can add leaves, but must not conceal other real accounts.
+   if(Array.isArray(visible))return [...catalog,...visible];
   }
  }catch(e){console.warn('Cash Pulse catalog projection',e);}
  return catalog;
@@ -61,17 +63,30 @@ function detectedCashAccounts(){
  return [...names.values()].sort((a,b)=>a.label.localeCompare(b.label,'ar'));
 }
 
-const EXTRA_CASH_KEY='ratib_trial_pulse_extra_cash_accounts_v1';
-let extraCashNames=[];
-function loadExtraCash(){
+const LEGACY_EXTRA_KEY='ratib_trial_pulse_extra_cash_accounts_v1';
+const SELECTED_CASH_KEY='ratib_trial_pulse_selected_cash_accounts_v2';
+let selectedCashNames=[];
+function loadSelectedCash(){
  try{
-  const values=JSON.parse(localStorage.getItem(EXTRA_CASH_KEY)||'[]');
-  if(Array.isArray(values))extraCashNames=values.filter(x=>typeof x==='string');
- }catch(error){console.warn('Pulse preferences unavailable',error);}
+  const stored=localStorage.getItem(SELECTED_CASH_KEY);
+  if(stored!==null){
+   const values=JSON.parse(stored);
+   selectedCashNames=Array.isArray(values)?[...new Set(values.filter(x=>typeof x==='string'&&x.trim()))]:[];
+   return;
+  }
+  // Migrate ONLY the accounts that the user explicitly added before this
+  // release. Previously auto-detected accounts were never a deliberate choice.
+  const previous=JSON.parse(localStorage.getItem(LEGACY_EXTRA_KEY)||'[]');
+  selectedCashNames=Array.isArray(previous)?[...new Set(previous.filter(x=>typeof x==='string'&&x.trim()))]:[];
+  saveSelectedCash();
+ }catch(error){
+  console.warn('Pulse selection preferences unavailable',error);
+  selectedCashNames=[];
+ }
 }
-function saveExtraCash(){
- try{localStorage.setItem(EXTRA_CASH_KEY,JSON.stringify(extraCashNames));}
- catch(error){console.warn('Pulse preferences could not be saved',error);}
+function saveSelectedCash(){
+ try{localStorage.setItem(SELECTED_CASH_KEY,JSON.stringify(selectedCashNames));}
+ catch(error){console.warn('Pulse selection could not be saved',error);}
 }
 function catalogAccounts(){
  const names=new Map();
@@ -82,30 +97,31 @@ function catalogAccounts(){
  return [...names.values()].sort((a,b)=>a.label.localeCompare(b.label,'ar'));
 }
 function cashAccounts(){
- const names=new Map(detectedCashAccounts().map(x=>[x.value,x]));
- const catalog=new Map(catalogAccounts().map(x=>[x.value,x]));
- for(const name of extraCashNames)if(catalog.has(name)&&!names.has(name))names.set(name,catalog.get(name));
- return [...names.values()].sort((a,b)=>a.label.localeCompare(b.label,'ar'));
+ const catalog=new Map(catalogAccounts().map(a=>[a.value,a]));
+ return selectedCashNames.filter(name=>catalog.has(name)).map(name=>catalog.get(name));
 }
 function renderCashDirectory(){
  const list=byId('ratibPulseAccountList'),summary=byId('ratibPulseAccountSummary');
  if(!list||!summary)return;
- const available=catalogAccounts(),auto=new Set(detectedCashAccounts().map(x=>x.value));
- const included=new Set([...auto,...extraCashNames].filter(x=>available.some(a=>a.value===x)));
- summary.textContent='تحديد حسابات النقدية — '+included.size+' من '+available.length+' حساب في الدليل';
+ const available=catalogAccounts(),suggested=new Set(detectedCashAccounts().map(x=>x.value));
+ const selected=new Set(selectedCashNames);
+ const count=available.filter(a=>selected.has(a.value)).length;
+ summary.textContent='تحديد حسابات نبض الصندوق — '+count+' مختار من '+available.length+' حساب';
  const query=String(byId('ratibPulseAccountSearch')?.value||'').trim().toLocaleLowerCase('ar');
- const frag=document.createDocumentFragment();let count=0;
+ const frag=document.createDocumentFragment();let matches=0;
  for(const a of available){
   if(query&&!a.label.toLocaleLowerCase('ar').includes(query))continue;
-  count++;
+  matches++;
   const label=document.createElement('label');label.className='ratib-pulse-account-item';
-  const checkbox=document.createElement('input');checkbox.type='checkbox';checkbox.value=a.value;checkbox.dataset.pulseCashAccount='1';
-  checkbox.checked=included.has(a.value);checkbox.disabled=auto.has(a.value);checkbox.setAttribute('aria-label',a.label);
+  const checkbox=document.createElement('input');checkbox.type='checkbox';checkbox.value=a.value;
+  checkbox.dataset.pulseCashAccount='1';checkbox.checked=selected.has(a.value);
+  checkbox.setAttribute('aria-label',a.label);
   const title=document.createElement('span');title.textContent=a.label;
-  const hint=document.createElement('small');hint.textContent=auto.has(a.value)?'مدرج تلقائيًا':'إضافة للنبض';
+  const hint=document.createElement('small');
+  hint.textContent=suggested.has(a.value)?'حساب نقدي مقترح · اختيار يدوي':'اختر يدويًا إذا كان الحساب نقديًا أو بنكيًا';
   label.append(checkbox,title,hint);frag.append(label);
  }
- if(!count){const p=document.createElement('p');p.textContent='لا توجد حسابات مطابقة.';frag.append(p);}
+ if(!matches){const p=document.createElement('p');p.textContent='لا توجد حسابات مطابقة.';frag.append(p);}
  list.replaceChildren(frag);
 }
 function setupCashDirectory(){
@@ -113,15 +129,18 @@ function setupCashDirectory(){
  byId('ratibPulseAccountSearch').addEventListener('input',renderCashDirectory);
  list.addEventListener('change',event=>{
   const checkbox=event.target.closest('input[data-pulse-cash-account]');
-  if(!checkbox||checkbox.disabled||!catalogAccounts().some(x=>x.value===checkbox.value))return;
-  const selected=new Set(extraCashNames);
+  if(!checkbox||!catalogAccounts().some(x=>x.value===checkbox.value))return;
+  const selected=new Set(selectedCashNames);
   if(checkbox.checked)selected.add(checkbox.value);else selected.delete(checkbox.value);
-  extraCashNames=[...selected];saveExtraCash();
-  byId('ratibPulseAccount').value=ALL_CASH;lastAccount=ALL_CASH;draw();
+  selectedCashNames=[...selected];saveSelectedCash();
+  // Keep the currently viewed account unless it was expressly removed.
+  // For a single choice, show that account alone, never force an aggregate.
+  draw();
  });
  byId('ratibPulseAccountReset').addEventListener('click',()=>{
-  extraCashNames=[];saveExtraCash();
-  byId('ratibPulseAccount').value=ALL_CASH;lastAccount=ALL_CASH;draw();
+  selectedCashNames=[];saveSelectedCash();
+  lastAccount='';kind='';byId('ratibPulseDetails').hidden=true;
+  draw();
  });
 }
 
@@ -200,9 +219,17 @@ function draw(){
  }
  try{
   const accounts=cashAccounts();renderCashDirectory();
-  if(!accounts.length){byId('ratibPulseReadout').hidden=true;help('لا توجد حسابات نقدية معرفة في دليل الحسابات.');return;}
-  const choices=[{value:ALL_CASH,label:'جميع الصناديق والبنوك'},...accounts];
-  const account=options('ratibPulseAccount',choices,byId('ratibPulseAccount')?.value||lastAccount);
+  if(!accounts.length){
+   visible=[];kind='';byId('ratibPulseDetails').hidden=true;
+   const select=byId('ratibPulseAccount');select.replaceChildren();lastAccount='';
+   byId('ratibPulseReadout').hidden=true;
+   help('اختر حسابًا واحدًا على الأقل لعرض نبض الصندوق. لا تُضاف أي حسابات تلقائيًا.');return;
+  }
+  const choices=accounts.length>1?[{value:ALL_CASH,label:'إجمالي الحسابات المختارة ('+accounts.length+')'},...accounts]:accounts;
+  const previouslyViewed=byId('ratibPulseAccount')?.value||lastAccount;
+  const preferredAccount=accounts.some(a=>a.value===previouslyViewed)?previouslyViewed:
+   (previouslyViewed===ALL_CASH&&accounts.length>1?ALL_CASH:accounts[0].value);
+  const account=options('ratibPulseAccount',choices,preferredAccount);
   const all=validEntries(account,accounts);
   const baseCurrency=typeof getRatibBaseCurrency==='function'?getRatibBaseCurrency():'YER';
   const preferred=/^[A-Z]{3}$/.test(baseCurrency)?baseCurrency:'YER';
@@ -227,7 +254,7 @@ function draw(){
   byId('ratibPulseIncome').textContent=fmt(receipts,currency);
   byId('ratibPulseExpense').textContent=fmt(payments,currency);
   byId('ratibPulseNet').textContent=fmt(receipts-payments,currency);
-  help('حركة '+scope.label+' — '+visible.length+' حركة مرحّلة'+(account===ALL_CASH?' في '+accounts.length+' حساب نقدي وبنكي (بعد استبعاد التحويلات الداخلية من إجمالي الحركة)':'')+'. الأرصدة الافتتاحية ليست مقبوضات.');
+  help('حركة '+scope.label+' — '+visible.length+' حركة مرحّلة'+(account===ALL_CASH?' ضمن '+accounts.length+' حساب مختار (بعد استبعاد التحويلات الداخلية من إجمالي الحركة)':' لحساب '+account)+'. الأرصدة الافتتاحية ليست مقبوضات.');
   const circum=2*Math.PI*71,total=receipts+payments,g=total?circum*receipts/total:0,p=total?circum*payments/total:0;
   arc('ratibPulseGreenArc',g,0);arc('ratibPulseGoldArc',p,g);
   if(kind)details(kind);
@@ -263,7 +290,7 @@ function mount(){
  root=document.createElement('section');root.id='ratibCashPulse';root.className='ratib-pulse no-print';
  root.innerHTML=
  '<button type="button" id="ratibPulseToggle" class="ratib-pulse-toggle" aria-controls="ratibPulseBody" aria-expanded="false"><span class="ratib-pulse-toggle-left"><span class="ratib-pulse-symbol" aria-hidden="true">◉</span> نبض الصندوق</span><span aria-hidden="true">⌄</span></button>'+
- '<div id="ratibPulseBody" hidden><details class="ratib-pulse-account-picker"><summary id="ratibPulseAccountSummary">تحديد حسابات النقدية</summary><div class="ratib-pulse-account-tools"><input type="search" id="ratibPulseAccountSearch" placeholder="البحث في جميع حسابات الدليل..." aria-label="البحث عن حساب نقدي"><button type="button" id="ratibPulseAccountReset">إلغاء الإضافات اليدوية</button></div><p class="ratib-pulse-muted">اختر الحسابات النقدية التي لم تُدرج تلقائيًا. لا تتغير أرصدة أو قيود الحسابات.</p><div id="ratibPulseAccountList" class="ratib-pulse-account-list"></div></details><div class="ratib-pulse-filters"><label>الصندوق أو البنك<select id="ratibPulseAccount"></select></label><label>العملة<select id="ratibPulseCurrency"></select></label><label>الفترة<select id="ratibPulsePeriod"><option value="month">هذا الشهر</option><option value="today">اليوم</option><option value="week">آخر 7 أيام</option><option value="year">هذه السنة</option><option value="all">من البداية</option></select></label></div><p id="ratibPulseStatus" class="ratib-pulse-muted" role="status"></p>'+
+ '<div id="ratibPulseBody" hidden><details class="ratib-pulse-account-picker"><summary id="ratibPulseAccountSummary">اختيار حسابات نبض الصندوق</summary><div class="ratib-pulse-account-tools"><input type="search" id="ratibPulseAccountSearch" placeholder="ابحث بالاسم أو رقم الحساب في كامل الدليل..." aria-label="البحث عن حساب نقدي أو بنكي"><button type="button" id="ratibPulseAccountReset">إلغاء تحديد الكل</button></div><p class="ratib-pulse-muted">اختيار يدوي بالكامل: حدد صندوقًا أو بنكًا واحدًا، أو عدة حسابات للمقارنة والجمع عند الطلب. لا حسابات إجبارية ولا تغيير في الأرصدة أو القيود. الحساب غير النقدي لا يُنصح بإدراجه.</p><div id="ratibPulseAccountList" class="ratib-pulse-account-list"></div></details><div class="ratib-pulse-filters"><label>الصندوق أو البنك<select id="ratibPulseAccount"></select></label><label>العملة<select id="ratibPulseCurrency"></select></label><label>الفترة<select id="ratibPulsePeriod"><option value="month">هذا الشهر</option><option value="today">اليوم</option><option value="week">آخر 7 أيام</option><option value="year">هذه السنة</option><option value="all">من البداية</option></select></label></div><p id="ratibPulseStatus" class="ratib-pulse-muted" role="status"></p>'+
  '<div id="ratibPulseReadout" hidden><div class="ratib-pulse-visual"><div class="ratib-pulse-circle-wrap"><svg class="ratib-pulse-ring" viewBox="0 0 220 220" width="220" height="220" fill="none" role="img" aria-label="المقبوضات باللون الأخضر والمدفوعات باللون الذهبي"><circle class="ratib-pulse-track" cx="110" cy="110" r="71"/><circle id="ratibPulseGreenArc" class="ratib-pulse-arc ratib-pulse-green" cx="110" cy="110" r="71" role="button" tabindex="0" aria-label="تفاصيل المقبوضات"/><circle id="ratibPulseGoldArc" class="ratib-pulse-arc ratib-pulse-gold" cx="110" cy="110" r="71" role="button" tabindex="0" aria-label="تفاصيل المدفوعات"/></svg><div class="ratib-pulse-center"><small>الرصيد الحالي</small><strong id="ratibPulseClosing">—</strong><small>حتى اليوم</small></div></div>'+
  '<div class="ratib-pulse-values"><div class="ratib-pulse-val"><small>الرصيد أول الفترة</small><strong id="ratibPulseBeginning">—</strong></div><button type="button" data-pulse-side="debit" class="ratib-pulse-val"><small><i class="ratib-pulse-dot green"></i>المقبوضات</small><strong id="ratibPulseIncome">—</strong></button><button type="button" data-pulse-side="credit" class="ratib-pulse-val"><small><i class="ratib-pulse-dot gold"></i>المدفوعات</small><strong id="ratibPulseExpense">—</strong></button><div class="ratib-pulse-val"><small>صافي الحركة</small><strong id="ratibPulseNet">—</strong></div></div></div>'+
  '<div id="ratibPulseDetails" class="ratib-pulse-details" hidden><div class="ratib-pulse-details-title"><b id="ratibPulseDetailsTitle"></b><div class="ratib-pulse-details-actions"><button id="ratibPulseStatement" type="button" class="ratib-pulse-statement">كشف الحساب</button><button id="ratibPulseDismiss" type="button" aria-label="إغلاق تفاصيل الحركات">×</button></div></div><div id="ratibPulseList" class="ratib-pulse-list"></div></div></div></div>';
@@ -285,7 +312,7 @@ function mount(){
    const all=lastAccount===ALL_CASH;
    const selected=all?cashAccounts().map(a=>a.value):[lastAccount];
    if(!selected.length)return;
-   const name=all?'الصناديق والبنوك':lastAccount;
+   const name=all?'الحسابات المختارة':lastAccount;
    openAccountFromPager(name,selected,lastCurrency,all);
    if(typeof accountOpsState==='object'){
     accountOpsState.from=from;accountOpsState.to=last;
@@ -308,7 +335,7 @@ function mount(){
  },true);
  window.addEventListener('ratib:account-view-change',schedule);
 }
-loadExtraCash();
+loadSelectedCash();
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',mount,{once:true});else mount();
 window.RatibCashPulse={refresh:schedule};
 })();

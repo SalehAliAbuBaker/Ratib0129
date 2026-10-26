@@ -25,7 +25,7 @@
    const size=valid(next)||'medium';
    document.documentElement.setAttribute('data-ratib-button-size',size);
    if(persist)try{localStorage.setItem(KEY,size);}catch(_){}
-   try{if(typeof store!=='undefined'&&typeof store.set==='function')store.set(LEGACY,size);}catch(_){}
+   if(persist)try{if(typeof store!=='undefined'&&typeof store.set==='function')store.set(LEGACY,size);}catch(_){}
    for(const el of document.querySelectorAll('#pageCommerce .rc-app,.ratib-commerce-shortcuts'))el.setAttribute('data-rc-button-size',size);
    const current=document.getElementById('ratibGlobalButtonSize');
    if(current&&current.value!==size)current.value=size;

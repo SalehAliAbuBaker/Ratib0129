@@ -165,11 +165,11 @@
 /* Official payment voucher, screen-only: credit account → optional beneficiary
    → general description. Receipt, compound vouchers and print stay unchanged. */
 @media screen {
- #multiVoucherCard.spend-voucher #ratibOrderedCreditSource {
+ #multiVoucherCard.spend-voucher:has(> .ratib-payment-beneficiary-row) #ratibOrderedCreditSource {
   display:block!important;grid-template-columns:none!important;
   margin:7px 0 9px!important;padding:0!important;min-width:0!important;width:100%!important;
  }
- #multiVoucherCard.spend-voucher #ratibOrderedCreditSource > .multi-voucher-source-row {
+ #multiVoucherCard.spend-voucher:has(> .ratib-payment-beneficiary-row) #ratibOrderedCreditSource > .multi-voucher-source-row {
   grid-column:auto!important;grid-row:auto!important;width:100%!important;
   margin:0!important;min-width:0!important;
  }

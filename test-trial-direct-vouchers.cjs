@@ -14,7 +14,7 @@ assert(html.includes("navigateToTab('pageDashboard',false);return;"),'Back from 
 for(const id of ['pageExpenses','cashFlowCard','multiVoucherCard','restoreSingleDraftBtn'])assert(d.getElementById(id),id+' preserved');
 assert(!fav.includes("['new-voucher','إضافة سند'"));
 assert(fav.includes("'new-voucher'].includes(id)"),'old pinned shortcut ignored');
-assert.equal(pkg.version,'3.6.109.17');
+assert.equal(pkg.version,'3.6.109.18');
 const app=JSON.parse(html.match(/const RATIB_RELEASE=(\{[^;]+\});/)[1]),worker=JSON.parse(sw.match(/const APP_RELEASE=(\{[^;]+\});/)[1]);
 assert.deepEqual(worker,app);assert.equal(app.changes.length,20);
 assert(d.getElementById('ratibAboutReleaseNotes').textContent.includes(pkg.version));

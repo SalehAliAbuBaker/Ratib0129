@@ -5,7 +5,7 @@ const $=id=>document.getElementById(id);
 
 /* Official interface-only palette; green remains Ratib's default identity. */
 const RATIB_PALETTE_KEY='ratib.ui.palette.v1';
-const RATIB_PALETTE_COLORS=Object.freeze({green:'#0d5b45',gold:'#8a6323',blue:'#1e4e86'});
+const RATIB_PALETTE_COLORS=Object.freeze({green:'#0d5b45',gold:'#8a6323',blue:'#1e4e86',emerald:'#047857'});
 function ratibStoredPalette(){
  try{const value=localStorage.getItem(RATIB_PALETTE_KEY);return Object.prototype.hasOwnProperty.call(RATIB_PALETTE_COLORS,value)?value:'green';}
  catch(_){return 'green';}
@@ -142,7 +142,8 @@ function reorder(){
     '<fieldset class="ratib-palette-choices"><legend>اختر لون واجهة التطبيق</legend>'+
     '<label class="ratib-palette-option"><input type="radio" name="ratibPalette" value="green"><span class="ratib-palette-swatch ratib-palette-swatch-green" aria-hidden="true"></span><span>الأخضر<small>الهوية الرسمية والافتراضية</small></span></label>'+
     '<label class="ratib-palette-option"><input type="radio" name="ratibPalette" value="gold"><span class="ratib-palette-swatch ratib-palette-swatch-gold" aria-hidden="true"></span><span>الذهبي<small>مظهر بديل</small></span></label>'+
-    '<label class="ratib-palette-option"><input type="radio" name="ratibPalette" value="blue"><span class="ratib-palette-swatch ratib-palette-swatch-blue" aria-hidden="true"></span><span>الأزرق<small>مظهر بديل</small></span></label></fieldset>'+
+    '<label class="ratib-palette-option"><input type="radio" name="ratibPalette" value="blue"><span class="ratib-palette-swatch ratib-palette-swatch-blue" aria-hidden="true"></span><span>الأزرق<small>مظهر بديل</small></span></label>'+
+    '<label class="ratib-palette-option"><input type="radio" name="ratibPalette" value="emerald"><span class="ratib-palette-swatch ratib-palette-swatch-emerald" aria-hidden="true"></span><span>الزمردي<small>لون أخضر زاهٍ</small></span></label></fieldset>'+
     '<p class="ratib-palette-note">يُطبق اللون فورًا ويُحفظ تلقائيًا على الجهاز. لا تتغير بيانات الحسابات والسندات أو ألوان الطباعة والتقارير أو دلالات التنبيه والخطأ.</p>';
    const card=createCard('palette',holder);card.id='ratibPaletteSettingsCard';card.classList.add('no-print');
    page.append(card);map.set('palette',card);

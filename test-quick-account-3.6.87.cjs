@@ -17,8 +17,11 @@ if(enabled){
  assert(sw.includes('ratib-quick-account-3.6.87.css'));
  const scriptAt=html.lastIndexOf('<script src="./ratib-quick-account-3.6.87.js');
  const cssAt=html.indexOf('<link rel="stylesheet" href="./ratib-quick-account-3.6.87.css');
- assert(scriptAt>html.length-1700&&scriptAt<html.lastIndexOf('</body>'),
-   'Quick-create script must load at the real document end, outside Excel export templates');
+ assert(scriptAt>html.indexOf('</head>')&&scriptAt<html.lastIndexOf('</body>'),
+   'Quick-create script must load inside the real document body');
+ const document=new JSDOM(html).window.document;
+ assert([...document.body.querySelectorAll('script[src]')].some(el=>el.getAttribute('src')?.startsWith('./ratib-quick-account-3.6.87.js?')),
+   'Quick-create script must be a real script element, not embedded inside an Excel export template');
  assert(cssAt>0&&cssAt<html.indexOf('</head>'),
    'Quick-create CSS must load in the real document head');
 }

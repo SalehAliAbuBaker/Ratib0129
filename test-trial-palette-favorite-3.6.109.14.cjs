@@ -34,9 +34,10 @@ function fixture(seed={},withPaletteCard=false){
   f.dom.window.close();
   const old='setting:ratibPaletteSettingsCard';
   f=fixture({[KEY]:JSON.stringify(['ledger',old,'settings:budget']),
-     [ICONS]:JSON.stringify({[old]:'⚙️'}),finance_ledger:'untouched'},true);
+     [ICONS]:JSON.stringify({[old]:'📊'}),finance_ledger:'untouched'},true);
   const expected=['ledger','settings:palette','settings:budget'];
   assert.deepEqual(JSON.parse(f.w.localStorage.getItem(KEY)),expected,'Old palette ID is automatically migrated in-place');
+  assert.equal(JSON.parse(f.w.localStorage.getItem(ICONS))['settings:palette'],'📊','Previously chosen icon follows migrated shortcut');
   assert.equal(f.d.querySelectorAll('[data-add="setting:ratibPaletteSettingsCard"]').length,0,'No duplicate legacy shortcut is offered');
   f.w.RatibQuickFavorites.open();
   assert(f.d.querySelector('[data-go="settings:palette"]'),'Migrated favorite is visible');

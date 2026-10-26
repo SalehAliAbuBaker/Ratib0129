@@ -140,7 +140,12 @@ async function run(){
    const source=d.getElementById('wrapMultiSourceAcc'),table=d.querySelector('#multiVoucherCard .multi-voucher-table-wrap');
    assert(source.compareDocumentPosition(table)&(mode==='income'?w.Node.DOCUMENT_POSITION_FOLLOWING:w.Node.DOCUMENT_POSITION_PRECEDING),mode+' debit before credit');
    d.getElementById('ratibReverseSide').click();await pause(50);
-   assert(source.compareDocumentPosition(table)&(mode==='income'?w.Node.DOCUMENT_POSITION_PRECEDING:w.Node.DOCUMENT_POSITION_FOLLOWING),'reversed roles reorder without replacing inputs');
+    if(mode==='income'){
+     assert(source.compareDocumentPosition(table)&w.Node.DOCUMENT_POSITION_PRECEDING,'Receipt reversal changes layout without replacing original controls');
+    }else{
+     assert(source.compareDocumentPosition(table)&w.Node.DOCUMENT_POSITION_PRECEDING,'Payment retains cash/bank creditor position after forbidden reversal');
+     assert.equal(d.getElementById('ratibHeaderSide').value,'credit','Payment cash/bank account stays credited');
+    }
   }
   code(w,"selectMultiVoucherType();multiVoucherLines=[{...newMultiLine(),side:'credit'},{...newMultiLine(),side:'debit'}];renderMultiVoucherLines()");await pause(40);
   const sides=[...d.querySelectorAll('#multiVoucherLinesBody .multi-line-side')];

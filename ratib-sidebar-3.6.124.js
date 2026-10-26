@@ -107,7 +107,7 @@ function css(){if($('ratibApprovedSidebarStyle'))return;const e=document.createE
 '#pageSettings .ratib-settings-finder-actions button{min-height:40px;padding:7px 10px;border:1px solid var(--border);border-radius:8px;background:var(--card);color:var(--text);font:inherit;font-weight:700;cursor:pointer}',
 '#pageSettings .ratib-settings-finder-actions button[aria-pressed=true]{border-color:var(--accent);color:var(--accent)}',
 '#pageSettings .ratib-settings-count{color:var(--muted);font-size:.85rem}',
-'#pageSettings #exportDataBtn,#pageSettings #importDataBtn,#pageSettings #restoreFromAutoBackupBtn,#pageSettings #cloudRunNowBtn,#pageSettings #cloudRestoreBtn{display:none!important}'
+'#pageSettings .settings-accordion-body :is(button,input,select,textarea):focus-visible{outline:2px solid var(--accent);outline-offset:2px}'
 ].join('\n');document.head.append(e);}
 function header(c){return c?.querySelector(':scope > .settings-accordion-header');}
 function title(c){return header(c)?.querySelector('span')?.textContent?.trim()||'';}

@@ -5701,8 +5701,8 @@ function updateParentAccountSelect() {
   const sel=document.getElementById('newAccountParentSelect');
   const parentSel=document.getElementById('newParentCategoryParentSelect');
   if(!sel||!parentSel)return;
-  // User-facing groups are virtual; every option retains its true catalog parent key.
-  if(window.RatibSimpleAccounts?.fillParentSelect?.(sel,cat))return;
+  // Keep the original account-level parent options; simple mode only re-labels
+  // the detailed-account parent selector, using canonical catalog keys.
   sel.innerHTML='';
   parentSel.innerHTML='<option value="">— حساب رئيسي مستقل (مستوى أول) —</option>';
   const seenMain=new Set(),seenGroup=new Set(),seenSub=new Set();
@@ -5730,6 +5730,7 @@ function updateParentAccountSelect() {
     detailParent.textContent='['+x.subCode+'] '+x.main+' ← '+x.group+' ← '+x.sub;
     sel.appendChild(detailParent);
   });
+  window.RatibSimpleAccounts?.fillParentSelect?.(sel,cat);
 }
 // المرجع الوحيد للحسابات النشطة هو الدليل الحالي، وليس السجل القديم للأرقام.
 function getActiveAccountCodeOwners(code){
@@ -5875,12 +5876,6 @@ function openAddAccountModal(preParent = '') {
 }
 
 function setAccountModalSubTab(tab) {
-  // Simple categories are not real first-level ledger parents. Prevent creating
-  // new accounting branches under a guessed legacy parent in this focused fix.
-  const simple=window.RatibSimpleAccounts?.isSimple?.()===true;
-  const mainTab=document.getElementById('tabAddParentAcc');
-  mainTab.hidden=simple;mainTab.disabled=simple;mainTab.style.display=simple?'none':'';
-  if(simple&&tab==='parent')tab='sub';
   document.getElementById('tabAddSubAcc').classList.toggle('active', tab === 'sub');
   document.getElementById('tabAddParentAcc').classList.toggle('active', tab === 'parent');
   document.getElementById('boxAddSubAcc').classList.toggle('hidden', tab !== 'sub');

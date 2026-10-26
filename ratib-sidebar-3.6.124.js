@@ -363,6 +363,9 @@ function syncSidebarVersion(){
 }
 function money(el){
  if(!(el instanceof HTMLInputElement)||el.disabled||el.readOnly||el.type==='hidden')return false;
+ // Account search controls are TEXT, even when their IDs contain Debit/Credit.
+ // Never turn a customer's Arabic account name into digits by the amount sanitizer.
+ if(el.matches('input.searchable-input')||el.closest('.searchable-select-wrap'))return false;
  if(el.matches('.number-formatted,.multi-line-amount,.voucher-cat-amt-input,#ratibHeaderAmount,.spend-line-quote'))return true;
  if(['date','time','password','email','tel','search','checkbox','radio','file'].includes(el.type)||el.id==='financialCalcExpression')return false;
  const desc=[el.id,el.name,el.className,el.getAttribute('aria-label')||'',el.placeholder||''].join(' ');

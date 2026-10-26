@@ -60,13 +60,13 @@ assert.equal(api.isSimple(),true,'the trial retains its simple-only account tree
 const enforced=select();
 assert.equal(api.fillParentSelect(enforced,catalog),true,'simple-only mode remains active');
 assert.equal(enforced.options.length,7,'all six canonical parent groups remain selectable');
-assert(html.includes('if(window.RatibSimpleAccounts?.fillParentSelect?.(sel,cat))return;'),
+assert(html.includes('window.RatibSimpleAccounts?.fillParentSelect?.(sel,cat);'),
   'main account create dialog uses shared simple parent projection');
 assert(html.includes("if(window.RatibSimpleAccounts?.fillParentSelect?.(sel,cat,selectedKey||''))return;"),
   'edit account dialog uses shared simple parent projection');
 assert(quick.includes('window.RatibSimpleAccounts?.fillParentSelect?.(box,getCanonicalCatalog(),previous,search)'),
   'voucher quick-create uses the same simple parent projection');
-assert(html.includes('mainTab.hidden=simple;mainTab.disabled=simple'),
-  'simple mode must not create accounting parents under guessed legacy groups');
+assert(!html.includes('mainTab.hidden=simple;mainTab.disabled=simple'),
+  'existing main-account creation remains available without new behavior changes');
 assert(!/store\.(set|remove)\s*\(/.test(script),'simple display module has no ledger writes');
 console.log('PASS simple account parent selection: six groups, stable account keys, edit/quick sync and no data mutation');

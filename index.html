@@ -2907,7 +2907,7 @@ body.ratib-sidebar-open,body.ratib-about-open{overflow:hidden}
 // (أو localhost أثناء التطوير) — هذا شرط أساسي من المتصفح نفسه لأي Service Worker.
 let _briefAppNoticeTimer=null;
 let _releaseSummaryDisplayed=false;
-const RATIB_RELEASE={"version":"3.6.109","build":"p10900","highlights":[],"changes":["تصحيح الأخطاء في بعض الأجهزة","توسيع حقل البيان في شاشة القيد الافتتاحي وإظهار النص متعدد الأسطر"]};
+const RATIB_RELEASE={"version":"3.6.109","build":"p10900","highlights":[],"changes":["تصحيح الأخطاء في بعض الأجهزة"]};
 window.ratibCurrentTrialVersion=()=>String(RATIB_RELEASE.version);
 window.ratibCurrentTrialVersionLabel=()=>`الإصدار ${RATIB_RELEASE.version}`;
 window.ratibSyncTrialVersion=()=>{
@@ -12416,9 +12416,9 @@ function renderImportedOpeningRows(){
  importedOpeningEdit.rows.forEach((t,index)=>{
   const tr=document.createElement('tr'),o=t.openingBalance;
   for(const key of ['account','currency','debit','credit','baseCurrency','baseDebit','baseCredit','isoDate','sourceRef','note']){
-   const td=document.createElement('td'),el=document.createElement(['currency','baseCurrency'].includes(key)?'select':key==='note'?'textarea':'input');el.dataset.field=key;el.dataset.row=index;el.setAttribute('aria-label',key==='account'?'الحساب':key==='isoDate'?'التاريخ':({'currency':'العملة','debit':'مدين','credit':'دائن','baseCurrency':'عملة التقييم','baseDebit':'مدين تقييم','baseCredit':'دائن تقييم','sourceRef':'مرجع المصدر','note':'البيان'})[key]);
+   const td=document.createElement('td'),el=document.createElement(['currency','baseCurrency'].includes(key)?'select':'input');el.dataset.field=key;el.dataset.row=index;el.setAttribute('aria-label',key==='account'?'الحساب':key==='isoDate'?'التاريخ':({'currency':'العملة','debit':'مدين','credit':'دائن','baseCurrency':'عملة التقييم','baseDebit':'مدين تقييم','baseCredit':'دائن تقييم','sourceRef':'مرجع المصدر','note':'البيان'})[key]);
    if(['currency','baseCurrency'].includes(key))el.innerHTML=importedRecordCurrencies([o.currency,o.baseCurrency]).map(c=>'<option value="'+esc(c)+'">'+esc(c)+'</option>').join('');
-   if(key==='account'){el.setAttribute('list','importedOpeningAccounts');el.style.minWidth='180px';}else if(key==='note'){el.rows=3;el.style.boxSizing='border-box';el.style.width='420px';el.style.minWidth='340px';el.style.maxWidth='none';el.style.minHeight='72px';el.style.padding='8px 10px';el.style.direction='rtl';el.style.textAlign='right';el.style.resize='vertical';}else if(key==='isoDate'){el.type='date';}else if(!['note','sourceRef'].includes(key)){el.style.minWidth='90px';el.style.width='110px';if(el.tagName==='INPUT')el.inputMode='decimal';}
+   if(key==='account'){el.setAttribute('list','importedOpeningAccounts');el.style.minWidth='180px';}else if(key==='isoDate'){el.type='date';}else if(!['note','sourceRef'].includes(key)){el.style.minWidth='90px';el.style.width='110px';if(el.tagName==='INPUT')el.inputMode='decimal';}
    el.value=key==='isoDate'?t.isoDate:o[key]||'';el.oninput=el.onchange=()=>{if(importedOpeningEdit.busy){el.value=key==='isoDate'?t.isoDate:o[key]||'';return;}importedOpeningEdit.dirty=true;if(key==='isoDate')t.isoDate=el.value;else o[key]=el.value;renderImportedOpeningTotals();};td.append(el);tr.append(td);
   }
   const td=document.createElement('td'),button=document.createElement('button');button.type='button';button.className='btn btn-ghost';button.textContent=t.id?'تصفير':'إزالة';button.onclick=()=>{if(importedOpeningEdit.busy)return;importedOpeningEdit.dirty=true;if(t.id){for(const key of ['debit','credit','baseDebit','baseCredit'])o[key]='0';}else importedOpeningEdit.rows.splice(index,1);renderImportedOpeningRows();};td.append(button);tr.append(td);body.append(tr);
@@ -12654,7 +12654,7 @@ try{currenciesUi();sync();}catch(e){console.error('Ratib 3.6.12 initialization',
 <script src="./ratib-reconciliation-print.js?v=3.6.111" defer></script>
 <script src="./ratib-theme.js?v=3.6.53" defer></script>
 <script src="./ratib-navigation-v3.6.149.js?v=3.6.153" defer></script>
-<script src="./ratib-accounting-3.6.59.js?v=3.6.109-opening-note" defer></script>
+<script src="./ratib-accounting-3.6.59.js?v=3.6.100" defer></script>
 <script src="./ratib-cash-layout-3.6.83.js?v=3.6.83" defer></script>
 <script src="./ratib-quick-account-3.6.87.js?v=3.6.105.01" defer></script>
 <script src="./ratib-journal-layout-3.6.90.js?v=3.6.97" defer></script>

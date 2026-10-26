@@ -1,13 +1,3 @@
-/* Opening-voucher description layout: presentation-only fix, no data or accounting changes. */
-(function ratibOpeningNarrationLayout(){
-  try {
-    if(document.getElementById("ratibOpeningNarrationStyle"))return;
-    const style=document.createElement("style");
-    style.id="ratibOpeningNarrationStyle";
-    style.textContent='#importedOpeningVoucherModal #importedOpeningRows input[data-field="note"]{width:380px!important;min-width:320px!important;max-width:none!important;min-height:44px!important;box-sizing:border-box!important;padding:8px 10px!important;text-align:right;direction:rtl}#importedOpeningVoucherModal .pv-table{min-width:100%;table-layout:auto}';
-    (document.head||document.documentElement).appendChild(style);
-  }catch(e){console.warn("Opening voucher description layout:",e);}
-})();
 /* Ratib 3.6.59 — read-only ledger consistency, live refresh and safe voucher cloning.
  * No transaction, imported balance, account catalog or storage schema is modified here. */
 (function ratibAccounting359(){

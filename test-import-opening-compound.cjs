@@ -61,7 +61,6 @@ async function run(){
    w.batchSnapshot=code(w,'JSON.stringify(store.get("legacy_import_batches"))');
    // Both the ledger document and individual account movement open the whole voucher.
    code(w,'openTxModal(getAllTransactions()[0])');assert(d.getElementById('importedOpeningVoucherModal').classList.contains('show'));assert.equal(d.querySelectorAll('#importedOpeningRows tr').length,8);
-   const noteField=d.querySelector('#importedOpeningRows [data-field="note"]');assert(noteField);assert.equal(noteField.tagName,'TEXTAREA');assert.equal(noteField.style.width,'420px');assert.equal(noteField.rows,3);
   });
   const change=(row,field,value)=>{const el=d.querySelector(`#importedOpeningRows [data-row="${row}"][data-field="${field}"]`);assert(el,field);el.value=value;el.dispatchEvent(new w.Event('input',{bubbles:true}));};
   await test(variant+': unbalanced editing, unknown accounts and duplicate account/currency are rejected atomically',async()=>{

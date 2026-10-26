@@ -2,7 +2,8 @@
 const assert=require('node:assert/strict'),fs=require('node:fs'),{JSDOM}=require('jsdom');
 const html=fs.readFileSync('index.html','utf8'),css=fs.readFileSync('ratib-cash-pulse.css','utf8');
 const head=html.slice(0,html.indexOf('</head>'));
-assert.match(head,/<link rel="stylesheet" href="\.\/ratib-cash-pulse\.css\?v=3\.6\.109\.11">/,'The real page head must load Cash Pulse CSS');
+const version=require('./package.json').version;
+assert(head.includes('<link rel="stylesheet" href="./ratib-cash-pulse.css?v='+version+'">'),'The page must load release-matched Cash Pulse CSS');
 assert.match(css,/#ratibCashPulse svg\.ratib-pulse-ring circle\{fill:none!important/);
 assert.match(css,/max-width:188px!important/);
 const d=new JSDOM('<!doctype html><html><body><div id="dashboardHomeContent"><div class="main-menu-grid"></div></div></body></html>',{

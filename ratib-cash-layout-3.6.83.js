@@ -33,3 +33,59 @@
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});
   else init();
 }());
+
+
+/* Official payment form: preserve original controls and posting logic.
+   When the credit account is moved under the line toolbar by the shared
+   account-order helper, restore it ahead of the optional beneficiary and note. */
+(function(){
+ 'use strict';
+ const q=id=>document.getElementById(id);
+ const previous=typeof ratibOrderDocumentAccounts==='function'?ratibOrderDocumentAccounts:null;
+ function arrangePaymentFields(){
+  const card=q('multiVoucherCard'),grid=card?.querySelector(':scope > .multi-voucher-grid');
+  const beneficiary=q('multiVoucherBeneficiary')?.closest('label');
+  const note=q('multiVoucherNote')?.closest('label');
+  const date=q('multiVoucherDate')?.closest('label');
+  if(!card||!grid||!beneficiary||!note||!date)return;
+  const payment=card.classList.contains('spend-voucher')&&typeof multiVoucherMode!=='undefined'&&multiVoucherMode==='spend';
+  if(payment){
+   const source=card.querySelector('.multi-voucher-source-row');
+   const holder=q('ratibOrderedCreditSource');
+   let before=grid;
+   if(holder&&holder.contains(source)){
+    if(holder.previousElementSibling!==grid)grid.after(holder);
+    before=holder;
+   }
+   if(beneficiary.previousElementSibling!==before)before.after(beneficiary);
+   if(note.previousElementSibling!==beneficiary)beneficiary.after(note);
+   beneficiary.classList.add('ratib-payment-beneficiary-row');
+   if(beneficiary.firstChild?.nodeType===3)beneficiary.firstChild.textContent='إضافة مستفيد (اختياري)';
+   const input=q('multiVoucherBeneficiary');
+   input.placeholder='اسم المستفيد (اختياري)';
+   input.setAttribute('aria-label','إضافة مستفيد اختياري لسند الصرف');
+  }else{
+   beneficiary.classList.remove('ratib-payment-beneficiary-row');
+   if(beneficiary.parentElement!==grid||beneficiary.previousElementSibling!==date)date.after(beneficiary);
+   q('multiVoucherBeneficiary').placeholder='اسم المستفيد';
+   q('multiVoucherBeneficiary').removeAttribute('aria-label');
+  }
+ }
+ if(previous){
+  ratibOrderDocumentAccounts=function(...args){
+   const result=previous.apply(this,args);
+   arrangePaymentFields();
+   return result;
+  };
+ }
+ function init(){
+  arrangePaymentFields();
+  const card=q('multiVoucherCard');
+  if(card&&!card.dataset.ratibPaymentFieldOrder){
+   card.dataset.ratibPaymentFieldOrder='1';
+   new MutationObserver(()=>queueMicrotask(arrangePaymentFields)).observe(card,{attributes:true,attributeFilter:['class']});
+   window.addEventListener('pageshow',arrangePaymentFields);
+  }
+ }
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();
+}());

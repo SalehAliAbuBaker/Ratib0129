@@ -3,9 +3,11 @@ const assert=require('node:assert/strict'),fs=require('node:fs'),{JSDOM}=require
 const html=fs.readFileSync('index.html','utf8'),
  css=fs.readFileSync('ratib-trial-spend-layout.css','utf8'),
  script=fs.readFileSync('ratib-trial-spend-layout.js','utf8');
-assert.match(html,/<link rel="stylesheet" href="\.\/ratib-trial-spend-layout\.css\?v=3\.6\.109\.10">/);
-assert.match(html,/<script src="\.\/ratib-trial-spend-layout\.js\?v=3\.6\.109\.10" defer><\/script>/);
+assert.match(html,/<link rel="stylesheet" href="\.\/ratib-trial-spend-layout\.css\?v=3\.6\.109\.11">/);
+assert.match(html,/<script src="\.\/ratib-trial-spend-layout\.js\?v=3\.6\.109\.11" defer><\/script>/);
 assert.match(html,/textarea aria-label="البيان العام للمدين \$\{number\+1\}" class="multi-line-note"/);
+assert(html.includes("multiVoucherMode==='spend'?"),'Only payment vouchers render the multiline debtor narration');
+assert(html.includes('placeholder="ملاحظات">`'),'Other vouchers keep their native single-line note');
 assert.match(html,/body\.querySelectorAll\('input,select,textarea'\)/);
 assert.match(css,/grid-template-columns:2fr 1fr!important/);
 assert.match(css,/tbody td:nth-child\(2\)\{grid-column:1\/-1!important;grid-row:1!important\}/,'Debtor account comes before amount tools');
@@ -46,6 +48,12 @@ return Promise.resolve().then(()=>{
  assert.match(row.querySelector('.ratib-spend-debit-balance').textContent,/500 YER/);
  assert.equal(row.querySelector('.ratib-spend-side-label').textContent,'مدين');
  assert.equal(d.getElementById('ratibSpendCreditEquivalent').textContent,'1,000');
+ const cur=d.getElementById('multiVoucherBaseCurrency'),rate=d.getElementById('ratibHeaderRate');
+ cur.value='SAR';rate.value='412';api.refresh();
+ assert.equal(d.getElementById('ratibSpendCreditEquivalent').textContent,'412,000','YER equivalent reflects SAR amount × rate');
+ rate.value='';api.refresh();
+ assert.equal(d.getElementById('ratibSpendCreditEquivalent').textContent,'—','Never present a false conversion without a rate');
+ cur.value='YER';rate.value='1';api.refresh();
  const source=d.getElementById('multiVoucherNote'),counter=row.querySelector('.multi-line-note');
  source.value='بيان عام';counter.value=source.value;counter.value='نص مستقل';
  assert.equal(source.value,'بيان عام','Editing debtor narration cannot change source narration');

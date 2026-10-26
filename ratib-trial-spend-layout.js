@@ -47,7 +47,12 @@ function equivalent(){
  const out=$('ratibSpendCreditEquivalent');
  if(!out||!active())return;
  const amount=Number(String($('ratibHeaderAmount')?.value||'').replace(/,/g,''));
- out.textContent=Number.isFinite(amount)&&amount>0?amount.toLocaleString('en-US',{maximumFractionDigits:3}):'—';
+ const currency=$('multiVoucherBaseCurrency')?.value||'YER';
+ const rate=currency==='YER'?1:Number(String($('ratibHeaderRate')?.value||'').replace(/,/g,''));
+ const converted=amount*rate;
+ out.textContent=Number.isFinite(converted)&&amount>0&&rate>0
+  ?converted.toLocaleString('en-US',{maximumFractionDigits:3}):'—';
+ out.title=currency==='YER'?'المعادل بالريال اليمني':'المعادل بالريال اليمني بسعر الصرف المثبت في السند';
 }
 function newRateSource(){
  const label=make('ratib-spend-rate-source','label');

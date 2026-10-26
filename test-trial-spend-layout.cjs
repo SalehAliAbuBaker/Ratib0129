@@ -34,6 +34,9 @@ w.eval("var multiVoucherMode='spend';var multiSourceAcc={getValue(){return 'دا
 w.eval(script);d.dispatchEvent(new w.Event('DOMContentLoaded'));
 return Promise.resolve().then(()=>{
  const api=w.RatibTrialSpendLayout;assert(api,'Module should initialize');
+ api.refresh();
+ assert.equal(d.getElementById('multiVoucherCard').classList.contains('spend-voucher'),true);
+ assert.equal(w.eval('multiVoucherMode'),'spend');
  assert.deepEqual(api.order,['1','2','3','4','5','6','7–10','11','12','13','14','15']);
  for(const node of originalNodes)assert(node.isConnected&&d.getElementById(node.id)===node,'Original control must be moved, not replaced: '+node.id);
  assert.equal(d.getElementById('ratibSpendCreditBalance').textContent,'الرصيد الحالي: 2,000 YER (دائن)');

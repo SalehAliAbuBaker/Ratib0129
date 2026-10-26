@@ -3237,10 +3237,8 @@ async function tryUnlockVaultWithSessionKey(){
 
 
 function getDefaultAccountsConfig() {
-  return store.get('default_accounts', {
-    incomeDebit: 'صندوق النقدية الرئيسي',
-    spendCredit: 'صندوق النقدية الرئيسي'
-  });
+  // Do not assume a legacy/nonexistent account is the new voucher default.
+  return store.get('default_accounts', {incomeDebit:'',spendCredit:''});
 }
 function saveDefaultAccountsConfig(cfg) { store.set('default_accounts', cfg); }
 
@@ -3503,12 +3501,30 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  document.getElementById('saveDefaultAccountsBtn')?.addEventListener('click', () => {
-    const incomeDebit = selDefaultIncomeDebit.getValue();
-    const spendCredit = selDefaultSpendCredit.getValue();
-    // الاختيار اختياري: الحقل الفارغ يعني «بدون حساب افتراضي» وتُترك الخانة فارغة عند فتح السند
-    saveDefaultAccountsConfig({ incomeDebit: incomeDebit || '', spendCredit: spendCredit || '' });
-    showToast(incomeDebit || spendCredit ? 'تم حفظ الحسابات الافتراضية ✅' : 'تم الحفظ — لا حساب افتراضي (الخانات تبقى فارغة)', 'success');
+  document.getElementById('saveDefaultAccountsBtn')?.addEventListener('click', async () => {
+    const button=document.getElementById('saveDefaultAccountsBtn');
+    if(button.disabled)return;
+    if(!selDefaultIncomeDebit||!selDefaultSpendCredit){showToast('قائمة الحسابات غير جاهزة؛ أعد فتح الإعدادات','error');return;}
+    const incomeDebit=selDefaultIncomeDebit.getValue(),spendCredit=selDefaultSpendCredit.getValue();
+    for(const [id,selected] of [['inpDefaultIncomeDebit',incomeDebit],['inpDefaultSpendCredit',spendCredit]]){
+      if(document.getElementById(id)?.value.trim()&&!selected){
+        showToast('اختر حسابًا موجودًا من الاقتراحات، أو امسح الحقل لتعطيل الافتراضي','warn');
+        document.getElementById(id).focus();
+        return;
+      }
+    }
+    const previous=getDefaultAccountsConfig(),next={incomeDebit:incomeDebit||'',spendCredit:spendCredit||''};
+    button.disabled=true;
+    try{
+      saveDefaultAccountsConfig(next);
+      await flushStorage();
+      const saved=getDefaultAccountsConfig();
+      if(saved.incomeDebit!==next.incomeDebit||saved.spendCredit!==next.spendCredit)throw Error('لم يثبت حفظ الحسابات الافتراضية');
+      showToast(incomeDebit||spendCredit?'تم حفظ الحسابات الافتراضية ✅':'تم الحفظ — بدون حساب افتراضي','success');
+    }catch(e){
+      try{saveDefaultAccountsConfig(previous);}catch(_){}
+      showToast('تعذّر تثبيت إعدادات الحسابات الافتراضية؛ أعد المحاولة','error');
+    }finally{button.disabled=false;}
   });
 
   // كان هذا الزر أيضاً بلا أي كود يشغّله (نفس مشكلة زرّي التصدير/الاستيراد سابقاً).
@@ -5485,6 +5501,16 @@ class SearchableSelect {
         arrow.addEventListener('click',toggle);
         arrow.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();toggle(e);}});
       }
+      const relocate=()=>{if(this.drop.classList.contains('open'))this.positionPortal();};
+      window.addEventListener('resize',relocate,{passive:true});
+      window.addEventListener('scroll',relocate,{passive:true,capture:true});
+      window.visualViewport?.addEventListener?.('resize',relocate,{passive:true});
+      window.visualViewport?.addEventListener?.('scroll',relocate,{passive:true});
+    }
+    if(['wrapDefaultIncomeDebit','wrapDefaultSpendCredit'].includes(wrapId)){
+      // Do not clip settings' account suggestions within accordion cards.
+      document.body.append(this.drop);
+      this.portaled=true;
       const relocate=()=>{if(this.drop.classList.contains('open'))this.positionPortal();};
       window.addEventListener('resize',relocate,{passive:true});
       window.addEventListener('scroll',relocate,{passive:true,capture:true});
@@ -12081,8 +12107,9 @@ async function saveCatalog(list){
   const saved=store.get('currency_catalog_v1',[]);
   const complete=Array.isArray(saved)&&list.every(expected=>{
     const actual=saved.find(row=>row?.code===expected.code);
-    return actual&&actual.name===expected.name
-      &&String(actual.reportRateYer??'')===String(expected.reportRateYer??'');
+    return actual&&actual.name===expected.name&&actual.active===expected.active
+        &&Number(actual.decimals??2)===Number(expected.decimals??2)
+        &&String(actual.reportRateYer??'')===String(expected.reportRateYer??'');
   });
   if(!complete)throw new Error('تعذّر التحقق من بيانات العملات بعد الحفظ.');
   return true;
@@ -12188,11 +12215,11 @@ function currenciesUi(){
     if(btn.disabled)return;
     const value=name.value.trim(),raw=rate.value.trim(),n=currencyReferenceNumber(raw);
     if(!value){showToast('اكتب اسم العملة','warn');return;}
-    if(c.code!=='YER'&&raw===''){showToast('خانة السعر فارغة؛ لم يُحذف السعر المحفوظ. أدخل رقمًا مثل 412','warn');return;}
-    if(c.code!=='YER'&&(!Number.isFinite(n)||n<=0)){showToast('اكتب السعر بالأرقام العربية أو الإنجليزية، مثل 412','warn');rate.focus();return;}
+    // Rate is optional for editing a currency name or availability.
+    if(c.code!=='YER'&&raw!==''&&(!Number.isFinite(n)||n<=0)){showToast('اكتب السعر بالأرقام العربية أو الإنجليزية، مثل 412','warn');rate.focus();return;}
     const all=catalog(),item=all.find(x=>x.code===c.code);if(!item)return;
     item.name=value;item.active=c.code==='YER'?true:active.checked;
-    if(c.code!=='YER'){
+    if(c.code!=='YER'&&raw!==''){
       if(Number(item.reportRateYer)!==n){item.reportRateYer=n;item.reportRateYerUpdatedAt=new Date().toISOString();}
     }
     btn.disabled=true;btn.textContent='جارٍ الحفظ…';
@@ -12200,10 +12227,10 @@ function currenciesUi(){
     if(saved){
       sync();render();
       const check=catalog().find(x=>x.code===c.code);
-      if(c.code!=='YER'&&Number(check?.reportRateYer)!==n){
+      if(c.code!=='YER'&&raw!==''&&Number(check?.reportRateYer)!==n){
         showToast('لم تتطابق القيمة المحفوظة بعد الحفظ؛ لم تُعتمد أي تسوية','error');
       }else{
-        showToast('تم حفظ سعر '+c.code+': '+(check?.reportRateYer??1)+' ريال يمني لكل وحدة — للتقارير فقط','success');
+        showToast('تم حفظ إعدادات '+c.code+(c.code!=='YER'&&raw!==''?' والسعر المرجعي للتقارير':''),'success');
       }
     }else{btn.disabled=false;btn.textContent='إعادة حفظ '+c.code;}
    };

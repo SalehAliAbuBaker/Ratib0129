@@ -64,6 +64,7 @@ const settingsCatalog=[
  ['printing','إعدادات الطباعة'],
  ['defaults','إعدادات الحسابات الافتراضية للسندات'],
  ['buttonsize','حجم الأزرار والخط'],
+ ['palette','ألوان واجهة راتب'],
  ['currencies','إدارة العملات'],
  ['backupsettings','النسخ الاحتياطي'],
  ['favorites','مفضلتي'],
@@ -91,7 +92,9 @@ function discoverSettings(){
   if(!anchor||!label)return;
   const legacyId='setting:'+anchor;
   const hasNewShortcut=settingsCatalog.some(([,name])=>normalized(name)===normalized(label));
-  if(hasNewShortcut&&!previous.has(legacyId))return;
+  // The former dynamic palette shortcut is migrated to settings:palette.
+  // Never offer both IDs for the same settings page.
+  if(legacyId==='setting:ratibPaletteSettingsCard'||hasNewShortcut&&!previous.has(legacyId))return;
   addChoice(legacyId,label,'⚙️',async()=>{
    if(!await page('pageSettings'))return;
    const node=document.getElementById(anchor),fresh=node?.closest('.settings-accordion-card')||node;
@@ -104,10 +107,25 @@ function discoverSettings(){
 }
 
 discoverSettings();discoverReports();
+const PALETTE_FAVORITE='settings:palette';
+const OLD_PALETTE_FAVORITE='setting:ratibPaletteSettingsCard';
 const migrated={pageLedger:'ledger',pageAccountsTree:'account-tree'};
+let oldPaletteFound=false;
 let selected=[];
-try{const saved=localStorage.getItem(KEY);const v=JSON.parse(saved??localStorage.getItem(oldKey)??'[]');if(Array.isArray(v))selected=[...new Set(v.map(id=>saved?id:migrated[id]).filter(id=>typeof id==='string'&&id.length<180&&!['new-reminder','reminders-list','legacy-import','import-management','new-voucher'].includes(id)&&!id.startsWith('commerce:')&&id!=='settings:commerce'&&!id.startsWith('setting:ratibCommerce')))];}catch(_){}
+try{const saved=localStorage.getItem(KEY);const v=JSON.parse(saved??localStorage.getItem(oldKey)??'[]');if(Array.isArray(v)){
+ oldPaletteFound=v.includes(OLD_PALETTE_FAVORITE);
+ selected=[...new Set(v.map(id=>id===OLD_PALETTE_FAVORITE?PALETTE_FAVORITE:(saved?id:migrated[id])).filter(id=>typeof id==='string'&&id.length<180&&!['new-reminder','reminders-list','legacy-import','import-management','new-voucher'].includes(id)&&!id.startsWith('commerce:')&&id!=='settings:commerce'&&!id.startsWith('setting:ratibCommerce')))];
+ } }catch(_){}
 const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(selected));}catch(e){console.warn('تعذر حفظ المفضلة',e);}};
+if(oldPaletteFound){
+ // Preserve the preferred icon and order when switching IDs; do not touch ledger data.
+ if(savedIcons[OLD_PALETTE_FAVORITE]&&!savedIcons[PALETTE_FAVORITE]){
+  savedIcons[PALETTE_FAVORITE]=savedIcons[OLD_PALETTE_FAVORITE];
+  byId[PALETTE_FAVORITE][2]=savedIcons[PALETTE_FAVORITE];
+  persistIcons();
+ }
+ save();
+}
 const css=document.createElement('style');css.textContent=`
 .ratib-quick-btn{font-size:1.15rem!important;min-width:38px;min-height:38px}
 #ratibFavoritesPanel{position:fixed;inset:0;z-index:99990;background:rgba(15,23,42,.56);display:none;align-items:center;justify-content:center;padding:16px}

@@ -2298,7 +2298,7 @@ body.ratib-sidebar-open,body.ratib-about-open{overflow:hidden}
         </div>
         <input type="hidden" id="valDefaultSpendCredit">
       </div>
-      <button class="btn btn-primary" id="saveDefaultAccountsBtn" style="margin-top: 4px;">💾 حفظ الحسابات الافتراضية</button>
+      <button class="btn btn-primary" id="saveDefaultAccountsBtn" style="margin-top: 4px;">💾 حفظ الحسابات الافتراضية</button><p id="ratibDefaultAccountSaveStatus" role="status" aria-live="polite" style="margin:6px 0 0;font-weight:700"></p>
     </div>
   </div>
 
@@ -3534,14 +3534,18 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     const previous=getDefaultAccountsConfig(),next={incomeDebit:incomeDebit||'',spendCredit:spendCredit||''};
     button.disabled=true;
+    const status=document.getElementById('ratibDefaultAccountSaveStatus');
+    if(status)status.textContent='جارٍ تأكيد حفظ الحسابات الافتراضية…';
     try{
       saveDefaultAccountsConfig(next);
       await flushStorage();
       const saved=getDefaultAccountsConfig();
       if(saved.incomeDebit!==next.incomeDebit||saved.spendCredit!==next.spendCredit)throw Error('لم يثبت حفظ الحسابات الافتراضية');
+      if(status)status.textContent='تم تأكيد حفظ الحسابات الافتراضية.';
       showToast(incomeDebit||spendCredit?'تم حفظ الحسابات الافتراضية ✅':'تم الحفظ — بدون حساب افتراضي','success');
     }catch(e){
       try{saveDefaultAccountsConfig(previous);}catch(_){}
+      if(status)status.textContent='تعذر تأكيد الحفظ؛ بقيت الحسابات الافتراضية السابقة.';
       showToast('تعذّر تثبيت إعدادات الحسابات الافتراضية؛ أعد المحاولة','error');
     }finally{button.disabled=false;}
   });
@@ -12230,6 +12234,8 @@ function currenciesUi(){
    savedLabel.dataset.savedRateCurrency=c.code;
    reference.append(rate,savedLabel);
    const btn=document.createElement('button');btn.type='button';btn.className='btn btn-ghost';btn.textContent='حفظ '+c.code;btn.setAttribute('aria-label','حفظ إعدادات وسعر العملة '+c.code);
+   const saveStatus=document.createElement('small');saveStatus.dataset.currencySaveState=c.code;
+   saveStatus.setAttribute('role','status');saveStatus.setAttribute('aria-live','polite');
    btn.onclick=async()=>{
     if(btn.disabled)return;
     const value=name.value.trim(),raw=rate.value.trim(),n=currencyReferenceNumber(raw);
@@ -12241,7 +12247,7 @@ function currenciesUi(){
     if(c.code!=='YER'&&raw!==''){
       if(Number(item.reportRateYer)!==n){item.reportRateYer=n;item.reportRateYerUpdatedAt=new Date().toISOString();}
     }
-    btn.disabled=true;btn.textContent='جارٍ الحفظ…';
+    btn.disabled=true;btn.textContent='جارٍ الحفظ…';saveStatus.textContent='جارٍ حفظ '+c.code+'…';
     const saved=await saveCatalog(all);
     if(saved){
       sync();render();
@@ -12251,9 +12257,9 @@ function currenciesUi(){
       }else{
         showToast('تم حفظ إعدادات '+c.code+(c.code!=='YER'&&raw!==''?' والسعر المرجعي للتقارير':''),'success');
       }
-    }else{btn.disabled=false;btn.textContent='إعادة حفظ '+c.code;}
+    }else{btn.disabled=false;btn.textContent='إعادة حفظ '+c.code;saveStatus.textContent='تعذر حفظ العملة؛ أعد المحاولة.';}
    };
-   row.append(symbol,name,label,reference,btn);list.append(row);
+   row.append(symbol,name,label,reference,btn,saveStatus);list.append(row);
   }
  }
  get('ratibAddCurrency').onclick=async()=>{

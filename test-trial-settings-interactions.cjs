@@ -117,6 +117,6 @@ async function defaultAccountSaveCase(){
 (async()=>{
  await buttonFontCase();accountChooserCase();await currencyCase();await defaultAccountSaveCase();
  assert(!sidebar.includes("cloudRestoreBtn{display:none!important}"),'settings backup actions must not be force-hidden');
- assert(sw.includes("const CACHE_VERSION='v252-trial-settings-functional-3.6.109.19'"),'offline shell must refresh settings assets');
+ assert(sw.includes("const CACHE_VERSION='v252-trial-settings-functional-3.6.109.20'"),'offline shell must refresh settings assets');
  console.log('PASS trial settings: defaults popup, verified save, optional FX reference rate, button/font persistence and no ledger mutation');
 })().catch(e=>{console.error(e);process.exitCode=1;});

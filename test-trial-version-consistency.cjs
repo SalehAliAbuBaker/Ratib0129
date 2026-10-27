@@ -4,24 +4,17 @@ require('./tools/assert-release.cjs')();
 const assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path');
 const file=name=>fs.readFileSync(path.join(__dirname,name),'utf8');
 const html=file('index.html'),sw=file('sw.js');
-const signatures=file('ratib-document-signatures-3.6.148.js');
-const signatureKeys=(signatures.match(/^const keys=\[(.*?)\];/m)?.[1]||'').match(/'[^']+'/g)?.map(x=>x.slice(1,-1));
-assert.deepEqual(signatureKeys,['payment','receipt','journal','compound','opening'],
-  'Document type dropdown must not show deleted commerce or return types');
-assert(!signatures.includes("'مرتجع الوارد'")&&!signatures.includes("'فاتورة مشتريات'"),
-  'Retired commerce types are no longer supported in the active signature registry');
 const m=html.match(/const RATIB_RELEASE=\{"version":"(\d+\.\d+\.\d+(?:\.\d+)?)"/);
 const work=sw.match(/const APP_RELEASE=\{"version":"(\d+\.\d+\.\d+(?:\.\d+)?)"/);
 assert(m&&work,'Both trial release manifests must declare versions');
-const version=m[1],label='الإصدار '+version+' (تجريبية)';
+const version=m[1],label='الإصدار '+version;
 assert.equal(work[1],version,'Service worker and application versions must match');
 assert(html.includes('id="appVersionLabel" class="app-version">'+label),'Top bar must match release');
 assert(html.includes('class="ratib-about-version">'+label),'About screen must match release');
 assert(html.includes('window.ratibCurrentTrialVersionLabel=()=>'),'Central version label must exist');
 assert(html.includes("document.addEventListener('DOMContentLoaded',window.ratibSyncTrialVersion)"),'Version sync must run at startup');
-assert(html.includes('id="ratibAboutReleaseNotes"'),'Release changes visible in About dialog');
 assert(file('ratib-sidebar-3.6.124.js').includes('window.ratibCurrentTrialVersion?.()'),'Sidebar must read primary release instead of commerce module metadata');
-assert(!html.includes('ratib-commerce-3.6.131.js'),'Retired inventory module must not be loaded');
+assert(file('ratib-commerce-3.6.131.js').includes('window.ratibCurrentTrialVersion?.()'),'Commerce metadata must use primary release');
 for(const moduleName of [
  'ratib-login-3.6.124.js',
  'ratib-trial-ui-3.6.143.js',

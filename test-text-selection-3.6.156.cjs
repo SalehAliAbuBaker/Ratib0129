@@ -1,8 +1,9 @@
-/* Ratib 3.6.159 regression: genuine editable caret/selection in accounting fields. */
+/* Ratib 3.6.159 regression: genuine editable caret/selection in account, financial and commerce fields. */
 'use strict';
 const fs=require('node:fs'),assert=require('node:assert/strict'),{JSDOM}=require('jsdom'),vm=require('node:vm');
 const html=fs.readFileSync('index.html','utf8');
 const amount=fs.readFileSync('ratib-amount-edit-3.6.97.js','utf8');
+const commerce=fs.readFileSync('ratib-commerce-3.6.131.js','utf8');
 const sw=fs.readFileSync('sw.js','utf8');
 const sidebar=fs.readFileSync('ratib-sidebar-3.6.124.js','utf8');
 assert.doesNotMatch(sidebar,/ratibSelectField\(/);
@@ -12,13 +13,13 @@ assert.match(sidebar,/document\.activeElement!==el/,'second tap may place caret 
 const trial=html.match(/const RATIB_RELEASE=\{"version":"([^"]+)"/)?.[1];
 assert(trial,'A unified trial release is required');
 assert(sw.includes('const APP_RELEASE={"version":"'+trial+'"'),'Worker and page must match');
-assert(html.includes('الإصدار '+trial+' (تجريبية)'),'Visible release should match trial');
+assert(html.includes('الإصدار '+trial),'Visible release should match trial');
 assert(sw.includes(trial),'Offline cache should mention current release');
 assert(html.includes('ratib-amount-edit-3.6.97.js?v=3.6.158'),'Amount-edit asset kept unchanged');
-assert(!html.includes('ratib-commerce-3.6.131.js'),'Retired inventory script must not reload');
+assert(html.includes('ratib-commerce-3.6.131.js?v='+trial),'Commerce query must reflect current release');
 assert.doesNotMatch(html,/ratibSelectNext/);
 assert.doesNotMatch(amount,/input\.select\(\)/);
-assert.doesNotThrow(()=>new vm.Script(amount));
+for(const source of [amount,commerce])assert.doesNotThrow(()=>new vm.Script(source));
 const head=html.indexOf('class SearchableSelect {'),tail=html.indexOf('\nlet selDebitAcc',head);
 assert(head>0&&tail>head);
 const searchable=html.slice(head,tail);
@@ -26,6 +27,10 @@ assert.doesNotMatch(searchable,/this\.input\.select\(\)/);
 assert.doesNotMatch(searchable,/this\.input\.setSelectionRange\(typedLength/);
 assert.match(searchable,/this\._singleMatchTimer=setTimeout\(/,'Unique smart completion is restored');
 assert.doesNotMatch(html,/input\.value=name;input\.focus\(\);input\.setSelectionRange\(query\.length/);
+const commerceStart=commerce.indexOf('function commerceAutocomplete('),commerceEnd=commerce.indexOf('function commerceResolveProduct(',commerceStart);
+assert(commerceStart>=0&&commerceEnd>commerceStart);
+const commerceSuggestions=commerce.slice(commerceStart,commerceEnd);
+assert.match(commerceSuggestions,/input\.value\s*=\s*match/,'One matching suggestion is inserted into the editable field');
 
 (async()=>{
  const dom=new JSDOM('<!doctype html><html><head></head><body>'+
@@ -84,8 +89,23 @@ assert.doesNotMatch(html,/input\.value=name;input\.focus\(\);input\.setSelection
  money.dispatchEvent(new w.Event('input',{bubbles:true}));
  assert.equal(money.value,'12,885.67','selected digits can be replaced inside grouped amount');
  assert.equal(money.selectionStart,5,'caret remains after replacement');
+ w.eval('function commerceNormalize(s){return String(s||"").trim().toLocaleLowerCase("ar");}'+commerceSuggestions+
+ ';window.commerceAutocompleteTest=commerceAutocomplete;');
+ const party=d.getElementById('party');party.value='مح';party.focus();party.setSelectionRange(1,1);
+ w.commerceAutocompleteTest(party,['محمد','محسن']);
+ assert.equal(party.value,'مح','commerce autocomplete preserves typed text');
+ assert.equal(party.selectionStart,1,'commerce suggestions preserve caret');
+ assert.equal(d.getElementById(party.getAttribute('list')).options.length,2,'choices remain available in datalist');
+ party.value='محم';party.setSelectionRange(3,3);
+ w.commerceAutocompleteTest(party,['محمد','محسن'],new w.InputEvent('input',{inputType:'insertText'}));
+ assert.equal(party.value,'محمد','unique commerce suggestion is inserted');
+ assert.equal(party.selectionStart,3,'commerce suggestion selects only remaining suffix');
+ assert.equal(party.selectionEnd,4,'suffix remains editable');
+ party.value='مح';party.setSelectionRange(2,2);
+ w.commerceAutocompleteTest(party,['محمد','محسن'],new w.InputEvent('input',{inputType:'deleteContentBackward'}));
+ assert.equal(party.value,'مح','deletion must not force autocomplete');
  dom.window.close();
- console.log('PASS 3.6.159: selected subtext editing, native caret, unique account identity and amounts');
+ console.log('PASS 3.6.159: selected subtext editing, native caret, unique account identity, amounts, commerce suggestions');
 })().catch(err=>{console.error(err);process.exitCode=1;});
 
 (async()=>{

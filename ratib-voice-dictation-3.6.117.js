@@ -393,29 +393,16 @@ function settings(){
  const parent=document.getElementById('pageSettings');
  if(!parent||document.getElementById('ratibVoiceSettingsCard'))return;
  const card=document.createElement('div');card.id='ratibVoiceSettingsCard';card.className='card settings-accordion-card no-print';
- card.innerHTML='<div class="settings-accordion-header" role="button" tabindex="0" aria-expanded="false"><span>🎙️ الإملاء الصوتي</span><span class="accordion-arrow">▼</span></div><div class="settings-accordion-body"><label style="display:flex;align-items:center;justify-content:space-between;gap:10px"><span>إظهار زر الإملاء الصوتي</span><input type="checkbox" id="ratibVoiceVisible" style="width:22px;height:22px"></label><p class="ratib-voice-hint">حدد الحقل ثم اضغط زر الميكروفون. يمكن إملاء المبلغ بالأرقام أو بالكلمات العربية، مثل ستة وثلاثين ألفًا ومئة واثنين وخمسين. تتاح الكتابة بالصوت للنص والمبلغ والتاريخ والوقت وخيارات القوائم عند تطابق اسم الخيار؛ لن يُحفظ مستند تلقائيًا. أمّا الرقم السري والملفات فمستثناة.</p><label for="ratibVoiceLanguage">لغة التعرف على الصوت</label><select id="ratibVoiceLanguage"><option value="ar-SA">العربية</option><option value="ar-YE">العربية — اليمن</option><option value="ar-EG">العربية — مصر</option></select><p id="ratibVoiceLanguageSaveStatus" class="ratib-voice-hint" role="status" aria-live="polite"></p><button type="button" id="ratibVoiceMicPermissionBtn" class="btn" style="margin:8px 0 4px;min-height:42px">فحص إذن الميكروفون والسماح به</button><p id="ratibVoiceMicPermissionStatus" class="ratib-voice-hint" role="status" aria-live="polite"></p><p class="ratib-voice-hint">قد يحتاج التعرف على الصوت إلى الإنترنت وخدمة المتصفح. لا يتم تشغيل الميكروفون تلقائيًا، وقد تُعالج الخدمة الصوت وفق سياسة المتصفح.</p></div>';
+ card.innerHTML='<div class="settings-accordion-header" role="button" tabindex="0" aria-expanded="false"><span>🎙️ الإملاء الصوتي</span><span class="accordion-arrow">▼</span></div><div class="settings-accordion-body"><label style="display:flex;align-items:center;justify-content:space-between;gap:10px"><span>إظهار زر الإملاء الصوتي</span><input type="checkbox" id="ratibVoiceVisible" style="width:22px;height:22px"></label><p class="ratib-voice-hint">حدد الحقل ثم اضغط زر الميكروفون. يمكن إملاء المبلغ بالأرقام أو بالكلمات العربية، مثل ستة وثلاثين ألفًا ومئة واثنين وخمسين. تتاح الكتابة بالصوت للنص والمبلغ والتاريخ والوقت وخيارات القوائم عند تطابق اسم الخيار؛ لن يُحفظ مستند تلقائيًا. أمّا الرقم السري والملفات فمستثناة.</p><label for="ratibVoiceLanguage">لغة التعرف على الصوت</label><select id="ratibVoiceLanguage"><option value="ar-SA">العربية</option><option value="ar-YE">العربية — اليمن</option><option value="ar-EG">العربية — مصر</option></select><button type="button" id="ratibVoiceMicPermissionBtn" class="btn" style="margin:8px 0 4px;min-height:42px">فحص إذن الميكروفون والسماح به</button><p id="ratibVoiceMicPermissionStatus" class="ratib-voice-hint" role="status" aria-live="polite"></p><p class="ratib-voice-hint">قد يحتاج التعرف على الصوت إلى الإنترنت وخدمة المتصفح. لا يتم تشغيل الميكروفون تلقائيًا، وقد تُعالج الخدمة الصوت وفق سياسة المتصفح.</p></div>';
  parent.prepend(card);
  const head=card.querySelector('.settings-accordion-header'),body=card.querySelector('.settings-accordion-body');
  const toggle=()=>{const opened=body.classList.toggle('open');head.setAttribute('aria-expanded',String(opened));head.querySelector('.accordion-arrow').textContent=opened?'▲':'▼';};
  head.addEventListener('click',toggle);head.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();toggle();}});
  card.querySelector('#ratibVoiceMicPermissionBtn')?.addEventListener('click',requestMicrophoneAccess);
  const visibility=card.querySelector('#ratibVoiceVisible');visibility.checked=visible;visibility.addEventListener('change',()=>{visible=visibility.checked;try{localStorage.setItem(VISIBLE_KEY,String(visible));}catch(_){}applyVoiceVisibility();});
- const select=card.querySelector('#ratibVoiceLanguage'),status=card.querySelector('#ratibVoiceLanguageSaveStatus');
- select.value=language;
- const report=(message)=>{if(status)status.textContent=message;};
- report('اللغة الحالية: '+select.selectedOptions[0]?.textContent);
- select.addEventListener('change',e=>{
-  const next=e.target.value,previous=language;
-  if(!LANGUAGES.includes(next)){select.value=previous;report('خيار اللغة غير معتمد');return;}
-  try{
-   localStorage.setItem(LANG_KEY,next);
-   if(localStorage.getItem(LANG_KEY)!==next)throw Error('Voice language read-back mismatch');
-   language=next;
-   report('تم حفظ لغة الإملاء: '+select.selectedOptions[0]?.textContent);
-  }catch(error){
-   select.value=previous;report('تعذر حفظ اللغة. تأكد من السماح بتخزين تفضيلات الموقع.');
-   console.warn('Ratib voice language settings could not persist',error);
-  }
+ const select=card.querySelector('select');select.value=language;select.addEventListener('change',e=>{
+  if(!LANGUAGES.includes(e.target.value))return;
+  language=e.target.value;try{localStorage.setItem(LANG_KEY,language);}catch(_){}
  });
 }
 settings();

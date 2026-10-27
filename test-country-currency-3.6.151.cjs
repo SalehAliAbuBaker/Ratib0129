@@ -6,14 +6,17 @@ const {JSDOM}=require('jsdom');
 const source=fs.readFileSync('ratib-country-currency-3.6.151.js','utf8');
 const html=fs.readFileSync('index.html','utf8');
 const worker=fs.readFileSync('sw.js','utf8');
+const commerce=fs.readFileSync('ratib-commerce-3.6.131.js','utf8');
 
 new Function(source);
+new Function(commerce);
 assert.match(html,/ratib-country-currency-3\.6\.151\.js\?v=3\.6\.151/);
 assert.match(worker,/"\.\/ratib-country-currency-3\.6\.151\.js"/);
 assert.match(worker,/"\.\/ratib-country-currency-3\.6\.151\.css"/);
 const trial=html.match(/const RATIB_RELEASE=\{"version":"([^"]+)"/)?.[1];
 assert(trial&&worker.includes('"version":"'+trial+'"'),'Currency feature must use the current app and offline release');
-assert(!html.includes('ratib-commerce-3.6.131.js'),'Oman currency support must not require inventory code');
+assert.match(commerce,/id:'OMR',name:'ريال عُماني \(OMR\)'/);
+assert.match(commerce,/moneyDecimals\(draft.currency\)/);
 assert.match(html,/function newSpendLine\(\)\{const currency=getRatibBaseCurrency\(\)/);
 assert.match(html,/amount!==spendRound\(amount,line.currency\)/);
 

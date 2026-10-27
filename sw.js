@@ -1,16 +1,9 @@
 // Ratib 3.1.9: cache identity is unique to this app's scope.
-const CACHE_VERSION='v252-trial-settings-functional-3.6.109.21';
-const APP_RELEASE={"version":"3.6.109.21","highlights":["نبض الصندوق: اختيار الحسابات نقديًا أو بنكيًا يدويًا بالكامل، دون الحسابات المجمدة، مع عرض حساب واحد أو إجمالي المختارة وحفظ الاختيار"],"changes":["الرجوع من نماذج السندات يعيد المستخدم إلى الرئيسية دون شاشة اختيار مكررة","فتح نموذج القيد البسيط مباشرة عند الوصول إلى صفحة السندات من أي رابط عام","الإبقاء على زر استعادة المسودة خارج شاشة الاختيار الملغاة","إصلاح تحميل تنسيق نبض الصندوق لمنع الدائرة السوداء","إدراج جميع حسابات النقدية والبنوك وتصحيح صافي التحويلات الداخلية دون تعديل البيانات","إتاحة عرض جميع الحسابات في نبض الصندوق مع إضافة الحسابات النقدية الناقصة دون تعديل الأرصدة","زر سند صرف / قبض يفتح نموذج الصرف مباشرة دون نافذة اختيار وسيطة","توحيد قائمة نبض الصندوق مع حسابات شجرة الحسابات المستوردة","إلغاء التخطيط المنفصل لسند الصرف والاعتماد على نفس التوزيع الأصلي لسند القبض","الإبقاء على حقول الحسابات والمبلغ والعملة وسعر الصرف والبيان والحفظ والطباعة الموحدة","تصفية حسابات الطرف الدائن في سند الصرف إلى الصناديق والبنوك المصنفة ضمن الأصول","ترك جميع الحسابات التفصيلية متاحة للطرف المدين دون تقييدها بالصناديق أو البنوك","رفض حفظ سند الصرف إذا كان الحساب الدائن غير نقدي أو بنكي","منع عكس اتجاه سند الصرف إلى قيد يجعل الصندوق أو البنك مدينًا","الحفاظ على نصوص بيان المدين متعددة الأسطر في السندات المحفوظة دون فقدانها","ترتيب حساب الدائن والمستفيد الاختياري والبيان العام في سند الصرف","اختيار ثيمات راتب الأربعة: الأخضر والذهبي والأزرق والزمردي","إصلاح اختفاء اختصار ألوان واجهة راتب بعد إعادة فتح التطبيق","إصلاح الرجوع بعد حفظ تعديل العملية إلى نفس الشاشة والبحث والفلاتر، دون الانتقال للرئيسية","نبض الصندوق: اختيار الحسابات نقديًا أو بنكيًا يدويًا بالكامل، دون الحسابات المجمدة، مع عرض حساب واحد أو إجمالي المختارة وحفظ الاختيار"]};
+const CACHE_VERSION='v221-trial-official-reset-3.6.109.01';
+const APP_RELEASE={"version":"3.6.109.01","build":"t10901","highlights":[],"changes":["تصحيح الأخطاء في بعض الأجهزة"]};
 const CACHE_PREFIX=`ratib:${self.registration.scope}:`;
 const CACHE_NAME=CACHE_PREFIX+CACHE_VERSION;
 const APP_SHELL=[
-  "./ratib-cash-pulse.css",
-  "./ratib-cash-pulse.js",
-  "./ratib-trial-home-polish.css",
-  "./ratib-trial-home-polish.js",
-  "./ratib-gold.css",
-  "./ratib-gold-icon.svg",
-  "./ratib-opening.js",
   "./ratib-simple-accounts-3.6.105.13.js",
 "./ratib-first-run-3.6.105.11.js",
 "./ratib-country-currency-3.6.151.js",
@@ -30,8 +23,10 @@ const APP_SHELL=[
   "./ratib-trial-home-sidebar-3.6.143.js",
   "./ratib-trial-home-sidebar-3.6.143.css",
   "./ratib-sidebar-3.6.124.js",
+  "./ratib-commerce-3.6.131.js",
   "./ratib-interactive-tree-3.6.105.05.js",
   "./ratib-interactive-tree-3.6.105.05.css",
+  "./ratib-commerce-3.6.131.css",
   "./ratib-login-3.6.124.js",
   "./ratib-login-3.6.124.css",
   "./manifest.json",
@@ -72,11 +67,12 @@ const APP_SHELL=[
   "./ratib-reconciliation-print.js",
   "./ratib-favorites-v3.js",
   "./ratib-voice-dictation-3.6.117.js",
-  "./ratib-account-archive-compat.js",
+  "./ratib-import-manager.js",
   "./ratib-unified-output.js",
   "./vendor/chart.umd.min.js",
   "./vendor/chartjs-plugin-datalabels.min.js",
   "./vendor/xlsx.full.min.js",
+  "./assets/ratib-accounts-template.xlsx",
   "./vendor/tajawal-1.woff2",
   "./vendor/tajawal-10.woff2",
   "./vendor/tajawal-2.woff2",
@@ -92,7 +88,7 @@ const SHELL_URLS=new Set(APP_SHELL.map(path=>new URL(path,self.registration.scop
 
 self.addEventListener('install',event=>{
   // All essential resources must be available before this version can replace the previous worker.
-  event.waitUntil(caches.open(CACHE_NAME).then(cache=>cache.addAll(APP_SHELL.map(path=>new Request(new URL(path,self.registration.scope),{cache:'reload'})))));
+  event.waitUntil(caches.open(CACHE_NAME).then(cache=>cache.addAll(APP_SHELL)));
 });
 self.addEventListener('message',event=>{
   if(event.data?.type==='GET_UPDATE_DETAILS')event.source?.postMessage({type:'UPDATE_DETAILS',release:APP_RELEASE});

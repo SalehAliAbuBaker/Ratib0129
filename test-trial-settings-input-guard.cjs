@@ -32,7 +32,7 @@ assert(html.includes("reg.update().then(showUpdate).catch(()=>{})"),
  'installed app must actively check for updates when foregrounded');
 assert(html.includes('z-index:10005!important'),
  'waiting update banner should remain above the PIN overlay');
-assert(sw.includes("const CACHE_VERSION='v251-trial-settings-inputs-3.6.109.18'"),
+assert(sw.includes("const CACHE_VERSION='v252-trial-settings-functional-3.6.109.19'"),
  'new trial release must invalidate cached older scripts');
-console.log('PASS trial 3.6.109.18: Arabic default account inputs work; numeric amount sanitizer unchanged; PWA updates accessible without clearing financial storage');
+console.log('PASS trial 3.6.109.19: Arabic default account inputs work; numeric amount sanitizer unchanged; PWA updates accessible without clearing financial storage');
 dom.window.close();

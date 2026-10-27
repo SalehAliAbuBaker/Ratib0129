@@ -19,13 +19,35 @@ const read=()=>{
  if(!STYLES.includes(cfg.style))cfg.style='balanced';
  return cfg;
 };
+function soundPreferenceStatus(message,error=false){
+ const status=$('ratibFeedbackPersistStatus');
+ if(status){status.textContent=message;status.dataset.error=String(error);}
+}
 function write(patch){
- const value={...read(),...patch};delete value.reminder;
+ const previous=read(),value={...previous,...patch};delete value.reminder;
  try{
   if(typeof store!=='undefined'&&typeof store.set==='function')store.set(KEY,value);
   else localStorage.setItem(KEY,JSON.stringify(value));
- }catch(error){console.warn('Ratib feedback preference not saved',error);return false;}
- syncUI();return true;
+  const recorded=read();
+  for(const key of Object.keys(patch))if(recorded[key]!==value[key])
+   throw Error('Sound preference read-back mismatch: '+key);
+ }catch(error){
+  console.warn('Ratib feedback preference not saved',error);
+  soundPreferenceStatus('تعذر حفظ إعدادات الصوت؛ بقيت القيم السابقة.',true);
+  syncUI();return false;
+ }
+ syncUI();soundPreferenceStatus('جارٍ تأكيد حفظ إعدادات الصوت…');
+ if(typeof flushStorage==='function'){
+  Promise.resolve().then(()=>flushStorage()).then(()=>{
+   const actual=read();
+   const okay=Object.keys(patch).every(key=>actual[key]===value[key]);
+   soundPreferenceStatus(okay?'تم حفظ إعدادات الصوت.':'تعذر التحقق من إعدادات الصوت المحفوظة.',!okay);
+  }).catch(error=>{
+   console.warn('Ratib sound preference flush failed',error);
+   soundPreferenceStatus('تعذّر تثبيت إعدادات الصوت؛ أعد المحاولة.',true);
+  });
+ }else soundPreferenceStatus('تم حفظ إعدادات الصوت.');
+ return true;
 }
 function availableAudio(){const AC=window.AudioContext||window.webkitAudioContext;if(!AC)return null;try{audio=audio||new AC();return audio}catch(error){console.warn('Ratib WebAudio unavailable',error);return null}}
 function unlock(){
@@ -144,6 +166,7 @@ function install(){
  '<div class="ratib-feedback-select-row"><label for="ratibFeedbackStyle">طابع النغمة</label><select id="ratibFeedbackStyle" data-feedback-select="style"><option value="soft">هادئ</option><option value="balanced">متوازن</option><option value="clear">واضح</option></select></div>'+
  '<div class="ratib-feedback-try"><button type="button" data-feedback-test="save">تجربة الحفظ</button><button type="button" data-feedback-test="error">تجربة الخطأ</button></div>'+
  '<button type="button" id="ratibFeedbackDefaults" class="btn btn-ghost">استعادة إعدادات الصوت الافتراضية</button>'+
+ '<p id="ratibFeedbackPersistStatus" class="ratib-feedback-guidance" role="status" aria-live="polite"></p>'+ 
  '<p class="ratib-feedback-guidance">قد يحتاج المتصفح إلى لمسة أولى لتفعيل الصوت. تنبيهات نسخة الويب تعمل أثناء فتح التطبيق، ولا تضمن إصدار صوت بعد إغلاقه.</p>';
  parent.append(box);
  for(const input of box.querySelectorAll('[data-feedback-toggle]'))input.addEventListener('change',()=>write({[input.dataset.feedbackToggle]:input.checked}));

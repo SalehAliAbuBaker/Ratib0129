@@ -107,7 +107,12 @@ function css(){if($('ratibApprovedSidebarStyle'))return;const e=document.createE
 '#pageSettings .ratib-settings-finder-actions button{min-height:40px;padding:7px 10px;border:1px solid var(--border);border-radius:8px;background:var(--card);color:var(--text);font:inherit;font-weight:700;cursor:pointer}',
 '#pageSettings .ratib-settings-finder-actions button[aria-pressed=true]{border-color:var(--accent);color:var(--accent)}',
 '#pageSettings .ratib-settings-count{color:var(--muted);font-size:.85rem}',
-'#pageSettings .settings-accordion-body :is(button,input,select,textarea):focus-visible{outline:2px solid var(--accent);outline-offset:2px}'
+'#pageSettings .settings-accordion-body :is(button,input,select,textarea):focus-visible{outline:2px solid var(--accent);outline-offset:2px}',
+'#pageSettings .settings-accordion-card{cursor:default!important}',
+'#pageSettings .settings-accordion-header{cursor:pointer!important}',
+'#pageSettings .settings-accordion-body :is(input,select,textarea,button){position:relative;pointer-events:auto!important}',
+'#pageSettings .settings-accordion-body :is(input:not([type="checkbox"]):not([type="radio"]),textarea){-webkit-user-select:text!important;user-select:text!important;cursor:text!important;touch-action:manipulation}',
+'#pageSettings .settings-accordion-body select{cursor:pointer!important;touch-action:manipulation;-webkit-user-select:none;user-select:none}'
 ].join('\n');document.head.append(e);}
 function header(c){return c?.querySelector(':scope > .settings-accordion-header');}
 function title(c){return header(c)?.querySelector('span')?.textContent?.trim()||'';}
@@ -146,6 +151,7 @@ function reorder(){
    card.id='ratibButtonSizeSettingsCard';page.append(card);map.set('buttonsize',card);
    holder.querySelector('#ratibGlobalButtonSize').value=window.RatibButtonSizing?.get?.()||'medium';
    holder.querySelector('#ratibGlobalFontSize').value=window.RatibButtonSizing?.getFont?.()||'medium';
+    holder.querySelector('#ratibSizeSaveStatus').textContent='الأحجام الحالية محمّلة. غيّر أحد الخيارين لتطبيقه وحفظه.';
  }
  if(!map.has('palette')){
    const holder=document.createElement('div');holder.className='ratib-palette-settings';
@@ -400,6 +406,9 @@ function ratibEditableText(el){
 }
 function ratibSelectInitialValue(el){
  if(!ratibEditableText(el)||!el.value)return;
+ // Android WebView: programmatic selection opens Copy/Select all/Web search instead of the keyboard.
+ // In settings retain native caret, keyboard entry and long-press selection.
+ if(el.closest('#pageSettings'))return;
   // Do not force Android cut/copy selection on account input; preserve manual selection.
   if(el.matches?.('input.searchable-input,input.rit-search,input#accountsPagerSearchInput,input[id^="rc-search-"],input#rc-partyName,input#ratibQuickAccountName,input#ratibQuickParentSearch'))return;
  // Do not summon Android's floating selection toolbar on a normal tap

@@ -47,10 +47,21 @@
    applyFont(fontPref(),false);
    // The setting card is created by the approved sidebar; event delegation works
    // regardless of the order in which its other modules finish initializing.
-   document.addEventListener('change',event=>{
-      if(event.target?.id==='ratibGlobalButtonSize')apply(event.target.value,true);
-      if(event.target?.id==='ratibGlobalFontSize')applyFont(event.target.value,true);
-   },true);
+   const onSizeChoice=event=>{
+      const picker=event.target;
+      if(picker?.id==='ratibGlobalButtonSize'){
+        const chosen=valid(picker.value)||'medium';
+        if(pref()!==chosen||document.documentElement.dataset.ratibButtonSize!==chosen)apply(chosen,true);
+      }
+      if(picker?.id==='ratibGlobalFontSize'){
+        const chosen=normalizeFont(picker.value);
+        if(fontPref()!==chosen||document.documentElement.dataset.ratibFontSize!==chosen)applyFont(chosen,true);
+      }
+   };
+   // Android Chromium may emit input when a native picker commits before change.
+   // Both events are supported, while unchanged values avoid duplicate persistence.
+   document.addEventListener('input',onSizeChoice,true);
+   document.addEventListener('change',onSizeChoice,true);
  }
  window.RatibButtonSizing={get:pref,set:apply,getFont:fontPref,setFont:applyFont};
  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',bind,{once:true});

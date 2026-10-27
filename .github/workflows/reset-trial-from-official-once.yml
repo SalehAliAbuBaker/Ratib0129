@@ -1,0 +1,35 @@
+name: One-time trial baseline sync
+on:
+  push:
+    branches: [trial]
+    paths:
+      - .github/workflows/reset-trial-from-official-once.yml
+permissions:
+  contents: write
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: trial
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Restore official source files and validate trial identity
+        shell: bash
+        run: |
+          set -euo pipefail
+          cp tools/reset-trial-official-3.6.109.01.cjs /tmp/ratib-trial-reset.cjs
+          git fetch origin main
+          test "$(git rev-parse origin/main)" = "2737ef65f36aa044bd6ac8742306076c84ad47b0"
+          git checkout origin/main -- .
+          node /tmp/ratib-trial-reset.cjs
+          npm install --ignore-scripts --no-audit --no-fund
+          npm test
+          git add -A
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "reset(trial): official 3.6.109 baseline as 3.6.109.01"
+          git push origin HEAD:trial

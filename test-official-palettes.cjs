@@ -37,5 +37,5 @@ dom=create('invalid');assert.equal(dom.window.RatibPalette.get(),'green','invali
 assert(css.includes(':root[data-ratib-palette="gold"]')&&css.includes(':root[data-ratib-palette="blue"]')&&css.includes(':root[data-ratib-palette="emerald"]'));
 assert(css.includes('@media print')&&css.includes('[data-theme="dark"]'));
 assert(!nav.includes('background:#0d5b45!important'),'navigation accent follows active theme');
-assert(sw.includes('v225-official-mobile-vouchers-3.6.111'),'updated palette resources are cached for offline operation');
+assert(sw.includes('v226-official-responsive-3.6.112'),'updated palette resources are cached for offline operation');
 console.log('PASS official green default; gold/blue instant change, preference storage, invalid guard, accounting preservation, offline cache');

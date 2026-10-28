@@ -1,0 +1,36 @@
+/* Ratib 3.6.113 WhatsApp support: header shortcut + accessible compose dialog. */
+@media screen{
+ #ratibWhatsappHeaderBtn{color:#168447!important;font-size:1.45rem;line-height:1}
+ #ratibWhatsappHeaderBtn:hover,#ratibWhatsappHeaderBtn:focus-visible{border-color:#168447!important}
+ #appSidebar .ratib-whatsapp-help-btn{color:var(--text);width:100%;text-align:right}
+ #appSidebar .ratib-whatsapp-help-btn .sidebar-icon{color:#168447;flex-shrink:0}
+ #ratibWhatsappSupportDialog{
+  box-sizing:border-box;width:min(460px,calc(100vw - 24px));max-height:calc(100dvh - 24px);
+  overflow:auto;border:1px solid var(--border);border-radius:14px;
+  padding:18px;background:var(--card);color:var(--text);
+  box-shadow:0 20px 65px rgba(0,0,0,.25);direction:rtl;
+  font-family:'Tajawal',system-ui,sans-serif;z-index:99999
+ }
+ #ratibWhatsappSupportDialog::backdrop{background:rgba(15,23,42,.55)}
+ #ratibWhatsappSupportDialog .ratib-whatsapp-head{display:flex;align-items:center;justify-content:space-between;gap:10px}
+ #ratibWhatsappSupportDialog h2{margin:0;font-size:1.15rem;line-height:1.5;color:var(--text)}
+ #ratibWhatsappSupportClose{background:transparent;border:1px solid var(--border);color:var(--text);width:44px;height:44px;border-radius:8px;font-size:1.5rem;cursor:pointer;flex-shrink:0}
+ #ratibWhatsappSupportInfo{font-size:.9rem;line-height:1.6;color:var(--muted);margin:10px 0 14px}
+ #ratibWhatsappSupportDialog fieldset{border:0;padding:0;margin:0 0 12px;min-width:0;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+ #ratibWhatsappSupportDialog legend{font-size:.9rem;font-weight:600;margin-bottom:8px;padding:0}
+ #ratibWhatsappSupportDialog fieldset label{display:flex;align-items:center;gap:6px;padding:9px 8px;border:1px solid var(--border);border-radius:9px;min-height:44px;font-size:.9rem;cursor:pointer;white-space:normal}
+ #ratibWhatsappSupportDialog input[type="radio"]{accent-color:#168447;width:18px;height:18px;flex:none}
+ #ratibWhatsappSupportDialog .ratib-whatsapp-message-label{display:block;font-weight:600;font-size:.9rem;margin-bottom:6px}
+ #ratibWhatsappMessage{box-sizing:border-box;display:block;resize:vertical;width:100%;min-height:124px;max-width:100%;padding:10px 12px;font-size:var(--ratib-input-font-size,14px);font-weight:400;line-height:1.6;border:1px solid var(--border);border-radius:9px;background:var(--card);color:var(--text);direction:rtl}
+ #ratibWhatsappSupportDialog .ratib-whatsapp-privacy{font-size:.8rem;line-height:1.65;color:var(--muted);margin:10px 0}
+ #ratibWhatsappError{color:var(--danger);margin:4px 0;font-size:.86rem}
+ #ratibWhatsappSupportDialog .ratib-whatsapp-actions{display:grid;grid-template-columns:1fr 1.7fr;gap:8px;margin-top:12px}
+ #ratibWhatsappSupportDialog .ratib-whatsapp-actions button{min-height:46px;border-radius:9px;padding:8px;font:600 .9rem 'Tajawal',system-ui,sans-serif;cursor:pointer;white-space:normal}
+ #ratibWhatsappSupportDialog .ratib-whatsapp-cancel{background:var(--card);color:var(--text);border:1px solid var(--border)}
+ #ratibWhatsappSupportDialog .ratib-whatsapp-send{background:#168447;color:#fff;border:1px solid #168447}
+}
+@media screen and (max-width:360px){
+ #ratibWhatsappSupportDialog{padding:12px}
+ #ratibWhatsappSupportDialog fieldset{grid-template-columns:1fr}
+}
+@media print{#ratibWhatsappHeaderBtn,#ratibWhatsappSupportDialog,.ratib-whatsapp-help-btn{display:none!important}}

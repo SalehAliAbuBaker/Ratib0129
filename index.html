@@ -1597,9 +1597,26 @@ body.ratib-sidebar-open,body.ratib-about-open{overflow:hidden}
   gap:10px;min-width:0;direction:rtl;
  }
  #dashboardHomeContent .ratib-home-voucher-shortcuts>.main-menu-btn{
-  grid-area:auto!important;min-width:0;min-height:86px;margin:0;overflow-wrap:anywhere;
+  grid-area:auto!important;min-width:0;margin:0;overflow-wrap:anywhere;
  }
+ /* Compact only the eight home buttons; keep commerce, form controls and other pages unchanged. */
+ #dashboardHomeContent .ratib-home-main-grid .main-menu-btn{
+  min-height:76px!important;height:auto!important;padding:8px 6px!important;
+  gap:4px!important;line-height:1.3!important;
+ }
+ #dashboardHomeContent .ratib-home-main-grid .main-menu-icon{
+  font-size:1.55rem;line-height:1;flex-shrink:0;
+ }
+ #dashboardHomeContent .ratib-home-main-grid .main-menu-icon svg{
+  width:26px;height:26px;display:block;
+ }
+ #dashboardHomeContent .ratib-home-main-grid{
+  gap:8px;margin-bottom:12px;
+ }
+ #dashboardHomeContent .ratib-home-voucher-shortcuts{gap:8px}
  @media(min-width:900px){
+  #dashboardHomeContent .ratib-home-main-grid .main-menu-btn{min-height:82px!important;padding:10px 7px!important}
+
   #dashboardHomeContent .main-menu-grid.ratib-home-main-grid{
    grid-template-columns:repeat(3,minmax(0,1fr))!important;grid-template-areas:none!important;
   }
@@ -1728,6 +1745,10 @@ body.ratib-sidebar-open,body.ratib-about-open{overflow:hidden}
         <button class="main-menu-btn" onclick="navigateToTab('pageAccountsTree', true)">
           <span class="main-menu-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 3h14v18H5zM3 7h4M3 12h4M3 17h4M10 7h5M10 11h5M10 15h3"/></svg></span>
           <span>الحسابات</span>
+        </button>
+        <button type="button" class="main-menu-btn" onclick="navigateToTab('pageSettings', true)" aria-label="الإعدادات">
+          <span class="main-menu-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .34 1.89l.06.06-1.85 1.85-.06-.06a1.7 1.7 0 0 0-1.89-.34 1.7 1.7 0 0 0-1.04 1.56V21h-2.62v-.08A1.7 1.7 0 0 0 11.3 19.36a1.7 1.7 0 0 0-1.89.34l-.06.06-1.85-1.85.06-.06a1.7 1.7 0 0 0 .34-1.89A1.7 1.7 0 0 0 6.34 14.92H6v-2.62h.34A1.7 1.7 0 0 0 7.9 11.26a1.7 1.7 0 0 0-.34-1.89L7.5 9.31l1.85-1.85.06.06a1.7 1.7 0 0 0 1.89.34A1.7 1.7 0 0 0 12.34 6.3V6h2.62v.3A1.7 1.7 0 0 0 16 7.86a1.7 1.7 0 0 0 1.89-.34l.06-.06L19.8 9.31l-.06.06a1.7 1.7 0 0 0-.34 1.89 1.7 1.7 0 0 0 1.56 1.04H21v2.62h-.04A1.7 1.7 0 0 0 19.4 15Z"/></svg></span>
+          <span>الإعدادات</span>
         </button>
       </div>
 

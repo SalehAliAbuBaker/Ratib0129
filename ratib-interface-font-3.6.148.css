@@ -9,7 +9,7 @@
 :root[data-ratib-font-size="xlarge"]{--ratib-font-scale:1.2}
 #mainWrap{font-size:calc(1rem * var(--ratib-font-scale));}
 #mainWrap :is(input:not([type="checkbox"]):not([type="radio"]),textarea,select):not(.ratib-sig-input):not(.ratib-sig-select){
- font-size:calc(1rem * var(--ratib-font-scale))!important;line-height:1.45!important;
+ font-size:var(--ratib-input-font-size)!important;font-weight:400!important;line-height:1.45!important;
 }
 #appSidebar .sidebar-nav button,
 #pageSettings :is(.settings-accordion-header,.ratib-global-size-card > label),
@@ -28,12 +28,33 @@
  font-size:calc(var(--rb-action-font,.92rem) * var(--ratib-font-scale))!important;
  line-height:1.4!important;
 }
-#pageSettings .ratib-global-size-card>select{font-size:calc(1rem * var(--ratib-font-scale))!important}
+#pageSettings .ratib-global-size-card>select{font-size:var(--ratib-input-font-size)!important;font-weight:400!important}
 #mainWrap :is(.pv-signatures,.ratib-output-signatures,.rc-paper,.rc-paper-signatures,.print-sheet,.print-host){
  font-size:revert;
 }
-#ratibSignatureSettings :is(input,select,button){font-size:calc(.93rem * var(--ratib-font-scale))!important;}
+#ratibSignatureSettings :is(input,select){font-size:var(--ratib-input-font-size)!important;font-weight:400!important;}
+#ratibSignatureSettings button{font-size:calc(.93rem * var(--ratib-font-scale))!important;}
 }
 @media print {
 :root{--ratib-font-scale:1!important}
+}
+
+/* Official Ratib web 3.6.110: one normal-weight field type scale, linked to Settings.
+   Cascade layer gives consistent priority over legacy screen-only !important rules.
+   Control dimensions, accounting data and print layout are intentionally unchanged. */
+@media screen {
+ :root{--ratib-input-font-size:clamp(12px,calc(14px * var(--ratib-font-scale)),18px)}
+ html body :is(input:not([type="hidden"]):not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]):not([type="file"]):not([type="button"]):not([type="submit"]):not([type="reset"]):not([type="image"]),select,textarea){
+  font-size:var(--ratib-input-font-size)!important;font-weight:400!important;
+ }
+ html body select :is(option,optgroup){font-size:inherit!important;font-weight:400!important}
+}
+@layer ratib-official-field-type {
+ @media screen {
+  :where(input:not([type="hidden"]):not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]):not([type="file"]):not([type="button"]):not([type="submit"]):not([type="reset"]):not([type="image"]),select,textarea){
+   font-size:var(--ratib-input-font-size)!important;font-weight:400!important;
+  }
+  :where(input::placeholder,textarea::placeholder){font-weight:400!important}
+  :where(select option,select optgroup){font-size:inherit!important;font-weight:400!important}
+ }
 }

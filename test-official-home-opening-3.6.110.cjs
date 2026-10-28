@@ -43,7 +43,7 @@ const result=ctx.buildImportedOpeningVoucher(state,structuredClone(snapshot));
 assert.equal(result.records.length,2);
 assert.equal(result.data.masar_plan.transactions.length,2);
 assert(result.records.every(t=>t.isOpeningBalance&&t.isManualOpeningBalance&&t.status==='posted'&&t.importVoucherId===state.key&&t.importBatchId===state.key));
-assert.deepEqual(result.records.map(t=>t.openingBalance.account),['Cash','Capital']);
+assert.deepEqual(Array.from(result.records,t=>t.openingBalance.account),['Cash','Capital']);
 assert.equal(snapshot.masar_plan.transactions.length,0);
 assert.throws(()=>ctx.buildImportedOpeningVoucher({...state,rows:[row('Cash',125,0),row('Capital',0,124)]},structuredClone(snapshot)),/غير متوازن/);
 assert.throws(()=>ctx.buildImportedOpeningVoucher({...state,rows:[row('Cash',125,0)]},structuredClone(snapshot)),/بندين/);

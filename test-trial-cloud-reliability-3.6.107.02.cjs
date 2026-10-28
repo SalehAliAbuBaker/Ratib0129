@@ -15,7 +15,7 @@ function fixture() {
   const saved = { cloud_backup_cfg: { enabled: true, email: '', time: '00:00', lastDate: '', lastTime: '', lastError: '' } };
   const state = { posts: 0, metadataGets: 0, snapshots: 0, remote: false, mode: 'normal', notifications: [], requestUrls: [], lastSaved: null, confirmed: true };
   const status = { textContent: '' }, last = { textContent: '' }, warn = { textContent: '', style: {} };
-  const documents = { cloudBackupStatus: status, cloudBackupLastTime: last, cloudBackupWarn: warn, cloudUploadDestination: { value: 'official' }, cloudRunNowBtn: { disabled: false, style: {} } };
+  const documents = { cloudBackupStatus: status, cloudBackupLastTime: last, cloudBackupWarn: warn, cloudUploadDestination: { value: 'trial' }, cloudRunNowBtn: { disabled: false, style: {} } };
   const store = {
     get(key, defaultValue) { return saved[key] ?? defaultValue; },
     _setSilent(key, value) { saved[key] = value; },
@@ -39,11 +39,11 @@ function fixture() {
       if (state.mode === 'metadataUnavailable') throw new TypeError('Google Drive temporarily offline');
       const pending = saved.cloud_backup_cfg.pendingUpload;
       const bytes = state.mode === 'wrongSize' ? pending.bytes - 1 : pending.bytes;
-      return response({ id: 'backup-1', name: pending.name, parents: ['folder-official'], size: String(bytes), mimeType: 'application/json', trashed: false });
+      return response({ id: 'backup-1', name: pending.name, parents: ['folder-trial'], size: String(bytes), mimeType: 'application/json', trashed: false });
     }
     if (url.includes('/drive/v3/files?') && method === 'GET') {
       const query = new URL(url).searchParams.get('q') || '';
-      if (query.includes('mimeType')) return response({ files: [{ id: 'folder-official', name: 'Ratib Backups' }] });
+      if (query.includes('mimeType')) return response({ files: [{ id: 'folder-trial', name: 'Ratib Trial Backups' }] });
       return response({ files: state.remote ? [{ id: 'backup-1', name: saved.cloud_backup_cfg.pendingUpload?.name || state.lastSaved }] : [] });
     }
     if (url.includes('/drive/v3/about?')) return response({ user: { emailAddress: 'owner@example.com' } });
@@ -80,7 +80,7 @@ function fixture() {
     assert.equal(state.metadataGets, 1);
     assert.equal(saved.cloud_backup_cfg.lastStatus, 'verified');
     assert.equal(saved.cloud_backup_cfg.lastFileId, 'backup-1');
-    assert.equal(saved.cloud_backup_cfg.lastFolder, 'Ratib Backups');
+    assert.equal(saved.cloud_backup_cfg.lastFolder, 'Ratib Trial Backups');
     assert.equal(saved.cloud_backup_cfg.pendingUpload, null);
     assert(saved.cloud_backup_cfg.lastVerifiedAt);
     assert(status.textContent.includes('✅'));
@@ -146,8 +146,8 @@ function fixture() {
   assert(html.includes("return false;\n  }") === false || html.includes("catch(e)")); // Syntax covered below.
   assert(html.includes("showToast('اكتمل الاسترجاع والحفظ، سيُعاد فتح التطبيق.','info');setTimeout(()=>location.reload(),300);return true;"));
   assert(!html.includes("client.requestAccessToken({ prompt: interactive ? '' : 'none' })"));
-  assert(html.includes("const CLOUD_FOLDER_NAME = 'Ratib Backups'"));
-  assert(html.includes("const CLOUD_LEGACY_FOLDER_NAME = 'Ratib Trial Backups'"));
+  assert(html.includes("const CLOUD_FOLDER_NAME = 'Ratib Trial Backups'"));
+  assert(html.includes("const CLOUD_LEGACY_FOLDER_NAME = 'Ratib Backups'"));
   const sw = fs.readFileSync('sw.js','utf8');
   const pkg = JSON.parse(fs.readFileSync('package.json','utf8'));
   assert.equal(pkg.version,currentRelease);

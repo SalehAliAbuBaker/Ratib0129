@@ -1,13 +1,11 @@
-# Trial 3.6.109.03 — settings stability
+# Trial 3.6.109.03 — Ratib Muyassar source alignment
 
-Based on trial 8f187bb (3.6.109.01); no merge of the superseded 3.6.109.20 branch.
+User approved replacing the reset trial baseline with the delivered Ratib Muyassar M 1.0.2 web source. Source: trial 3.6.109.20 plus the local settings fixes recorded as 3.6.109.21. Public version remains 3.6.109.03 as requested, with a new v254 cache identity.
 
-- Preserve currency input DOM and unsaved edits when another currency saves or refreshes, including edits during asynchronous storage.
-- Exclude searchable account controls from monetary input filtering and settings fields from forced text selection.
-- Keep optional settings finder outside reordered card slots to prevent observer feedback loops. No finder UI was reintroduced.
-- Check PWA updates on return, recover from activation timeout, require explicit reload after another tab activates an update, and protect unsaved currency settings.
-- Bump visible version, module URLs and service-worker cache to 3.6.109.03.
+Verified exact text matches against the delivered M1.0.2 source, allowing only the requested version substitution: index.html, sidebar, gold style, theme JS/CSS, Cash Pulse, home layout, payment layout, feedback settings, button/font settings, and manifest. Browser voice implementation remains the original web path; native Android speech integration requires the APK bridge and is not injected into the website.
 
-Validation: seven of nine test programs passed: release identity, accounting, account autocomplete (8 cases), report output (16 cases), offline shell, stable currency/update lifecycle, and real sidebar observer. The two statement suites fail on their pre-existing Latin-digit expectation (`3,200` versus `٣٬٢٠٠`); both failures reproduced on unchanged baseline 8f187bb. They were not hidden or removed.
+19 targeted test programs passed: release consistency; currency/update stability; observer stability; settings interactions; settings functional audit; settings input guard; direct vouchers; payment layout; retired commerce; accounting; offline shell; Cash Pulse selection; edit return; palettes; payment ordering; cloud auth/upload mocks; Android-touch simulation; account autocomplete (8 scenarios); report output (16 scenarios).
 
-No accounting formula, historical exchange rate, local user data, cloud configuration, main branch or APK was changed. This publication was tested programmatically; no new physical-phone acceptance test is claimed. Deployment verification is performed separately after push.
+Two test expectations were corrected: normalize Windows line endings in the edit-return test, and allow appended release notes without hardcoding the old note count. No accounting implementation was altered for these tests.
+
+No new real-phone test, real cloud upload, or user-data restoration was performed in this publication. The wider historical statement-format test failures reported previously are outside this targeted run. Main, signing material and APK builds were not changed. No user storage migration or deletion was introduced. Web deployment verification follows push.

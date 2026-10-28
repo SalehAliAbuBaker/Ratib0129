@@ -102,7 +102,13 @@
   function refreshParents(){
     const box=document.getElementById('ratibQuickAccountParent');
     const search=normalized(document.getElementById('ratibQuickParentSearch').value);
-    const previous=box.value;box.replaceChildren();
+    const previous=box.value;
+    // Keep a single source for parent options in quick-create and account administration.
+    if(window.RatibSimpleAccounts?.fillParentSelect?.(box,getCanonicalCatalog(),previous,search)){
+      refreshCode();
+      return;
+    }
+    box.replaceChildren();
     const option=document.createElement('option');option.value='';option.textContent='اختر الحساب الأب...';box.append(option);
     for(const row of parentRows()){
       if(search&&!normalized(row.text+' '+row.code).includes(search))continue;
@@ -140,6 +146,7 @@
     const name=document.getElementById('ratibQuickAccountName');name.value=typed.trim();
     const code=document.getElementById('ratibQuickAccountCode');code.value='';delete code.dataset.manual;
     document.getElementById('ratibQuickParentSearch').value='';
+    document.getElementById('ratibQuickAccountParent').value='';
     refreshParents();
     const list=document.getElementById('ratibQuickAccountCurrency');list.replaceChildren();
     for(const entry of currencies()){

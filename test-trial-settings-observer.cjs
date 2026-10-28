@@ -4,7 +4,6 @@ const dom=new JSDOM('<html><head></head><body><button id="sidebarMenuBtn"></butt
 const w=dom.window,page=w.document.getElementById('pageSettings');
 w.HTMLElement.prototype.scrollIntoView=function(){};w.scrollTo=()=>{};w.navigateToTab=()=>{};w.closeRatibSidebar=()=>{};
 function card(title){const el=w.document.createElement('div');el.className='settings-accordion-card';el.innerHTML='<div class="settings-accordion-header"><span>'+title+'</span></div><div class="settings-accordion-body"><input></div>';return el;}
-const finder=w.document.createElement('div');finder.id='ratibSettingsFinder';page.append(finder);
 page.append(card('إدارة العملات'),card('إعدادات الحسابات الافتراضية للسندات'));
 const pause=ms=>new Promise(r=>setTimeout(r,ms));
 (async()=>{try{

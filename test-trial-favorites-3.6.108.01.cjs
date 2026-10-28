@@ -10,12 +10,14 @@ assert(html.includes('الإصدار '+pkg.version));
 for(const [label,fragment] of [
  ['المركز المالي',"'position-report'"],['حركة الحسابات',"'movement-report'"],
  ['الأمان',"'security'"],['التخزين',"'backupsettings'"],
- ['المستندات',"'مستند جديد — الوارد'"],['المبيعات',"'مستند جديد — الصادر'"],
+
  ['الاختصارات القديمة','اختصار قديم لم يعد متاحًا'],
  ['الاكتشاف الديناميكي',"function discoverSettings()"],
  ['التقارير الديناميكية',"function discoverReports()"],
  ['واجهة التسجيل',"register:registerFavorite"]
 ])assert(fav.includes(fragment),label+' must remain in favorites catalog');
+assert(!fav.includes('const commerceFavorites='),'removed commerce favorites should not remain in the trial catalog');
+assert(fav.includes("!id.startsWith('commerce:')"),'previously selected commerce shortcuts must stay hidden');
 assert(fav.includes("window.RatibSettingsOpen('favorites')"));
 assert(fav.includes("localStorage.getItem(KEY)"));
 assert(!fav.includes("filter(id=>byId[id])];}catch(_){}"),'must preserve custom saved favorites until validated');

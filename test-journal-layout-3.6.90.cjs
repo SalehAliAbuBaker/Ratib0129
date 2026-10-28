@@ -11,7 +11,9 @@ const pkg=JSON.parse(fs.readFileSync('package.json','utf8'));
 assert(Number(pkg.version.split('.').slice(0,3).at(-1))>=89);
 if(index.includes('ratib-journal-layout-3.6.90.js')){
  const close=index.lastIndexOf('</body>');
- assert(index.lastIndexOf('<script src="./ratib-journal-layout-3.6.90.js')>index.length-1600,'Journal script must load at document end');
+ const document=new JSDOM(index).window.document;
+ assert([...document.body.querySelectorAll('script[src]')].some(el=>el.getAttribute('src')?.startsWith('./ratib-journal-layout-3.6.90.js?')),
+   'Journal script must load as a real script at the document end, not inside an export template');
  assert(index.lastIndexOf('ratib-journal-layout-3.6.90.js')<close,'Journal script must not be inserted into exported HTML template');
  const head=index.indexOf('</head>');
  assert(index.indexOf('ratib-journal-layout-3.6.90.css')<head,'Journal CSS must be inside real document head');

@@ -103,7 +103,7 @@ function cashAccounts(){
 function renderCashDirectory(){
  const list=byId('ratibPulseAccountList'),summary=byId('ratibPulseAccountSummary');
  if(!list||!summary)return;
- const available=catalogAccounts(),suggested=new Set(detectedCashAccounts().map(x=>x.value));
+ const available=catalogAccounts();
  const selected=new Set(selectedCashNames);
  const count=available.filter(a=>selected.has(a.value)).length;
  summary.textContent='تحديد حسابات نبض الصندوق — '+count+' مختار من '+available.length+' حساب';
@@ -117,9 +117,7 @@ function renderCashDirectory(){
   checkbox.dataset.pulseCashAccount='1';checkbox.checked=selected.has(a.value);
   checkbox.setAttribute('aria-label',a.label);
   const title=document.createElement('span');title.textContent=a.label;
-  const hint=document.createElement('small');
-  hint.textContent=suggested.has(a.value)?'حساب نقدي مقترح · اختيار يدوي':'اختر يدويًا إذا كان الحساب نقديًا أو بنكيًا';
-  label.append(checkbox,title,hint);frag.append(label);
+  label.append(checkbox,title);frag.append(label);
  }
  if(!matches){const p=document.createElement('p');p.textContent='لا توجد حسابات مطابقة.';frag.append(p);}
  list.replaceChildren(frag);
@@ -290,7 +288,7 @@ function mount(){
  root=document.createElement('section');root.id='ratibCashPulse';root.className='ratib-pulse no-print';
  root.innerHTML=
  '<button type="button" id="ratibPulseToggle" class="ratib-pulse-toggle" aria-controls="ratibPulseBody" aria-expanded="false"><span class="ratib-pulse-toggle-left"><span class="ratib-pulse-symbol" aria-hidden="true">◉</span> نبض الصندوق</span><span aria-hidden="true">⌄</span></button>'+
- '<div id="ratibPulseBody" hidden><details class="ratib-pulse-account-picker"><summary id="ratibPulseAccountSummary">اختيار حسابات نبض الصندوق</summary><div class="ratib-pulse-account-tools"><input type="search" id="ratibPulseAccountSearch" placeholder="ابحث بالاسم أو رقم الحساب في كامل الدليل..." aria-label="البحث عن حساب نقدي أو بنكي"><button type="button" id="ratibPulseAccountReset">إلغاء تحديد الكل</button></div><p class="ratib-pulse-muted">اختيار يدوي بالكامل: حدد صندوقًا أو بنكًا واحدًا، أو عدة حسابات للمقارنة والجمع عند الطلب. لا حسابات إجبارية ولا تغيير في الأرصدة أو القيود. الحساب غير النقدي لا يُنصح بإدراجه.</p><div id="ratibPulseAccountList" class="ratib-pulse-account-list"></div></details><div class="ratib-pulse-filters"><label>الصندوق أو البنك<select id="ratibPulseAccount"></select></label><label>العملة<select id="ratibPulseCurrency"></select></label><label>الفترة<select id="ratibPulsePeriod"><option value="month">هذا الشهر</option><option value="today">اليوم</option><option value="week">آخر 7 أيام</option><option value="year">هذه السنة</option><option value="all">من البداية</option></select></label></div><p id="ratibPulseStatus" class="ratib-pulse-muted" role="status"></p>'+
+ '<div id="ratibPulseBody" hidden><details class="ratib-pulse-account-picker"><summary id="ratibPulseAccountSummary">اختيار حسابات نبض الصندوق</summary><div class="ratib-pulse-account-tools"><input type="search" id="ratibPulseAccountSearch" placeholder="ابحث بالاسم أو رقم الحساب في كامل الدليل..." aria-label="البحث عن حساب نقدي أو بنكي"><button type="button" id="ratibPulseAccountReset">إلغاء تحديد الكل</button></div><div id="ratibPulseAccountList" class="ratib-pulse-account-list"></div></details><div class="ratib-pulse-filters"><label>الصندوق أو البنك<select id="ratibPulseAccount"></select></label><label>العملة<select id="ratibPulseCurrency"></select></label><label>الفترة<select id="ratibPulsePeriod"><option value="month">هذا الشهر</option><option value="today">اليوم</option><option value="week">آخر 7 أيام</option><option value="year">هذه السنة</option><option value="all">من البداية</option></select></label></div><p id="ratibPulseStatus" class="ratib-pulse-muted" role="status"></p>'+
  '<div id="ratibPulseReadout" hidden><div class="ratib-pulse-visual"><div class="ratib-pulse-circle-wrap"><svg class="ratib-pulse-ring" viewBox="0 0 220 220" width="220" height="220" fill="none" role="img" aria-label="المقبوضات باللون الأخضر والمدفوعات باللون الذهبي"><circle class="ratib-pulse-track" cx="110" cy="110" r="71"/><circle id="ratibPulseGreenArc" class="ratib-pulse-arc ratib-pulse-green" cx="110" cy="110" r="71" role="button" tabindex="0" aria-label="تفاصيل المقبوضات"/><circle id="ratibPulseGoldArc" class="ratib-pulse-arc ratib-pulse-gold" cx="110" cy="110" r="71" role="button" tabindex="0" aria-label="تفاصيل المدفوعات"/></svg><div class="ratib-pulse-center"><small>الرصيد الحالي</small><strong id="ratibPulseClosing">—</strong><small>حتى اليوم</small></div></div>'+
  '<div class="ratib-pulse-values"><div class="ratib-pulse-val"><small>الرصيد أول الفترة</small><strong id="ratibPulseBeginning">—</strong></div><button type="button" data-pulse-side="debit" class="ratib-pulse-val"><small><i class="ratib-pulse-dot green"></i>المقبوضات</small><strong id="ratibPulseIncome">—</strong></button><button type="button" data-pulse-side="credit" class="ratib-pulse-val"><small><i class="ratib-pulse-dot gold"></i>المدفوعات</small><strong id="ratibPulseExpense">—</strong></button><div class="ratib-pulse-val"><small>صافي الحركة</small><strong id="ratibPulseNet">—</strong></div></div></div>'+
  '<div id="ratibPulseDetails" class="ratib-pulse-details" hidden><div class="ratib-pulse-details-title"><b id="ratibPulseDetailsTitle"></b><div class="ratib-pulse-details-actions"><button id="ratibPulseStatement" type="button" class="ratib-pulse-statement">كشف الحساب</button><button id="ratibPulseDismiss" type="button" aria-label="إغلاق تفاصيل الحركات">×</button></div></div><div id="ratibPulseList" class="ratib-pulse-list"></div></div></div></div>';

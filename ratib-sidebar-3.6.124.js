@@ -153,7 +153,13 @@ function reorder(){
    });
  }
  const order=settings.map(x=>map.get(x[0])).filter(Boolean);
- for(let i=0;i<order.length;i++){const c=order[i],key=keyFor(c);setTitle(c,key);if(page.children[i]!==c)page.insertBefore(c,page.children[i]||null);}
+ // Keep the finder outside the card slots. Moving cards ahead of it and then
+ // prepending it again caused a MutationObserver/requestAnimationFrame loop,
+ // detaching focused inputs and immediately closing Android select popups.
+ const offset=$('ratibSettingsFinder')?.parentElement===page?1:0;
+ if(offset&&page.firstElementChild!==$('ratibSettingsFinder'))page.prepend($('ratibSettingsFinder'));
+ for(let i=0;i<order.length;i++){const c=order[i],key=keyFor(c),slot=i+offset;setTitle(c,key);if(page.children[slot]!==c)page.insertBefore(c,page.children[slot]||null);}
+ const finder=$('ratibSettingsFinder');if(finder&&page.firstElementChild!==finder)page.prepend(finder);
 }
 function setCardOpen(c,open){
  if(!c)return;
@@ -304,6 +310,7 @@ function syncSidebarVersion(){
  const about=document.querySelector('.ratib-about-version');if(about)about.textContent=label;
 }
 function money(el){
+ if(el?.matches?.('input.searchable-input')||el?.closest?.('.searchable-select-wrap'))return false;
  if(!(el instanceof HTMLInputElement)||el.disabled||el.readOnly||el.type==='hidden')return false;
  if(el.matches('.number-formatted,.multi-line-amount,.voucher-cat-amt-input,#ratibHeaderAmount,.spend-line-quote'))return true;
  if(['date','time','password','email','tel','search','checkbox','radio','file'].includes(el.type)||el.id==='financialCalcExpression')return false;
@@ -338,6 +345,7 @@ function ratibEditableText(el){
   ['text','search','tel','email','url'].includes(el.type);
 }
 function ratibSelectInitialValue(el){
+ if(el?.closest?.('#pageSettings'))return;
  if(!ratibEditableText(el)||!el.value)return;
   // Do not force Android cut/copy selection on account input; preserve manual selection.
   if(el.matches?.('input.searchable-input,input.rit-search,input#accountsPagerSearchInput,input[id^="rc-search-"],input#rc-partyName,input#ratibQuickAccountName,input#ratibQuickParentSearch'))return;

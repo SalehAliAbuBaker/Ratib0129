@@ -1,9 +1,9 @@
 {
   "name": "ratib-account-autocomplete-tests",
   "private": true,
-  "version": "3.6.109.01",
+  "version": "3.6.109.03",
   "scripts": {
-    "test": "node test-trial-reset-3.6.109.01.cjs && node test-accounting-3.6.59.cjs && node test-account-autocomplete.cjs && node test-statement-3.6.60.cjs && node test-statement-3.6.79.cjs && node test-report-output.cjs && node test-offline-first.cjs"
+    "test": "node test-trial-reset-3.6.109.03.cjs && node test-accounting-3.6.59.cjs && node test-account-autocomplete.cjs && node test-statement-3.6.60.cjs && node test-statement-3.6.79.cjs && node test-report-output.cjs && node test-offline-first.cjs && node test-trial-settings-stable.cjs && node test-trial-settings-observer.cjs"
   },
   "engines": {
     "node": ">=24"

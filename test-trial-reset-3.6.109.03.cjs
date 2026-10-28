@@ -1,11 +1,11 @@
 'use strict';
 const assert=require('node:assert/strict'),fs=require('node:fs');
 const h=fs.readFileSync('index.html','utf8'),w=fs.readFileSync('sw.js','utf8'),s=fs.readFileSync('ratib-sidebar-3.6.124.js','utf8'),p=require('./package.json');
-const v='3.6.109.01',label='الإصدار '+v+' (تجريبية)';
+const v='3.6.109.03',label='الإصدار '+v+' (تجريبية)';
 assert.equal(p.version,v);
-assert(h.includes('const RATIB_RELEASE={"version":"'+v+'","build":"t10901"'));
-assert(w.includes('const APP_RELEASE={"version":"'+v+'","build":"t10901"'));
-assert(w.includes('v221-trial-official-reset-'+v));
+assert(h.includes('const RATIB_RELEASE={"version":"'+v+'","build":"t10903"'));
+assert(w.includes('const APP_RELEASE={"version":"'+v+'","build":"t10903"'));
+assert(w.includes('v223-trial-settings-stable-'+v));
 assert(h.includes('id="appVersionLabel" class="app-version">'+label));
 assert(h.includes('class="ratib-about-version">'+label));
 assert(s.includes('const label=window.ratibCurrentTrialVersionLabel?.()'));

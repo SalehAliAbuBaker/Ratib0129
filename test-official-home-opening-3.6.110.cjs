@@ -20,7 +20,7 @@ const start=html.indexOf('function buildImportedOpeningVoucher(state,data){');
 const end=html.indexOf('async function saveImportedOpeningVoucher()',start);
 assert(start>0&&end>start);
 const decimal=value=>{
- const str=String(value??'0').trim(),match=str.match(/^(\\d+)(?:\\.(\\d{1,6}))?$/);
+ const str=String(value??'0').trim(),match=str.match(/^(\d+)(?:\.(\d{1,6}))?$/);
  if(!match)throw Error('مبلغ غير صالح');
  return {raw:str,value:Number(str),precision:(match[2]||'').length,units:BigInt(match[1])*1000000n+BigInt((match[2]||'').padEnd(6,'0'))};
 };

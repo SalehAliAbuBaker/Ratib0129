@@ -30,7 +30,16 @@ assert(homeStyles.includes('min-height:76px!important'),'compact mobile buttons'
 assert(homeStyles.includes('min-height:82px!important'),'compact desktop buttons');
 assert(homeStyles.includes('.ratib-home-main-grid .main-menu-btn'),'only home tiles resized');
 assert.equal(doc.querySelectorAll('.ratib-commerce-shortcut').length,3,'commerce row remains intact');
-assert(sw.includes('v223-official-home-eight-compact-3.6.110'));
+const commerceRow=doc.querySelector('#dashboardHomeContent .ratib-commerce-shortcuts');
+assert(commerceRow && commerceRow.querySelectorAll('button.ratib-commerce-shortcut').length===3);
+assert.deepEqual([...commerceRow.querySelectorAll('button')].map(b=>b.textContent.trim()),['المخزون','الوارد','الصادر']);
+for(const kind of ['stock','in','out'])assert(commerceRow.querySelector('[onclick="RatibCommerce.open(\''+kind+'\')"]'),'commerce action '+kind);
+assert(homeStyles.includes('#dashboardHomeContent .ratib-commerce-shortcuts .ratib-commerce-shortcut{'));
+assert(homeStyles.includes('min-height:76px!important;height:auto!important;'),'commerce mobile height 76px');
+assert(homeStyles.includes('min-height:82px!important;padding:10px 7px!important;'),'commerce desktop height 82px');
+assert(homeStyles.includes('width:var(--rb-tile-icon)!important;height:var(--rb-tile-icon)!important;'),'commerce icons follow same scale as 8 tiles');
+assert(homeStyles.includes('gap:8px!important;margin:8px 0 12px'),'commerce row is compact and stays three columns');
+assert(sw.includes('v224-official-home-commerce-compact-3.6.110'));
 const start=html.indexOf('function buildImportedOpeningVoucher(state,data){');
 const end=html.indexOf('async function saveImportedOpeningVoucher()',start);
 assert(start>0&&end>start);

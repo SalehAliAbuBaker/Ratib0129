@@ -8,7 +8,7 @@ const pkg=require('./package.json');
 assert.equal(pkg.version,'3.6.110');
 assert(index.includes('const RATIB_RELEASE={"version":"3.6.110","build":"p11000"'));
 assert(sw.includes('const APP_RELEASE={"version":"3.6.110","build":"p11000"'));
-assert(sw.includes("v223-official-home-eight-compact-3.6.110"));
+assert(sw.includes("v224-official-home-commerce-compact-3.6.110"));
 assert(index.includes('id="appVersionLabel" class="app-version">الإصدار 3.6.110</small>'));
 assert(index.includes('class="ratib-about-version">الإصدار 3.6.110</p>'));
 assert(index.includes('window.ratibCurrentTrialVersionLabel=()=>`الإصدار ${RATIB_RELEASE.version}`'));

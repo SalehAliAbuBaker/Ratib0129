@@ -795,3 +795,17 @@
     }
   }
 }
+
+/* Keep the voucher heading and type action readable at narrow widths and large fonts. */
+@media screen {
+ #cashFlowCard>h2,#multiVoucherCard>h2{display:flex!important;flex-wrap:wrap!important;align-items:center!important;gap:8px!important}
+ #cashFlowCard>h2>div{flex:1 1 190px;min-width:0;flex-wrap:wrap}
+ #cashFlowCard>h2>button,#multiVoucherCard>h2>button{flex:0 0 auto!important;width:auto!important;max-width:100%;white-space:nowrap!important;word-break:normal!important;overflow-wrap:normal!important}
+ #voucherHeaderTitle{word-break:normal;overflow-wrap:normal}
+}
+
+@media screen {
+ #mainWrap input:is([type="date"],[type="datetime-local"],[type="time"]){direction:ltr!important;text-align:left!important;unicode-bidi:isolate;min-width:0;box-sizing:border-box}
+ #mainWrap input:is([type="date"],[type="datetime-local"],[type="time"])::-webkit-datetime-edit{direction:ltr;text-align:left}
+ #mainWrap input:is([type="date"],[type="datetime-local"],[type="time"])::-webkit-date-and-time-value{text-align:left}
+}

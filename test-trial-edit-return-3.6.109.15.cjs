@@ -9,7 +9,7 @@ const app=JSON.parse(html.match(/const RATIB_RELEASE=(\{[^\n]+\});/)[1]);
 const worker=JSON.parse(sw.match(/const APP_RELEASE=(\{[^\n]+\});/)[1]);
 assert.deepEqual(app,worker);
 assert.equal(app.version,'3.6.109.03');
-assert(sw.includes('v259-trial-yemen-default-3.6.109.03'));
+assert(sw.includes('v260-trial-mobile-heading-date-3.6.109.03'));
 assert(html.includes('function ratibRememberEditOrigin(item)'));
 assert(html.includes('function ratibRestoreEditOriginAfterSave()'));
 assert(html.includes("if(view.tab==='pageLedger'&&origin.ledgerTypes)"));

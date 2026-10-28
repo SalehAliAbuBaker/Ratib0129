@@ -1,0 +1,46 @@
+/* Ratib official web 3.6.112 — layout-only; financial inputs and save code untouched. */
+@media screen and (min-width:900px) {
+  /* Two aligned rows of four main shortcuts. The commerce row remains separate. */
+  #dashboardHomeContent .main-menu-grid.ratib-home-main-grid {
+    grid-template-columns:repeat(4,minmax(0,1fr))!important;
+    grid-template-areas:none!important;
+  }
+  #dashboardHomeContent .ratib-home-voucher-shortcuts {
+    grid-column:1/-1!important;
+    grid-template-columns:repeat(4,minmax(0,1fr))!important;
+  }
+  #dashboardHomeContent .ratib-home-main-grid>.main-menu-btn {
+    grid-area:auto!important;min-width:0!important;
+  }
+}
+@media screen and (max-width:640px) {
+  /* Remove only duplicate on-screen captions, retaining proper accessible names. */
+  #pageExpenses .ratib-duplicate-caption {
+    position:absolute!important;width:1px!important;height:1px!important;
+    margin:-1px!important;padding:0!important;border:0!important;
+    overflow:hidden!important;clip-path:inset(50%)!important;
+    white-space:nowrap!important;
+  }
+  /* Browser-native dates: LTR segments so day, month and year do not overlap in RTL. */
+  #pageExpenses input[type="date"],
+  #importedOpeningVoucherModal input[type="date"] {
+    direction:ltr!important;unicode-bidi:isolate!important;
+    text-align:left!important;font-variant-numeric:tabular-nums;
+    box-sizing:border-box;min-width:0!important;
+    font-size:var(--ratib-input-font-size,14px)!important;
+    line-height:1.45!important;
+  }
+  #pageExpenses input[type="date"]::-webkit-datetime-edit,
+  #importedOpeningVoucherModal input[type="date"]::-webkit-datetime-edit {
+    direction:ltr!important;text-align:left!important;
+    unicode-bidi:isolate!important;
+  }
+  #pageExpenses input[type="date"]::-webkit-date-and-time-value,
+  #importedOpeningVoucherModal input[type="date"]::-webkit-date-and-time-value {
+    text-align:left!important;min-height:1.2em;
+  }
+  #multiVoucherCard .multi-voucher-grid label,
+  #multiVoucherCard>label,
+  #cashFlowCard .form-group {min-width:0}
+}
+/* Keep captions visible on desktop and in printed documents. */

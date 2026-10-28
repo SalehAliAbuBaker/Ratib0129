@@ -213,13 +213,20 @@ save();render();
 });
 document.addEventListener('keydown',e=>{if(e.key==='Escape'&&panel.classList.contains('open'))close();});
 const actions=document.querySelector('header .header-actions');
-let exit=null;
 if(actions){
-exit=document.createElement('button');exit.type='button';exit.className='icon-btn ratib-quick-btn';exit.textContent='🚪';exit.title='الخروج';exit.setAttribute('aria-label','الخروج من التطبيق');exit.addEventListener('click',event=>{
- event.preventDefault();
- if(typeof window.RatibExitNow==='function')window.RatibExitNow();
- else window.showToast?.('تعذر بدء الخروج؛ يرجى تحديث الصفحة.','error');
-});actions.append(exit);
+ const support=document.createElement('button');
+ support.type='button';support.id='ratibWhatsappHeaderBtn';
+ support.className='icon-btn ratib-quick-btn ratib-support-header-btn';
+ support.textContent='💬';support.title='تواصل عبر واتساب';
+ support.setAttribute('aria-label','تواصل عبر واتساب: مشكلة فنية أو مقترح');
+ support.setAttribute('aria-haspopup','dialog');
+ support.setAttribute('aria-controls','ratibWhatsappSupportDialog');
+ support.addEventListener('click',event=>{
+  event.preventDefault();
+  if(typeof window.RatibSupportOpen==='function')window.RatibSupportOpen();
+  else window.showToast?.('تعذر فتح نافذة التواصل؛ أعد تحميل الصفحة.','warn');
+ });
+ actions.append(support);
 }
 /* Favorites are launched here; their configuration is only in Settings. */
 const favCompactStyle=document.createElement('style');

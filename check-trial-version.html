@@ -12,7 +12,7 @@
 <div class="line"><strong>توقيت آخر فحص</strong><span id="time">—</span></div>
 <button id="check" type="button">إعادة الفحص</button>
 <p class="note">هذه الصفحة لا تطلب كلمة مرور، ولا تقرأ الحسابات أو الأرصدة، ولا تحذف بيانات الموقع أو سجلاته. إن ظهرت صفحة راتب الرئيسية بدل هذه الصفحة، فقد تكون نسخة قديمة تتحكم في التنقل.</p></main>
-<footer>الصفحة المستقلة لفحص إصدار راتب 3.6.109.03.</footer>
+<footer>الصفحة المستقلة لفحص إصدار راتب 3.6.109.01.</footer>
 <script>
 (function(){
  const byId=id=>document.getElementById(id);
@@ -26,8 +26,8 @@
      byId('release').textContent=a.ok?v:'HTTP '+a.status;byId('sw').textContent=b.ok?s:'HTTP '+b.status;
      byId('cache').textContent=m?.[1]||'غير معروف';byId('server').textContent=a.ray;
      byId('time').textContent=new Date().toLocaleString('ar');
-     status.className=v===s&&v==='3.6.109.03'?'ok':'bad';
-     status.textContent=v===s&&v==='3.6.109.03'?'الصفحة وملف التحديث كلاهما الإصدار 3.6.109.03.':'يوجد اختلاف في الإصدار أو مشكلة في الاستجابة؛ التقط صورة لهذه الشاشة.';
+     status.className=v===s&&v==='3.6.109.01'?'ok':'bad';
+     status.textContent=v===s&&v==='3.6.109.01'?'الصفحة وملف التحديث كلاهما الإصدار 3.6.109.01.':'يوجد اختلاف في الإصدار أو مشكلة في الاستجابة؛ التقط صورة لهذه الشاشة.';
    }catch(e){
      status.className='bad';status.textContent='تعذر الفحص: '+e.message;
      byId('release').textContent='خطأ اتصال';byId('sw').textContent='خطأ اتصال';

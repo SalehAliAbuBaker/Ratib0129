@@ -50,5 +50,7 @@ assert.throws(()=>ctx.buildImportedOpeningVoucher({...state,rows:[row('Cash',125
 assert.throws(()=>ctx.buildImportedOpeningVoucher({...state,rows:[row('Cash',125,0),row('Cash',0,125)]},structuredClone(snapshot)),/تكرر الحساب/);
 assert.throws(()=>ctx.buildImportedOpeningVoucher(state,structuredClone(result.data)),/تغير القيد/);
 const other=structuredClone(snapshot);other.masar_plan.transactions=[{...result.records[0],id:'other',importBatchId:'other',importVoucherId:'other'}];
+assert.throws(()=>ctx.buildImportedOpeningVoucher(state,other),/رقم القيد الافتتاحي مستخدم/);
+other.masar_plan.transactions[0].seqNum=41;
 assert.throws(()=>ctx.buildImportedOpeningVoucher(state,other),/رصيد افتتاحي آخر/);
 console.log('PASS original Ratib homepage entry shortcuts and safe balanced manual opening creation');

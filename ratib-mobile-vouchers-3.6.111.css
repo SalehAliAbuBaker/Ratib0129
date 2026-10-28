@@ -1,0 +1,85 @@
+/* Ratib official web 3.6.111: responsive UI-only fixes for voucher forms. */
+@media screen and (max-width:640px) {
+  /* Simple journal: keep "change type" readable, never a vertical strip. */
+  #cashFlowCard>h2 {
+    display:flex!important;flex-direction:column!important;align-items:stretch!important;
+    gap:10px!important;min-width:0!important
+  }
+  #cashFlowCard>h2>div {
+    display:flex!important;flex-wrap:wrap!important;align-items:center!important;
+    gap:8px!important;min-width:0!important
+  }
+  #cashFlowCard>h2>button {
+    display:inline-flex!important;align-self:flex-start!important;align-items:center!important;
+    justify-content:center!important;min-width:max-content!important;max-width:100%!important;
+    min-height:44px!important;width:auto!important;padding:7px 12px!important;
+    white-space:nowrap!important;overflow-wrap:normal!important;
+    word-break:keep-all!important;writing-mode:horizontal-tb!important;
+    line-height:1.35!important
+  }
+  #cashFlowCard .form-group,#cashFlowCard .searchable-select-wrap{min-width:0}
+  /* Opening journal: cards on phones, unchanged table for desktop/print. */
+  #importedOpeningVoucherModal .modal-content {
+    width:min(100%,620px)!important;max-width:100%!important;
+    max-height:calc(100dvh - 18px)!important;overflow-y:auto!important;
+    overflow-x:hidden!important;padding:12px!important
+  }
+  #importedOpeningVoucherModal .pv-table:has(#importedOpeningRows){
+    display:block!important;width:100%!important;min-width:0!important;border:0!important
+  }
+  #importedOpeningVoucherModal .pv-table:has(#importedOpeningRows)>thead{display:none!important}
+  #importedOpeningVoucherModal #importedOpeningRows{
+    display:grid!important;grid-template-columns:minmax(0,1fr)!important;
+    gap:12px!important;min-width:0!important
+  }
+  #importedOpeningVoucherModal #importedOpeningRows>tr{
+    display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;
+    gap:8px!important;padding:12px!important;border:1px solid var(--border)!important;
+    border-radius:10px!important;background:var(--card)!important;
+    min-width:0!important;box-shadow:var(--shadow)
+  }
+  #importedOpeningVoucherModal #importedOpeningRows>tr>td{
+    display:flex!important;flex-direction:column!important;justify-content:flex-start!important;
+    gap:4px!important;min-width:0!important;width:auto!important;height:auto!important;
+    padding:0!important;border:0!important;white-space:normal!important
+  }
+  #importedOpeningVoucherModal #importedOpeningRows>tr>td::before{
+    font-size:12px;font-weight:500;color:var(--muted);line-height:1.3
+  }
+  #importedOpeningVoucherModal #importedOpeningRows>tr>td:nth-child(1),
+  #importedOpeningVoucherModal #importedOpeningRows>tr>td:nth-child(9),
+  #importedOpeningVoucherModal #importedOpeningRows>tr>td:nth-child(10),
+  #importedOpeningVoucherModal #importedOpeningRows>tr>td:nth-child(11){grid-column:1/-1}
+  #importedOpeningVoucherModal #importedOpeningRows>tr>td:nth-child(1)::before{content:"الحساب"}
+  #importedOpeningVoucherModal #importedOpeningRows>tr>td:nth-child(2)::before{content:"العملة"}
+  #importedOpeningVoucherModal #importedOpeningRows>tr>td:nth-child(3)::before{content:"مدين"}
+  #importedOpeningVoucherModal #importedOpeningRows>tr>td:nth-child(4)::before{content:"دائن"}
+  #importedOpeningVoucherModal #importedOpeningRows>tr>td:nth-child(5)::before{content:"عملة التقييم"}
+  #importedOpeningVoucherModal #importedOpeningRows>tr>td:nth-child(6)::before{content:"مدين تقييم"}
+  #importedOpeningVoucherModal #importedOpeningRows>tr>td:nth-child(7)::before{content:"دائن تقييم"}
+  #importedOpeningVoucherModal #importedOpeningRows>tr>td:nth-child(8)::before{content:"التاريخ"}
+  #importedOpeningVoucherModal #importedOpeningRows>tr>td:nth-child(9)::before{content:"مرجع المصدر"}
+  #importedOpeningVoucherModal #importedOpeningRows>tr>td:nth-child(10)::before{content:"البيان"}
+  #importedOpeningVoucherModal #importedOpeningRows input,
+  #importedOpeningVoucherModal #importedOpeningRows select{
+    box-sizing:border-box!important;width:100%!important;min-width:0!important;
+    max-width:100%!important;height:44px!important;margin:0!important
+  }
+  #importedOpeningVoucherModal #importedOpeningRows>tr>td:last-child button {
+    display:inline-flex!important;align-items:center!important;justify-content:center!important;
+    align-self:flex-start!important;min-width:95px!important;min-height:44px!important;
+    width:auto!important;max-width:100%!important;white-space:nowrap!important;
+    word-break:keep-all!important;overflow-wrap:normal!important;
+    writing-mode:horizontal-tb!important;padding:7px 12px!important
+  }
+  #importedOpeningVoucherModal .modal-content>div:has(>#importedOpeningSave){
+    display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:8px!important
+  }
+  #importedOpeningVoucherModal .modal-content>div:has(>#importedOpeningSave)>button{
+    width:100%!important;min-width:0!important;min-height:44px!important;
+    white-space:normal!important;word-break:normal!important;writing-mode:horizontal-tb!important
+  }
+}
+@media print {
+  #importedOpeningVoucherModal .pv-table:has(#importedOpeningRows){display:table!important}
+}

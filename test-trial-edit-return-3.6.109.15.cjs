@@ -9,7 +9,7 @@ const app=JSON.parse(html.match(/const RATIB_RELEASE=(\{[^\n]+\});/)[1]);
 const worker=JSON.parse(sw.match(/const APP_RELEASE=(\{[^\n]+\});/)[1]);
 assert.deepEqual(app,worker);
 assert.equal(app.version,'3.6.109.03');
-assert(sw.includes('v254-trial-muyassar-match-3.6.109.03'));
+assert(sw.includes('v255-trial-pulse-colors-3.6.109.03'));
 assert(html.includes('function ratibRememberEditOrigin(item)'));
 assert(html.includes('function ratibRestoreEditOriginAfterSave()'));
 assert(html.includes("if(view.tab==='pageLedger'&&origin.ledgerTypes)"));
@@ -23,3 +23,4 @@ assert(html.includes("function restoreAppView(view)"));
 assert(html.includes("function entryrestoreAppView(view)"));
 assert(html.includes("let quickVoucherOrigin=null;"));
 console.log('PASS 3.6.109.03 trial save-return wiring across statement and ledger');
+

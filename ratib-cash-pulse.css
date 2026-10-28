@@ -122,7 +122,7 @@
   stroke:color-mix(in srgb,var(--muted) 19%,transparent)!important;
  }
  #ratibCashPulse svg.ratib-pulse-ring .ratib-pulse-green{stroke:#15825B!important}
- #ratibCashPulse svg.ratib-pulse-ring .ratib-pulse-gold{stroke:var(--accent)!important}
+ #ratibCashPulse svg.ratib-pulse-ring .ratib-pulse-gold{stroke:#C89B3C!important}
  #ratibCashPulse svg.ratib-pulse-ring .ratib-pulse-arc:is(:hover,:focus-visible){stroke-width:19px!important}
  /* A 2x2 metric card layout on desktop and mobile (never inline cramped labels). */
  #ratibCashPulse .ratib-pulse-values{

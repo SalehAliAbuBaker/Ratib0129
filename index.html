@@ -1597,7 +1597,7 @@ body.ratib-sidebar-open,body.ratib-about-open{overflow:hidden}
   gap:10px;min-width:0;direction:rtl;
  }
  #dashboardHomeContent .ratib-home-voucher-shortcuts>.main-menu-btn{
-  min-width:0;min-height:86px;margin:0;overflow-wrap:anywhere;
+  grid-area:auto!important;min-width:0;min-height:86px;margin:0;overflow-wrap:anywhere;
  }
  @media(min-width:900px){
   #dashboardHomeContent .main-menu-grid.ratib-home-main-grid{
@@ -5362,6 +5362,7 @@ function setupReportSections(target = 'pageReports', autoOpen = true) {
 function openDashboardVoucher(type){
  if(type==='opening'){openManualOpeningVoucher();return;}
  if(!['spend','entry','multi'].includes(type))return;
+ if(_appHistoryPending){_appHistoryPending.promise.then(()=>openDashboardVoucher(type));return;}
  navigateToTab('pageExpenses',true);
  if(type==='multi')selectMultiVoucherType();
  else selectVoucherTypeDirect(type);
@@ -12447,7 +12448,7 @@ function importedOpeningModal(){
 function setOpeningEditorTitle(manual){
  document.getElementById('importedOpeningTitle').textContent=manual?'قيد افتتاحي — إدخال يدوي':'سند قيد مركب — أرصدة مستوردة';
  document.getElementById('importedOpeningDescription').textContent=manual
-  ?'أدخل الأرصدة الافتتاحية يدويًا. أضف حسابًا مدينًا وآخر دائنًا بعملة تقييم متوازنة، دون تكرار رصيد افتتاحي محفوظ.'
+  ?'أدخل الأرصدة الافتتاحية يدويًا. أضف حسابًا مدينًا وآخر دائنًا، وأدخل التقييم بعملة الأساس لكل عملة مختلفة، دون تكرار رصيد محفوظ.'
   :'تضم الدفعة جميع الأرصدة المحلية والأجنبية. عدّل البنود أو أضف بنودًا، ثم احفظ القيد كاملًا بعد توازن التقييم. لن تتغير البيانات قبل الحفظ.';
  document.getElementById('importedOpeningSave').textContent=manual?'حفظ القيد الافتتاحي':'حفظ القيد المركب';
 }
@@ -12523,7 +12524,8 @@ function buildImportedOpeningVoucher(state,data){
    if(state.manual&&o.currency===o.baseCurrency){
     if(importedRecordDecimal(o.debit).units!==importedRecordDecimal(o.baseDebit).units||importedRecordDecimal(o.credit).units!==importedRecordDecimal(o.baseCredit).units)throw Error('عندما تتطابق العملة وعملة التقييم يجب أن تتطابق مبالغها أيضًا.');
    }
-   if(state.manual&&!['debit','credit','baseDebit','baseCredit'].some(k=>Number(o[k])>0))throw Error('أدخل مبلغًا موجبًا في كل بند افتتاحي.');
+   if(state.manual&&!(Number(o.debit)>0||Number(o.credit)>0))throw Error('أدخل مبلغًا أصليًا موجبًا في كل بند افتتاحي.');
+   if(state.manual&&!(Number(o.baseDebit)>0||Number(o.baseCredit)>0))throw Error('أدخل تقييمًا موجبًا لكل بند افتتاحي.');
   if(Number(o.debit)&&Number(o.credit)||Number(o.baseDebit)&&Number(o.baseCredit))throw Error('أدخل رصيدًا صافيًا واحدًا لكل حساب وعملة.');
   // Preserve imported independent valuations, including valuation-only rows.
   const pair=o.account+'|'+o.currency;if(pairs.has(pair))throw Error('تكرر الحساب والعملة داخل القيد.');pairs.add(pair);

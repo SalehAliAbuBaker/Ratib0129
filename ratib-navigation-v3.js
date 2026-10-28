@@ -73,13 +73,23 @@ new MutationObserver(()=>{if(pending)return;pending=true;queueMicrotask(()=>{pen
   const el=e.target;
   if(trackable(el)&&!originals.has(el))originals.set(el,el.defaultValue??'');
  },true);
- document.addEventListener('click',e=>{
+ let replayingBack=false,checkingExit=false;
+ document.addEventListener('click',async e=>{
   const button=e.target?.closest?.(backButtons);
-  if(!button||!hasChanges())return;
-  if(!window.confirm('هناك تغييرات في السند لم تُحفظ. هل تريد الرجوع دون حفظها؟')){
-   e.preventDefault();e.stopImmediatePropagation();e.stopPropagation();return;
-  }
-  originals.clear();
+  if(replayingBack||!button)return;
+  const dirty=hasChanges()||(typeof hasUnsavedChanges!=='undefined'&&hasUnsavedChanges&&document.querySelector('#pageExpenses:not(.hidden)'));
+  if(!dirty)return;
+  e.preventDefault();e.stopImmediatePropagation();e.stopPropagation();
+  if(checkingExit)return;
+  checkingExit=true;
+  try{
+   if(typeof window.ratibGestureDraftCheck!=='function')return;
+   if(typeof hasUnsavedChanges!=='undefined')hasUnsavedChanges=true;
+   if(!await window.ratibGestureDraftCheck())return;
+   originals.clear();replayingBack=true;
+   try{button.click();}finally{replayingBack=false;}
+  }catch(error){console.error('Ratib voucher exit',error);}
+  finally{checkingExit=false;}
  },true);
  function successStyle(message){
   const value=String(message??'').trim();if(!value)return;

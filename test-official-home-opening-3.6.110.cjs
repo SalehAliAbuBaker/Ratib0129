@@ -22,7 +22,7 @@ assert(homeGrid,'home buttons grid exists');
 const primary=homeGrid.querySelector('.ratib-home-voucher-shortcuts');
 assert.equal(primary.querySelectorAll(':scope > .main-menu-btn').length,4,'four direct-entry buttons');
 assert.equal(homeGrid.querySelectorAll('.main-menu-btn').length,8,'eight home buttons');
-const allLabels=[...homeGrid.querySelectorAll('.main-menu-btn')].map(b=>b.textContent.trim());
+const allLabels=[...homeGrid.querySelectorAll('.main-menu-btn')].map(b=>b.querySelector('span:last-child')?.textContent.trim());
 for(const label of ['سند قبض/صرف','قيد بسيط','قيد مركب','قيد افتتاحي','سجل العمليات','التقارير','الحسابات','الإعدادات'])assert(allLabels.includes(label),label);
 assert.equal(homeGrid.querySelector('[onclick="navigateToTab(\'pageSettings\', true)"]').textContent.trim(),'الإعدادات');
 const homeStyles=doc.querySelector('#ratib-official-home-entry-grid')?.textContent||'';

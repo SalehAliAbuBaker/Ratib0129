@@ -12,7 +12,7 @@ assert(css.includes('font-weight:400!important'));
 for(const kind of ['input:not([type="hidden"])','select','textarea'])assert(css.includes(kind),kind+' must be covered');
 for(const excluded of ['checkbox','radio','hidden','file','color','range','submit','reset','button','image'])assert(css.includes('not([type="'+excluded+'"])'));
 for(const [name,scale,expected] of [['xsmall',.82,12],['small',.9,12.6],['normal',1,14],['large',1.1,15.4],['xlarge',1.2,16.8]]){
- assert(css.includes('--ratib-font-scale:'+scale),'existing '+name+' preference must remain');
+ assert(css.includes('--ratib-font-scale:'+String(scale).replace(/^0\./,'.')) || css.includes('--ratib-font-scale:'+scale),'existing '+name+' preference must remain');
  assert(Math.abs(Math.max(12,Math.min(18,14*scale))-expected)<.001,name);
 }
 assert(css.includes('@media print'),'print reset must remain');

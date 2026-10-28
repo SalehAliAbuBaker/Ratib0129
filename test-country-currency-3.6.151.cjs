@@ -62,10 +62,12 @@ async function scenario({lang='ar-OM',prefs=null,transactions=[]}={}){
 (async()=>{
  const fresh=await scenario();
  const w=fresh.w;
- assert.equal(w.RatibCountryCurrency.localeSuggestion().code,'OM','ar-OM should suggest Oman');
+ assert.equal(w.RatibCountryCurrency.localeSuggestion().code,'YE','Yemen is default even on an Oman device');
  assert.equal(w.document.getElementById('ratibCountryCurrencyDialog').hidden,false);
- assert.equal(w.document.getElementById('ratibCountryChoice').value,'OM');
- assert.equal(w.document.getElementById('ratibPrimaryCurrencyChoice').value,'OMR');
+ assert.equal(w.document.getElementById('ratibCountryChoice').value,'YE');
+ assert.equal(w.document.getElementById('ratibPrimaryCurrencyChoice').value,'YER');
+ w.document.getElementById('ratibCountryChoice').value='OM';
+ w.document.getElementById('ratibCountryChoice').dispatchEvent(new w.Event('change'));
  w.document.getElementById('ratibCountrySave').click();
  await new Promise(resolve=>setImmediate(resolve));
  assert.equal(w.RatibCountryCurrency.base(),'OMR');

@@ -29,9 +29,8 @@ const $=id=>document.getElementById(id);
 const validCode=s=>/^[A-Z]{3}$/.test(String(s||''));
 const read=()=>{try{const s=store.get(KEY,null);return s&&validCode(s.currency)?s:null;}catch(_){return null;}};
 const base=()=>read()?.currency||DEFAULT;
-const localeSuggestion=()=>{
- try{const tags=[...(navigator.languages||[]),navigator.language,Intl.DateTimeFormat().resolvedOptions().locale].filter(Boolean);for(const raw of tags){const tag=String(raw);const region=(tag.match(/-([A-Z]{2})(?:-|$)/i)||[])[1]?.toUpperCase();const found=COUNTRIES.find(x=>x.code===region);if(found)return found;}return COUNTRIES[0];}catch(_){return COUNTRIES[0];}
-};
+// Yemen is the default regardless of device language; saved choices still win.
+const localeSuggestion=()=>COUNTRIES[0];
 const options=()=>{
  let list=[];
  try{const stored=store.get('currency_catalog_v1',[]);if(Array.isArray(stored))list=stored.filter(x=>x&&x.active!==false&&validCode(x.code)).map(x=>({code:x.code,name:x.name||x.code}));}catch(_){}
@@ -80,7 +79,7 @@ function createUi(){
  if(modal)return modal;
  modal=document.createElement('div');
  modal.id='ratibCountryCurrencyDialog';modal.className='ratib-country-overlay';modal.hidden=true;
- modal.innerHTML='<section class="ratib-country-dialog" role="dialog" aria-modal="true" aria-labelledby="ratibCountryDialogTitle"><h2 id="ratibCountryDialogTitle">🌍 الدولة والعملة الأساسية</h2><p>اختر الدولة وعملة عملياتك الجديدة. لا تُغيّر هذه الإعدادات أي قيود أو أسعار صرف سابقة.</p><label for="ratibCountryChoice">دولة الاستخدام</label><select id="ratibCountryChoice"></select><label for="ratibPrimaryCurrencyChoice">العملة الأساسية</label><select id="ratibPrimaryCurrencyChoice"></select><p class="ratib-country-note">العملة المقترحة تعتمد على إعداد لغة الجهاز فقط، وليست تحديدًا لموقعك. لا تُحوَّل العملات الأخرى دون سعر صرف موثق. بعض مستندات التجارة القديمة تُقيَّم بالريال اليمني إلى أن تُراجع بنيتها المحاسبية.</p><p id="ratibCountryFeedback" role="status" aria-live="polite"></p><div class="ratib-country-actions"><button type="button" id="ratibCountrySave" class="btn btn-primary">اعتماد العملة</button><button type="button" id="ratibCountryKeep" class="btn btn-ghost">الاحتفاظ بالإعداد السابق</button></div></section>';
+ modal.innerHTML='<section class="ratib-country-dialog" role="dialog" aria-modal="true" aria-labelledby="ratibCountryDialogTitle"><h2 id="ratibCountryDialogTitle">🌍 الدولة والعملة الأساسية</h2><p>اختر الدولة وعملة عملياتك الجديدة. لا تُغيّر هذه الإعدادات أي قيود أو أسعار صرف سابقة.</p><label for="ratibCountryChoice">دولة الاستخدام</label><select id="ratibCountryChoice"></select><label for="ratibPrimaryCurrencyChoice">العملة الأساسية</label><select id="ratibPrimaryCurrencyChoice"></select><p class="ratib-country-note">اليمن والريال اليمني هما الاختيار الافتراضي، ويمكنك تغييرهما. لا تُحوَّل العملات الأخرى دون سعر صرف موثق. بعض مستندات التجارة القديمة تُقيَّم بالريال اليمني إلى أن تُراجع بنيتها المحاسبية.</p><p id="ratibCountryFeedback" role="status" aria-live="polite"></p><div class="ratib-country-actions"><button type="button" id="ratibCountrySave" class="btn btn-primary">اعتماد العملة</button><button type="button" id="ratibCountryKeep" class="btn btn-ghost">الاحتفاظ بالإعداد السابق</button></div></section>';
  document.body.append(modal);
  const country=$('ratibCountryChoice'),currency=$('ratibPrimaryCurrencyChoice');
  for(const c of COUNTRIES){const o=document.createElement('option');o.value=c.code;o.textContent=c.name;country.append(o);}

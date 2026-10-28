@@ -39,7 +39,7 @@ assert(homeStyles.includes('min-height:76px!important;height:auto!important;'),'
 assert(homeStyles.includes('min-height:82px!important;padding:10px 7px!important;'),'commerce desktop height 82px');
 assert(homeStyles.includes('width:var(--rb-tile-icon)!important;height:var(--rb-tile-icon)!important;'),'commerce icons follow same scale as 8 tiles');
 assert(homeStyles.includes('gap:8px!important;margin:8px 0 12px'),'commerce row is compact and stays three columns');
-assert(sw.includes('v224-official-home-commerce-compact-3.6.110'));
+assert(sw.includes('v225-official-mobile-vouchers-3.6.111'));
 const start=html.indexOf('function buildImportedOpeningVoucher(state,data){');
 const end=html.indexOf('async function saveImportedOpeningVoucher()',start);
 assert(start>0&&end>start);

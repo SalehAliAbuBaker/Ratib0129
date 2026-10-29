@@ -219,6 +219,13 @@
       for(const node of [date,amount,base])rememberCompoundSlot(node);
     }
     header.append(date);
+    // Reclaim original controls after leaving the cash-voucher presentation.
+    const beneficiary=el('multiVoucherBeneficiary')?.closest('label');
+    const party=el('multiVoucherParty')?.closest('label');
+    const note=el('multiVoucherNote')?.closest('label');
+    if(beneficiary&&beneficiary.parentElement!==grid)grid.append(beneficiary);
+    if(party&&party.parentElement!==grid)grid.append(party);
+    if(note&&(note.parentElement!==card||note.previousElementSibling!==grid))grid.after(note);
     date.classList.add('ratib-compound-header-date');
     el('multiVoucherDate')?.setAttribute('aria-label','تاريخ سند القيد المركب');
     let money=el('ratibCompoundMoneyRow');
@@ -252,10 +259,15 @@
       selector.dataset.ratibJournalArrange='1';
       selector.addEventListener('click',()=>queueMicrotask(()=>{arrangeSimple();arrangeCompound();}));
     }
+    const simpleCard=el('cashFlowCard');
+    if(simpleCard&&!simpleCard.dataset.ratibSimpleModeWatch){
+      simpleCard.dataset.ratibSimpleModeWatch='1';
+      new MutationObserver(()=>arrangeSimple()).observe(simpleCard,{attributes:true,attributeFilter:['class']});
+    }
     const compoundCard=el('multiVoucherCard');
     if(compoundCard&&!compoundCard.dataset.ratibCompoundModeWatch){
       compoundCard.dataset.ratibCompoundModeWatch='1';
-      new MutationObserver(()=>arrangeCompound()).observe(compoundCard,{attributes:true,attributeFilter:['class']});
+      new MutationObserver(()=>queueMicrotask(arrangeCompound)).observe(compoundCard,{attributes:true,attributeFilter:['class']});
     }
     window.addEventListener('pageshow',()=>{arrangeSimple();arrangeCompound();});
   }

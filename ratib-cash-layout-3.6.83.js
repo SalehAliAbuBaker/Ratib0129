@@ -66,7 +66,8 @@
    input.setAttribute('aria-label','إضافة مستفيد اختياري لسند الصرف');
   }else{
    beneficiary.classList.remove('ratib-payment-beneficiary-row');
-   if(beneficiary.parentElement!==grid||beneficiary.previousElementSibling!==date)date.after(beneficiary);
+   // Compound journal owns its header; never follow the date into h2.
+   if(beneficiary.parentElement!==grid)grid.prepend(beneficiary);
    q('multiVoucherBeneficiary').placeholder='اسم المستفيد';
    q('multiVoucherBeneficiary').removeAttribute('aria-label');
   }

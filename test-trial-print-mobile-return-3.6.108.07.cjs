@@ -2,7 +2,7 @@
 const assert=require('node:assert/strict');
 const fs=require('node:fs');
 const {JSDOM}=require('jsdom');
-const html=fs.readFileSync('index.html','utf8');
+const html=fs.readFileSync('index.html','utf8').replace(/\r\n/g,'\n');
 const start=html.indexOf('function ratibRestorePrintScreen(){');
 const end=html.indexOf('function outputBudgetReport(',start);
 assert(start>0&&end>start,'print recovery functions must be in the core app');

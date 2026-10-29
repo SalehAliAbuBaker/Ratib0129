@@ -1,7 +1,7 @@
 /* Trial 3.6.159: same one-line update notice for pending updates and a freshly loaded release. */
 'use strict';
 const assert=require('node:assert/strict'),fs=require('node:fs'),{JSDOM}=require('jsdom');
-const html=fs.readFileSync('index.html','utf8'),worker=fs.readFileSync('sw.js','utf8');
+const html=fs.readFileSync('index.html','utf8').replace(/\r\n/g,'\n'),worker=fs.readFileSync('sw.js','utf8').replace(/\r\n/g,'\n');
 const fixed='إزالة شاشة اختيار السند المكررة نهائيًا';
 const line=worker.split('\n').find(x=>x.startsWith('const APP_RELEASE='));
 assert(line,'Worker release manifest must exist');

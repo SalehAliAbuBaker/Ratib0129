@@ -1,8 +1,8 @@
 /* Trial 3.6.109.03: quick entry and deferred Excel without breaking offline support. */
 'use strict';
 const assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('node:vm'),{JSDOM}=require('jsdom');
-const html=fs.readFileSync('index.html','utf8');
-const worker=fs.readFileSync('sw.js','utf8');
+const html=fs.readFileSync('index.html','utf8').replace(/\r\n/g,'\n');
+const worker=fs.readFileSync('sw.js','utf8').replace(/\r\n/g,'\n');
 const dom=new JSDOM(html,{url:'https://ratibtrial.pages.dev/',runScripts:'outside-only'});
 const d=dom.window.document;
 assert.equal(d.querySelector('script[src="./vendor/xlsx.full.min.js"]'),null,'Excel cannot block first paint');

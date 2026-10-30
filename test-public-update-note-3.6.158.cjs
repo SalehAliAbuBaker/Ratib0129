@@ -2,7 +2,7 @@
 'use strict';
 const assert=require('node:assert/strict'),fs=require('node:fs'),{JSDOM}=require('jsdom');
 const html=fs.readFileSync('index.html','utf8').replace(/\r\n/g,'\n'),worker=fs.readFileSync('sw.js','utf8').replace(/\r\n/g,'\n');
-const fixed='إزالة شاشة اختيار السند المكررة نهائيًا';
+
 const line=worker.split('\n').find(x=>x.startsWith('const APP_RELEASE='));
 assert(line,'Worker release manifest must exist');
 const manifest=JSON.parse(line.slice('const APP_RELEASE='.length).replace(/;$/,''));
@@ -23,12 +23,12 @@ const w=dom.window;
 w.eval(html.slice(at,until)+';window.showAppReleaseDetailsTest=showAppReleaseDetails;');
 const box=w.document.getElementById('appUpdateDetails');
 w.showAppReleaseDetailsTest({version:trial,changes:['تفصيل أول','تفصيل ثان','تفصيل ثالث']});
-assert.equal(box.textContent,fixed,'Only the public summary is visible');
+assert.equal(box.textContent,'تحسين عرض التاريخ الهجري في كشف الحساب والسندات وموضع التحديث','Only fallback note is visible when highlights absent');
 assert.equal(box.querySelectorAll('li,ul').length,0,'No detailed bullet points');
 assert(!box.classList.contains('hidden'));
 w.showAppReleaseDetailsTest(null);
 assert(box.classList.contains('hidden'),'An unrelated status notice hides release details');
-w.showAppReleaseDetailsTest({version:trial,changes:[fixed]});
-assert.equal(box.textContent,fixed);
+w.showAppReleaseDetailsTest(manifest);
+assert.equal(box.textContent,'جديد في راتب: '+manifest.highlights[0],'Release highlight is visible in one line');
 dom.window.close();
 console.log('PASS '+trial+': short public update note, worker backward compatibility, no detailed list');

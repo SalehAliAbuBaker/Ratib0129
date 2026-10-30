@@ -8,8 +8,8 @@ require('./tools/assert-release.cjs')();
 const app=JSON.parse(html.match(/const RATIB_RELEASE=(\{[^\n]+\});/)[1]);
 const worker=JSON.parse(sw.match(/const APP_RELEASE=(\{[^\n]+\});/)[1]);
 assert.deepEqual(app,worker);
-assert.equal(app.version,'3.6.109.04');
-assert(sw.includes('v261-trial-muyassar-ui-3.6.109.04'));
+assert.equal(app.version,pkg.version,'Application version must match package release');
+assert(sw.includes(app.version),'Offline cache must carry the active release version');
 assert(html.includes('function ratibRememberEditOrigin(item)'));
 assert(html.includes('function ratibRestoreEditOriginAfterSave()'));
 assert(html.includes("if(view.tab==='pageLedger'&&origin.ledgerTypes)"));
@@ -22,5 +22,5 @@ assert(html.includes("function openTxModal(item)"));
 assert(html.includes("function restoreAppView(view)"));
 assert(html.includes("function entryrestoreAppView(view)"));
 assert(html.includes("let quickVoucherOrigin=null;"));
-console.log('PASS 3.6.109.04 trial save-return wiring across statement and ledger');
+console.log('PASS '+app.version+' trial save-return wiring across statement and ledger');
 

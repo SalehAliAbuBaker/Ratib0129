@@ -1,7 +1,7 @@
 // Ratib 3.1.9: cache identity is unique to this app's scope.
 // Retired cache for compatibility checks: v261-trial-muyassar-ui-3.6.109.04
-const CACHE_VERSION='v266-trial-umalqura-gregorian-3.6.109.09';
-const APP_RELEASE={"version":"3.6.109.09","highlights":["اعتماد أم القرى وحده وإتاحة التاريخ الميلادي بدل طريقة التقويم."],"changes":["إلغاء اختيار الهجري اليمني والحسابي والاعتماد الحصري على تقويم أم القرى.","إظهار التقويم الميلادي مكان خيار طريقة التقويم في الإعدادات ونافذة اختيار التاريخ.","الإبقاء على التاريخ الهجري أساسًا مع إظهار الميلادي بحجم صغير عند تفعيل الخيار.","لا تغيير في تواريخ القيود أو ترتيبها أو الأرصدة المحاسبية."]};
+const CACHE_VERSION='v267-trial-account-statement-date-3.6.109.10';
+const APP_RELEASE={"version":"3.6.109.10","highlights":["عرض التاريخ الهجري في كشف الحساب ومعاينة الطباعة."],"changes":["إظهار تاريخ أم القرى في أعمدة كشف الحساب وصفحات المعاينة والطباعة وPDF مع الميلادي بحجم أصغر بحسب الإعداد.","إزالة العنوان الخارجي لحقل المستفيد الاختياري من سند الصرف.","الحفاظ على العملات والأرصدة وبيانات القيود دون تغيير."]};
 const CACHE_PREFIX=`ratib:${self.registration.scope}:`;
 const CACHE_NAME=CACHE_PREFIX+CACHE_VERSION;
 const APP_SHELL=[

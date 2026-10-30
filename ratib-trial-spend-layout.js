@@ -1,4 +1,4 @@
-/* Ratib trial 3.6.109.10 — payment-only presentation of the EXISTING voucher controls.
+/* Ratib trial 3.6.109.11 — payment-only presentation of the EXISTING voucher controls.
  * No duplicated account/amount fields, ledger writes, or changes to accounting equations.
  */
 (function(){
@@ -83,7 +83,18 @@ function compose(){
  const r5=row('5','ratib-spend-credit-note');
  move($('multiVoucherNote').closest('label'),r5);$('multiVoucherNote').rows=3;
  const r6=row('6','ratib-spend-beneficiary');
- move($('multiVoucherBeneficiary'),r6);$('multiVoucherBeneficiary').required=false;
+ const beneficiary=$('multiVoucherBeneficiary');
+ const beneficiaryLabel=beneficiary?.closest('label');
+ if(beneficiaryLabel){
+  // Move the original label and input together, without the redundant caption.
+  if(beneficiaryLabel.firstChild?.nodeType===3)beneficiaryLabel.firstChild.textContent='';
+  move(beneficiaryLabel,r6);
+ }
+ if(beneficiary){
+  beneficiary.required=false;
+  beneficiary.placeholder='اسم المستفيد (اختياري)';
+  beneficiary.setAttribute('aria-label','اسم المستفيد (اختياري)');
+ }
  const r7=row('7–10','ratib-spend-debit-area');
  move(c.querySelector('.multi-voucher-table-wrap'),r7);
  const rate=row('11','ratib-spend-fx');
@@ -113,8 +124,13 @@ function compose(){
  for(const id of ['spendFxButton','multiVoucherSummary'])if($(id))move($(id),other);
  decorateRows();equivalent();updateBalanceHints();
 }
+function suppressBeneficiaryHeading(){
+ const input=$('multiVoucherBeneficiary'),label=input?.closest('label');
+ if(label?.firstChild?.nodeType===3)label.firstChild.textContent='';
+}
 function decorateRows(){
  if(!active()||!layout)return;
+ suppressBeneficiaryHeading();
  for(const tr of $('multiVoucherLinesBody')?.rows||[]){
   const acct=tr.querySelector('td:nth-child(2)'),amount=tr.querySelector('td:nth-child(3)'),note=tr.querySelector('.multi-line-note');
   if(!acct||!amount)continue;

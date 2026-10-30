@@ -48,6 +48,8 @@
   const note=q('multiVoucherNote')?.closest('label');
   const date=q('multiVoucherDate')?.closest('label');
   if(!card||!grid||!beneficiary||!note||!date)return;
+  // The newer payment layout owns these original controls while active.
+  if(card.classList.contains('ratib-spend-layout-on'))return;
   const payment=card.classList.contains('spend-voucher')&&typeof multiVoucherMode!=='undefined'&&multiVoucherMode==='spend';
   if(payment){
    const source=card.querySelector('.multi-voucher-source-row');
@@ -60,10 +62,11 @@
    if(beneficiary.previousElementSibling!==before)before.after(beneficiary);
    if(note.previousElementSibling!==beneficiary)beneficiary.after(note);
    beneficiary.classList.add('ratib-payment-beneficiary-row');
-   if(beneficiary.firstChild?.nodeType===3)beneficiary.firstChild.textContent='إضافة مستفيد (اختياري)';
+   // No visible caption: the placeholder inside the field is sufficient.
+   if(beneficiary.firstChild?.nodeType===3)beneficiary.firstChild.textContent='';
    const input=q('multiVoucherBeneficiary');
    input.placeholder='اسم المستفيد (اختياري)';
-   input.setAttribute('aria-label','إضافة مستفيد اختياري لسند الصرف');
+   input.setAttribute('aria-label','اسم المستفيد (اختياري)');
   }else{
    beneficiary.classList.remove('ratib-payment-beneficiary-row');
    // Compound journal owns its header; never follow the date into h2.

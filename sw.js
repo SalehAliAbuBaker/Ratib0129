@@ -1,7 +1,7 @@
 // Ratib 3.1.9: cache identity is unique to this app's scope.
 // Retired cache for compatibility checks: v261-trial-muyassar-ui-3.6.109.04
-const CACHE_VERSION='v267-trial-account-statement-date-3.6.109.10';
-const APP_RELEASE={"version":"3.6.109.10","highlights":["عرض التاريخ الهجري في كشف الحساب ومعاينة الطباعة."],"changes":["إظهار تاريخ أم القرى في أعمدة كشف الحساب وصفحات المعاينة والطباعة وPDF مع الميلادي بحجم أصغر بحسب الإعداد.","إزالة العنوان الخارجي لحقل المستفيد الاختياري من سند الصرف.","الحفاظ على العملات والأرصدة وبيانات القيود دون تغيير."]};
+const CACHE_VERSION='v268-trial-hide-beneficiary-caption-3.6.109.11';
+const APP_RELEASE={"version":"3.6.109.11","highlights":["إزالة العبارة الشارحة المكررة من سند الصرف."],"changes":["إيقاف المكوّن القديم الذي كان يعيد إدراج عبارة «إضافة مستفيد (اختياري)» فوق الحقل.","الإبقاء على توضيح «اسم المستفيد (اختياري)» داخل الحقل فقط دون تغيير بيانات السند.","ضمان عمل تخطيط سند الصرف دون إنترنت بتضمين ملفاته في ذاكرة التطبيق."]};
 const CACHE_PREFIX=`ratib:${self.registration.scope}:`;
 const CACHE_NAME=CACHE_PREFIX+CACHE_VERSION;
 const APP_SHELL=[
@@ -9,6 +9,8 @@ const APP_SHELL=[
   "./ratib-cash-pulse.js",
   "./ratib-trial-home-polish.css",
   "./ratib-trial-home-polish.js",
+  "./ratib-trial-spend-layout.js",
+  "./ratib-trial-spend-layout.css",
   "./ratib-date-display.js",
   "./ratib-gold.css",
   "./ratib-gold-icon.svg",

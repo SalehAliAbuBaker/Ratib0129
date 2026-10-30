@@ -47,10 +47,14 @@ w.eval("multiVoucherMode='income';");w.testCashHeader();
 assert.equal(d.getElementById('spendSeqInput').value,'583','Receipt shares the same visible number behavior');
 w.eval(dates);d.dispatchEvent(new w.Event('DOMContentLoaded'));
 assert(d.getElementById('rhSettingsCard'),'Calendar settings card must actually render');
-assert(d.getElementById('rhSettingsMain')&&d.getElementById('rhSettingsCalendar')&&d.getElementById('rhSettingsOther'));
+assert(d.getElementById('rhSettingsMain')&&d.getElementById('rhSettingsGregorian')&&d.getElementById('rhSettingsOther'));
+assert(!d.getElementById('rhSettingsCalendar'),'Old calendar-method selector must be removed');
 assert.equal(d.getElementById('rhSettingsMain').value,'h','Hijri is default');
-assert.equal(d.getElementById('rhSettingsCalendar').value,'umalqura','Umm al-Qura is default');
+assert.equal(w.RatibHijriFirst.calendar,'umalqura','Umm al-Qura is the only Hijri calendar');
 assert(d.getElementById('rhSettingsExample').textContent.includes('هـ'),'Settings give a visible Hijri preview');
+const gregPreview=d.getElementById('rhSettingsGregorian');
+gregPreview.value='2026-10-30';gregPreview.dispatchEvent(new w.Event('change'));
+assert(d.getElementById('rhSettingsExample').textContent.includes('2026-10-30'),'Gregorian date drives the combined calendar preview');
 assert(d.getElementById('reportAccountOpsPanel').textContent.includes('هـ'),'Account statement defaults to Hijri');
 const display=w.RatibHijriFirst.markup('2026-10-30');
 assert(display.includes('هـ')&&display.includes('<small>2026-10-30</small>'),'Account statement direct markup has Hijri and small Gregorian');
@@ -62,4 +66,4 @@ const second=d.getElementById('rhSettingsOther');second.checked=false;second.dis
 assert(!w.RatibHijriFirst.markup('2026-10-30').includes('<small>'),'Opposite date can be hidden');
 // Allow the calendar's queued requestAnimationFrame DOM decoration to settle in jsdom.
 // Closing the window before that callback runs causes a jsdom-specific null-document error.
-console.log('PASS 3.6.109.08: real account dates, visible calendar settings, new/edit receipt/spend number, compact captions, and unchanged ledger date');
+console.log('PASS live vouchers and statements: exclusively Umm al-Qura, Gregorian calendar replacement, dates, editable number, compact captions');

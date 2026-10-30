@@ -50,5 +50,5 @@ const wait=ms=>new Promise(r=>setTimeout(r,ms));
  assert.equal(input.value,'2026-10-28','form reset preserves original value');
  assert.equal(button.querySelector('small').textContent,'2026-10-28','form reset refreshes Hijri interface');
  console.log('PASS Hijri-first date: single original ISO input, Umm al-Qura, compact counterpart, statement, picker, preferences, Yemen, move, reset');
- dom.window.close();
-})().catch(e=>{console.error(e);dom.window.close();process.exitCode=1});
+ 
+})().catch(e=>{console.error(e);process.exitCode=1});

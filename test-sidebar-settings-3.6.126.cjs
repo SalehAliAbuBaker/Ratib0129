@@ -4,7 +4,7 @@ const {JSDOM}=require('jsdom');
 const labels=[
  'إدارة شجرة الحسابات والأسقف','إدارة بنود الميزانية / التكاليف',
  'الهوية والبيانات الشخصية','إعدادات الطباعة',
- 'إعدادات الحسابات الافتراضية للسندات','حجم الأزرار','إدارة العملات',
+ 'إعدادات الحسابات الافتراضية للسندات','حجم الأزرار','إدارة العملات','التاريخ والتقويم',
  'النسخ الاحتياطي','مفضلتي','الإدخال الصوتي','أصوات حفظ المستندات والتنبيهات'
 ];
 const markup='<html lang="ar"><head></head><body>'+
@@ -52,9 +52,9 @@ groups[0].querySelector('button').click();
 assert.equal(groups[0].querySelector('.ratib-menu-children').hidden,false);
 const settingsRoot=groups[0].querySelector('.ratib-menu-children');
 const entries=[...settingsRoot.children];
-assert.equal(entries.length,8,'six essential settings, one caption and one advanced toggle');
+assert.equal(entries.length,9,'seven essential settings including calendar, caption and advanced toggle');
 assert.equal(entries[0].textContent.trim(),'الإعدادات الأساسية');
-const essentials=['إدارة شجرة الحسابات والأسقف','إدارة بنود الميزانية / التكاليف','إعدادات الحسابات الافتراضية للسندات','إدارة العملات','النسخ الاحتياطي','الأمان وقفل الحماية'];
+const essentials=['إدارة شجرة الحسابات والأسقف','إدارة بنود الميزانية / التكاليف','إعدادات الحسابات الافتراضية للسندات','إدارة العملات','التاريخ والتقويم','النسخ الاحتياطي','الأمان وقفل الحماية'];
 for(let i=0;i<essentials.length;i++)assert(entries[i+1].textContent.includes(essentials[i]));
 const extra=settingsRoot.querySelector('#ratibMoreSettingsLinks');
 assert(extra?.hidden,'advanced preferences hidden until requested');
@@ -71,10 +71,10 @@ assert(page.querySelector('.ratib-settings-current').textContent.includes(essent
 doc.getElementById('backToMenuBtn').click();
 assert(!page.classList.contains('ratib-settings-detail'),'single back restores settings list');
 assert.equal(backs,1,'one app back');
-assert.equal(page.querySelectorAll(':scope > .settings-accordion-card').length,13);
+assert.equal(page.querySelectorAll(':scope > .settings-accordion-card').length,14);
 assert(doc.getElementById('ratibSettingsFinder'),'search control injected');
 const count=doc.getElementById('ratibSettingsCount');
-assert(count.textContent.includes('من 13'),'all card count reported');
+assert(count.textContent.includes('من 14'),'all card count reported');
 const search=doc.getElementById('ratibSettingsSearch');
 search.value='الطباعة';search.dispatchEvent(new w.Event('input',{bubbles:true}));
 const printCard=[...page.querySelectorAll(':scope > .settings-accordion-card')].find(c=>c.textContent.includes('إعدادات الطباعة'));
@@ -91,6 +91,9 @@ currencyCard.querySelector('.settings-accordion-header').click();
 assert(page.classList.contains('ratib-settings-detail'));
 assert.equal(page.querySelector('.ratib-settings-current'),currencyCard);
 doc.getElementById('backToMenuBtn').click();
+entries[5].click();
+assert(page.querySelector('.ratib-settings-current')?.textContent.includes('التاريخ والتقويم'),'Calendar opens from essential settings');
+doc.getElementById('backToMenuBtn').click();
 entries.at(-1).querySelector('button').click();
 assert(!extra.hidden,'advanced group can expand');
 const printEntry=[...extra.querySelectorAll('button')].find(b=>b.textContent.includes('إعدادات الطباعة'));
@@ -98,7 +101,7 @@ printEntry.click();
 assert(page.classList.contains('ratib-settings-detail'));
 assert(page.querySelector('.ratib-settings-current').textContent.includes('إعدادات الطباعة'));
 doc.getElementById('backToMenuBtn').click();
-entries[6].click();
+entries[7].click();
 assert(page.classList.contains('ratib-security-detail'));
 assert(page.querySelector('.ratib-settings-current').textContent.includes('إعدادات الأمان'));
 doc.getElementById('backToMenuBtn').click();

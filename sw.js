@@ -1,7 +1,7 @@
 // Ratib 3.1.9: cache identity is unique to this app's scope.
 // Retired cache for compatibility checks: v261-trial-muyassar-ui-3.6.109.04
-const CACHE_VERSION='v269-trial-compact-hijri-reconciliation-3.6.109.12';
-const APP_RELEASE={"version":"3.6.109.12","highlights":["التاريخ الهجري في سطر واحد ومعالجة حقل تاريخ المطابقة."],"changes":["إظهار 1448هـ دون فراغ، والميلادي في سطر أصغر تحته.","منع التفاف التاريخ في كشف الحساب والطباعة وPDF والمشاركة.","إزالة ازدحام التاريخ في شريط مطابقة الرصيد بإظهار العنوان منفصلًا أعلى الحقل.","حفظ تواريخ السندات والأرصدة ومنطق المطابقة دون تغيير."]};
+const CACHE_VERSION='v270-trial-journal-clean-fields-3.6.109.13';
+const APP_RELEASE={"version":"3.6.109.13","highlights":["تبسيط حقول القيد البسيط والقيد المركب."],"changes":["إلغاء زر تفاصيل إضافية من سند القيد البسيط وإظهار حقل اسم الطرف المرتبط بالقيد (اختياري) مباشرة.","حذف العبارات الشارحة المتكررة أعلى حقول القيد البسيط والمركب مع إبقاء النص داخل الحقول.","المحافظة على السندات والحفظ والتعديل والطباعة وPDF ومنطق القيود دون تغيير.","استثناء سندي القبض والصرف من هذه التعديلات."]};
 const CACHE_PREFIX=`ratib:${self.registration.scope}:`;
 const CACHE_NAME=CACHE_PREFIX+CACHE_VERSION;
 const APP_SHELL=[

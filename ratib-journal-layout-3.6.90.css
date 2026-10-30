@@ -26,7 +26,7 @@
    grid-column:1/-1!important;grid-row:6!important;
  }
  #cashFlowCard.simple-journal .simple-journal-grid>#voucherRecipientGroup{
-   grid-column:1/-1!important;grid-row:7!important;
+   grid-column:1/-1!important;grid-row:6!important;
  }
  #cashFlowCard.simple-journal #voucherRecipientGroup.ratib-simple-recipient-collapsed{display:none!important}
  #cashFlowCard.simple-journal .simple-journal-grid>.form-group,
@@ -254,7 +254,7 @@
    grid-column:1!important;grid-row:7!important;
  }
  #cashFlowCard.simple-journal .simple-journal-grid>#voucherRecipientGroup{
-   grid-column:1!important;grid-row:8!important;
+   grid-column:1!important;grid-row:7!important;
  }
  #cashFlowCard.simple-journal .simple-journal-grid>.journal-swap-row:empty{display:none!important}
  #cashFlowCard.simple-journal .simple-journal-grid>.form-group,
@@ -581,7 +581,7 @@
  #cashFlowCard.simple-journal .simple-journal-grid > .journal-account-field:has(#wrapCreditAcc) {grid-column:1!important;grid-row:4!important}
  #cashFlowCard.simple-journal .simple-journal-grid > .form-group:has(#voucherNoteInput) {grid-column:1!important;grid-row:5!important}
  #cashFlowCard.simple-journal .simple-journal-grid > #ratibSimpleExtraBtn {grid-column:1!important;grid-row:6!important}
- #cashFlowCard.simple-journal .simple-journal-grid > #voucherRecipientGroup {grid-column:1!important;grid-row:7!important}
+ #cashFlowCard.simple-journal .simple-journal-grid > #voucherRecipientGroup {grid-column:1!important;grid-row:6!important}
  #cashFlowCard.simple-journal .simple-journal-grid > .journal-swap-row:empty {display:none!important}
  @media(min-width:640px) {
    #cashFlowCard.simple-journal > h2 {
@@ -865,3 +865,40 @@
 
 /* Favorite star is an icon, independent of the 14px text scale. */
 @layer ratibUnifiedFieldSize { @media screen { #dashboardHomeContent #ratibCenterFavorites { font-size:38px!important;line-height:1!important; } } }
+
+/* Trial 3.6.109.13 — headings duplicated by field placeholders are removed
+   only in simple / compound journal entry; income & spend stay unchanged. */
+@media screen {
+ #cashFlowCard.simple-journal :is(#lblDebitAcc,#lblCreditAcc,#lblVoucherRecipient),
+ #cashFlowCard.simple-journal .form-group:has(#voucherNoteInput)>label,
+ #cashFlowCard.simple-journal .form-group:has(#voucherDateInput)>label,
+ #cashFlowCard.simple-journal .journal-amount-row label{
+  display:none!important;
+ }
+ #cashFlowCard.simple-journal #ratibSimpleExtraBtn{display:none!important}
+ #cashFlowCard.simple-journal #voucherRecipientGroup{
+  display:block!important;margin:0!important;padding:0!important;
+ }
+ #cashFlowCard.simple-journal .simple-journal-grid>#voucherRecipientGroup{
+  grid-column:1/-1!important;grid-row:6!important;
+ }
+ #cashFlowCard.simple-journal :is(#voucherNoteInput,#voucherRecipientInput){
+  width:100%!important;min-width:0!important;
+ }
+ #multiVoucherCard.unified-voucher:not(.spend-voucher)>.multi-voucher-grid>label,
+ #multiVoucherCard.unified-voucher:not(.spend-voucher)>label:has(#multiVoucherNote){
+  margin-block:0!important;padding-block:0!important;
+ }
+ /* Mobile journal rows have duplicated pseudo-captions above editable fields.
+    Their controls already have values, placeholders and accessible names. */
+ @media(max-width:700px){
+  #multiVoucherCard.unified-voucher:not(.spend-voucher)
+  .multi-voucher-table tbody td:has(input)::before,
+  #multiVoucherCard.unified-voucher:not(.spend-voucher)
+  .multi-voucher-table tbody td:has(select)::before,
+  #multiVoucherCard.unified-voucher:not(.spend-voucher)
+  .multi-voucher-table tbody td:has(.multi-remove-line)::before{
+   content:none!important;display:none!important;min-height:0!important;margin:0!important;
+  }
+ }
+}

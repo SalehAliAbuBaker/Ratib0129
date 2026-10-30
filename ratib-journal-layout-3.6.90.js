@@ -97,28 +97,26 @@
     for(const id of ['addNewDebitAccBtn','addNewCreditAccBtn']){
       const btn=el(id);if(btn){btn.hidden=true;btn.setAttribute('aria-hidden','true');btn.tabIndex=-1;}
     }
-    arrangeSimpleExtras(card,note,party);
-    const extra=el('ratibSimpleExtraBtn');
-    if(extra&&extra.previousElementSibling!==note)note.after(extra);
+    arrangeSimpleExtras(card,party);
     // Idempotent order: header(title/number/date/swap), amount/currency/calculator, tafqit, accounts, note.
     if(tafqit&&tafqit.previousElementSibling!==row)row.after(tafqit);
     return true;
   }
-  function arrangeSimpleExtras(card,note,party){
-    if(!el('ratibSimpleExtraBtn')){
-      const toggle=document.createElement('button');toggle.id='ratibSimpleExtraBtn';toggle.type='button';
-      toggle.className='btn btn-ghost ratib-simple-extra-toggle';
-      toggle.textContent='تفاصيل إضافية (المستلم / المستفيد) ▾';
-      toggle.setAttribute('aria-controls','voucherRecipientGroup');
-      toggle.addEventListener('click',()=>{
-        const collapsed=party.classList.toggle('ratib-simple-recipient-collapsed');
-        toggle.setAttribute('aria-expanded',String(!collapsed));
-      });
-      note.after(toggle);
-      const collapsed=!el('voucherRecipientInput')?.value?.trim();
-      party.classList.toggle('ratib-simple-recipient-collapsed',collapsed);
-      toggle.setAttribute('aria-expanded',String(!collapsed));
+  function arrangeSimpleExtras(card,party){
+    // The party is an ordinary optional field, not a disclosure or a second form.
+    el('ratibSimpleExtraBtn')?.remove();
+    party.classList.remove('ratib-simple-recipient-collapsed');
+    const relatedParty=el('voucherRecipientInput');
+    if(relatedParty){
+      relatedParty.placeholder='اسم الطرف المرتبط بالقيد (اختياري)';
+      relatedParty.setAttribute('aria-label','اسم الطرف المرتبط بالقيد (اختياري)');
+      relatedParty.required=false;
     }
+    el('voucherNoteInput')?.setAttribute('aria-label','البيان / تفاصيل العملية');
+    el('voucherAmountInput')?.setAttribute('aria-label','إجمالي مبلغ السند');
+    el('voucherCurrencySelect')?.setAttribute('aria-label','عملة السند');
+    el('inpDebitAcc')?.setAttribute('aria-label','الحساب المدين (عليه)');
+    el('inpCreditAcc')?.setAttribute('aria-label','الحساب الدائن (له)');
     if(budgetWired)return;
     const panel=el('voucherSplitContainer'),button=el('toggleSplitBoxBtn');
     if(!panel||!button)return;
@@ -182,6 +180,36 @@
     compoundSlots.clear();
     el('ratibCompoundMoneyRow')?.remove();
   }
+  function compactCompoundCaptions(card){
+    if(!card?.classList.contains('unified-voucher')||card.classList.contains('spend-voucher'))return;
+    const captions=[
+      ['multiVoucherDate','تاريخ سند القيد المركب'],
+      ['multiVoucherBeneficiary','اسم المستفيد (اختياري)'],
+      ['multiVoucherParty','الجهة أو الطرف (اختياري)'],
+      ['multiVoucherBaseCurrency','العملة الأساسية'],
+      ['multiVoucherNote','البيان العام للسند']
+    ];
+    for(const [id,name] of captions){
+      const input=el(id),label=input?.closest('label');
+      if(!input||!label||!card.contains(label))continue;
+      // Retain the original label as a layout container and keep its text node
+      // for cash-voucher code that updates firstChild.textContent.
+      for(const node of label.childNodes)if(node.nodeType===3)node.textContent='';
+      input.setAttribute('aria-label',name);
+      if((input.tagName==='INPUT'&&input.type==='text'||input.tagName==='TEXTAREA')&&!input.placeholder)input.placeholder=name;
+    }
+    // The editable journal cells already show selected values or placeholders;
+    // annotate number-only inputs so removing stacked captions stays clear.
+    for(const input of card.querySelectorAll('#multiVoucherLinesBody .multi-line-amount,#multiVoucherLinesBody .multi-line-rate')){
+      if(input.classList.contains('multi-line-amount')){
+        input.placeholder='المبلغ';
+        input.setAttribute('aria-label','مبلغ القيد');
+      }else{
+        input.placeholder='سعر الصرف';
+        input.setAttribute('aria-label','سعر الصرف');
+      }
+    }
+  }
   function arrangeCompound(){
     const card=el('multiVoucherCard'),grid=card?.querySelector('.multi-voucher-grid');
     const header=card?.querySelector(':scope > h2');
@@ -226,6 +254,7 @@
     if(beneficiary&&beneficiary.parentElement!==grid)grid.append(beneficiary);
     if(party&&party.parentElement!==grid)grid.append(party);
     if(note&&(note.parentElement!==card||note.previousElementSibling!==grid))grid.after(note);
+    compactCompoundCaptions(card);
     date.classList.add('ratib-compound-header-date');
     el('multiVoucherDate')?.setAttribute('aria-label','تاريخ سند القيد المركب');
     let money=el('ratibCompoundMoneyRow');
@@ -270,6 +299,14 @@
       new MutationObserver(()=>queueMicrotask(arrangeCompound)).observe(compoundCard,{attributes:true,attributeFilter:['class']});
     }
     window.addEventListener('pageshow',()=>{arrangeSimple();arrangeCompound();});
+    const rows=el('multiVoucherLinesBody');
+    if(rows&&!rows.dataset.ratibCompoundCompactWatch){
+      rows.dataset.ratibCompoundCompactWatch='1';
+      // Only respond to replaced line rows, not character data or field focus changes.
+      new MutationObserver(records=>{
+        if(records.some(r=>r.addedNodes.length))queueMicrotask(()=>compactCompoundCaptions(el('multiVoucherCard')));
+      }).observe(rows,{childList:true});
+    }
   }
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});
   else init();

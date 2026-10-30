@@ -1,7 +1,7 @@
 // Ratib 3.1.9: cache identity is unique to this app's scope.
 // Retired cache for compatibility checks: v261-trial-muyassar-ui-3.6.109.04
-const CACHE_VERSION='v263-trial-top-update-20261030-3.6.109.06';
-const APP_RELEASE={"version":"3.6.109.06","highlights":["تحسين عرض التاريخ الهجري في السندات مع إظهار التاريخ الميلادي بحجم أصغر."],"changes":["تكبير مساحة التاريخ بجانب رقم السند في القبض والصرف.","عرض إشعار التحديث أعلى الواجهة بكلمات عربية واضحة.","تصحيح ترميز النصوص الظاهرة بعد تحديث التجريبية."]};
+const CACHE_VERSION='v264-trial-hijri-statement-ui-3.6.109.07';
+const APP_RELEASE={"version":"3.6.109.07","highlights":["عرض التاريخ الهجري في كشف الحساب والطباعة والتصدير مع تحسين عرض السندات."],"changes":["توسيع خانة التاريخ مقابل رقم السند في القبض والصرف.","تقليل عبارات الحقول المكررة والاكتفاء بالقيمة أو العبارة الداخلية.","إظهار تنبيه التحديث أعلى الواجهة.","عرض التاريخ الهجري أولاً في كشف الحساب والطباعة والتصدير وفق التفضيلات."]};
 const CACHE_PREFIX=`ratib:${self.registration.scope}:`;
 const CACHE_NAME=CACHE_PREFIX+CACHE_VERSION;
 const APP_SHELL=[

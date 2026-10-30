@@ -2,24 +2,25 @@
 (function(){
 'use strict';
 var KEY='ratib-hijri-first-trial', MONTHS=['محرم','صفر','ربيع الأول','ربيع الآخر','جمادى الأولى','جمادى الآخرة','رجب','شعبان','رمضان','شوال','ذو القعدة','ذو الحجة'];
-var pref={main:'h',calendar:'umalqura',showOther:true,offsets:{}};
-try{var old=JSON.parse(localStorage.getItem(KEY)||'null');if(old){pref.main=old.main==='g'?'g':'h';pref.calendar=['umalqura','civil','yemen'].includes(old.calendar)?old.calendar:'umalqura';pref.showOther=old.showOther!==false;pref.offsets=old.offsets&&typeof old.offsets==='object'?old.offsets:{};}}catch(e){}
+var pref={main:'h',showOther:true};
+try{var old=JSON.parse(localStorage.getItem(KEY)||'null');if(old){pref.main=old.main==='g'?'g':'h';pref.showOther=old.showOther!==false;}}catch(e){}
+// Existing non-Umm-al-Qura preferences are retired; only the Hijri/Gregorian display choice survives.
+save();
 function save(){try{localStorage.setItem(KEY,JSON.stringify(pref));}catch(e){}}
-var fmts={};
-['umalqura','civil'].forEach(function(n){var code=n==='umalqura'?'islamic-umalqura':'islamic-civil';try{var f=new Intl.DateTimeFormat('en-u-ca-'+code+'-nu-latn',{timeZone:'UTC',year:'numeric',month:'numeric',day:'numeric'});fmts[n]=f.resolvedOptions().calendar===code?f:null;}catch(e){fmts[n]=null;}});
-if(!fmts.umalqura&&!fmts.civil)return;
-function engine(){return pref.calendar==='civil'?'civil':(fmts.umalqura?'umalqura':'civil');}
+var umalqura=null;
+try{var fmt=new Intl.DateTimeFormat('en-u-ca-islamic-umalqura-nu-latn',{timeZone:'UTC',year:'numeric',month:'numeric',day:'numeric'});if(fmt.resolvedOptions().calendar==='islamic-umalqura')umalqura=fmt;}catch(e){}
+if(!umalqura){console.warn('تقويم أم القرى غير مدعوم في هذا المتصفح؛ لم يتم استخدام تقويم هجري بديل.');return;}
 function valid(s){return /^\d{4}-\d{2}-\d{2}$/.test(s)&&!isNaN(Date.parse(s+'T12:00:00Z'));}
 function epoch(s){return Math.floor(Date.parse(s+'T12:00:00Z')/86400000);}
 function iso(day){return new Date(day*86400000).toISOString().slice(0,10);}
 function plus(s,n){return iso(epoch(s)+n);}
 function today(){var d=new Date();return [d.getFullYear(),String(d.getMonth()+1).padStart(2,'0'),String(d.getDate()).padStart(2,'0')].join('-');}
 function month(y,m,delta){var index=y*12+(m-1)+delta;return {y:Math.floor(index/12),m:index%12+1};}
-function base(s){var p=(fmts[engine()]||fmts.civil).formatToParts(new Date(s+'T12:00:00Z'));function v(k){return Number(p.find(function(x){return x.type===k;}).value);}return {y:v('year'),m:v('month'),d:v('day')};}
+function base(s){var p=umalqura.formatToParts(new Date(s+'T12:00:00Z'));function v(k){return Number(p.find(function(x){return x.type===k;}).value);}return {y:v('year'),m:v('month'),d:v('day')};}
 var baseStarts={};
-function baseStart(y,m){var key=engine()+'-'+y+'-'+m;if(baseStarts[key])return baseStarts[key];var l=epoch('1900-01-01'),r=epoch('2100-12-31'),found=null;while(l<=r){var mid=Math.floor((l+r)/2),h=base(iso(mid)),c=(h.y-y)*12+h.m-m;if(c>=0){if(c===0)found=iso(mid);r=mid-1;}else l=mid+1;}baseStarts[key]=found;return found;}
-function start(y,m){var s=baseStart(y,m);if(!s)return null;var n=pref.calendar==='yemen'?Number(pref.offsets[y+'-'+m]||0):0;return plus(s,Math.max(-1,Math.min(1,n)));}
-function hdate(s){if(!valid(s))return null;var h=base(s);if(pref.calendar!=='yemen')return h;var st=start(h.y,h.m),before=month(h.y,h.m,-1),after=month(h.y,h.m,1),nx=start(after.y,after.m);if(!st||!nx)return h;if(s<st){h.y=before.y;h.m=before.m;st=start(h.y,h.m);}else if(s>=nx){h.y=after.y;h.m=after.m;st=nx;}h.d=epoch(s)-epoch(st)+1;return h;}
+function baseStart(y,m){var key=y+'-'+m;if(baseStarts[key])return baseStarts[key];var l=epoch('1900-01-01'),r=epoch('2100-12-31'),found=null;while(l<=r){var mid=Math.floor((l+r)/2),h=base(iso(mid)),c=(h.y-y)*12+h.m-m;if(c>=0){if(c===0)found=iso(mid);r=mid-1;}else l=mid+1;}baseStarts[key]=found;return found;}
+function start(y,m){return baseStart(y,m);}
+function hdate(s){return valid(s)?base(s):null;}
 function formatted(s){var h=hdate(s);return h&&h.m>=1&&h.m<=12?String(h.d)+' '+MONTHS[h.m-1]+' '+h.y+' هـ':s;}
 function first(s){return pref.main==='h'?formatted(s):s;}
 function second(s){return pref.main==='h'?s:formatted(s);}
@@ -39,6 +40,7 @@ var css=document.createElement('style');css.textContent=[
 '#ratib-hijri-dialog label{display:flex;flex-direction:column;gap:3px;color:var(--muted,#777);min-width:0}',
 '#ratib-hijri-dialog select,#ratib-hijri-dialog input,#ratib-hijri-dialog button{font:inherit;border:1px solid var(--border,#bbb);border-radius:8px;background:var(--card,#fff);color:var(--text,#222);padding:7px;min-height:39px;box-sizing:border-box}',
 '#ratib-hijri-dialog select,#ratib-hijri-dialog input{width:100%}',
+'#rhSettingsGregorian{width:100%;min-height:43px;border:1px solid var(--border,#bbb);border-radius:8px;padding:8px;background:var(--card,#fff);color:var(--text,#222);box-sizing:border-box;margin:4px 0 10px}',
 '#ratib-hijri-dialog .h-bar{display:grid;grid-template-columns:43px 1fr 72px 43px;gap:4px;margin:7px 0}',
 '#ratib-hijri-dialog .h-days,#ratib-hijri-dialog .h-week{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:3px;text-align:center}',
 '#ratib-hijri-dialog .h-week{font-size:10px;color:var(--muted,#777)}',
@@ -52,14 +54,14 @@ var css=document.createElement('style');css.textContent=[
 '@media(min-width:650px){#ratib-hijri-dialog{align-items:center}}',
 '@media print{#ratib-hijri-dialog,.ratib-hijri-settings{display:none!important}.ratib-native-date-wrap>input[type=date]{display:none!important}}'
 ].join('');document.head.appendChild(css);
-var $=function(id){return document.getElementById(id);},dialog=null,target=null,view=null,lastFocus=null;
+var $=function(id){return document.getElementById(id);},dialog=null,target=null,view=null,lastFocus=null,dialogDate=null;
 function draw(){
  if(!dialog)return;
- $('rhMain').value=pref.main;$('rhEngine').value=pref.calendar;$('rhOther').checked=pref.showOther;
- $('rhLocal').hidden=pref.calendar!=='yemen';$('rhShift').value=String(Number(pref.offsets[view.y+'-'+view.m]||0));
- $('rhHijri').hidden=pref.main!=='h';$('rhGregorian').hidden=pref.main!=='g';
+ $('rhMain').value=pref.main;$('rhOther').checked=pref.showOther;
+ $('rhHijri').hidden=pref.main!=='h';
  $('rhMonth').value=String(view.m);$('rhYear').value=String(view.y);
- var current=target&&valid(target.value)?target.value:today();
+ var current=target&&valid(target.value)?target.value:(valid(dialogDate)?dialogDate:today());
+ $('rhGregorianDate').value=current;
  $('rhResult').textContent='التاريخ المحدد: '+formatted(current)+' — '+current;
  var days=$('rhDays');days.replaceChildren();
  if(pref.main==='g')return;
@@ -68,27 +70,25 @@ function draw(){
  var lead=new Date(firstDay+'T12:00:00Z').getUTCDay();
  for(var k=0;k<lead;k++)days.appendChild(document.createElement('span'));
  var length=epoch(nextDay)-epoch(firstDay);
- for(var day=1;day<=length;day++){(function(day){var b=document.createElement('button');b.type='button';b.textContent=String(day);var value=plus(firstDay,day-1);b.setAttribute('aria-pressed',String(value===current));b.setAttribute('aria-label',day+' '+MONTHS[view.m-1]+' '+view.y+' هجري');b.onclick=function(){if(target){setDate(target,value);close();}else{$('rhDateG').value=value;$('rhResult').textContent=formatted(value)+' — '+value;}};days.appendChild(b);})(day);}
+ for(var day=1;day<=length;day++){(function(day){var b=document.createElement('button');b.type='button';b.textContent=String(day);var value=plus(firstDay,day-1);b.setAttribute('aria-pressed',String(value===current));b.setAttribute('aria-label',day+' '+MONTHS[view.m-1]+' '+view.y+' هجري');b.onclick=function(){if(target){setDate(target,value);close();}else{dialogDate=value;draw();}};days.appendChild(b);})(day);}
 }
 function close(){if(!dialog)return;dialog.hidden=true;target=null;if(lastFocus&&lastFocus.isConnected)lastFocus.focus({preventScroll:true});lastFocus=null;}
 function ensure(){
  if(dialog)return;dialog=document.createElement('div');dialog.id='ratib-hijri-dialog';dialog.hidden=true;
- dialog.innerHTML='<div class="h-box" role="dialog" aria-modal="true" aria-label="اختيار التاريخ" dir="rtl"><div style="display:flex;align-items:center;justify-content:space-between"><strong style="font-size:17px;color:var(--accent,#067451)">التاريخ الهجري</strong><button id="rhClose" type="button">إغلاق ✕</button></div><div class="h-row"><label>التقويم الأساسي<select id="rhMain"><option value="h">هجري</option><option value="g">ميلادي</option></select></label><label>الطريقة<select id="rhEngine"><option value="umalqura">أم القرى</option><option value="yemen">اليمني المحلي</option><option value="civil">الهجري الحسابي</option></select></label></div><label style="flex-direction:row;align-items:center;margin:7px 0"><input type="checkbox" id="rhOther" style="width:18px;min-height:18px">إظهار التاريخ المقابل بخط صغير</label><div id="rhLocal" hidden><label>ضبط بداية الشهر اليمني المعروض<select id="rhShift"><option value="-1">قبل أم القرى بيوم</option><option value="0">مطابق لأم القرى</option><option value="1">بعد أم القرى بيوم</option></select></label></div><div id="rhHijri"><div class="h-bar"><button type="button" id="rhPrev">‹</button><select id="rhMonth"></select><input id="rhYear" type="number" min="1350" max="1550" aria-label="السنة الهجرية"><button id="rhNext" type="button">›</button></div><div class="h-week"><span>أحد</span><span>إثنين</span><span>ثلاثاء</span><span>أربعاء</span><span>خميس</span><span>جمعة</span><span>سبت</span></div><div class="h-days" id="rhDays"></div></div><div id="rhGregorian" hidden><label>التاريخ الميلادي<input id="rhDateG" type="date"></label><button id="rhApplyG" type="button">تطبيق التاريخ</button></div><div id="rhResult" class="h-note"></div><div class="h-actions"><button id="rhToday" type="button">اليوم</button><button id="rhDone" type="button">إغلاق</button></div><p class="h-note">الإدخال والفرز المحاسبي يحتفظان باليوم الأصلي دون تغيير. ضبط الشهر اليمني يعكس اختيارك المحلي فقط.</p></div>';
+ dialog.innerHTML='<div class="h-box" role="dialog" aria-modal="true" aria-label="اختيار التاريخ" dir="rtl"><div style="display:flex;align-items:center;justify-content:space-between"><strong style="font-size:17px;color:var(--accent,#067451)">التاريخ (الهجري: أم القرى)</strong><button id="rhClose" type="button">إغلاق ✕</button></div><div class="h-row"><label>التقويم الأساسي<select id="rhMain"><option value="h">هجري – أم القرى</option><option value="g">ميلادي</option></select></label><label>التقويم الميلادي<input id="rhGregorianDate" type="date"></label></div><label style="flex-direction:row;align-items:center;margin:7px 0"><input type="checkbox" id="rhOther" style="width:18px;min-height:18px">إظهار التاريخ المقابل بخط صغير</label><div id="rhHijri"><div class="h-bar"><button type="button" id="rhPrev">‹</button><select id="rhMonth"></select><input id="rhYear" type="number" min="1350" max="1550" aria-label="السنة الهجرية"><button id="rhNext" type="button">›</button></div><div class="h-week"><span>أحد</span><span>إثنين</span><span>ثلاثاء</span><span>أربعاء</span><span>خميس</span><span>جمعة</span><span>سبت</span></div><div class="h-days" id="rhDays"></div></div><div id="rhResult" class="h-note"></div><div class="h-actions"><button id="rhToday" type="button">اليوم</button><button id="rhDone" type="button">إغلاق</button></div><p class="h-note">التقويم الهجري المعتمد هو أم القرى فقط. التاريخ الميلادي المقابل من اليوم نفسه. لا تتغير تواريخ القيود لمجرد تغيير طريقة العرض.</p></div>';
  document.body.appendChild(dialog);
  MONTHS.forEach(function(name,i){var opt=document.createElement('option');opt.value=String(i+1);opt.textContent=name;$('rhMonth').appendChild(opt);});
  $('rhClose').onclick=close;$('rhDone').onclick=close;dialog.onclick=function(e){if(e.target===dialog)close();};dialog.onkeydown=function(e){if(e.key==='Escape')close();};
  $('rhMain').onchange=function(e){pref.main=e.target.value;save();refresh();draw();};
- $('rhEngine').onchange=function(e){pref.calendar=e.target.value;save();refresh();draw();};
+ $('rhGregorianDate').onchange=function(e){var date=e.target.value;if(!valid(date))return;dialogDate=date;view=hdate(date);if(target){setDate(target,date);close();}else draw();};
  $('rhOther').onchange=function(e){pref.showOther=e.target.checked;save();refresh();draw();};
- $('rhShift').onchange=function(e){pref.offsets[view.y+'-'+view.m]=Number(e.target.value);save();refresh();draw();};
  $('rhMonth').onchange=function(e){view.m=Number(e.target.value);draw();};
  $('rhYear').onchange=function(e){var y=Number(e.target.value);if(y>=1350&&y<=1550){view.y=y;draw();}};
  $('rhPrev').onclick=function(){view=month(view.y,view.m,-1);draw();};
  $('rhNext').onclick=function(){view=month(view.y,view.m,1);draw();};
- $('rhToday').onclick=function(){if(target){setDate(target,today());close();}else{view=hdate(today());draw();}};
- $('rhApplyG').onclick=function(){if(target&&valid($('rhDateG').value)){setDate(target,$('rhDateG').value);close();}};
+ $('rhToday').onclick=function(){dialogDate=today();if(target){setDate(target,dialogDate);close();}else{view=hdate(dialogDate);draw();}};
 }
-function open(input){ensure();target=input||null;lastFocus=document.activeElement;var selected=target&&valid(target.value)?target.value:today();view=hdate(selected);$('rhDateG').value=selected;draw();dialog.hidden=false;$('rhClose').focus({preventScroll:true});}
+function open(input){ensure();target=input||null;lastFocus=document.activeElement;dialogDate=target&&valid(target.value)?target.value:today();view=hdate(dialogDate);draw();dialog.hidden=false;$('rhClose').focus({preventScroll:true});}
 var fields=new Set(),marker=new WeakSet(),descriptor=Object.getOwnPropertyDescriptor(HTMLInputElement.prototype,'value');
 function sync(input){
  var b=input._ratibDateButton;if(!b)return;var s=valid(input.value)?input.value:'';
@@ -134,12 +134,12 @@ function decorate(){
  document.querySelectorAll('.ratib-hijri-text[data-iso]').forEach(renderSpan);
 }
 function syncSettingsControls(){
- var main=$('rhSettingsMain'),cal=$('rhSettingsCalendar'),other=$('rhSettingsOther'),example=$('rhSettingsExample');
+ var main=$('rhSettingsMain'),greg=$('rhSettingsGregorian'),other=$('rhSettingsOther'),example=$('rhSettingsExample');
  if(main&&main.value!==pref.main)main.value=pref.main;
- if(cal&&cal.value!==pref.calendar)cal.value=pref.calendar;
+ if(greg&&!valid(greg.value))greg.value=today();
  if(other&&other.checked!==pref.showOther)other.checked=pref.showOther;
  if(example){
-  var s=today(),primary=first(s),secondary=pref.showOther?second(s):'';
+  var s=greg&&valid(greg.value)?greg.value:today(),primary=first(s),secondary=pref.showOther?second(s):'';
   var stamp=primary+'|'+secondary;
   if(example.dataset.stamp!==stamp){
    example.dataset.stamp=stamp;example.replaceChildren();
@@ -157,19 +157,19 @@ function addSettings(){
  card.innerHTML='<div class="settings-accordion-header" role="button" tabindex="0"><span>☾ التاريخ والتقويم</span><span class="accordion-arrow">▼</span></div>'+
  '<div class="settings-accordion-body" onclick="event.stopPropagation()" style="display:none">'+
  '<p style="color:var(--muted);margin:0 0 10px">التاريخ الأساسي يظهر في السندات وكشف الحساب والطباعة، والتاريخ المقابل تحته بخط أصغر حسب اختيارك. لا تتغير تواريخ القيود المحفوظة.</p>'+
- '<label for="rhSettingsMain">التقويم الأساسي</label><select id="rhSettingsMain"><option value="h">هجري</option><option value="g">ميلادي</option></select>'+
- '<label for="rhSettingsCalendar">طريقة التقويم الهجري</label><select id="rhSettingsCalendar"><option value="umalqura">أم القرى (الافتراضي)</option><option value="yemen">التقويم اليمني المحلي</option><option value="civil">الهجري الحسابي</option></select>'+
+ '<label for="rhSettingsMain">التقويم الأساسي</label><select id="rhSettingsMain"><option value="h">هجري – أم القرى</option><option value="g">ميلادي</option></select>'+
+ '<label for="rhSettingsGregorian">التقويم الميلادي (للمعاينة)</label><input id="rhSettingsGregorian" type="date" aria-label="اختر التاريخ الميلادي للمعاينة">'+
  '<label for="rhSettingsOther" style="display:flex;align-items:center;gap:8px;margin:12px 0"><input id="rhSettingsOther" type="checkbox" style="width:20px;height:20px;flex:0 0 20px">إظهار التاريخ المقابل بخط صغير</label>'+
  '<div style="border:1px solid var(--border);border-radius:9px;padding:10px;margin:8px 0"><div style="font-size:.78rem;color:var(--muted)">معاينة التاريخ الحالي</div><div id="rhSettingsExample" class="ratib-hijri-text" style="margin-top:5px"></div></div>'+
  '<button type="button" id="rhSettingsButton" class="ratib-hijri-settings">فتح التقويم وتجربة اختيار التاريخ</button></div>';
  host.append(card);
  $('rhSettingsMain').onchange=function(e){pref.main=e.target.value==='g'?'g':'h';save();refresh();};
- $('rhSettingsCalendar').onchange=function(e){pref.calendar=['umalqura','yemen','civil'].includes(e.target.value)?e.target.value:'umalqura';save();refresh();};
+ $('rhSettingsGregorian').onchange=function(){syncSettingsControls();};
  $('rhSettingsOther').onchange=function(e){pref.showOther=e.target.checked;save();refresh();};
  $('rhSettingsButton').onclick=function(e){e.stopPropagation();open(null);};
  syncSettingsControls();
 }
 var pending=false;function queue(){if(pending)return;pending=true;(window.requestAnimationFrame||function(fn){return setTimeout(fn,16);})(function(){pending=false;scan();addSettings();decorate();});}
-function init(){scan();addSettings();decorate();new MutationObserver(queue).observe(document.body,{childList:true,subtree:true});window.addEventListener('beforeprint',decorate);window.RatibHijriFirst={format:formatted,toISO:reverse,refresh:refresh,open:open,markup:dateMarkup,exportText:dateForExport};}
+function init(){scan();addSettings();decorate();new MutationObserver(queue).observe(document.body,{childList:true,subtree:true});window.addEventListener('beforeprint',decorate);window.RatibHijriFirst={format:formatted,toISO:reverse,refresh:refresh,open:open,markup:dateMarkup,exportText:dateForExport,calendar:'umalqura'};}
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();
 })();

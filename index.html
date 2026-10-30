@@ -1394,7 +1394,7 @@ body.ratib-sidebar-open,body.ratib-about-open{overflow:hidden}
   #multiVoucherCard.spend-voucher.statement-return-voucher .multi-voucher-actions>.btn-danger{flex:1 1 100%!important}
 }
 </style>
-<link rel="stylesheet" href="./ratib-theme.css?v=3.6.109.06">
+<link rel="stylesheet" href="./ratib-theme.css?v=3.6.109.07">
 <link rel="stylesheet" href="./ratib-navigation-v3.css?v=3.6.107">
 <style id="ratib-354-account-toolbar-css-only">
 /* Scoped UI correction only. No script, event handlers, or navigation changes. */
@@ -1579,17 +1579,65 @@ body.ratib-sidebar-open,body.ratib-about-open{overflow:hidden}
 <link rel="stylesheet" href="./ratib-trial-home-sidebar-3.6.143.css?v=3.6.143">
 <link rel="stylesheet" href="./ratib-trial-ui-3.6.143.css?v=3.6.143">
 <link rel="stylesheet" href="./ratib-dashboard-finance-3.6.144.css?v=3.6.144">
-<link rel="stylesheet" href="./ratib-global-button-size-3.6.146.css?v=3.6.109.06">
-<link rel="stylesheet" href="./ratib-interface-font-3.6.148.css?v=3.6.109.06">
+<link rel="stylesheet" href="./ratib-global-button-size-3.6.146.css?v=3.6.109.07">
+<link rel="stylesheet" href="./ratib-interface-font-3.6.148.css?v=3.6.109.07">
 <link rel="stylesheet" href="./ratib-feedback-3.6.149.css?v=3.6.149">
 <link rel="stylesheet" href="./ratib-country-currency-3.6.151.css?v=3.6.151">
-<link rel="stylesheet" href="./ratib-interactive-tree-3.6.105.05.css?v=3.6.109.06">
-<link rel="stylesheet" href="./ratib-gold.css?v=3.6.109.06">
+<link rel="stylesheet" href="./ratib-interactive-tree-3.6.105.05.css?v=3.6.109.07">
+<link rel="stylesheet" href="./ratib-gold.css?v=3.6.109.07">
 <link rel="stylesheet" href="./ratib-trial-home-polish.css?v=20261025-4">
-<link rel="stylesheet" href="./ratib-cash-pulse.css?v=3.6.109.06">
+<link rel="stylesheet" href="./ratib-cash-pulse.css?v=3.6.109.07">
 <style id="ratib-trial-cash-parity">
 /* Reuse receipt layout while preserving payment narrations, including old multiline notes. */
 #multiVoucherCard.spend-voucher textarea.multi-line-note{height:44px;min-height:44px;box-sizing:border-box;line-height:1.4;padding:9px;resize:vertical}
+</style>
+
+<style id="ratib-trial-real-voucher-date-and-update-style">
+/* Applied to the live page, not to the downloadable Excel document. */
+@media screen{
+ #multiVoucherCard.spend-voucher .multi-voucher-grid{
+  display:grid!important;
+  grid-template-columns:minmax(78px,.64fr) minmax(0,1.18fr) minmax(0,1.18fr)!important;
+  gap:7px!important;
+ }
+ #multiVoucherCard.spend-voucher .multi-voucher-grid>.spend-sequence{
+  grid-column:1!important;grid-row:1!important;min-width:0!important;
+  width:100%!important;font-size:0!important;overflow:hidden;
+ }
+ #multiVoucherCard.spend-voucher .multi-voucher-grid>.spend-sequence #spendSeqInput{
+  display:block!important;width:100%!important;min-width:0!important;max-width:100%!important;
+  text-align:center!important;font-size:14px!important;box-sizing:border-box!important;
+ }
+ #multiVoucherCard.spend-voucher .multi-voucher-grid>label:has(#multiVoucherDate){
+  grid-column:2/-1!important;grid-row:1!important;min-width:0!important;width:100%!important;
+  max-width:100%!important;font-size:0!important;overflow:visible!important;
+ }
+ #multiVoucherCard.spend-voucher .multi-voucher-grid>label:has(#multiVoucherDate) .ratib-native-date-wrap{
+  display:block!important;width:100%!important;min-width:0!important;max-width:100%!important;
+ }
+ #multiVoucherCard.spend-voucher .multi-voucher-grid>label:has(#multiVoucherDate) .ratib-native-date-button{
+  width:100%!important;max-width:100%!important;padding:3px 7px!important;
+  font-size:clamp(11px,2.8vw,14px)!important;white-space:nowrap!important;
+ }
+ #multiVoucherCard.spend-voucher .multi-voucher-grid>label:has(#multiVoucherBeneficiary),
+ #multiVoucherCard.spend-voucher .multi-voucher-grid>label:has(#multiVoucherBaseCurrency),
+ #multiVoucherCard.spend-voucher>label:has(#multiVoucherNote){
+  font-size:0!important;gap:0!important;
+ }
+ #multiVoucherCard.spend-voucher .multi-voucher-grid>label:has(#multiVoucherBeneficiary) input,
+ #multiVoucherCard.spend-voucher .multi-voucher-grid>label:has(#multiVoucherBaseCurrency) select,
+ #multiVoucherCard.spend-voucher>label:has(#multiVoucherNote) textarea{font-size:15px!important}
+ #appUpdateBanner:not(.hidden){
+  position:fixed!important;top:max(10px,env(safe-area-inset-top))!important;bottom:auto!important;
+  left:10px!important;right:10px!important;z-index:10050!important;
+  width:min(620px,calc(100vw - 20px))!important;max-width:620px!important;
+  margin:0 auto!important;box-sizing:border-box!important;max-height:min(44dvh,320px)!important;
+  overflow:auto!important;background:var(--card,#fff)!important;color:var(--text,#222)!important;
+  border:1px solid var(--accent,#087654)!important;border-radius:12px!important;
+  box-shadow:0 8px 28px #0003!important;direction:rtl!important;text-align:right!important;
+ }
+}
+@media print{#appUpdateBanner{display:none!important}}
 </style>
 </head>
 <body>
@@ -1621,7 +1669,7 @@ body.ratib-sidebar-open,body.ratib-about-open{overflow:hidden}
     <div class="header-tools"><div class="header-actions">
       <button class="icon-btn" id="themeBtn" title="الوضع الليلي">🌙</button>
       <button class="icon-btn" id="sidebarMenuBtn" aria-haspopup="dialog" aria-controls="appSidebar" aria-expanded="false" title="الإعدادات" aria-label="فتح الإعدادات">⚙</button>
-    </div><small id="appVersionLabel" class="app-version">الإصدار 3.6.109.06 (تجريبية)</small></div>
+    </div><small id="appVersionLabel" class="app-version">الإصدار 3.6.109.07 (تجريبية)</small></div>
   </header>
   <div class="summary-toolbar hidden no-print" id="storageFeedback"><span id="persistentSaveStatus" hidden aria-hidden="true">جاهز</span><button type="button" id="retryStorageBtn" class="btn btn-ghost hidden">إعادة محاولة الحفظ</button></div>
 <div class="app-update-banner hidden no-print" id="appUpdateBanner" role="status"><span id="appUpdateMessage">يتوفر تحديث لراتب. هل تريد تطبيقه؟</span><button type="button" class="btn btn-ghost" id="applyAppUpdateBtn">موافق، تطبيق التحديث</button><div id="appUpdateDetails" class="hidden"></div></div>
@@ -1668,9 +1716,9 @@ body.ratib-sidebar-open,body.ratib-about-open{overflow:hidden}
       <img src="./ratib-gold-icon.svg" width="72" height="72" alt="" decoding="async">
       <h2 id="ratibAboutTitle">راتب الميسر</h2>
       <p class="ratib-about-subtitle">للتنظيم والتدبير المالي</p>
-      <p class="ratib-about-version">الإصدار 3.6.109.06 (تجريبية)</p>
+      <p class="ratib-about-version">الإصدار 3.6.109.07 (تجريبية)</p>
       <section id="ratibAboutReleaseNotes" class="ratib-about-changes" aria-label="مستجدات الإصدار">
-        <h3>الجديد في 3.6.109.06</h3><ul><li>الرجوع من نماذج السندات يعيد المستخدم إلى الرئيسية دون شاشة اختيار مكررة</li><li>فتح نموذج القيد البسيط مباشرة عند الوصول إلى صفحة السندات من أي رابط عام</li><li>الإبقاء على زر استعادة المسودة خارج شاشة الاختيار الملغاة</li></ul>
+        <h3>الجديد في 3.6.109.07</h3><ul><li>الرجوع من نماذج السندات يعيد المستخدم إلى الرئيسية دون شاشة اختيار مكررة</li><li>فتح نموذج القيد البسيط مباشرة عند الوصول إلى صفحة السندات من أي رابط عام</li><li>الإبقاء على زر استعادة المسودة خارج شاشة الاختيار الملغاة</li></ul>
       </section>
       <p id="ratibAboutDescription">إدارة الحسابات والسندات والميزانية، ومتابعة العمليات والتقارير المالية، مع حفظ البيانات على جهازك ودعم العمل دون الإنترنت.</p>
       <button type="button" class="btn btn-primary" id="closeRatibAboutBtn">إغلاق</button>
@@ -1713,7 +1761,7 @@ body.ratib-sidebar-open,body.ratib-about-open{overflow:hidden}
         </button>
       </div>
 
-      <!-- Trial 3.6.109.06: dashboard, tasks and reminders retired from homepage.
+      <!-- Trial 3.6.109.07: dashboard, tasks and reminders retired from homepage.
            The hidden currency state remains for existing accounting reports and preferences. -->
       <select id="currency" hidden aria-hidden="true" tabindex="-1">
         <option value="YER">ريال يمني</option>
@@ -2828,14 +2876,14 @@ body.ratib-sidebar-open,body.ratib-about-open{overflow:hidden}
 
 </div>
 
-<script src="./ratib-first-run-3.6.105.11.js?v=3.6.109.06"></script>
+<script src="./ratib-first-run-3.6.105.11.js?v=3.6.109.07"></script>
 <script>
 // ===== تسجيل Service Worker (يفعّل العمل دون إنترنت بعد أول زيارة) =====
 // يُسجَّل بعد اكتمال تحميل الصفحة حتى لا يؤخر أول عرض للتطبيق. يعمل فقط عبر HTTPS
 // (أو localhost أثناء التطوير) — هذا شرط أساسي من المتصفح نفسه لأي Service Worker.
 let _briefAppNoticeTimer=null;
 let _releaseSummaryDisplayed=false;
-const RATIB_RELEASE={"version":"3.6.109.06","highlights":["تحسين عرض التاريخ الهجري في السندات مع إظهار التاريخ الميلادي بحجم أصغر."],"changes":["تكبير مساحة التاريخ بجانب رقم السند في القبض والصرف.","عرض إشعار التحديث أعلى الواجهة بكلمات عربية واضحة.","تصحيح ترميز النصوص الظاهرة بعد تحديث التجريبية."]};
+const RATIB_RELEASE={"version":"3.6.109.07","highlights":["عرض التاريخ الهجري في كشف الحساب والطباعة والتصدير مع تحسين عرض السندات."],"changes":["توسيع خانة التاريخ مقابل رقم السند في القبض والصرف.","تقليل عبارات الحقول المكررة والاكتفاء بالقيمة أو العبارة الداخلية.","إظهار تنبيه التحديث أعلى الواجهة.","عرض التاريخ الهجري أولاً في كشف الحساب والطباعة والتصدير وفق التفضيلات."]};
 window.ratibCurrentTrialVersion=()=>String(RATIB_RELEASE.version);
 window.ratibCurrentTrialVersionLabel=()=>`الإصدار ${RATIB_RELEASE.version} (تجريبية)`;
 window.ratibSyncTrialVersion=()=>{
@@ -2849,7 +2897,7 @@ window.ratibSyncTrialVersion=()=>{
 };
 document.addEventListener('DOMContentLoaded',window.ratibSyncTrialVersion);
 window.addEventListener('load',window.ratibSyncTrialVersion);
-const RATIB_PUBLIC_UPDATE_NOTE='إزالة شاشة اختيار السند المكررة نهائيًا';
+const RATIB_PUBLIC_UPDATE_NOTE='تحسين عرض التاريخ الهجري في كشف الحساب والسندات وموضع التحديث';
 function showAppReleaseDetails(release){
   const box=document.getElementById('appUpdateDetails');if(!box)return;box.replaceChildren();
   if(!release||typeof release.version!=='string'){box.classList.add('hidden');return;}
@@ -2861,7 +2909,7 @@ function showAppReleaseDetails(release){
 }
 function showTransientAppNotice(message,duration=2800){
   if(_appExited)return;const banner=document.getElementById('appUpdateBanner'),label=document.getElementById('appUpdateMessage'),button=document.getElementById('applyAppUpdateBtn');
-  if(!banner||banner.dataset.pending==='true')return;clearTimeout(_briefAppNoticeTimer);if(label)label.textContent=message;button?.classList.add('hidden');showAppReleaseDetails(null);banner.classList.remove('hidden');
+  if(!banner||banner.dataset.pending==='true')return;if(banner.parentElement!==document.body)document.body.appendChild(banner);clearTimeout(_briefAppNoticeTimer);if(label)label.textContent=message;button?.classList.add('hidden');showAppReleaseDetails(null);banner.classList.remove('hidden');
   _briefAppNoticeTimer=setTimeout(()=>{if(banner.dataset.pending!=='true')banner.classList.add('hidden');},duration);
 }
 if('serviceWorker' in navigator){
@@ -4892,6 +4940,9 @@ function preparePrintBudgetTemplate() {
   document.getElementById('pbTotRate').textContent = grandRate + '%';
 }
 
+function ratibStatementDateHtml(value){const v=String(value??'');return window.RatibHijriFirst?.markup?.(v)??esc(v);}
+function ratibStatementDateExport(value){const v=String(value??'');return window.RatibHijriFirst?.exportText?.(v)??v;}
+function ratibStatementPeriodHtml(value){return esc(String(value??'')).replace(/\b(?:19\d{2}|20\d{2}|2100)-(?:0[1-9]|1[0-2])-(?:0[1-9]|[12]\d|3[01])\b/g,date=>ratibStatementDateHtml(date));}
 function ratibStatementText(value,fallback=''){const text=String(value??'').trim();return text&&!/^(undefined|null|nan)$/i.test(text)?text:fallback;}
 function ratibStatementTotalsTitle(from='',to=''){return from||to?'إجمالي عمليات الفترة':'إجمالي العمليات';}
 function preparePrintStatementTemplate(accountName, targetTxs, openingBalance, periodTitle, currencyLabel, statementData=null) {
@@ -4911,9 +4962,9 @@ function preparePrintStatementTemplate(accountName, targetTxs, openingBalance, p
   const safeAccountName=ratibStatementText(accountName,'حساب غير محدد');
   document.getElementById('psStatementTitle').textContent = isAll ? 'كشف أرصدة كافة الحسابات والصناديق' : `كشف حساب: ${safeAccountName}`;
   const periodEl = document.getElementById('psStatementPeriod');
-  if (periodEl) periodEl.textContent = ratibStatementText(periodTitle,'كافة العمليات');
+  if (periodEl) periodEl.innerHTML = ratibStatementPeriodHtml(ratibStatementText(periodTitle,'كافة العمليات'));
   const genDateEl = document.getElementById('psGeneratedDate');
-  if (genDateEl) genDateEl.textContent = new Date().toLocaleDateString('en-CA'); // YYYY-MM-DD
+  if (genDateEl) genDateEl.innerHTML = ratibStatementDateHtml(getLocalTodayISO()); // Keep ISO dates for ledger storage
 
   let totalLakam = 0, totalAlaykom = 0, runningBalance = (isAll ? 0 : openingBalance);
   const tbody = document.getElementById('psTableBody');
@@ -4961,7 +5012,7 @@ function preparePrintStatementTemplate(accountName, targetTxs, openingBalance, p
 
       tbody.innerHTML += `
         <tr>
-          <td>${esc(ratibStatementText(t.isoDate || t.date,'—'))}</td>
+          <td>${ratibStatementDateHtml(ratibStatementText(t.isoDate || t.date,'—'))}</td>
           <td>${docType} <b>#${esc(ratibStatementText(t.seqNum,'-'))}</b></td>
           <td class="desc-col">${esc(noteStr)}${isAll ? `<br><small style="color:#000; font-weight:700;">(${esc(otherAccount)})</small>` : ''}</td>
           <td>${alaykomAmt > 0 ? alaykomAmt.toLocaleString() : ''}</td>
@@ -7189,7 +7240,7 @@ function runAccountStatement() {
       row.style.cursor = 'pointer';
       row.title = 'انقر لعرض تفاصيل السند';
       row.innerHTML = `
-        <td>${esc(ratibStatementText(t.isoDate || t.date,'—'))}</td>
+        <td>${ratibStatementDateHtml(ratibStatementText(t.isoDate || t.date,'—'))}</td>
         <td><b>#${t.seqNum || '-'}</b> (${docType})</td>
         <td>${esc(noteStr)}<br><small style="color:var(--muted); font-weight:700;">(الطرف المقابل: ${esc(otherAccount)})</small></td>
         <td style="color:var(--danger);">${debitAmt > 0 ? debitAmt.toLocaleString() : ''}</td>
@@ -7905,7 +7956,7 @@ let accountOperationsReturnTab='pageAccountsTree';
 let multiVoucherReturnTab='pageDashboard';
 let quickVoucherOrigin=null;
 
-/* Trial 3.6.109.06 — return to the exact financial view after editing an
+/* Trial 3.6.109.07 — return to the exact financial view after editing an
    EXISTING voucher. This is UI-only; it never alters posted accounting data. */
 let ratibEditReturnContext=null;
 function ratibRememberEditOrigin(item){
@@ -8119,7 +8170,7 @@ function renderAccountOperations(accountName,scopeNames=null,ui=null){
     const data=getAccountCurrencyReportData(currency),{rows:txs,opening,totalDebit,totalCredit,closing:closingBal}=data;
     const prior=effectiveStart&&opening!==0?` · الرصيد السابق ${Math.abs(opening).toLocaleString()} ${currency} ${opening>0?'دائن':'مدين'}`:'';
     const head=`<div class="account-operations-head"><span>${esc(currency)}</span><small>${txs.length} عملية · المدين ${totalDebit.toLocaleString()} ${esc(currency)} · الدائن ${totalCredit.toLocaleString()} ${esc(currency)}${prior}</small></div>`;
-    const openingRow=effectiveStart&&opening!==0?`<div class="account-statement-row opening"><span>${esc(effectiveStart)}</span><span>—</span><span>الرصيد السابق قبل بداية الفترة</span><span></span><span></span><span>${Math.abs(opening).toLocaleString()} ${esc(currency)} ${opening>0?'دائن':'مدين'}</span></div>`:'';
+    const openingRow=effectiveStart&&opening!==0?`<div class="account-statement-row opening"><span>${ratibStatementDateHtml(effectiveStart)}</span><span>—</span><span>الرصيد السابق قبل بداية الفترة</span><span></span><span></span><span>${Math.abs(opening).toLocaleString()} ${esc(currency)} ${opening>0?'دائن':'مدين'}</span></div>`:'';
     const runningBalances=getAccountRunningBalances(txs,scope,opening);
     const totalsTitle=ratibStatementTotalsTitle(effectiveStart,accountOpsState.to);
     const closingType=closingBal===0?'صفر':closingBal>0?'دائن':'مدين';
@@ -8130,7 +8181,7 @@ function renderAccountOperations(accountName,scopeNames=null,ui=null){
       const rawNote=ratibStatementText(entry.line?.note||t.execution?.[Object.keys(t.execution||{})[0]]?.note||getTransactionDisplayType(t),'بدون بيان');
        const owner=ratibAggregateOwner(t),note=owner?'['+owner+'] '+rawNote:rawNote;
       const mode=ratibStatementDocumentLabel(t);
-      return `<div class="account-statement-row" data-tx-id="${esc(t.id)}" title="عرض تفاصيل السند"><span>${esc(getAccountOpsDate(t)||'-')}</span><span>#${esc(ratibStatementText(t.seqNum,'-'))} · ${mode}</span><span>${esc(note)}</span><span class="debit">${debit?amount.toLocaleString():''}</span><span class="credit">${debit&&!entry.bothSides?'':amount.toLocaleString()}</span><span class="balance">${Math.abs(balance).toLocaleString()} ${esc(currency)}</span></div>`;
+      return `<div class="account-statement-row" data-tx-id="${esc(t.id)}" title="عرض تفاصيل السند"><span>${ratibStatementDateHtml(getAccountOpsDate(t)||'-')}</span><span>#${esc(ratibStatementText(t.seqNum,'-'))} · ${mode}</span><span>${esc(note)}</span><span class="debit">${debit?amount.toLocaleString():''}</span><span class="credit">${debit&&!entry.bothSides?'':amount.toLocaleString()}</span><span class="balance">${Math.abs(balance).toLocaleString()} ${esc(currency)}</span></div>`;
     }).join('');
     return `<section class="account-currency-page" data-currency="${esc(currency)}" role="tabpanel" aria-label="حركات حساب ${esc(accountName)} ${esc(currency)}">${head}<div class="account-statement-table"><div class="account-statement-grid"><div class="account-statement-row header"><span>التاريخ</span><span>المستند</span><span>البيان</span><span>مدين</span><span>دائن</span><span>الرصيد</span></div>${openingRow}${rows}${totalsRows}</div></div>${closingFooter}${txs.length?'':'<div class="accounts-empty">لا توجد عمليات بهذه العملة في الفترة المحددة.</div>'}</section>`;
   }).join('')}</div>`;
@@ -8189,7 +8240,7 @@ function preparePrintAllAccountCurrencies(currencies,preview=false){
     pages.push(`<section class="account-print-page">${source.innerHTML}</section>`);
   });
   const summaryRows=datas.map(d=>`<tr><td>${esc(accountCurrencyLabel(d.currency))}</td><td>${d.totalCredit.toLocaleString()}</td><td>${d.totalDebit.toLocaleString()}</td><td>${Math.abs(d.closing).toLocaleString()} ${d.closing===0?'صفر':d.closing>0?'دائن':'مدين'}</td></tr>`).join('');
-  const cfg=getHeaderConfig(),summary=`<section class="account-print-summary"><div class="ps-header"><h1>${esc(cfg.show&&cfg.name?cfg.name:'')}</h1><p>${esc(cfg.show&&cfg.details?cfg.details:'')}</p></div><div class="ps-title">خلاصة كشف الحساب متعدد العملات — ${esc(accountOpsState.accountName)}</div><div class="ps-info-bar"><div><span class="ps-info-label">الفترة:</span> ${esc(accountPeriodTitle())}</div><div><span class="ps-info-label">عدد العملات:</span> ${currencies.length}</div><div><span class="ps-info-label">تاريخ الإصدار:</span> ${new Date().toLocaleDateString('en-CA')}</div></div><div class="ps-table-wrap"><table class="ps-table"><thead><tr><th>نوع العملة</th><th>دائن (لكم)</th><th>مدين (عليكم)</th><th>الرصيد</th></tr></thead><tbody>${summaryRows}</tbody></table></div></section>`;
+  const cfg=getHeaderConfig(),summary=`<section class="account-print-summary"><div class="ps-header"><h1>${esc(cfg.show&&cfg.name?cfg.name:'')}</h1><p>${esc(cfg.show&&cfg.details?cfg.details:'')}</p></div><div class="ps-title">خلاصة كشف الحساب متعدد العملات — ${esc(accountOpsState.accountName)}</div><div class="ps-info-bar"><div><span class="ps-info-label">الفترة:</span> ${esc(accountPeriodTitle())}</div><div><span class="ps-info-label">عدد العملات:</span> ${currencies.length}</div><div><span class="ps-info-label">تاريخ الإصدار:</span> ${ratibStatementDateHtml(getLocalTodayISO())}</div></div><div class="ps-table-wrap"><table class="ps-table"><thead><tr><th>نوع العملة</th><th>دائن (لكم)</th><th>مدين (عليكم)</th><th>الرصيد</th></tr></thead><tbody>${summaryRows}</tbody></table></div></section>`;
   source.innerHTML=pages.join('')+summary;
   if(preview)openPrintPreview('printStatementContainer','printing-statement');
   else printRatibDocument('printing-statement');
@@ -9081,7 +9132,7 @@ function proceedAppInit() {
 }
 
 
-/* Ratib trial 3.6.109.06 — preserve the active screen across Android/PWA background recreation.
+/* Ratib trial 3.6.109.07 — preserve the active screen across Android/PWA background recreation.
  * The view is stored in Ratib's existing protected application store, not in plain localStorage.
  * Never restore before vault unlock; explicit Exit clears the snapshot.
  */
@@ -9399,8 +9450,8 @@ function downloadCsv(rows,name){
 function accountExportRows(currency){
   const data=getAccountCurrencyReportData(currency),out=[['التاريخ','المستند','البيان','مدين','دائن','الرصيد','حالة الرصيد','العملة']];let balance=data.opening;
   const effectiveStart=window.ratibStatementEffectiveFrom?.(accountOpsState.from||'')??(accountOpsState.from||'');
-  if(effectiveStart&&balance!==0)out.push([effectiveStart,'—','الرصيد السابق قبل بداية الفترة','','',Math.abs(balance),balance>0?'دائن':'مدين',currency]);
-  for(const t of data.rows){const entry=getAccountEntry(t,accountOpsState.scopeNames),amount=getAccountDisplayAmount(entry),debit=entry.side==='debit';balance=roundAccountingAmount(balance+(debit?-amount:amount));out.push([getAccountOpsDate(t),`#${t.seqNum||''} ${getTransactionDisplayType(t)}`,entry.line?.note||t.execution?.[Object.keys(t.execution||{})[0]]?.note||'',debit?amount:'',debit?'':amount,Math.abs(balance),balance>=0?'دائن':'مدين',currency]);}
+  if(effectiveStart&&balance!==0)out.push([ratibStatementDateExport(effectiveStart),'—','الرصيد السابق قبل بداية الفترة','','',Math.abs(balance),balance>0?'دائن':'مدين',currency]);
+  for(const t of data.rows){const entry=getAccountEntry(t,accountOpsState.scopeNames),amount=getAccountDisplayAmount(entry),debit=entry.side==='debit';balance=roundAccountingAmount(balance+(debit?-amount:amount));out.push([ratibStatementDateExport(getAccountOpsDate(t)),`#${t.seqNum||''} ${getTransactionDisplayType(t)}`,entry.line?.note||t.execution?.[Object.keys(t.execution||{})[0]]?.note||'',debit?amount:'',debit?'':amount,Math.abs(balance),balance>=0?'دائن':'مدين',currency]);}
   out.push(['','',ratibStatementTotalsTitle(effectiveStart,accountOpsState.to),data.totalDebit,data.totalCredit,Math.abs(data.closing),data.closing===0?'صفر':data.closing>0?'دائن':'مدين',currency]);return out;
 }
 
@@ -12356,9 +12407,9 @@ try{currenciesUi();sync();}catch(e){console.error('Ratib 3.6.12 initialization',
 </script>
 <script src="./ratib-license-draft.js?v=3.6.151" defer></script>
 <script src="./ratib-ui-v3.6.37.js?v=2" defer></script>
-<script src="./ratib-favorites-v3.js?v=3.6.109.06" defer></script>
-<script src="./ratib-voice-dictation-3.6.117.js?v=3.6.109.06" defer></script>
-<script src="./ratib-account-archive-compat.js?v=3.6.109.06" defer></script>
+<script src="./ratib-favorites-v3.js?v=3.6.109.07" defer></script>
+<script src="./ratib-voice-dictation-3.6.117.js?v=3.6.109.07" defer></script>
+<script src="./ratib-account-archive-compat.js?v=3.6.109.07" defer></script>
 <script src="./ratib-annual-close.js?v=1" defer></script>
 <script src="./ratib-fiscal-ledger.js?v=1" defer></script>
 <script src="./ratib-statement-prior-year.js?v=1" defer></script>
@@ -12372,26 +12423,26 @@ try{currenciesUi();sync();}catch(e){console.error('Ratib 3.6.12 initialization',
 <script src="./ratib-amount-edit-3.6.97.js?v=3.6.158" defer></script>
 <script src="./ratib-special-reports-3.6.102.js?v=3.6.114" defer></script>
 <script src="./ratib-fx-autofill-3.6.105.js?v=3.6.107" defer></script>
-<script src="./ratib-report-buttons-3.6.106.js?v=3.6.109.06" defer></script>
+<script src="./ratib-report-buttons-3.6.106.js?v=3.6.109.07" defer></script>
 <script src="./ratib-print-logo-3.6.108.js?v=3.6.111" defer></script>
 <div id="ratibSpecialPrintHost" aria-hidden="true"></div>
-<script src="./ratib-sidebar-3.6.124.js?v=3.6.109.06" defer></script>
-<script src="./ratib-simple-accounts-3.6.105.13.js?v=3.6.109.06" defer></script>
+<script src="./ratib-sidebar-3.6.124.js?v=3.6.109.07" defer></script>
+<script src="./ratib-simple-accounts-3.6.105.13.js?v=3.6.109.07" defer></script>
 <script src="./ratib-interactive-tree-3.6.105.05.js?v=20261025-3" defer></script>
-<script src="./ratib-login-3.6.124.js?v=3.6.109.06" defer></script>
+<script src="./ratib-login-3.6.124.js?v=3.6.109.07" defer></script>
 <script src="./ratib-trial-home-sidebar-3.6.143.js?v=3.6.143" defer></script>
-<script src="./ratib-trial-ui-3.6.143.js?v=3.6.109.06" defer></script>
-<script src="./ratib-dashboard-finance-3.6.144.js?v=3.6.109.06" defer></script>
-<script src="./ratib-global-button-size-3.6.146.js?v=3.6.109.06" defer></script>
+<script src="./ratib-trial-ui-3.6.143.js?v=3.6.109.07" defer></script>
+<script src="./ratib-dashboard-finance-3.6.144.js?v=3.6.109.07" defer></script>
+<script src="./ratib-global-button-size-3.6.146.js?v=3.6.109.07" defer></script>
 <script src="./ratib-document-signatures-3.6.148.js?v=3.6.148" defer></script>
 <script src="./ratib-feedback-3.6.149.js?v=3.6.149" defer></script>
-<script src="./ratib-statement-marks-3.6.106.05.js?v=3.6.109.06" defer>
+<script src="./ratib-statement-marks-3.6.106.05.js?v=3.6.109.07" defer>
 </script>
 <script src="./ratib-country-currency-3.6.151.js?v=3.6.151" defer></script>
 <script src="./ratib-opening.js?v=20261026-4" defer></script>
-<script src="./ratib-trial-home-polish.js?v=3.6.109.06" defer></script>
-<script src="./ratib-cash-pulse.js?v=3.6.109.06" defer></script>
+<script src="./ratib-trial-home-polish.js?v=3.6.109.07" defer></script>
+<script src="./ratib-cash-pulse.js?v=3.6.109.07" defer></script>
 
-<script src="./ratib-date-display.js?v=3.6.109.06" defer></script>
+<script src="./ratib-date-display.js?v=3.6.109.07" defer></script>
 </body>
 </html>

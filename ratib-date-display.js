@@ -109,6 +109,13 @@ function setDate(input,s){input.value=s;input.dispatchEvent(new Event('input',{b
 var scopes=['#reportAccountOpsPanel','#pageAccountOperations','#statementBody','#printStatementContainer','#printPreviewBody','#pvDate','.tx-date-line','.tx-log-item','.global-result'];
 var pattern=/\b(?:19\d\d|20\d\d|2100)[-\/](?:0[1-9]|1[0-2])[-\/](?:0[1-9]|[12]\d|3[01])\b/g;
 function spanDate(s){var el=document.createElement('span');el.className='ratib-hijri-text';el.dataset.iso=s;renderSpan(el);return el;}
+function dateMarkup(s){
+ if(!valid(s))return String(s||'').replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});
+ var primary=first(s),secondary=pref.showOther?second(s):'';
+ return '<span class="ratib-hijri-text" data-iso="'+s+'"><span>'+primary+'</span>'+(secondary?'<small>'+secondary+'</small>':'')+'</span>';
+}
+function dateForExport(s){if(!valid(s))return String(s||'');return first(s)+(pref.showOther?' / '+second(s):'');}
+
 function renderSpan(el){var s=el.dataset.iso;if(!valid(s))return;var p=first(s),q=pref.showOther?second(s):'';if(el._p===p&&el._q===q)return;el._p=p;el._q=q;el.replaceChildren();var title=document.createElement('span');title.textContent=p;el.appendChild(title);if(q){var sm=document.createElement('small');sm.textContent=q;el.appendChild(sm);}}
 function decorate(){
  var nodes=document.querySelectorAll(scopes.join(','));nodes.forEach(function(root){
@@ -128,6 +135,6 @@ function refresh(){fields.forEach(function(input){if(input.isConnected)sync(inpu
 function scan(){document.querySelectorAll('input[type=date]').forEach(function(input){if(input.closest('#ratib-hijri-dialog'))return;if(!marker.has(input))wrap(input);else if(input._ratibDateWrapper&&input.parentNode!==input._ratibDateWrapper){input.before(input._ratibDateWrapper);input._ratibDateWrapper.prepend(input);}});}
 function addSettings(){var host=$('pageSettings');if(!host||$('rhSettingsButton'))return;var b=document.createElement('button');b.id='rhSettingsButton';b.type='button';b.className='ratib-hijri-settings';b.textContent='☾ التاريخ والتقويم الهجري';b.onclick=function(){open(null);};var title=host.querySelector('h2,h3');if(title)title.after(b);else host.prepend(b);}
 var pending=false;function queue(){if(pending)return;pending=true;(window.requestAnimationFrame||function(fn){return setTimeout(fn,16);})(function(){pending=false;scan();addSettings();decorate();});}
-function init(){scan();addSettings();decorate();new MutationObserver(queue).observe(document.body,{childList:true,subtree:true});window.addEventListener('beforeprint',decorate);window.RatibHijriFirst={format:formatted,toISO:reverse,refresh:refresh,open:open};}
+function init(){scan();addSettings();decorate();new MutationObserver(queue).observe(document.body,{childList:true,subtree:true});window.addEventListener('beforeprint',decorate);window.RatibHijriFirst={format:formatted,toISO:reverse,refresh:refresh,open:open,markup:dateMarkup,exportText:dateForExport};}
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();
 })();

@@ -60,5 +60,6 @@ select.value='h';select.dispatchEvent(new w.Event('change'));
 assert(d.getElementById('reportAccountOpsPanel').textContent.includes('هـ'),'Switching back to Hijri refreshes existing statement');
 const second=d.getElementById('rhSettingsOther');second.checked=false;second.dispatchEvent(new w.Event('change'));
 assert(!w.RatibHijriFirst.markup('2026-10-30').includes('<small>'),'Opposite date can be hidden');
-dom.window.close();
+// Allow the calendar's queued requestAnimationFrame DOM decoration to settle in jsdom.
+// Closing the window before that callback runs causes a jsdom-specific null-document error.
 console.log('PASS 3.6.109.08: real account dates, visible calendar settings, new/edit receipt/spend number, compact captions, and unchanged ledger date');

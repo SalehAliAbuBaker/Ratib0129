@@ -158,7 +158,9 @@ function main(){
    const current=saved?checkpoint(accountName,currency,saved.date):null;
    const stable=saved&&saved.fingerprint===current.fingerprint&&Math.abs(saved.balance-current.balance)<0.000001&&saved.count===current.count;
    const bar=document.createElement('div');bar.className='ratib-reconcile-bar no-print';
-   const label=document.createElement('label');label.textContent='مطابقة الرصيد حتى';
+   const label=document.createElement('label');label.className='ratib-reconcile-date-label';
+   const caption=document.createElement('span');caption.className='ratib-reconcile-caption';caption.textContent='مطابقة الرصيد حتى';
+   label.appendChild(caption);
    const dateInput=document.createElement('input');dateInput.type='date';dateInput.value=saved?.date||today();dateInput.max=today();dateInput.setAttribute('aria-label','تاريخ مطابقة الرصيد');
    label.appendChild(dateInput);
    const save=document.createElement('button');save.type='button';save.className='btn btn-primary';save.textContent='✓ تثبيت المطابقة';

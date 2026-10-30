@@ -1,7 +1,7 @@
 // Ratib 3.1.9: cache identity is unique to this app's scope.
 // Retired cache for compatibility checks: v261-trial-muyassar-ui-3.6.109.04
-const CACHE_VERSION='v268-trial-hide-beneficiary-caption-3.6.109.11';
-const APP_RELEASE={"version":"3.6.109.11","highlights":["إزالة العبارة الشارحة المكررة من سند الصرف."],"changes":["إيقاف المكوّن القديم الذي كان يعيد إدراج عبارة «إضافة مستفيد (اختياري)» فوق الحقل.","الإبقاء على توضيح «اسم المستفيد (اختياري)» داخل الحقل فقط دون تغيير بيانات السند.","ضمان عمل تخطيط سند الصرف دون إنترنت بتضمين ملفاته في ذاكرة التطبيق."]};
+const CACHE_VERSION='v269-trial-compact-hijri-reconciliation-3.6.109.12';
+const APP_RELEASE={"version":"3.6.109.12","highlights":["التاريخ الهجري في سطر واحد ومعالجة حقل تاريخ المطابقة."],"changes":["إظهار 1448هـ دون فراغ، والميلادي في سطر أصغر تحته.","منع التفاف التاريخ في كشف الحساب والطباعة وPDF والمشاركة.","إزالة ازدحام التاريخ في شريط مطابقة الرصيد بإظهار العنوان منفصلًا أعلى الحقل.","حفظ تواريخ السندات والأرصدة ومنطق المطابقة دون تغيير."]};
 const CACHE_PREFIX=`ratib:${self.registration.scope}:`;
 const CACHE_NAME=CACHE_PREFIX+CACHE_VERSION;
 const APP_SHELL=[

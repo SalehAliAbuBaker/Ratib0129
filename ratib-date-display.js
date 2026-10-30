@@ -21,7 +21,7 @@ var baseStarts={};
 function baseStart(y,m){var key=y+'-'+m;if(baseStarts[key])return baseStarts[key];var l=epoch('1900-01-01'),r=epoch('2100-12-31'),found=null;while(l<=r){var mid=Math.floor((l+r)/2),h=base(iso(mid)),c=(h.y-y)*12+h.m-m;if(c>=0){if(c===0)found=iso(mid);r=mid-1;}else l=mid+1;}baseStarts[key]=found;return found;}
 function start(y,m){return baseStart(y,m);}
 function hdate(s){return valid(s)?base(s):null;}
-function formatted(s){var h=hdate(s);return h&&h.m>=1&&h.m<=12?String(h.d)+' '+MONTHS[h.m-1]+' '+h.y+' هـ':s;}
+function formatted(s){var h=hdate(s);return h&&h.m>=1&&h.m<=12?String(h.d)+' '+MONTHS[h.m-1]+' '+h.y+'هـ':s;}
 function first(s){return pref.main==='h'?formatted(s):s;}
 function second(s){return pref.main==='h'?s:formatted(s);}
 function reverse(y,m,d){var st=start(y,m),nx=month(y,m,1),end=start(nx.y,nx.m);if(!st||!end||d<1||d>epoch(end)-epoch(st))return null;return plus(st,d-1);}
@@ -31,8 +31,9 @@ var css=document.createElement('style');css.textContent=[
 '.ratib-native-date-button{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:center;align-items:flex-start;width:100%;box-sizing:border-box;border:1px solid var(--border,#bbb);border-radius:8px;background:var(--card,#fff);color:var(--text,#222);font:700 13px/1.3 Tajawal,system-ui,sans-serif;text-align:right;direction:rtl;cursor:pointer;padding:3px 8px;overflow:hidden;white-space:nowrap}',
 '.ratib-native-date-button>span{display:block;max-width:100%;overflow:hidden;text-overflow:ellipsis}',
 '.ratib-native-date-button small,.ratib-hijri-text small{display:block;font:400 10px/1.35 Tajawal,system-ui,sans-serif!important;color:var(--muted,#777)!important;direction:ltr;text-align:right}',
-'.ratib-hijri-text{display:inline-flex;flex-direction:column;vertical-align:middle;direction:rtl;align-items:flex-start;line-height:1.4}',
-'.ratib-hijri-text small{font-size:10px!important}',
+'.ratib-hijri-text{display:inline-flex;flex-direction:column;vertical-align:middle;direction:rtl;align-items:flex-start;line-height:1.4;max-width:100%}',
+'.ratib-hijri-text>span{display:block!important;white-space:nowrap!important;word-break:keep-all!important;overflow-wrap:normal!important}',
+'.ratib-hijri-text small{font-size:10px!important;white-space:nowrap!important;direction:ltr}',
 '#ratib-hijri-dialog[hidden]{display:none!important}',
 '#ratib-hijri-dialog{position:fixed;inset:0;z-index:2147483000;background:#0008;display:flex;justify-content:center;align-items:flex-end;padding:10px;box-sizing:border-box;direction:rtl}',
 '#ratib-hijri-dialog .h-box{width:min(430px,100%);max-height:calc(100dvh - 20px);overflow-y:auto;padding:13px;border-radius:14px;background:var(--card,#fff);color:var(--text,#222);font:14px Tajawal,system-ui,sans-serif;box-sizing:border-box}',

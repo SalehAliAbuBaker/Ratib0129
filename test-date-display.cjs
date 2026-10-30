@@ -10,7 +10,7 @@ const wait=ms=>new Promise(r=>setTimeout(r,ms));
  assert.ok(button,'reuses single voucher date field, with overlay button');
  assert.equal(input.type,'date');
  assert.equal(input.value,'2026-10-28','retains canonical ISO date');
- assert.ok(/\d+ .+ هـ/.test(button.querySelector('span').textContent),'hijri appears first');
+ assert.ok(/\d+ .+\dهـ$/.test(button.querySelector('span').textContent),'Hijri appears first with هـ joined to the year');
  assert.equal(button.querySelector('small').textContent,'2026-10-28','compact corresponding Gregorian date');
  assert.equal(w.document.querySelectorAll('#a input').length,1,'no extra date inputs in voucher');
  assert.ok(w.document.querySelector('#reportAccountOpsPanel .ratib-hijri-text'),'decorates account statement text');

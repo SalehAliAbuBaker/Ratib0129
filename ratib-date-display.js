@@ -47,6 +47,8 @@ var css=document.createElement('style');css.textContent=[
 '#ratib-hijri-dialog .h-actions{display:flex;gap:7px;justify-content:space-between;margin-top:9px}',
 '#ratib-hijri-dialog .h-note{font-size:11px;line-height:1.5;color:var(--muted,#777);margin-top:8px}',
 '.ratib-hijri-settings{border:1px solid var(--border,#bbb);border-radius:8px;background:var(--card,#fff);color:var(--accent,#067451);padding:8px 12px;margin:7px 0;cursor:pointer;font:700 13px Tajawal,system-ui,sans-serif}',
+  '#rhSettingsCard .settings-accordion-body select{width:100%;min-height:43px;border:1px solid var(--border,#bbb);border-radius:8px;padding:8px;background:var(--card,#fff);color:var(--text,#222);margin:4px 0 10px}',
+  '#rhSettingsCard .settings-accordion-body>label{display:block;font-weight:700}',
 '@media(min-width:650px){#ratib-hijri-dialog{align-items:center}}',
 '@media print{#ratib-hijri-dialog,.ratib-hijri-settings{display:none!important}.ratib-native-date-wrap>input[type=date]{display:none!important}}'
 ].join('');document.head.appendChild(css);
@@ -131,9 +133,42 @@ function decorate(){
  });
  document.querySelectorAll('.ratib-hijri-text[data-iso]').forEach(renderSpan);
 }
-function refresh(){fields.forEach(function(input){if(input.isConnected)sync(input);});decorate();}
+function syncSettingsControls(){
+ var main=$('rhSettingsMain'),cal=$('rhSettingsCalendar'),other=$('rhSettingsOther'),example=$('rhSettingsExample');
+ if(main&&main.value!==pref.main)main.value=pref.main;
+ if(cal&&cal.value!==pref.calendar)cal.value=pref.calendar;
+ if(other&&other.checked!==pref.showOther)other.checked=pref.showOther;
+ if(example){
+  var s=today(),primary=first(s),secondary=pref.showOther?second(s):'';
+  var stamp=primary+'|'+secondary;
+  if(example.dataset.stamp!==stamp){
+   example.dataset.stamp=stamp;example.replaceChildren();
+   var title=document.createElement('strong');title.textContent=primary;example.append(title);
+   if(secondary){var small=document.createElement('small');small.textContent=secondary;example.append(small);}
+  }
+ }
+}
+function refresh(){fields.forEach(function(input){if(input.isConnected)sync(input);});decorate();syncSettingsControls();}
 function scan(){document.querySelectorAll('input[type=date]').forEach(function(input){if(input.closest('#ratib-hijri-dialog'))return;if(!marker.has(input))wrap(input);else if(input._ratibDateWrapper&&input.parentNode!==input._ratibDateWrapper){input.before(input._ratibDateWrapper);input._ratibDateWrapper.prepend(input);}});}
-function addSettings(){var host=$('pageSettings');if(!host||$('rhSettingsButton'))return;var b=document.createElement('button');b.id='rhSettingsButton';b.type='button';b.className='ratib-hijri-settings';b.textContent='☾ التاريخ والتقويم الهجري';b.onclick=function(){open(null);};var title=host.querySelector('h2,h3');if(title)title.after(b);else host.prepend(b);}
+function addSettings(){
+ var host=$('pageSettings');if(!host||$('rhSettingsCard'))return;
+ var card=document.createElement('section');card.id='rhSettingsCard';
+ card.className='card settings-accordion-card no-print';card.dataset.ratibCreated='calendar';
+ card.innerHTML='<div class="settings-accordion-header" role="button" tabindex="0"><span>☾ التاريخ والتقويم</span><span class="accordion-arrow">▼</span></div>'+
+ '<div class="settings-accordion-body" onclick="event.stopPropagation()" style="display:none">'+
+ '<p style="color:var(--muted);margin:0 0 10px">التاريخ الأساسي يظهر في السندات وكشف الحساب والطباعة، والتاريخ المقابل تحته بخط أصغر حسب اختيارك. لا تتغير تواريخ القيود المحفوظة.</p>'+
+ '<label for="rhSettingsMain">التقويم الأساسي</label><select id="rhSettingsMain"><option value="h">هجري</option><option value="g">ميلادي</option></select>'+
+ '<label for="rhSettingsCalendar">طريقة التقويم الهجري</label><select id="rhSettingsCalendar"><option value="umalqura">أم القرى (الافتراضي)</option><option value="yemen">التقويم اليمني المحلي</option><option value="civil">الهجري الحسابي</option></select>'+
+ '<label for="rhSettingsOther" style="display:flex;align-items:center;gap:8px;margin:12px 0"><input id="rhSettingsOther" type="checkbox" style="width:20px;height:20px;flex:0 0 20px">إظهار التاريخ المقابل بخط صغير</label>'+
+ '<div style="border:1px solid var(--border);border-radius:9px;padding:10px;margin:8px 0"><div style="font-size:.78rem;color:var(--muted)">معاينة التاريخ الحالي</div><div id="rhSettingsExample" class="ratib-hijri-text" style="margin-top:5px"></div></div>'+
+ '<button type="button" id="rhSettingsButton" class="ratib-hijri-settings">فتح التقويم وتجربة اختيار التاريخ</button></div>';
+ host.append(card);
+ $('rhSettingsMain').onchange=function(e){pref.main=e.target.value==='g'?'g':'h';save();refresh();};
+ $('rhSettingsCalendar').onchange=function(e){pref.calendar=['umalqura','yemen','civil'].includes(e.target.value)?e.target.value:'umalqura';save();refresh();};
+ $('rhSettingsOther').onchange=function(e){pref.showOther=e.target.checked;save();refresh();};
+ $('rhSettingsButton').onclick=function(e){e.stopPropagation();open(null);};
+ syncSettingsControls();
+}
 var pending=false;function queue(){if(pending)return;pending=true;(window.requestAnimationFrame||function(fn){return setTimeout(fn,16);})(function(){pending=false;scan();addSettings();decorate();});}
 function init(){scan();addSettings();decorate();new MutationObserver(queue).observe(document.body,{childList:true,subtree:true});window.addEventListener('beforeprint',decorate);window.RatibHijriFirst={format:formatted,toISO:reverse,refresh:refresh,open:open,markup:dateMarkup,exportText:dateForExport};}
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();

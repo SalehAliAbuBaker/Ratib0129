@@ -50,6 +50,7 @@ const settings=[
  ['identity','الهوية والبيانات الشخصية','identity'],
  ['printing','إعدادات الطباعة','print'],
  ['defaults','إعدادات الحسابات الافتراضية للسندات','defaults'],
+ ['calendar','التاريخ والتقويم','settings'],
  ['buttonsize','حجم الأزرار والخط','settings'],
  ['palette','ألوان واجهة راتب','settings'],
  ['currencies','إدارة العملات','currency'],
@@ -119,6 +120,7 @@ function title(c){return header(c)?.querySelector('span')?.textContent?.trim()||
 function keyFor(c){
  if(c.dataset.ratibCreated==='palette'||title(c).includes('ألوان واجهة راتب'))return 'palette';
  const t=title(c);if(c.dataset.ratibCreated==='buttonsize'||t.includes('حجم الأزرار'))return 'buttonsize';if(c.id==='notificationSoundCard'||t.includes('صوت إشعارات التذكيرات'))return 'sound';
+ if(c.id==='rhSettingsCard'||c.dataset.ratibCreated==='calendar'||t.includes('التاريخ والتقويم'))return 'calendar';
  if(c.id==='ratibCurrencyManager'||t.includes('إدارة العملات'))return 'currencies';
  if(c.id==='ratibStatementOptions'||t.includes('عرض وطباعة كشف الحساب')||t.includes('إعدادات الطباعة'))return 'printing';
  if(t.includes('الأمان وقفل الحماية'))return 'security';
@@ -275,7 +277,7 @@ function installSettingsFinder(){
   '<span class="ratib-settings-count" id="ratibSettingsCount" aria-live="polite"></span></div>';
  page.prepend(box);
  const search=$('ratibSettingsSearch'),allButton=$('ratibSettingsShowAll'),count=$('ratibSettingsCount');
- const main=new Set(['tree','budget','defaults','currencies','backupsettings','security']);
+ const main=new Set(['tree','budget','defaults','currencies','backupsettings','security','calendar']);
  let showAll=false;
  const norm=s=>String(s||'').normalize('NFKC').replace(/[أإآ]/g,'ا').replace(/[\u064B-\u065F\u0670]/g,'').toLowerCase();
  function render(){
@@ -319,7 +321,7 @@ function buildSidebar(){
  // Everyday tasks are visible; secondary preferences live in one optional group.
  const settingsMenu=expandGroup('الإعدادات','settings'),root=settingsMenu.children;
  const caption=document.createElement('p');caption.className='ratib-settings-menu-caption';caption.textContent='الإعدادات الأساسية';root.append(caption);
- const essential=['tree','budget','defaults','currencies','backupsettings','security'];
+ const essential=['tree','budget','defaults','currencies','calendar','backupsettings','security'];
  for(const key of essential){
   const item=settings.find(row=>row[0]===key);
   root.append(make(key==='security'?'الأمان وقفل الحماية':item[1],key==='security'?'lock':item[2],()=>openSetting(key)));

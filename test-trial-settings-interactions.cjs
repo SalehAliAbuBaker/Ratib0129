@@ -117,6 +117,6 @@ async function defaultAccountSaveCase(){
 (async()=>{
  await buttonFontCase();accountChooserCase();await currencyCase();await defaultAccountSaveCase();
  assert(!sidebar.includes("cloudRestoreBtn{display:none!important}"),'settings backup actions must not be force-hidden');
- assert(sw.includes("const CACHE_VERSION='v261-trial-muyassar-ui-3.6.109.04'"),'offline shell must refresh settings assets');
+ assert(sw.includes("const CACHE_VERSION='")&&sw.includes(require('./package.json').version)&&sw.includes('ratib-global-button-size-3.6.146.js'),'offline shell must refresh current release and settings assets');
  console.log('PASS trial settings: defaults popup, verified save, optional FX reference rate, button/font persistence and no ledger mutation');
 })().catch(e=>{console.error(e);process.exitCode=1;});

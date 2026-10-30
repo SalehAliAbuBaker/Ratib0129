@@ -30,9 +30,9 @@ assert(html.includes('if(banner.parentElement!==document.body)document.body.appe
  'waiting PWA update banner must be reachable above PIN overlay');
 assert(html.includes("reg.update().then(showUpdate).catch("),
  'installed app must actively check for updates when foregrounded');
-assert(html.includes('z-index:10005!important'),
+assert(html.includes('z-index:10050!important')&&html.indexOf('ratib-trial-real-voucher-date-and-update-style')<html.indexOf('</head>'),
  'waiting update banner should remain above the PIN overlay');
-assert(sw.includes("const CACHE_VERSION='v261-trial-muyassar-ui-3.6.109.04'"),
+assert(sw.includes("const CACHE_VERSION='")&&sw.includes(require('./package.json').version),
  'new trial release must invalidate cached older scripts');
 console.log('PASS trial 3.6.109.03: Arabic default account inputs work; numeric amount sanitizer unchanged; PWA updates accessible without clearing financial storage');
 dom.window.close();

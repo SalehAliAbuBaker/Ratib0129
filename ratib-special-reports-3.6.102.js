@@ -68,11 +68,13 @@ function position(to,currency){
   missing,complete,balanced,status,warnings,title:'المركز المالي'};
 }
 const numeric=x=>'<b class="ratib-special-number" dir="ltr">'+safe(fmt(x))+'</b>';
+const dateHtml=s=>window.ratibStatementDateHtml?.(s)||safe(s);
+const dateParts=s=>window.ratibCanvasDateParts?.(s)||{primary:String(s||''),secondary:''};
 const issues=notes=>notes?.length?'<details class="ratib-special-issues"><summary>⚠ ملاحظات التقرير ('+notes.length+')</summary>'+notes.map(s=>'<p>'+safe(s)+'</p>').join('')+'</details>':'';
 function movementHtml(r){
  let lines=r.rows.map(a=>'<tr><th>'+safe(a.name)+' <small>'+safe(a.code)+'</small></th><td>'+safe(a.currency)+'</td>'+a.values.map(v=>'<td>'+numeric(v)+'</td>').join('')+'</tr>').join('');
  lines+=r.totals.map(t=>'<tr class="ratib-special-total"><th>إجمالي '+safe(t.currency)+'</th><td>'+safe(t.currency)+'</td>'+keys.map(k=>'<td>'+numeric(t[k])+'</td>').join('')+'</tr>').join('');
- return '<h2>حركة الحسابات</h2><p class="ratib-special-caption">من '+safe(r.from||'أول عملية')+' إلى '+safe(r.to||'آخر عملية')+' — '+safe(r.currency==='ALL'?'العملات منفصلة':r.currency)+'</p>'+
+ return '<h2>حركة الحسابات</h2><p class="ratib-special-caption">من '+(r.from?dateHtml(r.from):'أول عملية')+' إلى '+(r.to?dateHtml(r.to):'آخر عملية')+' — '+safe(r.currency==='ALL'?'العملات منفصلة':r.currency)+'</p>'+
  '<div class="ratib-special-scroll"><table class="ratib-special-table"><thead><tr><th rowspan="2">الحساب</th><th rowspan="2">العملة</th><th colspan="2">رصيد سابق</th><th colspan="2">حركة الفترة</th><th colspan="2">صافي الرصيد</th></tr><tr>'+Array(3).fill('<th>مدين</th><th>دائن</th>').join('')+'</tr></thead><tbody>'+(lines||'<tr><td colspan="8">لا توجد حركة ضمن المرشحات</td></tr>')+'</tbody></table></div>'+issues(r.warnings);
 }
 function positionHtml(r){
@@ -81,7 +83,7 @@ function positionHtml(r){
  const statusText=r.status==='incomplete'
   ?'⚠ المركز المالي غير مكتمل: '+r.missing+' طرفًا دون سعر تقييم موثق. الأرقام المعروضة جزئية.'
   :r.status==='balanced'?'✓ المركز المالي متوازن بالعملة الأساسية':'⚠ فرق يحتاج مراجعة: '+fmt(r.difference)+' '+r.currency;
- return '<h2>المركز المالي</h2><p class="ratib-special-caption">كما في '+safe(r.to)+' — المعادل بالعملة الأساسية '+safe(r.currency)+' (جميع العملات الأصلية)</p>'+
+ return '<h2>المركز المالي</h2><p class="ratib-special-caption">كما في '+dateHtml(r.to)+' — المعادل بالعملة الأساسية '+safe(r.currency)+' (جميع العملات الأصلية)</p>'+
  '<div class="ratib-special-position"><section><h3>الأصول</h3>'+sect('الأصول','assets')+'<div class="ratib-special-sum">إجمالي الأصول '+numeric(r.assets)+'</div></section>'+
  '<section><h3>الالتزامات وحقوق الملكية</h3>'+sect('الالتزامات','liabilities')+sect('حقوق الملكية','equity')+
  '<div class="ratib-special-item"><span>نتيجة النشاط (ربح / خسارة)</span>'+numeric(r.profit)+'</div><div class="ratib-special-sum">الإجمالي '+numeric(r.total)+'</div></section></div>'+
@@ -106,8 +108,10 @@ function canvases(kind,r){
   const ctx=c.getContext('2d');if(!ctx)throw Error('تعذر تجهيز PDF');
   ctx.direction='rtl';ctx.textBaseline='middle';ctx.fillStyle='#fff';ctx.fillRect(0,0,W,H);
   ctx.fillStyle='#0b5b45';ctx.textAlign='center';ctx.font='bold 34px Tajawal,Arial';ctx.fillText(r.title,W/2,52);
-  ctx.fillStyle='#344054';ctx.font='22px Tajawal,Arial';ctx.fillText(kind==='movement'?'من '+(r.from||'البداية')+' إلى '+(r.to||'النهاية')+' — '+(r.currency==='ALL'?'العملات منفصلة':r.currency):'كما في '+r.to+' — '+r.currency,W/2,94);
-  ctx.font='17px Tajawal,Arial';ctx.fillText('راتب للتنظيم والتدبير المالي',W/2,132);
+  ctx.fillStyle='#344054';ctx.font='22px Tajawal,Arial';const primary=kind==='movement'?'من '+(r.from?dateParts(r.from).primary:'البداية')+' إلى '+(r.to?dateParts(r.to).primary:'النهاية')+' — '+(r.currency==='ALL'?'العملات منفصلة':r.currency):'كما في '+dateParts(r.to).primary+' — '+r.currency;ctx.fillText(primary,W/2,91);
+  const other=kind==='movement'?[r.from,r.to].filter(Boolean).map(x=>dateParts(x).secondary).filter(Boolean).join(' — '):dateParts(r.to).secondary;
+  if(other){ctx.font='13px Tajawal,Arial';ctx.fillText(other,W/2,114);}
+  ctx.font='17px Tajawal,Arial';ctx.fillText('راتب للتنظيم والتدبير المالي',W/2,144);
   function draw(items,y,head){
    let right=W-left;
    items.forEach((item,i)=>{

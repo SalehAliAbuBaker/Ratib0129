@@ -4,7 +4,7 @@ const {JSDOM}=require('jsdom');
 const labels=[
  'إدارة شجرة الحسابات والأسقف','إدارة بنود الميزانية / التكاليف',
  'الهوية والبيانات الشخصية','إعدادات الطباعة',
- 'إعدادات الحسابات الافتراضية للسندات','حجم الأزرار','ألوان واجهة راتب','إدارة العملات',
+ 'إعدادات الحسابات الافتراضية للسندات','حجم الأزرار','ألوان واجهة راتب','إدارة العملات','التقويم والتواريخ',
  'النسخ الاحتياطي','مفضلتي','الإدخال الصوتي','أصوات التنبيهات والتذكيرات'
 ];
 const markup='<html lang="ar"><head></head><body>'+
@@ -51,8 +51,8 @@ assert.equal(groups.length,3);
 groups[0].querySelector('button').click();
 assert.equal(groups[0].querySelector('.ratib-menu-children').hidden,false);
 const entries=[...groups[0].querySelector('.ratib-menu-children').children];
-assert.equal(entries.length,12);
-for(let i=0;i<12;i++)assert(entries[i].textContent.includes(labels[i]),'Settings menu order: '+labels[i]);
+assert.equal(entries.length,13);
+for(let i=0;i<13;i++)assert(entries[i].textContent.includes(labels[i]),'Settings menu order: '+labels[i]);
 groups[1].querySelector('button').click();
 assert.equal(groups[0].querySelector('.ratib-menu-children').hidden,true,'other menu folds when another opens');
 groups[0].querySelector('button').click();
@@ -66,7 +66,7 @@ assert.equal(doc.getElementById('backToMenuBtn').textContent.includes('الإع�
 doc.getElementById('backToMenuBtn').click();
 assert(!page.classList.contains('ratib-settings-detail'),'single back restores settings list');
 assert.equal(backs,1,'one app back');
-assert.equal(page.querySelectorAll(':scope > .settings-accordion-card').length,13);
+assert.equal(page.querySelectorAll(':scope > .settings-accordion-card').length,14);
 const currencyCard=[...page.querySelectorAll(':scope > .settings-accordion-card')].find(c=>c.textContent.includes('إدارة العملات'));
 currencyCard.querySelector('.settings-accordion-header').click();
 assert(page.classList.contains('ratib-settings-detail'));

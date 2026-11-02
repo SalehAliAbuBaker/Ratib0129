@@ -1,0 +1,20 @@
+/* Ratib 3.6.116 official: Hijri Umm al-Qura display only; no persisted ledger fields change. */
+.ratib-hijri-text{display:inline-flex!important;flex-direction:column!important;align-items:flex-start!important;max-width:100%!important;vertical-align:middle!important;direction:rtl!important;line-height:1.45!important}
+.ratib-hijri-text>span{white-space:nowrap!important;word-break:keep-all!important;overflow-wrap:normal!important;display:block!important;max-width:100%!important}
+.ratib-hijri-text>small{display:block!important;font-size:10px!important;font-weight:400!important;line-height:1.4!important;color:var(--muted,#667085)!important;white-space:nowrap!important;direction:ltr!important;unicode-bidi:isolate!important;max-width:100%!important}
+#psTableBody td:first-child,#pageAccountOperations .account-statement-row .ratib-hijri-text,#printStatementContainer .ps-table td:first-child{min-width:165px;white-space:nowrap;vertical-align:middle}
+#pvDate,#pbGeneratedDate,#psGeneratedDate{display:inline-block;vertical-align:middle}
+.ratib-native-date-wrap,.ratib-native-date-button{min-height:48px}
+.ratib-native-date-button{line-height:1.35!important}
+#pageSettings #rhSettingsCard .settings-accordion-body{overflow:visible}
+@media(max-width:640px){
+ #pageAccountOperations .ratib-hijri-text>span,#printStatementContainer .ratib-hijri-text>span{font-size:12px!important}
+ .ratib-native-date-button{font-size:11.5px!important;padding:3px 7px!important}
+ #psTableBody td:first-child{min-width:150px}
+}
+@media print{
+ .ratib-hijri-text>span{font-size:11px!important;white-space:nowrap!important}
+ .ratib-hijri-text>small{font-size:9px!important;color:#555!important}
+ #psTableBody td:first-child{min-width:0;white-space:nowrap}
+ .ratib-native-date-button{border:0;box-shadow:none}
+}

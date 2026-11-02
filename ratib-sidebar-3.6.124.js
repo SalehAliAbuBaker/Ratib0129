@@ -52,6 +52,7 @@ const settings=[
  ['buttonsize','حجم الأزرار والخط','settings'],
  ['palette','ألوان واجهة راتب','settings'],
  ['currencies','إدارة العملات','currency'],
+ ['calendar','التقويم والتواريخ','settings'],
  ['backupsettings','النسخ الاحتياطي','backup'],
  ['favorites','مفضلتي','favorites'],
  ['voice','الإدخال الصوتي','mic'],
@@ -104,6 +105,7 @@ function keyFor(c){
  if(c.dataset.ratibCreated==='palette'||title(c).includes('ألوان واجهة راتب'))return 'palette';
  const t=title(c);if(c.dataset.ratibCreated==='buttonsize'||t.includes('حجم الأزرار'))return 'buttonsize';if(c.id==='notificationSoundCard'||t.includes('صوت إشعارات التذكيرات'))return 'sound';
  if(c.id==='ratibCurrencyManager'||t.includes('إدارة العملات'))return 'currencies';
+ if(c.id==='rhSettingsCard'||c.dataset.ratibCreated==='calendar'||t.includes('التقويم والتواريخ'))return 'calendar';
  if(c.id==='ratibStatementOptions'||t.includes('عرض وطباعة كشف الحساب'))return 'printing';
  if(t.includes('الأمان وقفل الحماية'))return 'security';
  if(t.includes('ترويسة الكشوفات')||t.includes('الهوية والبيانات الشخصية'))return 'identity';

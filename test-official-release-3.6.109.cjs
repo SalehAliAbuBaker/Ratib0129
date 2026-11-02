@@ -3,7 +3,7 @@ const fs=require('node:fs'),assert=require('node:assert/strict');
 const index=fs.readFileSync('index.html','utf8');
 const sw=fs.readFileSync('sw.js','utf8');
 const sidebar=fs.readFileSync('ratib-sidebar-3.6.124.js','utf8');
-const voice=fs.readFileSync('ratib-voice-dictation-3.6.118.js','utf8');
+const voice=fs.readFileSync('ratib-voice-dictation-3.6.117.js','utf8');
 const pkg=require('./package.json');
 assert.equal(pkg.version,'3.6.118');
 assert(index.includes('const RATIB_RELEASE={"version":"3.6.118","build":"p11800"'));

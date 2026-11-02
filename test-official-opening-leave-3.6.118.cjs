@@ -46,14 +46,14 @@ const popup=document.getElementById('ratibOpeningLeaveModal'),parent=document.ge
  parent.classList.add('show');context.importedOpeningEdit={dirty:true,busy:false};
  vm.runInContext('closeImportedOpeningVoucher()',context);
  document.getElementById('ratibOpeningLeaveSave').click();
- await Promise.resolve();await Promise.resolve();
+ await new Promise(resolve=>setImmediate(resolve));
  assert.equal(saves,1,'save invokes existing accounting validation/persist path');
  assert(!popup.classList.contains('show'));
  assert(context.importedOpeningEdit.dirty===false);
  // Failure must not discard editable journal.
  context.importedOpeningEdit={dirty:true,busy:false};context.saveImportedOpeningVoucher=async()=>false;
  vm.runInContext('closeImportedOpeningVoucher()',context);
- document.getElementById('ratibOpeningLeaveSave').click();await Promise.resolve();await Promise.resolve();
+ document.getElementById('ratibOpeningLeaveSave').click();await new Promise(resolve=>setImmediate(resolve));
  assert(popup.classList.contains('show'),'failed save stays open');
  assert(context.importedOpeningEdit.dirty);
  document.getElementById('ratibOpeningLeaveCancel').click();

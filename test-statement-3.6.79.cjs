@@ -100,7 +100,7 @@ async function main(){
  for(const value of ['119,000','122,200','3,200'])assert(total.includes(value),value);
  assert(!total.includes('86,600'),'Opening is included in inclusive totals');
  const csvPeriod=code("accountExportRows('YER')");
- assert.equal(csvPeriod.filter(row=>String(row[2]).includes('الرصيد السابق')).length,1,'Period export starts with opening');
+ assert.equal(csvPeriod.filter(row=>String(row[2]).startsWith('الرصيد السابق قبل بداية الفترة')).length,1,'Period export starts with opening');
  assert.equal(csvPeriod.filter(row=>String(row[2]).startsWith('إجمالي')).length,1,'Period export one total');
  assert.equal(csvPeriod.at(-1)[3],119000);assert.equal(csvPeriod.at(-1)[4],122200);assert.equal(csvPeriod.at(-1)[5],3200);
  recorded.push('Filtered statement and CSV: opening credit 35,600; movements 119,000 / 86,600; closing credit 3,200');

@@ -97,12 +97,12 @@ async function main(){
  assert.match(totalCells[1].className,/debit/);assert.match(totalCells[2].className,/credit/);assert.match(totalCells[3].className,/balance/);
  assert(html.includes('grid-column:1 / span 3'),'Total label is aligned to the description columns');
  const total=page.querySelector('.statement-grand-total').textContent;
- for(const value of ['119,000','86,600','3,200'])assert(total.includes(value),value);
- assert(!total.includes('35,600'),'Opening is not included in movement totals');
+ for(const value of ['119,000','122,200','3,200'])assert(total.includes(value),value);
+ assert(!total.includes('86,600'),'Opening is included in inclusive totals');
  const csvPeriod=code("accountExportRows('YER')");
- assert.equal(csvPeriod.filter(row=>String(row[2]).includes('الرصيد السابق')).length,1,'Period export starts with opening');
+ assert.equal(csvPeriod.filter(row=>String(row[2]).startsWith('الرصيد السابق قبل بداية الفترة')).length,1,'Period export starts with opening');
  assert.equal(csvPeriod.filter(row=>String(row[2]).startsWith('إجمالي')).length,1,'Period export one total');
- assert.equal(csvPeriod.at(-1)[3],119000);assert.equal(csvPeriod.at(-1)[4],86600);assert.equal(csvPeriod.at(-1)[5],3200);
+ assert.equal(csvPeriod.at(-1)[3],119000);assert.equal(csvPeriod.at(-1)[4],122200);assert.equal(csvPeriod.at(-1)[5],3200);
  recorded.push('Filtered statement and CSV: opening credit 35,600; movements 119,000 / 86,600; closing credit 3,200');
  
  code("{const data=getAccountCurrencyReportData('YER');preparePrintStatementTemplate('حساب النقدية',data.rows,data.opening,accountPeriodTitle(),'ريال يمني',data);}");
@@ -110,7 +110,7 @@ async function main(){
  assert.equal(body.querySelectorAll('.ps-total-row').length,1,'Printed totals are one row');
  assert.match(body.firstElementChild.textContent,/الرصيد السابق/);
  assert.match(body.lastElementChild.textContent,/3,200\s*دائن/);
- assert(!body.lastElementChild.textContent.includes('رصيد سابق'),'No repeated previous balance at end');
+ assert.equal(body.querySelectorAll('.ps-opening-row').length,1,'Single opening row on print');
  assert(!d.getElementById('psStatementTitle').textContent.includes('undefined'));
  recorded.push('Print/preview template contains one opening and one fully shaded final totals row');
  
@@ -135,7 +135,7 @@ async function main(){
  const draw=canvasText.join('|');
  for(const value of ['35,600','119,000','86,600','3,200','إجمالي عمليات الفترة'])assert(draw.includes(value),'PDF missing '+value);
  assert(!canvasText.includes('undefined'),'PDF should not draw undefined');
- const labels=canvasText.filter(x=>x.includes('الرصيد السابق'));
+ const labels=canvasText.filter(x=>x.includes('الرصيد السابق')&&!x.includes('شامل'));
  assert.equal(labels.length,1,'PDF should draw one opening label');
  recorded.push('PDF produced with all sample totals, one opening, no undefined');
 

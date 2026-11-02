@@ -117,7 +117,8 @@ function dateMarkup(s){
  var primary=first(s),secondary=pref.showOther?second(s):'';
  return '<span class="ratib-hijri-text" data-iso="'+s+'"><span>'+primary+'</span>'+(secondary?'<small>'+secondary+'</small>':'')+'</span>';
 }
-function dateForExport(s){if(!valid(s))return String(s||'');return first(s)+(pref.showOther?' / '+second(s):'');}\nfunction dateParts(s){if(!valid(s))return {primary:String(s||''),secondary:''};return {primary:first(s),secondary:pref.showOther?second(s):''};}
+function dateForExport(s){if(!valid(s))return String(s||'');return first(s)+(pref.showOther?' / '+second(s):'');}
+function dateParts(s){if(!valid(s))return {primary:String(s||''),secondary:''};return {primary:first(s),secondary:pref.showOther?second(s):''};}
 
 function renderSpan(el){var s=el.dataset.iso;if(!valid(s))return;var p=first(s),q=pref.showOther?second(s):'';if(el._p===p&&el._q===q)return;el._p=p;el._q=q;el.replaceChildren();var title=document.createElement('span');title.textContent=p;el.appendChild(title);if(q){var sm=document.createElement('small');sm.textContent=q;el.appendChild(sm);}}
 function decorate(){

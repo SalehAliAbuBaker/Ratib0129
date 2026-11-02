@@ -37,6 +37,8 @@ function gesture(initialTab,known=true,transient=false){
   document:{getElementById:()=>({style:{display:'none'}})},
   history:{state:known?{ratibGuard:true,ratibSession:'a',ratibDepth:0}:{page:'ratib_app_base'},forward:()=>counts.forward++,go:()=>{},back:()=>{}},
   currentActiveTab:initialTab,_appHistorySession:'a',
+  ratibVoucherHasUnsavedEdits:()=>false, // independent legacy test with no active edits
+  ratibAskVoucherLeave:()=>Promise.resolve(false),
   _appHomeReset:false,_appReplayDepth:null,_appCurrentHistoryDepth:1,
   _appBackStack:[{tab:'pageDashboard'}],_appSavedViews:new Map(),
   closeTransientAppUi:()=>{if(!transient)return false;counts.close++;return true;},

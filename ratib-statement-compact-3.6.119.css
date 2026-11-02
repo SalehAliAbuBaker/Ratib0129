@@ -1,0 +1,37 @@
+/* Ratib official 3.6.119 — screen-only compact statement cards and search. */
+@media screen {
+ #pageAccountOperations #ratibAccountMovementSearchBar{
+  margin:5px 0 8px!important;padding:6px 8px!important;
+ }
+ #pageAccountOperations #ratibAccountMovementSearchBar .ratib-movement-search-controls{
+  min-width:0!important;
+ }
+ #pageAccountOperations #ratibAccountMovementSearchInput{
+  min-width:0!important;width:100%!important;
+ }
+}
+@media screen and (max-width:700px) {
+ /* Existing twelve-column mobile cards: date at right, voucher at left. */
+ #pageAccountOperations .account-statement-row[data-tx-id]{
+  row-gap:3px!important;padding:7px 8px!important;
+ }
+ #pageAccountOperations .account-statement-row[data-tx-id]>.ratib-account-row-date{
+  grid-column:1 / span 7!important;grid-row:1!important;
+  min-width:0!important;overflow:visible!important;
+  white-space:normal!important;padding:0!important;
+  align-self:center!important;
+ }
+ #pageAccountOperations .account-statement-row[data-tx-id]>.ratib-account-row-document{
+  grid-column:8 / -1!important;grid-row:1!important;
+  min-width:0!important;align-self:center!important;
+  text-align:left!important;white-space:normal!important;
+  overflow-wrap:anywhere!important;
+  border-top:0!important;padding:0!important;
+  line-height:1.4!important;
+ }
+ #pageAccountOperations .account-statement-row[data-tx-id]>.ratib-account-row-note{
+  grid-column:1 / -1!important;grid-row:2!important;
+  border-top:0!important;padding:2px 0 0!important;
+  line-height:1.45!important;min-width:0!important;
+ }
+}

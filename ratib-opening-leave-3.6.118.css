@@ -1,0 +1,25 @@
+/* Ratib official web 3.6.118 — unsaved manual/imported opening journals.
+   The confirmation is a child of the editor overlay, so it is not blocked by inert siblings. */
+@media screen {
+ #importedOpeningVoucherModal #ratibOpeningLeaveModal{
+  position:fixed!important;inset:0!important;z-index:100100!important;
+  background:rgba(15,23,42,.62)!important;padding:12px;
+  align-items:center;justify-content:center
+ }
+ #importedOpeningVoucherModal #ratibOpeningLeaveModal:not(.show){display:none!important}
+ #importedOpeningVoucherModal .ratib-opening-leave-content{
+  box-sizing:border-box;width:min(430px,calc(100vw - 26px))!important;max-width:430px;
+  max-height:calc(100dvh - 28px);overflow:auto;padding:18px!important;
+  text-align:right!important;direction:rtl!important;border-radius:13px!important;
+  background:var(--card);color:var(--text)
+ }
+ #importedOpeningVoucherModal .ratib-opening-leave-content h3{font-size:1.13rem;margin:0 0 9px;color:var(--text)}
+ #importedOpeningVoucherModal .ratib-opening-leave-content p{font-size:.9rem;line-height:1.65;color:var(--muted)}
+ #importedOpeningVoucherModal .ratib-opening-leave-actions{display:grid;grid-template-columns:1fr;gap:9px;margin-top:12px}
+ #importedOpeningVoucherModal .ratib-opening-leave-actions .btn{
+  display:block;width:100%!important;min-height:46px!important;margin:0!important;
+  font-size:.9rem!important;line-height:1.5!important;white-space:normal!important
+ }
+ #importedOpeningVoucherModal #ratibOpeningLeaveStatus{font-size:.82rem;color:var(--danger);margin:8px 0 0}
+}
+@media print{#ratibOpeningLeaveModal{display:none!important}}

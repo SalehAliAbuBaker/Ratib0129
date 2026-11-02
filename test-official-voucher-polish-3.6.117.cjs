@@ -34,7 +34,7 @@ assert(start>0&&end>start);
 const source=html.slice(start,end);
 new Function(source);
 const mem=new Map([['multi_voucher_drafts',[{id:'old',note:'preserve'}]],['single_voucher_draft_v1',{note:'old saved'}]]);
-let flushCount=0;
+let flushCount=0,volatileResets=0;
 const store={get:(k,f)=>mem.has(k)?mem.get(k):f,set:(k,v)=>mem.set(k,v)};
 const cash=document.getElementById('cashFlowCard'),multi=document.getElementById('multiVoucherCard');
 cash.classList.remove('hidden');multi.classList.add('hidden');
@@ -42,7 +42,7 @@ const ctx={document,store,requestAnimationFrame:fn=>fn(),console,
  currentActiveTab:'pageExpenses',hasUnsavedChanges:true,
  showToast:()=>{},flushStorage:async()=>{flushCount++},
  buildMultiVoucherData:()=>({id:'new',note:'draft only'}),captureSingleDraft:()=>({note:'edited, saved as draft'}),
- updateDraftButton:()=>{}};
+ updateDraftButton:()=>{},resetMultiVoucherForm:()=>{volatileResets++}};
 vm.createContext(ctx);vm.runInContext(source,ctx);
 (async()=>{
  let p=vm.runInContext('ratibAskVoucherLeave()',ctx);
@@ -66,6 +66,11 @@ vm.createContext(ctx);vm.runInContext(source,ctx);
  assert.equal(mem.get('multi_voucher_drafts').length,2,'existing and new drafts');
  assert.equal(mem.get('multi_voucher_drafts')[0].id,'old','existing draft not removed');
  assert.equal(flushCount,2);
+ ctx.hasUnsavedChanges=true;
+ p=vm.runInContext('ratibAskVoucherLeave()',ctx);
+ document.getElementById('ratibVoucherLeaveDiscard').click();assert.equal(await p,true);
+ assert.equal(volatileResets,1,'discard resets in-memory compound editor only');
+ assert.equal(mem.get('multi_voucher_drafts').length,2,'saved drafts remain unchanged');
  assert(!modal.classList.contains('show'));
  console.log('PASS official 3.6.117: Cancel/Discard/Save (single+multi), stored drafts, date/notes, compound layout, official services');
 })().catch(error=>{console.error(error);process.exitCode=1});

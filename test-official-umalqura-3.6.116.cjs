@@ -67,5 +67,5 @@ const wait=ms=>new Promise(resolve=>setTimeout(resolve,ms));
  assert.equal(d.getElementById('ratib-hijri-dialog').hidden,true);
  assert.equal(d.querySelectorAll('#a input[type=date]').length,1,'no duplicated date inputs');
  console.log('PASS official 3.6.116 Umm al-Qura ISO-safe picker, persistence, statements, output and preserved official features');
- dom.window.close();
-})().catch(e=>{console.error(e);process.exitCode=1;dom.window.close()});
+ // Keep jsdom alive until pending requestAnimationFrame callbacks settle; premature close nulls its document.
+})().catch(e=>{console.error(e);process.exitCode=1});

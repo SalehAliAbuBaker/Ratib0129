@@ -1,6 +1,6 @@
 // Ratib 3.1.9: cache identity is unique to this app's scope.
-const CACHE_VERSION='v231-official-voucher-polish-3.6.117';
-const APP_RELEASE={"version":"3.6.117","build":"p11700","highlights":[],"changes":["تصحيح الأخطاء في بعض الأجهزة"]};
+const CACHE_VERSION='v232-official-opening-leave-3.6.118';
+const APP_RELEASE={"version":"3.6.118","build":"p11800","highlights":[],"changes":["تصحيح الأخطاء في بعض الأجهزة"]};
 const CACHE_PREFIX=`ratib:${self.registration.scope}:`;
 const CACHE_NAME=CACHE_PREFIX+CACHE_VERSION;
 const APP_SHELL=[
@@ -17,6 +17,7 @@ const APP_SHELL=[
 "./ratib-date-display.js",
 "./ratib-umalqura-output-3.6.116.css",
 "./ratib-voucher-polish-3.6.117.css",
+"./ratib-opening-leave-3.6.118.css",
 "./ratib-mobile-vouchers-3.6.111.css",
 "./ratib-official-responsive-3.6.112.css",
 "./ratib-document-signatures-3.6.148.js",

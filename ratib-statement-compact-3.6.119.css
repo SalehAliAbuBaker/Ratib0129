@@ -35,3 +35,48 @@
   line-height:1.45!important;min-width:0!important;
  }
 }
+
+/* 3.6.120: compact mobile statement totals, never wrap digits vertically. */
+@media screen and (max-width:700px){
+ #pageAccountOperations .account-statement-row.total.statement-grand-total{
+  display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  gap:8px!important;padding:12px!important;direction:rtl!important
+ }
+ #pageAccountOperations .account-statement-row.total.statement-grand-total .statement-total-label{
+  grid-column:1/-1!important;text-align:right!important;font-size:.85rem!important;line-height:1.4!important
+ }
+ #pageAccountOperations .account-statement-row.total.statement-grand-total .debit,
+ #pageAccountOperations .account-statement-row.total.statement-grand-total .credit{
+  grid-column:auto!important;display:block!important;text-align:center!important;
+  white-space:nowrap!important;overflow-wrap:normal!important;word-break:normal!important;
+  overflow-x:auto!important;min-width:0!important;padding:7px 2px!important;
+  font-variant-numeric:tabular-nums!important;font-size:clamp(.77rem,3.2vw,1.02rem)!important;line-height:1.5!important
+ }
+ #pageAccountOperations .account-statement-row.total.statement-grand-total .debit::before{
+  content:'مدين'!important;display:block!important;direction:rtl!important;color:var(--muted)!important;font-size:.7rem!important
+ }
+ #pageAccountOperations .account-statement-row.total.statement-grand-total .credit::before{
+  content:'دائن'!important;display:block!important;direction:rtl!important;color:var(--muted)!important;font-size:.7rem!important
+ }
+ #pageAccountOperations .account-statement-row.total.statement-grand-total .balance{
+  grid-column:1/-1!important;text-align:center!important;direction:rtl!important;
+  white-space:nowrap!important;overflow-wrap:normal!important;word-break:normal!important;
+  overflow-x:auto!important;font-size:.92rem!important;border-top:1px solid var(--accent);
+  padding:10px 0 3px!important
+ }
+ #pageAccountOperations .account-statement-row.total.statement-grand-total .balance::before{
+  content:'الرصيد النهائي'!important;display:block!important;direction:rtl!important;
+  font-size:.7rem!important;color:var(--muted)!important
+ }
+ #pageAccountOperations .account-statement-row.opening{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+ #pageAccountOperations .account-statement-row.opening span:nth-child(3){grid-column:1/-1!important}
+ #pageAccountOperations .account-statement-row.opening span.debit,
+ #pageAccountOperations .account-statement-row.opening span.credit{
+  display:block!important;grid-column:auto!important;
+  white-space:nowrap!important;overflow-wrap:normal!important;text-align:center!important
+ }
+ #pageAccountOperations .account-statement-row.opening .balance{
+  display:block!important;grid-column:1/-1!important;text-align:center!important;
+  white-space:nowrap!important;overflow-wrap:normal!important
+ }
+}

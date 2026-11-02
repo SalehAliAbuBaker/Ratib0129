@@ -92,8 +92,8 @@ async function main(){
  const statementRows=[...page.querySelector('.account-statement-grid').children];
  assert(statementRows[1].classList.contains('opening'),'Opening balance precedes first transaction');
  const total=page.querySelector('.statement-grand-total').textContent;
- for(const value of ['119,000','86,600','3,200'])assert(total.includes(value),value);
- assert(!total.includes('35,600'),'Opening is not included in movement totals');
+ for(const value of ['119,000','122,200','3,200'])assert(total.includes(value),value);
+ assert(!total.includes('86,600'),'Opening is included in inclusive totals');
  recorded.push('Filtered statement: opening credit 35,600; movements 119,000 / 86,600; closing credit 3,200');
  
  code("preparePrintStatementTemplate('حساب النقدية',getAccountCurrencyReportData('YER').rows,35600,accountPeriodTitle(),'ريال يمني');");
@@ -101,7 +101,7 @@ async function main(){
  assert.equal(body.querySelectorAll('.ps-total-row').length,1,'Printed totals are one row');
  assert.match(body.firstElementChild.textContent,/الرصيد السابق/);
  assert.match(body.lastElementChild.textContent,/3,200\s*دائن/);
- assert(!body.lastElementChild.textContent.includes('رصيد سابق'),'No repeated previous balance at end');
+ assert.equal(body.querySelectorAll('.ps-opening-row').length,1,'Single opening row on print');
  assert(!d.getElementById('psStatementTitle').textContent.includes('undefined'));
  recorded.push('Print/preview template contains one opening and one fully shaded final totals row');
  

@@ -1,0 +1,71 @@
+'use strict';
+const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/strict'),{JSDOM}=require('jsdom');
+const html=fs.readFileSync('index.html','utf8'),css=fs.readFileSync('ratib-voucher-polish-3.6.117.css','utf8'),
+sw=fs.readFileSync('sw.js','utf8'),pkg=require('./package.json');
+const document=new JSDOM(html).window.document;
+assert.equal(pkg.version,'3.6.117');
+assert(html.includes('const RATIB_RELEASE={"version":"3.6.117","build":"p11700"'));
+assert(sw.includes('const APP_RELEASE={"version":"3.6.117","build":"p11700"'));
+assert(sw.includes('v231-official-voucher-polish-3.6.117'));
+assert(sw.includes('"./ratib-voucher-polish-3.6.117.css"'));
+assert(document.querySelector('link[href="./ratib-voucher-polish-3.6.117.css?v=3.6.117"]'));
+const modal=document.getElementById('ratibVoucherLeaveModal');assert(modal&&modal.getAttribute('aria-modal')==='true');
+for(const id of ['ratibVoucherLeaveSave','ratibVoucherLeaveDiscard','ratibVoucherLeaveCancel','ratibVoucherLeaveStatus'])assert(document.getElementById(id),id);
+assert(html.includes("if(ratibVoucherHasUnsavedEdits())return ratibAskVoucherLeave().then(ok=>ok?goBackInApp():false);"),'internal Back uses three-way choice');
+assert(html.includes("if(next!=='pageExpenses'&&ratibVoucherHasUnsavedEdits()"),'outbound navigation guarded');
+assert(html.includes('ratibAskVoucherLeave().then(ok=>{if(ok)ratibGestureDashboard(true,0);});'),'mobile history gesture guarded');
+assert(!html.includes("if(!confirm('هذا السند لم يُعتمد بعد."),'old two-choice confirmation removed');
+assert(html.includes('function ratibGestureDraftCheck(){'),'existing navigation contract preserved');
+assert(html.includes('ratibVoucherHasUnsavedEdits())return false'),'back veto while dialog pending');
+assert(css.includes('#multiVoucherCard:not(.spend-voucher) .multi-voucher-table tbody tr'),'mobile compound cards only for compound');
+assert(css.includes('grid-template-columns:repeat(2,minmax(0,1fr))'),'cards responsive');
+assert(css.includes('overflow-x:auto!important'),'desktop table scroll');
+assert(css.includes('content:attr(data-ratib-field)'),'mobile input field labels');
+assert(css.includes('.ratib-account-row-date')&&css.includes('.ratib-account-row-note'),'date/note separate');
+assert(css.includes('grid-row:3!important'),'mobile date/doc/note each in own row');
+assert(html.includes("cell.dataset.ratibField=['الجهة','الحساب'"),'compound rows labeled without modifying calculations');
+assert(html.includes("class=\"ratib-account-row-date\""),'statement date with own cell');
+assert(html.includes("class=\"ratib-account-row-note\""),'statement note with own cell');
+assert(html.includes("ratibStatementDateHtml(getAccountOpsDate(t)||'-')"),'Hijri display follows settings');
+assert(html.includes('ratib-receipt-payer-3.6.115.css?v=3.6.117'),'existing receipt payer retained');
+assert(html.includes('ratib-date-display.js?v=3.6.117'),'existing Umm al-Qura retained');
+const start=html.indexOf('let _ratibVoucherLeavePending=null;'),end=html.indexOf('function navigateToTab(target, pushToHistory = true) {',start);
+assert(start>0&&end>start);
+const source=html.slice(start,end);
+new Function(source);
+const mem=new Map([['multi_voucher_drafts',[{id:'old',note:'preserve'}]],['single_voucher_draft_v1',{note:'old saved'}]]);
+let flushCount=0;
+const store={get:(k,f)=>mem.has(k)?mem.get(k):f,set:(k,v)=>mem.set(k,v)};
+const cash=document.getElementById('cashFlowCard'),multi=document.getElementById('multiVoucherCard');
+cash.classList.remove('hidden');multi.classList.add('hidden');
+const ctx={document,store,requestAnimationFrame:fn=>fn(),console,
+ currentActiveTab:'pageExpenses',hasUnsavedChanges:true,
+ showToast:()=>{},flushStorage:async()=>{flushCount++},
+ buildMultiVoucherData:()=>({id:'new',note:'draft only'}),captureSingleDraft:()=>({note:'edited, saved as draft'}),
+ updateDraftButton:()=>{}};
+vm.createContext(ctx);vm.runInContext(source,ctx);
+(async()=>{
+ let p=vm.runInContext('ratibAskVoucherLeave()',ctx);
+ assert(modal.classList.contains('show'));
+ document.getElementById('ratibVoucherLeaveCancel').click();
+ assert.equal(await p,false);
+ assert.equal(ctx.hasUnsavedChanges,true,'Cancel does not leave');
+ assert.equal(mem.get('single_voucher_draft_v1').note,'old saved','Cancel does not overwrite');
+ p=vm.runInContext('ratibAskVoucherLeave()',ctx);
+ document.getElementById('ratibVoucherLeaveDiscard').click();
+ assert.equal(await p,true);
+ assert.equal(ctx.hasUnsavedChanges,false,'Discard exits');
+ assert.equal(mem.get('single_voucher_draft_v1').note,'old saved','Discard preserves saved draft');
+ ctx.hasUnsavedChanges=true;p=vm.runInContext('ratibAskVoucherLeave()',ctx);
+ document.getElementById('ratibVoucherLeaveSave').click();
+ assert.equal(await p,true);assert.equal(flushCount,1);
+ assert.equal(mem.get('single_voucher_draft_v1').note,'edited, saved as draft');
+ ctx.hasUnsavedChanges=true;cash.classList.add('hidden');multi.classList.remove('hidden');
+ p=vm.runInContext('ratibAskVoucherLeave()',ctx);
+ document.getElementById('ratibVoucherLeaveSave').click();assert.equal(await p,true);
+ assert.equal(mem.get('multi_voucher_drafts').length,2,'existing and new drafts');
+ assert.equal(mem.get('multi_voucher_drafts')[0].id,'old','existing draft not removed');
+ assert.equal(flushCount,2);
+ assert(!modal.classList.contains('show'));
+ console.log('PASS official 3.6.117: Cancel/Discard/Save (single+multi), stored drafts, date/notes, compound layout, official services');
+})().catch(error=>{console.error(error);process.exitCode=1});

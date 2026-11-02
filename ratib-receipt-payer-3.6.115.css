@@ -1,0 +1,31 @@
+/* Official Ratib web 3.6.115: reveal existing payer name on receipt vouchers.
+   No new financial fields are introduced; beneficiary continues to be saved in d.beneficiary. */
+@media screen {
+  #multiVoucherCard.spend-voucher.receipt-voucher .multi-voucher-grid > label:has(#multiVoucherBeneficiary) {
+    display:flex!important;
+    flex-direction:column!important;
+    grid-column:1/-1!important;
+    grid-row:5!important;
+    min-width:0!important;
+    margin:0!important;
+    gap:0!important;
+    font-size:0!important;
+    line-height:0!important;
+  }
+  /* Accessibility: leave the programmatic label, hide its duplicate visible caption. */
+  #multiVoucherCard.spend-voucher.receipt-voucher .multi-voucher-grid > label:has(#multiVoucherBeneficiary) > .ratib-duplicate-caption {
+    position:absolute!important;
+    width:1px!important;height:1px!important;
+    margin:-1px!important;padding:0!important;border:0!important;
+    overflow:hidden!important;clip-path:inset(50%)!important;
+    white-space:nowrap!important;
+  }
+  #multiVoucherCard.spend-voucher.receipt-voucher #multiVoucherBeneficiary {
+    display:block!important;width:100%!important;max-width:100%!important;
+    min-width:0!important;min-height:46px!important;
+    box-sizing:border-box!important;line-height:1.5!important;
+    font-size:var(--ratib-input-font-size,14px)!important;
+    font-weight:400!important;margin:0!important;
+    direction:rtl!important;
+  }
+}

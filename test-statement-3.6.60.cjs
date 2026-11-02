@@ -122,7 +122,7 @@ async function main(){
  const draw=canvasText.join('|');
  for(const value of ['35,600','119,000','86,600','3,200','إجمالي عمليات الفترة'])assert(draw.includes(value),'PDF missing '+value);
  assert(!canvasText.includes('undefined'),'PDF should not draw undefined');
- const labels=canvasText.filter(x=>x.includes('الرصيد السابق'));
+ const labels=canvasText.filter(x=>x.includes('الرصيد السابق قبل بداية الفترة'));
  assert.equal(labels.length,1,'PDF should draw one opening label');
  recorded.push('PDF produced with all sample totals, one opening, no undefined');
 

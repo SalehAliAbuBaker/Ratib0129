@@ -168,3 +168,45 @@
  #ratibVoucherLeaveModal{display:none!important}
  #multiVoucherCard:not(.spend-voucher) .multi-voucher-table-wrap{overflow:visible!important}
 }
+
+/* 3.6.119: keep account statement numeric cells in their original columns.
+   Earlier full-row spans were pushing amounts beneath the description. */
+@media screen and (min-width:701px){
+ #pageAccountOperations .account-statement-row[data-tx-id]{
+   align-items:start!important;row-gap:4px!important;
+ }
+ #pageAccountOperations .account-statement-row[data-tx-id]>.ratib-account-row-date{
+   grid-column:auto!important;grid-row:auto!important;align-self:start!important;
+   padding-block:4px!important;overflow:visible!important;
+ }
+ #pageAccountOperations .account-statement-row[data-tx-id]>.ratib-account-row-document{
+   grid-column:auto!important;grid-row:auto!important;align-self:start!important;
+   padding-block:4px!important;
+ }
+ #pageAccountOperations .account-statement-row[data-tx-id]>.ratib-account-row-note{
+   grid-column:auto!important;grid-row:auto!important;align-self:start!important;
+   padding:4px 0!important;border-top:0!important;line-height:1.55!important;
+ }
+ #multiVoucherCard:not(.spend-voucher)>.multi-voucher-grid{
+   width:100%!important;max-width:100%!important;
+   grid-template-columns:repeat(2,minmax(0,1fr))!important;align-items:stretch!important;
+ }
+ #multiVoucherCard:not(.spend-voucher)>.multi-voucher-grid>label:has(#multiVoucherDate),
+ #multiVoucherCard:not(.spend-voucher)>.multi-voucher-grid>label:has(#multiVoucherBeneficiary),
+ #multiVoucherCard:not(.spend-voucher)>.multi-voucher-grid>label:has(#multiVoucherParty){
+   grid-column:1/-1!important;grid-row:auto!important;
+ }
+ #multiVoucherCard:not(.spend-voucher)>.multi-voucher-grid>#ratibCompoundAmountReadout,
+ #multiVoucherCard:not(.spend-voucher)>.multi-voucher-grid>label:has(#multiVoucherBaseCurrency){
+   grid-row:auto!important;
+ }
+}
+@media screen and (max-width:700px){
+ #pageAccountOperations .account-statement-row[data-tx-id]{
+   row-gap:4px!important;padding-block:9px!important;
+ }
+ #pageAccountOperations .account-statement-row[data-tx-id]>.ratib-account-row-note{
+   padding-top:4px!important;line-height:1.55!important;
+ }
+ #multiVoucherCard:not(.spend-voucher)>.multi-voucher-grid{width:100%!important;min-width:0!important}
+}

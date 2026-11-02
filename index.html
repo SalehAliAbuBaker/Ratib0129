@@ -5501,7 +5501,14 @@ function ratibAskVoucherLeave(){
   let finished=false;
   const close=ok=>{if(finished)return;finished=true;save.removeEventListener('click',saveDraft);discard.removeEventListener('click',abandon);cancel.removeEventListener('click',stay);modal.classList.remove('show');_ratibVoucherLeavePending=null;if(!ok&&opener?.isConnected)opener.focus({preventScroll:true});resolve(ok);};
   const stay=()=>close(false);
-  const abandon=()=>{hasUnsavedChanges=false;close(true);};
+  const abandon=()=>{
+   // Drop only volatile editor state. Previously saved drafts remain in storage.
+   const multi=document.getElementById('multiVoucherCard');
+   if(multi&&!multi.classList.contains('hidden')){
+    try{resetMultiVoucherForm();}catch(error){console.warn('Reset discarded voucher editor',error);multiVoucherDraftId='';multiVoucherLines=[];}
+   }
+   hasUnsavedChanges=false;close(true);
+  };
   const saveDraft=async()=>{
    save.disabled=true;discard.disabled=true;cancel.disabled=true;
    try{

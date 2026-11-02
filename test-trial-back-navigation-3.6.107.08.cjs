@@ -23,7 +23,7 @@ const from=html.indexOf('function ratibGestureDraftCheck(){'),to=html.indexOf('c
 assert(from>0&&to>from);
 const code=html.slice(from,to);
 function simulate({tab='pageSettings',depth=0,known=true,dirty=false,commerceDirty=false,accept=true,overlay=false,form='single'}={}){
- const log={go:[],forward:0,home:0,exit:0,confirmed:0,stored:[],flushes:0,done:0,history:[]};
+ const log={go:[],forward:0,home:0,exit:0,confirmed:0,leaveDialogs:0,stored:[],flushes:0,done:0,history:[]};
  const ctx={
   allowExit:false,_appExited:false,_appHistoryInitialized:true,_exitPromise:null,_appHistoryPending:null,
   _appHistorySession:'sess',_appExitHistoryDelta:0,_restoringAppView:false,
@@ -36,6 +36,8 @@ function simulate({tab='pageSettings',depth=0,known=true,dirty=false,commerceDir
   closeTransientAppUi:()=>overlay,
   ratibRestorePrintScreen:()=>{}, // Popstate test extracts navigation without the global print module.
   confirm:()=>{log.confirmed++;return accept;},
+  ratibVoucherHasUnsavedEdits:()=>tab==='pageExpenses'&&dirty,
+  ratibAskVoucherLeave:()=>{log.leaveDialogs++;return Promise.resolve(accept);},
   store:{get:()=>[],set:(k,val)=>log.stored.push([k,val])},
   captureSingleDraft:()=>({amount:'50',note:'test'}),
   updateDraftButton:()=>{},
@@ -69,11 +71,13 @@ assert.equal(canceled.log.home,0);
 assert.deepEqual(canceled.log.go,[1]);
 assert.equal(canceled.ctx.currentActiveTab,'pageExpenses');
 const single=simulate({tab:'pageExpenses',dirty:true});
-assert.equal(single.log.home,1);
-assert(single.log.stored.some(x=>x[0]==='single_voucher_draft_v1'));
-assert.equal(single.log.flushes,1);
+assert.equal(single.log.home,0,'navigation waits for three-way modal');
+assert.equal(single.log.leaveDialogs,1);
+assert.deepEqual(single.log.go,[1]);
+assert.equal(single.log.stored.length,0,'no automatic draft write before user selection');
 const multi=simulate({tab:'pageExpenses',dirty:true,form:'multi'});
-assert(multi.log.stored.some(x=>x[0]==='multi_voucher_drafts'));
+assert.equal(multi.log.leaveDialogs,1);
+assert.equal(multi.log.stored.length,0,'compound draft save is opt-in');
 const commerceCanceled=simulate({tab:'pageCommerce',commerceDirty:true,accept:false});
 assert.equal(commerceCanceled.log.home,0);
 assert.deepEqual(commerceCanceled.log.go,[1]);
@@ -82,4 +86,4 @@ assert.equal(overlay.log.home,0);assert.deepEqual(overlay.log.go,[1]);
 assert.equal(simulate({tab:'pageDashboard',known:false,depth:-1}).log.exit,1);
 for(const script of [...html.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script>/gi)].map(m=>m[1]).filter(Boolean))new Function(script);
 new Function(commerce);new Function(sw);
-console.log('PASS 3.6.107.09: five sizes, guarded Android Back, voucher drafts, commerce warning and parse checks');
+console.log('PASS 3.6.107.09: five sizes, guarded Android Back, opt-in voucher draft choices, commerce warning and parse checks');

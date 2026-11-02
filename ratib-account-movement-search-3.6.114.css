@@ -1,0 +1,40 @@
+/* Ratib official web 3.6.114 — account movement screen search, display-only. */
+@media screen {
+ #pageAccountOperations .ratib-account-movement-search{
+  margin:8px 0 12px;padding:10px 12px;
+  border:1px solid var(--border);border-radius:11px;
+  background:var(--card);color:var(--text);
+ }
+ #pageAccountOperations .ratib-movement-search-label{
+  display:block;font-size:.9rem;font-weight:500;margin-bottom:7px;color:var(--text);
+ }
+ #pageAccountOperations .ratib-movement-search-controls{
+  display:flex;align-items:center;gap:8px;min-width:0;
+ }
+ #pageAccountOperations .ratib-movement-search-controls>span{flex:none;font-size:1.05rem}
+ #pageAccountOperations #ratibAccountMovementSearchInput{
+  flex:1 1 auto;min-width:0;width:100%;height:44px;
+  box-sizing:border-box;padding:8px 10px!important;
+  font-size:var(--ratib-input-font-size,14px)!important;
+  font-weight:400!important;border-radius:8px;
+ }
+ #pageAccountOperations #ratibAccountMovementSearchClear{
+  flex:none;min-height:44px;min-width:55px;
+  padding:7px 10px;border:1px solid var(--border);border-radius:8px;
+  background:var(--card);color:var(--text);cursor:pointer;
+ }
+ #pageAccountOperations #ratibAccountMovementSearchClear:disabled{opacity:.5;cursor:default}
+ #pageAccountOperations #ratibAccountMovementSearchCount{
+  display:block;margin-top:6px;line-height:1.6;font-size:.8rem;color:var(--muted);
+ }
+ #accountOperationsStandalonePanel .account-statement-row.ratib-movement-hidden{display:none!important}
+ #accountOperationsStandalonePanel .ratib-movement-empty{
+  margin:10px 0;padding:12px;border:1px dashed var(--border);
+  border-radius:8px;color:var(--muted);text-align:center;font-size:.9rem;
+ }
+ #accountOperationsStandalonePanel .ratib-movement-empty[hidden]{display:none!important}
+}
+@media print {
+ #ratibAccountMovementSearchBar{display:none!important}
+ #accountOperationsStandalonePanel .account-statement-row.ratib-movement-hidden{display:grid!important}
+}

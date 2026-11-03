@@ -55,5 +55,6 @@ assert(!beneficiary.closest('label').classList.contains('ratib-payment-beneficia
 assert(css.includes('#multiVoucherCard.spend-voucher > .ratib-payment-beneficiary-row'));
 assert(css.includes('@media screen'),'layout styles only on screen');
 assert(sw.includes('v241-official-receipt-parity-3.6.126'));
-dom.window.close();
+// Keep jsdom alive through queued MutationObserver callbacks; closing synchronously
+// while a voucher-mode reordering observer is queued causes an artificial jsdom failure.
 console.log('PASS official receipt/payment parity: account → optional party → general statement; preserved cash modes and compound entry');

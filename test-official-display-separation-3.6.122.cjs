@@ -23,7 +23,7 @@ assert(polish.includes('grid-column:1 / span 2!important;grid-row:1!important'),
 assert(polish.includes('grid-column:3 / -1!important;grid-row:1!important'),'Date uses the remaining ten tracks');
 assert(polish.includes('grid-column:1 / span 5!important;grid-row:5!important'),'Currency row is retained');
 assert(!polish.includes('grid-template-columns:minmax(74px,1fr)'),'No fixed-width grid introduced');
-assert(css.includes('Ratib 3.6.124: more compact DESKTOP statement'));
+assert(css.includes('Ratib 3.6.123: more compact DESKTOP statement'));
 assert(css.includes('@media screen and (min-width:1200px)'));
 assert(css.includes('margin:0!important;padding:6px 9px!important'));
 assert(!css.includes('grid-template-columns:minmax(130px,1.05fr)'),'No forced columns in statement');

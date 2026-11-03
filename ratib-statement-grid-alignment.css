@@ -1,4 +1,4 @@
-/* Ratib 3.6.109.18: unified account statement columns; screen only, no print alterations. */
+/* Ratib 3.6.109.19: account statement financial heading alignment; screen only, no print alterations. */
 @media screen and (min-width:761px) {
  #pageAccountOperations .account-statement-grid .account-statement-row,
  #reportAccountOpsPanel .account-statement-grid .account-statement-row{
@@ -34,5 +34,17 @@
  }
  #pageAccountOperations .account-statement-row.statement-grand-total>.balance{
   font-size:clamp(.60rem,2.3vw,.73rem)!important;
+ }
+}
+
+/* The figures are centered already; center ONLY their three column headings.
+   The financial headings are always the last three header cells, with or
+   without optional document / counterpart columns. Do not move numeric cells. */
+@media screen {
+ #pageAccountOperations .account-statement-row.header>span:nth-last-child(-n+3),
+ #reportAccountOpsPanel .account-statement-row.header>span:nth-last-child(-n+3){
+   text-align:center!important;
+   justify-self:stretch!important;
+   align-self:center!important;
  }
 }

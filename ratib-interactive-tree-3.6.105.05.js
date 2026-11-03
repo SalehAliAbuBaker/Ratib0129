@@ -128,7 +128,7 @@
    subCode:sub?.code,sub:sub?.name,code:n.code,name:n.name
   })||'';
   if(classification!=='cash')return classification||'other';
-  return /بنك|بنوك|مصرف|bank/i.test(norm(n.name+' '+(sub?.name||'')))?'bank':'cashbox';
+  return /بنك|بنوك|مصرف|صراف|bank/i.test(norm(n.name+' '+(sub?.name||'')))?'bank':'cashbox';
  }
  function simpleNode(n){
   const selectedRow=selected===n.key;
@@ -164,7 +164,7 @@
   }
   Object.values(buckets).forEach(list=>list.sort((a,b)=>a.name.localeCompare(b.name,'ar')));
   const configs=[
-   {key:'cash',title:'الصناديق والبنوك',children:[['cashbox','الصناديق'],['bank','البنوك']]},
+   {key:'cash',title:'الصناديق والبنوك',children:[['cashbox',null],['bank',null]]},
    {key:'clients',title:'أموال لي عند الآخرين',children:[['clients',null]]},
    {key:'suppliers',title:'أموال عليّ للآخرين',children:[['suppliers',null]]},
    {key:'income',title:'الدخل والإيرادات',children:[['income',null]]},

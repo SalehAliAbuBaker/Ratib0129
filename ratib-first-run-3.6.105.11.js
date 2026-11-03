@@ -74,7 +74,7 @@ function draw(){
   $('rfrName').value=previous?cfg.name:'';$('rfrDetails').value=cfg.details||'';$('rfrHeader').checked=cfg.show!==false;
   $('rfrName').focus({preventScroll:true});
  }else if(step===1){
-  $('rfrFields').innerHTML='<label>دولة الاستخدام<select id="rfrCountry"></select></label><label>العملة الأساسية<select id="rfrCurrency"></select></label><p class="rfr-hint">اقتراح الدولة يعتمد على لغة الجهاز، وليس على تحديد الموقع. يمكن تغييره في أي وقت من الإعدادات.</p>';
+  $('rfrFields').innerHTML='<label>دولة الاستخدام<select id="rfrCountry"></select></label><label>العملة الأساسية<select id="rfrCurrency"></select></label><p class="rfr-hint">اليمن والريال اليمني محددان افتراضيًا، ويمكن تغييرهما هنا أو لاحقًا من الإعدادات.</p>';
   const country=$('rfrCountry'),currency=$('rfrCurrency');
   COUNTRIES.forEach(([code,name])=>country.add(new Option(name,code)));
   CURRENCIES.forEach(([code,name])=>currency.add(new Option(name+' ('+code+')',code)));

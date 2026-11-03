@@ -44,3 +44,99 @@
   margin:8px 0 6px!important;
  }
 }
+
+/* 3.6.127: one shared account-card geometry for receipt and payment.
+   The receipt retains its original account field/lock/current-balance elements.
+   Grid, not nowrap flex, keeps the lock within the card and the balance on line 2. */
+@media screen {
+ #multiVoucherCard.spend-voucher.receipt-voucher
+  > .multi-voucher-grid > .multi-voucher-source-row {
+  display:grid!important;
+  grid-template-columns:minmax(0,1fr) 40px!important;
+  grid-template-rows:minmax(44px,auto) auto!important;
+  grid-column:1/-1!important;
+  grid-row:6!important;
+  align-items:center!important;
+  justify-content:stretch!important;
+  gap:4px 6px!important;
+  width:100%!important;
+  max-width:100%!important;
+  min-width:0!important;
+  box-sizing:border-box!important;
+  padding:6px!important;
+  margin:0!important;
+  height:auto!important;
+  min-height:0!important;
+  overflow:visible!important;
+ }
+ #multiVoucherCard.spend-voucher.receipt-voucher
+  .multi-voucher-grid > .multi-voucher-source-row > .searchable-select-wrap {
+  display:block!important;
+  grid-column:1!important;
+  grid-row:1!important;
+  order:initial!important;
+  flex:none!important;
+  position:relative!important;
+  box-sizing:border-box!important;
+  width:100%!important;
+  max-width:100%!important;
+  min-width:0!important;
+  margin:0!important;
+ }
+ #multiVoucherCard.spend-voucher.receipt-voucher
+  .multi-voucher-grid > .multi-voucher-source-row > #ratibLockSource {
+  display:inline-flex!important;
+  grid-column:2!important;
+  grid-row:1!important;
+  order:initial!important;
+  flex:none!important;
+  position:static!important;
+  justify-self:stretch!important;
+  align-self:center!important;
+  box-sizing:border-box!important;
+  width:40px!important;
+  min-width:40px!important;
+  max-width:40px!important;
+  height:44px!important;
+  margin:0!important;
+  padding:0!important;
+ }
+ #multiVoucherCard.spend-voucher.receipt-voucher
+  .multi-voucher-grid > .multi-voucher-source-row > .ratib-multi-source-balance {
+  display:block!important;
+  grid-column:1/-1!important;
+  grid-row:2!important;
+  order:initial!important;
+  flex:none!important;
+  justify-self:stretch!important;
+  min-width:0!important;
+  max-width:100%!important;
+  width:100%!important;
+  box-sizing:border-box!important;
+  margin:1px 0 0!important;
+  padding:1px 3px!important;
+  text-align:right!important;
+  direction:rtl!important;
+  white-space:normal!important;
+  overflow-wrap:break-word!important;
+  line-height:1.45!important;
+  font-size:11px!important;
+ }
+ #multiVoucherCard.spend-voucher.receipt-voucher
+  .multi-voucher-grid > .multi-voucher-source-row > .ratib-multi-source-balance[hidden] {
+  display:none!important;
+ }
+}
+@media screen and (max-width:380px) {
+ #multiVoucherCard.spend-voucher.receipt-voucher
+  > .multi-voucher-grid > .multi-voucher-source-row {
+  grid-template-columns:minmax(0,1fr) 38px!important;
+  column-gap:4px!important;
+ }
+ #multiVoucherCard.spend-voucher.receipt-voucher
+  .multi-voucher-grid > .multi-voucher-source-row > #ratibLockSource {
+  width:38px!important;
+  min-width:38px!important;
+  max-width:38px!important;
+ }
+}

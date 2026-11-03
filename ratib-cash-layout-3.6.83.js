@@ -35,7 +35,7 @@
 }());
 
 
-/* Official payment form: preserve original controls and posting logic.
+/* Official shared receipt/payment form: preserve original controls and posting logic.
    When the credit account is moved under the line toolbar by the shared
    account-order helper, restore it ahead of the optional beneficiary and note. */
 (function(){
@@ -48,8 +48,8 @@
   const note=q('multiVoucherNote')?.closest('label');
   const date=q('multiVoucherDate')?.closest('label');
   if(!card||!grid||!beneficiary||!note||!date)return;
-  const payment=card.classList.contains('spend-voucher')&&typeof multiVoucherMode!=='undefined'&&multiVoucherMode==='spend';
-  if(payment){
+  const cash=card.classList.contains('spend-voucher')&&typeof multiVoucherMode!=='undefined'&&['spend','income'].includes(multiVoucherMode);
+  if(cash){
    const source=card.querySelector('.multi-voucher-source-row');
    const holder=q('ratibOrderedCreditSource');
    let before=grid;
@@ -60,10 +60,14 @@
    if(beneficiary.previousElementSibling!==before)before.after(beneficiary);
    if(note.previousElementSibling!==beneficiary)beneficiary.after(note);
    beneficiary.classList.add('ratib-payment-beneficiary-row');
-   if(beneficiary.firstChild?.nodeType===3)beneficiary.firstChild.textContent='إضافة مستفيد (اختياري)';
+   const receipt=multiVoucherMode==='income';
+   const title=receipt?'اسم الدافع (اختياري)':'إضافة مستفيد (اختياري)';
+   const caption=beneficiary.querySelector('.ratib-duplicate-caption');
+   if(caption)caption.textContent=title;
+   else if(beneficiary.firstChild?.nodeType===3)beneficiary.firstChild.textContent=title;
    const input=q('multiVoucherBeneficiary');
-   input.placeholder='اسم المستفيد (اختياري)';
-   input.setAttribute('aria-label','إضافة مستفيد اختياري لسند الصرف');
+   input.placeholder=receipt?'اسم الدافع (اختياري)':'اسم المستفيد (اختياري)';
+   input.setAttribute('aria-label',receipt?'اسم الدافع الاختياري لسند القبض':'إضافة مستفيد اختياري لسند الصرف');
   }else{
    beneficiary.classList.remove('ratib-payment-beneficiary-row');
    if(beneficiary.parentElement!==grid||beneficiary.previousElementSibling!==date)date.after(beneficiary);

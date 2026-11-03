@@ -30,7 +30,8 @@ assert.equal(beneficiary.value,'مستفيد تجريبي');assert.equal(note.va
 assert.equal(d.querySelectorAll('#ratibLockSource').length,1);
 lock.click();assert.equal(clicks,1,'existing lock handler still works');
 assert.equal(d.querySelectorAll('#multiVoucherBeneficiary').length,1,'no duplicate beneficiary');
-assert(beneficiary.closest('label').textContent.includes('اختياري'));
+assert(beneficiary.placeholder.includes('اختياري'),'optional caption belongs inside input placeholder');
+assert.equal(beneficiary.closest('label').textContent.trim(),'','no duplicate visible beneficiary caption');
 w.eval('ratibOrderDocumentAccounts()');
 assert.equal(grid.nextElementSibling,holder,'repeat renders retain correct order');
 side.value='debit';w.eval('ratibOrderDocumentAccounts()');

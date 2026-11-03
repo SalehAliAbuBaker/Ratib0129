@@ -86,3 +86,28 @@
 @media print{
  #multiVoucherCard #ratibCashVoucherHeader{display:none!important}
 }
+
+/* This selector deliberately matches the specificity of the official compact desktop
+   date rule; without it, the older white-space:normal!important wins over the trial view. */
+@media screen{
+ #pageAccountOperations .account-statement-row[data-tx-id]>.ratib-account-row-date .ratib-hijri-text>span{
+  display:block!important;white-space:nowrap!important;word-break:keep-all!important;
+  overflow-wrap:normal!important;max-width:100%!important;overflow-x:auto!important;
+  line-height:1.26!important;
+ }
+ #pageAccountOperations .account-statement-row[data-tx-id]>.ratib-account-row-date .ratib-hijri-text>small{
+  display:block!important;white-space:nowrap!important;max-width:100%!important;
+  font-size:10px!important;line-height:1.25!important;font-weight:400!important;
+ }
+}
+@media screen and (max-width:700px){
+ #pageAccountOperations .account-statement-row[data-tx-id]:has(>.ratib-account-row-document:not([style*="display: none"]))>.ratib-account-row-date{
+  grid-column:span 7!important;
+ }
+ #pageAccountOperations .account-statement-row[data-tx-id]:has(>.ratib-account-row-document:not([style*="display: none"]))>.ratib-account-row-document{
+  grid-column:span 5!important;
+ }
+ #pageAccountOperations .account-statement-row[data-tx-id]:has(>.ratib-account-row-document[style*="display: none"])>.ratib-account-row-date{
+  grid-column:1 / -1!important;
+ }
+}

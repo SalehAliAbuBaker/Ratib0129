@@ -2,8 +2,9 @@
 const assert=require('node:assert/strict'),fs=require('node:fs'),{JSDOM}=require('jsdom');
 const script=fs.readFileSync('ratib-backup-due-card.js','utf8');
 const html=fs.readFileSync('index.html','utf8'),sw=fs.readFileSync('sw.js','utf8');
-assert(html.includes('ratib-backup-due-card.js?v=3.6.109.17'));
-assert(html.includes('ratib-backup-due-card.css?v=3.6.109.17'));
+const currentRelease=require('./package.json').version;
+assert(html.includes('ratib-backup-due-card.js?v='+currentRelease));
+assert(html.includes('ratib-backup-due-card.css?v='+currentRelease));
 assert(sw.includes('"./ratib-backup-due-card.js"')&&sw.includes('"./ratib-backup-due-card.css"'));
 assert(html.includes('window.RatibBackupDueCard?.check?.()'));
 assert(!html.includes('const ok = await runCloudBackup(false);'),'No background Cloud upload without user choice');

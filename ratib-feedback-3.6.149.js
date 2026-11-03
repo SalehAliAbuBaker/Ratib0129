@@ -1,9 +1,9 @@
-/* Ratib Trial 3.6.149 — feedback audio, visible toasts, actionable reminders.
+/* Ratib official 3.6.131 — feedback audio, touch haptics, visible toasts, reminders.
    Presentation and user-triggered reminders only. All financial writes remain unchanged. */
 (function(){
 'use strict';
 const KEY='ratib_feedback_preferences_v1';
-const DEFAULTS={master:true,save:true,reminder:true,warning:true,error:true,volume:'medium',style:'balanced',saveCue:'both'};
+const DEFAULTS={master:true,save:true,reminder:true,warning:true,error:true,volume:'medium',style:'balanced',saveCue:'both',tap:true,tapCue:'both'};
 const LEVELS={low:.48,medium:.7,high:1},STYLES=['soft','balanced','clear'];
 const $=id=>document.getElementById(id);
 const safeText=value=>String(value==null?'':value);
@@ -14,10 +14,11 @@ const read=()=>{
  let source={};
  try{source=typeof store!=='undefined'&&typeof store.get==='function'?store.get(KEY,{})||{}:JSON.parse(localStorage.getItem(KEY)||'{}')||{}}catch(_){}
  const cfg={...DEFAULTS,...source};
- for(const name of ['master','save','reminder','warning','error'])cfg[name]=cfg[name]!==false;
+ for(const name of ['master','save','reminder','warning','error','tap'])cfg[name]=cfg[name]!==false;
  if(!Object.prototype.hasOwnProperty.call(LEVELS,cfg.volume))cfg.volume='medium';
  if(!STYLES.includes(cfg.style))cfg.style='balanced';
  if(!['both','sound','vibration','silent'].includes(cfg.saveCue))cfg.saveCue='both';
+ if(!['both','sound','vibration','silent'].includes(cfg.tapCue))cfg.tapCue='both';
  return cfg;
 };
 function write(patch){
@@ -36,6 +37,7 @@ function unlock(){
  if(ctx?.state==='suspended')ctx.resume().catch(()=>{});
 }
 const PATTERNS={
+ tap:[[0,920,.034]],
  save:[[0,523,.13],[.125,784,.21]],
  reminder:[[0,587,.17],[.21,740,.18],[.44,988,.31]],
  urgent:[[0,659,.13],[.18,659,.13],[.38,988,.26]],
@@ -48,29 +50,35 @@ function play(kind='reminder',priority='',test=false){
  if(!cfg.master||LEVELS[cfg.volume]<=0)return false;
  const category=kind==='critical'||kind==='urgent'?'reminder':kind;
  if(cfg[category]===false||(category==='reminder'&&muteReminders()))return false;
+ if(kind==='tap'&&cfg.tapCue==='silent')return false;
  const now=Date.now(),id=category==='reminder'?'reminder':kind;
- if(!test&&now-(lastPlayed.get(id)||0)<(category==='reminder'?1800:category==='save'?650:1000))return false;
+ if(!test&&now-(lastPlayed.get(id)||0)<(category==='reminder'?1800:category==='save'?650:category==='tap'?22:1000))return false;
  if(kind==='save'&&cfg.saveCue==='silent')return false;
  let vibration=false;
  if(kind==='save'&&['both','vibration'].includes(cfg.saveCue)){
   try{vibration=typeof navigator.vibrate==='function'&&navigator.vibrate([65,40,65])===true;}
   catch(_){vibration=false;}
  }
+ if(kind==='tap'&&['both','vibration'].includes(cfg.tapCue)){
+  try{vibration=typeof navigator.vibrate==='function'&&navigator.vibrate(10)===true;}
+  catch(_){vibration=false;}
+ }
  lastPlayed.set(id,now);
  if(kind==='save'&&cfg.saveCue==='vibration')return vibration;
+ if(kind==='tap'&&cfg.tapCue==='vibration')return vibration;
  const ctx=availableAudio();if(!ctx)return vibration;
  const steps=PATTERNS[kind]||PATTERNS.reminder;
  const makeSound=()=>{
   if(ctx.state!=='running')return;
-  const base=ctx.currentTime+.025;
-  const gainScale=(kind==='save'?.25:cfg.style==='soft'?.12:cfg.style==='clear'?.21:.16)*LEVELS[cfg.volume];
+  const base=ctx.currentTime+(kind==='tap'?.004:.025);
+  const gainScale=(kind==='tap'?.052:kind==='save'?.25:cfg.style==='soft'?.12:cfg.style==='clear'?.21:.16)*LEVELS[cfg.volume];
   try{
    steps.forEach(([offset,frequency,duration],i)=>{
     const osc=ctx.createOscillator(),env=ctx.createGain();
-    osc.type=kind==='save'||cfg.style==='clear'?'triangle':'sine';
+    osc.type=kind==='tap'||kind==='save'||cfg.style==='clear'?'triangle':'sine';
     osc.frequency.setValueAtTime(frequency,base+offset);
     env.gain.setValueAtTime(.0001,base+offset);
-    env.gain.exponentialRampToValueAtTime(gainScale*(i===steps.length-1?1:.82),base+offset+.018);
+    env.gain.exponentialRampToValueAtTime(gainScale*(i===steps.length-1?1:.82),base+offset+(kind==='tap'?.003:.018));
     env.gain.exponentialRampToValueAtTime(.0001,base+offset+duration);
     osc.connect(env);env.connect(ctx.destination);
     osc.start(base+offset);osc.stop(base+offset+duration+.018);
@@ -163,10 +171,10 @@ function reminder(reminder,findReminder,saveReminders,openReminderModal,renderRe
 function syncUI(){
  const card=$('ratibFeedbackSettings');if(!card)return;
  const cfg=read();
- for(const k of ['master','save','reminder','warning','error']){
+ for(const k of ['master','save','reminder','warning','error','tap']){
   const input=card.querySelector('[data-feedback-toggle="'+k+'"]');if(input)input.checked=cfg[k];
  }
- for(const k of ['volume','style','saveCue']){const select=card.querySelector('[data-feedback-select="'+k+'"]');if(select)select.value=cfg[k];}
+ for(const k of ['volume','style','saveCue','tapCue']){const select=card.querySelector('[data-feedback-select="'+k+'"]');if(select)select.value=cfg[k];}
  const status=$('notificationSoundStatus');
  if(status)status.textContent=!cfg.master?'مكتوم بالكامل':muteReminders()?'التذكيرات مكتومة':'مفعّل';
 }
@@ -178,6 +186,8 @@ function install(){
  '<label class="ratib-feedback-setting-row"><span>تفعيل جميع الأصوات</span><input type="checkbox" data-feedback-toggle="master"></label>'+
  '<label class="ratib-feedback-setting-row"><span>تنبيه نجاح الحفظ</span><input type="checkbox" data-feedback-toggle="save"></label>'+
  '<div class="ratib-feedback-select-row"><label for="ratibSaveCue">عند الحفظ</label><select id="ratibSaveCue" data-feedback-select="saveCue"><option value="both">نغمة واضحة واهتزاز</option><option value="sound">نغمة فقط</option><option value="vibration">اهتزاز فقط</option><option value="silent">صامت</option></select></div>'+
+ '<label class="ratib-feedback-setting-row"><span>تأثير الضغط على المفاتيح والأزرار</span><input type="checkbox" data-feedback-toggle="tap"></label>'+
+ '<div class="ratib-feedback-select-row"><label for="ratibTapCue">عند كل ضغطة</label><select id="ratibTapCue" data-feedback-select="tapCue"><option value="both">نقرة خفيفة واهتزاز</option><option value="sound">نقرة صوتية فقط</option><option value="vibration">اهتزاز خفيف فقط</option><option value="silent">صامت</option></select></div>'+
  '<label class="ratib-feedback-setting-row"><span>أصوات التذكيرات</span><input type="checkbox" data-feedback-toggle="reminder"></label>'+
  '<label class="ratib-feedback-setting-row"><span>أصوات التحذيرات</span><input type="checkbox" data-feedback-toggle="warning"></label>'+
  '<label class="ratib-feedback-setting-row"><span>صوت الأخطاء</span><input type="checkbox" data-feedback-toggle="error"></label>'+
@@ -185,7 +195,7 @@ function install(){
  '<div class="ratib-feedback-select-row"><label for="ratibFeedbackStyle">طابع النغمة</label><select id="ratibFeedbackStyle" data-feedback-select="style"><option value="soft">هادئ</option><option value="balanced">متوازن</option><option value="clear">واضح</option></select></div>'+
  '<div class="ratib-feedback-try"><button type="button" data-feedback-test="save">تجربة الحفظ</button><button type="button" data-feedback-test="reminder">تجربة التذكير</button><button type="button" data-feedback-test="urgent">تجربة العاجل</button><button type="button" data-feedback-test="error">تجربة الخطأ</button></div>'+
  '<button type="button" id="ratibFeedbackDefaults" class="btn btn-ghost">استعادة إعدادات الصوت الافتراضية</button>'+
- '<p class="ratib-feedback-guidance">النغمة تظهر عند نجاح الحفظ فقط. يتطلب الصوت تفاعلًا مع الصفحة، والاهتزاز يعمل فقط في المتصفحات والأجهزة التي تدعمه. لا يصدر تنبيه عند فشل الحفظ.</p>';
+ '<p class="ratib-feedback-guidance">تُشغّل نقرات الأزرار صوتًا خفيفًا شبيهًا بصوت لمس الجوال مع اهتزاز قصير عند الدعم. نغمة نظام Android الأصلية ولوحة المفاتيح الخارجية يتحكم فيهما الجهاز، وليس تطبيق الويب. أصوات الحفظ تصدر فقط بعد نجاح العملية.</p>';
  parent.append(box);
  for(const input of box.querySelectorAll('[data-feedback-toggle]'))input.addEventListener('change',()=>write({[input.dataset.feedbackToggle]:input.checked}));
  for(const select of box.querySelectorAll('[data-feedback-select]'))select.addEventListener('change',()=>write({[select.dataset.feedbackSelect]:select.value}));
@@ -196,7 +206,31 @@ function install(){
  $('ratibFeedbackDefaults')?.addEventListener('click',()=>{write(DEFAULTS);toast('عادت إعدادات الأصوات الافتراضية.','info',3000,{silent:true});});
  syncUI();
 }
+function targetForTap(node){
+ const element=node?.nodeType===3?node.parentElement:node;
+ if(!element?.closest)return null;
+ const control=element.closest('button,input:not([type="hidden"]),textarea,select,a[href],summary,[role="button"],[role="tab"],[role="switch"],[role="checkbox"],[role="radio"],[role="menuitem"],[onclick],[contenteditable="true"]');
+ if(!control||control.matches(':disabled,[disabled],[aria-disabled="true"]')||control.closest('[inert]'))return null;
+ return control;
+}
+// Delegate feedback once; pointerdown covers touch/mouse and keydown covers physical
+// keyboard activation/text entry, without altering any application click handlers.
+function keyPressPointer(event){
+ if(typeof event.button==='number'&&event.button!==0)return;
+ if(targetForTap(event.target))play('tap');
+}
+function keyPressKeyboard(event){
+ if(event.isComposing||event.repeat||event.ctrlKey||event.altKey||event.metaKey)return;
+ const key=event.key||'';
+ const el=targetForTap(event.target);
+ if(!el)return;
+ const edit=el.matches('input:not([type="checkbox"]):not([type="radio"]),textarea')||!!el.closest('[contenteditable="true"]');
+ if(edit&&(key.length===1||key==='Backspace'||key==='Delete'||key==='Enter'))play('tap');
+ else if(!edit&&(key==='Enter'||key===' '))play('tap');
+}
 window.RatibFeedback={toast,play,reminder,read,write,syncUI,install};
+document.addEventListener('pointerdown',keyPressPointer,{passive:true,capture:true});
+document.addEventListener('keydown',keyPressKeyboard,{passive:true,capture:true});
 document.addEventListener('pointerdown',unlock,{passive:true});
 document.addEventListener('keydown',unlock,{passive:true});
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',install,{once:true});else install();

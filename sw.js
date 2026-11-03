@@ -1,6 +1,6 @@
 // Ratib 3.1.9: cache identity is unique to this app's scope.
-const CACHE_VERSION='v245-official-cloud-backup-confirm-3.6.130';
-const APP_RELEASE={"version":"3.6.130","build":"p13000","highlights":[],"changes":["تصحيح الأخطاء في بعض الأجهزة"]};
+const CACHE_VERSION='v246-official-touch-sound-haptics-3.6.131';
+const APP_RELEASE={"version":"3.6.131","build":"p13100","highlights":[],"changes":["تصحيح الأخطاء في بعض الأجهزة"]};
 const CACHE_PREFIX=`ratib:${self.registration.scope}:`;
 const CACHE_NAME=CACHE_PREFIX+CACHE_VERSION;
 const APP_SHELL=[

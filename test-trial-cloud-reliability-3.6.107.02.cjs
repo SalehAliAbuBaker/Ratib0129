@@ -52,7 +52,7 @@ function fixture() {
   const context = {
     crypto: webcrypto, TextEncoder, URL, AbortController, setTimeout, clearTimeout, encodeURIComponent,
     location: { protocol: 'https:', hostname: 'ratibtrial.pages.dev' },
-    navigator: { onLine: true }, window: { google: null },
+    navigator: { onLine: true }, window: { google: null, RatibBackupDueCard: { check: () => { state.reminderChecks = (state.reminderChecks || 0) + 1; } } },
     document: { getElementById: id => documents[id] || null, activeElement: null },
     store, _appExited: false, fetch,
     _pad2: x => String(x).padStart(2, '0'),
@@ -132,12 +132,12 @@ function fixture() {
     await f.checkCloudBackupDue();
     assert.equal(state.posts, 0);
     assert.equal(state.requestUrls.length, 0);
-    assert.equal(saved.cloud_backup_cfg.lastStatus, 'needs_authorization');
+    assert.equal(state.reminderChecks, 1,'Due notification is delegated to user-choice card');
+    assert.equal(saved.cloud_backup_cfg.lastStatus, undefined,'No automatic backup state change');
     assert.equal(saved.cloud_backup_cfg.lastTime, '');
-    assert(status.textContent.includes('إذن Google'));
     context.navigator.onLine = false;
     await f.checkCloudBackupDue();
-    assert.equal(saved.cloud_backup_cfg.lastStatus, 'offline');
+    assert.equal(state.reminderChecks, 2,'Offline case still gives user choice without OAuth');
     assert.equal(state.posts, 0);
   }
   // Restore only closes the selector when import validation and persist succeeded.
@@ -155,5 +155,5 @@ function fixture() {
   assert(html.includes('const RATIB_RELEASE={"version":"'+currentRelease+'"'));
   for(const source of [...html.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script>/gi)].map(m=>m[1]).filter(Boolean))new Function(source);
   new Function(sw);
-  console.log('PASS trial 3.6.107.09: verified Drive metadata, durable interrupted uploads, no duplicates, OAuth/offline notifications, restore guards and unchanged finance surface');
+  console.log('PASS trial 3.6.107.09: verified Drive metadata, durable interrupted uploads, no duplicates, user-choice OAuth/offline reminders, restore guards and unchanged finance surface');
 })().catch(e => { console.error(e); process.exitCode=1; });

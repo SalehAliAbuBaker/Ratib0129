@@ -17,7 +17,7 @@ assert(html.includes("const CLOUD_LEGACY_FOLDER_NAME = 'Ratib Trial Backups'"));
 assert(html.includes("const CLOUD_FILE_PREFIX = 'ratib-cloud-'"));
 assert(html.includes("const CLOUD_LEGACY_PREFIX = 'ratib-trial-cloud-'"));
 assert(html.includes("const RATIB_GOOGLE_CLIENT_ID = '127962228897-k19m5nstjaun38k38348er1c9cf8vemb.apps.googleusercontent.com'"));
-assert(html.includes("const dest = interactive ? (document.getElementById('cloudUploadDestination')?.value || 'official') : 'official';"));
+assert(html.includes("const dest = destinationOverride === 'official' ? 'official' : interactive ? (document.getElementById('cloudUploadDestination')?.value || 'official') : 'official';"));
 assert(html.includes("if (dest === 'trial') {"));
 assert(html.includes("const prefix = dest === 'official' ? CLOUD_FILE_PREFIX : CLOUD_LEGACY_PREFIX;"));
 assert(html.includes("const trialId = await findDriveFolder(token, CLOUD_LEGACY_FOLDER_NAME);"));

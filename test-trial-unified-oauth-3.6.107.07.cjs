@@ -17,7 +17,7 @@ assert(html.includes("const CLOUD_FOLDER_NAME = 'Ratib Backups'"));
 assert(html.includes("const CLOUD_FILE_PREFIX = 'ratib-cloud-'"));
 assert(html.includes("const CLOUD_LEGACY_FOLDER_NAME = 'Ratib Trial Backups'"));
 assert(html.includes("const CLOUD_LEGACY_PREFIX = 'ratib-trial-cloud-'"));
-assert(html.includes("const dest = interactive ? (document.getElementById('cloudUploadDestination')?.value || 'official') : 'official'"));
+assert(html.includes("const dest = destinationOverride === 'official' ? 'official' : interactive ? (document.getElementById('cloudUploadDestination')?.value || 'official') : 'official'"));
 assert(html.includes("if (!interactive || !confirm('سترفع نسخة جديدة إلى مجلد التجريبية دون استبدال النسخ الموجودة. متابعة؟')) return false;"));
 assert(html.includes('await verifyCloudFile(token, pending)'));
 assert(html.includes("const DRIVE_SCOPE = 'https://www.googleapis.com/auth/drive.file'"));

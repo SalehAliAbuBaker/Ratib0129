@@ -2,10 +2,10 @@
 const assert=require('node:assert/strict'),fs=require('node:fs'),{JSDOM}=require('jsdom');
 const html=fs.readFileSync('index.html','utf8'),css=fs.readFileSync('ratib-mobile-vouchers-3.6.111.css','utf8');
 const sw=fs.readFileSync('sw.js','utf8'),pkg=require('./package.json'),doc=new JSDOM(html).window.document;
-assert.equal(pkg.version,'3.6.120');
-assert(html.includes('"version":"3.6.120","build":"p12000"'));
-assert(sw.includes('v235-official-statement-totals-3.6.120'));
-assert(doc.querySelector('link[href="./ratib-mobile-vouchers-3.6.111.css?v=3.6.120"]'));
+assert.equal(pkg.version,'3.6.121');
+assert(html.includes('"version":"3.6.121","build":"p12100"'));
+assert(sw.includes('v236-official-statement-position-3.6.121'));
+assert(doc.querySelector('link[href="./ratib-mobile-vouchers-3.6.111.css?v=3.6.121"]'));
 assert(css.includes('@media screen and (max-width:640px)'));
 for(const fragment of ['#cashFlowCard>h2>button','#importedOpeningVoucherModal #importedOpeningRows>tr','#importedOpeningVoucherModal #importedOpeningRows>tr>td:last-child button','writing-mode:horizontal-tb!important','grid-template-columns:repeat(2,minmax(0,1fr))!important','@media print'])assert(css.includes(fragment),fragment);
 for(const label of ['الحساب','العملة','مدين','دائن','عملة التقييم','مدين تقييم','دائن تقييم','التاريخ','مرجع المصدر','البيان'])assert(css.includes('content:"'+label+'"'));

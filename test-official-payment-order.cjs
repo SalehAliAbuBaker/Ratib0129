@@ -42,6 +42,6 @@ assert.equal(beneficiary.closest('label').parentElement,grid,'compound journal u
 assert(!beneficiary.closest('label').classList.contains('ratib-payment-beneficiary-row'));
 assert(css.includes('#multiVoucherCard.spend-voucher > .ratib-payment-beneficiary-row'));
 assert(css.includes('@media screen'),'layout styles only on screen');
-assert(sw.includes('v239-official-mobile-date-tafqit-3.6.124'));
+assert(sw.includes('v240-official-trial-ui-bridge-3.6.125'));
 dom.window.close();
 console.log('PASS official payment account → optional beneficiary → general statement; preserved controls and receipt/compound modes');

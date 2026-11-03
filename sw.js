@@ -1,6 +1,6 @@
 // Ratib 3.1.9: cache identity is unique to this app's scope.
-const CACHE_VERSION='v239-official-mobile-date-tafqit-3.6.124';
-const APP_RELEASE={"version":"3.6.124","build":"p12400","highlights":[],"changes":["تصحيح الأخطاء في بعض الأجهزة"]};
+const CACHE_VERSION='v240-official-trial-ui-bridge-3.6.125';
+const APP_RELEASE={"version":"3.6.125","build":"p12500","highlights":[],"changes":["تصحيح الأخطاء في بعض الأجهزة"]};
 const CACHE_PREFIX=`ratib:${self.registration.scope}:`;
 const CACHE_NAME=CACHE_PREFIX+CACHE_VERSION;
 const APP_SHELL=[
@@ -16,6 +16,8 @@ const APP_SHELL=[
   "./ratib-statement-compact-3.6.119.css",
   "./ratib-statement-compact-3.6.119.js",
   "./ratib-display-separation-3.6.122.js",
+  "./ratib-trial-voucher-statement-3.6.125.js",
+  "./ratib-trial-voucher-statement-3.6.125.css",
 "./ratib-receipt-payer-3.6.115.css",
 "./ratib-date-display.js",
 "./ratib-umalqura-output-3.6.116.css",

@@ -3,12 +3,12 @@ const assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('nod
 const html=fs.readFileSync('index.html','utf8');
 const css=fs.readFileSync('ratib-opening-leave-3.6.118.css','utf8');
 const pkg=require('./package.json'),sw=fs.readFileSync('sw.js','utf8');
-assert.equal(pkg.version,'3.6.127');
-assert(html.includes('const RATIB_RELEASE={"version":"3.6.127","build":"p12700"'));
-assert(sw.includes('v242-official-receipt-balance-lock-3.6.127'));
+assert.equal(pkg.version,'3.6.128');
+assert(html.includes('const RATIB_RELEASE={"version":"3.6.128","build":"p12800"'));
+assert(sw.includes('v243-official-edge-back-save-cues-3.6.128'));
 assert(sw.includes('"./ratib-opening-leave-3.6.118.css"'));
-assert(html.includes('ratib-opening-leave-3.6.118.css?v=3.6.127'));
-assert(html.includes('ratib-voucher-polish-3.6.117.css?v=3.6.127'),'prior approved 3-way voucher stays');
+assert(html.includes('ratib-opening-leave-3.6.118.css?v=3.6.128'));
+assert(html.includes('ratib-voucher-polish-3.6.117.css?v=3.6.128'),'prior approved 3-way voucher stays');
 assert(html.includes("openingLeave.id='ratibOpeningLeaveModal'"),'opening editor contains native dialog child');
 assert(html.includes('حفظ القيد والخروج')&&html.includes('الخروج دون حفظ')&&html.includes('إلغاء — البقاء في القيد'));
 assert(html.includes("if(importedOpeningEdit?.dirty){ratibShowOpeningLeaveDecision();return;}"),'dirty close uses modal');

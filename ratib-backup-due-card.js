@@ -1,4 +1,4 @@
-/* Ratib trial 3.6.109.16 — explicit backup due card. No background OAuth popups. */
+/* Ratib trial 3.6.109.17 — explicit backup due card. No background OAuth popups. */
 (function(global){
  'use strict';
  const KEY='ratib_backup_reminder_postpone_until_v1';
@@ -73,8 +73,8 @@
   if(feedback)feedback.textContent='يجري حفظ النسخ المطلوبة والتحقق من النتيجة.';
   try{
    // Start Google OAuth synchronously within this explicit tap; never from an interval.
-   const cloudTask=due.cloud?Promise.resolve().then(()=>runCloudBackup(true)):null;
-   const localTask=due.local?Promise.resolve().then(()=>writeAutoBackup()):null;
+   const cloudTask=due.cloud?runCloudBackup(true,'trial'):null;
+   const localTask=due.local?writeAutoBackup():null;
    const results=await Promise.all([
     cloudTask?cloudTask.catch(error=>{console.warn('Manual cloud backup:',error);return false;}):Promise.resolve(true),
     localTask?localTask.catch(error=>{console.warn('Manual local backup:',error);return false;}):Promise.resolve(true)

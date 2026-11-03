@@ -2,8 +2,8 @@
 const assert=require('node:assert/strict'),fs=require('node:fs'),{JSDOM}=require('jsdom');
 const script=fs.readFileSync('ratib-backup-due-card.js','utf8');
 const html=fs.readFileSync('index.html','utf8'),sw=fs.readFileSync('sw.js','utf8');
-assert(html.includes('ratib-backup-due-card.js?v=3.6.109.16'));
-assert(html.includes('ratib-backup-due-card.css?v=3.6.109.16'));
+assert(html.includes('ratib-backup-due-card.js?v=3.6.109.17'));
+assert(html.includes('ratib-backup-due-card.css?v=3.6.109.17'));
 assert(sw.includes('"./ratib-backup-due-card.js"')&&sw.includes('"./ratib-backup-due-card.css"'));
 assert(html.includes('window.RatibBackupDueCard?.check?.()'));
 assert(!html.includes('const ok = await runCloudBackup(false);'),'No background Cloud upload without user choice');
@@ -15,7 +15,7 @@ async function test(){
  w.store={get:(k,def=null)=>Object.hasOwn(values,k)?values[k]:def,set:(k,v)=>{values[k]=v;}};
  w.cloudBackupDue=()=>cloud;
  w.writeAutoBackup=async()=>{localCalls++;values.auto_backup_last_time=new Date().toISOString();return true;};
- w.runCloudBackup=async(interactive)=>{assert.equal(interactive,true);cloudCalls++;cloud=false;return true;};
+ w.runCloudBackup=async(interactive,destination)=>{assert.equal(interactive,true);assert.equal(destination,'trial');cloudCalls++;cloud=false;return true;};
  w.flushStorage=async()=>{};
  w.showToast=()=>{};
  w.eval(script);

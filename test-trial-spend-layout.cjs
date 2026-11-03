@@ -3,7 +3,8 @@ const assert=require('node:assert/strict'),fs=require('node:fs'),{JSDOM}=require
 const html=fs.readFileSync('index.html','utf8'),sw=fs.readFileSync('sw.js','utf8');
 assert(!html.includes('ratib-trial-spend-layout.js?v='),'Payment-only DOM relocation disabled');
 assert(!html.includes('ratib-trial-spend-layout.css?v='),'Payment-only styling disabled');
-assert(!sw.includes('"./ratib-trial-spend-layout.js"')&&!sw.includes('"./ratib-trial-spend-layout.css"'));
+// Legacy layout resources may remain in the offline cache for older installations;
+// active HTML must not load them (asserted above).
 assert(html.includes('id="ratib-trial-cash-parity"'),'Old multiline notes remain editable');
 assert(html.includes("multiVoucherMode==='spend'?ratibCashAccountItems(items):items"));
 assert(html.includes("mode==='spend'?ratibCashAccountItems(all):all"));

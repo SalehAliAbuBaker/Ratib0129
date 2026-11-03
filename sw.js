@@ -1,6 +1,6 @@
 // Ratib 3.1.9: cache identity is unique to this app's scope.
-const CACHE_VERSION='v243-official-edge-back-save-cues-3.6.128';
-const APP_RELEASE={"version":"3.6.128","build":"p12800","highlights":[],"changes":["تصحيح الأخطاء في بعض الأجهزة"]};
+const CACHE_VERSION='v244-official-cash-pulse-3.6.129';
+const APP_RELEASE={"version":"3.6.129","build":"p12900","highlights":[],"changes":["تصحيح الأخطاء في بعض الأجهزة"]};
 const CACHE_PREFIX=`ratib:${self.registration.scope}:`;
 const CACHE_NAME=CACHE_PREFIX+CACHE_VERSION;
 const APP_SHELL=[
@@ -31,6 +31,8 @@ const APP_SHELL=[
 "./ratib-feedback-3.6.149.css",
 "./ratib-global-button-size-3.6.146.css",
   "./ratib-dashboard-finance-3.6.144.css",
+  "./ratib-cash-pulse.css",
+  "./ratib-cash-pulse.js",
   "./ratib-dashboard-finance-3.6.144.js",
   "./ratib-trial-ui-3.6.143.css",
   "./ratib-trial-ui-3.6.143.js",

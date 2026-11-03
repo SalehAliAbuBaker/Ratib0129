@@ -2,12 +2,12 @@
 const fs=require('node:fs'),assert=require('node:assert/strict'),{JSDOM}=require('jsdom');
 const html=fs.readFileSync('index.html','utf8'),css=fs.readFileSync('ratib-receipt-payer-3.6.115.css','utf8'),sw=fs.readFileSync('sw.js','utf8'),pkg=require('./package.json');
 const doc=new JSDOM(html).window.document;
-assert.equal(pkg.version,'3.6.129');
-assert(html.includes('const RATIB_RELEASE={"version":"3.6.129","build":"p12900"'));
-assert(sw.includes('const APP_RELEASE={"version":"3.6.129","build":"p12900"'));
-assert(sw.includes('v244-official-cash-pulse-3.6.129'));
+assert.equal(pkg.version,'3.6.130');
+assert(html.includes('const RATIB_RELEASE={"version":"3.6.130","build":"p13000"'));
+assert(sw.includes('const APP_RELEASE={"version":"3.6.130","build":"p13000"'));
+assert(sw.includes('v245-official-cloud-backup-confirm-3.6.130'));
 assert(sw.includes('"./ratib-receipt-payer-3.6.115.css"'));
-assert(doc.querySelector('link[href="./ratib-receipt-payer-3.6.115.css?v=3.6.129"]'));
+assert(doc.querySelector('link[href="./ratib-receipt-payer-3.6.115.css?v=3.6.130"]'));
 const card=doc.getElementById('multiVoucherCard'),input=doc.getElementById('multiVoucherBeneficiary');
 assert(card&&input);
 assert.equal(card.querySelectorAll('#multiVoucherBeneficiary').length,1);

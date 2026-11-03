@@ -175,14 +175,26 @@
  }
 }
 /* At large widths keep a complete tabular statement with more space for the note. */
+/* 3.6.122 desktop correction. Preserve the exact number and order of user-selected
+   statement columns. ratibStatementSettings sets their grid-template-columns inline.
+   Never override that with a fixed seven-column template. */
 @media screen and (min-width:1200px){
+ #pageAccountOperations .account-statement-table,
+ #pageAccountOperations .account-statement-grid{
+  width:100%!important;max-width:100%!important;min-width:0!important;
+  box-sizing:border-box!important;
+ }
  #pageAccountOperations .account-statement-row.header,
  #pageAccountOperations .account-statement-row[data-tx-id]{
-  grid-template-columns:minmax(130px,1.05fr) minmax(95px,.8fr) minmax(285px,3fr)
-   minmax(135px,1.4fr) minmax(95px,1fr) minmax(95px,1fr) minmax(143px,1.3fr)!important;
+  box-sizing:border-box!important;min-width:0!important;width:100%!important;
+  gap:8px 10px!important;
  }
  #pageAccountOperations .account-statement-row[data-tx-id]>.ratib-account-row-note{
-  min-width:0!important;overflow-wrap:break-word!important;line-height:1.5!important;
-  white-space:normal!important;
+  min-width:0!important;white-space:normal!important;
+  overflow:visible!important;text-overflow:clip!important;overflow-wrap:break-word!important;
+  line-height:1.55!important;text-align:right!important;
+ }
+ #pageAccountOperations .account-statement-row.header>span{
+  min-width:0!important;overflow-wrap:break-word!important;
  }
 }

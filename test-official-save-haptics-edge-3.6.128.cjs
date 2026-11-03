@@ -1,0 +1,61 @@
+'use strict';
+const assert=require('node:assert/strict'),fs=require('node:fs');
+const {JSDOM}=require('jsdom');
+const feedback=fs.readFileSync('ratib-feedback-3.6.149.js','utf8');
+const edge=fs.readFileSync('ratib-mobile-edge-back-3.6.128.js','utf8');
+const html=fs.readFileSync('index.html','utf8'),sw=fs.readFileSync('sw.js','utf8');
+assert.equal(require('./package.json').version,'3.6.128');
+assert(html.includes('const RATIB_RELEASE={"version":"3.6.128","build":"p12800"'));
+assert(sw.includes('v243-official-edge-back-save-cues-3.6.128'));
+assert(html.includes('ratib-feedback-3.6.149.js?v=3.6.128'));
+assert(html.includes('ratib-mobile-edge-back-3.6.128.js?v=3.6.128'));
+assert(sw.includes('"./ratib-mobile-edge-back-3.6.128.js"'));
+assert(!feedback.includes('store.set(\'transactions\''),'Feedback must not mutate ledger');
+const dom=new JSDOM('<!doctype html><html lang="ar"><body>'+
+ '<div id="toastStack" class="toast-stack"></div>'+
+ '<div id="notificationSoundCard"><div class="settings-accordion-body"></div></div>'+
+ '<div class="account-currency-track"></div></body></html>',{url:'https://ratib.test/',runScripts:'outside-only'});
+const w=dom.window,d=w.document;
+Object.defineProperty(w,'innerWidth',{configurable:true,value:390});
+let vib=[],back=0,storeData={};
+Object.defineProperty(w.navigator,'vibrate',{configurable:true,value:pattern=>{vib.push(pattern);return true;}});
+w.eval('var store={get:(k,v)=>window._storeData[k]??v,set:(k,v)=>window._storeData[k]=v};');
+w._storeData=storeData;w.goBackInApp=()=>{back++;};
+w.eval(feedback);
+d.dispatchEvent(new w.Event('DOMContentLoaded'));
+assert.equal(w.RatibFeedback.read().saveCue,'both');
+assert(d.querySelector('[data-feedback-select="saveCue"]'));
+w.RatibFeedback.toast('تم حفظ السند بنجاح','success');
+assert.equal(vib.length,1,'Successful save vibrates');
+w.RatibFeedback.toast('لم يكتمل حفظ السند','error',3000,{force:true});
+assert.equal(vib.length,1,'Failed save never vibrates');
+w.RatibFeedback.write({saveCue:'silent'});
+assert.equal(w.RatibFeedback.play('save','',true),false);
+assert.equal(vib.length,1,'Silent setting is respected');
+w.RatibFeedback.write({saveCue:'vibration'});
+assert.equal(w.RatibFeedback.play('save','',true),true);
+assert.equal(vib.length,2,'Vibration mode works even without Web Audio');
+w.RatibFeedback.write({saveCue:'sound'});
+w.RatibFeedback.play('save','',true);
+assert.equal(vib.length,2,'Sound-only never vibrates');
+w.eval(edge);
+function touch(type,target,x,y){
+ const e=new w.Event(type,{bubbles:true,cancelable:true});
+ const list=[{clientX:x,clientY:y}];
+ Object.defineProperty(e,type==='touchend'?'changedTouches':'touches',{value:list});
+ target.dispatchEvent(e);
+ return e;
+}
+touch('touchstart',d.body,3,250);
+const moved=touch('touchmove',d.body,60,255);
+touch('touchend',d.body,125,260);
+assert.equal(back,1,'Swipe from left screen edge calls existing Ratib Back action');
+assert(moved.defaultPrevented,'Claimed edge swipe prevents duplicate horizontal scroll');
+touch('touchstart',d.body,3,150);touch('touchmove',d.body,9,260);touch('touchend',d.body,100,350);
+assert.equal(back,1,'Vertical scroll must never trigger Back');
+const currency=d.querySelector('.account-currency-track');
+touch('touchstart',currency,3,200);touch('touchmove',currency,120,202);touch('touchend',currency,180,202);
+assert.equal(back,1,'Currency horizontal swipe stays functional');
+assert(!edge.includes('history.pushState'),'Edge gesture cannot pollute history');
+w.close();
+console.log('PASS official 3.6.128: saving tone/vibration preferences and cautious swipe-back without financial writes');

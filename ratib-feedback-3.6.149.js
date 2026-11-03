@@ -3,7 +3,7 @@
 (function(){
 'use strict';
 const KEY='ratib_feedback_preferences_v1';
-const DEFAULTS={master:true,save:true,reminder:true,warning:true,error:true,volume:'medium',style:'balanced'};
+const DEFAULTS={master:true,save:true,reminder:true,warning:true,error:true,volume:'medium',style:'balanced',saveCue:'both'};
 const LEVELS={low:.48,medium:.7,high:1},STYLES=['soft','balanced','clear'];
 const $=id=>document.getElementById(id);
 const safeText=value=>String(value==null?'':value);
@@ -17,6 +17,7 @@ const read=()=>{
  for(const name of ['master','save','reminder','warning','error'])cfg[name]=cfg[name]!==false;
  if(!Object.prototype.hasOwnProperty.call(LEVELS,cfg.volume))cfg.volume='medium';
  if(!STYLES.includes(cfg.style))cfg.style='balanced';
+ if(!['both','sound','vibration','silent'].includes(cfg.saveCue))cfg.saveCue='both';
  return cfg;
 };
 function write(patch){
@@ -49,16 +50,24 @@ function play(kind='reminder',priority='',test=false){
  if(cfg[category]===false||(category==='reminder'&&muteReminders()))return false;
  const now=Date.now(),id=category==='reminder'?'reminder':kind;
  if(!test&&now-(lastPlayed.get(id)||0)<(category==='reminder'?1800:category==='save'?650:1000))return false;
- const ctx=availableAudio();if(!ctx)return false;
+ if(kind==='save'&&cfg.saveCue==='silent')return false;
+ let vibration=false;
+ if(kind==='save'&&['both','vibration'].includes(cfg.saveCue)){
+  try{vibration=typeof navigator.vibrate==='function'&&navigator.vibrate([65,40,65])===true;}
+  catch(_){vibration=false;}
+ }
+ lastPlayed.set(id,now);
+ if(kind==='save'&&cfg.saveCue==='vibration')return vibration;
+ const ctx=availableAudio();if(!ctx)return vibration;
  const steps=PATTERNS[kind]||PATTERNS.reminder;
  const makeSound=()=>{
   if(ctx.state!=='running')return;
   const base=ctx.currentTime+.025;
-  const gainScale=(cfg.style==='soft'?.12:cfg.style==='clear'?.21:.16)*LEVELS[cfg.volume];
+  const gainScale=(kind==='save'?.25:cfg.style==='soft'?.12:cfg.style==='clear'?.21:.16)*LEVELS[cfg.volume];
   try{
    steps.forEach(([offset,frequency,duration],i)=>{
     const osc=ctx.createOscillator(),env=ctx.createGain();
-    osc.type=cfg.style==='clear'?'triangle':'sine';
+    osc.type=kind==='save'||cfg.style==='clear'?'triangle':'sine';
     osc.frequency.setValueAtTime(frequency,base+offset);
     env.gain.setValueAtTime(.0001,base+offset);
     env.gain.exponentialRampToValueAtTime(gainScale*(i===steps.length-1?1:.82),base+offset+.018);
@@ -70,7 +79,7 @@ function play(kind='reminder',priority='',test=false){
  };
  if(ctx.state==='suspended')ctx.resume().then(makeSound).catch(()=>{});
  else makeSound();
- lastPlayed.set(id,now);return true;
+ return true;
 }
 const isReminderMessage=message=>/تذكير مستحق|حان موعد التذكير/.test(message);
 const isSaveMessage=message=>/تم (?:حفظ|الحفظ)|حُفظ|حفظ .* بنجاح|تمت (?:إضافة|عملية الحفظ)/.test(message);
@@ -157,7 +166,7 @@ function syncUI(){
  for(const k of ['master','save','reminder','warning','error']){
   const input=card.querySelector('[data-feedback-toggle="'+k+'"]');if(input)input.checked=cfg[k];
  }
- for(const k of ['volume','style']){const select=card.querySelector('[data-feedback-select="'+k+'"]');if(select)select.value=cfg[k];}
+ for(const k of ['volume','style','saveCue']){const select=card.querySelector('[data-feedback-select="'+k+'"]');if(select)select.value=cfg[k];}
  const status=$('notificationSoundStatus');
  if(status)status.textContent=!cfg.master?'مكتوم بالكامل':muteReminders()?'التذكيرات مكتومة':'مفعّل';
 }
@@ -167,7 +176,8 @@ function install(){
  const box=document.createElement('section');box.id='ratibFeedbackSettings';box.className='ratib-feedback-settings';
  box.innerHTML='<h3>🎶 أصوات الحفظ والتذكير والتنبيه</h3><p>أصوات مختلفة قصيرة، ومرتبطة بنجاح العملية الفعلي. يمكنك كتمها أو تغيير وضوحها.</p>'+
  '<label class="ratib-feedback-setting-row"><span>تفعيل جميع الأصوات</span><input type="checkbox" data-feedback-toggle="master"></label>'+
- '<label class="ratib-feedback-setting-row"><span>صوت نجاح الحفظ</span><input type="checkbox" data-feedback-toggle="save"></label>'+
+ '<label class="ratib-feedback-setting-row"><span>تنبيه نجاح الحفظ</span><input type="checkbox" data-feedback-toggle="save"></label>'+
+ '<div class="ratib-feedback-select-row"><label for="ratibSaveCue">عند الحفظ</label><select id="ratibSaveCue" data-feedback-select="saveCue"><option value="both">نغمة واضحة واهتزاز</option><option value="sound">نغمة فقط</option><option value="vibration">اهتزاز فقط</option><option value="silent">صامت</option></select></div>'+
  '<label class="ratib-feedback-setting-row"><span>أصوات التذكيرات</span><input type="checkbox" data-feedback-toggle="reminder"></label>'+
  '<label class="ratib-feedback-setting-row"><span>أصوات التحذيرات</span><input type="checkbox" data-feedback-toggle="warning"></label>'+
  '<label class="ratib-feedback-setting-row"><span>صوت الأخطاء</span><input type="checkbox" data-feedback-toggle="error"></label>'+
@@ -175,7 +185,7 @@ function install(){
  '<div class="ratib-feedback-select-row"><label for="ratibFeedbackStyle">طابع النغمة</label><select id="ratibFeedbackStyle" data-feedback-select="style"><option value="soft">هادئ</option><option value="balanced">متوازن</option><option value="clear">واضح</option></select></div>'+
  '<div class="ratib-feedback-try"><button type="button" data-feedback-test="save">تجربة الحفظ</button><button type="button" data-feedback-test="reminder">تجربة التذكير</button><button type="button" data-feedback-test="urgent">تجربة العاجل</button><button type="button" data-feedback-test="error">تجربة الخطأ</button></div>'+
  '<button type="button" id="ratibFeedbackDefaults" class="btn btn-ghost">استعادة إعدادات الصوت الافتراضية</button>'+
- '<p class="ratib-feedback-guidance">قد يحتاج المتصفح إلى لمسة أولى لتفعيل الصوت. تنبيهات نسخة الويب تعمل أثناء فتح التطبيق، ولا تضمن إصدار صوت بعد إغلاقه.</p>';
+ '<p class="ratib-feedback-guidance">النغمة تظهر عند نجاح الحفظ فقط. يتطلب الصوت تفاعلًا مع الصفحة، والاهتزاز يعمل فقط في المتصفحات والأجهزة التي تدعمه. لا يصدر تنبيه عند فشل الحفظ.</p>';
  parent.append(box);
  for(const input of box.querySelectorAll('[data-feedback-toggle]'))input.addEventListener('change',()=>write({[input.dataset.feedbackToggle]:input.checked}));
  for(const select of box.querySelectorAll('[data-feedback-select]'))select.addEventListener('change',()=>write({[select.dataset.feedbackSelect]:select.value}));
@@ -188,5 +198,6 @@ function install(){
 }
 window.RatibFeedback={toast,play,reminder,read,write,syncUI,install};
 document.addEventListener('pointerdown',unlock,{passive:true});
+document.addEventListener('keydown',unlock,{passive:true});
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',install,{once:true});else install();
 })();

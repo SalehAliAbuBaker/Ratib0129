@@ -1,10 +1,11 @@
 // Ratib 3.1.9: cache identity is unique to this app's scope.
 // Retired cache for compatibility checks: v261-trial-muyassar-ui-3.6.109.04
-const CACHE_VERSION='v274-trial-backup-due-card-fix-3.6.109.17';
-const APP_RELEASE={"version":"3.6.109.17","highlights":["بطاقة استحقاق النسخ الاحتياطي السحابي والمحلي مع خيار الحفظ أو التأجيل."],"changes":["بطاقة واحدة عند استحقاق النسخ اليومي على Google Drive أو النسخة المحلية المفعّلة بعد ثلاث ساعات دون حفظ ناجح.","الحفظ السحابي لا يبدأ دون النقر على «حفظ النسخ الآن»، ويُستخدم مجلد النسخ التجريبي فقط.","زر «تأجيل» يؤخر التذكير ساعة، ولا يوقف الحفظ المحلي التلقائي.","تأكيد كل نسخة على حدة وعدم الادعاء بإتمام الحفظ عند تعذر ذلك."]};
+const CACHE_VERSION='v275-trial-statement-alignment-3.6.109.18';
+const APP_RELEASE={"version":"3.6.109.18","highlights":["ضبط محاذاة مبالغ المدين والدائن والرصيد في كشف الحساب."],"changes":["توحيد شبكة أعمدة العناوين والحركات والإجمالي، وإلغاء المساحات المحجوزة للأعمدة المخفية.","جعل المدين والدائن والرصيد تحت عناوينها، وعرض قيمة الإجمالي وعملته في سطر واحد.","تحسين إجماليات الجوال دون التأثير على بطاقات العمليات.","الإبقاء على الحسابات والحركات وعمليات الطباعة دون تغيير."]};
 const CACHE_PREFIX=`ratib:${self.registration.scope}:`;
 const CACHE_NAME=CACHE_PREFIX+CACHE_VERSION;
 const APP_SHELL=[
+  "./ratib-statement-grid-alignment.css",
   "./ratib-backup-due-card.js",
   "./ratib-backup-due-card.css",
   "./ratib-cash-pulse.css",

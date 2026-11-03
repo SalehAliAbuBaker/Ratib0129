@@ -1,18 +1,16 @@
-/* Ratib official 3.6.123 — amount in words belongs directly below the cash voucher's
-   TOP amount field, not below the beneficiary or inside an editable field. Display-only:
-   preserve the existing #spendTafqit node, its text and all input event listeners. */
+/* Ratib official 3.6.124 — display-only positioning for cash receipt/payment vouchers.
+   Keep the SAME amount-in-words node, its text and all financial input handlers.
+   The caption is a full-width grid row under the TOP amount/tools row. */
 (function(){
   'use strict';
   function positionAmountWords(){
     const card=document.getElementById('multiVoucherCard');
-    const money=card?.querySelector('.multi-voucher-grid > #ratibHeaderMoney');
-    const amountRow=money?.querySelector(':scope > .ratib-money-row');
+    const grid=card?.querySelector(':scope > .multi-voucher-grid');
+    const money=grid?.querySelector(':scope > #ratibHeaderMoney');
     const words=card?.querySelector('#spendTafqit');
-    if(!card||!money||!amountRow||!words)return;
-    // Keep the original tafqit as a full-width caption within the amount cell.
-    // The row will grow naturally; the caption never floats over other fields.
-    if(words.parentElement!==money||words.previousElementSibling!==amountRow){
-      amountRow.insertAdjacentElement('afterend',words);
+    if(!card||!grid||!money||!words)return;
+    if(words.parentElement!==grid||words.previousElementSibling!==money){
+      money.insertAdjacentElement('afterend',words);
     }
   }
   function init(){
@@ -24,8 +22,8 @@
       pending=true;
       queueMicrotask(()=>{pending=false;positionAmountWords();});
     }
-    // Other voucher setup wrappers may reparent tafqit or recreate the top-amount box.
-    // Only react to those structural changes, not typing or text-value changes.
+    // Another setup wrapper might reparent the original caption, or create the header.
+    // Only respond to structural additions; never react to typing or rewrite any input.
     new MutationObserver(records=>{
       if(records.some(record=>Array.from(record.addedNodes).some(node=>node.nodeType===1&&
         (node.id==='spendTafqit'||node.id==='ratibHeaderMoney'||

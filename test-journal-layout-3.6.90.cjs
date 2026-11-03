@@ -80,9 +80,9 @@ async function main(){
  assert.equal(d.getElementById('voucherNoteInput').value,'أمانة');
  assert(d.getElementById('addNewDebitAccBtn').hidden&&d.getElementById('addNewCreditAccBtn').hidden,'+ buttons removed from simple entry UI');
  assert.equal(header.querySelector('#swapAccountsBtn')?.textContent,'⇄','Original swap button remains active in header');
- assert(d.getElementById('voucherRecipientGroup').classList.contains('ratib-simple-recipient-collapsed'),'Empty optional recipient starts collapsed');
- d.getElementById('ratibSimpleExtraBtn').click();
- assert(!d.getElementById('voucherRecipientGroup').classList.contains('ratib-simple-recipient-collapsed'));
+ assert(!d.getElementById('voucherRecipientGroup').classList.contains('ratib-simple-recipient-collapsed'),'Optional related party is directly visible');
+ assert.equal(d.getElementById('ratibSimpleExtraBtn'),null,'Unneeded extra-details control is removed');
+ assert(d.getElementById('voucherRecipientInput').placeholder.includes('اختياري'),'Optional field has its own placeholder');
  assert.equal(d.getElementById('budgetSplitInput').value,'200','Budget model input retained');
  const summary=d.getElementById('ratibSimpleBudgetOverview');
  assert(summary.textContent.includes('المتبقي: 0'),'Budget state is visible when collapsed');

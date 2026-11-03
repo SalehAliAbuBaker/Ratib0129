@@ -76,7 +76,7 @@ feedback.write({master:false,tap:true});press('btn1');
 assert.equal(vibrations.length,7,'Global mute disables touch haptics');
 feedback.write({master:true,tap:false,save:true,saveCue:'both'});
 feedback.toast('تم حفظ السند بنجاح','success');
-assert.deepEqual(vibrations.at(-1),[65,40,65],'Saving-success haptic works independently of tap');
+assert.deepEqual(Array.from(vibrations.at(-1)),[65,40,65],'Saving-success haptic works independently of tap');
 const count=vibrations.length;
 feedback.toast('تعذر حفظ السند','error',3000,{force:true});
 assert.equal(vibrations.length,count,'Failed saves do not play success haptic');

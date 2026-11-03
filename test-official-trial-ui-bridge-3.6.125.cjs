@@ -7,12 +7,12 @@ const sw=fs.readFileSync('sw.js','utf8');
 const css=fs.readFileSync('ratib-trial-voucher-statement-3.6.125.css','utf8');
 const js=fs.readFileSync('ratib-trial-voucher-statement-3.6.125.js','utf8');
 const pkg=require('./package.json');
-assert.equal(pkg.version,'3.6.126');
-assert(html.includes('const RATIB_RELEASE={"version":"3.6.126","build":"p12600"'));
-assert(sw.includes('const APP_RELEASE={"version":"3.6.126","build":"p12600"'));
-assert(sw.includes("v241-official-receipt-parity-3.6.126"));
+assert.equal(pkg.version,'3.6.127');
+assert(html.includes('const RATIB_RELEASE={"version":"3.6.127","build":"p12700"'));
+assert(sw.includes('const APP_RELEASE={"version":"3.6.127","build":"p12700"'));
+assert(sw.includes("v242-official-receipt-balance-lock-3.6.127"));
 for(const file of ['ratib-trial-voucher-statement-3.6.125.js','ratib-trial-voucher-statement-3.6.125.css']){
-  assert(html.includes('./'+file+'?v=3.6.126'),'Versioned new asset '+file);
+  assert(html.includes('./'+file+'?v=3.6.127'),'Versioned new asset '+file);
   assert(sw.includes('"./'+file+'"'),'Asset cached for offline: '+file);
 }
 assert(css.includes('grid-template-columns:minmax(70px,.74fr) minmax(0,2.26fr)'),'Trial cash header ratio');

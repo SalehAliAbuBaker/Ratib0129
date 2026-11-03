@@ -3,11 +3,11 @@ const fs=require('node:fs'),assert=require('node:assert/strict'),vm=require('nod
 const html=fs.readFileSync('index.html','utf8'),css=fs.readFileSync('ratib-account-movement-search-3.6.114.css','utf8'),
  sw=fs.readFileSync('sw.js','utf8'),pkg=require('./package.json');
 const doc=new JSDOM(html).window.document;
-assert.equal(pkg.version,'3.6.126');
-assert(html.includes('const RATIB_RELEASE={"version":"3.6.126","build":"p12600"'));
-assert(sw.includes('v241-official-receipt-parity-3.6.126'));
+assert.equal(pkg.version,'3.6.127');
+assert(html.includes('const RATIB_RELEASE={"version":"3.6.127","build":"p12700"'));
+assert(sw.includes('v242-official-receipt-balance-lock-3.6.127'));
 assert(sw.includes('"./ratib-account-movement-search-3.6.114.css"'));
-assert(doc.querySelector('link[href="./ratib-account-movement-search-3.6.114.css?v=3.6.126"]'));
+assert(doc.querySelector('link[href="./ratib-account-movement-search-3.6.114.css?v=3.6.127"]'));
 const input=doc.getElementById('ratibAccountMovementSearchInput'),
  clear=doc.getElementById('ratibAccountMovementSearchClear'),
  counter=doc.getElementById('ratibAccountMovementSearchCount');

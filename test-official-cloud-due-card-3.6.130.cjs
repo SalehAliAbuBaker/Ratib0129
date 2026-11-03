@@ -26,7 +26,7 @@ const dom=new JSDOM('<!doctype html><html lang="ar" dir="rtl"><body>'+
 '<input id="cloudEmailInput"><input id="cloudTimeInput"><select id="cloudUploadDestination"><option value="trial">التجريبية</option><option value="official">الرسمية</option></select>'+
 '<button id="cloudSaveBtn"></button><button id="cloudRunNowBtn"></button><button id="cloudDisableBtn"></button>'+
 '</section></body></html>',
-{url:'https://salehaliabubaker.github.io/Ratib0129/',runScripts:'outside-only'});
+{url:'https://salehaliabubaker.github.io/Ratib0129/',runScripts:'outside-only',pretendToBeVisual:true});
 const document=dom.window.document,storage=dom.window.localStorage;
 const saved={cloud_backup_cfg:{enabled:true,email:'user@example.com',time:'00:00',lastDate:'',lastStatus:''}};
 const state={calls:[],toasts:[],timers:[],alerts:[]};

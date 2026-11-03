@@ -29,3 +29,18 @@
     direction:rtl!important;
   }
 }
+
+/* 3.6.126: receipt displays the source account after amount/currency,
+   matching payment's visible grouping. Keep its ORIGINAL debit-first DOM position
+   and all account side/reversal logic for accounting and accessibility. */
+@media screen {
+ #multiVoucherCard.spend-voucher.receipt-voucher > .multi-voucher-grid > .multi-voucher-source-row{
+  display:flex!important;grid-column:1/-1!important;grid-row:6!important;
+  min-width:0!important;width:100%!important;box-sizing:border-box!important;
+  align-items:center!important;
+ }
+ #multiVoucherCard.spend-voucher.receipt-voucher > .ratib-payment-beneficiary-row{
+  display:flex!important;width:100%!important;box-sizing:border-box!important;
+  margin:8px 0 6px!important;
+ }
+}

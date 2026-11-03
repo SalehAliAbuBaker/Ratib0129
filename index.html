@@ -9521,7 +9521,7 @@ function ratibOrderDocumentAccounts(){
  let anchor=document.getElementById('ratibSourcePosition');
  if(!anchor){anchor=document.createElement('span');anchor.id='ratibSourcePosition';anchor.hidden=true;source.before(anchor);}
  let holder=document.getElementById('ratibOrderedCreditSource');
- if(card.classList.contains('spend-voucher')&&document.getElementById('ratibHeaderSide')?.value===(card.classList.contains('receipt-voucher')?'debit':'credit')){
+ if(card.classList.contains('spend-voucher')&&document.getElementById('ratibHeaderSide')?.value==='credit'){
   if(!holder){holder=document.createElement('div');holder.id='ratibOrderedCreditSource';holder.className='multi-voucher-grid';}
   const after=card.querySelector('.spend-lines-toolbar')||table;
   if(after.nextElementSibling!==holder)after.after(holder);

@@ -216,10 +216,12 @@
   }
  }
  function makeStats(){
-  const list=[...nodes.values()],leaf=list.filter(n=>n.kind==='detail');
+  // The simplified UI shows five real groups; internal 4/5/6 catalog folders are not user accounts.
+  const primaryCount=window.RatibSimpleAccounts?.GROUPS?.filter(g=>g.id!=='other').length||5;
+  const leaf=[...nodes.values()].filter(n=>n.kind==='detail');
   const currencies=new Set();
   leaf.forEach(n=>{if(n.sums)for(const cur of n.sums.keys())currencies.add(cur);});
-  const items=[['الحسابات',list.length],['حسابات الحركة',leaf.length],['التجميعية',list.length-leaf.length],['عملات بها حركات',currencies.size]];
+  const items=[['الحسابات الرئيسية',primaryCount],['الحسابات الفرعية',leaf.length],['إجمالي الحسابات',primaryCount+leaf.length],['عملات بها حركات',currencies.size]];
   statsBox.innerHTML=items.map(x=>'<div class="rit-stat"><b>'+money(x[1])+'</b><small>'+x[0]+'</small></div>').join('');
  }
  function activity(name){

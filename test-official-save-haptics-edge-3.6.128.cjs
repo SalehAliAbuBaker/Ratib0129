@@ -6,7 +6,7 @@ const edge=fs.readFileSync('ratib-mobile-edge-back-3.6.128.js','utf8');
 const html=fs.readFileSync('index.html','utf8'),sw=fs.readFileSync('sw.js','utf8');
 assert.equal(require('./package.json').version,'3.6.134');
 assert(html.includes('const RATIB_RELEASE={"version":"3.6.134","build":"p13400"'));
-assert(sw.includes('v249-official-edge-back-update-note-3.6.134'));
+assert(sw.includes('v251-license-verification-diagnostics-3.6.134'));
 assert(html.includes('ratib-feedback-3.6.149.js?v=3.6.134'));
 assert(html.includes('ratib-mobile-edge-back-3.6.128.js?v=3.6.134'));
 assert(sw.includes('"./ratib-mobile-edge-back-3.6.128.js"'));

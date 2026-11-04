@@ -5,7 +5,7 @@ const html=fs.readFileSync('index.html','utf8'),css=fs.readFileSync('ratib-cloud
 const sw=fs.readFileSync('sw.js','utf8'),pkg=require('./package.json');
 assert.equal(pkg.version,'3.6.134');
 assert(html.includes('const RATIB_RELEASE={"version":"3.6.134","build":"p13400"'));
-assert(sw.includes('v249-official-edge-back-update-note-3.6.134'));
+assert(sw.includes('v251-license-verification-diagnostics-3.6.134'));
 assert(html.includes('ratib-cloud-due-3.6.130.css?v=3.6.134'));
 assert(sw.includes('"./ratib-cloud-due-3.6.130.css"'));
 assert(css.includes('#cloudBackupDueModal .ratib-cloud-due-card'));

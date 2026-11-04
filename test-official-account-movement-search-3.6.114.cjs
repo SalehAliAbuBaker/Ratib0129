@@ -5,7 +5,7 @@ const html=fs.readFileSync('index.html','utf8'),css=fs.readFileSync('ratib-accou
 const doc=new JSDOM(html).window.document;
 assert.equal(pkg.version,'3.6.134');
 assert(html.includes('const RATIB_RELEASE={"version":"3.6.134","build":"p13400"'));
-assert(sw.includes('v249-official-edge-back-update-note-3.6.134'));
+assert(sw.includes('v251-license-verification-diagnostics-3.6.134'));
 assert(sw.includes('"./ratib-account-movement-search-3.6.114.css"'));
 assert(doc.querySelector('link[href="./ratib-account-movement-search-3.6.114.css?v=3.6.134"]'));
 const input=doc.getElementById('ratibAccountMovementSearchInput'),

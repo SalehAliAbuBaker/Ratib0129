@@ -9,7 +9,7 @@ const sw=fs.readFileSync('sw.js','utf8');
 assert.equal(require('./package.json').version,'3.6.134');
 assert(html.includes('const RATIB_RELEASE={"version":"3.6.134","build":"p13400"'));
 assert(sw.includes('const APP_RELEASE={"version":"3.6.134","build":"p13400"'));
-assert(sw.includes('v249-official-edge-back-update-note-3.6.134'));
+assert(sw.includes('v251-license-verification-diagnostics-3.6.134'));
 assert(html.includes('ratib-receipt-payer-3.6.115.css?v=3.6.134'));
 assert(css.includes('/* 3.6.127: one shared account-card geometry for receipt and payment.'));
 const sourceStyle=css.slice(css.indexOf('/* 3.6.127: one shared account-card geometry'));

@@ -56,7 +56,7 @@ assert.equal(beneficiary.closest('label').parentElement,grid,'compound journal u
 assert(!beneficiary.closest('label').classList.contains('ratib-payment-beneficiary-row'));
 assert(css.includes('#multiVoucherCard.spend-voucher > .ratib-payment-beneficiary-row'));
 assert(css.includes('@media screen'),'layout styles only on screen');
-assert(sw.includes('v247-official-native-tap-and-swipe-3.6.132'));
+assert(sw.includes('v248-official-click-tone-tap-only-3.6.133'));
 // MutationObservers created by the shared cash layout may still be queued. Let jsdom
 // drain those callbacks without synchronously destroying their window.
 console.log('PASS official receipt/payment parity: account → optional party → general statement; preserved cash modes and compound entry');

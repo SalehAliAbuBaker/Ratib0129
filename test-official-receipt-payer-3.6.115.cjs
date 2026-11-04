@@ -2,12 +2,12 @@
 const fs=require('node:fs'),assert=require('node:assert/strict'),{JSDOM}=require('jsdom');
 const html=fs.readFileSync('index.html','utf8'),css=fs.readFileSync('ratib-receipt-payer-3.6.115.css','utf8'),sw=fs.readFileSync('sw.js','utf8'),pkg=require('./package.json');
 const doc=new JSDOM(html).window.document;
-assert.equal(pkg.version,'3.6.132');
-assert(html.includes('const RATIB_RELEASE={"version":"3.6.132","build":"p13200"'));
-assert(sw.includes('const APP_RELEASE={"version":"3.6.132","build":"p13200"'));
-assert(sw.includes('v247-official-native-tap-and-swipe-3.6.132'));
+assert.equal(pkg.version,'3.6.133');
+assert(html.includes('const RATIB_RELEASE={"version":"3.6.133","build":"p13300"'));
+assert(sw.includes('const APP_RELEASE={"version":"3.6.133","build":"p13300"'));
+assert(sw.includes('v248-official-click-tone-tap-only-3.6.133'));
 assert(sw.includes('"./ratib-receipt-payer-3.6.115.css"'));
-assert(doc.querySelector('link[href="./ratib-receipt-payer-3.6.115.css?v=3.6.132"]'));
+assert(doc.querySelector('link[href="./ratib-receipt-payer-3.6.115.css?v=3.6.133"]'));
 const card=doc.getElementById('multiVoucherCard'),input=doc.getElementById('multiVoucherBeneficiary');
 assert(card&&input);
 assert.equal(card.querySelectorAll('#multiVoucherBeneficiary').length,1);

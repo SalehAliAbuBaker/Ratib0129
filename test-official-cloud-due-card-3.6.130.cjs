@@ -3,10 +3,10 @@ const assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('nod
 const {JSDOM}=require('jsdom');
 const html=fs.readFileSync('index.html','utf8'),css=fs.readFileSync('ratib-cloud-due-3.6.130.css','utf8');
 const sw=fs.readFileSync('sw.js','utf8'),pkg=require('./package.json');
-assert.equal(pkg.version,'3.6.133');
-assert(html.includes('const RATIB_RELEASE={"version":"3.6.133","build":"p13300"'));
-assert(sw.includes('v248-official-click-tone-tap-only-3.6.133'));
-assert(html.includes('ratib-cloud-due-3.6.130.css?v=3.6.133'));
+assert.equal(pkg.version,'3.6.134');
+assert(html.includes('const RATIB_RELEASE={"version":"3.6.134","build":"p13400"'));
+assert(sw.includes('v249-official-edge-back-update-note-3.6.134'));
+assert(html.includes('ratib-cloud-due-3.6.130.css?v=3.6.134'));
 assert(sw.includes('"./ratib-cloud-due-3.6.130.css"'));
 assert(css.includes('#cloudBackupDueModal .ratib-cloud-due-card'));
 assert(html.includes('id="cloudBackupDueRunBtn"')&&html.includes('id="cloudBackupDueCancelBtn"'));

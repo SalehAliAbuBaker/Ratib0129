@@ -98,8 +98,9 @@ assert.deepEqual(Array.from(vibrations.at(-1)),[65,40,65],'Save success vibratio
 const afterSave=vibs();
 feedback.toast('تعذر حفظ السند','error',3000,{force:true});
 assert.equal(vibs(),afterSave,'Saving failure is not a success event');
+const beforeWebTap=oscs();
 feedback.write({tap:true,tapCue:'both'});press('btn2');
-assert.equal(oscs(),vibrationOnly+3,'Tone works in ordinary web mode without native bridge');
+assert.equal(oscs(),beforeWebTap+1,'Tone works in ordinary web mode without native bridge');
 assert.equal(vibs(),afterSave+1,'Web tap vibration still works');
 w.close();
 console.log('PASS official 3.6.133: original app click tone on buttons/cards, silent scroll, haptic and save isolation');

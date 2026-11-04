@@ -1,6 +1,6 @@
 // Ratib 3.1.9: cache identity is unique to this app's scope.
-const CACHE_VERSION='v246-official-touch-sound-haptics-3.6.131';
-const APP_RELEASE={"version":"3.6.131","build":"p13100","highlights":[],"changes":["تصحيح الأخطاء في بعض الأجهزة"]};
+const CACHE_VERSION='v247-official-native-tap-and-swipe-3.6.132';
+const APP_RELEASE={"version":"3.6.132","build":"p13200","highlights":[],"changes":["إلغاء صوت اللمس والاهتزاز عند التمرير أو السحب","تشغيل صوت أندرويد الأصلي عند دعم الغلاف دون نغمة مقلدة في الويب"]};
 const CACHE_PREFIX=`ratib:${self.registration.scope}:`;
 const CACHE_NAME=CACHE_PREFIX+CACHE_VERSION;
 const APP_SHELL=[

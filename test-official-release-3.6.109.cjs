@@ -8,7 +8,7 @@ const pkg=require('./package.json');
 assert.equal(pkg.version,'3.6.134');
 assert(index.includes('const RATIB_RELEASE={"version":"3.6.134","build":"p13400"'));
 assert(sw.includes('const APP_RELEASE={"version":"3.6.134","build":"p13400"'));
-assert(sw.includes("v249-official-edge-back-update-note-3.6.134"));
+assert(sw.includes("v251-license-verification-diagnostics-3.6.134"));
 assert(index.includes('id="appVersionLabel" class="app-version">الإصدار 3.6.134</small>'));
 assert(index.includes('class="ratib-about-version">الإصدار 3.6.134</p>'));
 assert(index.includes('window.ratibCurrentTrialVersionLabel=()=>`الإصدار ${RATIB_RELEASE.version}`'));

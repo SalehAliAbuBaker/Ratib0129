@@ -10,7 +10,7 @@ const pkg=require('./package.json');
 assert.equal(pkg.version,'3.6.134');
 assert(html.includes('const RATIB_RELEASE={"version":"3.6.134","build":"p13400"'));
 assert(sw.includes('const APP_RELEASE={"version":"3.6.134","build":"p13400"'));
-assert(sw.includes("v249-official-edge-back-update-note-3.6.134"));
+assert(sw.includes("v251-license-verification-diagnostics-3.6.134"));
 for(const file of ['ratib-trial-voucher-statement-3.6.125.js','ratib-trial-voucher-statement-3.6.125.css']){
   assert(html.includes('./'+file+'?v=3.6.134'),'Versioned new asset '+file);
   assert(sw.includes('"./'+file+'"'),'Asset cached for offline: '+file);

@@ -6,7 +6,7 @@ const document=new JSDOM(html).window.document;
 assert.equal(pkg.version,'3.6.134');
 assert(html.includes('const RATIB_RELEASE={"version":"3.6.134","build":"p13400"'));
 assert(sw.includes('const APP_RELEASE={"version":"3.6.134","build":"p13400"'));
-assert(sw.includes('v249-official-edge-back-update-note-3.6.134'));
+assert(sw.includes('v251-license-verification-diagnostics-3.6.134'));
 assert(sw.includes('"./ratib-voucher-polish-3.6.117.css"'));
 assert(document.querySelector('link[href="./ratib-voucher-polish-3.6.117.css?v=3.6.134"]'));
 const modal=document.getElementById('ratibVoucherLeaveModal');assert(modal&&modal.getAttribute('aria-modal')==='true');

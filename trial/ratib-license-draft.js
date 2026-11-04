@@ -145,8 +145,9 @@
       }
       if (!transient) {
         s.verifiedAt=0;s.checkedAt=0;s.lastTransientCheckAt=0;
-        safeWrite(s);
       }
+      // Persist the diagnostic even if an earlier release erased verifiedAt.
+      safeWrite(s);
       updateTrialCounter();
       return false;
     }

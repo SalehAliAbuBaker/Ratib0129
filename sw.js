@@ -1,5 +1,5 @@
 // Ratib 3.1.9: cache identity is unique to this app's scope.
-const CACHE_VERSION='v249-official-edge-back-update-note-3.6.134';
+const CACHE_VERSION='v250-license-verification-resilience-3.6.134';
 const APP_RELEASE={"version":"3.6.134","build":"p13400","highlights":[],"changes":["نجري بانتظام تحديثات لتحسين الموثوقية والأداء وإصلاح الأخطاء"]};
 const CACHE_PREFIX=`ratib:${self.registration.scope}:`;
 const CACHE_NAME=CACHE_PREFIX+CACHE_VERSION;

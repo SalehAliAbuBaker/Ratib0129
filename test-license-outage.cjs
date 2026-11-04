@@ -65,6 +65,16 @@ async function main() {
     const neverVerified=fixture(file,{...state(),verifiedAt:0,checkedAt:0},
       async()=>({ok:false,status:503,json:async()=>({valid:false})}));
     assert.equal(await neverVerified.license.licensed(),false,file+': never verified user');
+    assert.match(neverVerified.state().lastCheckError,/خدمة التراخيص/,file+': server error diagnostic');
+    total++;
+
+    // Existing users whose previous version already erased verifiedAt must see
+    // the actual reason for failed re-verification, not a misleading renewal prompt.
+    const deviceNotRecognized=fixture(file,{...state(),verifiedAt:0,checkedAt:0},
+      async()=>({ok:false,status:403,
+        json:async()=>({valid:false,error:'لم يُفعّل الترخيص على هذا الجهاز.'})}));
+    assert.equal(await deviceNotRecognized.license.licensed(),false,file+': device mismatch');
+    assert.match(deviceNotRecognized.state().lastCheckError,/لم يُفعّل/,file+': device-specific error');
     total++;
 
     const renewed=fixture(file,{...state(),expiryDate:new Date(now-DAY).toISOString()},
@@ -73,6 +83,6 @@ async function main() {
     assert.equal(await renewed.license.licensed(),true,file+': server extended license');
     total++;
   }
-  console.log('PASS 24 Ratib official/trial license outage and rejection cases');
+  console.log('PASS 26 Ratib official/trial license outage and rejection cases');
 }
 main().catch(err=>{console.error(err);process.exitCode=1;});

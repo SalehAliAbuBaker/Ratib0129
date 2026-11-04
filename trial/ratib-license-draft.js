@@ -45,11 +45,22 @@
       // A 4xx device/license denial is definitive. A 5xx/408/429 response
       // indicates a temporary service fault and must not revoke local activation.
       error.transient=response.status===408||response.status===429||response.status>=500;
+      error.httpStatus=response.status;
       throw error;
     }
     return result;
   }
 
+  // Give the user an actionable, non-secret diagnostic; never echo a license key.
+  function licenseCheckMessage(error) {
+    if (Number(error?.httpStatus)>=500)
+      return 'خدمة التراخيص غير متاحة حاليًا. لا حاجة لتجديد الترخيص، ويمكن إعادة المحاولة عند عودة الخدمة.';
+    if (error?.httpStatus===429 || error?.httpStatus===408 || error instanceof TypeError)
+      return 'تعذر الاتصال بخدمة التراخيص مؤقتًا. لا يلزم تجديد الترخيص.';
+    if (error?.httpStatus===403 || error?.httpStatus===404 || error?.httpStatus===409)
+      return String(error.message||'تعذر التحقق من بيانات الترخيص.').slice(0,180);
+    return 'تعذر التحقق من خدمة التراخيص. يرجى مراجعة الاتصال والمحاولة مجددًا.';
+  }
   // Activation is deliberately tied to the EXISTING Worker, not to the admin secret.
   const API = 'https://ratib.saleh0129.workers.dev/api/license/';
   const CHECK_INTERVAL = 60 * 60 * 1000;
@@ -99,7 +110,7 @@
     const result = await verifyLicense({ endpoint: API+'activate', code, email });
     const s = safeRead();
     Object.assign(s, { code, email, expiryDate: result.expiry_date || null,
-      checkedAt: Date.now(), verifiedAt: Date.now(), lastTransientCheckAt: 0 });
+      checkedAt: Date.now(), verifiedAt: Date.now(), lastTransientCheckAt: 0, lastCheckError: '', lastCheckAt: Date.now() });
     safeWrite(s);
     updateTrialCounter();
     return result;
@@ -116,11 +127,14 @@
     try {
       const result = await verifyLicense({endpoint:API+'verify',code:s.code,email:s.email||''});
       Object.assign(s,{verifiedAt:Date.now(),checkedAt:Date.now(),expiryDate:result.expiry_date||null,lastTransientCheckAt:0});
+      s.lastCheckError='';s.lastCheckAt=Date.now();
       safeWrite(s);
       updateTrialCounter();
       return true;
     } catch(err) {
       const transient=err?.transient===true || err instanceof TypeError;
+      s.lastCheckError=licenseCheckMessage(err);
+      s.lastCheckAt=Date.now();
       // Preserve a previously server-verified, still-unexpired license only
       // for connection/service errors, never for explicit invalid/revoked responses.
       if (transient && priorVerified && unexpired) {
@@ -131,8 +145,9 @@
       }
       if (!transient) {
         s.verifiedAt=0;s.checkedAt=0;s.lastTransientCheckAt=0;
-        safeWrite(s);
       }
+      // Persist the diagnostic even if an earlier release erased verifiedAt.
+      safeWrite(s);
       updateTrialCounter();
       return false;
     }
@@ -163,13 +178,15 @@
           await activate($('ratibLicenseCode').value,$('ratibLicenseEmail').value.trim());
           msg.style.color='var(--ok,#168653)';msg.textContent='تم التفعيل؛ يمكنك الآن حفظ العملية.';
           setTimeout(()=>{dlg.style.display='none';msg.textContent='';msg.style.color='var(--danger,#b91c1c)'},1000);
-        } catch(e) { msg.textContent=e.message||'تعذر التفعيل.'; } finally {btn.disabled=false;}
+        } catch(e) { msg.textContent=licenseCheckMessage(e); } finally {btn.disabled=false;}
       });
       $('ratibLicenseWhatsapp').addEventListener('click',()=>{
         global.open(whatsappUrl($('ratibLicenseName').value,$('ratibLicenseEmail').value),'_blank','noopener,noreferrer');
       });
       $('ratibLicenseClose').addEventListener('click',()=>{dlg.style.display='none';});
     }
+    const stored=safeRead();
+    if(stored.code && stored.lastCheckError) dlg.querySelector('#ratibLicenseFeedback').textContent=stored.lastCheckError;
     dlg.querySelector('#ratibLicenseDevice').textContent=deviceId();
     dlg.style.display='flex';dlg.querySelector('#ratibLicenseCode').focus();
   }

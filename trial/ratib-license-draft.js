@@ -33,9 +33,20 @@
     // This request contract MUST be reconciled with the existing Worker before enabling.
     const response=await fetch(endpoint,{method:'POST',headers:{'Content-Type':'application/json'},
       body:JSON.stringify({license_key:code,device_id:deviceId(),email})});
-    if (!response.ok) throw new Error('تعذر التحقق من الترخيص');
-    const result=await response.json();
-    if(result.valid!==true)throw new Error(result.error||result.message||'الترخيص غير صالح');
+    let result;
+    try { result=await response.json(); }
+    catch (_) {
+      const error=new Error('تعذر قراءة رد خدمة التراخيص.');
+      error.transient=true;
+      throw error;
+    }
+    if (!response.ok || result?.valid!==true) {
+      const error=new Error(result?.error||result?.message||'تعذر التحقق من الترخيص');
+      // A 4xx device/license denial is definitive. A 5xx/408/429 response
+      // indicates a temporary service fault and must not revoke local activation.
+      error.transient=response.status===408||response.status===429||response.status>=500;
+      throw error;
+    }
     return result;
   }
 
@@ -63,7 +74,11 @@
     const recentlyVerified = !!state.code && Number(state.verifiedAt) > 0 &&
       Date.now() - Number(state.checkedAt || 0) < CHECK_INTERVAL &&
       Date.now() >= Number(state.checkedAt || 0) && validExpiry(state.expiryDate);
-    node.textContent = recentlyVerified ? '✅ الترخيص مفعّل — يمكنك حفظ سندات جديدة' :
+    const temporarilyAvailable = !!state.code && Number(state.verifiedAt)>0 && validExpiry(state.expiryDate) &&
+      Number(state.lastTransientCheckAt||0)>Number(state.checkedAt||0) &&
+      Date.now()-Number(state.lastTransientCheckAt||0)>=0 &&
+      Date.now()-Number(state.lastTransientCheckAt||0)<CHECK_INTERVAL;
+    node.textContent = (recentlyVerified || temporarilyAvailable) ? '✅ الترخيص مفعّل — يمكنك حفظ سندات جديدة' :
       'السندات المجانية: ' + Math.min(getUsed(transactions), TRIAL_LIMIT) + ' / ' + TRIAL_LIMIT;
   }
   function recordCreated() {
@@ -84,24 +99,40 @@
     const result = await verifyLicense({ endpoint: API+'activate', code, email });
     const s = safeRead();
     Object.assign(s, { code, email, expiryDate: result.expiry_date || null,
-      checkedAt: Date.now(), verifiedAt: Date.now() });
+      checkedAt: Date.now(), verifiedAt: Date.now(), lastTransientCheckAt: 0 });
     safeWrite(s);
     updateTrialCounter();
     return result;
   }
   async function licensed() {
     const s = safeRead();
-    if (!s.code || !validExpiry(s.expiryDate)) return false;
-    if (s.verifiedAt && Date.now()-s.checkedAt < CHECK_INTERVAL) return true;
+    if (!s.code) return false;
+    const unexpired=validExpiry(s.expiryDate);
+    const priorVerified=Number(s.verifiedAt||0)>0;
+    if (unexpired && priorVerified && Date.now()-Number(s.checkedAt||0)>=0 && Date.now()-Number(s.checkedAt||0)<CHECK_INTERVAL) return true;
+    // An expired local date can be renewed on the server; retry when online,
+    // but never grant access offline using an expired cached entitlement.
+    if (global.navigator?.onLine===false) return unexpired && priorVerified;
     try {
       const result = await verifyLicense({endpoint:API+'verify',code:s.code,email:s.email||''});
-      Object.assign(s,{verifiedAt:Date.now(),checkedAt:Date.now(),expiryDate:result.expiry_date||null});
+      Object.assign(s,{verifiedAt:Date.now(),checkedAt:Date.now(),expiryDate:result.expiry_date||null,lastTransientCheckAt:0});
       safeWrite(s);
       updateTrialCounter();
       return true;
     } catch(err) {
-      if (err instanceof TypeError && Date.now()-Number(s.verifiedAt||0) < OFFLINE_GRACE) return true;
-      s.verifiedAt=0;s.checkedAt=0;safeWrite(s);
+      const transient=err?.transient===true || err instanceof TypeError;
+      // Preserve a previously server-verified, still-unexpired license only
+      // for connection/service errors, never for explicit invalid/revoked responses.
+      if (transient && priorVerified && unexpired) {
+        s.lastTransientCheckAt=Date.now();
+        safeWrite(s);
+        updateTrialCounter();
+        return true;
+      }
+      if (!transient) {
+        s.verifiedAt=0;s.checkedAt=0;s.lastTransientCheckAt=0;
+        safeWrite(s);
+      }
       updateTrialCounter();
       return false;
     }

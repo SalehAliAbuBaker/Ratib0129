@@ -7,12 +7,12 @@ const sw=fs.readFileSync('sw.js','utf8');
 const css=fs.readFileSync('ratib-trial-voucher-statement-3.6.125.css','utf8');
 const js=fs.readFileSync('ratib-trial-voucher-statement-3.6.125.js','utf8');
 const pkg=require('./package.json');
-assert.equal(pkg.version,'3.6.131');
-assert(html.includes('const RATIB_RELEASE={"version":"3.6.131","build":"p13100"'));
-assert(sw.includes('const APP_RELEASE={"version":"3.6.131","build":"p13100"'));
-assert(sw.includes("v246-official-touch-sound-haptics-3.6.131"));
+assert.equal(pkg.version,'3.6.132');
+assert(html.includes('const RATIB_RELEASE={"version":"3.6.132","build":"p13200"'));
+assert(sw.includes('const APP_RELEASE={"version":"3.6.132","build":"p13200"'));
+assert(sw.includes("v247-official-native-tap-and-swipe-3.6.132"));
 for(const file of ['ratib-trial-voucher-statement-3.6.125.js','ratib-trial-voucher-statement-3.6.125.css']){
-  assert(html.includes('./'+file+'?v=3.6.131'),'Versioned new asset '+file);
+  assert(html.includes('./'+file+'?v=3.6.132'),'Versioned new asset '+file);
   assert(sw.includes('"./'+file+'"'),'Asset cached for offline: '+file);
 }
 assert(css.includes('grid-template-columns:minmax(70px,.74fr) minmax(0,2.26fr)'),'Trial cash header ratio');

@@ -4,11 +4,11 @@ const {JSDOM}=require('jsdom');
 const feedback=fs.readFileSync('ratib-feedback-3.6.149.js','utf8');
 const edge=fs.readFileSync('ratib-mobile-edge-back-3.6.128.js','utf8');
 const html=fs.readFileSync('index.html','utf8'),sw=fs.readFileSync('sw.js','utf8');
-assert.equal(require('./package.json').version,'3.6.132');
-assert(html.includes('const RATIB_RELEASE={"version":"3.6.132","build":"p13200"'));
-assert(sw.includes('v247-official-native-tap-and-swipe-3.6.132'));
-assert(html.includes('ratib-feedback-3.6.149.js?v=3.6.132'));
-assert(html.includes('ratib-mobile-edge-back-3.6.128.js?v=3.6.132'));
+assert.equal(require('./package.json').version,'3.6.133');
+assert(html.includes('const RATIB_RELEASE={"version":"3.6.133","build":"p13300"'));
+assert(sw.includes('v248-official-click-tone-tap-only-3.6.133'));
+assert(html.includes('ratib-feedback-3.6.149.js?v=3.6.133'));
+assert(html.includes('ratib-mobile-edge-back-3.6.128.js?v=3.6.133'));
 assert(sw.includes('"./ratib-mobile-edge-back-3.6.128.js"'));
 assert(!feedback.includes('store.set(\'transactions\''),'Feedback must not mutate ledger');
 const dom=new JSDOM('<!doctype html><html lang="ar"><body>'+

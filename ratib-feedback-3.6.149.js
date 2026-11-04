@@ -1,4 +1,4 @@
-/* Ratib official 3.6.132 — feedback audio, touch haptics, visible toasts, reminders.
+/* Ratib official 3.6.133 — feedback audio, touch haptics, visible toasts, reminders.
    Presentation and user-triggered reminders only. All financial writes remain unchanged. */
 (function(){
 'use strict';
@@ -37,6 +37,7 @@ function unlock(){
  if(ctx?.state==='suspended')ctx.resume().catch(()=>{});
 }
 const PATTERNS={
+ tap:[[0,920,.034]],
  save:[[0,523,.13],[.125,784,.21]],
  reminder:[[0,587,.17],[.21,740,.18],[.44,988,.31]],
  urgent:[[0,659,.13],[.18,659,.13],[.38,988,.26]],
@@ -44,15 +45,7 @@ const PATTERNS={
  warning:[[0,494,.14],[.22,392,.24]],
  error:[[0,370,.15],[.17,294,.24]]
 };
-// The browser cannot request Android's configured touch sound directly.
-// Native Android hosts may expose RatibAndroid.playSystemClick() implemented
-// using View.playSoundEffect(SoundEffectConstants.CLICK), respecting OS settings.
-// Do not substitute WebAudio or any fake system-click tone in the PWA.
-function nativeSystemTap(){
- const bridge=window.RatibAndroid;
- if(!bridge||typeof bridge.playSystemClick!=='function')return false;
- try{bridge.playSystemClick();return true;}catch(_){return false;}
-}
+// Use the application's original short click, not Android's inaccessible system sound.
 function play(kind='reminder',priority='',test=false){
  const cfg=read();
  if(!cfg.master||LEVELS[cfg.volume]<=0)return false;
@@ -60,7 +53,7 @@ function play(kind='reminder',priority='',test=false){
  if(cfg[category]===false||(category==='reminder'&&muteReminders()))return false;
  if(kind==='tap'&&cfg.tapCue==='silent')return false;
  const now=Date.now(),id=category==='reminder'?'reminder':kind;
- if(kind!=='tap'&&!test&&now-(lastPlayed.get(id)||0)<(category==='reminder'?1800:category==='save'?650:1000))return false;
+ if(!test&&now-(lastPlayed.get(id)||0)<(category==='reminder'?1800:category==='save'?650:category==='tap'?22:1000))return false;
  if(kind==='save'&&cfg.saveCue==='silent')return false;
  let vibration=false;
  if(kind==='save'&&['both','vibration'].includes(cfg.saveCue)){
@@ -72,7 +65,6 @@ function play(kind='reminder',priority='',test=false){
   catch(_){vibration=false;}
  }
  lastPlayed.set(id,now);
- if(kind==='tap')return (['both','sound'].includes(cfg.tapCue)&&nativeSystemTap())||vibration;
  if(kind==='save'&&cfg.saveCue==='vibration')return vibration;
  if(kind==='tap'&&cfg.tapCue==='vibration')return vibration;
  const ctx=availableAudio();if(!ctx)return vibration;
@@ -195,8 +187,8 @@ function install(){
  '<label class="ratib-feedback-setting-row"><span>تفعيل جميع الأصوات</span><input type="checkbox" data-feedback-toggle="master"></label>'+
  '<label class="ratib-feedback-setting-row"><span>تنبيه نجاح الحفظ</span><input type="checkbox" data-feedback-toggle="save"></label>'+
  '<div class="ratib-feedback-select-row"><label for="ratibSaveCue">عند الحفظ</label><select id="ratibSaveCue" data-feedback-select="saveCue"><option value="both">نغمة واضحة واهتزاز</option><option value="sound">نغمة فقط</option><option value="vibration">اهتزاز فقط</option><option value="silent">صامت</option></select></div>'+
- '<label class="ratib-feedback-setting-row"><span>تأثير الضغط على المفاتيح والأزرار</span><input type="checkbox" data-feedback-toggle="tap"></label>'+
- '<div class="ratib-feedback-select-row"><label for="ratibTapCue">عند كل ضغطة</label><select id="ratibTapCue" data-feedback-select="tapCue"><option value="both">صوت النظام (عند الدعم) واهتزاز</option><option value="sound">صوت النظام فقط (عند الدعم)</option><option value="vibration">اهتزاز خفيف فقط</option><option value="silent">صامت</option></select></div>'+
+ '<label class="ratib-feedback-setting-row"><span>تأثير الضغط على الأزرار والبطاقات التفاعلية</span><input type="checkbox" data-feedback-toggle="tap"></label>'+
+ '<div class="ratib-feedback-select-row"><label for="ratibTapCue">عند كل ضغطة</label><select id="ratibTapCue" data-feedback-select="tapCue"><option value="both">نغمة التطبيق السابقة واهتزاز خفيف</option><option value="sound">نغمة التطبيق فقط</option><option value="vibration">اهتزاز خفيف فقط</option><option value="silent">صامت</option></select></div>'+
  '<label class="ratib-feedback-setting-row"><span>أصوات التذكيرات</span><input type="checkbox" data-feedback-toggle="reminder"></label>'+
  '<label class="ratib-feedback-setting-row"><span>أصوات التحذيرات</span><input type="checkbox" data-feedback-toggle="warning"></label>'+
  '<label class="ratib-feedback-setting-row"><span>صوت الأخطاء</span><input type="checkbox" data-feedback-toggle="error"></label>'+
@@ -204,7 +196,7 @@ function install(){
  '<div class="ratib-feedback-select-row"><label for="ratibFeedbackStyle">طابع النغمة</label><select id="ratibFeedbackStyle" data-feedback-select="style"><option value="soft">هادئ</option><option value="balanced">متوازن</option><option value="clear">واضح</option></select></div>'+
  '<div class="ratib-feedback-try"><button type="button" data-feedback-test="save">تجربة الحفظ</button><button type="button" data-feedback-test="reminder">تجربة التذكير</button><button type="button" data-feedback-test="urgent">تجربة العاجل</button><button type="button" data-feedback-test="error">تجربة الخطأ</button></div>'+
  '<button type="button" id="ratibFeedbackDefaults" class="btn btn-ghost">استعادة إعدادات الصوت الافتراضية</button>'+
- '<p class="ratib-feedback-guidance">تستخدم نقرات الأزرار صوت النظام الأصلي عندما يدعمه غلاف Android، مع اهتزاز خفيف عند توفره. نسخة الويب لا تسمح باستدعاء صوت لمس النظام، ولذلك لا تُصدر نغمة مقلدة. السحب والتمرير صامتان، وأصوات الحفظ تصدر بعد النجاح فقط.</p>';
+ '<p class="ratib-feedback-guidance">تعود نغمة النقر الأصلية القصيرة في تطبيق راتب مع الاهتزاز الخفيف عند الضغط المكتمل على زر أو بطاقة تفاعلية. لا يصدر أي صوت أثناء السحب أو التمرير أو لمس الحقول النصية. تبقى أصوات نجاح الحفظ والتنبيهات مستقلة.</p>';
  parent.append(box);
  for(const input of box.querySelectorAll('[data-feedback-toggle]'))input.addEventListener('change',()=>write({[input.dataset.feedbackToggle]:input.checked}));
  for(const select of box.querySelectorAll('[data-feedback-select]'))select.addEventListener('change',()=>write({[select.dataset.feedbackSelect]:select.value}));
@@ -218,8 +210,12 @@ function install(){
 function targetForTap(node){
  const element=node?.nodeType===3?node.parentElement:node;
  if(!element?.closest)return null;
- const control=element.closest('button,input:not([type="hidden"]),textarea,select,a[href],summary,[role="button"],[role="tab"],[role="switch"],[role="checkbox"],[role="radio"],[role="menuitem"],[onclick],[contenteditable="true"]');
- if(!control||control.matches(':disabled,[disabled],[aria-disabled="true"]')||control.closest('[inert]'))return null;
+ // Only real actions: buttons, linked/interactive cards and their descendants.
+ // Typing, checkboxes, selects, passive text and scrolling do not click.
+ const selector='button,input[type="button"],input[type="submit"],input[type="reset"],a[href],summary,[role="button"],[role="tab"],[role="menuitem"],[onclick],[data-tap-feedback="action"]';
+ const control=element.closest(selector);
+ if(!control||control.matches(':disabled,[disabled],[aria-disabled="true"]')||control.closest('[inert],[aria-disabled="true"]'))return null;
+ if(control.matches('textarea,select,input:not([type="button"]):not([type="submit"]):not([type="reset"]),[contenteditable="true"]'))return null;
  return control;
 }
 // Capture a possible gesture without responding until a completed tap.
@@ -253,11 +249,7 @@ function pressCancel(event){if(pendingTap&&pendingTap.id===pointerId(event))pend
 function keyPressKeyboard(event){
  if(event.isComposing||event.repeat||event.ctrlKey||event.altKey||event.metaKey)return;
  const key=event.key||'';
- const el=targetForTap(event.target);
- if(!el)return;
- const edit=el.matches('input:not([type="checkbox"]):not([type="radio"]),textarea')||!!el.closest('[contenteditable="true"]');
- if(edit&&(key.length===1||key==='Backspace'||key==='Delete'||key==='Enter'))play('tap');
- else if(!edit&&(key==='Enter'||key===' '))play('tap');
+ if((key==='Enter'||key===' ')&&targetForTap(event.target))play('tap');
 }
 window.RatibFeedback={toast,play,reminder,read,write,syncUI,install};
 document.addEventListener('pointerdown',pressStart,{passive:true,capture:true});

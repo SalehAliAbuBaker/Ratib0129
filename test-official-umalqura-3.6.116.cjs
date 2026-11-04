@@ -5,7 +5,7 @@ const pkg=require('./package.json');
 assert.equal(pkg.version,'3.6.134');
 assert(html.includes('const RATIB_RELEASE={"version":"3.6.134","build":"p13400"'));
 assert(sw.includes('const APP_RELEASE={"version":"3.6.134","build":"p13400"'));
-assert(sw.includes('v249-official-edge-back-update-note-3.6.134'));
+assert(sw.includes('v251-license-verification-diagnostics-3.6.134'));
 for(const name of ['ratib-date-display.js','ratib-umalqura-output-3.6.116.css'])assert(sw.includes('"./'+name+'"'),'offline date asset '+name);
 assert(html.includes('ratib-date-display.js?v=3.6.134'));
 assert(html.includes('ratib-umalqura-output-3.6.116.css?v=3.6.134'));

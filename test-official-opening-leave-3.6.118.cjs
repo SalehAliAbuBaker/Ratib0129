@@ -5,7 +5,7 @@ const css=fs.readFileSync('ratib-opening-leave-3.6.118.css','utf8');
 const pkg=require('./package.json'),sw=fs.readFileSync('sw.js','utf8');
 assert.equal(pkg.version,'3.6.134');
 assert(html.includes('const RATIB_RELEASE={"version":"3.6.134","build":"p13400"'));
-assert(sw.includes('v249-official-edge-back-update-note-3.6.134'));
+assert(sw.includes('v251-license-verification-diagnostics-3.6.134'));
 assert(sw.includes('"./ratib-opening-leave-3.6.118.css"'));
 assert(html.includes('ratib-opening-leave-3.6.118.css?v=3.6.134'));
 assert(html.includes('ratib-voucher-polish-3.6.117.css?v=3.6.134'),'prior approved 3-way voucher stays');

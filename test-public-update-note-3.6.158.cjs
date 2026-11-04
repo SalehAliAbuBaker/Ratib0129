@@ -2,7 +2,7 @@
 'use strict';
 const assert=require('node:assert/strict'),fs=require('node:fs'),{JSDOM}=require('jsdom');
 const html=fs.readFileSync('index.html','utf8'),worker=fs.readFileSync('sw.js','utf8');
-const fixed='تصحيح الأخطاء في بعض الأجهزة';
+const fixed='نجري بانتظام تحديثات لتحسين الموثوقية والأداء وإصلاح الأخطاء';
 const line=worker.split('\n').find(x=>x.startsWith('const APP_RELEASE='));
 assert(line,'Worker release manifest must exist');
 const manifest=JSON.parse(line.slice('const APP_RELEASE='.length).replace(/;$/,''));

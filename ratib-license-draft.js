@@ -33,9 +33,20 @@
     // This request contract MUST be reconciled with the existing Worker before enabling.
     const response=await fetch(endpoint,{method:'POST',headers:{'Content-Type':'application/json'},
       body:JSON.stringify({license_key:code,device_id:deviceId(),email})});
-    if (!response.ok) throw new Error('تعذر التحقق من الترخيص');
-    const result=await response.json();
-    if(result.valid!==true)throw new Error(result.error||result.message||'الترخيص غير صالح');
+    let result;
+    try { result=await response.json(); }
+    catch (_) {
+      const error=new Error('تعذر قراءة رد خدمة التراخيص.');
+      error.transient=true;
+      throw error;
+    }
+    if (!response.ok || result?.valid!==true) {
+      const error=new Error(result?.error||result?.message||'تعذر التحقق من الترخيص');
+      // A 4xx device/license denial is definitive. A 5xx/408/429 response
+      // indicates a temporary service fault and must not revoke local activation.
+      error.transient=response.status===408||response.status===429||response.status>=500;
+      throw error;
+    }
     return result;
   }
 
@@ -71,24 +82,37 @@
     const result = await verifyLicense({ endpoint: API+'activate', code, email });
     const s = safeRead();
     Object.assign(s, { code, email, expiryDate: result.expiry_date || null,
-      activatedAt: Date.now(), checkedAt: Date.now(), verifiedAt: Date.now() });
+      activatedAt: Date.now(), checkedAt: Date.now(), verifiedAt: Date.now(), lastTransientCheckAt: 0 });
     safeWrite(s);
     return result;
   }
   async function licensed() {
     const s = safeRead();
-    if (!s.code || !validExpiry(s.expiryDate)) return false;
-    if (s.verifiedAt && Date.now()-s.checkedAt < CHECK_INTERVAL) return true;
-    // Never block an activated device merely because it is offline.
-    if (global.navigator?.onLine === false) return Number(s.verifiedAt||0) > 0;
+    if (!s.code) return false;
+    const unexpired=validExpiry(s.expiryDate);
+    const priorVerified=Number(s.verifiedAt||0)>0;
+    if (unexpired && priorVerified && Date.now()-Number(s.checkedAt||0)>=0 && Date.now()-Number(s.checkedAt||0)<CHECK_INTERVAL) return true;
+    // An expired local date can be renewed on the server; retry when online,
+    // but never grant access offline using an expired cached entitlement.
+    if (global.navigator?.onLine===false) return unexpired && priorVerified;
     try {
       const result = await verifyLicense({endpoint:API+'verify',code:s.code,email:s.email||''});
-      Object.assign(s,{verifiedAt:Date.now(),checkedAt:Date.now(),expiryDate:result.expiry_date||null});
+      Object.assign(s,{verifiedAt:Date.now(),checkedAt:Date.now(),expiryDate:result.expiry_date||null,lastTransientCheckAt:0});
       safeWrite(s);
       return true;
     } catch(err) {
-      if (err instanceof TypeError && Number(s.verifiedAt||0)>0) return true;
-      s.verifiedAt=0;s.checkedAt=0;safeWrite(s);
+      const transient=err?.transient===true || err instanceof TypeError;
+      // Preserve a previously server-verified, still-unexpired license only
+      // for connection/service errors, never for explicit invalid/revoked responses.
+      if (transient && priorVerified && unexpired) {
+        s.lastTransientCheckAt=Date.now();
+        safeWrite(s);
+        return true;
+      }
+      if (!transient) {
+        s.verifiedAt=0;s.checkedAt=0;s.lastTransientCheckAt=0;
+        safeWrite(s);
+      }
       return false;
     }
   }
@@ -131,7 +155,7 @@
     }else if(!s.expiryDate){
       lines.push('لم يحدد الخادم مدة انتهاء؛ وهذا لا يعني أن الترخيص دائم.');
     }
-    title.textContent=active?(offlineGrace?'✓ الجهاز مفعل — مهلة تحقق دون اتصال':'✓ الجهاز مفعل — الترخيص سارٍ'):(expired?'انتهت صلاحية ترخيص الجهاز':'تعذر تأكيد تفعيل الجهاز');
+    title.textContent=active?(offlineGrace?'✓ الجهاز مفعل — جارٍ إعادة التحقق عند عودة الخدمة':'✓ الجهاز مفعل — الترخيص سارٍ'):(expired?'انتهت صلاحية ترخيص الجهاز':'تعذر تأكيد تفعيل الجهاز');
     details.textContent=lines.join(String.fromCharCode(10));
     panel.style.borderColor=active?'var(--ok,#168653)':'var(--border,#94a3b8)';
   }

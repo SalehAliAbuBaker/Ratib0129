@@ -1653,7 +1653,7 @@ body.ratib-sidebar-open,body.ratib-about-open{overflow:hidden}
 <link rel="stylesheet" href="./ratib-trial-voucher-statement-3.6.125.css?v=3.6.139">
 <link rel="stylesheet" href="./ratib-cash-pulse.css?v=3.6.139">
 <link rel="stylesheet" href="./ratib-cloud-due-3.6.130.css?v=3.6.139">
-<link rel="stylesheet" href="./ratib-cash-actions-3.6.135.css?v=3.6.139">
+<link rel="stylesheet" href="./ratib-cash-actions-3.6.135.css?v=3.6.139-opening-fixes-20261106">
 </head>
 <body>
 
@@ -12706,7 +12706,7 @@ function groupImportedOpeningItems(txs){
 }
 groupLedgerItemsForDisplay=function(txs){return importedOpeningOldGroup(groupImportedOpeningItems(txs));};
 function importedOpeningOutputRows(doc){
- const rows=doc.records.map(t=>{const o=t.openingBalance;return [o.account,o.currency,o.debit,o.credit,o.baseCurrency,o.baseDebit,o.baseCredit,[t.isoDate,o.exchangeRate&&o.currency!==o.baseCurrency?'سعر الصرف: '+o.exchangeRate+' '+o.baseCurrency+' لكل '+o.currency:'',o.sourceRef,o.note].filter(Boolean).join(' — ')];});
+ const rows=doc.records.map(t=>{const o=t.openingBalance;return [o.account,o.currency,openingDisplayAmount(o.debit),openingDisplayAmount(o.credit),o.baseCurrency,openingDisplayAmount(o.baseDebit),openingDisplayAmount(o.baseCredit),[t.isoDate,o.exchangeRate&&o.currency!==o.baseCurrency?'سعر الصرف: '+o.exchangeRate+' '+o.baseCurrency+' لكل '+o.currency:'',o.sourceRef,o.note].filter(Boolean).join(' — ')];});
  for(const total of doc.totals)rows.push(['إجمالي التقييم','','','',total.currency,trialNumber(total.debit),trialNumber(total.credit),'الفرق: '+trialNumber(total.debit-total.credit)]);
  return rows;
 }
@@ -12716,11 +12716,11 @@ function importedOpeningPrint(item,transactions){
  document.getElementById('pvDate').innerHTML=ratibStatementDateHtml(doc.isoDate);
  document.getElementById('pvRecipientRow').style.display='none';document.getElementById('pvRecipientSignRow').style.display='none';
  const labels=['الحساب','العملة','مدين','دائن','عملة التقييم','مدين تقييم','دائن تقييم','التاريخ / المرجع / البيان'];
- document.getElementById('pvTableBox').innerHTML='<table class="pv-table"><thead><tr>'+labels.map(v=>'<th>'+esc(v)+'</th>').join('')+'</tr></thead><tbody>'+importedOpeningOutputRows(doc).map(row=>'<tr>'+row.map(v=>'<td>'+esc(v)+'</td>').join('')+'</tr>').join('')+'</tbody></table>';
+ document.getElementById('pvTableBox').innerHTML='<table class="pv-table opening-print-table"><thead><tr>'+labels.map(v=>'<th>'+esc(v)+'</th>').join('')+'</tr></thead><tbody>'+importedOpeningOutputRows(doc).map(row=>'<tr>'+row.map(v=>'<td>'+esc(v)+'</td>').join('')+'</tr>').join('')+'</tbody></table>';
  window.RatibSignatureSettings?.fillVoucher?.('opening');
  return doc;
 }
-function importedOpeningPdf(item,transactions){const doc=importedOpeningDocument(item,transactions);return buildPdfFromCanvases(renderPagedReportTable(doc.type,'رقم '+doc.seqNum+' — '+doc.isoDate,['الحساب','العملة','مدين','دائن','عملة التقييم','مدين تقييم','دائن تقييم','التاريخ / المرجع / البيان'],[210,65,120,120,95,135,135,210],importedOpeningOutputRows(doc),'opening'));}
+function importedOpeningPdf(item,transactions){const doc=importedOpeningDocument(item,transactions);return buildPdfFromCanvases(renderPagedReportTable(doc.type,'رقم '+doc.seqNum+' — '+doc.isoDate,['الحساب','العملة','مدين','دائن','عملة التقييم','مدين تقييم','دائن تقييم','التاريخ / المرجع / البيان'],[190,90,115,115,90,130,130,170],importedOpeningOutputRows(doc),'opening'));}
 let importedOpeningEdit=null;
 function importedOpeningModal(){
  let modal=document.getElementById('importedOpeningVoucherModal');if(modal)return modal;
@@ -12775,6 +12775,13 @@ function setOpeningEditorTitle(manual){
 function newManualOpeningLine(currency,date){
  return {id:'',isoDate:date,openingBalance:{account:'',currency,debit:'0',credit:'0',baseCurrency:currency,baseDebit:'0',baseCredit:'0',sourceRef:'إدخال يدوي',note:''}};
 }
+/* Manual opening vouchers use their own sequence; historical imported vouchers and other
+   document types retain their original identifiers and numbering. */
+function nextManualOpeningVoucherNumber(transactions=getAllTransactions()){
+ const used=transactions.filter(t=>t.isOpeningBalance&&t.isManualOpeningBalance&&!['deleted','reversed'].includes(t.status))
+  .map(t=>Number(t.seqNum)).filter(n=>Number.isSafeInteger(n)&&n>0);
+ return (used.length?Math.max(...used):0)+1;
+}
 function openManualOpeningVoucher(){
  try{
   if(importedOpeningEdit?.busy)return;
@@ -12784,7 +12791,7 @@ function openManualOpeningVoucher(){
   importedOpeningEdit={key,before:'[]',rows:[newManualOpeningLine(currency,date),newManualOpeningLine(currency,date)],manual:true,dirty:false,busy:false};
   importedOpeningEdit.rows[0]._openingSide='debit';importedOpeningEdit.rows[1]._openingSide='credit';
   setOpeningEditorTitle(true);
-  document.getElementById('importedOpeningSeq').value=String(getAllTransactions().reduce((n,t)=>Math.max(n,Number(t.seqNum)||0),0)+1);
+  document.getElementById('importedOpeningSeq').value=String(nextManualOpeningVoucherNumber());
   document.getElementById('importedOpeningSeq').oninput=()=>{if(importedOpeningEdit)importedOpeningEdit.dirty=true;};
   document.getElementById('importedOpeningError').textContent='';
   document.getElementById('importedOpeningAccounts').innerHTML=getCanonicalCatalog().flatMap(row=>row.details.map(([code,name])=>'<option value="'+esc(name)+'">'+esc(code)+'</option>')).join('');
@@ -12838,6 +12845,15 @@ function closeImportedOpeningVoucher(){
  importedOpeningEdit=null;
 }
 
+/* Comma grouping is visual only: saved ledger values remain unformatted decimal strings. */
+function openingDisplayAmount(raw){
+ let value=String(raw??'').trim().replace(/[٠-٩]/g,c=>String(c.charCodeAt(0)-1632))
+  .replace(/[۰-۹]/g,c=>String(c.charCodeAt(0)-1776)).replace(/٬/g,',').replace(/٫/g,'.');
+ if(/^\d{1,3}(?:,\d{3})+(?:\.\d{0,6})?$/.test(value))value=value.replace(/,/g,'');
+ if(!/^\d+(?:\.\d{0,6})?$/.test(value))return String(raw??'');
+ const parts=value.split('.');
+ return parts[0].replace(/\B(?=(\d{3})+(?!\d))/g,',')+(parts.length>1?'.'+parts[1]:'');
+}
 function openingFormRate(raw){
  let s=String(raw??'').trim().replace(/[٠-٩]/g,c=>String(c.charCodeAt(0)-1632)).replace(/[۰-۹]/g,c=>String(c.charCodeAt(0)-1776)).replace(/٬/g,',').replace(/٫/g,'.').replace(/\s+/g,'');
  if(/^\d{1,3}(,\d{3})+(\.\d{1,6})?$/.test(s))s=s.replace(/,/g,'');
@@ -12854,7 +12870,7 @@ function openingFormConvert(row,index){
  o[base]=val.toFixed(6).replace(/(\.\d*?)0+$/,'$1').replace(/\.$/,'');
  o[opposite]='0';
  const tr=document.querySelector('#importedOpeningRows tr[data-opening-index="'+index+'"]');
- if(tr){const el=tr.querySelector('[data-field="'+base+'"]');if(el)el.value=o[base];const v=tr.querySelector('.opening-fx-equivalent');if(v)v.textContent=trialNumber(Number(o[base]))+' '+o.baseCurrency;}
+ if(tr){const el=tr.querySelector('[data-field="'+base+'"]');if(el)el.value=openingDisplayAmount(o[base]);const v=tr.querySelector('.opening-fx-equivalent');if(v)v.textContent=trialNumber(Number(o[base]))+' '+o.baseCurrency;}
 }
 function openingFormDecorate(){
  const state=importedOpeningEdit,body=document.getElementById('importedOpeningRows');if(!state?.manual||!body)return;
@@ -12913,10 +12929,16 @@ function renderImportedOpeningRows(){
    const td=document.createElement('td'),el=document.createElement(['currency','baseCurrency'].includes(key)?'select':'input');el.dataset.field=key;el.dataset.row=index;el.setAttribute('aria-label',key==='account'?'الحساب':key==='isoDate'?'التاريخ':({'currency':'العملة','debit':'مدين','credit':'دائن','baseCurrency':'عملة التقييم','baseDebit':'مدين تقييم','baseCredit':'دائن تقييم','sourceRef':'مرجع المصدر','note':'البيان'})[key]);
    if(['currency','baseCurrency'].includes(key))el.innerHTML=importedRecordCurrencies([o.currency,o.baseCurrency]).map(c=>'<option value="'+esc(c)+'">'+esc(c)+'</option>').join('');
    if(key==='account'){el.setAttribute('list','importedOpeningAccounts');el.style.minWidth='180px';if(importedOpeningEdit?.manual)el.placeholder='الحساب';}else if(key==='isoDate'){el.type='date';}else if(!['note','sourceRef'].includes(key)){el.style.minWidth='90px';el.style.width='110px';if(el.tagName==='INPUT')el.inputMode='decimal';}
-   el.value=key==='isoDate'?t.isoDate:o[key]||'';el.oninput=el.onchange=()=>{if(importedOpeningEdit.busy){el.value=key==='isoDate'?t.isoDate:o[key]||'';return;}importedOpeningEdit.dirty=true;if(key==='isoDate')t.isoDate=el.value;else o[key]=el.value;
+   el.value=key==='isoDate'?t.isoDate:o[key]||'';
+    if(importedOpeningEdit?.manual&&['debit','credit','baseDebit','baseCredit'].includes(key)){
+     el.value=openingDisplayAmount(o[key]||'0');
+     el.addEventListener('focus',()=>{el.value=o[key]||'0';});
+     el.addEventListener('blur',()=>{el.value=openingDisplayAmount(o[key]||'0');});
+    }
+    el.oninput=el.onchange=()=>{if(importedOpeningEdit.busy){el.value=key==='isoDate'?t.isoDate:o[key]||'';return;}importedOpeningEdit.dirty=true;if(key==='isoDate')t.isoDate=el.value;else o[key]=el.value;
      if(importedOpeningEdit.manual&&o.currency===o.baseCurrency&&['debit','credit','currency','baseCurrency'].includes(key)){
       o.baseDebit=o.debit;o.baseCredit=o.credit;
-      for(const baseKey of ['baseDebit','baseCredit']){const baseEl=tr.querySelector('[data-field="'+baseKey+'"]');if(baseEl)baseEl.value=o[baseKey];}
+      for(const baseKey of ['baseDebit','baseCredit']){const baseEl=tr.querySelector('[data-field="'+baseKey+'"]');if(baseEl)baseEl.value=openingDisplayAmount(o[baseKey]);}
      }
      renderImportedOpeningTotals();};td.append(el);tr.append(td);
   }
@@ -12943,7 +12965,7 @@ function buildImportedOpeningVoucher(state,data){
   if(state.manual&&current.some(t=>!t.isManualOpeningBalance))throw Error('هذا القيد ليس قيدًا افتتاحيًا يدويًا.');
  const oldById=new Map(current.map(t=>[t.id,t])),outsidePairs=new Set(all.filter(t=>t.isOpeningBalance&&importedOpeningKey(t)!==state.key&&!['deleted','reversed'].includes(t.status)).map(t=>t.openingBalance?.account+'|'+t.openingBalance?.currency)),locations=new Map();for(const list of [data[APP_STORAGE_PREFIX+'plan']?.transactions,...(data[APP_STORAGE_PREFIX+'history']||[]).map(h=>h.transactions)].filter(Array.isArray))list.forEach((record,index)=>{if(!locations.has(record.id))locations.set(record.id,[]);locations.get(record.id).push({list,index});});
  const seq=document.getElementById('importedOpeningSeq').value.trim();if(!/^\d+$/.test(seq)||!Number.isSafeInteger(Number(seq))||Number(seq)<1)throw Error('أدخل رقم قيد صحيحًا.');
-  if(state.manual&&all.some(t=>t.isOpeningBalance&&importedOpeningKey(t)!==state.key&&!['deleted','reversed'].includes(t.status)&&Number(t.seqNum)===Number(seq)))throw Error('رقم القيد الافتتاحي مستخدم بالفعل.');
+  if(state.manual&&all.some(t=>t.isOpeningBalance&&t.isManualOpeningBalance&&importedOpeningKey(t)!==state.key&&!['deleted','reversed'].includes(t.status)&&Number(t.seqNum)===Number(seq)))throw Error('رقم القيد الافتتاحي مستخدم بالفعل.');
  const catalog=getCanonicalCatalog().flatMap(r=>r.details.map(([code,name])=>({code:String(code),name}))),pairs=new Set(),allowed=importedRecordCurrencies(current.flatMap(t=>[t.openingBalance.currency,t.openingBalance.baseCurrency])),stamp=new Date().toISOString();
  if(!state.rows.length)throw Error('أضف بنود القيد.');
   if(state.manual&&state.rows.length<2)throw Error('أدخل بندين على الأقل للقيد الافتتاحي.');
@@ -12994,7 +13016,7 @@ async function saveImportedOpeningVoucher(){
 }
 function closeImportedOpeningPreview(){const modal=document.getElementById('printPreviewModal');modal.classList.remove('show');releaseRatibOverlay(modal);delete modal.dataset.importedOpening;modal.style.zIndex='';}
 window.addEventListener('beforeunload',event=>{if(importedOpeningEdit?.dirty){event.preventDefault();event.returnValue='توجد تعديلات غير محفوظة في القيد.';}});
-function outputImportedOpeningEditor(kind){try{const result=buildImportedOpeningVoucher(importedOpeningEdit,legacyCurrentData()),item=result.records[0];if(kind==='pdf')downloadFinancialFile(importedOpeningPdf(item,result.records),importedOpeningEdit?.manual?'راتب-قيد-افتتاحي-يدوي.pdf':'راتب-قيد-الأرصدة-المستوردة.pdf');else{importedOpeningPrint(item,result.records);if(kind==='preview'){openPrintPreview('printVoucherContainer','printing-voucher');const preview=document.getElementById('printPreviewModal');preview.dataset.importedOpening='1';preview.style.zIndex=String((parseInt(getComputedStyle(document.getElementById('importedOpeningVoucherModal')).zIndex)||9999)+1);activateRatibOverlay(preview,document.getElementById('importedOpeningPreview'));const confirm=document.getElementById('printPreviewConfirmBtn');confirm.onclick=()=>{closeImportedOpeningPreview();printRatibDocument('printing-voucher');};document.getElementById('printPreviewCancelBtn').onclick=closeImportedOpeningPreview;}else printRatibDocument('printing-voucher');}}catch(e){document.getElementById('importedOpeningError').textContent=e.message;}}
+function outputImportedOpeningEditor(kind){try{const result=buildImportedOpeningVoucher(importedOpeningEdit,legacyCurrentData()),item=result.records[0];if(kind==='pdf')downloadFinancialFile(importedOpeningPdf(item,result.records),importedOpeningEdit?.manual?'راتب-قيد-افتتاحي-يدوي.pdf':'راتب-قيد-الأرصدة-المستوردة.pdf');else{importedOpeningPrint(item,result.records);if(kind==='preview'){const preview=document.getElementById('printPreviewModal');if(preview.parentElement!==document.body)document.body.appendChild(preview);openPrintPreview('printVoucherContainer','printing-voucher');preview.dataset.importedOpening='1';const body=document.getElementById('printPreviewBody');if(body){const paper=document.createElement('div');paper.className='ratib-opening-preview-paper';while(body.firstChild)paper.appendChild(body.firstChild);body.appendChild(paper);body.scrollLeft=0;body.scrollTop=0;}preview.style.zIndex=String((parseInt(getComputedStyle(document.getElementById('importedOpeningVoucherModal')).zIndex)||9999)+1);activateRatibOverlay(preview,document.getElementById('importedOpeningPreview'));const confirm=document.getElementById('printPreviewConfirmBtn');confirm.onclick=event=>{event?.preventDefault();event?.stopPropagation();closeImportedOpeningPreview();printRatibDocument('printing-voucher');};document.getElementById('printPreviewCancelBtn').onclick=event=>{event?.preventDefault();event?.stopPropagation();closeImportedOpeningPreview();};}else printRatibDocument('printing-voucher');}}catch(e){document.getElementById('importedOpeningError').textContent=e.message;}}
 
 const importedOpeningLaunch=document.createElement('button');importedOpeningLaunch.id='openImportedOpeningVoucherBtn';importedOpeningLaunch.type='button';importedOpeningLaunch.className='btn btn-ghost';importedOpeningLaunch.textContent='فتح قيد الأرصدة المستوردة';document.getElementById('loadLegacyImportBtn').after(importedOpeningLaunch);importedOpeningLaunch.onclick=()=>{const records=getAllTransactions().filter(t=>t.isOpeningBalance&&!t.isManualOpeningBalance&&!['deleted','reversed'].includes(t.status)),selected=records.filter(t=>t.importBatchId===legacyImportState.replaceBatch),item=selected[0]||records.at(-1);if(!item){showToast('لا توجد أرصدة مستوردة محفوظة.','info');return;}closeLegacyImport();openImportedOpeningVoucher(item);};
 

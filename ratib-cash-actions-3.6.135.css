@@ -341,3 +341,49 @@ background:color-mix(in srgb,var(--accent) 8%,var(--card))!important}
   grid-row:5!important
  }
 }
+
+
+/* Manual opening preview only. Keep other voucher/report preview behavior unchanged. */
+@media screen {
+ #printPreviewModal[data-imported-opening="1"]{
+  z-index:100300!important;inset:0!important;overflow:auto!important;
+  align-items:center!important;justify-content:center!important;
+ }
+ #printPreviewModal[data-imported-opening="1"]>.modal-content{
+  width:min(1120px,98vw)!important;max-width:98vw!important;
+  height:min(92dvh,940px)!important;max-height:92dvh!important;
+  display:flex!important;flex-direction:column!important;
+  box-sizing:border-box!important;overflow:hidden!important;
+  margin:auto!important;min-width:0!important;
+ }
+ #printPreviewModal[data-imported-opening="1"] #printPreviewBody{
+  flex:1 1 auto!important;min-height:0!important;
+  overflow:auto!important;max-height:none!important;
+  width:100%!important;max-width:100%!important;box-sizing:border-box!important;
+  direction:ltr!important;text-align:left!important;
+  -webkit-overflow-scrolling:touch!important;overscroll-behavior:contain;
+  touch-action:pan-x pan-y pinch-zoom;
+ }
+ #printPreviewModal[data-imported-opening="1"] #printPreviewBody>.ratib-opening-preview-paper{
+  box-sizing:border-box!important;display:block!important;
+  width:850px!important;min-width:850px!important;max-width:none!important;
+  margin:0 auto!important;direction:rtl!important;text-align:right!important;
+ }
+ #printPreviewModal[data-imported-opening="1"] #printPreviewBody .pv-table{
+  table-layout:fixed!important;width:100%!important;
+ }
+ #printPreviewModal[data-imported-opening="1"] #printPreviewBody .pv-table :is(th,td):is(:nth-child(2),:nth-child(5)){
+  white-space:nowrap!important;word-break:keep-all!important;min-width:60px!important;
+ }
+ #printPreviewModal[data-imported-opening="1"] :is(#printPreviewConfirmBtn,#printPreviewCancelBtn){
+  min-height:44px!important;touch-action:manipulation!important;position:relative!important;z-index:2!important;
+ }
+}
+@media print {
+ body.printing-voucher #printVoucherContainer #pvTableBox .opening-print-table{
+  table-layout:fixed!important;width:100%!important;
+ }
+ body.printing-voucher #printVoucherContainer #pvTableBox .opening-print-table :is(th,td):is(:nth-child(2),:nth-child(5)){
+  white-space:nowrap!important;word-break:keep-all!important;
+ }
+}

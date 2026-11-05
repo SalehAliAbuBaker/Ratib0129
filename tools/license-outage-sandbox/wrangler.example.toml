@@ -1,0 +1,15 @@
+# Rename to wrangler.toml, then replace the placeholder with the UUID
+# returned by: npx wrangler d1 create ratib-license-outage-sandbox-20261105
+# NEVER paste the production D1 database_id into this file.
+name = "ratib-license-outage-sandbox-20261105"
+main = "worker.mjs"
+compatibility_date = "2026-11-05"
+workers_dev = true
+
+[vars]
+OUTAGE_MODE = "none"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "ratib-license-outage-sandbox-20261105"
+database_id = "REPLACE_WITH_NEW_SANDBOX_D1_UUID"

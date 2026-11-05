@@ -61,3 +61,36 @@ font:500 14px/1.4 Tajawal,sans-serif!important;text-align:right!important;cursor
 background:color-mix(in srgb,var(--accent) 8%,var(--card))!important}
 }
 @media print{#multiVoucherCard #ratibCashMore{display:none!important}}
+/* Ratib cash-voucher mobile line delete: keep the original button inside note row. */
+@media screen and (max-width:700px){
+  /* The note remains the full-width fourth row; no fifth row for the delete button. */
+  #multiVoucherCard.spend-voucher .multi-voucher-table tbody tr > td:nth-child(7){
+    grid-column:1/-1!important;grid-row:4!important;min-width:0!important
+  }
+  #multiVoucherCard.spend-voucher .multi-voucher-table tbody tr > td:nth-child(7) > .multi-line-note{
+    box-sizing:border-box!important;padding-inline-end:58px!important
+  }
+  /* Overlay the existing delete control on the left side of the note field in RTL.
+     No DOM movement, new handlers, or changes to the stored voucher. */
+  #multiVoucherCard.spend-voucher .multi-voucher-table tbody tr > td:nth-child(8){
+    grid-column:1/-1!important;grid-row:4!important;
+    justify-self:end!important;align-self:center!important;
+    display:flex!important;align-items:center!important;justify-content:center!important;
+    width:44px!important;min-width:44px!important;max-width:44px!important;
+    height:44px!important;min-height:44px!important;
+    margin:0 7px 0 0!important;padding:0!important;
+    border:0!important;background:transparent!important;box-shadow:none!important;
+    z-index:2!important
+  }
+  #multiVoucherCard.spend-voucher .multi-voucher-table tbody tr > td:nth-child(8) > .spend-row-actions{
+    display:flex!important;align-items:center!important;justify-content:center!important;
+    width:40px!important;height:40px!important;margin:0!important;padding:0!important
+  }
+  #multiVoucherCard.spend-voucher .multi-voucher-table tbody tr > td:nth-child(8) .multi-remove-line{
+    display:inline-flex!important;align-items:center!important;justify-content:center!important;
+    width:36px!important;min-width:36px!important;height:36px!important;min-height:36px!important;
+    padding:0!important;margin:0!important;border:0!important;
+    background:transparent!important;color:var(--danger,#b3261e)!important;
+    font-size:24px!important;line-height:1!important
+  }
+}

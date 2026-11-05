@@ -1,0 +1,63 @@
+/* 3.6.135: UI only; receipt and payment action buttons, mobile. */
+#multiVoucherCard .ratib-cash-more{display:none}
+@media screen and (max-width:700px){
+#multiVoucherCard.spend-voucher .multi-voucher-actions.ratib-voucher-actions{
+display:grid!important;grid-template-columns:repeat(15,minmax(0,1fr))!important;grid-template-rows:minmax(60px,auto) 60px!important;
+gap:6px 4px!important;direction:rtl!important;align-items:stretch!important;overflow:visible!important;
+width:100%!important;max-width:100%!important;min-width:0!important;padding:0!important;margin:10px 0 6px!important}
+#multiVoucherCard.spend-voucher .multi-voucher-actions.ratib-voucher-actions>*{box-sizing:border-box!important;min-width:0!important;max-width:100%!important}
+#multiVoucherCard.spend-voucher .multi-voucher-actions.ratib-voucher-actions>#ratibSaveAndNew{
+grid-column:1/span 6!important;grid-row:1!important;display:flex!important;align-items:center!important;justify-content:center!important;
+order:unset!important;flex:initial!important;width:100%!important;height:100%!important;min-height:60px!important;
+margin:0!important;padding:5px 3px!important;text-align:center!important;white-space:normal!important;overflow-wrap:normal!important;
+word-break:normal!important;line-height:1.3!important;font-size:clamp(11px,3vw,14px)!important}
+#multiVoucherCard.spend-voucher .multi-voucher-actions.ratib-voucher-actions>.voucher-savebar{
+grid-column:7/span 5!important;grid-row:1!important;order:unset!important;flex:initial!important;
+width:100%!important;height:100%!important;min-height:0!important;position:static!important;
+box-shadow:none!important;padding:0!important;margin:0!important}
+#multiVoucherCard.spend-voucher .multi-voucher-actions.ratib-voucher-actions>.voucher-savebar>#commitMultiVoucherBtn{
+display:flex!important;align-items:center!important;justify-content:center!important;width:100%!important;height:100%!important;min-height:60px!important;
+margin:0!important;padding:5px 3px!important;text-align:center!important;white-space:normal!important;
+line-height:1.3!important;font-size:clamp(11px,3vw,14px)!important}
+#multiVoucherCard.spend-voucher .multi-voucher-actions.ratib-voucher-actions>.btn-danger{
+grid-column:12/span 4!important;grid-row:1!important;order:unset!important;flex:initial!important;
+display:flex!important;align-items:center!important;justify-content:center!important;width:100%!important;height:100%!important;
+min-height:60px!important;margin:0!important;padding:5px 3px!important;white-space:normal!important;
+word-break:normal!important;font-size:clamp(11px,3vw,14px)!important}
+#multiVoucherCard.spend-voucher .multi-voucher-actions.ratib-voucher-actions>:is(#ratibMultiVoucherPreviewBtn,#ratibMultiVoucherShareBtn,#printMultiVoucherBtn,#saveMultiDraftBtn){
+display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;gap:3px!important;
+order:unset!important;flex:initial!important;width:100%!important;min-width:0!important;max-width:100%!important;
+height:60px!important;min-height:60px!important;margin:0!important;padding:4px 1px!important;
+border:1px solid var(--border)!important;border-radius:10px!important;overflow:hidden!important}
+#multiVoucherCard.spend-voucher .multi-voucher-actions.ratib-voucher-actions>:is(#ratibMultiVoucherPreviewBtn,#ratibMultiVoucherShareBtn,#printMultiVoucherBtn,#saveMultiDraftBtn)::after{
+content:attr(data-ratib-short);display:block!important;color:inherit;font:500 10px/1.1 Tajawal,sans-serif!important;white-space:nowrap!important}
+#multiVoucherCard.spend-voucher .multi-voucher-actions.ratib-voucher-actions>.ratib-output-icon>svg{
+display:block!important;width:21px!important;height:21px!important;flex:none!important}
+#multiVoucherCard.spend-voucher .multi-voucher-actions.ratib-voucher-actions>#ratibMultiVoucherPreviewBtn{grid-column:1/span 3!important;grid-row:2!important}
+#multiVoucherCard.spend-voucher .multi-voucher-actions.ratib-voucher-actions>#ratibMultiVoucherShareBtn{grid-column:4/span 3!important;grid-row:2!important}
+#multiVoucherCard.spend-voucher .multi-voucher-actions.ratib-voucher-actions>#printMultiVoucherBtn{grid-column:7/span 3!important;grid-row:2!important}
+#multiVoucherCard.spend-voucher .multi-voucher-actions.ratib-voucher-actions>#saveMultiDraftBtn{grid-column:10/span 3!important;grid-row:2!important}
+#multiVoucherCard.spend-voucher .multi-voucher-actions.ratib-voucher-actions>:is(#ratibMultiVoucherA4Btn,#pdfMultiVoucherBtn,#loadMultiDraftBtn,#spendFxButton){display:none!important}
+#multiVoucherCard.spend-voucher .multi-voucher-actions.ratib-voucher-actions>#ratibCashMore{
+grid-column:13/span 3!important;grid-row:2!important;order:unset!important;display:block!important;
+position:relative!important;width:100%!important;height:60px!important;margin:0!important;overflow:visible!important}
+#multiVoucherCard.spend-voucher #ratibCashMoreToggle{
+display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;gap:2px!important;
+width:100%!important;height:60px!important;min-height:60px!important;margin:0!important;padding:3px 1px!important;
+border:1px solid var(--border)!important;border-radius:10px!important;background:var(--card)!important;color:var(--accent)!important;cursor:pointer}
+#multiVoucherCard.spend-voucher #ratibCashMoreToggle .ratib-cash-more-glyph{font:700 24px/1 Tajawal,sans-serif!important}
+#multiVoucherCard.spend-voucher #ratibCashMoreToggle .ratib-cash-more-caption{font:500 10px/1.2 Tajawal,sans-serif!important}
+#multiVoucherCard.spend-voucher #ratibCashMoreList{
+position:absolute!important;z-index:450!important;top:calc(100% + 6px);inset-inline-end:0;
+width:min(248px,calc(100vw - 48px));padding:6px;display:flex;flex-direction:column;gap:4px;
+background:var(--card);border:1px solid var(--border);border-radius:11px;box-shadow:0 8px 28px rgba(0,0,0,.14);direction:rtl}
+#multiVoucherCard.spend-voucher #ratibCashMoreList[hidden]{display:none!important}
+#multiVoucherCard.spend-voucher #ratibCashMoreList button{
+display:block!important;width:100%!important;min-height:42px!important;margin:0!important;padding:8px 11px!important;
+border:0!important;border-radius:8px!important;background:transparent!important;color:var(--text)!important;
+font:500 14px/1.4 Tajawal,sans-serif!important;text-align:right!important;cursor:pointer}
+#multiVoucherCard.spend-voucher #ratibCashMoreList button:hover,
+#multiVoucherCard.spend-voucher #ratibCashMoreList button:focus-visible{
+background:color-mix(in srgb,var(--accent) 8%,var(--card))!important}
+}
+@media print{#multiVoucherCard #ratibCashMore{display:none!important}}

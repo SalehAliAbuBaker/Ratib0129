@@ -5,9 +5,9 @@ const html=fs.readFileSync('index.html','utf8');
 const css=fs.readFileSync('ratib-cash-actions-3.6.135.css','utf8');
 const sw=fs.readFileSync('sw.js','utf8');
 const pkg=JSON.parse(fs.readFileSync('package.json','utf8'));
-assert.equal(pkg.version,'3.6.138');
-assert(html.includes('"version":"3.6.138","build":"p13800"'));
-assert(sw.includes("v259-opening-mobile-verified-3.6.138"));
+assert.equal(pkg.version,'3.6.139');
+assert(html.includes('"version":"3.6.139","build":"p13900"'));
+assert(sw.includes("v260-opening-mobile-clean-3.6.139"));
 const start=html.indexOf('function openingFormRate(raw){');
 const end=html.indexOf('function openingFormDecorate(){',start);
 assert(start>0&&end>start,'Manual opening helper functions are present');
@@ -38,4 +38,11 @@ assert(html.includes('openingFormConvert(row,index);renderImportedOpeningRows();
 assert(css.includes('#importedOpeningVoucherModal.opening-manual #importedOpeningShare'),'Mobile share button is present');
 assert(css.includes('#importedOpeningVoucherModal #importedOpeningShare{display:none}'),'Imported editor share remains hidden');
 assert(css.includes('.opening-side-choices'),'Simplified debit/credit selection is styled');
-console.log('PASS official 3.6.138 opening mobile: rate, equivalent, legacy protection, share, CSS scoping');
+console.log('PASS official 3.6.139 opening mobile: rate, equivalent, legacy protection, share, CSS scoping');
+
+// Presentation regressions: do not reintroduce duplicate date or oversized remove control.
+assert(html.includes('box.textContent=multiple?'),'Opening date preview must not duplicate the native Hijri date');
+assert(html.includes('data-skip-calculator="1"'),'Rate input must not acquire a second calculator');
+assert(html.includes("action.prepend(heading)"),'Remove action must be moved to line heading');
+assert(css.includes('.opening-line-number'),'Mobile entry header must be styled');
+assert(css.includes('td:nth-child(11)>button'),'Small inline remove control must be styled');

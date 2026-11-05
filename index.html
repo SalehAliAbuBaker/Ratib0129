@@ -12716,7 +12716,7 @@ function importedOpeningPrint(item,transactions){
  document.getElementById('pvDate').innerHTML=ratibStatementDateHtml(doc.isoDate);
  document.getElementById('pvRecipientRow').style.display='none';document.getElementById('pvRecipientSignRow').style.display='none';
  const labels=['الحساب','العملة','مدين','دائن','عملة التقييم','مدين تقييم','دائن تقييم','التاريخ / المرجع / البيان'];
- document.getElementById('pvTableBox').innerHTML='<table class="pv-table"><thead><tr>'+labels.map(v=>'<th>'+esc(v)+'</th>').join('')+'</tr></thead><tbody>'+importedOpeningOutputRows(doc).map(row=>'<tr>'+row.map(v=>'<td>'+esc(v)+'</td>').join('')+'</tr>').join('')+'</tbody></table>';
+ document.getElementById('pvTableBox').innerHTML='<table class="pv-table opening-print-table"><thead><tr>'+labels.map(v=>'<th>'+esc(v)+'</th>').join('')+'</tr></thead><tbody>'+importedOpeningOutputRows(doc).map(row=>'<tr>'+row.map(v=>'<td>'+esc(v)+'</td>').join('')+'</tr>').join('')+'</tbody></table>';
  window.RatibSignatureSettings?.fillVoucher?.('opening');
  return doc;
 }

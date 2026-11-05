@@ -233,3 +233,111 @@ background:color-mix(in srgb,var(--accent) 8%,var(--card))!important}
 #importedOpeningVoucherModal.opening-manual .opening-mixed-dates{display:block;color:var(--danger);line-height:1.3}
 #importedOpeningVoucherModal.opening-manual #importedOpeningRows>tr.opening-foreign>td:nth-child(6),
 #importedOpeningVoucherModal.opening-manual #importedOpeningRows>tr.opening-foreign>td:nth-child(7){display:none!important}
+
+
+/* Official 3.6.139: correct the manual opening journal layout shown on mobile. */
+@media screen{
+ #importedOpeningVoucherModal.opening-manual #openingHeader{
+  align-items:start!important;gap:9px!important;margin:8px 0 12px!important
+ }
+ #importedOpeningVoucherModal.opening-manual #openingDateHijri:empty{display:none!important}
+ #importedOpeningVoucherModal.opening-manual #openingDateHijri:not(:empty){
+  display:block!important;font-size:11px!important;line-height:1.4!important;
+  margin-top:4px!important;color:var(--danger)!important
+ }
+ #importedOpeningVoucherModal.opening-manual #importedOpeningRows>tr{
+  display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  align-items:start!important;gap:7px!important;padding:9px!important;
+  margin:0 0 10px!important;min-width:0!important
+ }
+ #importedOpeningVoucherModal.opening-manual #importedOpeningRows>tr>td{
+  min-width:0!important;max-width:100%!important;margin:0!important;
+  padding:0!important;position:static!important;box-sizing:border-box!important
+ }
+ #importedOpeningVoucherModal.opening-manual #importedOpeningRows>tr>td::before{
+  position:static!important;inset:auto!important;line-height:1.35!important;
+  margin:0 0 3px!important;white-space:normal!important
+ }
+ /* Reuse the existing remove button in a compact, dedicated card header. */
+ #importedOpeningVoucherModal.opening-manual #importedOpeningRows>tr>td:nth-child(11){
+  display:flex!important;flex-direction:row!important;align-items:center!important;
+  justify-content:space-between!important;grid-column:1/-1!important;grid-row:1!important;
+  min-height:42px!important;width:100%!important;padding-bottom:5px!important;
+  border-bottom:1px solid var(--border)!important
+ }
+ #importedOpeningVoucherModal.opening-manual #importedOpeningRows>tr>td:nth-child(11)::before{display:none!important}
+ #importedOpeningVoucherModal.opening-manual .opening-line-number{
+  color:var(--accent)!important;font:700 15px Tajawal,sans-serif!important;
+  white-space:nowrap!important
+ }
+ #importedOpeningVoucherModal.opening-manual #importedOpeningRows>tr>td:nth-child(11)>button{
+  display:inline-flex!important;flex:0 0 42px!important;justify-content:center!important;
+  align-items:center!important;width:42px!important;min-width:42px!important;
+  max-width:42px!important;height:40px!important;min-height:40px!important;
+  max-height:40px!important;box-sizing:border-box!important;margin:0!important;
+  padding:0 2px!important;white-space:nowrap!important;
+  border:1px solid var(--border)!important;border-radius:9px!important;
+  background:var(--card)!important;color:var(--danger)!important;
+  font:700 18px Tajawal,sans-serif!important
+ }
+ /* Account name sits inside the input, with no redundant heading. */
+ #importedOpeningVoucherModal.opening-manual #importedOpeningRows>tr>td:nth-child(1){
+  grid-column:1/-1!important;grid-row:2!important
+ }
+ #importedOpeningVoucherModal.opening-manual #importedOpeningRows>tr>td:nth-child(1)::before{display:none!important}
+ #importedOpeningVoucherModal.opening-manual #importedOpeningRows>tr>td:nth-child(1)>input{
+  display:block!important;min-height:44px!important;height:44px!important;
+  width:100%!important;max-width:100%!important;min-width:0!important;
+  box-sizing:border-box!important;text-align:right!important
+ }
+ /* A two-way side switch is self-explanatory; remove its second title. */
+ #importedOpeningVoucherModal.opening-manual #importedOpeningRows>tr>.opening-side{
+  grid-column:1/-1!important;grid-row:3!important
+ }
+ #importedOpeningVoucherModal.opening-manual #importedOpeningRows>tr>.opening-side>span,
+ #importedOpeningVoucherModal.opening-manual #importedOpeningRows>tr>.opening-side::before{display:none!important}
+ #importedOpeningVoucherModal.opening-manual #importedOpeningRows>tr>td:nth-child(2){
+  grid-column:1!important;grid-row:4!important
+ }
+ #importedOpeningVoucherModal.opening-manual #importedOpeningRows>tr>td:nth-child(3),
+ #importedOpeningVoucherModal.opening-manual #importedOpeningRows>tr>td:nth-child(4){
+  grid-column:2!important;grid-row:4!important
+ }
+ /* One line for foreign exchange rate, with equivalent just underneath. */
+ #importedOpeningVoucherModal.opening-manual #importedOpeningRows>tr>td:nth-child(5){
+  grid-column:1!important;grid-row:5!important
+ }
+ #importedOpeningVoucherModal.opening-manual #importedOpeningRows>tr>.opening-fx{
+  grid-column:2!important;grid-row:5!important;
+  display:flex!important;flex-direction:column!important;gap:5px!important
+ }
+ #importedOpeningVoucherModal.opening-manual #importedOpeningRows>tr>.opening-fx>label{
+  display:flex!important;flex-direction:column!important;gap:3px!important;
+  width:100%!important;min-width:0!important;
+  color:var(--muted)!important;font:500 12px Tajawal,sans-serif!important
+ }
+ #importedOpeningVoucherModal.opening-manual #importedOpeningRows>tr>.opening-fx input{
+  display:block!important;width:100%!important;min-width:0!important;max-width:100%!important;
+  min-height:44px!important;box-sizing:border-box!important;
+  padding:7px 9px!important;font:400 14px Tajawal,sans-serif!important
+ }
+ #importedOpeningVoucherModal.opening-manual #importedOpeningRows>tr>.opening-fx .financial-number-field{
+  width:100%!important;min-width:0!important
+ }
+ #importedOpeningVoucherModal.opening-manual #importedOpeningRows>tr>.opening-fx .financial-calc-trigger{
+  display:none!important
+ }
+ #importedOpeningVoucherModal.opening-manual #importedOpeningRows>tr>.opening-fx>div{
+  font-size:12px!important;line-height:1.4!important;overflow-wrap:anywhere!important
+ }
+ /* Foreign-only supporting fields; local lines skip these rows entirely. */
+ #importedOpeningVoucherModal.opening-manual #importedOpeningRows>tr>td:nth-child(9){
+  grid-column:1/-1!important;grid-row:6!important
+ }
+ #importedOpeningVoucherModal.opening-manual #importedOpeningRows>tr>td:nth-child(10){
+  grid-column:1/-1!important;grid-row:7!important
+ }
+ #importedOpeningVoucherModal.opening-manual #importedOpeningRows>tr:not(.opening-foreign)>td:nth-child(10){
+  grid-row:5!important
+ }
+}

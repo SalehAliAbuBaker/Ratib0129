@@ -127,23 +127,23 @@ export default {
         }
         if (email && !validEmail(email)) return reply({ valid: false, error: 'البريد الإلكتروني غير صحيح.' }, 400);
         const row = await env.DB.prepare('SELECT * FROM licenses WHERE id=? LIMIT 1').bind(license).first();
-        if (!row) return reply({ valid: false, error: 'رقم الترخيص غير موجود.' }, 404);
-        if (row.status !== 'active') return reply({ valid: false, error: 'تم إيقاف الترخيص.' }, 403);
+        if (!row) return reply({ valid: false, code: 'LICENSE_RECORD_MISSING', error: 'رقم الترخيص غير موجود.' }, 404);
+        if (row.status !== 'active') return reply({ valid: false, code: 'LICENSE_REVOKED', error: 'تم إيقاف الترخيص.' }, 403);
         const expiry = row.expiry_date ? Date.parse(String(row.expiry_date).replace(' ', 'T')+'Z') : null;
         const start = row.start_date ? Date.parse(String(row.start_date).replace(' ', 'T')+'Z') : null;
         if (row.start_date && (!Number.isFinite(start) || start > Date.now())) {
           return reply({ valid: false, error: 'لم تبدأ صلاحية الترخيص بعد.' }, 403);
         }
         if (row.expiry_date && (!Number.isFinite(expiry) || expiry <= Date.now())) {
-          return reply({ valid: false, error: 'انتهت صلاحية الترخيص.' }, 403);
+          return reply({ valid: false, code: 'LICENSE_EXPIRED', error: 'انتهت صلاحية الترخيص.' }, 403);
         }
         if (row.binding_type !== 'device' && (!email || String(row.email || '').toLowerCase() !== email.toLowerCase())) {
           return reply({ valid: false, error: 'البريد الإلكتروني لا يطابق الترخيص.' }, 403);
         }
         const existing = await env.DB.prepare('SELECT status FROM license_devices WHERE license_id=? AND device_id=?').bind(license, device).first();
-        if (existing && existing.status !== 'active') return reply({ valid: false, error: 'تم إيقاف هذا الجهاز.' }, 403);
+        if (existing && existing.status !== 'active') return reply({ valid: false, code: 'DEVICE_REVOKED', error: 'تم إيقاف هذا الجهاز.' }, 403);
         if (!existing) {
-          if (path !== '/api/license/activate') return reply({ valid: false, error: 'لم يُفعّل الترخيص على هذا الجهاز.' }, 403);
+          if (path !== '/api/license/activate') return reply({ valid: false, code: 'DEVICE_BINDING_MISSING', error: 'لم يُفعّل الترخيص على هذا الجهاز.' }, 403);
           const result = await env.DB.prepare(`INSERT INTO license_devices
             (id,license_id,device_id,device_name,activated_at,last_seen_at,status)
             SELECT ?,?,?,NULL,CURRENT_TIMESTAMP,CURRENT_TIMESTAMP,'active'

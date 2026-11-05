@@ -12731,7 +12731,15 @@ function importedOpeningModal(){
  const dateLabel=document.createElement('label');dateLabel.id='openingDateLabel';dateLabel.innerHTML='التاريخ<input id="importedOpeningHeaderDate" type="date"><span id="openingDateHijri"></span>';header.append(dateLabel);
  dateLabel.querySelector('input').addEventListener('change',e=>{
   if(!importedOpeningEdit?.manual||importedOpeningEdit.busy||!e.target.value)return;
-  importedOpeningEdit.dirty=true;for(const row of importedOpeningEdit.rows)row.isoDate=e.target.value;renderImportedOpeningRows();
+  importedOpeningEdit.dirty=true;
+  for(const row of importedOpeningEdit.rows){
+   if(row.isoDate!==e.target.value&&row.openingBalance.currency!==row.openingBalance.baseCurrency){
+    delete row.openingBalance.exchangeRate;row.openingBalance.sourceRef='';
+    row.openingBalance.baseDebit='0';row.openingBalance.baseCredit='0';
+   }
+   row.isoDate=e.target.value;
+  }
+  renderImportedOpeningRows();
  });
  const share=document.createElement('button');share.id='importedOpeningShare';share.type='button';share.className='btn btn-ghost';share.textContent='🔗 مشاركة';
  document.getElementById('importedOpeningPdf').after(share);
@@ -12872,7 +12880,15 @@ function openingFormDecorate(){
   fx.querySelector('input').addEventListener('input',e=>{o.exchangeRate=e.target.value;state.dirty=true;openingFormConvert(row,index);renderImportedOpeningTotals();});
   tr.querySelectorAll('[data-field="debit"],[data-field="credit"]').forEach(el=>el.addEventListener('input',()=>{openingFormConvert(row,index);renderImportedOpeningTotals();}));
   tr.querySelectorAll('[data-field="baseDebit"],[data-field="baseCredit"]').forEach(el=>{el.readOnly=true;el.tabIndex=-1;});
-  tr.querySelectorAll('[data-field="currency"],[data-field="baseCurrency"]').forEach(el=>el.addEventListener('change',()=>{openingFormConvert(row,index);renderImportedOpeningRows();}));
+  row._openingFxPair=o.currency+'|'+o.baseCurrency;
+  tr.querySelectorAll('[data-field="currency"],[data-field="baseCurrency"]').forEach(el=>el.addEventListener('change',()=>{
+   const nextPair=o.currency+'|'+o.baseCurrency;
+   if(nextPair!==row._openingFxPair){
+    delete o.exchangeRate;o.sourceRef='';o.baseDebit='0';o.baseCredit='0';
+    row._openingFxPair=nextPair;
+   }
+   openingFormConvert(row,index);renderImportedOpeningRows();
+  }));
   if(!row.id&&o.currency!==o.baseCurrency){
    const ref=tr.querySelector('[data-field="sourceRef"]');if(ref&&ref.value==='إدخال يدوي'){ref.value='';o.sourceRef='';}
   }

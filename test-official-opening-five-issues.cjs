@@ -32,7 +32,7 @@ assert(html.includes('openingDisplayAmount(o.baseDebit),openingDisplayAmount(o.b
 assert(html.includes('[190,90,115,115,90,130,130,170]'),'PDF currency columns widened');
 assert(css.includes('#printPreviewBody>.ratib-opening-preview-paper'),'Preview is a distinct horizontally scrollable paper');
 assert(css.includes('touch-action:pan-x pan-y pinch-zoom'),'Opening preview can pan and pinch');
-assert(css.includes('body.printing-voucher #printVoucherContainer #pvTableBox .pv-table'),'Native print has currency wrapping fix');
+assert(css.includes('body.printing-voucher #printVoucherContainer #pvTableBox .opening-print-table'),'Native print has currency wrapping fix');
 const document=new JSDOM('<body><div id="importedOpeningVoucherModal"><button id="importedOpeningPreview"></button></div><div id="printPreviewModal"><div id="printPreviewBody"></div><button id="printPreviewConfirmBtn"></button><button id="printPreviewCancelBtn"></button></div><div id="importedOpeningError"></div></body>').window.document;
 const calls={printed:0,closed:0};
 const context={

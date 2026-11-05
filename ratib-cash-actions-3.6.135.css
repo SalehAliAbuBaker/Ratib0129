@@ -169,3 +169,60 @@ background:color-mix(in srgb,var(--accent) 8%,var(--card))!important}
 #cashFlowCard :is(#voucherAmountInput,#voucherCurrencySelect,#voucherDateInput,#voucherNoteInput){max-width:100%!important;box-sizing:border-box!important}
 /* The opening journal retains its original pre-3.6.135 presentation. */
 }
+
+
+@media screen{
+#importedOpeningVoucherModal #openingDateLabel,#importedOpeningVoucherModal #importedOpeningShare{display:none}
+#importedOpeningVoucherModal.opening-manual>.modal-content{width:min(640px,96vw)!important;max-width:96vw!important;box-sizing:border-box!important;padding:12px!important}
+#importedOpeningVoucherModal.opening-manual #importedOpeningDescription{display:none!important}
+#importedOpeningVoucherModal.opening-manual #openingHeader{display:grid;grid-template-columns:minmax(0,.8fr) minmax(0,1.2fr);gap:10px;margin:8px 0}
+#importedOpeningVoucherModal.opening-manual #openingHeader label{display:flex;flex-direction:column;gap:4px;min-width:0}
+#importedOpeningVoucherModal.opening-manual #openingDateLabel{display:flex}
+#importedOpeningVoucherModal.opening-manual #openingHeader input{width:100%!important;min-width:0!important;box-sizing:border-box}
+#importedOpeningVoucherModal.opening-manual #openingDateHijri{font-size:12px;color:var(--muted)}
+#importedOpeningVoucherModal.opening-manual .modal-content>div:has(>.pv-table){overflow:visible!important;max-width:100%}
+#importedOpeningVoucherModal.opening-manual .pv-table,#importedOpeningVoucherModal.opening-manual .pv-table tbody{display:block!important;width:100%!important;min-width:0!important}
+#importedOpeningVoucherModal.opening-manual .pv-table thead{display:none!important}
+#importedOpeningVoucherModal.opening-manual #importedOpeningRows>tr{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;box-sizing:border-box;width:100%!important;border:1px solid var(--border);border-radius:12px;padding:10px;margin:0 0 12px;background:color-mix(in srgb,var(--accent) 5%,var(--card))}
+#importedOpeningVoucherModal.opening-manual #importedOpeningRows>tr>td{display:flex!important;flex-direction:column;gap:4px;min-width:0!important;width:100%!important;padding:0!important;border:0!important;background:transparent!important;box-sizing:border-box!important}
+#importedOpeningVoucherModal.opening-manual #importedOpeningRows>tr>td::before{font-size:12px;color:var(--muted);font-weight:500}
+#importedOpeningVoucherModal.opening-manual #importedOpeningRows>tr>td:nth-child(1){grid-column:1/-1;grid-row:1}
+#importedOpeningVoucherModal.opening-manual #importedOpeningRows>tr>td:nth-child(1)::before{content:"الحساب"}
+#importedOpeningVoucherModal.opening-manual #importedOpeningRows>tr>.opening-side{grid-column:1/-1;grid-row:2}
+#importedOpeningVoucherModal.opening-manual #importedOpeningRows>tr>td:nth-child(2){grid-column:1;grid-row:3}
+#importedOpeningVoucherModal.opening-manual #importedOpeningRows>tr>td:nth-child(2)::before{content:"العملة"}
+#importedOpeningVoucherModal.opening-manual #importedOpeningRows>tr>td:nth-child(3),#importedOpeningVoucherModal.opening-manual #importedOpeningRows>tr>td:nth-child(4){grid-column:2;grid-row:3}
+#importedOpeningVoucherModal.opening-manual #importedOpeningRows>tr>td:nth-child(3)::before,#importedOpeningVoucherModal.opening-manual #importedOpeningRows>tr>td:nth-child(4)::before{content:"الرصيد الافتتاحي"}
+#importedOpeningVoucherModal.opening-manual #importedOpeningRows>tr.opening-debit>td:nth-child(4),#importedOpeningVoucherModal.opening-manual #importedOpeningRows>tr.opening-credit>td:nth-child(3){display:none!important}
+#importedOpeningVoucherModal.opening-manual #importedOpeningRows>tr>td:nth-child(5){grid-column:1;grid-row:4}
+#importedOpeningVoucherModal.opening-manual #importedOpeningRows>tr>td:nth-child(5)::before{content:"عملة التقييم"}
+#importedOpeningVoucherModal.opening-manual #importedOpeningRows>tr>.opening-fx{grid-column:2;grid-row:4}
+#importedOpeningVoucherModal.opening-manual #importedOpeningRows>tr>td:nth-child(6),#importedOpeningVoucherModal.opening-manual #importedOpeningRows>tr>td:nth-child(7){grid-column:1/-1;grid-row:5}
+#importedOpeningVoucherModal.opening-manual #importedOpeningRows>tr.opening-debit>td:nth-child(7),#importedOpeningVoucherModal.opening-manual #importedOpeningRows>tr.opening-credit>td:nth-child(6){display:none!important}
+#importedOpeningVoucherModal.opening-manual #importedOpeningRows>tr>td:nth-child(6)::before,#importedOpeningVoucherModal.opening-manual #importedOpeningRows>tr>td:nth-child(7)::before{content:"المعادل بعملة التقييم"}
+#importedOpeningVoucherModal.opening-manual #importedOpeningRows>tr>td:nth-child(6)>input,#importedOpeningVoucherModal.opening-manual #importedOpeningRows>tr>td:nth-child(7)>input{background:color-mix(in srgb,var(--accent) 7%,var(--card));pointer-events:none}
+#importedOpeningVoucherModal.opening-manual #importedOpeningRows>tr>td:nth-child(9){grid-column:1/-1;grid-row:6}
+#importedOpeningVoucherModal.opening-manual #importedOpeningRows>tr>td:nth-child(9)::before{content:"مصدر سعر الصرف بتاريخ القيد"}
+#importedOpeningVoucherModal.opening-manual #importedOpeningRows>tr:not(.opening-foreign)>td:nth-child(5),#importedOpeningVoucherModal.opening-manual #importedOpeningRows>tr:not(.opening-foreign)>td:nth-child(6),#importedOpeningVoucherModal.opening-manual #importedOpeningRows>tr:not(.opening-foreign)>td:nth-child(7),#importedOpeningVoucherModal.opening-manual #importedOpeningRows>tr:not(.opening-foreign)>td:nth-child(9),#importedOpeningVoucherModal.opening-manual #importedOpeningRows>tr:not(.opening-foreign)>.opening-fx{display:none!important}
+#importedOpeningVoucherModal.opening-manual #importedOpeningRows>tr>td:nth-child(8){display:none!important}
+#importedOpeningVoucherModal.opening-manual #importedOpeningRows>tr>td:nth-child(10){grid-column:1/-1;grid-row:7}
+#importedOpeningVoucherModal.opening-manual #importedOpeningRows>tr>td:nth-child(10)::before{content:"البيان (اختياري)"}
+#importedOpeningVoucherModal.opening-manual #importedOpeningRows>tr>td:nth-child(11){grid-column:1/-1;grid-row:8;align-items:flex-end}
+#importedOpeningVoucherModal.opening-manual #importedOpeningRows>tr>td:nth-child(11)>button{min-height:40px;min-width:44px;color:var(--danger)}
+#importedOpeningVoucherModal.opening-manual #importedOpeningRows>tr>td :is(input,select){width:100%!important;min-width:0!important;max-width:100%!important;min-height:44px;box-sizing:border-box;padding:7px!important;font:400 14px Tajawal,sans-serif!important}
+#importedOpeningVoucherModal.opening-manual .opening-side-choices{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+#importedOpeningVoucherModal.opening-manual .opening-side-choices button{min-height:44px;border:1px solid var(--border);border-radius:8px;background:var(--card);color:var(--text);font:500 14px Tajawal,sans-serif}
+#importedOpeningVoucherModal.opening-manual .opening-side-choices button.active{background:var(--accent);color:#fff}
+#importedOpeningVoucherModal.opening-manual .opening-fx-equivalent{color:var(--accent);font-weight:700}
+#importedOpeningVoucherModal.opening-manual #importedOpeningAdd{width:100%!important;min-height:44px}
+#importedOpeningVoucherModal.opening-manual #importedOpeningTotals{background:color-mix(in srgb,var(--accent) 6%,var(--card));border-radius:10px;padding:12px}
+#importedOpeningVoucherModal.opening-manual #importedOpeningShare{display:flex!important}
+#importedOpeningVoucherModal.opening-manual .modal-content>div:has(>#importedOpeningSave){display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px!important}
+#importedOpeningVoucherModal.opening-manual .modal-content>div:has(>#importedOpeningSave)>button{min-width:0!important;width:100%!important;min-height:48px;margin:0!important;padding:6px 3px!important;font:500 13px Tajawal,sans-serif!important;white-space:normal;border-radius:10px}
+#importedOpeningVoucherModal.opening-manual #importedOpeningSave{grid-row:1;grid-column:1/3;background:var(--accent);color:#fff}
+#importedOpeningVoucherModal.opening-manual #importedOpeningClose{grid-row:1;grid-column:3/5;background:var(--danger);color:#fff}
+#importedOpeningVoucherModal.opening-manual #importedOpeningPreview{grid-row:2;grid-column:1}
+#importedOpeningVoucherModal.opening-manual #importedOpeningPrint{grid-row:2;grid-column:2}
+#importedOpeningVoucherModal.opening-manual #importedOpeningShare{grid-row:2;grid-column:3;justify-content:center;align-items:center}
+#importedOpeningVoucherModal.opening-manual #importedOpeningPdf{grid-row:2;grid-column:4}
+}

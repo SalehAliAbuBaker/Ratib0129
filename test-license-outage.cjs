@@ -82,7 +82,38 @@ async function main() {
         expiry_date:new Date(now+DAY).toISOString()})}));
     assert.equal(await renewed.license.licensed(),true,file+': server extended license');
     total++;
+
+    // Exercise the actual creation gate after the free quota is exhausted.
+    // The simulated 503 is a transient verification failure; it must not
+    // prevent creation for a previously verified, unexpired license.
+    // This test never writes accounting documents or calls a live Worker.
+    {
+      let status=503;
+      let calls=0;
+      const request=async()=>{
+        calls++;
+        return {ok:status===200,status,json:async()=>({
+          valid:status===200,
+          expiry_date:new Date(now+DAY).toISOString(),
+          error:status===503?'Simulated D1/Worker outage (sandbox only)':undefined
+        })};
+      };
+      const initialUsed=file.startsWith('trial/')?20:50;
+      const f=fixture(file,{...state(),used:initialUsed},request);
+      assert.equal(await f.license.beforeCreate([]),true,file+': creation allowed during simulated 503');
+      assert.ok(f.state().verifiedAt>0,file+': activation proof retained during 503');
+      assert.equal(f.license.recordCreated(),initialUsed+1,file+': creation accounting after 503');
+      assert.equal(f.state().used,initialUsed+1,file+': creation count persisted');
+
+      status=200;
+      assert.equal(await f.license.beforeCreate([]),true,file+': creation allowed after recovery');
+      assert.ok(f.state().checkedAt>now-60000,file+': successful re-verification persisted');
+      assert.equal(f.license.recordCreated(),initialUsed+2,file+': creation accounting after recovery');
+      assert.equal(f.state().used,initialUsed+2,file+': recovered creation count persisted');
+      assert.equal(calls,2,file+': 503 and recovery both attempted verification');
+      total+=2;
+    }
   }
-  console.log('PASS 26 Ratib official/trial license outage and rejection cases');
+  console.log('PASS 30 Ratib official/trial license outage, save-gate and rejection cases');
 }
 main().catch(err=>{console.error(err);process.exitCode=1;});

@@ -364,7 +364,7 @@ background:color-mix(in srgb,var(--accent) 8%,var(--card))!important}
   -webkit-overflow-scrolling:touch!important;overscroll-behavior:contain;
   touch-action:pan-x pan-y pinch-zoom;
  }
- #printPreviewModal[data-imported-opening="1"] #printPreviewBody>.print-voucher-container{
+ #printPreviewModal[data-imported-opening="1"] #printPreviewBody>.ratib-opening-preview-paper{
   box-sizing:border-box!important;display:block!important;
   width:850px!important;min-width:850px!important;max-width:none!important;
   margin:0 auto!important;direction:rtl!important;text-align:right!important;

@@ -11,8 +11,9 @@ function parseRate(raw){
    if(v.lastIndexOf('.')>v.lastIndexOf(',')){if(!/^\d{1,3}(,\d{3})+(\.\d+)?$/.test(v))return NaN;v=v.replace(/,/g,'');}
    else {if(!/^\d{1,3}(\.\d{3})+(,\d+)?$/.test(v))return NaN;v=v.replace(/\./g,'').replace(',','.');}
  }else if(v.includes(',')){
-   if(/^[1-9]\d{0,2},\d{3}$/.test(v))return NaN; // ambiguous: use a dot or Arabic decimal mark
-   if((v.match(/,/g)||[]).length>1){if(!/^\d{1,3}(,\d{3})+$/.test(v))return NaN;v=v.replace(/,/g,'');}
+   // Match the thousands separator inserted by the amount formatter (e.g. 1,571).
+   if(/^[1-9]\d{0,2},\d{3}$/.test(v))v=v.replace(',','');
+   else if((v.match(/,/g)||[]).length>1){if(!/^\d{1,3}(,\d{3})+$/.test(v))return NaN;v=v.replace(/,/g,'');}
    else v=v.replace(',','.');
  }
  if(!/^(?:\d+(?:\.\d+)?|\.\d+)$/.test(v))return NaN;
@@ -57,7 +58,10 @@ function current(kind,code,date){
 }
 function rateFor(kind,code,strict){
  const date=dateOf(kind),obj=current(kind,code,date),rate=parseRate(obj.rate),source=obj.source.trim();
- if(strict&&(!Number.isFinite(rate)||!source))throw Error('أدخل سعرًا موجبًا ومصدره لعملة '+code+' بتاريخ السند؛ مثال 412.50 أو 412٫50.');
+ if(strict){
+  if(!Number.isFinite(rate))throw Error('سعر صرف '+code+' غير صالح. أدخل سعرًا موجبًا مثل 1571 أو 1,571.');
+  if(!source)throw Error('أدخل مصدر سعر صرف '+code+' بتاريخ السند.');
+ }
  return Number.isFinite(rate)&&source?{rate,source,date,base:'YER',approvedAt:new Date().toISOString()}:null;
 }
 function quotes(kind,strict){const out={};for(const code of codes(kind)){const q=rateFor(kind,code,strict);if(q)out[code]=q;}return out;}

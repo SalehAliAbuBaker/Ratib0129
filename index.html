@@ -12871,6 +12871,7 @@ function openingFormDecorate(){
   tr.append(fx);
   fx.querySelector('input').addEventListener('input',e=>{o.exchangeRate=e.target.value;state.dirty=true;openingFormConvert(row,index);renderImportedOpeningTotals();});
   tr.querySelectorAll('[data-field="debit"],[data-field="credit"]').forEach(el=>el.addEventListener('input',()=>{openingFormConvert(row,index);renderImportedOpeningTotals();}));
+  tr.querySelectorAll('[data-field="baseDebit"],[data-field="baseCredit"]').forEach(el=>{el.readOnly=true;el.tabIndex=-1;});
   tr.querySelectorAll('[data-field="currency"],[data-field="baseCurrency"]').forEach(el=>el.addEventListener('change',()=>{openingFormConvert(row,index);renderImportedOpeningRows();}));
   if(!row.id&&o.currency!==o.baseCurrency){
    const ref=tr.querySelector('[data-field="sourceRef"]');if(ref&&ref.value==='إدخال يدوي'){ref.value='';o.sourceRef='';}
@@ -12878,7 +12879,7 @@ function openingFormDecorate(){
   const del=tr.querySelector('td:nth-child(11)>button');if(del)del.setAttribute('aria-label',(row.id?'تصفير':'إزالة')+' البند '+(index+1));
  });
  const date=document.getElementById('importedOpeningHeaderDate');
- if(date){if(!date.value)date.value=state.rows[0]?.isoDate||getLocalTodayISO();const box=document.getElementById('openingDateHijri');if(box)box.innerHTML=ratibStatementDateHtml(date.value);}
+ if(date){if(!date.value)date.value=state.rows[0]?.isoDate||getLocalTodayISO();const box=document.getElementById('openingDateHijri');if(box){const multiple=new Set(state.rows.map(r=>r.isoDate)).size>1;box.innerHTML=ratibStatementDateHtml(date.value)+(multiple?'<small class="opening-mixed-dates">تحتوي بعض البنود على تواريخ مختلفة محفوظة</small>':'');}}
 }
 
 function renderImportedOpeningRows(){
@@ -12902,7 +12903,17 @@ function renderImportedOpeningRows(){
 function importedOpeningExactTotals(rows){
  const totals=new Map();for(const t of rows){const o=t.openingBalance;if(!totals.has(o.baseCurrency))totals.set(o.baseCurrency,{debit:0n,credit:0n});const sum=totals.get(o.baseCurrency);sum.debit+=importedRecordDecimal(o.baseDebit).units;sum.credit+=importedRecordDecimal(o.baseCredit).units;}return totals;
 }
-function renderImportedOpeningTotals(){try{document.getElementById('importedOpeningTotals').textContent=[...importedOpeningExactTotals(importedOpeningEdit.rows)].map(([c,t])=>c+': مدين '+trialNumber(Number(t.debit)/1e6)+' — دائن '+trialNumber(Number(t.credit)/1e6)+' — الفرق '+trialNumber(Number(t.debit-t.credit)/1e6)).join(' | ');}catch(e){document.getElementById('importedOpeningTotals').textContent=e.message;}}
+function renderImportedOpeningTotals(){
+ const box=document.getElementById('importedOpeningTotals');
+ try{
+  const totals=[...importedOpeningExactTotals(importedOpeningEdit.rows)];
+  if(importedOpeningEdit?.manual){
+   const balanced=totals.length>0&&totals.every(([,t])=>t.debit===t.credit)&&totals.some(([,t])=>t.debit>0n);
+   box.innerHTML=totals.map(([c,t])=>'<div class="opening-amount-totals"><span>إجمالي المدين: '+trialNumber(Number(t.debit)/1e6)+' '+esc(c)+'</span><span>إجمالي الدائن: '+trialNumber(Number(t.credit)/1e6)+' '+esc(c)+'</span></div>').join('')
+    +'<strong class="opening-balance-status '+(balanced?'':'opening-unbalanced')+'">'+(balanced?'✓ القيد متوازن':'● القيد غير متوازن أو لم تكتمل بياناته')+'</strong>';
+  }else box.textContent=totals.map(([c,t])=>c+': مدين '+trialNumber(Number(t.debit)/1e6)+' — دائن '+trialNumber(Number(t.credit)/1e6)+' — الفرق '+trialNumber(Number(t.debit-t.credit)/1e6)).join(' | ');
+ }catch(e){box.textContent=e.message;}
+}
 function buildImportedOpeningVoucher(state,data){
  const all=(data[APP_STORAGE_PREFIX+'plan']?.transactions||[]).concat(...(data[APP_STORAGE_PREFIX+'history']||[]).map(h=>h.transactions||[])),current=all.filter(t=>t.isOpeningBalance&&importedOpeningKey(t)===state.key&&!['deleted','reversed'].includes(t.status));
  if(JSON.stringify(current)!==state.before)throw Error('تغير القيد منذ فتحه؛ أغلقه وافتحه مجددًا قبل الحفظ.');

@@ -3,12 +3,12 @@ const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/st
 const html=fs.readFileSync('index.html','utf8'),css=fs.readFileSync('ratib-voucher-polish-3.6.117.css','utf8'),
 sw=fs.readFileSync('sw.js','utf8'),pkg=require('./package.json');
 const document=new JSDOM(html).window.document;
-assert.equal(pkg.version,'3.6.137');
-assert(html.includes('const RATIB_RELEASE={"version":"3.6.137","build":"p13700"'));
-assert(sw.includes('const APP_RELEASE={"version":"3.6.137","build":"p13700"'));
-assert(sw.includes('v257-opening-classic-3.6.137'));
+assert.equal(pkg.version,'3.6.138');
+assert(html.includes('const RATIB_RELEASE={"version":"3.6.138","build":"p13800"'));
+assert(sw.includes('const APP_RELEASE={"version":"3.6.138","build":"p13800"'));
+assert(sw.includes('v259-opening-mobile-verified-3.6.138'));
 assert(sw.includes('"./ratib-voucher-polish-3.6.117.css"'));
-assert(document.querySelector('link[href="./ratib-voucher-polish-3.6.117.css?v=3.6.137"]'));
+assert(document.querySelector('link[href="./ratib-voucher-polish-3.6.117.css?v=3.6.138"]'));
 const modal=document.getElementById('ratibVoucherLeaveModal');assert(modal&&modal.getAttribute('aria-modal')==='true');
 for(const id of ['ratibVoucherLeaveSave','ratibVoucherLeaveDiscard','ratibVoucherLeaveCancel','ratibVoucherLeaveStatus'])assert(document.getElementById(id),id);
 assert(html.includes("if(ratibVoucherHasUnsavedEdits())return ratibAskVoucherLeave().then(ok=>ok?goBackInApp():false);"),'internal Back uses three-way choice');
@@ -27,8 +27,8 @@ assert(html.includes("cell.dataset.ratibField=['الجهة','الحساب'"),'co
 assert(html.includes("class=\"ratib-account-row-date\""),'statement date with own cell');
 assert(html.includes("class=\"ratib-account-row-note\""),'statement note with own cell');
 assert(html.includes("ratibStatementDateHtml(getAccountOpsDate(t)||'-')"),'Hijri display follows settings');
-assert(html.includes('ratib-receipt-payer-3.6.115.css?v=3.6.137'),'existing receipt payer retained');
-assert(html.includes('ratib-date-display.js?v=3.6.137'),'existing Umm al-Qura retained');
+assert(html.includes('ratib-receipt-payer-3.6.115.css?v=3.6.138'),'existing receipt payer retained');
+assert(html.includes('ratib-date-display.js?v=3.6.138'),'existing Umm al-Qura retained');
 const start=html.indexOf('let _ratibVoucherLeavePending=null;'),end=html.indexOf('function navigateToTab(target, pushToHistory = true) {',start);
 assert(start>0&&end>start);
 const source=html.slice(start,end);

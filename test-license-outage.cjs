@@ -35,7 +35,7 @@ async function main() {
       ['Worker 500',500,false,true,true],
       ['rate limit 429',429,false,true,true],
       ['expired or revoked 403',403,false,false,false],
-      ['license not found 404',404,false,false,false],
+      ['license record lost 404 (previously verified)',404,false,true,true],
       ['valid',200,true,true,true],
       ['invalid payload',200,false,false,false]
     ];
@@ -48,6 +48,22 @@ async function main() {
       assert.equal(Number(f.state().verifiedAt)>0,preserve,file+': preservation '+label);
       total++;
     }
+    const lostBinding=fixture(file,state(),async()=>({ok:false,status:403,
+      json:async()=>({valid:false,code:'DEVICE_BINDING_MISSING',error:'لم يُفعّل الترخيص على هذا الجهاز.'})}));
+    assert.equal(await lostBinding.license.licensed(),true,file+': existing binding lost');
+    assert.ok(lostBinding.state().verifiedAt>0,file+': binding loss preserves proof');
+    total++;
+
+    const missingUnverified=fixture(file,{...state(),verifiedAt:0,checkedAt:0},async()=>({ok:false,status:404,
+      json:async()=>({valid:false,code:'LICENSE_RECORD_MISSING',error:'رقم الترخيص غير موجود.'})}));
+    assert.equal(await missingUnverified.license.licensed(),false,file+': no proof cannot recover 404');
+    total++;
+
+    const missingBindingUnverified=fixture(file,{...state(),verifiedAt:0,checkedAt:0},async()=>({ok:false,status:403,
+      json:async()=>({valid:false,code:'DEVICE_BINDING_MISSING',error:'لم يُفعّل الترخيص على هذا الجهاز.'})}));
+    assert.equal(await missingBindingUnverified.license.licensed(),false,file+': no proof cannot recover 403 binding');
+    total++;
+
     const failed=fixture(file,state(),async()=>{throw new TypeError('network unavailable');});
     assert.equal(await failed.license.licensed(),true,file+': network failure');
     assert.ok(failed.state().verifiedAt>0);
@@ -83,6 +99,6 @@ async function main() {
     assert.equal(await renewed.license.licensed(),true,file+': server extended license');
     total++;
   }
-  console.log('PASS 26 Ratib official/trial license outage and rejection cases');
+  console.log('PASS 32 Ratib official/trial license outage and rejection cases');
 }
 main().catch(err=>{console.error(err);process.exitCode=1;});

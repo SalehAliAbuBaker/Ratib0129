@@ -3,10 +3,10 @@ const assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('nod
 const {JSDOM}=require('jsdom');
 const html=fs.readFileSync('index.html','utf8'),css=fs.readFileSync('ratib-cloud-due-3.6.130.css','utf8');
 const sw=fs.readFileSync('sw.js','utf8'),pkg=require('./package.json');
-assert.equal(pkg.version,'3.6.136');
-assert(html.includes('const RATIB_RELEASE={"version":"3.6.136","build":"p13600"'));
-assert(sw.includes('v256-release-metadata-aligned-3.6.136'));
-assert(html.includes('ratib-cloud-due-3.6.130.css?v=3.6.136'));
+assert.equal(pkg.version,'3.6.137');
+assert(html.includes('const RATIB_RELEASE={"version":"3.6.137","build":"p13700"'));
+assert(sw.includes('v257-opening-classic-3.6.137'));
+assert(html.includes('ratib-cloud-due-3.6.130.css?v=3.6.137'));
 assert(sw.includes('"./ratib-cloud-due-3.6.130.css"'));
 assert(css.includes('#cloudBackupDueModal .ratib-cloud-due-card'));
 assert(html.includes('id="cloudBackupDueRunBtn"')&&html.includes('id="cloudBackupDueCancelBtn"'));

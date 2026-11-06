@@ -14,7 +14,7 @@ jobs:
         with:
           node-version: '24'
       - name: Install test dependencies
-        run: npm ci --ignore-scripts --no-audit --no-fund
+        run: npm install --ignore-scripts --no-audit --no-fund
       - name: Confirm isolation
         run: |
           node - <<'NODE'

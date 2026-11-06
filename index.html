@@ -1653,7 +1653,7 @@ body.ratib-sidebar-open,body.ratib-about-open{overflow:hidden}
 <link rel="stylesheet" href="./ratib-trial-voucher-statement-3.6.125.css?v=3.6.139">
 <link rel="stylesheet" href="./ratib-cash-pulse.css?v=3.6.139">
 <link rel="stylesheet" href="./ratib-cloud-due-3.6.130.css?v=3.6.139">
-<link rel="stylesheet" href="./ratib-cash-actions-3.6.135.css?v=3.6.139-opening-fixes-20261106">
+<link rel="stylesheet" href="./ratib-cash-actions-3.6.135.css?v=3.6.139-opening-layout-20261106">
 </head>
 <body>
 
@@ -12770,6 +12770,13 @@ function setOpeningEditorTitle(manual){
   :'تضم الدفعة جميع الأرصدة المحلية والأجنبية. عدّل البنود أو أضف بنودًا، ثم احفظ القيد كاملًا بعد توازن التقييم. لن تتغير البيانات قبل الحفظ.';
  document.getElementById('importedOpeningSave').textContent=manual?'حفظ القيد الافتتاحي':'حفظ القيد المركب';
  document.getElementById('importedOpeningVoucherModal').classList.toggle('opening-manual',Boolean(manual));
+ /* Primary actions are adjacent only for manual opening; imported editor is untouched. */
+ const add=document.getElementById('importedOpeningAdd');
+ const actions=document.getElementById('importedOpeningSave')?.parentElement;
+ if(add&&actions){
+  if(manual)actions.insertBefore(add,document.getElementById('importedOpeningPreview'));
+  else document.getElementById('importedOpeningTotals').before(add);
+ }
  if(manual)document.getElementById('importedOpeningHeaderDate').value=importedOpeningEdit?.rows?.[0]?.isoDate||getLocalTodayISO();
 }
 function newManualOpeningLine(currency,date){
@@ -12908,13 +12915,17 @@ function openingFormDecorate(){
   if(!row.id&&o.currency!==o.baseCurrency){
    const ref=tr.querySelector('[data-field="sourceRef"]');if(ref&&ref.value==='إدخال يدوي'){ref.value='';o.sourceRef='';}
   }
+  /* Reuse the original remove handler without changing historical posting logic. */
   const del=tr.querySelector('td:nth-child(11)>button');
   if(del){
-   del.setAttribute('aria-label',(row.id?'تصفير':'إزالة')+' البند '+(index+1));
-   const action=del.closest('td'),heading=document.createElement('strong');
-   heading.className='opening-line-number';heading.textContent='البند '+(index+1);
-   action.prepend(heading);
+   del.setAttribute('aria-label',row.id?'تصفير رصيد البند المحفوظ '+(index+1):'حذف البند '+(index+1));
+   del.title=row.id?'تصفير الرصيد المحفوظ دون حذف السجل التاريخي':'حذف البند بالكامل';
+   del.classList.add('opening-inline-delete');
    if(!row.id)del.textContent='×';
+   const action=del.closest('td');
+   sideCell.querySelector('.opening-side-choices').append(del);
+   action.classList.add('opening-delete-cell');
+   action.hidden=true;
   }
  });
  const date=document.getElementById('importedOpeningHeaderDate');

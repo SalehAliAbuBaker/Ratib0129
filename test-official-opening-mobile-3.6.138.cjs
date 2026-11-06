@@ -43,6 +43,6 @@ console.log('PASS official 3.6.139 opening mobile: rate, equivalent, legacy prot
 // Presentation regressions: do not reintroduce duplicate date or oversized remove control.
 assert(html.includes('box.textContent=multiple?'),'Opening date preview must not duplicate the native Hijri date');
 assert(html.includes('data-skip-calculator="1"'),'Rate input must not acquire a second calculator');
-assert(html.includes("action.prepend(heading)"),'Remove action must be moved to line heading');
+assert(html.includes("sideCell.querySelector('.opening-side-choices').append(del)"),'Remove action shares the debit/credit row');
 assert(css.includes('.opening-line-number'),'Mobile entry header must be styled');
 assert(css.includes('td:nth-child(11)>button'),'Small inline remove control must be styled');

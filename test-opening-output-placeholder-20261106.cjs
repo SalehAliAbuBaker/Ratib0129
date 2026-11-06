@@ -98,7 +98,7 @@ assert.equal(outputCall[4][1][10],'2026-10-30');
 assert(!html.includes("id=\"importedOpeningSeq\" type=\"number\""),'Document sequence remains compatible with its original input');
 assert(html.includes("seqField.placeholder='رقم القيد'"));
 assert(html.includes("if(hints[key])el.placeholder=hints[key]"));
-assert(html.includes("fx.innerHTML='<label><input"));
+assert(html.includes('class="opening-inline-field"><span class="opening-field-caption">سعر الصرف</span>'));
 assert(css.includes('/* Manual opening display only: labels are INSIDE'));
 assert(css.includes('font-size:0!important;line-height:0!important'));
 assert(css.includes('.opening-manual-print .opening-account-cell'));

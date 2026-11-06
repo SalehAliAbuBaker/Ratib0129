@@ -5,7 +5,8 @@
 (function (global) {
   'use strict';
   const TRIAL_LIMIT = 50;
-  const KEY = 'ratib_license_client_v2';
+  const KEY = 'ratib_license_outage_sandbox_v1';
+  const TEST_ONLY_KEY = 'LIC-test-only-20261105-ratib';
   const WHATSAPP = '967734915588';
   const safeRead = () => { try { return JSON.parse(localStorage.getItem(KEY) || '{}'); } catch (_) { return {}; } };
   const safeWrite = value => { try { localStorage.setItem(KEY, JSON.stringify(value)); } catch (_) {} };
@@ -30,6 +31,8 @@
   }
   async function verifyLicense({endpoint,code,email=''}) {
     if (!endpoint || !/^https:\/\//i.test(endpoint)) throw new Error('عنوان التحقق من الترخيص غير مضبوط');
+    if (!endpoint.startsWith('https://ratib-license-outage-sandbox-20261105.saleh0129.workers.dev/api/license/')) throw new Error('حظر الاتصال بأي خدمة تراخيص غير تجريبية');
+    if (/^(?:salehaliabubaker\.github\.io|ratibtrial\.pages\.dev)$/i.test(global.location?.hostname||'')) throw new Error('الاختبار محظور على العناوين الرسمية');
     // This request contract MUST be reconciled with the existing Worker before enabling.
     const response=await fetch(endpoint,{method:'POST',headers:{'Content-Type':'application/json'},
       body:JSON.stringify({license_key:code,device_id:deviceId(),email})});
@@ -62,7 +65,7 @@
     return 'تعذر التحقق من خدمة التراخيص. يرجى مراجعة الاتصال والمحاولة مجددًا.';
   }
   // Activation is deliberately tied to the EXISTING Worker, not to the admin secret.
-  const API = 'https://ratib.saleh0129.workers.dev/api/license/';
+  const API = 'https://ratib-license-outage-sandbox-20261105.saleh0129.workers.dev/api/license/';
   const CHECK_INTERVAL = 60 * 60 * 1000;
   // A previously verified license remains locally valid through its expiry,
   // even after extended periods without connectivity.
@@ -89,7 +92,7 @@
   }
   async function activate(code, email='') {
     code = String(code || '').trim();
-    if (!code) throw new Error('أدخل رقم الترخيص.');
+    if (code !== TEST_ONLY_KEY) throw new Error('هذه النسخة تقبل مفتاح الاختبار الوهمي فقط.');
     const result = await verifyLicense({ endpoint: API+'activate', code, email });
     const s = safeRead();
     Object.assign(s, { code, email, expiryDate: result.expiry_date || null,
@@ -230,6 +233,61 @@
     if (await licensed()) return true;
     showActivation();return false;
   }
+
+  // Isolated outage lab: no real account, license or customer data is needed.
+  function setupOutageLabPanel(){
+    if (!document.body || document.getElementById('ratibOutageLab')) return;
+    const wrap=document.createElement('details');
+    wrap.id='ratibOutageLab';wrap.open=true;
+    wrap.dir='rtl';
+    wrap.style.cssText='position:fixed;z-index:2147483640;top:8px;left:8px;max-width:min(390px,calc(100vw - 16px));background:#162536;color:#fff;padding:10px;border:2px solid #f5c542;border-radius:10px;font:14px/1.7 Tajawal,Arial,sans-serif;box-shadow:0 5px 22px #0005';
+    wrap.innerHTML='<summary style="cursor:pointer;font-weight:700">🧪 راتب — بيئة فحص التراخيص 503 (بيانات وهمية فقط)</summary>'+
+      '<p style="margin:8px 0">هذه ليست النسخة الرسمية. لا تُدخل أي بيانات أو تراخيص حقيقية ولا تستخدم النسخ السحابية.</p>'+
+      '<div style="display:flex;gap:5px;flex-wrap:wrap">'+
+      '<button type="button" id="ratibSandboxActivate">1. تفعيل المفتاح الوهمي</button>'+
+      '<button type="button" id="ratibSandboxForce">2. إبطال وقت آخر فحص فقط</button>'+
+      '<button type="button" id="ratibSandboxVerify">3. تحقق من الخادم الآن</button></div>'+
+      '<div id="ratibSandboxReport" role="status" aria-live="polite" style="margin-top:8px;white-space:pre-wrap"></div>';
+    document.body.append(wrap);
+    const out=wrap.querySelector('#ratibSandboxReport');
+    const forbidden=/^(?:salehaliabubaker\.github\.io|ratibtrial\.pages\.dev)$/i.test(global.location?.hostname||'');
+    const report=msg=>{out.textContent=msg;};
+    if(forbidden){wrap.querySelectorAll('button').forEach(b=>b.disabled=true);report('توقف آمن: لا يجوز تشغيل معمل التراخيص على النطاق الرسمي أو نطاق التجريب القائم.');return;}
+    wrap.querySelectorAll('button').forEach(b=>{b.style.cssText='background:#fff;color:#122436;border:0;padding:6px;border-radius:6px;font:inherit;cursor:pointer';});
+    const stateText=()=>{
+      const s=safeRead();
+      return 'إثبات تفعيل سابق: '+(Number(s.verifiedAt||0)>0?'نعم':'لا')+
+        ' | عدد السندات المحتسب: '+Number(s.used||0)+
+        (s.lastCheckError?' | آخر خطأ: '+s.lastCheckError:'');
+    };
+    report('خادم الاختبار وحده متصل. '+stateText());
+    wrap.querySelector('#ratibSandboxActivate').addEventListener('click',async()=>{
+      try{
+        await activate(TEST_ONLY_KEY,'');
+        const s=safeRead();s.used=Math.max(50,Number(s.used)||0);safeWrite(s);
+        report('نجح تفعيل ترخيص وهمي مع حد 50 سندًا لضمان تشغيل فحص الترخيص عند الحفظ. '+stateText());
+      }catch(e){report('فشل تفعيل المعمل: '+String(e.message||e));}
+    });
+    wrap.querySelector('#ratibSandboxForce').addEventListener('click',()=>{
+      const s=safeRead();
+      if(!Number(s.verifiedAt||0)){report('فعّل المفتاح الوهمي أولًا.');return;}
+      s.checkedAt=0;s.lastTransientCheckAt=0;safeWrite(s);
+      report('جاهز: سيُجبر الحفظ القادم على طلب التحقق من Worker. '+stateText());
+    });
+    wrap.querySelector('#ratibSandboxVerify').addEventListener('click',async()=>{
+      const s=safeRead();
+      if(!Number(s.verifiedAt||0)){report('فعّل المفتاح الوهمي أولًا.');return;}
+      s.checkedAt=0;safeWrite(s);
+      try{
+        const ok=await licensed(),state=safeRead();
+        report('نتيجة التحقق: '+(ok?'مسموح رغم حالة الخادم':'غير مسموح')+
+          ' | خطأ خدمة: '+(state.lastCheckError||'لا يوجد')+' | '+stateText());
+      }catch(e){report('فشل الاتصال: '+String(e.message||e));}
+    });
+  }
+  if (document.readyState==='loading') document.addEventListener('DOMContentLoaded',setupOutageLabPanel);
+  else setupOutageLabPanel();
+
   global.RatibLicense = Object.freeze({
     TRIAL_LIMIT,deviceId,requestText,whatsappUrl,recordCreated,used:getUsed,
     remaining:()=>Math.max(0,TRIAL_LIMIT-getUsed()),activate,licensed,beforeCreate,showActivation

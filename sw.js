@@ -1,6 +1,6 @@
 // Ratib 3.1.9: cache identity is unique to this app's scope.
-const CACHE_VERSION='v260-opening-mobile-clean-3.6.139-infield-clean-20261106-date-caption-hidden-20261106-print-reference-20261106-3.6.141';
-const APP_RELEASE={"version":"3.6.141","build":"p14100","highlights":["تنسيق سند القيد الافتتاحي للمعاينة والطباعة وPDF","إجماليات العملات في جدول مستقل"],"changes":["نجري بانتظام تحديثات لتحسين الموثوقية والأداء وإصلاح الأخطاء","إعادة تنظيم أعمدة القيد الافتتاحي وتفاصيل التقييم ومنع تجاوز الورقة مع تصغير زر الحذف على الجوال"]};
+const CACHE_VERSION='v260-opening-mobile-clean-3.6.139-infield-clean-20261106-date-caption-hidden-20261106-print-reference-20261106-compound-layout-3.6.142';
+const APP_RELEASE={"version":"3.6.142","build":"p14200","highlights":["ترتيب واجهة سند القيد المركب","حقول أكثر وضوحًا وأزرار منظمة"],"changes":["نجري بانتظام تحديثات لتحسين الموثوقية والأداء وإصلاح الأخطاء","إعادة تنظيم واجهة القيد المركب للطرفين والعملات مع الحفاظ على العمليات والسندات الأخرى"]};
 const CACHE_PREFIX=`ratib:${self.registration.scope}:`;
 const CACHE_NAME=CACHE_PREFIX+CACHE_VERSION;
 const APP_SHELL=[
@@ -79,6 +79,8 @@ const APP_SHELL=[
   "./ratib-quick-account-3.6.87.css",
   "./ratib-journal-layout-3.6.90.css",
   "./ratib-journal-layout-3.6.90.js",
+  "./ratib-compound-layout-3.6.142.css",
+  "./ratib-compound-layout-3.6.142.js",
   "./ratib-amount-edit-3.6.97.js",
   "./ratib-cash-layout-3.6.83.js",
   "./ratib-annual-close.js",

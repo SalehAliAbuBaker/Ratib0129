@@ -30,7 +30,9 @@
       numberInput?.setAttribute('aria-label','رقم المستند');
     }else if(header){
       if(seq.parentElement!==grid)grid.prepend(seq);
-      if(date.parentElement!==grid)seq.after(date);
+      // Ratib 3.6.142 places the compound date in its dedicated two-date row.
+      // Only restore it to the legacy grid when that presentation is inactive.
+      if(!card.classList.contains('ratib-cmp-layout142')&&date.parentElement!==grid)seq.after(date);
       if(!header.hidden)header.hidden=true;
     }
   }

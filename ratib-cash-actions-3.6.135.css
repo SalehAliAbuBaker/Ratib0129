@@ -542,98 +542,6 @@ background:color-mix(in srgb,var(--accent) 8%,var(--card))!important}
  }
 }
 
-/* Manual opening display only: labels are INSIDE their controls, not above.
-   Keep the imported editor untouched; keep native date and finance input types. */
-@media screen {
- #importedOpeningVoucherModal.opening-manual #openingHeader label{
-  position:relative!important;font-size:0!important;line-height:0!important;
-  gap:0!important;
- }
- #importedOpeningVoucherModal.opening-manual #openingHeader label input{
-  height:46px!important;min-height:46px!important;
-  box-sizing:border-box!important;
-  font:400 14px Tajawal,sans-serif!important;
-  color:var(--text)!important;text-align:center!important;
- }
- #importedOpeningVoucherModal.opening-manual #openingHeader #openingDateLabel::before{
-  content:"التاريخ"!important;position:absolute!important;
-  top:3px!important;right:7px!important;z-index:1!important;
-  font:400 11px/15px Tajawal,sans-serif!important;color:var(--muted)!important;
-  pointer-events:none!important;
- }
- #importedOpeningVoucherModal.opening-manual #openingHeader #openingDateLabel input{
-  padding-top:16px!important;padding-bottom:2px!important;
- }
- #importedOpeningVoucherModal.opening-manual #openingHeader #openingDateHijri{
-  font:400 11px/1.4 Tajawal,sans-serif!important;
- }
- #importedOpeningVoucherModal.opening-manual #importedOpeningRows>tr>td:nth-child(2),
- #importedOpeningVoucherModal.opening-manual #importedOpeningRows>tr>td:nth-child(3),
- #importedOpeningVoucherModal.opening-manual #importedOpeningRows>tr>td:nth-child(4),
- #importedOpeningVoucherModal.opening-manual #importedOpeningRows>tr>td:nth-child(5),
- #importedOpeningVoucherModal.opening-manual #importedOpeningRows>tr>td:nth-child(9),
- #importedOpeningVoucherModal.opening-manual #importedOpeningRows>tr>td:nth-child(10){
-  position:relative!important;gap:0!important;
- }
- #importedOpeningVoucherModal.opening-manual #importedOpeningRows>tr>td:nth-child(2)::before,
- #importedOpeningVoucherModal.opening-manual #importedOpeningRows>tr>td:nth-child(3)::before,
- #importedOpeningVoucherModal.opening-manual #importedOpeningRows>tr>td:nth-child(4)::before,
- #importedOpeningVoucherModal.opening-manual #importedOpeningRows>tr.opening-foreign>td:nth-child(5)::before,
- #importedOpeningVoucherModal.opening-manual #importedOpeningRows>tr.opening-foreign>td:nth-child(9)::before,
- #importedOpeningVoucherModal.opening-manual #importedOpeningRows>tr>td:nth-child(10)::before{
-  position:absolute!important;display:block!important;inset:auto 0 auto 0!important;
-  top:3px!important;margin:0!important;z-index:1!important;
-  width:100%!important;min-height:0!important;height:auto!important;
-  box-sizing:border-box!important;text-align:center!important;
-  color:var(--muted)!important;
-  font:400 11px/15px Tajawal,sans-serif!important;
-  white-space:nowrap!important;pointer-events:none!important;
- }
- #importedOpeningVoucherModal.opening-manual #importedOpeningRows>tr>td:nth-child(2)::before{content:"العملة"!important}
- #importedOpeningVoucherModal.opening-manual #importedOpeningRows>tr>td:nth-child(3)::before,
- #importedOpeningVoucherModal.opening-manual #importedOpeningRows>tr>td:nth-child(4)::before{content:"المبلغ"!important}
- #importedOpeningVoucherModal.opening-manual #importedOpeningRows>tr.opening-foreign>td:nth-child(5)::before{content:"عملة التقييم"!important}
- #importedOpeningVoucherModal.opening-manual #importedOpeningRows>tr.opening-foreign>td:nth-child(9)::before{content:"مصدر السعر"!important}
- #importedOpeningVoucherModal.opening-manual #importedOpeningRows>tr>td:nth-child(10)::before{content:"البيان (اختياري)"!important}
- #importedOpeningVoucherModal.opening-manual #importedOpeningRows>tr>td:nth-child(2)>select,
- #importedOpeningVoucherModal.opening-manual #importedOpeningRows>tr>td:nth-child(3)>input,
- #importedOpeningVoucherModal.opening-manual #importedOpeningRows>tr>td:nth-child(4)>input,
- #importedOpeningVoucherModal.opening-manual #importedOpeningRows>tr.opening-foreign>td:nth-child(5)>select,
- #importedOpeningVoucherModal.opening-manual #importedOpeningRows>tr.opening-foreign>td:nth-child(9)>input,
- #importedOpeningVoucherModal.opening-manual #importedOpeningRows>tr>td:nth-child(10)>input{
-  height:46px!important;min-height:46px!important;max-height:46px!important;
-  box-sizing:border-box!important;
-  padding:17px 6px 3px!important;margin:0!important;
-  font:400 14px Tajawal,sans-serif!important;
-  text-align:center!important;
- }
- #importedOpeningVoucherModal.opening-manual #importedOpeningRows>tr>td:nth-child(9)>input::placeholder,
- #importedOpeningVoucherModal.opening-manual #importedOpeningRows>tr>td:nth-child(10)>input::placeholder,
- #importedOpeningVoucherModal.opening-manual #importedOpeningRows>tr>td:nth-child(3)>input::placeholder,
- #importedOpeningVoucherModal.opening-manual #importedOpeningRows>tr>td:nth-child(4)>input::placeholder{
-  color:transparent!important;
- }
- #importedOpeningVoucherModal.opening-manual #importedOpeningRows>tr>.opening-fx>label{
-  position:relative!important;font-size:0!important;line-height:0!important;
-  gap:0!important;
- }
- #importedOpeningVoucherModal.opening-manual #importedOpeningRows>tr>.opening-fx>label::before{
-  content:"سعر الصرف"!important;
-  position:absolute!important;top:3px!important;left:0!important;right:0!important;
-  color:var(--muted)!important;
-  font:400 11px/15px Tajawal,sans-serif!important;text-align:center!important;
-  pointer-events:none!important;z-index:1!important;
- }
- #importedOpeningVoucherModal.opening-manual #importedOpeningRows>tr>.opening-fx>label input{
-  height:46px!important;min-height:46px!important;max-height:46px!important;
-  padding:17px 6px 3px!important;font:400 14px Tajawal,sans-serif!important;
-  text-align:center!important;
- }
- #importedOpeningVoucherModal.opening-manual #importedOpeningRows>tr>.opening-fx>label input::placeholder{
-  color:transparent!important;
- }
-}
-
 /* Ledger output: each manual-opening account, currency, reference and note
    stays in its own logical cell. Long Arabic names wrap INSIDE the boundaries. */
 .opening-manual-print{
@@ -753,5 +661,59 @@ background:color-mix(in srgb,var(--accent) 8%,var(--card))!important}
  }
  #importedOpeningVoucherModal.opening-manual #importedOpeningRows>tr{
   row-gap:7px!important;
+ }
+}
+
+/* Official 3.6.140 — single caption source per editable opening field.
+   Supersede HIGH-specificity legacy nth-child pseudo labels; earlier generic
+   ::before rules were less specific, leaving two titles in one field.
+   Printed voucher headers are outside this scope and remain unchanged. */
+@media screen {
+ #importedOpeningVoucherModal.opening-manual #importedOpeningRows>tr.opening-card-row>td:nth-child(1)::before,
+ #importedOpeningVoucherModal.opening-manual #importedOpeningRows>tr.opening-card-row>td:nth-child(2)::before,
+ #importedOpeningVoucherModal.opening-manual #importedOpeningRows>tr.opening-card-row>td:nth-child(3)::before,
+ #importedOpeningVoucherModal.opening-manual #importedOpeningRows>tr.opening-card-row>td:nth-child(4)::before,
+ #importedOpeningVoucherModal.opening-manual #importedOpeningRows>tr.opening-card-row>td:nth-child(5)::before,
+ #importedOpeningVoucherModal.opening-manual #importedOpeningRows>tr.opening-card-row>td:nth-child(6)::before,
+ #importedOpeningVoucherModal.opening-manual #importedOpeningRows>tr.opening-card-row>td:nth-child(7)::before,
+ #importedOpeningVoucherModal.opening-manual #importedOpeningRows>tr.opening-card-row>td:nth-child(8)::before,
+ #importedOpeningVoucherModal.opening-manual #importedOpeningRows>tr.opening-card-row>td:nth-child(9)::before,
+ #importedOpeningVoucherModal.opening-manual #importedOpeningRows>tr.opening-card-row>td:nth-child(10)::before,
+ #importedOpeningVoucherModal.opening-manual #importedOpeningRows>tr.opening-card-row>td:nth-child(11)::before,
+ #importedOpeningVoucherModal.opening-manual #importedOpeningRows>tr.opening-card-row>.opening-fx>label.opening-inline-field::before,
+ #importedOpeningVoucherModal.opening-manual #openingHeader label#openingDateLabel.opening-inline-header-field::before {
+   content:none!important;display:none!important;visibility:hidden!important;
+ }
+ /* Keep the real gray label INSIDE its own input border, aligned with content. */
+ #importedOpeningVoucherModal.opening-manual #openingHeader .opening-inline-header-field>.opening-field-caption,
+ #importedOpeningVoucherModal.opening-manual #importedOpeningRows>tr.opening-card-row>td.opening-inline-field>.opening-field-caption,
+ #importedOpeningVoucherModal.opening-manual #importedOpeningRows>tr.opening-card-row>.opening-fx>label.opening-inline-field>.opening-field-caption {
+  position:absolute!important;top:5px!important;right:9px!important;
+  left:auto!important;z-index:2!important;margin:0!important;
+  display:block!important;width:auto!important;max-width:calc(100% - 18px)!important;
+  color:var(--muted)!important;font:400 11px/15px Tajawal,sans-serif!important;
+  white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important;
+  pointer-events:none!important;
+ }
+ #importedOpeningVoucherModal.opening-manual #importedOpeningRows>tr.opening-card-row>td.opening-inline-field>input,
+ #importedOpeningVoucherModal.opening-manual #importedOpeningRows>tr.opening-card-row>td.opening-inline-field>select,
+ #importedOpeningVoucherModal.opening-manual #importedOpeningRows>tr.opening-card-row>.opening-fx>label.opening-inline-field>input {
+  min-height:48px!important;height:48px!important;max-height:48px!important;
+  padding:20px 8px 4px!important;box-sizing:border-box!important;
+  width:100%!important;min-width:0!important;max-width:100%!important;
+  font:400 14px Tajawal,sans-serif!important;
+ }
+ #importedOpeningVoucherModal.opening-manual #openingHeader .opening-inline-header-field>input {
+  min-height:60px!important;height:60px!important;max-height:60px!important;
+  padding:21px 8px 7px!important;box-sizing:border-box!important;
+  font:400 14px Tajawal,sans-serif!important;
+ }
+ #importedOpeningVoucherModal.opening-manual #openingHeader .opening-inline-header-field {
+  min-height:60px!important;position:relative!important;
+  flex:1 1 0!important;min-width:0!important;
+ }
+ #importedOpeningVoucherModal.opening-manual #openingHeader #openingDateHijri {
+  max-width:100%!important;overflow-wrap:anywhere!important;
+  font:400 11px/1.3 Tajawal,sans-serif!important;
  }
 }

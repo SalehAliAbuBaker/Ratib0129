@@ -24,6 +24,32 @@ function clickOriginal(id){
   if(original&&!original.disabled)original.click();
   else if(typeof window.showToast==='function')window.showToast('هذه الأداة غير متاحة حاليًا','warn');
 }
+function addCompoundAccount(){
+  // The shared button has both a legacy onclick and an addEventListener; a
+  // synthetic click could add the same account twice. Invoke the original
+  // compound add function once without bypassing the accounting model.
+  if(typeof addMultiVoucherLine==='function')addMultiVoucherLine();
+  else clickOriginal('addMultiVoucherLineBtn');
+}
+let seedingSecondParty=false;
+function ensureSecondParty(){
+  if(seedingSecondParty||!isCompound()||card.classList.contains('hidden'))return;
+  // Only brand-new, entirely blank documents receive the two-party starting
+  // template. Never append to posted documents, drafts, or an edited form.
+  if(typeof multiVoucherLines==='undefined'||!Array.isArray(multiVoucherLines)
+      ||multiVoucherLines.length!==1)return;
+  if(typeof multiVoucherDraftId!=='undefined'&&multiVoucherDraftId)return;
+  const first=multiVoucherLines[0];
+  if(!first||first.autoBalance||first.account||String(first.amount??'').trim())return;
+  seedingSecondParty=true;
+  try{
+    addCompoundAccount();
+    if(multiVoucherLines.length===2){
+      multiVoucherLines[1].side='credit';
+      if(typeof renderMultiVoucherLines==='function')renderMultiVoucherLines();
+    }
+  }finally{seedingSecondParty=false;}
+}
 function initToolbar(){
   if(byId('ratibCompoundToolbar142'))return;
   const host=document.createElement('div');
@@ -31,7 +57,7 @@ function initToolbar(){
   host.className='ratib-compound-toolbar142 no-print';
   const primary=document.createElement('div');primary.className='ratib-cmp-primary';
   primary.append(
-    makeButton('＋ إضافة حساب','add',()=>clickOriginal('addMultiVoucherLineBtn')),
+    makeButton('＋ إضافة حساب','add',addCompoundAccount),
     makeButton('✓ اعتماد وحفظ','commit',()=>clickOriginal('commitMultiVoucherBtn')),
     makeButton('إلغاء','cancel',()=>{
       const original=[...actions.children].find(x=>x.matches('button.btn-danger'));
@@ -198,12 +224,15 @@ function refresh(){
   const dateBox=byId('ratibCompoundDate142');
   if(date&&dateBox&&date.parentElement!==dateBox)dateBox.append(date);
   const strip=byId('ratibCompoundMeta142');if(strip)strip.hidden=false;
+  ensureSecondParty();
   updateLines();
 }
 function init(){
   initMeta();initToolbar();refresh();
   new MutationObserver(schedule).observe(card,{attributes:true,attributeFilter:['class']});
   new MutationObserver(schedule).observe(body,{childList:true});
+  // Restore the date if the older journal arranger moves it back into h2.
+  new MutationObserver(schedule).observe(header,{childList:true});
   grid.addEventListener('change',schedule);
   body.addEventListener('change',schedule);
   body.addEventListener('input',event=>{

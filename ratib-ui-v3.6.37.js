@@ -53,12 +53,33 @@ function repaintMultiBalances(){
   const note=smallHint(cell,'balance');
   if(note){note.textContent=chosen?accountBalance(chosen,currentCurrency)?.label||'':'';note.hidden=!chosen;}
   const amountCell=amountInput.closest('td');
-  let words=amountCell?.querySelector(':scope > .ratib-line-tafqit');
-  if(!words&&amountCell){words=document.createElement('small');words.className='ratib-line-tafqit';amountCell.appendChild(words);}
+  // Preserve the existing tafqit calculation, but move the original small
+  // element outside the narrow amount cell only in compound journal mode.
+  let wordsHost=amountCell;
+  if(!cash&&amountCell){
+   let dedicated=row.querySelector(':scope > td.ratib-cmp-tafqit-cell');
+   if(!dedicated){
+    dedicated=document.createElement('td');
+    dedicated.className='ratib-cmp-tafqit-cell';
+    dedicated.setAttribute('aria-label','المبلغ بالحروف');
+    row.appendChild(dedicated);
+   }
+   wordsHost=dedicated;
+  }
+  let words=wordsHost?.querySelector(':scope > .ratib-line-tafqit');
+  if(!words&&amountCell){
+   words=amountCell.querySelector(':scope > .ratib-line-tafqit')||document.createElement('small');
+   words.className='ratib-line-tafqit';
+   wordsHost.appendChild(words);
+  }
   if(words){
    const value=typeof getCleanNumber==='function'?getCleanNumber(amountInput.value):Number(amountInput.value||0);
    words.textContent=!cash&&Number.isFinite(value)&&value>0?tafqitAccountCurrency(value,currentCurrency):'';
    words.hidden=cash||!words.textContent;
+   if(!cash&&wordsHost!==amountCell){
+    wordsHost.hidden=words.hidden;
+    row.classList.toggle('ratib-cmp-has-tafqit',!words.hidden);
+   }
   }
  });
 }

@@ -1,6 +1,6 @@
 // Ratib 3.1.9: cache identity is unique to this app's scope.
-const CACHE_VERSION='v260-opening-mobile-clean-3.6.139-compound-compact-auto-signature-3.6.145';
-const APP_RELEASE={"version":"3.6.145","build":"p14500","highlights":["خيار السند الآلي بدل التواقيع","الإبقاء على تواقيع المستندات الحالية"],"changes":["نجري بانتظام تحديثات لتحسين الموثوقية والأداء وإصلاح الأخطاء","إضافة خيار اختياري لعرض عبارة السند الآلي في المعاينة والطباعة وPDF والمشاركة دون تغيير التواقيع السابقة"]};
+const CACHE_VERSION='v260-opening-mobile-clean-3.6.139-compound-compact-auto-signature-tafqit-3.6.146';
+const APP_RELEASE={"version":"3.6.146","build":"p14600","highlights":["ضبط التفقيط وتوازن صف المبلغ في سند القيد المركب","إزالة الفراغات المتداخلة في الطرفين"],"changes":["نجري بانتظام تحديثات لتحسين الموثوقية والأداء وإصلاح الأخطاء","فصل التفقيط في سطر مستقل للطرفين مع الحفاظ على السند الآلي والتواقيع وعمليات الحفظ والطباعة"]};
 const CACHE_PREFIX=`ratib:${self.registration.scope}:`;
 const CACHE_NAME=CACHE_PREFIX+CACHE_VERSION;
 const APP_SHELL=[

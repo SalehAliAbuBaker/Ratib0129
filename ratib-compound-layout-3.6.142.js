@@ -178,13 +178,14 @@ function schedule(){
 function refresh(){
   const meta=byId('ratibCompoundMeta142');
   if(!isCompound()){
-    card.classList.remove('ratib-cmp-layout142','ratib-cmp-show-extras');
+    if(card.classList.contains('ratib-cmp-layout142'))card.classList.remove('ratib-cmp-layout142');
+    if(card.classList.contains('ratib-cmp-show-extras'))card.classList.remove('ratib-cmp-show-extras');
     if(meta)meta.hidden=true;
     byId('ratibCompoundMore142')?.setAttribute('hidden','');
     return;
   }
   initMeta();initToolbar();
-  card.classList.add('ratib-cmp-layout142');
+  if(!card.classList.contains('ratib-cmp-layout142'))card.classList.add('ratib-cmp-layout142');
   const text=header.querySelector(':scope > span:first-child');
   if(text&&text.textContent.trim()!=='سند قيد مركب')text.textContent='سند قيد مركب';
   const back=header.querySelector(':scope > button');

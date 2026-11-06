@@ -541,3 +541,152 @@ background:color-mix(in srgb,var(--accent) 8%,var(--card))!important}
   margin:0!important;text-align:center!important;
  }
 }
+
+/* Manual opening display only: labels are INSIDE their controls, not above.
+   Keep the imported editor untouched; keep native date and finance input types. */
+@media screen {
+ #importedOpeningVoucherModal.opening-manual #openingHeader label{
+  position:relative!important;font-size:0!important;line-height:0!important;
+  gap:0!important;
+ }
+ #importedOpeningVoucherModal.opening-manual #openingHeader label input{
+  height:46px!important;min-height:46px!important;
+  box-sizing:border-box!important;
+  font:400 14px Tajawal,sans-serif!important;
+  color:var(--text)!important;text-align:center!important;
+ }
+ #importedOpeningVoucherModal.opening-manual #openingHeader #openingDateLabel::before{
+  content:"التاريخ"!important;position:absolute!important;
+  top:3px!important;right:7px!important;z-index:1!important;
+  font:400 11px/15px Tajawal,sans-serif!important;color:var(--muted)!important;
+  pointer-events:none!important;
+ }
+ #importedOpeningVoucherModal.opening-manual #openingHeader #openingDateLabel input{
+  padding-top:16px!important;padding-bottom:2px!important;
+ }
+ #importedOpeningVoucherModal.opening-manual #openingHeader #openingDateHijri{
+  font:400 11px/1.4 Tajawal,sans-serif!important;
+ }
+ #importedOpeningVoucherModal.opening-manual #importedOpeningRows>tr>td:nth-child(2),
+ #importedOpeningVoucherModal.opening-manual #importedOpeningRows>tr>td:nth-child(3),
+ #importedOpeningVoucherModal.opening-manual #importedOpeningRows>tr>td:nth-child(4),
+ #importedOpeningVoucherModal.opening-manual #importedOpeningRows>tr>td:nth-child(5),
+ #importedOpeningVoucherModal.opening-manual #importedOpeningRows>tr>td:nth-child(9),
+ #importedOpeningVoucherModal.opening-manual #importedOpeningRows>tr>td:nth-child(10){
+  position:relative!important;gap:0!important;
+ }
+ #importedOpeningVoucherModal.opening-manual #importedOpeningRows>tr>td:nth-child(2)::before,
+ #importedOpeningVoucherModal.opening-manual #importedOpeningRows>tr>td:nth-child(3)::before,
+ #importedOpeningVoucherModal.opening-manual #importedOpeningRows>tr>td:nth-child(4)::before,
+ #importedOpeningVoucherModal.opening-manual #importedOpeningRows>tr.opening-foreign>td:nth-child(5)::before,
+ #importedOpeningVoucherModal.opening-manual #importedOpeningRows>tr.opening-foreign>td:nth-child(9)::before,
+ #importedOpeningVoucherModal.opening-manual #importedOpeningRows>tr>td:nth-child(10)::before{
+  position:absolute!important;display:block!important;inset:auto 0 auto 0!important;
+  top:3px!important;margin:0!important;z-index:1!important;
+  width:100%!important;min-height:0!important;height:auto!important;
+  box-sizing:border-box!important;text-align:center!important;
+  color:var(--muted)!important;
+  font:400 11px/15px Tajawal,sans-serif!important;
+  white-space:nowrap!important;pointer-events:none!important;
+ }
+ #importedOpeningVoucherModal.opening-manual #importedOpeningRows>tr>td:nth-child(2)::before{content:"العملة"!important}
+ #importedOpeningVoucherModal.opening-manual #importedOpeningRows>tr>td:nth-child(3)::before,
+ #importedOpeningVoucherModal.opening-manual #importedOpeningRows>tr>td:nth-child(4)::before{content:"المبلغ"!important}
+ #importedOpeningVoucherModal.opening-manual #importedOpeningRows>tr.opening-foreign>td:nth-child(5)::before{content:"عملة التقييم"!important}
+ #importedOpeningVoucherModal.opening-manual #importedOpeningRows>tr.opening-foreign>td:nth-child(9)::before{content:"مصدر السعر"!important}
+ #importedOpeningVoucherModal.opening-manual #importedOpeningRows>tr>td:nth-child(10)::before{content:"البيان (اختياري)"!important}
+ #importedOpeningVoucherModal.opening-manual #importedOpeningRows>tr>td:nth-child(2)>select,
+ #importedOpeningVoucherModal.opening-manual #importedOpeningRows>tr>td:nth-child(3)>input,
+ #importedOpeningVoucherModal.opening-manual #importedOpeningRows>tr>td:nth-child(4)>input,
+ #importedOpeningVoucherModal.opening-manual #importedOpeningRows>tr.opening-foreign>td:nth-child(5)>select,
+ #importedOpeningVoucherModal.opening-manual #importedOpeningRows>tr.opening-foreign>td:nth-child(9)>input,
+ #importedOpeningVoucherModal.opening-manual #importedOpeningRows>tr>td:nth-child(10)>input{
+  height:46px!important;min-height:46px!important;max-height:46px!important;
+  box-sizing:border-box!important;
+  padding:17px 6px 3px!important;margin:0!important;
+  font:400 14px Tajawal,sans-serif!important;
+  text-align:center!important;
+ }
+ #importedOpeningVoucherModal.opening-manual #importedOpeningRows>tr>td:nth-child(9)>input::placeholder,
+ #importedOpeningVoucherModal.opening-manual #importedOpeningRows>tr>td:nth-child(10)>input::placeholder,
+ #importedOpeningVoucherModal.opening-manual #importedOpeningRows>tr>td:nth-child(3)>input::placeholder,
+ #importedOpeningVoucherModal.opening-manual #importedOpeningRows>tr>td:nth-child(4)>input::placeholder{
+  color:transparent!important;
+ }
+ #importedOpeningVoucherModal.opening-manual #importedOpeningRows>tr>.opening-fx>label{
+  position:relative!important;font-size:0!important;line-height:0!important;
+  gap:0!important;
+ }
+ #importedOpeningVoucherModal.opening-manual #importedOpeningRows>tr>.opening-fx>label::before{
+  content:"سعر الصرف"!important;
+  position:absolute!important;top:3px!important;left:0!important;right:0!important;
+  color:var(--muted)!important;
+  font:400 11px/15px Tajawal,sans-serif!important;text-align:center!important;
+  pointer-events:none!important;z-index:1!important;
+ }
+ #importedOpeningVoucherModal.opening-manual #importedOpeningRows>tr>.opening-fx>label input{
+  height:46px!important;min-height:46px!important;max-height:46px!important;
+  padding:17px 6px 3px!important;font:400 14px Tajawal,sans-serif!important;
+  text-align:center!important;
+ }
+ #importedOpeningVoucherModal.opening-manual #importedOpeningRows>tr>.opening-fx>label input::placeholder{
+  color:transparent!important;
+ }
+}
+
+/* Ledger output: each manual-opening account, currency, reference and note
+   stays in its own logical cell. Long Arabic names wrap INSIDE the boundaries. */
+.opening-manual-print{
+ width:100%!important;table-layout:fixed!important;border-collapse:collapse!important;
+ direction:rtl!important;
+}
+.opening-manual-print th,
+.opening-manual-print td{
+ box-sizing:border-box!important;min-width:0!important;
+ padding:5px 6px!important;vertical-align:top!important;
+ white-space:normal!important;word-break:normal!important;overflow-wrap:anywhere!important;
+ font:500 8.5pt/1.55 Tajawal,sans-serif!important;text-align:right!important;
+}
+.opening-manual-print th{
+ font-weight:700!important;text-align:center!important;
+}
+.opening-manual-print .opening-account-cell{
+ overflow-wrap:anywhere!important;word-break:normal!important;
+ unicode-bidi:plaintext!important;
+}
+.opening-manual-print .opening-currency-cell{
+ text-align:center!important;white-space:nowrap!important;
+}
+.opening-manual-print .opening-money-cell{
+ white-space:nowrap!important;direction:ltr!important;unicode-bidi:isolate!important;
+ text-align:center!important;font-variant-numeric:tabular-nums;
+}
+.opening-manual-print .opening-ledger-meta>td{
+ padding:5px 8px!important;background:#f8fafc!important;
+}
+.opening-manual-print .opening-print-details{
+ display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;
+ gap:3px 12px!important;min-width:0!important;
+}
+.opening-manual-print .opening-print-field{
+ display:flex!important;flex-wrap:wrap!important;gap:3px!important;
+ min-width:0!important;align-items:baseline!important;
+ overflow-wrap:anywhere!important;
+}
+.opening-manual-print .opening-print-field>b{
+ font-weight:700!important;white-space:nowrap!important;color:#475569!important;
+}
+.opening-manual-print .opening-print-field>span{
+ min-width:0!important;white-space:normal!important;overflow-wrap:anywhere!important;
+}
+.opening-manual-print .opening-ledger-total>td{
+ font-weight:700!important;background:#f1f5f9!important;
+}
+@media print{
+ body.printing-voucher #printVoucherContainer .opening-manual-print tr.opening-ledger-line{
+  break-after:avoid!important;page-break-after:avoid!important;
+ }
+ body.printing-voucher #printVoucherContainer .opening-manual-print tr.opening-ledger-meta{
+  break-inside:avoid!important;page-break-inside:avoid!important;
+ }
+}

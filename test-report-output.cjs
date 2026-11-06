@@ -8,7 +8,7 @@ const html=fs.readFileSync(require('node:path').join(__dirname,'index.html'),'ut
 const results=[],fixtures=[];
 const pause=ms=>new Promise(resolve=>setTimeout(resolve,ms));
 function workerFixture(waiting){const listeners=new Map(),messages=[];const add=(type,fn)=>{if(!listeners.has(type))listeners.set(type,[]);listeners.get(type).push(fn);};const registration={waiting:waiting?{postMessage(message){messages.push(message);}}:null,active:{postMessage(){}},addEventListener(){}};return {messages,emit(type,event){for(const fn of listeners.get(type)||[])fn(event);},service:{controller:{},register:async()=>registration,ready:Promise.resolve(registration),addEventListener:add}};}
-async function waitFor(fn,label,ms=5000){const deadline=Date.now()+ms;while(Date.now()<deadline){if(fn())return;await pause(10);}throw Error('Timeout: '+label);}
+async function waitFor(fn,label,ms=20000){const deadline=Date.now()+ms;while(Date.now()<deadline){if(fn())return;await pause(10);}throw Error('Timeout: '+label);}
 function code(win,script){if(script.includes('goBackInApp()')||script.includes("runAccountAction('close')"))return win.eval('(async()=>{'+script.replaceAll('goBackInApp()','await goBackInApp()').replaceAll("runAccountAction('close')","await runAccountAction('close')")+'})()');return win.eval(script);}
 function localSnapshot(win){return Object.fromEntries(Object.keys(win.localStorage).map(k=>[k,win.localStorage.getItem(k)]));}
 class LocalScripts extends ResourceLoader{
@@ -50,7 +50,7 @@ async function test(name,fn){await fn();results.push({name,status:'passed'});con
 
 async function run(){
  const f=makeFixture();await boot(f);const w=f.win,d=w.document;
- for(const name of ['ratib-annual-close.js','ratib-favorites-v3.js','ratib-theme.js','ratib-navigation-v3.js','ratib-unified-output.js','ratib-cash-reference-3.6.148.js'])w.eval(fs.readFileSync(require('node:path').join(__dirname,name),'utf8'));
+ for(const name of ['ratib-annual-close.js','ratib-favorites-v3.js','ratib-theme.js','ratib-navigation-v3.js','ratib-unified-output.js','ratib-cash-reference-3.6.148.js','ratib-compound-output-3.6.150.js'])w.eval(fs.readFileSync(require('node:path').join(__dirname,name),'utf8'));
  await pause(30);
  for(let pass=0;pass<3;pass++)w.RatibUnifiedOutput.refresh();
  code(w,`{

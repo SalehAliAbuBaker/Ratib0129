@@ -1,0 +1,33 @@
+name: Ratib isolated 503 lab checks
+on:
+  push:
+    branches: [sandbox-503]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  isolated-license-voucher:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Install test dependencies
+        run: npm ci --ignore-scripts --no-audit --no-fund
+      - name: Confirm isolation
+        run: |
+          node - <<'NODE'
+          const fs=require('fs'),assert=require('node:assert/strict');
+          const code=fs.readFileSync('ratib-license-draft.js','utf8');
+          assert(code.includes("const KEY = 'ratib_license_outage_sandbox_v1'"));
+          assert(code.includes("const API = 'https://ratib-license-outage-sandbox-20261105.saleh0129.workers.dev/api/license/'"));
+          assert(!code.includes("const API = 'https://ratib.saleh0129.workers.dev"));
+          assert(code.includes('if (code !== TEST_ONLY_KEY)'));
+          const headers=fs.readFileSync('_headers','utf8');
+          assert(headers.includes('Content-Security-Policy'));
+          assert(headers.includes("connect-src 'self' https://ratib-license-outage-sandbox-20261105.saleh0129.workers.dev"));
+          console.log('PASS distinct storage and test Worker; production API absent; preview CSP present');
+          NODE
+      - name: Simulate actual voucher form saves during 503 then 200
+        run: node test-sandbox-503-document-save.cjs

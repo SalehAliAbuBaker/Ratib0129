@@ -34,7 +34,10 @@ function repaintMultiBalances(){
  const card=document.getElementById('multiVoucherCard'),cash=card?.classList.contains('spend-voucher');
  if(!card)return;
  const source=card.querySelector('.multi-voucher-source-row'),name=(typeof multiSourceAcc!=='undefined'&&multiSourceAcc?.getValue?.())||'';
- if(!source?.closest('.multi-voucher-grid'))return;
+ // The original reference-account row is outside .multi-voucher-grid in
+ // compound mode. Only cash mode requires it to be nested. Do not exit before
+ // updating the compound line tafqit when the reference row is external.
+ if(cash&&!source?.closest('.multi-voucher-grid'))return;
  let hint=source?.querySelector(':scope > .ratib-multi-source-balance');
  if(!hint){
   hint=document.createElement('small');hint.className='ratib-current-balance ratib-multi-source-balance';source?.appendChild(hint);

@@ -3,6 +3,7 @@
 (function(){
 'use strict';
 const KEY='ratib_document_signatures_v1';
+const AUTOMATIC_NOTICE='هذا السند آلي لا يحتاج لختم أو توقيع';
 const DEFAULTS={
  payment:['المحاسب / المدير','أمين الصندوق','المستلم'],
  receipt:['المحاسب / المدير','أمين الصندوق','المستفيد'],
@@ -20,7 +21,7 @@ const DEFAULTS={
 };
 const TITLES={payment:'سند صرف',receipt:'سند قبض',journal:'قيد بسيط',compound:'قيد مركب',opening:'قيد افتتاحي'};
 const keys=Object.keys(DEFAULTS);
-const newDefault=key=>({enabled:DEFAULTS[key].length>0,people:DEFAULTS[key].map(label=>({label,name:''}))});
+const newDefault=key=>({enabled:DEFAULTS[key].length>0,automatic:false,people:DEFAULTS[key].map(label=>({label,name:''}))});
 const cleanText=(x,n=64)=>String(x==null?'':x).trim().slice(0,n);
 const htmlEscape=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const safeKey=key=>Object.prototype.hasOwnProperty.call(DEFAULTS,key)?key:'';
@@ -33,7 +34,7 @@ function sanitize(key,item){
  const def=newDefault(key);
  if(!item||typeof item!=='object')return def;
  const people=Array.isArray(item.people)?item.people.slice(0,8).map(p=>({label:cleanText(p?.label),name:cleanText(p?.name,90)})).filter(p=>p.label):def.people;
- return {enabled:item.enabled!==false,people};
+ return {enabled:item.enabled!==false,automatic:item.automatic===true,people};
 }
 function liveState(){
  try{
@@ -58,11 +59,18 @@ function put(key,value){
 function reset(key){key=safeKey(key);if(!key)return false;liveState();delete state[key];return persist();}
 function html(key){
  const config=get(key);
+ if(config.automatic)return '<div class="ratib-automatic-document-note">'+htmlEscape(AUTOMATIC_NOTICE)+'</div>';
  if(!config.enabled||!config.people.length)return '';
  return '<div class="ratib-output-signatures">'+config.people.map(p=>'<div class="ratib-output-signature"><b>'+htmlEscape(p.label)+'</b><span>الاسم: '+(p.name?htmlEscape(p.name):'____________')+'</span><span>التوقيع: ____________</span></div>').join('')+'</div>';
 }
 function drawCanvas(ctx,key,width,y){
  const data=get(key);
+ if(data.automatic){
+  ctx.save();ctx.fillStyle='#111827';ctx.direction='rtl';ctx.textAlign='center';
+  ctx.font='bold 18px Tajawal,Arial,sans-serif';
+  ctx.fillText(AUTOMATIC_NOTICE,width/2,y+32,width-80);
+  ctx.restore();return 66;
+ }
  if(!data.enabled||!data.people.length)return 0;
  const margin=40,perRow=Math.min(4,data.people.length),cols=perRow,cellWidth=(width-2*margin)/cols;
  const rows=Math.ceil(data.people.length/cols),height=rows*91+12;
@@ -76,7 +84,7 @@ function drawCanvas(ctx,key,width,y){
  });
  ctx.restore();return height;
 }
-function height(key){const v=get(key);return v.enabled&&v.people.length?Math.ceil(v.people.length/4)*91+12:0;}
+function height(key){const v=get(key);return v.automatic?66:v.enabled&&v.people.length?Math.ceil(v.people.length/4)*91+12:0;}
 function fillVoucher(key){
  const element=document.querySelector('.pv-signatures');if(!element)return;
  for(const child of element.children){if(!child.classList.contains('ratib-sig-print-host'))child.style.display='none';}
@@ -101,16 +109,17 @@ function build(){
  const box=document.createElement('section');box.id='ratibSignatureSettings';box.className='ratib-signature-settings';
  box.innerHTML='<h3>✍️ تواقيع المستندات</h3><p class="ratib-sig-hint">تخصيص أسماء ومسميات التواقيع لكل مستند، دون تغيير الحسابات أو الحركات المالية.</p>'+
  '<label for="ratibSignatureType">نوع المستند</label><select id="ratibSignatureType" class="ratib-sig-select">'+keys.map(key=>'<option value="'+htmlEscape(key)+'">'+htmlEscape(TITLES[key]||key)+'</option>').join('')+'</select>'+
- '<label class="ratib-sig-check"><input type="checkbox" id="ratibSignatureEnabled"> إظهار التواقيع لهذا المستند</label>'+
+ '<div class="ratib-document-options"><h4>خيارات المستند</h4><label class="ratib-sig-check"><input type="checkbox" id="ratibSignatureAutomatic"> '+htmlEscape(AUTOMATIC_NOTICE)+'</label></div>'+
+ '<label class="ratib-sig-check" id="ratibSignatureEnabledRow"><input type="checkbox" id="ratibSignatureEnabled"> إظهار التواقيع لهذا المستند</label>'+ 
  '<div id="ratibSignatureRows"></div><button type="button" class="btn btn-ghost" id="ratibSignatureAdd">＋ إضافة توقيع</button>'+
  '<h4>معاينة أسفل المستند</h4><div id="ratibSignaturePreview"></div>'+
  '<div class="ratib-sig-actions"><button type="button" class="btn btn-primary" id="ratibSignatureSave">حفظ التواقيع</button><button type="button" class="btn btn-ghost" id="ratibSignatureReset">استعادة الافتراضي</button></div>'+
  '<details class="ratib-sig-bulk"><summary>تطبيق التواقيع على مستندات أخرى</summary><p class="ratib-sig-hint">يتم نسخ المسميات والأسماء والحالة بعد الحفظ على الأنواع المحددة.</p><div id="ratibSignatureBulk">'+keys.map(k=>'<label><input type="checkbox" value="'+htmlEscape(k)+'">'+htmlEscape(TITLES[k]||k)+'</label>').join('')+'</div><button type="button" class="btn btn-ghost" id="ratibSignatureApply">تطبيق على المحدد</button></details>';
  host.appendChild(box);
- const type=box.querySelector('#ratibSignatureType'),enabled=box.querySelector('#ratibSignatureEnabled'),rows=box.querySelector('#ratibSignatureRows'),preview=box.querySelector('#ratibSignaturePreview');
+ const type=box.querySelector('#ratibSignatureType'),enabled=box.querySelector('#ratibSignatureEnabled'),automatic=box.querySelector('#ratibSignatureAutomatic'),rows=box.querySelector('#ratibSignatureRows'),preview=box.querySelector('#ratibSignaturePreview');
  const commit=()=>{if(!draft)return false;const invalid=draft.people.some(p=>!p.label.trim());if(invalid){notify('يرجى إدخال مسمى لكل توقيع.');return false;}if(!put(selected,draft))return false;return true;};
  function updatePreview(){
-  preview.innerHTML=draft.enabled&&draft.people.length?'<div class="ratib-output-signatures">'+draft.people.map(p=>'<div class="ratib-output-signature"><b>'+htmlEscape(p.label||'المسمى')+'</b><span>الاسم: '+htmlEscape(p.name||'____________')+'</span><span>التوقيع: ____________</span></div>').join('')+'</div>':'<span>التواقيع مخفية لهذا المستند.</span>';
+  preview.innerHTML=draft.automatic?'<div class="ratib-automatic-document-note">'+htmlEscape(AUTOMATIC_NOTICE)+'</div>':draft.enabled&&draft.people.length?'<div class="ratib-output-signatures">'+ draft.people.map(p=>'<div class="ratib-output-signature"><b>'+htmlEscape(p.label||'المسمى')+'</b><span>الاسم: '+htmlEscape(p.name||'____________')+'</span><span>التوقيع: ____________</span></div>').join('')+'</div>':'<span>التواقيع مخفية لهذا المستند.</span>';
  }
  function render(){
   rows.replaceChildren();
@@ -128,11 +137,17 @@ function build(){
    });
    rows.append(row);
   });
-  enabled.checked=draft.enabled;updatePreview();
+  enabled.checked=draft.enabled;
+  automatic.checked=draft.automatic;
+  rows.hidden=draft.automatic;
+  box.querySelector('#ratibSignatureAdd').hidden=draft.automatic;
+  box.querySelector('#ratibSignatureEnabledRow').hidden=draft.automatic;
+  updatePreview();
  }
  function load(key){selected=key;draft=get(key);enabled.checked=draft.enabled;render();}
  type.addEventListener('change',()=>load(type.value));
  enabled.addEventListener('change',()=>{draft.enabled=enabled.checked;updatePreview();});
+ automatic.addEventListener('change',()=>{draft.automatic=automatic.checked;render();});
  box.querySelector('#ratibSignatureAdd').addEventListener('click',()=>{if(draft.people.length>=8){notify('الحد الأعلى ثمانية تواقيع.');return;}draft.people.push({label:'توقيع جديد',name:''});render();});
  box.querySelector('#ratibSignatureSave').addEventListener('click',()=>{if(commit())notify('تم حفظ إعدادات التواقيع.');});
  box.querySelector('#ratibSignatureReset').addEventListener('click',()=>{reset(selected);load(selected);notify('عادت التواقيع الافتراضية لهذا المستند.');});
@@ -159,6 +174,8 @@ const css=document.createElement('style');css.id='ratibSignaturesStyle148';css.t
  '.ratib-output-signature{flex:1 1 145px;min-width:0;display:flex;flex-direction:column;align-items:center;text-align:center;gap:6px;color:#111827;font-size:9.5pt;line-height:1.4}'+
  '#ratibSignaturePreview{padding:10px;border:1px dashed var(--border);border-radius:8px}'+
  '.pv-signatures.ratib-signatures-managed{display:block!important;margin-top:12px!important}'+
+ '.ratib-signature-settings [hidden]{display:none!important}.ratib-document-options{margin:12px 0;padding:9px;border:1px solid var(--border);border-radius:9px}'+
+ '.ratib-automatic-document-note{width:100%;box-sizing:border-box;margin:12px auto;padding:13px 10px;text-align:center;direction:rtl;color:#1f2937;font:700 12pt/1.6 Tajawal,Arial,sans-serif;border-top:1px solid #cbd5e1}'+ 
  '@media(max-width:430px){.ratib-sig-row{grid-template-columns:minmax(0,1fr) minmax(0,1fr) 25px 25px 25px;gap:3px}.ratib-sig-row-action{font-size:.85rem}}'+
  '@media print{#ratibSignatureSettings{display:none!important}.ratib-output-signatures{break-inside:avoid;page-break-inside:avoid}}';
 document.head.appendChild(css);

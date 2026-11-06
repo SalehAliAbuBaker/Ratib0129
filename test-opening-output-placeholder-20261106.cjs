@@ -120,7 +120,7 @@ splitBase.records.push({isoDate:'2026-11-06',openingBalance:{account:'قيد آ�
 const splitTotals=ctx.manualOpeningCurrencyTotals(splitBase);
 assert.equal(splitTotals.length,2,'One original currency remains one group');
 assert.equal(splitTotals[1].valuations.length,2,'Distinct valuation currencies are never mixed');
-assert.equal(ctx.manualOpeningPdfRows(splitBase).length,5,'Separate valuation subrow preserves currency labels');
+assert.equal(ctx.manualOpeningPdfRows(splitBase).length,6,'Three records plus three separate original/valuation subtotal rows');
 const mixed=structuredClone(object);mixed.records[1].isoDate='2026-10-30';
 ctx.importedOpeningDocument=()=>mixed;
 ctx.importedOpeningPdf(local,mixed.records);

@@ -18,15 +18,16 @@ function referenceModel(doc){
  const budgetRows=dist.map(d=>({name:asText(d.name)||asText(cats.get(d.id))||asText(d.id),
    amount:number(d.amount),pct:Number.isFinite(Number(d.pct))?Number(d.pct):value>0?number(d.amount)*100/value:0}));
  const names=[...new Set(budgetRows.map(d=>d.name).filter(Boolean))],budget=names.length===1?names[0]:names.length>1?'بنود متعددة':'';
- const description=[...new Set(Object.values(doc.execution||{}).map(v=>asText(v?.note)).filter(Boolean))].join(' — ');
+ const description=[...new Set([asText(doc.note),...Object.values(doc.execution||{}).map(v=>asText(v?.note))].filter(Boolean))].join(' — ');
  const accountCode=account=>{try{const code=asText(getAccountCode(account));return code==='—'?'':code;}catch(_){return '';}};
  const debit=asText(doc.debitAccount),credit=asText(doc.creditAccount);
+ const amountWords=typeof tafqitAccountCurrency==='function'?asText(tafqitAccountCurrency(value,baseCurrency)):'';
  const rows=[
   {seq:1,side:'debit',account:debit,accountCode:accountCode(debit),currency:baseCurrency,debit:value,credit:null,budget,note:description},
   {seq:2,side:'credit',account:credit,accountCode:accountCode(credit),currency:baseCurrency,debit:null,credit:value,budget,note:description}
  ];
  return {title:'سند قيد بسيط',seq:asText(doc.seqNum),date:asText(doc.isoDate||doc.date),
-  baseCurrency,header,description,party:'',budget,budgetRows,rows,
+  baseCurrency,header,description,amountWords,party:'',budget,budgetRows,rows,
   byCurrency:[{currency:baseCurrency,debit:value,credit:value}],baseDebit:value,baseCredit:value,
   balanced:value>0&&!!debit&&!!credit,difference:0,signatureKey:'journal'};
 }
@@ -59,7 +60,7 @@ function html(d){
   '<div class="ratib-smp-out-valuation"><b>الإجمالي بالعملة الأساسية ('+enc(m.baseCurrency)+')</b>'+
   '<div>مدين <strong>'+enc(fmt(m.baseDebit))+'</strong></div><div>دائن <strong>'+enc(fmt(m.baseCredit))+'</strong></div>'+
   '<div class="ratib-smp-out-status '+(m.balanced?'ratib-smp-out-balanced':'ratib-smp-out-unbalanced')+'">'+
-  (m.balanced?'✓ القيد متوازن':'القيد غير مكتمل')+'</div></div></div>'+budgetBlock+'</article>';
+  (m.balanced?'✓ القيد متوازن':'القيد غير مكتمل')+'</div></div></div>'+(m.amountWords?'<div class="ratib-smp-out-words"><b>المبلغ كتابة:</b> '+enc(m.amountWords)+'</div>':'')+budgetBlock+'</article>';
 }
 function prepare(d){
  const m=referenceModel(d),cfg=m.header;
@@ -69,7 +70,7 @@ function prepare(d){
   pvVoucherTitle:'سند قيد بسيط رقم '+m.seq,pvAmount:fmt(m.baseDebit)+' '+m.baseCurrency,
   pvDebit:m.rows.filter(r=>r.side==='debit').map(r=>r.account).filter(Boolean).join('، '),
   pvCredit:m.rows.filter(r=>r.side==='credit').map(r=>r.account).filter(Boolean).join('، '),
-  pvTafqit:'',pvNote:m.description
+  pvTafqit:m.amountWords,pvNote:m.description
  })){
   const node=document.getElementById(id);if(node)node.textContent=value;
  }
@@ -95,7 +96,7 @@ function* pages(d){
  const boxText=(label,value,x,top,maxWidth)=>{text(label,x,top,18,true,maxWidth);text(value,x,top+28,18,false,maxWidth)};
  function start(){
   canvas=document.createElement('canvas');canvas.width=W;canvas.height=H;canvas._ratibTemporary=true;
-  ctx=canvas.getContext('2d');if(!ctx)throw Error('تعذر إنشاء لوحة طباعة القيد المركب');
+  ctx=canvas.getContext('2d');if(!ctx)throw Error('تعذر إنشاء لوحة طباعة القيد البسيط');
   ctx.fillStyle='#fff';ctx.fillRect(0,0,W,H);ctx.direction='rtl';ctx.textAlign='right';
   ctx.fillStyle='#0b6643';ctx.fillRect(L,36,CONTENT,6);
   ctx.fillStyle='#d6b65d';ctx.fillRect(L,43,CONTENT,3);
@@ -168,7 +169,9 @@ function* pages(d){
  const sigHeight=window.RatibSignatureSettings?.height?.('journal')||0;
  const captionParts=m.description?wrap(m.description,CONTENT-110,17).slice(2):[];
  const captionHeight=captionParts.length?30+captionParts.length*23:0;
- if(space(totalsHeight+captionHeight+sigHeight+28)){closeFrame();yield canvas;start();}
+ const wordsParts=m.amountWords?wrap('المبلغ كتابة: '+m.amountWords,CONTENT-60,16):[];
+ const wordsHeight=wordsParts.length?wordsParts.length*23+22:0;
+ if(space(totalsHeight+captionHeight+wordsHeight+sigHeight+28)){closeFrame();yield canvas;start();}
  y+=17;
  text('الإجماليات حسب العملة',R-12,y+15,20,true,440);y+=26;
  for(const g of m.byCurrency.length?m.byCurrency:[{currency:'—',debit:0,credit:0}]){
@@ -178,7 +181,7 @@ function* pages(d){
   y+=32;
  }
  ctx.strokeStyle='#d7e4da';ctx.beginPath();ctx.moveTo(L+10,y+5);ctx.lineTo(R-10,y+5);ctx.stroke();y+=26;
- text('إجمالي التقييم '+m.baseCurrency,R-15,y+13,19,true,360);
+ text('إجمالي القيد '+m.baseCurrency,R-15,y+13,19,true,360);
  text('مدين: '+fmt(m.baseDebit),R-405,y+13,19,true,310);
  text('دائن: '+fmt(m.baseCredit),R-765,y+13,19,true,310);
  y+=34;text(m.balanced?'✓ القيد متوازن':'القيد غير مكتمل',R-15,y+14,18,true,430);y+=32;
@@ -188,6 +191,10 @@ function* pages(d){
    if(y+27>MAX){closeFrame();yield canvas;start();}
    text(part,R-24,y+16,16,false,CONTENT-60);y+=23;
   }
+ }
+ if(wordsParts.length){
+  for(const line of wordsParts){if(y+27>MAX){closeFrame();yield canvas;start();}text(line,R-20,y+17,16,false,CONTENT-48);y+=23;}
+  y+=8;
  }
  if(m.budgetRows.length>1){
   if(y+64>MAX){closeFrame();yield canvas;start();}

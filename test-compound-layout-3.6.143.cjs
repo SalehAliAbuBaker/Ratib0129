@@ -8,13 +8,13 @@ const js=fs.readFileSync('ratib-compound-layout-3.6.142.js','utf8');
 const html=fs.readFileSync('index.html','utf8');
 const sw=fs.readFileSync('sw.js','utf8');
 const pkg=JSON.parse(fs.readFileSync('package.json','utf8'));
-assert.equal(pkg.version,'3.6.143');
-assert(html.includes('ratib-compound-layout-3.6.142.css?v=3.6.143'));
-assert(html.includes('ratib-compound-layout-3.6.142.js?v=3.6.143'));
-assert(sw.includes('compound-layout-corrected-3.6.143'));
-const precise='#multiVoucherCard.unified-voucher:not(.spend-voucher).ratib-cmp-layout142';
+assert.equal(pkg.version,'3.6.144');
+assert(html.includes('ratib-compound-layout-3.6.142.css?v=3.6.144'));
+assert(html.includes('ratib-compound-layout-3.6.142.js?v=3.6.144'));
+assert(sw.includes('compound-layout-corrected-3.6.144'));
+const precise='#multiVoucherCard.ratib-cmp-layout142:not(.spend-voucher):not(.hidden)';
 const old='#multiVoucherCard.ratib-cmp-layout142';
-assert(css.includes(precise+' > h2'),'Header must outrank old !important grid selector');
+assert(css.includes(precise+' > h2'),'Header must not require the legacy unified-voucher class');
 assert(css.includes(precise+'>.multi-voucher-grid'),'Must hide legacy extraneous grid');
 assert(css.includes(precise+' .multi-voucher-table tbody tr>td'),'Cells must outrank old !important grid rules');
 assert(css.includes(precise+' .multi-voucher-table tbody tr.ratib-cmp-first>td:nth-child(2)'),'First account full width');
@@ -34,7 +34,7 @@ const one=(i,side='debit')=>'<tr>'+
 '<td><button class="multi-remove-line">×</button></td></tr>';
 const fixture='<!doctype html><html dir="rtl"><body>'+
 '<div id="voucherSelectorCard"></div>'+
-'<div id="multiVoucherCard" class="unified-voucher hidden"><h2><span>قيد مركب</span><span id="multiVoucherSeqBadge">رقم: 5</span><button type="button">رجوع</button></h2>'+
+'<div id="multiVoucherCard" class="hidden"><h2><span>قيد مركب</span><span id="multiVoucherSeqBadge">رقم: 5</span><button type="button">رجوع</button></h2>'+
 '<div class="multi-voucher-grid"><label><input id="multiVoucherDate" type="date" value="2026-11-06"></label>'+
 '<label><input id="multiVoucherBeneficiary"></label><label><select id="multiVoucherBaseCurrency"><option value="YER">ريال يمني</option><option value="USD">دولار</option></select></label></div>'+
 '<label><textarea id="multiVoucherNote"></textarea></label>'+
@@ -86,6 +86,6 @@ async function test(){
  card.classList.add('spend-voucher');
  await new Promise(r=>setTimeout(r,0));
  assert(!card.classList.contains('ratib-cmp-layout142'),'Cash voucher remains isolated');
- console.log('PASS 3.6.143 compound visible controls, two parties, scoped CSS, no duplicate add, date and cash isolation');
+ console.log('PASS 3.6.144 compound visible controls, two parties, scoped CSS, no duplicate add, date and cash isolation');
 }
 test().catch(err=>{console.error(err);process.exitCode=1;});

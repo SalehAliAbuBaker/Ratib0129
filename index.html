@@ -1576,8 +1576,8 @@ body.ratib-sidebar-open,body.ratib-about-open{overflow:hidden}
 #pageLedger .rc-ledger-operations .btn{width:auto;min-height:34px;padding:5px 9px;margin:0;font-size:.76rem}
 #pageLedger .tx-log-item:has(.rc-ledger-operations) .single-del-btn{display:none!important}
 </style>
-<link rel="stylesheet" href="./ratib-trial-home-sidebar-3.6.143.css?v=3.6.143">
-<link rel="stylesheet" href="./ratib-trial-ui-3.6.143.css?v=3.6.143">
+<link rel="stylesheet" href="./ratib-trial-home-sidebar-3.6.143.css?v=3.6.144">
+<link rel="stylesheet" href="./ratib-trial-ui-3.6.143.css?v=3.6.144">
 <link rel="stylesheet" href="./ratib-dashboard-finance-3.6.144.css?v=3.6.144">
 <link rel="stylesheet" href="./ratib-global-button-size-3.6.146.css?v=3.6.139">
 <link rel="stylesheet" href="./ratib-interface-font-3.6.148.css?v=3.6.139">
@@ -1654,7 +1654,7 @@ body.ratib-sidebar-open,body.ratib-about-open{overflow:hidden}
 <link rel="stylesheet" href="./ratib-cash-pulse.css?v=3.6.139">
 <link rel="stylesheet" href="./ratib-cloud-due-3.6.130.css?v=3.6.139">
 <link rel="stylesheet" href="./ratib-cash-actions-3.6.135.css?v=3.6.142-single-label-20261106">
-<link rel="stylesheet" href="./ratib-compound-layout-3.6.142.css?v=3.6.143">
+<link rel="stylesheet" href="./ratib-compound-layout-3.6.142.css?v=3.6.144">
 </head>
 <body>
 
@@ -1685,7 +1685,7 @@ body.ratib-sidebar-open,body.ratib-about-open{overflow:hidden}
     <div class="header-tools"><div class="header-actions">
       <button class="icon-btn" id="themeBtn" title="الوضع الليلي">🌙</button>
       <button class="icon-btn" id="sidebarMenuBtn" aria-haspopup="dialog" aria-controls="appSidebar" aria-expanded="false" title="الإعدادات" aria-label="فتح الإعدادات">⚙</button>
-    </div><small id="appVersionLabel" class="app-version">الإصدار 3.6.143</small></div>
+    </div><small id="appVersionLabel" class="app-version">الإصدار 3.6.144</small></div>
   </header>
   <div class="summary-toolbar hidden no-print" id="storageFeedback"><span id="persistentSaveStatus" hidden aria-hidden="true">جاهز</span><button type="button" id="retryStorageBtn" class="btn btn-ghost hidden">إعادة محاولة الحفظ</button></div>
 <div class="app-update-banner hidden no-print" id="appUpdateBanner" role="status"><span id="appUpdateMessage">يتوفر تحديث لراتب. هل تريد تطبيقه؟</span><button type="button" class="btn btn-ghost" id="applyAppUpdateBtn">موافق، تطبيق التحديث</button><div id="appUpdateDetails" class="hidden"></div></div>
@@ -1733,7 +1733,7 @@ body.ratib-sidebar-open,body.ratib-about-open{overflow:hidden}
       <img src="Icons/icon-192.png" width="72" height="72" alt="" decoding="async">
       <h2 id="ratibAboutTitle">راتب</h2>
       <p class="ratib-about-subtitle">للتنظيم والتدبير المالي</p>
-      <p class="ratib-about-version">الإصدار 3.6.143</p>
+      <p class="ratib-about-version">الإصدار 3.6.144</p>
       <p id="ratibAboutDescription">إدارة الحسابات والسندات والميزانية، ومتابعة العمليات والتقارير المالية، مع حفظ البيانات على جهازك ودعم العمل دون الإنترنت.</p>
       <button type="button" class="btn btn-primary" id="closeRatibAboutBtn">إغلاق</button>
     </div>
@@ -3045,7 +3045,7 @@ body.ratib-sidebar-open,body.ratib-about-open{overflow:hidden}
 // (أو localhost أثناء التطوير) — هذا شرط أساسي من المتصفح نفسه لأي Service Worker.
 let _briefAppNoticeTimer=null;
 let _releaseSummaryDisplayed=false;
-const RATIB_RELEASE={"version":"3.6.143","build":"p14300","highlights":["إصلاح واجهة القيد المركب على الجوال والكمبيوتر","إظهار حقول الطرفين دون تداخل"],"changes":["نجري بانتظام تحديثات لتحسين الموثوقية والأداء وإصلاح الأخطاء","إزالة تضارب التنسيقات واستعادة رأس السند والتاريخ والحساب والمبلغ والعملة والبيان، مع حفظ أزرار الإضافة والاعتماد والطباعة وPDF دون مساس بالترحيل"]};
+const RATIB_RELEASE={"version":"3.6.144","build":"p14400","highlights":["إزالة الحشو والتداخل في سند القيد المركب","تنسيق موحد للطرفين وحقول العملات الأجنبية"],"changes":["نجري بانتظام تحديثات لتحسين الموثوقية والأداء وإصلاح الأخطاء","إزالة تضارب التنسيقات واستعادة رأس السند والتاريخ والحساب والمبلغ والعملة والبيان، مع حفظ أزرار الإضافة والاعتماد والطباعة وPDF دون مساس بالترحيل"]};
 window.ratibCurrentTrialVersion=()=>String(RATIB_RELEASE.version);
 window.ratibCurrentTrialVersionLabel=()=>`الإصدار ${RATIB_RELEASE.version}`;
 window.ratibSyncTrialVersion=()=>{
@@ -13339,9 +13339,9 @@ try{currenciesUi();sync();}catch(e){console.error('Ratib 3.6.12 initialization',
 </script>
 <script src="./ratib-license-draft.js?v=3.6.151" defer></script>
 <script src="./ratib-ui-v3.6.37.js?v=2" defer></script>
-<script src="./ratib-favorites-v3.js?v=3.6.143" defer></script>
+<script src="./ratib-favorites-v3.js?v=3.6.144" defer></script>
 <script src="./ratib-whatsapp-support-3.6.113.js?v=3.6.139" defer></script>
-<script src="./ratib-voice-dictation-3.6.117.js?v=3.6.143" defer></script>
+<script src="./ratib-voice-dictation-3.6.117.js?v=3.6.144" defer></script>
 <script src="./ratib-import-manager.js?v=2" defer></script>
 <script src="./ratib-annual-close.js?v=1" defer></script>
 <script src="./ratib-fiscal-ledger.js?v=1" defer></script>
@@ -13361,12 +13361,12 @@ try{currenciesUi();sync();}catch(e){console.error('Ratib 3.6.12 initialization',
 <div id="ratibSpecialPrintHost" aria-hidden="true"></div>
 <script src="./ratib-sidebar-3.6.124.js?v=3.6.139" defer></script>
 <script src="./ratib-commerce-3.6.131.js?v=3.6.139" defer></script>
-<script src="./ratib-simple-accounts-3.6.105.13.js?v=3.6.143" defer></script>
+<script src="./ratib-simple-accounts-3.6.105.13.js?v=3.6.144" defer></script>
 <script src="./ratib-interactive-tree-3.6.105.05.js?v=3.6.139" defer></script>
-<script src="./ratib-login-3.6.124.js?v=3.6.143" defer></script>
-<script src="./ratib-trial-home-sidebar-3.6.143.js?v=3.6.143" defer></script>
-<script src="./ratib-trial-ui-3.6.143.js?v=3.6.143" defer></script>
-<script src="./ratib-dashboard-finance-3.6.144.js?v=3.6.143" defer></script>
+<script src="./ratib-login-3.6.124.js?v=3.6.144" defer></script>
+<script src="./ratib-trial-home-sidebar-3.6.143.js?v=3.6.144" defer></script>
+<script src="./ratib-trial-ui-3.6.143.js?v=3.6.144" defer></script>
+<script src="./ratib-dashboard-finance-3.6.144.js?v=3.6.144" defer></script>
 <script src="./ratib-global-button-size-3.6.146.js?v=3.6.139" defer></script>
 <script src="./ratib-document-signatures-3.6.148.js?v=3.6.148" defer></script>
 <script src="./ratib-feedback-3.6.149.js?v=3.6.139" defer></script>
@@ -13380,6 +13380,6 @@ try{currenciesUi();sync();}catch(e){console.error('Ratib 3.6.12 initialization',
 <script src="./ratib-display-separation-3.6.122.js?v=3.6.139" defer></script>
 <script src="./ratib-trial-voucher-statement-3.6.125.js?v=3.6.139" defer></script>
 <script src="./ratib-cash-actions-3.6.135.js?v=3.6.139" defer></script>
-<script src="./ratib-compound-layout-3.6.142.js?v=3.6.143" defer></script>
+<script src="./ratib-compound-layout-3.6.142.js?v=3.6.144" defer></script>
 </body>
 </html>

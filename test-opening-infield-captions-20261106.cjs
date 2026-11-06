@@ -30,7 +30,9 @@ vm.runInContext(section("const seqField=document.getElementById('importedOpening
 const seq=doc.querySelector('#sourceSeq');
 const date=doc.querySelector('#openingDateLabel');
 assert.equal(seq.querySelector('.opening-field-caption').textContent,'رقم القيد');
-assert.equal(date.querySelector('.opening-field-caption').textContent,'التاريخ');
+assert.equal(date.querySelector('.opening-field-caption'),null,'Date must have no visible caption inside the field');
+assert.equal(date.querySelector('#importedOpeningHeaderDate').getAttribute('aria-label'),'التاريخ','Accessible date label remains');
+assert(date.querySelector('#openingDateHijri'),'Hijri display remains available');
 assert(seq.contains(doc.getElementById('importedOpeningSeq')));
 assert(date.contains(doc.getElementById('importedOpeningHeaderDate')));
 assert.equal([...seq.childNodes].filter(n=>n.nodeType===3&&n.textContent.trim()).length,0,'No text above number input');

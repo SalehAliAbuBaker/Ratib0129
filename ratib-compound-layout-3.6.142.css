@@ -210,6 +210,9 @@ body:has(#multiVoucherCard.ratib-cmp-layout142:not(.hidden)) #backToMenuBtn{
 #multiVoucherCard.unified-voucher:not(.spend-voucher).ratib-cmp-layout142 .multi-voucher-table tbody tr.ratib-cmp-notes-open>td:nth-child(9){
  display:block!important;grid-column:1/-1!important;grid-row:7!important;
 }
+/* Keep the editable notes and the delete action on separate lines when expanded. */
+#multiVoucherCard.unified-voucher:not(.spend-voucher).ratib-cmp-layout142 .multi-voucher-table tbody tr.ratib-cmp-notes-open>td:nth-child(9){grid-column:1/-1!important;grid-row:7!important}
+#multiVoucherCard.unified-voucher:not(.spend-voucher).ratib-cmp-layout142 .multi-voucher-table tbody tr.ratib-cmp-notes-open>td:nth-child(10){grid-column:1/-1!important;grid-row:8!important}
 #multiVoucherCard.unified-voucher:not(.spend-voucher).ratib-cmp-layout142 .multi-voucher-table tbody tr>td.ratib-cmp-rate-source{display:none!important}
 #multiVoucherCard.unified-voucher:not(.spend-voucher).ratib-cmp-layout142 .multi-voucher-table tbody tr.ratib-cmp-first.ratib-cmp-foreign>td.ratib-cmp-rate-source{
  display:block!important;grid-column:6/-1!important;grid-row:4!important;

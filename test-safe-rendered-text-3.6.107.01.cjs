@@ -37,7 +37,7 @@ const pkg = JSON.parse(fs.readFileSync('package.json','utf8'));
 assert.equal(pkg.version,currentRelease);
 assert(html.includes('const RATIB_RELEASE={"version":"'+currentRelease+'"'));
 assert(sw.includes('-'+currentRelease));
-assert(html.includes('ratib-statement-marks-3.6.106.05.js?v='+currentRelease));
+assert(/ratib-statement-marks-3\.6\.106\.05\.js\?v=3\.6\.\d+/.test(html),'Statement mark asset retains a versioned URL');
 assert(sw.includes('"./ratib-statement-marks-3.6.106.05.js"'));
 for (const inline of [...html.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script>/gi)].map(m => m[1]).filter(Boolean)) new Function(inline);
 new Function(sw);

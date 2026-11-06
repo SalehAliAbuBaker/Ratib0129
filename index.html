@@ -3044,7 +3044,7 @@ body.ratib-sidebar-open,body.ratib-about-open{overflow:hidden}
 // (أو localhost أثناء التطوير) — هذا شرط أساسي من المتصفح نفسه لأي Service Worker.
 let _briefAppNoticeTimer=null;
 let _releaseSummaryDisplayed=false;
-const RATIB_RELEASE={"version":"3.6.141","build":"p14100","highlights":["معالجة تكرار العناوين في القيد الافتتاحي"],"changes":["نجري بانتظام تحديثات لتحسين الموثوقية والأداء وإصلاح الأخطاء","توحيد تسمية حقول القيد الافتتاحي وتصحيح تداخل التاريخ مع المحافظة على عناوين المعاينة والطباعة وPDF"]};
+const RATIB_RELEASE={"version":"3.6.141","build":"p14100","highlights":["تجديد معاينة وطباعة القيد الافتتاحي","إجماليات مستقلة حسب العملات"],"changes":["نجري بانتظام تحديثات لتحسين الموثوقية والأداء وإصلاح الأخطاء","تصحيح توزيع أعمدة القيد الافتتاحي والبيان وسعر التقييم وإجماليات العملات في المعاينة والطباعة وPDF"]};
 window.ratibCurrentTrialVersion=()=>String(RATIB_RELEASE.version);
 window.ratibCurrentTrialVersionLabel=()=>`الإصدار ${RATIB_RELEASE.version}`;
 window.ratibSyncTrialVersion=()=>{

@@ -1653,7 +1653,7 @@ body.ratib-sidebar-open,body.ratib-about-open{overflow:hidden}
 <link rel="stylesheet" href="./ratib-trial-voucher-statement-3.6.125.css?v=3.6.139">
 <link rel="stylesheet" href="./ratib-cash-pulse.css?v=3.6.139">
 <link rel="stylesheet" href="./ratib-cloud-due-3.6.130.css?v=3.6.139">
-<link rel="stylesheet" href="./ratib-cash-actions-3.6.135.css?v=3.6.140-single-label-20261106">
+<link rel="stylesheet" href="./ratib-cash-actions-3.6.135.css?v=3.6.141-single-label-20261106">
 </head>
 <body>
 
@@ -1684,7 +1684,7 @@ body.ratib-sidebar-open,body.ratib-about-open{overflow:hidden}
     <div class="header-tools"><div class="header-actions">
       <button class="icon-btn" id="themeBtn" title="الوضع الليلي">🌙</button>
       <button class="icon-btn" id="sidebarMenuBtn" aria-haspopup="dialog" aria-controls="appSidebar" aria-expanded="false" title="الإعدادات" aria-label="فتح الإعدادات">⚙</button>
-    </div><small id="appVersionLabel" class="app-version">الإصدار 3.6.140</small></div>
+    </div><small id="appVersionLabel" class="app-version">الإصدار 3.6.141</small></div>
   </header>
   <div class="summary-toolbar hidden no-print" id="storageFeedback"><span id="persistentSaveStatus" hidden aria-hidden="true">جاهز</span><button type="button" id="retryStorageBtn" class="btn btn-ghost hidden">إعادة محاولة الحفظ</button></div>
 <div class="app-update-banner hidden no-print" id="appUpdateBanner" role="status"><span id="appUpdateMessage">يتوفر تحديث لراتب. هل تريد تطبيقه؟</span><button type="button" class="btn btn-ghost" id="applyAppUpdateBtn">موافق، تطبيق التحديث</button><div id="appUpdateDetails" class="hidden"></div></div>
@@ -1732,7 +1732,7 @@ body.ratib-sidebar-open,body.ratib-about-open{overflow:hidden}
       <img src="Icons/icon-192.png" width="72" height="72" alt="" decoding="async">
       <h2 id="ratibAboutTitle">راتب</h2>
       <p class="ratib-about-subtitle">للتنظيم والتدبير المالي</p>
-      <p class="ratib-about-version">الإصدار 3.6.140</p>
+      <p class="ratib-about-version">الإصدار 3.6.141</p>
       <p id="ratibAboutDescription">إدارة الحسابات والسندات والميزانية، ومتابعة العمليات والتقارير المالية، مع حفظ البيانات على جهازك ودعم العمل دون الإنترنت.</p>
       <button type="button" class="btn btn-primary" id="closeRatibAboutBtn">إغلاق</button>
     </div>
@@ -3044,7 +3044,7 @@ body.ratib-sidebar-open,body.ratib-about-open{overflow:hidden}
 // (أو localhost أثناء التطوير) — هذا شرط أساسي من المتصفح نفسه لأي Service Worker.
 let _briefAppNoticeTimer=null;
 let _releaseSummaryDisplayed=false;
-const RATIB_RELEASE={"version":"3.6.140","build":"p14000","highlights":["معالجة تكرار العناوين في القيد الافتتاحي"],"changes":["نجري بانتظام تحديثات لتحسين الموثوقية والأداء وإصلاح الأخطاء","توحيد تسمية حقول القيد الافتتاحي وتصحيح تداخل التاريخ مع المحافظة على عناوين المعاينة والطباعة وPDF"]};
+const RATIB_RELEASE={"version":"3.6.141","build":"p14100","highlights":["تجديد معاينة وطباعة القيد الافتتاحي","إجماليات مستقلة حسب العملات"],"changes":["نجري بانتظام تحديثات لتحسين الموثوقية والأداء وإصلاح الأخطاء","تصحيح توزيع أعمدة القيد الافتتاحي والبيان وسعر التقييم وإجماليات العملات في المعاينة والطباعة وPDF"]};
 window.ratibCurrentTrialVersion=()=>String(RATIB_RELEASE.version);
 window.ratibCurrentTrialVersionLabel=()=>`الإصدار ${RATIB_RELEASE.version}`;
 window.ratibSyncTrialVersion=()=>{
@@ -12735,58 +12735,84 @@ function manualOpeningCurrencyTotals(doc){
   valuations:[...group.valuations.values()]
  }));
 }
-function manualOpeningPdfRows(doc,includeLineDate=false){
- const rows=doc.records.map(t=>{
-  const o=t.openingBalance,rate=o.currency!==o.baseCurrency?String(o.exchangeRate||''):'';
+/* Opening journal output ONLY: one debit/credit pair, original currency and rate.
+   Valuations, references and long notes remain readable inside the statement cell. */
+function manualOpeningDisplayAccountCode(item){
+ const o=item.openingBalance||{},stored=String(o.accountCode||item.accountCode||'').trim();
+ if(stored)return stored;
+ return typeof getAccountCode==='function'?String(getAccountCode(o.account)||'').replace(/^—$/,''):'';
+}
+function manualOpeningStatement(item){
+ const o=item.openingBalance||{},parts=[],ref=manualOpeningSourceRef(o);
+ if(String(o.note||'').trim())parts.push(String(o.note).trim());
+ if(ref)parts.push('المرجع: '+ref);
+ if(item.isoDate&&item.isoDate!==item._openingVoucherDate)parts.push('تاريخ البند: '+item.isoDate);
+ if(o.currency!==o.baseCurrency){
+  const debit=Number(String(o.baseDebit||'0').replace(/,/g,'')),credit=Number(String(o.baseCredit||'0').replace(/,/g,''));
+  const value=debit||credit;
+  parts.push('التقييم: '+trialNumber(value)+' '+String(o.baseCurrency||''));
+ }
+ return parts.join('\n');
+}
+function manualOpeningPrintEntries(doc){
+ return doc.records.map((item,i)=>{
+  const o=item.openingBalance;
+  const refItem={...item,_openingVoucherDate:doc.isoDate};
+  const amount=v=>Number(String(v||0).replace(/,/g,''))?openingDisplayAmount(v):'—';
   return [
-   o.account,o.currency,openingDisplayAmount(o.debit),openingDisplayAmount(o.credit),
-   o.baseCurrency,openingDisplayAmount(o.baseDebit),openingDisplayAmount(o.baseCredit),
-   rate?openingDisplayAmount(rate):'',manualOpeningSourceRef(o),String(o.note||''),...(includeLineDate?[t.isoDate||'']:[])
+   String(i+1),manualOpeningDisplayAccountCode(item),String(o.account||''),
+   manualOpeningStatement(refItem),amount(o.debit),amount(o.credit),
+   String(o.currency||''),o.currency!==o.baseCurrency&&o.exchangeRate?openingDisplayAmount(o.exchangeRate):'—'
   ];
  });
- for(const group of manualOpeningCurrencyTotals(doc)){
-  group.valuations.forEach((value,i)=>rows.push([
-   i?'تقييم إجمالي '+group.currency:'إجمالي '+group.currency,
-   group.currency,i?'':trialNumber(group.debit),i?'':trialNumber(group.credit),
-   value.currency,trialNumber(value.debit),trialNumber(value.credit),
-   '','','',...(includeLineDate?['']:[])
-  ]));
+}
+function manualOpeningCurrencySummary(doc){
+ return manualOpeningCurrencyTotals(doc).map(group=>{
+  const valuation=group.valuations.map(value=>
+   'التقييم '+value.currency+': مدين '+trialNumber(value.debit)+' / دائن '+trialNumber(value.credit)
+  ).join(' — ');
+  const difference=Math.abs(group.debit-group.credit);
+  return {...group,valuation,status:difference<0.000001?'متوازن':'فرق '+trialNumber(difference)};
+ });
+}
+function manualOpeningPdfRows(doc){
+ const rows=manualOpeningPrintEntries(doc);
+ rows.push(['','','الإجماليات حسب العملة','','','','','']);
+ for(const group of manualOpeningCurrencySummary(doc)){
+  rows.push(['','', 'إجمالي '+group.currency,group.valuation,
+   trialNumber(group.debit),trialNumber(group.credit),group.currency,group.status]);
  }
  return rows;
 }
 function manualOpeningPrintTable(doc){
- const heads=['الحساب','العملة الأصلية','مدين','دائن','عملة التقييم','مدين تقييم','دائن تقييم'];
- const cols=[27,11,12,12,12,13,13];
- const colgroup='<colgroup>'+cols.map(w=>'<col style="width:'+w+'%">').join('')+'</colgroup>';
- const rows=doc.records.map(t=>{
-  const o=t.openingBalance,ref=manualOpeningSourceRef(o);
-  const values=[o.account,o.currency,openingDisplayAmount(o.debit),openingDisplayAmount(o.credit),
-   o.baseCurrency,openingDisplayAmount(o.baseDebit),openingDisplayAmount(o.baseCredit)];
-  const details=[
-   ['التاريخ',t.isoDate||''],
-   ...(o.currency!==o.baseCurrency?[['سعر الصرف',o.exchangeRate?openingDisplayAmount(o.exchangeRate):'—']]:[]),
-   ['المرجع',ref||'—'],
-   ['البيان',String(o.note||'')||'—']
-  ];
-  const cells=values.map((v,i)=>'<td class="'+(i===0?'opening-account-cell':i===1||i===4?'opening-currency-cell':'opening-money-cell')+'">'+esc(String(v??''))+'</td>').join('');
-  const meta=details.map(([label,value])=>'<span class="opening-print-field"><b>'+esc(label)+':</b> <span>'+esc(String(value))+'</span></span>').join('');
-  return '<tr class="opening-ledger-line">'+cells+'</tr><tr class="opening-ledger-meta"><td colspan="7"><div class="opening-print-details">'+meta+'</div></td></tr>';
- }).join('');
- const totals=manualOpeningCurrencyTotals(doc).map(group=>group.valuations.map((value,i)=>
-  '<tr class="opening-ledger-total"><td>'+esc(i?'تقييم إجمالي '+group.currency:'إجمالي '+group.currency)+'</td>'+
-  '<td class="opening-currency-cell">'+esc(group.currency)+'</td>'+
-  '<td class="opening-money-cell">'+(i?'':esc(trialNumber(group.debit)))+'</td>'+
-  '<td class="opening-money-cell">'+(i?'':esc(trialNumber(group.credit)))+'</td>'+
-  '<td class="opening-currency-cell">'+esc(value.currency)+'</td>'+
-  '<td class="opening-money-cell">'+esc(trialNumber(value.debit))+'</td>'+
-  '<td class="opening-money-cell">'+esc(trialNumber(value.credit))+'</td></tr>'
- ).join('')).join('');
- return '<table class="pv-table opening-print-table opening-manual-print">'+colgroup+
-  '<thead><tr>'+heads.map(v=>'<th>'+esc(v)+'</th>').join('')+'</tr></thead><tbody>'+rows+totals+'</tbody></table>';
+ const heads=['م','رقم الحساب','الحساب','البيان','مدين','دائن','العملة','سعر التقييم'];
+ const widths=[5,10,23,26,10,10,8,8];
+ const colgroup='<colgroup>'+widths.map(w=>'<col style="width:'+w+'%">').join('')+'</colgroup>';
+ const values=manualOpeningPrintEntries(doc);
+ const rows=values.map(line=>'<tr class="opening-ledger-line">'+line.map((value,i)=>{
+  const cls=i===2?'opening-account-cell':i===3?'opening-statement-cell':i===6?'opening-currency-cell':(i===4||i===5||i===7?'opening-money-cell':'opening-index-cell');
+  return '<td class="'+cls+'">'+esc(String(value??'')).replace(/\n/g,'<br>')+'</td>';
+ }).join('')+'</tr>').join('');
+ const summary=manualOpeningCurrencySummary(doc);
+ const totals=summary.map(group=>
+  '<tr class="opening-ledger-total"><td class="opening-currency-cell">'+esc(group.currency)+'</td>'+
+  '<td class="opening-money-cell">'+esc(trialNumber(group.debit))+'</td>'+
+  '<td class="opening-money-cell">'+esc(trialNumber(group.credit))+'</td>'+
+  '<td class="opening-summary-state">'+esc(group.status)+'</td></tr>'
+ ).join('');
+ const valuations=summary.filter(g=>g.valuations.some(v=>v.currency!==g.currency)).map(g=>
+  '<div class="opening-valuation-footnote"><b>'+esc(g.currency)+'</b> — '+esc(g.valuation)+'</div>'
+ ).join('');
+ return '<div class="opening-print-layout">'+
+  '<table class="pv-table opening-print-table opening-manual-print">'+colgroup+
+  '<thead><tr>'+heads.map(v=>'<th>'+esc(v)+'</th>').join('')+'</tr></thead><tbody>'+rows+'</tbody></table>'+
+  '<div class="opening-summary-title">الإجماليات حسب العملة</div>'+
+  '<table class="pv-table opening-currency-totals"><thead><tr><th>العملة</th><th>إجمالي المدين</th><th>إجمالي الدائن</th><th>الحالة</th></tr></thead><tbody>'+totals+'</tbody></table>'+
+  (valuations?'<div class="opening-valuation-notes">'+valuations+'</div>':'')+'</div>';
 }
 function importedOpeningPrint(item,transactions){
  const doc=importedOpeningDocument(item,transactions),cfg=getHeaderConfig();
- for(const [id,value] of Object.entries({pvOrgName:cfg.show?cfg.name||'':'',pvOrgDetails:cfg.show?cfg.details||'':'',pvVoucherTitle:doc.type+' #'+doc.seqNum,pvDate:doc.isoDate,pvAmount:doc.totals.map(t=>trialNumber(t.debit)+' '+t.currency).join(' / '),pvDebit:doc.debitAccount,pvCredit:doc.creditAccount,pvTafqit:'',pvNote:doc.isManualOpeningVoucher?'البيان والمرجع الخاص بكل بند موضحان بصورة مستقلة أدناه.':'الأرصدة الأصلية والتقييمات مستقلة ومحفوظة دون إعادة تحويل.'}))document.getElementById(id).textContent=value;
+ for(const [id,value] of Object.entries({pvOrgName:cfg.show?cfg.name||'':'',pvOrgDetails:cfg.show?cfg.details||'':'',pvVoucherTitle:doc.isManualOpeningVoucher?'سند قيد افتتاحي رقم '+doc.seqNum:doc.type+' #'+doc.seqNum,pvDate:doc.isoDate,pvAmount:doc.totals.map(t=>trialNumber(t.debit)+' '+t.currency).join(' / '),pvDebit:doc.debitAccount,pvCredit:doc.creditAccount,pvTafqit:'',pvNote:doc.isManualOpeningVoucher?'البيان والمرجع الخاص بكل بند موضحان بصورة مستقلة أدناه.':'الأرصدة الأصلية والتقييمات مستقلة ومحفوظة دون إعادة تحويل.'}))document.getElementById(id).textContent=value;
  document.getElementById('pvDate').innerHTML=ratibStatementDateHtml(doc.isoDate);
  document.getElementById('pvRecipientRow').style.display='none';document.getElementById('pvRecipientSignRow').style.display='none';
  if(doc.isManualOpeningVoucher){
@@ -12801,10 +12827,9 @@ function importedOpeningPrint(item,transactions){
 function importedOpeningPdf(item,transactions){
  const doc=importedOpeningDocument(item,transactions);
  if(doc.isManualOpeningVoucher){
-  const mixedDates=new Set(doc.records.map(t=>t.isoDate)).size>1;
-  const columns=['الحساب','العملة الأصلية','مدين','دائن','عملة التقييم','مدين تقييم','دائن تقييم','سعر الصرف','المرجع','البيان',...(mixedDates?['تاريخ البند']:[])];
-  const widths=[260,75,105,105,75,115,115,95,120,230,...(mixedDates?[120]:[])];
-  return buildPdfFromCanvases(renderPagedReportTable(doc.type,'رقم '+doc.seqNum+' — '+doc.isoDate,columns,widths,manualOpeningPdfRows(doc,mixedDates),'opening'));
+  const columns=['م','رقم الحساب','الحساب','البيان','مدين','دائن','العملة','سعر التقييم'];
+  const widths=[55,105,230,290,110,110,85,105]; /* Total 1090px: exact PDF content width inside 50px margins. */
+  return buildPdfFromCanvases(renderPagedReportTable('سند قيد افتتاحي','رقم '+doc.seqNum+' — '+doc.isoDate,columns,widths,manualOpeningPdfRows(doc),'opening'));
  }
  return buildPdfFromCanvases(renderPagedReportTable(doc.type,'رقم '+doc.seqNum+' — '+doc.isoDate,['الحساب','العملة','مدين','دائن','عملة التقييم','مدين تقييم','دائن تقييم','التاريخ / المرجع / البيان'],[190,90,115,115,90,130,130,170],importedOpeningOutputRows(doc),'opening'));
 }
@@ -13014,7 +13039,7 @@ function openingFormDecorate(){
    del.setAttribute('aria-label',row.id?'تصفير رصيد البند المحفوظ '+(index+1):'حذف البند '+(index+1));
    del.title=row.id?'تصفير الرصيد المحفوظ دون حذف السجل التاريخي':'حذف البند بالكامل';
    del.classList.add('opening-inline-delete');
-   if(!row.id)del.textContent='×';
+   del.textContent='×'; /* Short icon on saved and draft rows; preserve existing click handlers. */
    const action=del.closest('td');
    sideCell.querySelector('.opening-side-choices').append(del);
    action.classList.add('opening-delete-cell');
@@ -13313,9 +13338,9 @@ try{currenciesUi();sync();}catch(e){console.error('Ratib 3.6.12 initialization',
 </script>
 <script src="./ratib-license-draft.js?v=3.6.151" defer></script>
 <script src="./ratib-ui-v3.6.37.js?v=2" defer></script>
-<script src="./ratib-favorites-v3.js?v=3.6.140" defer></script>
+<script src="./ratib-favorites-v3.js?v=3.6.141" defer></script>
 <script src="./ratib-whatsapp-support-3.6.113.js?v=3.6.139" defer></script>
-<script src="./ratib-voice-dictation-3.6.117.js?v=3.6.140" defer></script>
+<script src="./ratib-voice-dictation-3.6.117.js?v=3.6.141" defer></script>
 <script src="./ratib-import-manager.js?v=2" defer></script>
 <script src="./ratib-annual-close.js?v=1" defer></script>
 <script src="./ratib-fiscal-ledger.js?v=1" defer></script>
@@ -13335,12 +13360,12 @@ try{currenciesUi();sync();}catch(e){console.error('Ratib 3.6.12 initialization',
 <div id="ratibSpecialPrintHost" aria-hidden="true"></div>
 <script src="./ratib-sidebar-3.6.124.js?v=3.6.139" defer></script>
 <script src="./ratib-commerce-3.6.131.js?v=3.6.139" defer></script>
-<script src="./ratib-simple-accounts-3.6.105.13.js?v=3.6.140" defer></script>
+<script src="./ratib-simple-accounts-3.6.105.13.js?v=3.6.141" defer></script>
 <script src="./ratib-interactive-tree-3.6.105.05.js?v=3.6.139" defer></script>
-<script src="./ratib-login-3.6.124.js?v=3.6.140" defer></script>
+<script src="./ratib-login-3.6.124.js?v=3.6.141" defer></script>
 <script src="./ratib-trial-home-sidebar-3.6.143.js?v=3.6.143" defer></script>
-<script src="./ratib-trial-ui-3.6.143.js?v=3.6.140" defer></script>
-<script src="./ratib-dashboard-finance-3.6.144.js?v=3.6.140" defer></script>
+<script src="./ratib-trial-ui-3.6.143.js?v=3.6.141" defer></script>
+<script src="./ratib-dashboard-finance-3.6.144.js?v=3.6.141" defer></script>
 <script src="./ratib-global-button-size-3.6.146.js?v=3.6.139" defer></script>
 <script src="./ratib-document-signatures-3.6.148.js?v=3.6.148" defer></script>
 <script src="./ratib-feedback-3.6.149.js?v=3.6.139" defer></script>

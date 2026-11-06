@@ -1,6 +1,6 @@
 // Ratib 3.1.9: cache identity is unique to this app's scope.
-const CACHE_VERSION='v260-opening-mobile-clean-3.6.139-compound-compact-auto-signature-tafqit-cash-reference-amount-currency-compound-ref-simple-ref-3.6.151';
-const APP_RELEASE={"version":"3.6.151","build":"p15100","highlights":["هوية موحدة للقيد البسيط في المعاينة والطباعة وPDF والمشاركة"],"changes":["نجري بانتظام تحديثات لتحسين الموثوقية والأداء وإصلاح الأخطاء","توحيد إخراج سند القيد البسيط بالألوان والتواقيع المعتمدة وإظهار تفاصيل المدين والدائن وتوزيع الميزانية دون تعديل العمليات المحاسبية"]};
+const CACHE_VERSION='v260-opening-mobile-clean-3.6.139-compound-compact-auto-signature-tafqit-cash-reference-amount-currency-compound-ref-simple-ref-totals-cash-colors-3.6.152';
+const APP_RELEASE={"version":"3.6.152","build":"p15200","highlights":["محاذاة إجماليات المدين والدائن داخل جداول القيد البسيط والمركب","توحيد ألوان سندات القبض والصرف مع الهوية الخضراء والذهبية"],"changes":["نجري بانتظام تحديثات لتحسين الموثوقية والأداء وإصلاح الأخطاء","نقل إجماليات العملات وتقييم القيد إلى صفوف الجدول تحت عمودي المدين والدائن","تطبيق الألوان المعتمدة على عرض وطباعة وPDF القبض والصرف دون تغيير الحقول أو البيانات"]};
 const CACHE_PREFIX=`ratib:${self.registration.scope}:`;
 const CACHE_NAME=CACHE_PREFIX+CACHE_VERSION;
 const APP_SHELL=[
@@ -30,6 +30,7 @@ const APP_SHELL=[
   "./ratib-compound-output-3.6.150.js",
   "./ratib-simple-output-3.6.151.js",
   "./ratib-simple-output-3.6.151.css",
+  "./ratib-voucher-colors-totals-3.6.152.css",
   "./ratib-compound-output-3.6.150.css",
 "./ratib-cash-reference-3.6.148.css",
 "./ratib-feedback-3.6.149.js",

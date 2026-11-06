@@ -690,3 +690,68 @@ background:color-mix(in srgb,var(--accent) 8%,var(--card))!important}
   break-inside:avoid!important;page-break-inside:avoid!important;
  }
 }
+
+/* Opening form 2026-11-06: source-level in-field headings (no external headers).
+   This scope NEVER affects the printed voucher/PDF and NEVER hides its column titles. */
+@media screen{
+ #importedOpeningVoucherModal.opening-manual #importedOpeningDescription{
+  display:none!important;
+ }
+ #importedOpeningVoucherModal.opening-manual table:has(>#importedOpeningRows)>thead{
+  display:none!important;
+ }
+ #importedOpeningVoucherModal.opening-manual #openingHeader .opening-inline-header-field,
+ #importedOpeningVoucherModal.opening-manual #importedOpeningRows>tr>td.opening-inline-field,
+ #importedOpeningVoucherModal.opening-manual #importedOpeningRows>tr>.opening-fx>label.opening-inline-field{
+  position:relative!important;
+  display:flex!important;flex-direction:column!important;
+  min-width:0!important;box-sizing:border-box!important;
+ }
+ #importedOpeningVoucherModal.opening-manual #importedOpeningRows>tr>td::before,
+ #importedOpeningVoucherModal.opening-manual #openingDateLabel::before,
+ #importedOpeningVoucherModal.opening-manual #importedOpeningRows>tr>.opening-fx>label::before{
+  content:none!important;display:none!important;
+ }
+ #importedOpeningVoucherModal.opening-manual .opening-inline-header-field>.opening-field-caption,
+ #importedOpeningVoucherModal.opening-manual #importedOpeningRows>tr>td.opening-inline-field>.opening-field-caption,
+ #importedOpeningVoucherModal.opening-manual #importedOpeningRows>tr>.opening-fx>label.opening-inline-field>.opening-field-caption{
+  position:absolute!important;display:block!important;
+  top:5px!important;right:10px!important;left:auto!important;
+  width:auto!important;height:auto!important;min-height:0!important;
+  margin:0!important;padding:0!important;z-index:2!important;
+  box-sizing:border-box!important;
+  color:var(--muted)!important;
+  font:400 11px/15px Tajawal,sans-serif!important;
+  text-align:right!important;white-space:nowrap!important;
+  max-width:calc(100% - 18px)!important;overflow:hidden!important;
+  text-overflow:ellipsis!important;pointer-events:none!important;
+ }
+ #importedOpeningVoucherModal.opening-manual #openingHeader .opening-inline-header-field>input,
+ #importedOpeningVoucherModal.opening-manual #importedOpeningRows>tr>td.opening-inline-field>input,
+ #importedOpeningVoucherModal.opening-manual #importedOpeningRows>tr>td.opening-inline-field>select,
+ #importedOpeningVoucherModal.opening-manual #importedOpeningRows>tr>.opening-fx>label.opening-inline-field>input{
+  display:block!important;width:100%!important;min-width:0!important;max-width:100%!important;
+  height:48px!important;min-height:48px!important;max-height:48px!important;
+  padding:18px 9px 3px!important;margin:0!important;
+  box-sizing:border-box!important;
+  font:400 14px Tajawal,sans-serif!important;
+  line-height:22px!important;vertical-align:bottom!important;
+ }
+ #importedOpeningVoucherModal.opening-manual #importedOpeningRows>tr>td.opening-inline-field>input::placeholder,
+ #importedOpeningVoucherModal.opening-manual #importedOpeningRows>tr>.opening-fx>label.opening-inline-field>input::placeholder,
+ #importedOpeningVoucherModal.opening-manual #openingHeader .opening-inline-header-field>input::placeholder{
+  color:transparent!important;
+ }
+ #importedOpeningVoucherModal.opening-manual #importedOpeningRows>tr>td:nth-child(1)>input{
+  text-align:right!important;text-overflow:ellipsis!important;
+ }
+ #importedOpeningVoucherModal.opening-manual #importedOpeningRows>tr>.opening-fx>div{
+  display:none!important;
+ }
+ #importedOpeningVoucherModal.opening-manual #openingHeader{
+  gap:8px!important;margin:6px 0 9px!important;
+ }
+ #importedOpeningVoucherModal.opening-manual #importedOpeningRows>tr{
+  row-gap:7px!important;
+ }
+}

@@ -50,7 +50,7 @@ async function test(name,fn){await fn();results.push({name,status:'passed'});con
 
 async function run(){
  const f=makeFixture();await boot(f);const w=f.win,d=w.document;
- for(const name of ['ratib-annual-close.js','ratib-favorites-v3.js','ratib-theme.js','ratib-navigation-v3.js','ratib-unified-output.js','ratib-cash-reference-3.6.148.js','ratib-compound-output-3.6.150.js'])w.eval(fs.readFileSync(require('node:path').join(__dirname,name),'utf8'));
+ for(const name of ['ratib-annual-close.js','ratib-favorites-v3.js','ratib-theme.js','ratib-navigation-v3.js','ratib-unified-output.js','ratib-cash-reference-3.6.148.js','ratib-compound-output-3.6.150.js','ratib-simple-output-3.6.151.js'])w.eval(fs.readFileSync(require('node:path').join(__dirname,name),'utf8'));
  await pause(30);
  for(let pass=0;pass<3;pass++)w.RatibUnifiedOutput.refresh();
  code(w,`{

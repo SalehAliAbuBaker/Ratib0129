@@ -290,7 +290,7 @@ body:has(#multiVoucherCard.ratib-cmp-layout142:not(.hidden)) #backToMenuBtn{
  #ratibCompoundToolbar142,#ratibCompoundMeta142{display:none!important}
 }
 
-/* Ratib 3.6.144: visible compound editor must not depend on the legacy unified-voucher class.
+/* Ratib 3.6.146: scoped compound editor independent of the legacy unified-voucher class.
    Compact mobile/desktop grid; never alter cash, simple journal, print or PDF styles. */
 @media screen {
 #multiVoucherCard.ratib-cmp-layout142:not(.spend-voucher):not(.hidden){
@@ -453,4 +453,104 @@ body:has(#multiVoucherCard.ratib-cmp-layout142:not(.hidden)) #backToMenuBtn{
  #multiVoucherCard.ratib-cmp-layout142:not(.spend-voucher):not(.hidden) .multi-voucher-table tbody tr.ratib-cmp-first > td:nth-child(5),#multiVoucherCard.ratib-cmp-layout142:not(.spend-voucher):not(.hidden) .multi-voucher-table tbody tr.ratib-cmp-counter > td:nth-child(5){grid-column:6/span 4!important}
  #multiVoucherCard.ratib-cmp-layout142:not(.spend-voucher):not(.hidden) .multi-voucher-table tbody tr.ratib-cmp-first > td:nth-child(3),#multiVoucherCard.ratib-cmp-layout142:not(.spend-voucher):not(.hidden) .multi-voucher-table tbody tr.ratib-cmp-counter > td:nth-child(3){grid-column:10/-1!important}
 }
+}
+
+
+/* 3.6.146: the existing tafqit text receives its own full-width grid cell.
+   Remove the cause of oversized money rows; no changes to print or financial logic. */
+@media screen {
+#multiVoucherCard.ratib-cmp-layout142:not(.spend-voucher):not(.hidden) .multi-voucher-table tbody tr > td.ratib-cmp-tafqit-cell {
+ display:block!important;grid-column:1/-1!important;
+ width:100%!important;min-width:0!important;max-width:100%!important;
+ height:auto!important;min-height:0!important;margin:0!important;
+ padding:1px 4px!important;box-sizing:border-box!important;
+ border:0!important;background:transparent!important;overflow:visible!important;
+}
+#multiVoucherCard.ratib-cmp-layout142:not(.spend-voucher):not(.hidden) .multi-voucher-table tbody tr > td.ratib-cmp-tafqit-cell[hidden],
+#multiVoucherCard.ratib-cmp-layout142:not(.spend-voucher):not(.hidden) .multi-voucher-table tbody tr > td.ratib-cmp-tafqit-cell .ratib-line-tafqit[hidden] {display:none!important}
+#multiVoucherCard.ratib-cmp-layout142:not(.spend-voucher):not(.hidden) .multi-voucher-table tbody tr > td.ratib-cmp-tafqit-cell > .ratib-line-tafqit{
+ display:block!important;width:100%!important;min-width:0!important;
+ max-width:100%!important;margin:0!important;padding:0!important;
+ color:var(--muted)!important;
+ font:400 12px/1.55 Tajawal,sans-serif!important;
+ white-space:normal!important;overflow-wrap:anywhere!important;
+ direction:rtl!important;text-align:right!important;
+}
+#multiVoucherCard.ratib-cmp-layout142:not(.spend-voucher):not(.hidden) .multi-voucher-table tbody tr > td:nth-child(6){
+ justify-content:flex-start!important;align-items:stretch!important;
+ min-height:42px!important;align-self:start!important;
+}
+#multiVoucherCard.ratib-cmp-layout142:not(.spend-voucher):not(.hidden) .multi-voucher-table tbody tr > td:nth-child(6) > .ratib-line-tafqit{
+ display:none!important;
+}
+#multiVoucherCard.ratib-cmp-layout142:not(.spend-voucher):not(.hidden) .multi-voucher-table tbody tr > td:nth-child(6) .financial-number-field{
+ display:flex!important;flex-flow:row nowrap!important;
+ width:100%!important;min-width:0!important;align-items:stretch!important;
+ gap:4px!important;
+}
+#multiVoucherCard.ratib-cmp-layout142:not(.spend-voucher):not(.hidden) .multi-voucher-table tbody tr > td:nth-child(6) .financial-number-field > .multi-line-amount{
+ flex:1 1 0%!important;min-width:0!important;width:0!important;
+ font-size:13px!important;direction:ltr!important;text-align:right!important;
+ font-variant-numeric:tabular-nums!important;
+}
+#multiVoucherCard.ratib-cmp-layout142:not(.spend-voucher):not(.hidden) .multi-voucher-table tbody tr > td:is(:nth-child(3),:nth-child(5)) select{
+ width:100%!important;min-width:0!important;max-width:100%!important;
+ font-size:13px!important;text-overflow:ellipsis!important;
+}
+#multiVoucherCard.ratib-cmp-layout142:not(.spend-voucher):not(.hidden) .multi-voucher-table tbody tr.ratib-cmp-has-tafqit > td.ratib-cmp-tafqit-cell{
+ display:block!important;
+}
+/* First party: tafqit directly after money, currency and budget. */
+#multiVoucherCard.ratib-cmp-layout142:not(.spend-voucher):not(.hidden) .multi-voucher-table tbody tr.ratib-cmp-first.ratib-cmp-has-tafqit > td.ratib-cmp-tafqit-cell{
+ grid-row:4!important;
+}
+#multiVoucherCard.ratib-cmp-layout142:not(.spend-voucher):not(.hidden) .multi-voucher-table tbody tr.ratib-cmp-first.ratib-cmp-foreign.ratib-cmp-has-tafqit > td.ratib-cmp-tafqit-cell{
+ grid-row:5!important;
+}
+#multiVoucherCard.ratib-cmp-layout142:not(.spend-voucher):not(.hidden) .multi-voucher-table tbody tr.ratib-cmp-first.ratib-cmp-has-tafqit > td:nth-child(4){
+ grid-row:5!important;
+}
+#multiVoucherCard.ratib-cmp-layout142:not(.spend-voucher):not(.hidden) .multi-voucher-table tbody tr.ratib-cmp-first.ratib-cmp-foreign.ratib-cmp-has-tafqit > td:nth-child(4){
+ grid-row:6!important;
+}
+#multiVoucherCard.ratib-cmp-layout142:not(.spend-voucher):not(.hidden) .multi-voucher-table tbody tr.ratib-cmp-first.ratib-cmp-has-tafqit > td:nth-child(10){grid-row:6!important}
+#multiVoucherCard.ratib-cmp-layout142:not(.spend-voucher):not(.hidden) .multi-voucher-table tbody tr.ratib-cmp-first.ratib-cmp-foreign.ratib-cmp-has-tafqit > td:nth-child(10){grid-row:7!important}
+#multiVoucherCard.ratib-cmp-layout142:not(.spend-voucher):not(.hidden) .multi-voucher-table tbody tr.ratib-cmp-first.ratib-cmp-notes-open.ratib-cmp-has-tafqit > td:nth-child(9){
+ grid-row:7!important;
+}
+#multiVoucherCard.ratib-cmp-layout142:not(.spend-voucher):not(.hidden) .multi-voucher-table tbody tr.ratib-cmp-first.ratib-cmp-foreign.ratib-cmp-notes-open.ratib-cmp-has-tafqit > td:nth-child(9){
+ grid-row:8!important;
+}
+/* Counterparty: same tafqit separation; account is after money and any FX detail. */
+#multiVoucherCard.ratib-cmp-layout142:not(.spend-voucher):not(.hidden) .multi-voucher-table tbody tr.ratib-cmp-counter.ratib-cmp-has-tafqit > td.ratib-cmp-tafqit-cell{
+ grid-row:3!important;
+}
+#multiVoucherCard.ratib-cmp-layout142:not(.spend-voucher):not(.hidden) .multi-voucher-table tbody tr.ratib-cmp-counter.ratib-cmp-foreign.ratib-cmp-has-tafqit > td.ratib-cmp-tafqit-cell{
+ grid-row:4!important;
+}
+#multiVoucherCard.ratib-cmp-layout142:not(.spend-voucher):not(.hidden) .multi-voucher-table tbody tr.ratib-cmp-counter.ratib-cmp-has-tafqit > td:nth-child(2){
+ grid-row:4!important;
+}
+#multiVoucherCard.ratib-cmp-layout142:not(.spend-voucher):not(.hidden) .multi-voucher-table tbody tr.ratib-cmp-counter.ratib-cmp-foreign.ratib-cmp-has-tafqit > td:nth-child(2){
+ grid-row:5!important;
+}
+#multiVoucherCard.ratib-cmp-layout142:not(.spend-voucher):not(.hidden) .multi-voucher-table tbody tr.ratib-cmp-counter.ratib-cmp-has-tafqit > td:nth-child(4){
+ grid-row:5!important;
+}
+#multiVoucherCard.ratib-cmp-layout142:not(.spend-voucher):not(.hidden) .multi-voucher-table tbody tr.ratib-cmp-counter.ratib-cmp-foreign.ratib-cmp-has-tafqit > td:nth-child(4){
+ grid-row:6!important;
+}
+#multiVoucherCard.ratib-cmp-layout142:not(.spend-voucher):not(.hidden) .multi-voucher-table tbody tr.ratib-cmp-counter.ratib-cmp-has-tafqit > td:nth-child(10){grid-row:6!important}
+#multiVoucherCard.ratib-cmp-layout142:not(.spend-voucher):not(.hidden) .multi-voucher-table tbody tr.ratib-cmp-counter.ratib-cmp-foreign.ratib-cmp-has-tafqit > td:nth-child(10){grid-row:7!important}
+#multiVoucherCard.ratib-cmp-layout142:not(.spend-voucher):not(.hidden) .multi-voucher-table tbody tr.ratib-cmp-counter.ratib-cmp-notes-open.ratib-cmp-has-tafqit > td:nth-child(9){
+ grid-row:7!important;
+}
+#multiVoucherCard.ratib-cmp-layout142:not(.spend-voucher):not(.hidden) .multi-voucher-table tbody tr.ratib-cmp-counter.ratib-cmp-foreign.ratib-cmp-notes-open.ratib-cmp-has-tafqit > td:nth-child(9){
+ grid-row:8!important;
+}
+}
+@media print{
+ #multiVoucherCard .multi-voucher-table td.ratib-cmp-tafqit-cell{
+  display:none!important;
+ }
 }

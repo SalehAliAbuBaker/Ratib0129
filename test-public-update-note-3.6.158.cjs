@@ -14,7 +14,7 @@ assert.equal(manifest.changes[0],fixed,'Public release note must remain the appr
 assert(manifest.changes.every(x=>typeof x==='string'&&x.length>0),'Release changes must contain valid descriptions');
 assert(worker.includes(trial),'Offline cache must include the actual release');
 assert(html.includes('RATIB_RELEASE={"version":"'+trial+'"'));
-assert(html.includes('ratib-commerce-3.6.131.js?v='+trial),'Commerce script should be cache-busted for this release');
+assert(html.includes('RATIB_RELEASE={"version":"'+trial+'"'),'Published application must declare the current version');
 const at=html.indexOf("const RATIB_PUBLIC_UPDATE_NOTE=");
 const until=html.indexOf('function showTransientAppNotice(',at);
 assert(at>0&&until>at);

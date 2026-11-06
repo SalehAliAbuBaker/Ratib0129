@@ -65,9 +65,9 @@ assert(docEl.getElementById('pvVoucherTitle').textContent.includes('سند قي�
 assert.equal(signatures,1,'Existing signatures are retained');
 ctx.importedOpeningPdf(local,[local,foreign]);
 assert.equal(outputCall[2].length,8,'PDF has the same eight columns');
-assert.deepEqual(outputCall[2],headings);
+assert.deepEqual(Array.from(outputCall[2]),headings);
 assert.equal(outputCall[4].length,5);
-assert.deepEqual(outputCall[4][1],entry[1]);
+assert.deepEqual(Array.from(outputCall[4][1]),Array.from(entry[1]));
 assert.equal(JSON.stringify(object),before,'Rendering never mutates posted data');
 const triple=structuredClone(object);
 triple.records.push({isoDate:'2026-11-06',isManualOpeningBalance:true,openingBalance:{

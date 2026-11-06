@@ -1377,7 +1377,7 @@ function commerceOpenDocument(docId){
  if(open(['purchase','purchase_return'].includes(doc.kind)?'purchase':'sale')===false)return false;
  detailId=doc.id;view='detail';paint();
 }
-window.RatibCommerce={open,openFavorite,openDocument:commerceOpenDocument,documentAction:commerceDocumentOperation,render:paint,version:window.ratibCurrentTrialVersion?.()||'3.6.150'};
+window.RatibCommerce={open,openFavorite,openDocument:commerceOpenDocument,documentAction:commerceDocumentOperation,render:paint,version:window.ratibCurrentTrialVersion?.()||'3.6.151'};
 window.RatibCommerce.hasUnsavedDraft=hasUnsavedDraft;
 window.RatibCommerce.requestLeave=requestLeave;
 window.RatibCommerce.captureView=captureView;

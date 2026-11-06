@@ -5,7 +5,7 @@ const css=fs.readFileSync('ratib-cash-actions-3.6.135.css','utf8');
 const html=fs.readFileSync('index.html','utf8');
 const sw=fs.readFileSync('sw.js','utf8');
 const version=require('./tools/assert-release.cjs')();
-assert.equal(version,'3.6.142','Release and its cache must be consistent');
+assert.equal(version,'3.6.143','Release and its cache must be consistent');
 assert(!css.includes('/* Manual opening display only: labels are INSIDE their controls, not above.'),'Competing caption CSS must not return');
 const at=css.indexOf('/* Official 3.6.140 — single caption source per editable opening field.');
 assert(at>0,'The high-specificity opening fix must exist');
@@ -20,7 +20,7 @@ assert(scoped.includes('content:none!important;display:none!important;visibility
 assert(scoped.includes('.opening-field-caption'),'Real gray in-field captions remain');
 assert(!scoped.includes('#printVoucherContainer'),'In-field caption rules do not target print output');
 assert(html.includes('ratib-cash-actions-3.6.135.css?v=3.6.142-single-label-20261106'),'Fresh CSS bypasses browser cache');
-assert(sw.includes('-3.6.142'),'Offline cache version advanced');
+assert(sw.includes('-3.6.143'),'Offline cache version advanced');
 const printed=html.slice(html.indexOf('function manualOpeningPrintTable(doc){'),html.indexOf('function importedOpeningPrint('));
 assert(printed.includes('<thead><tr>'),'Printed output still has column headings');
 for(const v of ['م','رقم الحساب','الحساب','البيان','مدين','دائن','العملة','سعر التقييم'])assert(printed.includes(v),'Approved printed heading preserved: '+v);

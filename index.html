@@ -12717,18 +12717,18 @@ function manualOpeningSourceRef(o){
  const ref=String(o.sourceRef||'').trim();
  return ref==='إدخال يدوي'?'':ref;
 }
-function manualOpeningPdfRows(doc){
+function manualOpeningPdfRows(doc,includeLineDate=false){
  const rows=doc.records.map(t=>{
   const o=t.openingBalance,rate=o.currency!==o.baseCurrency?String(o.exchangeRate||''):'';
   return [
    o.account,o.currency,openingDisplayAmount(o.debit),openingDisplayAmount(o.credit),
    o.baseCurrency,openingDisplayAmount(o.baseDebit),openingDisplayAmount(o.baseCredit),
-   rate?openingDisplayAmount(rate):'',manualOpeningSourceRef(o),String(o.note||'')
+   rate?openingDisplayAmount(rate):'',manualOpeningSourceRef(o),String(o.note||''),...(includeLineDate?[t.isoDate||'']:[])
   ];
  });
  for(const total of doc.totals)rows.push([
   'إجمالي التقييم','','','',total.currency,
-  trialNumber(total.debit),trialNumber(total.credit),'','الفرق: '+trialNumber(total.debit-total.credit),''
+  trialNumber(total.debit),trialNumber(total.credit),'','الفرق: '+trialNumber(total.debit-total.credit),'',...(includeLineDate?['']:[])
  ]);
  return rows;
 }
@@ -12771,9 +12771,10 @@ function importedOpeningPrint(item,transactions){
 function importedOpeningPdf(item,transactions){
  const doc=importedOpeningDocument(item,transactions);
  if(doc.isManualOpeningVoucher){
-  const columns=['الحساب','العملة الأصلية','مدين','دائن','عملة التقييم','مدين تقييم','دائن تقييم','سعر الصرف','المرجع','البيان'];
-  const widths=[260,75,105,105,75,115,115,95,120,230];
-  return buildPdfFromCanvases(renderPagedReportTable(doc.type,'رقم '+doc.seqNum+' — '+doc.isoDate,columns,widths,manualOpeningPdfRows(doc),'opening'));
+  const mixedDates=new Set(doc.records.map(t=>t.isoDate)).size>1;
+  const columns=['الحساب','العملة الأصلية','مدين','دائن','عملة التقييم','مدين تقييم','دائن تقييم','سعر الصرف','المرجع','البيان',...(mixedDates?['تاريخ البند']:[])];
+  const widths=[260,75,105,105,75,115,115,95,120,230,...(mixedDates?[120]:[])];
+  return buildPdfFromCanvases(renderPagedReportTable(doc.type,'رقم '+doc.seqNum+' — '+doc.isoDate,columns,widths,manualOpeningPdfRows(doc,mixedDates),'opening'));
  }
  return buildPdfFromCanvases(renderPagedReportTable(doc.type,'رقم '+doc.seqNum+' — '+doc.isoDate,['الحساب','العملة','مدين','دائن','عملة التقييم','مدين تقييم','دائن تقييم','التاريخ / المرجع / البيان'],[190,90,115,115,90,130,130,170],importedOpeningOutputRows(doc),'opening'));
 }

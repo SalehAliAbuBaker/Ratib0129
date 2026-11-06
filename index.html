@@ -12710,17 +12710,73 @@ function importedOpeningOutputRows(doc){
  for(const total of doc.totals)rows.push(['إجمالي التقييم','','','',total.currency,trialNumber(total.debit),trialNumber(total.credit),'الفرق: '+trialNumber(total.debit-total.credit)]);
  return rows;
 }
+
+/* Dedicated view models: amounts remain in their recorded original currency;
+   valuation is read-only. Note and source reference are NEVER joined. */
+function manualOpeningSourceRef(o){
+ const ref=String(o.sourceRef||'').trim();
+ return ref==='إدخال يدوي'?'':ref;
+}
+function manualOpeningPdfRows(doc){
+ const rows=doc.records.map(t=>{
+  const o=t.openingBalance,rate=o.currency!==o.baseCurrency?String(o.exchangeRate||''):'';
+  return [
+   o.account,o.currency,openingDisplayAmount(o.debit),openingDisplayAmount(o.credit),
+   o.baseCurrency,openingDisplayAmount(o.baseDebit),openingDisplayAmount(o.baseCredit),
+   rate?openingDisplayAmount(rate):'',manualOpeningSourceRef(o),String(o.note||'')
+  ];
+ });
+ for(const total of doc.totals)rows.push([
+  'إجمالي التقييم','','','',total.currency,
+  trialNumber(total.debit),trialNumber(total.credit),'','الفرق: '+trialNumber(total.debit-total.credit),''
+ ]);
+ return rows;
+}
+function manualOpeningPrintTable(doc){
+ const heads=['الحساب','العملة الأصلية','مدين','دائن','عملة التقييم','مدين تقييم','دائن تقييم'];
+ const cols=[27,11,12,12,12,13,13];
+ const colgroup='<colgroup>'+cols.map(w=>'<col style="width:'+w+'%">').join('')+'</colgroup>';
+ const rows=doc.records.map(t=>{
+  const o=t.openingBalance,ref=manualOpeningSourceRef(o);
+  const values=[o.account,o.currency,openingDisplayAmount(o.debit),openingDisplayAmount(o.credit),
+   o.baseCurrency,openingDisplayAmount(o.baseDebit),openingDisplayAmount(o.baseCredit)];
+  const details=[
+   ['التاريخ',t.isoDate||''],
+   ...(o.currency!==o.baseCurrency?[['سعر الصرف',o.exchangeRate?openingDisplayAmount(o.exchangeRate):'—']]:[]),
+   ['المرجع',ref||'—'],
+   ['البيان',String(o.note||'')||'—']
+  ];
+  const cells=values.map((v,i)=>'<td class="'+(i===0?'opening-account-cell':i===1||i===4?'opening-currency-cell':'opening-money-cell')+'">'+esc(String(v??''))+'</td>').join('');
+  const meta=details.map(([label,value])=>'<span class="opening-print-field"><b>'+esc(label)+':</b> <span>'+esc(String(value))+'</span></span>').join('');
+  return '<tr class="opening-ledger-line">'+cells+'</tr><tr class="opening-ledger-meta"><td colspan="7"><div class="opening-print-details">'+meta+'</div></td></tr>';
+ }).join('');
+ const totals=doc.totals.map(total=>'<tr class="opening-ledger-total"><td>إجمالي التقييم</td><td></td><td></td><td></td><td class="opening-currency-cell">'+esc(total.currency)+'</td><td class="opening-money-cell">'+esc(trialNumber(total.debit))+'</td><td class="opening-money-cell">'+esc(trialNumber(total.credit))+'</td></tr>').join('');
+ return '<table class="pv-table opening-print-table opening-manual-print">'+colgroup+
+  '<thead><tr>'+heads.map(v=>'<th>'+esc(v)+'</th>').join('')+'</tr></thead><tbody>'+rows+totals+'</tbody></table>';
+}
 function importedOpeningPrint(item,transactions){
  const doc=importedOpeningDocument(item,transactions),cfg=getHeaderConfig();
- for(const [id,value] of Object.entries({pvOrgName:cfg.show?cfg.name||'':'',pvOrgDetails:cfg.show?cfg.details||'':'',pvVoucherTitle:doc.type+' #'+doc.seqNum,pvDate:doc.isoDate,pvAmount:doc.totals.map(t=>trialNumber(t.debit)+' '+t.currency).join(' / '),pvDebit:doc.debitAccount,pvCredit:doc.creditAccount,pvTafqit:'',pvNote:'الأرصدة الأصلية والتقييمات مستقلة ومحفوظة دون إعادة تحويل.'}))document.getElementById(id).textContent=value;
+ for(const [id,value] of Object.entries({pvOrgName:cfg.show?cfg.name||'':'',pvOrgDetails:cfg.show?cfg.details||'':'',pvVoucherTitle:doc.type+' #'+doc.seqNum,pvDate:doc.isoDate,pvAmount:doc.totals.map(t=>trialNumber(t.debit)+' '+t.currency).join(' / '),pvDebit:doc.debitAccount,pvCredit:doc.creditAccount,pvTafqit:'',pvNote:doc.isManualOpeningVoucher?'البيان والمرجع الخاص بكل بند موضحان بصورة مستقلة أدناه.':'الأرصدة الأصلية والتقييمات مستقلة ومحفوظة دون إعادة تحويل.'}))document.getElementById(id).textContent=value;
  document.getElementById('pvDate').innerHTML=ratibStatementDateHtml(doc.isoDate);
  document.getElementById('pvRecipientRow').style.display='none';document.getElementById('pvRecipientSignRow').style.display='none';
- const labels=['الحساب','العملة','مدين','دائن','عملة التقييم','مدين تقييم','دائن تقييم','التاريخ / المرجع / البيان'];
- document.getElementById('pvTableBox').innerHTML='<table class="pv-table opening-print-table"><thead><tr>'+labels.map(v=>'<th>'+esc(v)+'</th>').join('')+'</tr></thead><tbody>'+importedOpeningOutputRows(doc).map(row=>'<tr>'+row.map(v=>'<td>'+esc(v)+'</td>').join('')+'</tr>').join('')+'</tbody></table>';
+ if(doc.isManualOpeningVoucher){
+  document.getElementById('pvTableBox').innerHTML=manualOpeningPrintTable(doc);
+ }else{
+  const labels=['الحساب','العملة','مدين','دائن','عملة التقييم','مدين تقييم','دائن تقييم','التاريخ / المرجع / البيان'];
+  document.getElementById('pvTableBox').innerHTML='<table class="pv-table opening-print-table"><thead><tr>'+labels.map(v=>'<th>'+esc(v)+'</th>').join('')+'</tr></thead><tbody>'+importedOpeningOutputRows(doc).map(row=>'<tr>'+row.map(v=>'<td>'+esc(v)+'</td>').join('')+'</tr>').join('')+'</tbody></table>';
+ }
  window.RatibSignatureSettings?.fillVoucher?.('opening');
  return doc;
 }
-function importedOpeningPdf(item,transactions){const doc=importedOpeningDocument(item,transactions);return buildPdfFromCanvases(renderPagedReportTable(doc.type,'رقم '+doc.seqNum+' — '+doc.isoDate,['الحساب','العملة','مدين','دائن','عملة التقييم','مدين تقييم','دائن تقييم','التاريخ / المرجع / البيان'],[190,90,115,115,90,130,130,170],importedOpeningOutputRows(doc),'opening'));}
+function importedOpeningPdf(item,transactions){
+ const doc=importedOpeningDocument(item,transactions);
+ if(doc.isManualOpeningVoucher){
+  const columns=['الحساب','العملة الأصلية','مدين','دائن','عملة التقييم','مدين تقييم','دائن تقييم','سعر الصرف','المرجع','البيان'];
+  const widths=[260,75,105,105,75,115,115,95,120,230];
+  return buildPdfFromCanvases(renderPagedReportTable(doc.type,'رقم '+doc.seqNum+' — '+doc.isoDate,columns,widths,manualOpeningPdfRows(doc),'opening'));
+ }
+ return buildPdfFromCanvases(renderPagedReportTable(doc.type,'رقم '+doc.seqNum+' — '+doc.isoDate,['الحساب','العملة','مدين','دائن','عملة التقييم','مدين تقييم','دائن تقييم','التاريخ / المرجع / البيان'],[190,90,115,115,90,130,130,170],importedOpeningOutputRows(doc),'opening'));
+}
 let importedOpeningEdit=null;
 function importedOpeningModal(){
  let modal=document.getElementById('importedOpeningVoucherModal');if(modal)return modal;

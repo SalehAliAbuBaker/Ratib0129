@@ -47,7 +47,7 @@ function html(d){
  '<div class="ratib-cash-head"><div class="ratib-cash-head-right">'+hdr('رقم السند:',m.seq)+
  '<div class="ratib-cash-pair"><b>المبلغ:</b> <span class="ratib-cash-money">'+e(m.money)+'</span></div></div>'+
  '<div class="ratib-cash-head-title">'+e(m.title)+'</div>'+
- '<div class="ratib-cash-head-left">'+hdr('التاريخ:',m.date)+hdr('العملة:',m.currencyName)+hdr('الصندوق:',m.cashAccount)+'</div></div>'+
+ '<div class="ratib-cash-head-left"><div class="ratib-cash-pair"><b>التاريخ:</b> '+(m.date?ratibStatementDateHtml(m.date):'&nbsp;')+'</div>'+hdr('العملة:',m.currencyName)+hdr('الصندوق:',m.cashAccount)+'</div></div>'+
  '<div class="ratib-cash-frame"><div class="ratib-cash-narrative">'+
  field(m.openingLabel+' /',m.beneficiary)+field('مبلغ وقدره /',m.amountWords)+field('ملاحظات /',m.notes)+
  '</div><div class="ratib-cash-record-label">ويقيد في الحساب:</div>'+
@@ -60,7 +60,7 @@ function* pdfPages(d){
  let canvas,ctx,y,pageNo=0,frameStart=315;
  function drawText(value,x,top,size=18,bold=false,maxWidth){
   ctx.font=(bold?'700 ':'500 ')+size+'px Tajawal,Arial,sans-serif';
-  ctx.fillStyle='#172435';ctx.fillText(String(value??''),x,top,maxWidth);
+  ctx.fillStyle='#172435';if(Number.isFinite(maxWidth)&&maxWidth>0)ctx.fillText(String(value??''),x,top,maxWidth);else ctx.fillText(String(value??''),x,top);
  }
  function wrap(value,width,size=18){
   ctx.font='500 '+size+'px Tajawal,Arial,sans-serif';
@@ -81,7 +81,9 @@ function* pdfPages(d){
   drawText('رقم السند: '+m.seq,RIGHT-5,218,20,true,490);
   drawText('المبلغ: '+m.money,RIGHT-5,258,22,true,490);
   ctx.textAlign='left';
-  drawText('التاريخ: '+m.date,LEFT+5,218,17,true,480);
+  const dateParts=m.date?ratibCanvasDateParts(m.date):{primary:'',secondary:''};
+  drawText('التاريخ: '+dateParts.primary,LEFT+5,215,17,true,480);
+  if(dateParts.secondary)drawText(dateParts.secondary,LEFT+5,232,11,false,480);
   drawText('العملة: '+m.currencyName,LEFT+5,249,17,true,480);
   drawText('الصندوق: '+m.cashAccount,LEFT+5,280,17,true,480);
   ctx.textAlign='right';

@@ -72,7 +72,7 @@ assert.equal(doc.window.document.getElementById('pvRecipientRow').style.display,
 assert(signatures.includes('html:compound'));
 assert(logo.length===1);
 const pages=api.pdf(sample);assert(pages.length===1,'Short compound voucher stays on one landscape A4 sheet');
-assert.deepEqual(widths[0],[842,595]);assert.equal(pages[0].width,1684);assert.equal(pages[0].height,1190);
+assert.deepEqual(Array.from(widths[0]),[842,595]);assert.equal(pages[0].width,1684);assert.equal(pages[0].height,1190);
 assert(signatures.includes('pdf:compound'));
 assert(texts.some(x=>x.text==='سند قيد مركب')&&texts.some(x=>x.text==='الإجماليات حسب العملة'));
 assert(texts.some(x=>x.text==='مدين: 100,000')&&texts.some(x=>x.text==='دائن: 100,000'));

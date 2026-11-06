@@ -20,7 +20,8 @@ function referenceModel(doc){
   const exactRate=Number(String(line.rate??'').replace(/,/g,''));
   const rate=currency===baseCurrency?1:(Number.isFinite(exactRate)&&exactRate>0?exactRate:0);
   const storedBase=Number(String(line.base??'').replace(/,/g,''));
-  const valuation=Number.isFinite(storedBase)?storedBase:(rate>0?original*rate:0);
+  const hasBase=line.base!==null&&line.base!==undefined&&String(line.base).trim()!=='';
+  const valuation=hasBase&&Number.isFinite(storedBase)?storedBase:(rate>0?original*rate:0);
   const debit=line.side!=='credit',account=asText(line.account);
   let accountCode='';
   try{accountCode=asText(getAccountCode(account));if(accountCode==='—')accountCode='';}catch(_){}
@@ -39,13 +40,14 @@ function referenceModel(doc){
  const baseDebit=rows.filter(r=>r.side==='debit').reduce((a,r)=>a+r.valuation,0);
  const baseCredit=rows.filter(r=>r.side==='credit').reduce((a,r)=>a+r.valuation,0);
  const epsilon=Math.pow(10,-Math.min(4,Math.max(0,Math.log10(Math.max(baseDebit,baseCredit,1))-10)));
- const balanced=Math.abs(baseDebit-baseCredit)<Math.max(0.000001,epsilon);
+ const missingRate=rows.some(r=>r.rate==='—');
+ const balanced=!missingRate&&Math.abs(baseDebit-baseCredit)<Math.max(0.000001,epsilon);
  const budgetNames=[...new Set(rows.map(r=>r.budget).filter(Boolean))];
  return {title:'سند قيد مركب',seq:asText(doc.seq),date:asText(doc.date),
   baseCurrency,header:cfg,description:asText(doc.note),party:asText(doc.party),
   budget:budgetNames.length===1?budgetNames[0]:budgetNames.length>1?'بنود متعددة':'',
   rows:rows.length?rows:[{seq:'',side:'debit',account:'',accountCode:'',debit:null,credit:null,currency:'',rate:'',valuationText:'',budget:'',note:''}],
-  byCurrency:[...byCurrency.values()],baseDebit,baseCredit,balanced,difference:Math.abs(baseDebit-baseCredit),
+  byCurrency:[...byCurrency.values()],baseDebit,baseCredit,balanced,missingRate,difference:Math.abs(baseDebit-baseCredit),
   signatureKey:'compound'};
 }
 function html(d){
@@ -74,7 +76,7 @@ function html(d){
   '<div class="ratib-cmp-out-valuation"><b>الإجمالي بالعملة الأساسية ('+enc(m.baseCurrency)+')</b>'+
   '<div>مدين <strong>'+enc(fmt(m.baseDebit))+'</strong></div><div>دائن <strong>'+enc(fmt(m.baseCredit))+'</strong></div>'+
   '<div class="ratib-cmp-out-status '+(m.balanced?'ratib-cmp-out-balanced':'ratib-cmp-out-unbalanced')+'">'+
-  (m.balanced?'✓ القيد متوازن':'فرق التقييم: '+enc(fmt(m.difference)))+'</div></div></div></article>';
+  (m.balanced?'✓ القيد متوازن':m.missingRate?'راجع أسعار الصرف':'فرق التقييم: '+enc(fmt(m.difference)))+'</div></div></div></article>';
 }
 function prepare(d){
  const m=referenceModel(d),cfg=m.header;
@@ -178,14 +180,12 @@ function* pages(d){
    drawRow(sliced,Math.max(46,count*24+12));off+=count;
   }
  }
- function space(h){
-  if(y+h>MAX){closeFrame();const former=canvas;canvas=null;return former;}return null;
- }
+ function space(h){return y+h>MAX;}
  const totalRows=Math.max(m.byCurrency.length,1),totalsHeight=76+totalRows*32+90;
  const sigHeight=window.RatibSignatureSettings?.height?.('compound')||0;
  const captionParts=m.description?wrap(m.description,CONTENT-110,17).slice(2):[];
  const captionHeight=captionParts.length?30+captionParts.length*23:0;
- if(space(totalsHeight+captionHeight+sigHeight+28)){yield canvas;start();}
+ if(space(totalsHeight+captionHeight+sigHeight+28)){closeFrame();yield canvas;start();}
  y+=17;
  text('الإجماليات حسب العملة',R-12,y+15,20,true,440);y+=26;
  for(const g of m.byCurrency.length?m.byCurrency:[{currency:'—',debit:0,credit:0}]){
@@ -198,7 +198,7 @@ function* pages(d){
  text('إجمالي التقييم '+m.baseCurrency,R-15,y+13,19,true,360);
  text('مدين: '+fmt(m.baseDebit),R-405,y+13,19,true,310);
  text('دائن: '+fmt(m.baseCredit),R-765,y+13,19,true,310);
- y+=34;text(m.balanced?'✓ القيد متوازن':'فرق التقييم: '+fmt(m.difference),R-15,y+14,18,true,430);y+=32;
+ y+=34;text(m.balanced?'✓ القيد متوازن':m.missingRate?'راجع أسعار الصرف':'فرق التقييم: '+fmt(m.difference),R-15,y+14,18,true,430);y+=32;
  if(captionParts.length){
   text('استكمال البيان:',R-15,y+13,17,true,200);y+=22;
   for(const part of captionParts){

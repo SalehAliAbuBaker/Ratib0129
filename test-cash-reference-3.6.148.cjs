@@ -102,7 +102,7 @@ assert(signed.includes('html:receipt'),'Original receipt signatures used');
 ctx.prepareMultiVoucherPrint(blank);
 assert(signed.includes('html:payment'),'Original payment signatures used');
 assert(Array.isArray(ctx.buildMultiVoucherPdf(receipt)),'PDF and share use same renderer');
-assert(html.includes('ratib-cash-reference-3.6.148.js?v=3.6.148'));
+assert(html.includes('ratib-cash-reference-3.6.148.js?v=3.6.149'));
 assert(html.includes('ratib-cash-reference-3.6.148.css?v=3.6.148'));
 assert(worker.includes('ratib-cash-reference-3.6.148.js'));
 assert(worker.includes('ratib-cash-reference-3.6.148.css'));

@@ -203,7 +203,7 @@ function schedule(){
 }
 function refresh(){
   const meta=byId('ratibCompoundMeta142');
-  if(!isCompound()){
+  if(!isCompound()||card.classList.contains('hidden')){
     if(card.classList.contains('ratib-cmp-layout142'))card.classList.remove('ratib-cmp-layout142');
     if(card.classList.contains('ratib-cmp-show-extras'))card.classList.remove('ratib-cmp-show-extras');
     if(meta)meta.hidden=true;

@@ -1,14 +1,14 @@
 'use strict';
-/* 3.6.147: live amount-in-words occupies a dedicated compound grid row. */
+/* 3.6.148: live amount-in-words occupies a dedicated compound grid row. */
 const assert=require('node:assert/strict'),fs=require('node:fs'),{JSDOM}=require('jsdom');
 const ui=fs.readFileSync('ratib-ui-v3.6.37.js','utf8');
 const css=fs.readFileSync('ratib-compound-layout-3.6.142.css','utf8');
 const worker=fs.readFileSync('sw.js','utf8');
 const html=fs.readFileSync('index.html','utf8');
 const pkg=require('./package.json');
-assert.equal(pkg.version,'3.6.147');
-assert(html.includes('const RATIB_RELEASE={"version":"3.6.147","build":"p14700"'));
-assert(worker.includes('compound-compact-auto-signature-tafqit-3.6.147'));
+assert.equal(pkg.version,'3.6.148');
+assert(html.includes('const RATIB_RELEASE={"version":"3.6.148","build":"p14800"'));
+assert(worker.includes('compound-compact-auto-signature-tafqit-cash-reference-3.6.148'));
 const match=ui.match(/function repaintMultiBalances\(\)\{[\s\S]*?\n\}\nfunction main\(\)/);
 assert(match,'Preserve the original rendering function');
 assert(css.includes('td.ratib-cmp-tafqit-cell[hidden]'),'No blank row for empty amounts');
@@ -68,4 +68,4 @@ assert(fx.tr.querySelector('td.ratib-cmp-tafqit-cell').textContent.includes('SAR
 const cash=fixture(true);cash.w.eval('repaintMultiBalances()');
 assert.equal(cash.tr.querySelectorAll('td.ratib-cmp-tafqit-cell').length,0,'Cash mode untouched');
 assert(cash.tr.querySelector('td:nth-child(6)>.ratib-line-tafqit')?.hidden,'Cash caption stays hidden as before');
-console.log('PASS 3.6.147 separate compound tafqit, balance, foreign, empty and cash isolation');
+console.log('PASS 3.6.148 separate compound tafqit, balance, foreign, empty and cash isolation');

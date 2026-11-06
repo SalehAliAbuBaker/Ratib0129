@@ -7,6 +7,8 @@ const dom=new JSDOM('<!doctype html><html><head></head><body><div id="pageSettin
 const db=new Map(),store={get:(k,d)=>db.has(k)?structuredClone(db.get(k)):d,set:(k,v)=>db.set(k,structuredClone(v))};
 const ctx={document:dom.window.document,window:dom.window,store,localStorage:dom.window.localStorage,console};
 vm.createContext(ctx);vm.runInContext(src,ctx);
+dom.window.document.dispatchEvent(new dom.window.Event('DOMContentLoaded'));
+
 const api=ctx.window.RatibSignatureSettings;
 assert(api,'Signature module loaded');
 const original=api.get('receipt'),names=Array.from(original.people.map(p=>p.label));

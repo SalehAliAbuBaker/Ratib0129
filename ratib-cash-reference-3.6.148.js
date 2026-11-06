@@ -45,9 +45,9 @@ function html(d){
  '<td class="cash-amount">'+e(r.amount)+'</td><td>'+e(r.currency)+'</td><td class="cash-notes">'+e(r.notes)+'</td><td>'+e(r.budget)+'</td></tr>').join('');
  return '<div class="ratib-cash-reference" dir="rtl">'+
  '<div class="ratib-cash-head"><div class="ratib-cash-head-right">'+hdr('رقم السند:',m.seq)+
- '<div class="ratib-cash-pair"><b>المبلغ:</b> <span class="ratib-cash-money">'+e(m.money)+'</span></div></div>'+
+ '<div class="ratib-cash-pair"><b>المبلغ:</b> <span class="ratib-cash-money">'+e(m.money)+'</span></div>'+hdr('العملة:',m.currencyName)+'</div>'+
  '<div class="ratib-cash-head-title">'+e(m.title)+'</div>'+
- '<div class="ratib-cash-head-left"><div class="ratib-cash-pair"><b>التاريخ:</b> '+(m.date?ratibStatementDateHtml(m.date):'&nbsp;')+'</div>'+hdr('العملة:',m.currencyName)+hdr('الصندوق:',m.cashAccount)+'</div></div>'+
+ '<div class="ratib-cash-head-left"><div class="ratib-cash-pair"><b>التاريخ:</b> '+(m.date?ratibStatementDateHtml(m.date):'&nbsp;')+'</div>'+hdr('الصندوق:',m.cashAccount)+'</div></div>'+
  '<div class="ratib-cash-frame"><div class="ratib-cash-narrative">'+
  field(m.openingLabel+' /',m.beneficiary)+field('مبلغ وقدره /',m.amountWords)+field('ملاحظات /',m.notes)+
  '</div><div class="ratib-cash-record-label">ويقيد في الحساب:</div>'+
@@ -79,13 +79,13 @@ function* pdfPages(d){
   ctx.strokeStyle='#8ea9c7';ctx.strokeRect(450,125,290,60);
   ctx.textAlign='center';drawText(m.title,595,166,31,true,280);ctx.textAlign='right';
   drawText('رقم السند: '+m.seq,RIGHT-5,218,20,true,490);
-  drawText('المبلغ: '+m.money,RIGHT-5,258,22,true,490);
+  drawText('المبلغ: '+m.money,RIGHT-5,253,22,true,490);
+  drawText('العملة: '+m.currencyName,RIGHT-5,285,17,true,490);
   ctx.textAlign='left';
   const dateParts=m.date?ratibCanvasDateParts(m.date):{primary:'',secondary:''};
   drawText('التاريخ: '+dateParts.primary,LEFT+5,215,17,true,480);
   if(dateParts.secondary)drawText(dateParts.secondary,LEFT+5,232,11,false,480);
-  drawText('العملة: '+m.currencyName,LEFT+5,249,17,true,480);
-  drawText('الصندوق: '+m.cashAccount,LEFT+5,280,17,true,480);
+  drawText('الصندوق: '+m.cashAccount,LEFT+5,265,17,true,480);
   ctx.textAlign='right';
   drawText('صفحة '+(++pageNo),RIGHT,1642,15);
   y=frameStart+24;

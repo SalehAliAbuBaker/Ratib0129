@@ -1653,7 +1653,7 @@ body.ratib-sidebar-open,body.ratib-about-open{overflow:hidden}
 <link rel="stylesheet" href="./ratib-trial-voucher-statement-3.6.125.css?v=3.6.139">
 <link rel="stylesheet" href="./ratib-cash-pulse.css?v=3.6.139">
 <link rel="stylesheet" href="./ratib-cloud-due-3.6.130.css?v=3.6.139">
-<link rel="stylesheet" href="./ratib-cash-actions-3.6.135.css?v=3.6.139-opening-output-20261106">
+<link rel="stylesheet" href="./ratib-cash-actions-3.6.135.css?v=3.6.139-infield-20261106">
 </head>
 <body>
 
@@ -12785,8 +12785,13 @@ function importedOpeningModal(){
  document.body.append(modal);
  const seqField=document.getElementById('importedOpeningSeq');seqField.placeholder='رقم القيد';seqField.setAttribute('aria-label','رقم القيد');
  const seqLabel=seqField.closest('label');
+ /* Replace the native free-standing text node, not just its font size. */
+ seqLabel.textContent='';
+ seqLabel.append(seqField);
+ seqLabel.classList.add('opening-inline-header-field');
+ const seqCaption=document.createElement('span');seqCaption.className='opening-field-caption';seqCaption.textContent='رقم القيد';seqLabel.prepend(seqCaption);
  const header=document.createElement('div');header.id='openingHeader';seqLabel.before(header);header.append(seqLabel);
- const dateLabel=document.createElement('label');dateLabel.id='openingDateLabel';dateLabel.innerHTML='التاريخ<input id="importedOpeningHeaderDate" type="date"><span id="openingDateHijri"></span>';header.append(dateLabel);
+ const dateLabel=document.createElement('label');dateLabel.id='openingDateLabel';dateLabel.innerHTML='<span class="opening-field-caption">التاريخ</span><input id="importedOpeningHeaderDate" type="date" aria-label="التاريخ"><span id="openingDateHijri"></span>';dateLabel.classList.add('opening-inline-header-field');header.append(dateLabel);
  dateLabel.querySelector('input').addEventListener('change',e=>{
   if(!importedOpeningEdit?.manual||importedOpeningEdit.busy||!e.target.value)return;
   importedOpeningEdit.dirty=true;
@@ -12824,7 +12829,7 @@ function importedOpeningModal(){
 function setOpeningEditorTitle(manual){
  document.getElementById('importedOpeningTitle').textContent=manual?'قيد افتتاحي — إدخال يدوي':'سند قيد مركب — أرصدة مستوردة';
  document.getElementById('importedOpeningDescription').textContent=manual
-  ?'أدخل الأرصدة الافتتاحية يدويًا. أضف حسابًا مدينًا وآخر دائنًا، وأدخل التقييم بعملة الأساس لكل عملة مختلفة، دون تكرار رصيد محفوظ.'
+  ?''
   :'تضم الدفعة جميع الأرصدة المحلية والأجنبية. عدّل البنود أو أضف بنودًا، ثم احفظ القيد كاملًا بعد توازن التقييم. لن تتغير البيانات قبل الحفظ.';
  document.getElementById('importedOpeningSave').textContent=manual?'حفظ القيد الافتتاحي':'حفظ القيد المركب';
  document.getElementById('importedOpeningVoucherModal').classList.toggle('opening-manual',Boolean(manual));
@@ -12956,7 +12961,7 @@ function openingFormDecorate(){
    row._openingSide=next;state.dirty=true;renderImportedOpeningRows();
   });
   const fx=document.createElement('td');fx.className='opening-fx';
-  fx.innerHTML='<label><input inputmode="decimal" aria-label="سعر الصرف" placeholder="سعر الصرف" data-skip-calculator="1" value="'+esc(o.exchangeRate||'')+'"></label><div>المعادل: <strong class="opening-fx-equivalent">'+trialNumber(Number(o[row._openingSide==='credit'?'baseCredit':'baseDebit']||0))+' '+esc(o.baseCurrency)+'</strong></div>';
+  fx.innerHTML='<label class="opening-inline-field"><span class="opening-field-caption">سعر الصرف</span><input inputmode="decimal" aria-label="سعر الصرف" placeholder="سعر الصرف" data-skip-calculator="1" value="'+esc(o.exchangeRate||'')+'"></label><div>المعادل: <strong class="opening-fx-equivalent">'+trialNumber(Number(o[row._openingSide==='credit'?'baseCredit':'baseDebit']||0))+' '+esc(o.baseCurrency)+'</strong></div>';
   tr.append(fx);
   fx.querySelector('input').addEventListener('input',e=>{o.exchangeRate=e.target.value;state.dirty=true;openingFormConvert(row,index);renderImportedOpeningTotals();});
   tr.querySelectorAll('[data-field="debit"],[data-field="credit"]').forEach(el=>el.addEventListener('input',()=>{openingFormConvert(row,index);renderImportedOpeningTotals();}));
@@ -13007,6 +13012,15 @@ function renderImportedOpeningRows(){
      el.value=openingDisplayAmount(o[key]||'0');
      el.addEventListener('focus',()=>{el.value=o[key]||'0';});
      el.addEventListener('blur',()=>{el.value=openingDisplayAmount(o[key]||'0');});
+    }
+    if(importedOpeningEdit?.manual){
+     const captions={account:'الحساب',currency:'العملة',debit:'المبلغ',credit:'المبلغ',baseCurrency:'عملة التقييم',sourceRef:'مصدر السعر',note:'البيان (اختياري)'};
+     if(captions[key]){
+      td.classList.add('opening-inline-field');
+      const caption=document.createElement('span');
+      caption.className='opening-field-caption';caption.textContent=captions[key];
+      td.append(caption);
+     }
     }
     el.oninput=el.onchange=()=>{if(importedOpeningEdit.busy){el.value=key==='isoDate'?t.isoDate:o[key]||'';return;}importedOpeningEdit.dirty=true;if(key==='isoDate')t.isoDate=el.value;else o[key]=el.value;
      if(importedOpeningEdit.manual&&o.currency===o.baseCurrency&&['debit','credit','currency','baseCurrency'].includes(key)){

@@ -166,8 +166,12 @@ async function run(){
    code(w,`selectVoucherTypeDirect(outputMode);multiSourceAcc.setValue(outputAccount,outputAccount);multiVoucherLines=[{...newSpendLine(),account:outputCounterpart,amount:'50',currency:'YER',rate:'1',budgetId:'general',note:'اختبار سند'}];document.getElementById('ratibHeaderAmount').value='50';renderMultiVoucherLines();syncMultiAutoBalance();`);
    assert.equal(code(w,'validateMultiVoucher()'),'');
    const count=prints.length,downloads=f.downloads.length,shares=shared.length;
-   d.getElementById('ratibMultiVoucherPreviewBtn').click();assert(d.getElementById('printPreviewModal').classList.contains('show'));assert.equal(prints.length,count);d.getElementById('printPreviewCancelBtn').click();
-   d.getElementById('printMultiVoucherBtn').click();assert.equal(prints.length,count+1);finishPrint();
+   d.getElementById('ratibMultiVoucherPreviewBtn').click();assert(d.getElementById('printPreviewModal').classList.contains('show'));assert.equal(prints.length,count);
+    assert.deepEqual([...d.querySelectorAll('#printPreviewBody .ratib-cash-grid th')].map(el=>el.textContent),['الحساب','المبلغ','العملة','ملاحظات','بند الميزانية'],'Receipt/payment preview must use the approved reference columns');
+    assert(d.querySelector('#printPreviewBody .ratib-cash-head-title')?.textContent.includes(mode==='income'?'سند قبض':'سند صرف'));
+    d.getElementById('printPreviewCancelBtn').click();
+   d.getElementById('printMultiVoucherBtn').click();assert.equal(prints.length,count+1);
+    assert(d.querySelector('#printVoucherContainer .ratib-cash-grid'),'Native printing must use the same reference table');finishPrint();
    d.getElementById('pdfMultiVoucherBtn').click();await waitFor(()=>f.downloads.length===downloads+1,'receipt/payment PDF');
    d.getElementById('ratibMultiVoucherShareBtn').click();await pause(20);assert.equal(shared.length,shares+1);
   }

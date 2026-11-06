@@ -60,7 +60,7 @@ function* pdfPages(d){
  let canvas,ctx,y,pageNo=0,frameStart=315;
  function drawText(value,x,top,size=18,bold=false,maxWidth){
   ctx.font=(bold?'700 ':'500 ')+size+'px Tajawal,Arial,sans-serif';
-  ctx.fillStyle='#172435';if(Number.isFinite(maxWidth)&&maxWidth>0)ctx.fillText(String(value??''),x,top,maxWidth);else ctx.fillText(String(value??''),x,top);
+  ctx.fillStyle='#163524';if(Number.isFinite(maxWidth)&&maxWidth>0)ctx.fillText(String(value??''),x,top,maxWidth);else ctx.fillText(String(value??''),x,top);
  }
  function wrap(value,width,size=18){
   ctx.font='500 '+size+'px Tajawal,Arial,sans-serif';
@@ -73,10 +73,10 @@ function* pdfPages(d){
   if(cfg.show){
    if(cfg.name)drawText(cfg.name,RIGHT,65,23,true,INNER);
    if(cfg.details)drawText(cfg.details,RIGHT,93,15,false,INNER);
-   ctx.strokeStyle='#cbd5e1';ctx.strokeRect(LEFT,112,INNER,1);
+   ctx.strokeStyle='#d6b65d';ctx.strokeRect(LEFT,112,INNER,1);
   }
-  ctx.fillStyle='#edf4fd';ctx.fillRect(450,125,290,60);
-  ctx.strokeStyle='#8ea9c7';ctx.strokeRect(450,125,290,60);
+  ctx.fillStyle='#e2f3e9';ctx.fillRect(450,125,290,60);
+  ctx.strokeStyle='#c5a64b';ctx.strokeRect(450,125,290,60);
   ctx.textAlign='center';drawText(m.title,595,166,31,true,280);ctx.textAlign='right';
   drawText('رقم السند: '+m.seq,RIGHT-5,218,20,true,490);
   drawText('المبلغ: '+m.money,RIGHT-5,253,22,true,490);
@@ -91,7 +91,7 @@ function* pdfPages(d){
   y=frameStart+24;
  }
  function closeFrame(){
-  ctx.strokeStyle='#243449';ctx.lineWidth=1.5;ctx.strokeRect(LEFT,frameStart,INNER,Math.max(65,Math.min(1560-frameStart,y+12-frameStart)));
+  ctx.strokeStyle='#0b6643';ctx.lineWidth=1.5;ctx.strokeRect(LEFT,frameStart,INNER,Math.max(65,Math.min(1560-frameStart,y+12-frameStart)));
  }
  function narrate(label,value){
   const lines=wrap(value,INNER-235,18);
@@ -101,8 +101,8 @@ function* pdfPages(d){
  function tableHeading(){
   let right=RIGHT;
   labels.forEach((label,i)=>{
-   const x=right-widths[i];ctx.fillStyle='#e5eef8';ctx.fillRect(x,y,widths[i],53);
-   ctx.strokeStyle='#7d92a8';ctx.lineWidth=1;ctx.strokeRect(x,y,widths[i],53);
+   const x=right-widths[i];ctx.fillStyle='#e0f0e8';ctx.fillRect(x,y,widths[i],53);
+   ctx.strokeStyle='#789780';ctx.lineWidth=1;ctx.strokeRect(x,y,widths[i],53);
    ctx.textAlign='center';drawText(label,x+widths[i]/2,y+33,17,true,widths[i]-12);right=x;
   });
   ctx.textAlign='right';y+=53;
@@ -110,7 +110,7 @@ function* pdfPages(d){
  function drawRow(groups,height){
   let right=RIGHT;
   groups.forEach((lines,i)=>{
-   const x=right-widths[i];ctx.strokeStyle='#7d92a8';ctx.lineWidth=1;ctx.strokeRect(x,y,widths[i],height);
+   const x=right-widths[i];ctx.strokeStyle='#789780';ctx.lineWidth=1;ctx.strokeRect(x,y,widths[i],height);
    ctx.textAlign=i===0||i===3?'right':'center';
    const tx=ctx.textAlign==='right'?right-8:x+widths[i]/2;
    lines.forEach((line,j)=>drawText(line,tx,y+26+j*23,16,i===1,widths[i]-16));

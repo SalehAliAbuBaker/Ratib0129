@@ -1,0 +1,63 @@
+/* Ratib 3.6.152
+ * Change receipt/payment COLORS ONLY; their reference layout, sizing, fields,
+ * notes, signatures and table columns stay exactly as approved.
+ * Journal footer emphasis is scoped to the new in-table totals. */
+:where(#printVoucherContainer,#printPreviewBody):has(.ratib-cash-reference) .pv-header{
+ border-bottom-color:#c5a64b!important;
+}
+:where(#printVoucherContainer,#printPreviewBody):has(.ratib-cash-reference) .pv-header :is(h1,p){
+ color:#075a3b!important;
+}
+:where(#printVoucherContainer,#printPreviewBody):has(.ratib-cash-reference) .pv-signatures{
+ border-top-color:#c7d8cc!important;
+}
+.ratib-cash-reference{color:#123326!important}
+.ratib-cash-reference .ratib-cash-head{border-bottom:2px solid #c5a64b!important}
+.ratib-cash-reference .ratib-cash-head-title{
+ color:#075a3b!important;
+ background:#e2f3e9!important;
+ border-color:#c5a64b!important;
+ -webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;
+}
+.ratib-cash-reference .ratib-cash-pair b,
+.ratib-cash-reference .ratib-cash-caption,
+.ratib-cash-reference .ratib-cash-record-label{color:#075a3b!important}
+.ratib-cash-reference .ratib-cash-money{
+ color:#123326!important;background:#f5faf6!important;border-color:#a3beaa!important;
+}
+.ratib-cash-reference .ratib-cash-frame{border-color:#0b6643!important}
+.ratib-cash-reference .ratib-cash-grid :is(th,td){border-color:#9cb1a5!important}
+.ratib-cash-reference .ratib-cash-grid th{
+ background:#e0f0e8!important;color:#075a3b!important;
+ -webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;
+}
+.ratib-cash-reference .ratib-cash-grid tbody tr:nth-child(even){
+ background:#f6faf7!important;
+ -webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;
+}
+.ratib-cash-reference .ratib-cash-grid .cash-account small{color:#607466!important}
+/* Totals share one table/colgroup with debit & credit: never float outside. */
+.ratib-compound-reference .ratib-cmp-out-table tfoot tr,
+.ratib-simple-reference .ratib-smp-out-table tfoot tr{
+ break-inside:avoid!important;page-break-inside:avoid!important;
+}
+.ratib-compound-reference .ratib-cmp-out-table tfoot td,
+.ratib-simple-reference .ratib-smp-out-table tfoot td{
+ background:#ecf5ed!important;color:#0b5439!important;
+ border-color:#9cb1a5!important;font-weight:700!important;
+ -webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;
+}
+.ratib-compound-reference .ratib-cmp-out-table tfoot .ratib-cmp-out-valuation-row td{
+ background:#def0e4!important;border-top:2px solid #c5a64b!important;
+ -webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;
+}
+.ratib-compound-reference .ratib-cmp-out-table tfoot .ratib-cmp-out-total-label,
+.ratib-simple-reference .ratib-smp-out-table tfoot .ratib-smp-out-total-label{
+ text-align:right!important;overflow-wrap:anywhere!important;
+}
+.ratib-compound-reference .ratib-cmp-out-summary,
+.ratib-simple-reference .ratib-smp-out-summary{
+ display:flex!important;justify-content:flex-start!important;
+ background:#f4faf5!important;border-color:#bad1c3!important;
+ margin-top:5px!important;padding:6px 10px!important;
+}

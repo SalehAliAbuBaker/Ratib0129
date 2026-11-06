@@ -7,12 +7,12 @@ const css=fs.readFileSync('ratib-cash-reference-3.6.148.css','utf8');
 const worker=fs.readFileSync('sw.js','utf8');
 assert.doesNotThrow(()=>new Function(source));
 const mock=new JSDOM('<html><body>'+['pvOrgName','pvOrgDetails','pvVoucherTitle','pvRecipientLabel','pvRecipientSignLabel','pvRecipientName','pvRecipientRow','pvRecipientSignRow','pvTableBox'].map(id=>'<div id="'+id+'"></div>').join('')+'</body></html>');
-const calls=[];
+const calls=[],positions=[];
 const fakeCanvas=()=>{
  const canvas={width:0,height:0,_ratibTemporary:false};
  const x={font:'',fillStyle:'',strokeStyle:'',lineWidth:1,direction:'rtl',textAlign:'right',
   measureText(text){return {width:String(text).length*9};},
-  fillText(value){calls.push(String(value));},fillRect(){},strokeRect(){},save(){},restore(){},clearRect(){}};
+  fillText(value,x,y){calls.push(String(value));positions.push({value:String(value),x,y,align:this.textAlign});},fillRect(){},strokeRect(){},save(){},restore(){},clearRect(){}};
  canvas.getContext=()=>x;return canvas;
 };
 const actualCreate=mock.window.document.createElement.bind(mock.window.document);
@@ -60,6 +60,9 @@ assert.deepEqual(headers,['الحساب','المبلغ','العملة','ملاح
 assert.equal(dom.querySelectorAll('.ratib-cash-grid tbody tr').length,2);
 assert.equal(dom.querySelector('.ratib-cash-head-title').textContent,'سند قبض');
 assert.equal(dom.querySelector('.ratib-cash-head-right .ratib-cash-money').textContent,'1,000.00');
+const metaRight=[...dom.querySelectorAll('.ratib-cash-head-right .ratib-cash-pair')].map(el=>el.textContent.trim());
+assert(metaRight[1].includes('المبلغ:')&&metaRight[2].includes('العملة: ريال سعودي'),'Currency sits immediately after voucher amount');
+assert(!dom.querySelector('.ratib-cash-head-left').textContent.includes('العملة:'),'Left header no longer duplicates currency');
 assert(dom.querySelector('.ratib-cash-head-left').textContent.includes('صندوق الإدارة'));
 assert(dom.querySelector('.ratib-cash-narrative').textContent.includes('فاعل خير بواسطة صالح علي الخطيب'));
 assert(dom.querySelector('.ratib-cash-narrative').textContent.includes('ألف ريال سعودي'));
@@ -70,6 +73,7 @@ const blank={...receipt,mode:'spend',seq:1234,beneficiary:'',note:'',sourceAccou
 const blankDoc=new JSDOM(api.html(blank)).window.document;
 assert.equal(blankDoc.querySelector('.ratib-cash-head-title').textContent,'سند صرف');
 assert.equal(blankDoc.querySelectorAll('.ratib-cash-grid tbody tr td').length,5,'Empty voucher retains all columns');
+assert(blankDoc.querySelector('.ratib-cash-head-right').textContent.includes('العملة: ريال سعودي'),'Payment mode retains currency beneath amount');
 const hostile={...receipt,note:'<script>alert(1)</script>',lines:[{...receipt.lines[0],account:'<img src=x onerror=alert(1)>'}]};
 const hostileHtml=api.html(hostile);
 assert(!hostileHtml.includes('<script>alert(1)</script>'));
@@ -77,6 +81,10 @@ assert(!hostileHtml.includes('<img src=x onerror=alert(1)>'));
 const pages=api.pdf(receipt);
 assert(pages.length>=1,'PDF canvas pages are generated');
 assert(calls.includes('سند قبض')&&calls.includes('1,000.00'));
+const pdfAmount=positions.find(p=>p.value==='المبلغ: 1,000.00');
+const pdfCurrency=positions.find(p=>p.value==='العملة: ريال سعودي');
+assert(pdfAmount&&pdfCurrency&&pdfAmount.x===pdfCurrency.x&&pdfCurrency.y>pdfAmount.y&&pdfCurrency.y-pdfAmount.y<40,'PDF currency is directly below amount in right header');
+assert(!positions.some(p=>p.value==='العملة: ريال سعودي'&&p.align==='left'),'PDF left header does not retain the currency');
 assert(calls.includes('بند الميزانية')&&calls.includes('ملاحظات'));
 assert(calls.includes('فاعل خير بواسطة صالح علي الخطيب'));
 assert(signed.includes('pdf:receipt'),'PDF uses existing signatures');
@@ -94,7 +102,7 @@ assert(signed.includes('html:receipt'),'Original receipt signatures used');
 ctx.prepareMultiVoucherPrint(blank);
 assert(signed.includes('html:payment'),'Original payment signatures used');
 assert(Array.isArray(ctx.buildMultiVoucherPdf(receipt)),'PDF and share use same renderer');
-assert(html.includes('ratib-cash-reference-3.6.148.js?v=3.6.148'));
+assert(html.includes('ratib-cash-reference-3.6.148.js?v=3.6.149'));
 assert(html.includes('ratib-cash-reference-3.6.148.css?v=3.6.148'));
 assert(worker.includes('ratib-cash-reference-3.6.148.js'));
 assert(worker.includes('ratib-cash-reference-3.6.148.css'));

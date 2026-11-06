@@ -1,6 +1,6 @@
 // Ratib 3.1.9: cache identity is unique to this app's scope.
-const CACHE_VERSION='v260-opening-mobile-clean-3.6.139-compound-compact-auto-signature-tafqit-cash-reference-3.6.148';
-const APP_RELEASE={"version":"3.6.148","build":"p14800","highlights":["سند قبض وصرف بتوزيع موحد مطابق للنموذج المرجعي","تطابق المعاينة والطباعة وPDF مع المحافظة على التواقيع"],"changes":["نجري بانتظام تحديثات لتحسين الموثوقية والأداء وإصلاح الأخطاء","استنساخ توزيع سند القبض والصرف بخمسة أعمدة الحساب والمبلغ والعملة والملاحظات وبند الميزانية مع إبقاء الحقول الفارغة دون حذف مواضعها"]};
+const CACHE_VERSION='v260-opening-mobile-clean-3.6.139-compound-compact-auto-signature-tafqit-cash-reference-amount-currency-3.6.149';
+const APP_RELEASE={"version":"3.6.149","build":"p14900","highlights":["إظهار العملة مباشرة تحت المبلغ في رأس سندات القبض والصرف"],"changes":["نجري بانتظام تحديثات لتحسين الموثوقية والأداء وإصلاح الأخطاء","نقل موضع العملة أسفل المبلغ في المعاينة والطباعة وPDF والمشاركة مع الإبقاء على أعمدة التفاصيل والتواقيع كما هي"]};
 const CACHE_PREFIX=`ratib:${self.registration.scope}:`;
 const CACHE_NAME=CACHE_PREFIX+CACHE_VERSION;
 const APP_SHELL=[

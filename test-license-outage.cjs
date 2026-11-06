@@ -117,4 +117,4 @@ async function main() {
   await require('./test-official-503-document-save.cjs').run();
   console.log('PASS 30 Ratib official/trial license outage, save-gate and rejection cases');
 }
-main().catch(err=>{console.error(err);process.exitCode=1;});
+main().then(()=>process.exit(0)).catch(err=>{console.error(err.stack||err);process.exit(1);});

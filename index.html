@@ -12821,7 +12821,7 @@ function importedOpeningModal(){
  seqLabel.classList.add('opening-inline-header-field');
  const seqCaption=document.createElement('span');seqCaption.className='opening-field-caption';seqCaption.textContent='رقم القيد';seqLabel.prepend(seqCaption);
  const header=document.createElement('div');header.id='openingHeader';seqLabel.before(header);header.append(seqLabel);
- const dateLabel=document.createElement('label');dateLabel.id='openingDateLabel';dateLabel.innerHTML='<span class="opening-field-caption">التاريخ</span><input id="importedOpeningHeaderDate" type="date" aria-label="التاريخ"><span id="openingDateHijri"></span>';dateLabel.classList.add('opening-inline-header-field');header.append(dateLabel);
+ const dateLabel=document.createElement('label');dateLabel.id='openingDateLabel';dateLabel.innerHTML='<input id="importedOpeningHeaderDate" type="date" aria-label="التاريخ"><span id="openingDateHijri"></span>';dateLabel.classList.add('opening-inline-header-field');header.append(dateLabel);
  dateLabel.querySelector('input').addEventListener('change',e=>{
   if(!importedOpeningEdit?.manual||importedOpeningEdit.busy||!e.target.value)return;
   importedOpeningEdit.dirty=true;

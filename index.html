@@ -12828,7 +12828,7 @@ function importedOpeningPdf(item,transactions){
  const doc=importedOpeningDocument(item,transactions);
  if(doc.isManualOpeningVoucher){
   const columns=['م','رقم الحساب','الحساب','البيان','مدين','دائن','العملة','سعر التقييم'];
-  const widths=[45,85,190,240,90,90,70,85];
+  const widths=[55,105,230,290,110,110,85,105]; /* Total 1090px: exact PDF content width inside 50px margins. */
   return buildPdfFromCanvases(renderPagedReportTable('سند قيد افتتاحي','رقم '+doc.seqNum+' — '+doc.isoDate,columns,widths,manualOpeningPdfRows(doc),'opening'));
  }
  return buildPdfFromCanvases(renderPagedReportTable(doc.type,'رقم '+doc.seqNum+' — '+doc.isoDate,['الحساب','العملة','مدين','دائن','عملة التقييم','مدين تقييم','دائن تقييم','التاريخ / المرجع / البيان'],[190,90,115,115,90,130,130,170],importedOpeningOutputRows(doc),'opening'));

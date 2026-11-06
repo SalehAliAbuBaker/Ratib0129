@@ -31,3 +31,34 @@ jobs:
           NODE
       - name: Simulate actual voucher form saves during 503 then 200
         run: node test-sandbox-503-document-save.cjs
+
+      - name: Check isolated Cloudflare Pages preview URL (informational only)
+        shell: bash
+        run: |
+          set -eu
+          host="https://sandbox-503.ratibtrial.pages.dev"
+          echo "Checking branch preview candidate: $host"
+          for attempt in 1 2 3 4; do
+            if curl --location --silent --show-error --fail --connect-timeout 8 --max-time 25 \
+              --dump-header /tmp/sandbox-preview-headers \
+              "$host/ratib-license-draft.js?probe=$GITHUB_SHA-$attempt" \
+              --output /tmp/sandbox-preview-license.js; then
+              node - <<'NODE'
+          const fs=require('fs');
+          const src=fs.readFileSync('/tmp/sandbox-preview-license.js','utf8');
+          const headers=fs.readFileSync('/tmp/sandbox-preview-headers','utf8');
+          const sandbox=src.includes("const API = 'https://ratib-license-outage-sandbox-20261105.saleh0129.workers.dev/api/license/'");
+          const isolated=src.includes("const KEY = 'ratib_license_outage_sandbox_v1'");
+          const noRealApi=!src.includes("const API = 'https://ratib.saleh0129.workers.dev");
+          console.log('PREVIEW_LICENSE_SANDBOX='+sandbox);
+          console.log('PREVIEW_STORAGE_ISOLATED='+isolated);
+          console.log('PREVIEW_NO_PRODUCTION_API='+noRealApi);
+          console.log('PREVIEW_SAFE_TO_SHARE='+Boolean(sandbox&&isolated&&noRealApi));
+          console.log('PREVIEW_HTTP_HEADERS='+headers.split(/\r?\n/).filter(v=>/^(HTTP\/|content-security-policy:|x-robots-tag:|cache-control:)/i.test(v)).join(' | '));
+          NODE
+              exit 0
+            fi
+            echo "Preview not accessible (attempt $attempt); retrying."
+            sleep 6
+          done
+          echo 'PREVIEW_NOT_AVAILABLE; branch source and CI are ready, but no live preview was verified.'

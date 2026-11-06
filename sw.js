@@ -1,6 +1,6 @@
 // Ratib 3.1.9: cache identity is unique to this app's scope.
-const CACHE_VERSION='v260-opening-mobile-clean-3.6.139-compound-compact-auto-signature-tafqit-cash-reference-amount-currency-compound-ref-3.6.150';
-const APP_RELEASE={"version":"3.6.150","build":"p15000","highlights":["هوية معتمدة للقيد المركب في المعاينة والطباعة وPDF والمشاركة"],"changes":["نجري بانتظام تحديثات لتحسين الموثوقية والأداء وإصلاح الأخطاء","توحيد إخراج سند القيد المركب بجدول مدين ودائن وتقييم وإجماليات العملات مع التواقيع الحالية ودون تغيير الحسابات"]};
+const CACHE_VERSION='v260-opening-mobile-clean-3.6.139-compound-compact-auto-signature-tafqit-cash-reference-amount-currency-compound-ref-simple-ref-3.6.151';
+const APP_RELEASE={"version":"3.6.151","build":"p15100","highlights":["هوية موحدة للقيد البسيط في المعاينة والطباعة وPDF والمشاركة"],"changes":["نجري بانتظام تحديثات لتحسين الموثوقية والأداء وإصلاح الأخطاء","توحيد إخراج سند القيد البسيط بالألوان والتواقيع المعتمدة وإظهار تفاصيل المدين والدائن وتوزيع الميزانية دون تعديل العمليات المحاسبية"]};
 const CACHE_PREFIX=`ratib:${self.registration.scope}:`;
 const CACHE_NAME=CACHE_PREFIX+CACHE_VERSION;
 const APP_SHELL=[
@@ -28,6 +28,8 @@ const APP_SHELL=[
 "./ratib-document-signatures-3.6.148.js",
 "./ratib-cash-reference-3.6.148.js",
   "./ratib-compound-output-3.6.150.js",
+  "./ratib-simple-output-3.6.151.js",
+  "./ratib-simple-output-3.6.151.css",
   "./ratib-compound-output-3.6.150.css",
 "./ratib-cash-reference-3.6.148.css",
 "./ratib-feedback-3.6.149.js",

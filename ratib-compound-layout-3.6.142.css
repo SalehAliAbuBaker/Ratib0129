@@ -1,5 +1,8 @@
 /* Ratib 3.6.142 — scoped compound entry styling. Screen only; printing untouched. */
 @media screen{
+/* Never display compound-only widgets in receipt/payment modes. */
+#multiVoucherCard:not(.ratib-cmp-layout142) #ratibCompoundToolbar142,
+#multiVoucherCard:not(.ratib-cmp-layout142) #ratibCompoundMeta142{display:none!important}
 #multiVoucherCard.ratib-cmp-layout142{
  width:100%!important;max-width:980px!important;min-width:0!important;
  margin-inline:auto!important;padding:12px!important;box-sizing:border-box!important;

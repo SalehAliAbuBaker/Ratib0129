@@ -1,6 +1,6 @@
 // Ratib 3.1.9: cache identity is unique to this app's scope.
-const CACHE_VERSION='v260-opening-mobile-clean-3.6.139-compound-compact-auto-signature-tafqit-3.6.147';
-const APP_RELEASE={"version":"3.6.147","build":"p14700","highlights":["تصحيح تفقيط القيد المركب عند فتح السند على الجوال","محاذاة المبلغ والعملة وبند الميزانية على سطر واحد"],"changes":["نجري بانتظام تحديثات لتحسين الموثوقية والأداء وإصلاح الأخطاء","تصحيح شرط عرض التفقيط في القيد المركب ونقله إلى سطر مستقل دون المساس بالقيود أو الحفظ أو الطباعة أو السند الآلي"]};
+const CACHE_VERSION='v260-opening-mobile-clean-3.6.139-compound-compact-auto-signature-tafqit-cash-reference-3.6.148';
+const APP_RELEASE={"version":"3.6.148","build":"p14800","highlights":["سند قبض وصرف بتوزيع موحد مطابق للنموذج المرجعي","تطابق المعاينة والطباعة وPDF مع المحافظة على التواقيع"],"changes":["نجري بانتظام تحديثات لتحسين الموثوقية والأداء وإصلاح الأخطاء","استنساخ توزيع سند القبض والصرف بخمسة أعمدة الحساب والمبلغ والعملة والملاحظات وبند الميزانية مع إبقاء الحقول الفارغة دون حذف مواضعها"]};
 const CACHE_PREFIX=`ratib:${self.registration.scope}:`;
 const CACHE_NAME=CACHE_PREFIX+CACHE_VERSION;
 const APP_SHELL=[
@@ -26,6 +26,8 @@ const APP_SHELL=[
 "./ratib-mobile-vouchers-3.6.111.css",
 "./ratib-official-responsive-3.6.112.css",
 "./ratib-document-signatures-3.6.148.js",
+"./ratib-cash-reference-3.6.148.js",
+"./ratib-cash-reference-3.6.148.css",
 "./ratib-feedback-3.6.149.js",
   "./ratib-mobile-edge-back-3.6.128.js",
 "./ratib-feedback-3.6.149.css",

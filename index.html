@@ -1685,7 +1685,7 @@ body.ratib-sidebar-open,body.ratib-about-open{overflow:hidden}
     <div class="header-tools"><div class="header-actions">
       <button class="icon-btn" id="themeBtn" title="الوضع الليلي">🌙</button>
       <button class="icon-btn" id="sidebarMenuBtn" aria-haspopup="dialog" aria-controls="appSidebar" aria-expanded="false" title="الإعدادات" aria-label="فتح الإعدادات">⚙</button>
-    </div><small id="appVersionLabel" class="app-version">الإصدار 3.6.144</small></div>
+    </div><small id="appVersionLabel" class="app-version">الإصدار 3.6.145</small></div>
   </header>
   <div class="summary-toolbar hidden no-print" id="storageFeedback"><span id="persistentSaveStatus" hidden aria-hidden="true">جاهز</span><button type="button" id="retryStorageBtn" class="btn btn-ghost hidden">إعادة محاولة الحفظ</button></div>
 <div class="app-update-banner hidden no-print" id="appUpdateBanner" role="status"><span id="appUpdateMessage">يتوفر تحديث لراتب. هل تريد تطبيقه؟</span><button type="button" class="btn btn-ghost" id="applyAppUpdateBtn">موافق، تطبيق التحديث</button><div id="appUpdateDetails" class="hidden"></div></div>
@@ -1733,7 +1733,7 @@ body.ratib-sidebar-open,body.ratib-about-open{overflow:hidden}
       <img src="Icons/icon-192.png" width="72" height="72" alt="" decoding="async">
       <h2 id="ratibAboutTitle">راتب</h2>
       <p class="ratib-about-subtitle">للتنظيم والتدبير المالي</p>
-      <p class="ratib-about-version">الإصدار 3.6.144</p>
+      <p class="ratib-about-version">الإصدار 3.6.145</p>
       <p id="ratibAboutDescription">إدارة الحسابات والسندات والميزانية، ومتابعة العمليات والتقارير المالية، مع حفظ البيانات على جهازك ودعم العمل دون الإنترنت.</p>
       <button type="button" class="btn btn-primary" id="closeRatibAboutBtn">إغلاق</button>
     </div>
@@ -3045,7 +3045,7 @@ body.ratib-sidebar-open,body.ratib-about-open{overflow:hidden}
 // (أو localhost أثناء التطوير) — هذا شرط أساسي من المتصفح نفسه لأي Service Worker.
 let _briefAppNoticeTimer=null;
 let _releaseSummaryDisplayed=false;
-const RATIB_RELEASE={"version":"3.6.144","build":"p14400","highlights":["إزالة الحشو والتداخل في سند القيد المركب","تنسيق موحد للطرفين وحقول العملات الأجنبية"],"changes":["نجري بانتظام تحديثات لتحسين الموثوقية والأداء وإصلاح الأخطاء","إزالة تضارب التنسيقات واستعادة رأس السند والتاريخ والحساب والمبلغ والعملة والبيان، مع حفظ أزرار الإضافة والاعتماد والطباعة وPDF دون مساس بالترحيل"]};
+const RATIB_RELEASE={"version":"3.6.145","build":"p14500","highlights":["خيار السند الآلي بدل التواقيع","الإبقاء على تواقيع المستندات الحالية"],"changes":["نجري بانتظام تحديثات لتحسين الموثوقية والأداء وإصلاح الأخطاء","إضافة خيار اختياري لعرض عبارة السند الآلي في المعاينة والطباعة وPDF والمشاركة دون تغيير التواقيع السابقة"]};
 window.ratibCurrentTrialVersion=()=>String(RATIB_RELEASE.version);
 window.ratibCurrentTrialVersionLabel=()=>`الإصدار ${RATIB_RELEASE.version}`;
 window.ratibSyncTrialVersion=()=>{
@@ -13368,7 +13368,7 @@ try{currenciesUi();sync();}catch(e){console.error('Ratib 3.6.12 initialization',
 <script src="./ratib-trial-ui-3.6.143.js?v=3.6.144" defer></script>
 <script src="./ratib-dashboard-finance-3.6.144.js?v=3.6.144" defer></script>
 <script src="./ratib-global-button-size-3.6.146.js?v=3.6.139" defer></script>
-<script src="./ratib-document-signatures-3.6.148.js?v=3.6.148" defer></script>
+<script src="./ratib-document-signatures-3.6.148.js?v=3.6.145-automatic" defer></script>
 <script src="./ratib-feedback-3.6.149.js?v=3.6.139" defer></script>
 <script src="./ratib-mobile-edge-back-3.6.128.js?v=3.6.139" defer></script>
 <script src="./ratib-cash-pulse.js?v=3.6.139" defer></script>

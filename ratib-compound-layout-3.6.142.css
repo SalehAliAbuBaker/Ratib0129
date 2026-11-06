@@ -61,6 +61,22 @@
 #multiVoucherCard.ratib-cmp-layout142>.multi-voucher-grid,
 #multiVoucherCard.ratib-cmp-layout142>label:has(#multiVoucherNote),
 #multiVoucherCard.ratib-cmp-layout142>.multi-voucher-source-row{display:none!important}
+
+/* The base currency selector is an ORIGINAL control moved by the legacy journal
+   arranger to #ratibCompoundMoneyRow. Reveal it under More, never duplicate it. */
+#multiVoucherCard.ratib-cmp-layout142.ratib-cmp-show-extras>#ratibCompoundMoneyRow{
+ display:grid!important;grid-template-columns:minmax(0,1fr)!important;
+ gap:6px!important;width:100%!important;margin:7px 0!important;
+ padding:8px!important;border:1px solid var(--border)!important;border-radius:10px!important;
+}
+#multiVoucherCard.ratib-cmp-layout142.ratib-cmp-show-extras>#ratibCompoundMoneyRow>label:has(#multiVoucherBaseCurrency){
+ display:block!important;width:100%!important;min-width:0!important;
+ margin:0!important;font-size:12px!important;
+}
+#multiVoucherCard.ratib-cmp-layout142.ratib-cmp-show-extras #multiVoucherBaseCurrency{
+ width:100%!important;max-width:100%!important;min-height:44px!important;
+ font:400 14px/1.3 Tajawal,sans-serif!important;
+}
 #multiVoucherCard.ratib-cmp-layout142.ratib-cmp-show-extras>.multi-voucher-grid{
  display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;
  gap:8px!important;margin:10px 0!important;padding:10px!important;

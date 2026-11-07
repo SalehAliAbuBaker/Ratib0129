@@ -93,3 +93,12 @@
   animation:none!important;transition:none!important;scroll-behavior:auto!important;
  }
 }
+
+@media screen{
+ /* The shared output module replaces an action's children with its SVG.
+    Use the same accessible name as its visible caption in report toolbars. */
+ #pageReports button.ratib-report-action.ratib-output-icon[aria-label]:not(:has(.ratib-report-action-label))::after{
+  content:attr(aria-label);display:block;font:700 .82rem/1.35 Tajawal,sans-serif;
+  white-space:normal;overflow-wrap:anywhere;max-inline-size:100%;color:var(--text);text-align:center;
+ }
+}

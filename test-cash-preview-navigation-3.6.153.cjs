@@ -1,0 +1,55 @@
+'use strict';
+const assert=require('node:assert/strict'),fs=require('node:fs');
+const {JSDOM}=require('jsdom');
+const source=fs.readFileSync('ratib-cash-actions-3.6.135.js','utf8');
+const css=fs.readFileSync('ratib-cash-reference-3.6.148.css','utf8');
+const html=fs.readFileSync('index.html','utf8');
+const sw=fs.readFileSync('sw.js','utf8');
+assert.equal(JSON.parse(fs.readFileSync('package.json','utf8')).version,'3.6.153');
+assert(html.includes('الإصدار 3.6.153'));
+assert(html.includes('ratib-cash-reference-3.6.148.css?v=3.6.153'));
+assert(html.includes('ratib-cash-actions-3.6.135.js?v=3.6.153'));
+assert(html.includes('multiVoucherReturnScrollY=window.scrollY||0'));
+assert(sw.includes('"version":"3.6.153"'));
+assert(sw.includes('cash-preview-return-3.6.153'));
+assert.doesNotThrow(()=>new Function(source));
+const previewCss=css.slice(css.indexOf('/* 3.6.153 — Only the ON-SCREEN'));
+assert(previewCss.includes('@media screen{'));
+assert(previewCss.includes('#printPreviewBody{'));
+assert(previewCss.includes('overflow:auto!important'));
+assert(previewCss.includes('flex:0 0 auto!important'));
+assert(previewCss.includes('min-width:540px!important'));
+assert(!previewCss.includes('@media print{'),'Preview fix must not change printed cash voucher layout');
+async function scenario({existing,origin,quick=false}){
+ const dom=new JSDOM('<body><div id="multiVoucherCard" class="spend-voucher"><div class="multi-voucher-actions"><button id="commitMultiVoucherBtn">حفظ وخروج</button></div></div></body>',
+  {runScripts:'outside-only',pretendToBeVisual:true,url:'https://ratib.test'});
+ const w=dom.window,calls=[];
+ w.scrollTo=arg=>calls.push(['scroll',arg.top]);
+ w.requestAnimationFrame=cb=>{cb();return 1;};
+ w.showToast=()=>{};
+ w.hasUnsavedChanges=true;
+ w.multiVoucherDraftId=existing?'existing-id':'new-draft';
+ w.multiVoucherReturnTab=origin;
+ w.multiVoucherReturnScrollY=240;
+ w.getAllTransactions=()=>existing?[{id:'existing-id'}]:[];
+ w.restoreQuickVoucherOriginAfterSave=()=>quick;
+ w.navigateToTab=(tab,push)=>calls.push(['navigate',tab,push]);
+ w.backToVoucherSelector=()=>calls.push(['back']);
+ w.commitMultiVoucher=async callback=>{callback();};
+ w.eval(source);w.document.dispatchEvent(new w.Event('DOMContentLoaded'));
+ w.document.getElementById('commitMultiVoucherBtn').click();
+ await new Promise(r=>setTimeout(r,0));
+ dom.window.close();return calls;
+}
+(async()=>{
+ const edited=await scenario({existing:true,origin:'pageLedger'});
+ assert(edited.some(c=>c[0]==='navigate'&&c[1]==='pageLedger'&&c[2]===false),'Saved edited receipt returns to ledger');
+ assert(edited.some(c=>c[0]==='scroll'&&c[1]===240),'Restores ledger scroll position');
+ assert(!edited.some(c=>c[0]==='back'),'Does not invoke generic Android Back to Home');
+ const fresh=await scenario({existing:false,origin:'pageLedger'});
+ assert(fresh.some(c=>c[0]==='back'),'New voucher preserves previous action');
+ assert(!fresh.some(c=>c[0]==='navigate'),'New voucher must not inherit stale ledger origin');
+ const account=await scenario({existing:true,origin:'pageAccountOperations',quick:true});
+ assert(!account.some(c=>c[0]==='navigate'),'Account statement has precedence for restoration');
+ console.log('PASS Ratib 3.6.153: modal containment, print control access and editor return routing');
+})().catch(e=>{console.error(e);process.exitCode=1});

@@ -147,7 +147,9 @@ function matchingRoots(root,selector){
 }
 function decorateArea(root){
  if(root.nodeType===3){if(root.parentElement?.closest(scopeSelector))decorateText(root);return;}
+ if(root.matches('.ratib-hijri-text[data-iso]')){renderSpan(root);return;}
  if(root.closest(excluded))return;
+ root.querySelectorAll('.ratib-hijri-text[data-iso]').forEach(renderSpan);
  if(root.closest(scopeSelector)){walkDates(root);return;}
  for(var scope of matchingRoots(root,scopeSelector)){
   if(!scope.parentElement?.closest(scopeSelector))walkDates(scope);

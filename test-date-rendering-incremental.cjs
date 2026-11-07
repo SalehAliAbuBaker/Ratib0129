@@ -21,5 +21,13 @@ const root=__dirname;const pause=ms=>new Promise(r=>setTimeout(r,ms));
  const note=d.createTextNode('2026-11-09');d.querySelector('#printPreviewBody').replaceChildren(note);
  note.nodeValue='2026-11-10';await pause(90);
  if(!d.querySelector('#printPreviewBody [data-iso="2026-11-10"]'))throw Error('Updated print date is missing');
+ const html=fs.readFileSync(path.join(root,'index.html'),'utf8');
+ const preload=html.slice(html.indexOf('function preloadDriveWebClient()'),html.indexOf('function loadGis()'));
+ function calls(native,online,secure){
+  let count=0;new Function('window','navigator','_cloudOriginOk','loadGis',preload+';preloadDriveWebClient();')(
+   {RatibAndroid:native},{onLine:online},()=>secure,()=>{count++;return Promise.resolve();});
+  return count;
+ }
+ if(calls(true,true,true)!==0||calls(false,false,true)!==0||calls(false,true,true)!==1)throw Error('Unexpected Google client preload');
  console.log('PASS incremental date rendering, dynamic field reset, and print formatting');process.exit(0);
 })().catch(e=>{console.error(e);process.exitCode=1});

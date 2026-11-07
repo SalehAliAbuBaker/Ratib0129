@@ -7239,7 +7239,7 @@ function renderAllData(force=false) {
     `;
 
     card.addEventListener('click', async (e) => {
-      ledgerReturnAnchor={key:card.dataset.ledgerKey,top:card.getBoundingClientRect().top};
+      if(ledgerReturnAnchor?.key!==card.dataset.ledgerKey)rememberLedgerRow();
       if(item.commerceId){
         e.stopPropagation();
         const action=e.target.closest('[data-commerce-ledger]')?.dataset.commerceLedger||(e.target.closest('.single-del-btn')?'delete':'view');
@@ -10184,17 +10184,16 @@ function restoreLedgerAnchor(anchor){
     if(currentActiveTab!=='pageLedger')return;
     const row=Array.from(document.querySelectorAll('#ledgerList [data-ledger-key]')).find(el=>el.dataset.ledgerKey===anchor.key);
     if(!row)return;
-    const delta=row.getBoundingClientRect().top-anchor.top;
-    for(let parent=row.parentElement;parent&&parent!==document.body;parent=parent.parentElement){
-      if(/auto|scroll/.test(getComputedStyle(parent).overflowY)&&parent.scrollHeight>parent.clientHeight){
-        parent.scrollBy({top:delta,behavior:'instant'});return;
-      }
-    }
-    window.scrollBy({top:delta,behavior:'instant'});
+    // Ask the browser to scroll the actual scrolling surface, including body in WebView.
+    const margin=row.style.scrollMarginTop;
+    row.style.scrollMarginTop=anchor.top+'px';
+    row.scrollIntoView({block:'start',inline:'nearest',behavior:'instant'});
+    row.style.scrollMarginTop=margin;
   }));
 }
 function entrycaptureAppView(){
   const tab=currentActiveTab||'pageDashboard',page=document.getElementById(tab),view={tab,fields:[],selections:[],scrollY:window.scrollY,focusId:document.activeElement?.id};
+  view.bodyScrollTop=document.body.scrollTop;
   view.carousels=Object.fromEntries([...page?.querySelectorAll('.carousel-shell[id]')||[]].map(el=>[el.id,carouselState[el.id]||0]));
   view.openDropdowns=[...page?.querySelectorAll('.searchable-dropdown.open')||[]].map(el=>el.id);
   if(tab==='pageSettings'||tab==='pageAccountsTree')view.panels=[...page.querySelectorAll('.settings-accordion-body,.acc-accordion-body')].map(el=>el.classList.contains('open'));
@@ -10255,6 +10254,7 @@ function entryrestoreAppView(view){
     if(view.focusId){const field=document.getElementById(view.focusId);if(field&&!field.closest('.hidden,[inert]'))field.focus({preventScroll:true});}
     document.getElementById(view.tab)?.querySelectorAll('.searchable-dropdown').forEach(el=>el.classList.toggle('open',Boolean(view.openDropdowns?.includes(el.id))));
     window.scrollTo({top:view.scrollY||0,behavior:'instant'});
+    if(Number.isFinite(view.bodyScrollTop))document.body.scrollTop=view.bodyScrollTop;
     if(view.ledger)restoreLedgerAnchor(view.ledger.anchor);
     recordAppHistory({page:'tab',tab:view.tab});
   }finally{_restoringAppView=false;}

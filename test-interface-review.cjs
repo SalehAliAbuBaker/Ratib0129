@@ -44,7 +44,7 @@ async function test(name,fn){await fn();results.push({name,status:'passed'});con
 async function run(){
  const f=makeFixture({seed:{'ratib.quickFavorites.v1':JSON.stringify(['pageExpenses','pageReports','pageSettings','pageLedger'])}});await boot(f);const w=f.win,d=w.document;
  const load=name=>w.eval(fs.readFileSync(require('node:path').join(__dirname,name),'utf8'));
- for(const name of ['ratib-annual-close.js','ratib-favorites-v3.js','ratib-theme.js','ratib-navigation-v3.js'])load(name);
+ for(const name of ['ratib-annual-close.js','ratib-favorites-v3.js','ratib-theme.js','ratib-navigation-v3.6.149.js'])load(name);
  await pause(20);
  await test('Report grid reuses the six current controls; annual dialog remains functional',async()=>{
   assert.equal(d.querySelectorAll('#ratibReportMenu>*').length,6);code(w,"navigateToTab('pageReports',true);closeAllReportsSections()");
@@ -85,7 +85,12 @@ async function run(){
   assert([...d.querySelectorAll('[data-add]')].every(b=>b.textContent.includes('العملات')));assert(d.querySelectorAll('[data-add]').length>=1);
   search.value='';search.dispatchEvent(new w.Event('input',{bubbles:true}));const group=d.getElementById('ratibFavGroup');group.value='التقارير';group.dispatchEvent(new w.Event('change',{bubbles:true}));assert([...d.querySelectorAll('.fav-choice-group h3')].every(el=>el.textContent==='التقارير'));
  });
- await test('Back controls are marked; existing text and command handlers remain',async()=>{assert(d.getElementById('ledgerBackBtn').classList.contains('ratib-back-control'));assert(d.getElementById('backToMenuBtn').querySelector('[data-icon="back"]'));assert.equal(d.getElementById('backToMenuBtn').getAttribute('onclick'),'goBackInApp()');});
+ await test('Arabic back control is named and follows the shared navigation action',async()=>{
+  const back=d.querySelector('#ratibPageNav #backToMenuBtn');
+  assert(back);assert.equal(back.querySelector('[aria-hidden=true]').textContent,'→');
+  assert(back.getAttribute('aria-label').startsWith('رجوع'));
+  assert.equal(back.getAttribute('onclick'),'goBackInApp()');
+ });
  await test('Account tools retain labels, icons and orientation controls after output normalization',async()=>{
   const menu=d.getElementById('accountScreenMenu');
   const items=[...menu.querySelectorAll('button[role="menuitem"]')];

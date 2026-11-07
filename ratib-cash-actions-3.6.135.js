@@ -51,12 +51,15 @@ function init(){
    const posted=typeof getAllTransactions==='function'&&typeof multiVoucherDraftId!=='undefined'&&multiVoucherDraftId
     &&getAllTransactions().some(t=>t.id===multiVoucherDraftId||t.multiVoucherId===multiVoucherDraftId);
    const sourceTab=posted&&typeof multiVoucherReturnTab==='string'?multiVoucherReturnTab:null;
+   const sourceScroll=posted&&typeof multiVoucherReturnScrollY==='number'?multiVoucherReturnScrollY:0;
    await commitMultiVoucher(()=>{
     if(typeof hasUnsavedChanges!=='undefined')hasUnsavedChanges=false;
     if(typeof restoreQuickVoucherOriginAfterSave==='function'&&restoreQuickVoucherOriginAfterSave())return;
     if(sourceTab&&sourceTab!=='pageDashboard'&&sourceTab!=='pageExpenses'&&typeof navigateToTab==='function'){
      // Do not use generic Back: Android popstate can send an edited document to Home.
      navigateToTab(sourceTab,false);
+     if(sourceTab==='pageLedger'&&Number.isFinite(sourceScroll)&&typeof requestAnimationFrame==='function')
+      requestAnimationFrame(()=>window.scrollTo({top:sourceScroll,behavior:'instant'}));
      return;
     }
     if(typeof backToVoucherSelector==='function')backToVoucherSelector();

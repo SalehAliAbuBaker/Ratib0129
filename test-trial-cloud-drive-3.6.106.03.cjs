@@ -11,7 +11,7 @@ assert(html.includes("if (!interactive) throw new Error('يحتاج النسخ �
 assert(html.includes("client.requestAccessToken({ prompt: cfg.email ? '' : 'select_account' })"));
 assert(html.includes("const deadline = setTimeout(() => settle("));
 assert(html.includes('await verifyCloudFile(token, pending)')); assert(html.includes('recoverPendingCloudUpload(token, cfg.pendingUpload)'));
-assert(html.includes("if (_cloudOriginOk() && navigator.onLine !== false) loadGis().catch(() => {});"));
+assert(html.includes("if(window.RatibAndroid || !_cloudOriginOk() || navigator.onLine === false)return;"));
 assert(html.includes("showToast('حُفظت إعدادات السحابة. لم تُرفع نسخة"));
 assert(html.includes("cfg.pendingUpload ? '⚠️ توجد محاولة رفع غير محسومة"));
 assert(!html.includes("client.requestAccessToken({ prompt: interactive ? '' : 'none' })"));

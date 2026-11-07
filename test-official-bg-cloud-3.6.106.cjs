@@ -19,7 +19,7 @@ assert(html.includes('const deadline = setTimeout(() => settle('));
 assert(html.includes('if (!uploaded || !uploaded.id || uploaded.name !== name)'));
 assert(html.includes("showToast('حُفظت إعدادات السحابة. لم تُرفع نسخة"));
 assert(html.includes("cfg.lastError ? '⚠️ لم يكتمل آخر نسخ سحابي'"));
-assert(html.includes("if (_cloudOriginOk() && navigator.onLine !== false) loadGis().catch(() => {});"));
+assert(html.includes("if(window.RatibAndroid || !_cloudOriginOk() || navigator.onLine === false)return;"));
 assert(!html.includes("client.requestAccessToken({ prompt: interactive ? '' : 'none' })"));
 const start=html.indexOf('async function getDriveToken(interactive) {');
 const end=html.indexOf('async function driveFetch(',start);

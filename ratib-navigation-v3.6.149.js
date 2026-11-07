@@ -31,9 +31,19 @@ function reportsMenu(){
   if(el.tagName!=='BUTTON'&&!el.dataset.ratibKeyboard){el.dataset.ratibKeyboard='1';el.setAttribute('role','button');el.tabIndex=0;el.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();el.click();}});}
  }
 }
-function refresh(){reportsMenu();}
-refresh();let pending=false;
-new MutationObserver(()=>{if(pending)return;pending=true;queueMicrotask(()=>{pending=false;refresh();});}).observe(document.body,{childList:true,subtree:true});
+// Only rebuild navigation when a report launcher or its container is inserted.
+const launcherSelector=['#pageReports','#ratibReportMenu',...Object.keys(titles).map(id=>'#'+id)].join(',');
+reportsMenu();
+new MutationObserver(records=>{
+ for(const record of records){
+  for(const node of record.addedNodes){
+   if(node.nodeType===1&&(node.matches(launcherSelector)||node.querySelector(launcherSelector))){
+    reportsMenu();
+    return;
+   }
+  }
+ }
+}).observe(document.body,{childList:true,subtree:true});
 })();
 
 
@@ -114,6 +124,7 @@ new MutationObserver(()=>{if(pending)return;pending=true;queueMicrotask(()=>{pen
     row.className = 'ratib-dialog-heading';
     heading.before(row);
     row.append(button,heading);
+    button.replaceChildren(); // The visible × is drawn by the shared dismiss style.
     button.classList.add('ratib-dialog-dismiss');
     button.setAttribute('aria-label','إغلاق '+heading.textContent.trim());
   }

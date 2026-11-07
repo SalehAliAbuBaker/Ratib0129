@@ -4121,6 +4121,11 @@ function saveCloudCfg(patch, silent = false) {
 function _todayStr(d = new Date()) { return `${d.getFullYear()}-${_pad2(d.getMonth() + 1)}-${_pad2(d.getDate())}`; }
 function _cloudOriginOk() { return location.protocol === 'https:' || location.hostname === 'localhost' || location.hostname === '127.0.0.1'; }
 
+function preloadDriveWebClient(){
+  if(window.RatibAndroid || !_cloudOriginOk() || navigator.onLine === false)return;
+  loadGis().catch(()=>{});
+}
+
 function loadGis() {
   if (window.google && google.accounts && google.accounts.oauth2) return Promise.resolve();
   if (_gisPromise) return _gisPromise;
@@ -4558,7 +4563,7 @@ function initCloudBackup() {
   });
   refreshCloudBackupUI();
   // Preload Google's own script only; requesting a token is always click-initiated.
-  if (_cloudOriginOk() && navigator.onLine !== false) loadGis().catch(() => {});
+  preloadDriveWebClient();
   setInterval(checkCloudBackupDue, 60000);
   document.addEventListener('visibilitychange', () => { if (!document.hidden) checkCloudBackupDue(); });
   setTimeout(checkCloudBackupDue, 4000); // فحص "ما فاته" عند فتح التطبيق
@@ -5558,6 +5563,8 @@ function openDashboardVoucher(type){
  if(!['spend','entry','multi'].includes(type))return;
  if(_appHistoryPending){_appHistoryPending.promise.then(()=>openDashboardVoucher(type));return;}
  navigateToTab('pageExpenses',true);
+ // A home shortcut goes directly into its editor. The selector was never visited.
+ document.getElementById('voucherSelectorCard').classList.add('hidden');
  if(type==='multi')selectMultiVoucherType();
  else selectVoucherTypeDirect(type);
 }
@@ -5676,7 +5683,6 @@ function goBackInApp(){
   if(_appBackStack.length&&_appHistoryInitialized&&history.state?.ratibSession===_appHistorySession){const result=beginAppHistoryMovement();history.back();return result;}
   const previous=_appBackStack.pop();if(previous){restoreAppView(typeof previous==='string'?{tab:previous}:previous);return;}
   if(currentActiveTab==='pageDashboard'){showExitModal();return;}
-  if(currentActiveTab==='pageExpenses'&&(!document.getElementById('cashFlowCard')?.classList.contains('hidden')||!document.getElementById('multiVoucherCard')?.classList.contains('hidden'))){initVoucherSelectorView();return;}
   if(currentActiveTab==='pageAccountOperations'){navigateToTab(accountOperationsReturnTab||'pageAccountsTree',false);return;}
   navigateToTab('pageDashboard',false);
 }
@@ -10460,8 +10466,8 @@ function closeRatibAbout(){
 }
 
 function openRatibCloudSettings(){
-  // Preload Google Identity before the explicit backup/restore tap.
-  loadGis().catch(()=>{});
+  // Prepare the browser client before an explicit backup or restore.
+  preloadDriveWebClient();
   if(typeof window.RatibSettingsOpen==='function')window.RatibSettingsOpen('backupsettings');
   else if(currentActiveTab!=='pageSettings')navigateToTab('pageSettings',true);
   const section=document.getElementById('cloudBackupSection'),card=section?.closest('.settings-accordion-card'),body=card?.querySelector('.settings-accordion-body');

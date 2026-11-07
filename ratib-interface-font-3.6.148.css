@@ -58,3 +58,32 @@
   :where(select option,select optgroup){font-size:inherit!important;font-weight:400!important}
  }
 }
+@media screen{
+ :root{
+  --ratib-page-heading:calc(17px * var(--ratib-font-scale,1));
+  --ratib-section-heading:calc(15px * var(--ratib-font-scale,1));
+  --ratib-dialog-heading:calc(17px * var(--ratib-font-scale,1));
+ }
+ #mainWrap #ratibPageNav #ratibPageTitle,
+ #mainWrap #pageCommerce .rc-head>h2,
+ #mainWrap #pageAccountOperations .account-operations-screen-head>strong{
+  font-size:var(--ratib-page-heading)!important;font-weight:700!important;line-height:1.4!important;
+ }
+ #mainWrap :is(#pageExpenses,#pageLedger,#pageAccountsTree,#pageReports,#pageSettings) .card>h2,
+ #mainWrap #pageExpenses #multiVoucherCard.ratib-cmp-layout142:not(.spend-voucher)>h2>span:first-child,
+ #mainWrap #pageExpenses #cashLineHeading,
+ #mainWrap #pageReports #ratibReportMenu .ratib-report-label,
+ #mainWrap #pageSettings>.settings-accordion-card>.settings-accordion-header{
+  font-size:var(--ratib-section-heading)!important;font-weight:700!important;line-height:1.4!important;
+ }
+ .modal-overlay .ratib-dialog-heading>:is(h2,h3),
+ #cloudBackupDueModal #cloudBackupDueTitle,
+ #ratibDiscardEdits #ratibDiscardTitle,
+ #rfrTitle{
+  font-size:var(--ratib-dialog-heading)!important;font-weight:700!important;line-height:1.4!important;
+  margin-block:0 .3em;overflow-wrap:anywhere;
+ }
+ #cloudBackupDueModal #cloudBackupDueMessage{
+  font-size:calc(15px * var(--ratib-font-scale,1));line-height:1.55;
+ }
+}

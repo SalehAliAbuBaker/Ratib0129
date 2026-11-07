@@ -188,6 +188,7 @@ function focusSetting(key,makeHistory){
  }
  page.classList.add('ratib-settings-detail');page.classList.toggle('ratib-security-detail',key==='security');
  openCard(main);
+ $('backToMenuBtn')?.setAttribute('aria-label','رجوع إلى الإعدادات');
  // The independent security card opens directly.
  requestAnimationFrame(()=>{main.scrollIntoView({behavior:'auto',block:'start'});});
 }

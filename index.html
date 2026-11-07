@@ -5475,6 +5475,7 @@ function pushAppHistoryState(){recordAppHistory({page:'ratib_app_entry',tab:curr
 // المتصفح أول ضغطة رجوع دفعة واحدة (يحصل أحياناً في بعض المتصفحات/الأجهزة).
 function pushInitialHistoryBuffer(){
   if(_appHistoryInitialized)return;
+  if('scrollRestoration' in history)history.scrollRestoration='manual';
   if(history.state?.ratibGuard){_appExitHistoryDelta=history.state.ratibExitDelta===-2?-2:0;_appHistoryInitialized=true;recordAppHistory({page:'ratib_app_entry',tab:currentActiveTab});return;}
   _appExitHistoryDelta=history.length>1?-2:0;
   history.replaceState({page:'ratib_app_base',ratibGuard:false,ratibExitDelta:_appExitHistoryDelta},'');
@@ -5643,7 +5644,7 @@ function navigateToTab(target, pushToHistory = true) {
   syncSidebarCurrentPage();
   // للشاشتين شريط تنقل داخلي؛ إخفاء زر الرجوع الكبير المكرر يترك اسم الحساب واضحاً.
 
-  if (target === 'pageLedger') renderAllData(true);
+  if (target === 'pageLedger'){if(!_restoringAppView)ledgerReturnAnchor=null;renderAllData(true);}
   if (target === 'pageExpenses') {initVoucherSelectorView();updateDraftButton();}
   else if (target === 'pageReports') { setupReportSections('pageReports', false); initReportsTab('accounts', false); }
   else if (target === 'pageAccountsTree') { initCanonicalLiveAccountsTreePage(); renderAccountsPager(); }
@@ -7194,6 +7195,8 @@ function renderAllData(force=false) {
   container.innerHTML = '';
   txs.slice().reverse().slice(0,ledgerVisibleLimit).forEach(item => {
     const card = document.createElement('div'); card.className = 'tx-log-item';
+    card.dataset.ledgerKey=String(item._groupId || item.id);
+    card.tabIndex=-1;
     if (item.isExpense) card.style.borderRight = '6px solid var(--danger)';
     if (item.voucherMode === 'income') card.style.borderRight = '6px solid var(--ok)';
     
@@ -7232,6 +7235,7 @@ function renderAllData(force=false) {
     `;
 
     card.addEventListener('click', async (e) => {
+      ledgerReturnAnchor={key:card.dataset.ledgerKey,top:card.getBoundingClientRect().top};
       if(item.commerceId){
         e.stopPropagation();
         const action=e.target.closest('[data-commerce-ledger]')?.dataset.commerceLedger||(e.target.closest('.single-del-btn')?'delete':'view');
@@ -10169,6 +10173,23 @@ async function shareBudgetPdf(){
     if(await shareRatibDocumentFile(file,'تقرير بنود الميزانية'))showToast('تمت مشاركة تقرير الميزانية','success');
   }catch(e){showToast('تعذّر إنشاء أو مشاركة PDF لتقرير الميزانية','error');}
 }
+let ledgerReturnAnchor=null;
+function restoreLedgerAnchor(anchor){
+  if(!anchor)return;
+  requestAnimationFrame(()=>requestAnimationFrame(()=>{
+    if(currentActiveTab!=='pageLedger')return;
+    const row=Array.from(document.querySelectorAll('#ledgerList [data-ledger-key]')).find(el=>el.dataset.ledgerKey===anchor.key);
+    if(!row)return;
+    row.focus({preventScroll:true});
+    const delta=row.getBoundingClientRect().top-anchor.top;
+    for(let parent=row.parentElement;parent&&parent!==document.body;parent=parent.parentElement){
+      if(/auto|scroll/.test(getComputedStyle(parent).overflowY)&&parent.scrollHeight>parent.clientHeight){
+        parent.scrollBy({top:delta,behavior:'instant'});return;
+      }
+    }
+    window.scrollBy({top:delta,behavior:'instant'});
+  }));
+}
 function entrycaptureAppView(){
   const tab=currentActiveTab||'pageDashboard',page=document.getElementById(tab),view={tab,fields:[],selections:[],scrollY:window.scrollY,focusId:document.activeElement?.id};
   view.carousels=Object.fromEntries([...page?.querySelectorAll('.carousel-shell[id]')||[]].map(el=>[el.id,carouselState[el.id]||0]));
@@ -10179,7 +10200,7 @@ function entrycaptureAppView(){
   page?.querySelectorAll('input[id]:not([type="password"]),select[id],textarea[id]').forEach(el=>{view.fields.push({id:el.id,value:el.value,checked:el.checked});});
   for(const selector of [selDebitAcc,selCreditAcc,selReportAccount,multiSourceAcc])if(selector&&page?.contains(selector.wrap))view.selections.push({id:selector.input.id,value:selector.getValue(),text:selector.input.value});
   if(tab==='pageAccountOperations'){view.account=cloneData(accountOpsState);view.accountReturnTab=accountOperationsReturnTab;}
-  if(tab==='pageLedger')view.ledger={search:currentLedgerSearchQuery,status:currentLedgerStatusFilter,quick:currentLedgerQuickFilter,limit:ledgerVisibleLimit};
+  if(tab==='pageLedger')view.ledger={anchor:ledgerReturnAnchor,types:[...currentLedgerVoucherTypes],search:currentLedgerSearchQuery,status:currentLedgerStatusFilter,quick:currentLedgerQuickFilter,limit:ledgerVisibleLimit};
   if(tab==='pageReports'){view.reportAdv=cloneData(reportAdv);view.statementSearch=currentStatementSearchQuery;}
   if(tab==='pageReports'){view.reportMode=activeReportTab;view.reportSection=document.getElementById('reportsGroupTrialBody')?.classList.contains('open')?'trial':document.getElementById('reportsGroupBudgetBody')?.classList.contains('open')?'budget':document.getElementById('reportsGroupStatementBody')?.classList.contains('open')?'statement':null;}
   if(tab==='pageExpenses'){
@@ -10218,7 +10239,7 @@ function entryrestoreAppView(view){
     for(const field of view.fields||[]){const el=document.getElementById(field.id);if(el){el.value=field.value;if(typeof field.checked==='boolean')el.checked=field.checked;}}
     for(const selection of view.selections||[]){const selector=[selDebitAcc,selCreditAcc,selReportAccount,multiSourceAcc].find(item=>item?.input.id===selection.id);selector?.setValue(selection.value,selection.text);if(selector&&!selection.value)selector.input.value=selection.text;}
     if(view.account){accountOpsState=cloneData(view.account);accountOperationsReturnTab=view.accountReturnTab;renderAccountOperations(accountOpsState.accountName,accountOpsState.scopeNames);setAccountReportActionsEnabled(true);}
-    if(view.ledger){currentLedgerSearchQuery=view.ledger.search;currentLedgerStatusFilter=view.ledger.status;currentLedgerQuickFilter=view.ledger.quick;ledgerVisibleLimit=view.ledger.limit;document.querySelectorAll('#ledgerStatusFilter .status-filter-btn').forEach(button=>button.classList.toggle('active',button.dataset.status===currentLedgerStatusFilter));renderAllData(true);}
+    if(view.ledger){if(view.ledger.types){currentLedgerVoucherTypes=new Set(view.ledger.types);document.querySelectorAll('#ledgerVoucherTypeFilter input[data-ledger-voucher-type]').forEach(box=>box.checked=currentLedgerVoucherTypes.has(box.dataset.ledgerVoucherType));}currentLedgerSearchQuery=view.ledger.search;currentLedgerStatusFilter=view.ledger.status;currentLedgerQuickFilter=view.ledger.quick;ledgerVisibleLimit=view.ledger.limit;document.querySelectorAll('#ledgerStatusFilter .status-filter-btn').forEach(button=>button.classList.toggle('active',button.dataset.status===currentLedgerStatusFilter));renderAllData(true);}
     if(view.tab==='pageReports'){reportAdv=cloneData(view.reportAdv||{from:'',to:'',currency:'ALL',active:false});currentStatementSearchQuery=view.statementSearch||'';}
     if(view.tab==='pageReports'){if(view.reportSection==='trial'){openReportsSection('trial',false);runTrialBalanceReport();}else if(view.reportSection){toggleReportView(view.reportMode||'accounts',false);openReportsSection(view.reportSection,false);}else closeAllReportsSections();}
     if(view.tab==='pageExpenses'&&view.voucherView==='multi')renderMultiVoucherLines();
@@ -10231,6 +10252,7 @@ function entryrestoreAppView(view){
     if(view.focusId){const field=document.getElementById(view.focusId);if(field&&!field.closest('.hidden,[inert]'))field.focus({preventScroll:true});}
     document.getElementById(view.tab)?.querySelectorAll('.searchable-dropdown').forEach(el=>el.classList.toggle('open',Boolean(view.openDropdowns?.includes(el.id))));
     window.scrollTo({top:view.scrollY||0,behavior:'instant'});
+    if(view.ledger)restoreLedgerAnchor(view.ledger.anchor);
     recordAppHistory({page:'tab',tab:view.tab});
   }finally{_restoringAppView=false;}
 }

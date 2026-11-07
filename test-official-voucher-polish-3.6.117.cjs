@@ -13,7 +13,7 @@ const modal=document.getElementById('ratibVoucherLeaveModal');assert(modal&&moda
 for(const id of ['ratibVoucherLeaveSave','ratibVoucherLeaveDiscard','ratibVoucherLeaveCancel','ratibVoucherLeaveStatus'])assert(document.getElementById(id),id);
 assert(html.includes("if(ratibVoucherHasUnsavedEdits())return ratibAskVoucherLeave().then(ok=>ok?goBackInApp():false);"),'internal Back uses three-way choice');
 assert(html.includes("if(next!=='pageExpenses'&&ratibVoucherHasUnsavedEdits()"),'outbound navigation guarded');
-assert(html.includes('ratibAskVoucherLeave().then(ok=>{if(ok)ratibGestureDashboard(true,0);});'),'mobile history gesture guarded');
+assert(html.includes('Promise.all([replay,ratibAskVoucherLeave()]).then(([,leave])=>{if(leave)goBackInApp();});'),'mobile history gesture guarded');
 assert(!html.includes("if(!confirm('هذا السند لم يُعتمد بعد."),'old two-choice confirmation removed');
 assert(html.includes('function ratibGestureDraftCheck(){'),'existing navigation contract preserved');
 assert(html.includes('ratibVoucherHasUnsavedEdits())return false'),'back veto while dialog pending');

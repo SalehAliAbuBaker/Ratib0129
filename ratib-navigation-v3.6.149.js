@@ -54,8 +54,7 @@ new MutationObserver(()=>{if(pending)return;pending=true;queueMicrotask(()=>{pen
    if(kind!=='success')document.querySelectorAll('.ratib-success-toast-116').forEach(el=>el.classList.remove('ratib-success-toast-116'));
    const result=old.apply(this,[message,kind,...args]);
    if(kind==='success'){
-    const msg=String(message||'');
- 
+  
     queueMicrotask(()=>successStyle(message));setTimeout(()=>successStyle(message),60);
    }
    return result;
@@ -65,4 +64,94 @@ new MutationObserver(()=>{if(pending)return;pending=true;queueMicrotask(()=>{pen
  hookToast();
  let pending=false;
  new MutationObserver(()=>{if(pending)return;pending=true;queueMicrotask(()=>{pending=false;hookToast();});}).observe(document.body,{childList:true,subtree:true});
+})();
+
+/* The same dismiss action is used by the dialog button and by system Back. */
+(() => {
+  'use strict';
+  const actions = {
+    accountQuickVoucherModal:'accountQuickVoucherCancelBtn', cloudBackupDueModal:'cloudBackupDueCancelBtn',
+    cloudRestoreModal:'closeCloudRestoreBtn', categoryTransactionsModal:'closeCategoryModalBtn',
+    reminderModal:'closeReminderModalBtn', editAccountModal:'closeEditAccountModalBtn',
+    txModal:'closeModalBtn', addAccountModal:'closeAddAccountModalBtn',
+    longPressConfirmModal:'cancelEditDocBtn', globalSearchModal:'closeGlobalSearchBtn',
+    accountStatementCurrencyModal:'accountStatementCurrencyCancel', ratibAboutModal:'closeRatibAboutBtn',
+    importedRecordModal:'closeImportedRecordBtn', spendFxModal:'cancelSpendFxBtn',
+    legacyImportModal:'closeLegacyImportBtn', trialPreviewModal:'trialPreviewClose',
+    financialCalculatorModal:'financialCalcClose', yearToolOverlay:'yearToolDismiss',
+    ratibWhatsappSupportDialog:'ratibWhatsappSupportClose', importedOpeningVoucherModal:'importedOpeningClose'
+  };
+  const editors = new Set(['editAccountModal','addAccountModal','reminderModal','txModal','importedRecordModal']);
+  const baselines = new WeakMap();
+  const openers = new WeakMap();
+  let lastControl, pendingClose;
+  const prompt = document.createElement('dialog');
+  prompt.id = 'ratibDiscardEdits';
+  prompt.setAttribute('aria-labelledby','ratibDiscardTitle');
+  prompt.innerHTML = '<h3 id="ratibDiscardTitle">تجاهل التعديلات والرجوع؟</h3><form method="dialog"><button class="btn btn-ghost" value="stay" autofocus>متابعة التحرير</button><button class="btn btn-danger" value="discard">تجاهل التعديلات</button></form>';
+  document.body.append(prompt);
+  function fieldValues(modal) {
+    return JSON.stringify([...modal.querySelectorAll('input:not([type=button]):not([type=hidden]),select,textarea')]
+      .map(field => [field.value,field.checked]));
+  }
+  function visible(modal) {
+    return modal.open || modal.classList.contains('show') || modal.style.display === 'flex';
+  }
+  function refresh(modal) {
+    if (!visible(modal)) {
+      baselines.delete(modal);
+      const opener = openers.get(modal);
+      openers.delete(modal);
+      if (opener?.isConnected && !opener.closest('.hidden,[hidden],[inert]')) opener.focus({preventScroll:true});
+      return;
+    }
+    if (!openers.has(modal)) openers.set(modal,lastControl);
+    if (editors.has(modal.id) && !baselines.has(modal)) baselines.set(modal,fieldValues(modal));
+    const button = document.getElementById(actions[modal.id]);
+    const heading = modal.querySelector('h1,h2,h3,[role=heading]');
+    if (!button || !heading || button.classList.contains('ratib-dialog-dismiss')) return;
+    const row = document.createElement('div');
+    row.className = 'ratib-dialog-heading';
+    heading.before(row);
+    row.append(button,heading);
+    button.classList.add('ratib-dialog-dismiss');
+    button.setAttribute('aria-label','إغلاق '+heading.textContent.trim());
+  }
+  document.addEventListener('pointerdown',event => {
+    lastControl = event.target.closest('button,a,input,[tabindex],[role=button]') || document.activeElement;
+  },true);
+  document.addEventListener('focusin',event => {
+    if (!event.target.closest('.modal-overlay,dialog')) lastControl=event.target;
+  });
+  const observer = new MutationObserver(records => {
+    for (const record of records) {
+      if (actions[record.target.id]) refresh(record.target);
+    }
+  });
+  observer.observe(document.body,{subtree:true,attributes:true,attributeFilter:['class','style','open']});
+  document.addEventListener('click',event => {
+    const button = event.target.closest('button');
+    const modal = button?.closest('.modal-overlay');
+    if (!modal || !editors.has(modal.id) || !baselines.has(modal)) return;
+    if (![actions[modal.id],'closeModalActionBtn','cancelImportedRecordBtn'].includes(button.id)) return;
+    if (fieldValues(modal) === baselines.get(modal)) return;
+    event.preventDefault();event.stopImmediatePropagation();
+    if (prompt.open) return;
+    pendingClose = {button,modal};
+    prompt.returnValue='stay';
+    prompt.showModal();
+  },true);
+  prompt.addEventListener('close',() => {
+    const request = pendingClose;
+    pendingClose = null;
+    if (!request || prompt.returnValue !== 'discard') return;
+    baselines.delete(request.modal);
+    request.button.click();
+  });
+  window.ratibDismissDialog = modal => {
+    const button = document.getElementById(actions[modal.id]);
+    if (!button) return false;
+    button.click();
+    return true;
+  };
 })();

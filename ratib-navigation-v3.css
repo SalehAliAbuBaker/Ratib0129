@@ -53,3 +53,17 @@
 }
 
 .ratib-dialog-heading{display:flex;align-items:center;gap:.75rem;flex-shrink:0}
+
+@media screen{
+  html body button.ratib-dialog-dismiss{
+    display:inline-grid!important;place-items:center;flex:0 0 48px!important;
+    width:48px!important;height:48px!important;min-width:48px!important;min-height:48px!important;
+    max-width:48px!important;margin:0!important;padding:0!important;border-radius:12px!important;
+    border:1px solid var(--border)!important;background:var(--bg)!important;color:var(--accent-strong)!important;font-size:0!important;
+  }
+  .ratib-dialog-dismiss::before{content:'×';font:26px/1 sans-serif}
+  .ratib-dialog-dismiss:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+  #ratibDiscardEdits{background:var(--bg);color:var(--text);border:1px solid var(--border);border-radius:16px;padding:1.2rem;max-width:min(92vw,24rem)}
+  #ratibDiscardEdits form{display:flex;gap:.5rem}
+  #ratibDiscardEdits::backdrop{background:rgba(0,0,0,.4)}
+}

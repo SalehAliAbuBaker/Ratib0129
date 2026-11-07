@@ -3036,7 +3036,7 @@ body.ratib-sidebar-open,body.ratib-about-open{overflow:hidden}
       <div id="printPreviewBody" style="overflow:auto; -webkit-overflow-scrolling:touch; border:1px solid var(--border); border-radius:8px; padding:10px; background:#fff; color:#000; max-height:65vh;"></div>
       <div style="display:flex; gap:8px; margin-top:12px;">
         <button class="btn btn-primary" id="printPreviewConfirmBtn" style="flex:1; margin-top:0;">🖨️ طباعة الآن</button>
-        
+
       </div>
     </div>
   </div>
@@ -10230,8 +10230,6 @@ function entryrestoreAppView(view){
     for(const [id,index] of Object.entries(view.carousels||{}))goCarousel(id,index);
     if(view.focusId){const field=document.getElementById(view.focusId);if(field&&!field.closest('.hidden,[inert]'))field.focus({preventScroll:true});}
     document.getElementById(view.tab)?.querySelectorAll('.searchable-dropdown').forEach(el=>el.classList.toggle('open',Boolean(view.openDropdowns?.includes(el.id))));
-    const focus=document.getElementById(view.focusId);
-    if(focus && !focus.closest('.hidden,[hidden]'))focus.focus({preventScroll:true});
     window.scrollTo({top:view.scrollY||0,behavior:'instant'});
     recordAppHistory({page:'tab',tab:view.tab});
   }finally{_restoringAppView=false;}
@@ -10260,6 +10258,12 @@ function initExitDialog(){
 }
 
 function closeTransientAppUi(){
+  const dialog=document.querySelector('dialog[open]');
+  if(dialog){
+    if(dialog.id==='ratibDiscardEdits')dialog.close('stay');
+    else if(!window.ratibDismissDialog?.(dialog))dialog.close();
+    return true;
+  }
   const shown=id=>document.getElementById(id)?.classList.contains('show');
   if(shown('ratibOpeningLeaveModal')){document.getElementById('ratibOpeningLeaveCancel')?.click();return true;}
   if(shown('ratibVoucherLeaveModal')){document.getElementById('ratibVoucherLeaveCancel')?.click();return true;}
@@ -10271,7 +10275,7 @@ function closeTransientAppUi(){
     return true;
   }
   const modals=[...document.querySelectorAll('.modal-overlay.show')];
-  if(modals.length){const modal=modals.find(m=>m===_ratibOverlayState?.surface)||modals.at(-1);if(modal.id==='ratibVoucherLeaveModal')document.getElementById('ratibVoucherLeaveCancel')?.click();else if(modal.id==='exitConfirmModal')hideExitModal();else if(modal.id==='ratibAboutModal')closeRatibAbout();else if(modal.id==='spendFxModal')closeSpendFx();else if(modal.id==='legacyImportModal')closeLegacyImport();else if(modal.id==='importedRecordModal')closeImportedRecordEditor();else if(modal.id==='printPreviewModal'&&modal.dataset.importedOpening==='1')closeImportedOpeningPreview();else if(modal.id==='importedOpeningVoucherModal')closeImportedOpeningVoucher();else if(modal.id==='financialCalculatorModal')closeFinancialCalculator();else if(modal.id==='trialPreviewModal')closeTrialPreview();else modal.classList.remove('show');return true;}
+  if(modals.length){const modal=modals.find(m=>m===_ratibOverlayState?.surface)||modals.at(-1);if(window.ratibDismissDialog?.(modal))return true;if(modal.id==='ratibVoucherLeaveModal')document.getElementById('ratibVoucherLeaveCancel')?.click();else if(modal.id==='exitConfirmModal')hideExitModal();else if(modal.id==='ratibAboutModal')closeRatibAbout();else if(modal.id==='spendFxModal')closeSpendFx();else if(modal.id==='legacyImportModal')closeLegacyImport();else if(modal.id==='importedRecordModal')closeImportedRecordEditor();else if(modal.id==='printPreviewModal'&&modal.dataset.importedOpening==='1')closeImportedOpeningPreview();else if(modal.id==='importedOpeningVoucherModal')closeImportedOpeningVoucher();else if(modal.id==='financialCalculatorModal')closeFinancialCalculator();else if(modal.id==='trialPreviewModal')closeTrialPreview();else modal.classList.remove('show');return true;}
   const sidebar=document.getElementById('appSidebar');
   if(sidebar?.classList.contains('show')){document.getElementById('closeSidebarBtn')?.click();return true;}
   if(document.getElementById('ratibCashMoreToggle')?.getAttribute('aria-expanded')==='true'){

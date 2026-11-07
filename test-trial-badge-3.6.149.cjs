@@ -12,7 +12,7 @@ assert.equal(worker,trial,'App shell and worker must share one release');
 assert(!nav.includes("const VERSION='3.6.123'"),'Legacy navigation script must not hardcode 3.6.123');
 assert(!nav.includes('RATIB_RELEASE.version=VERSION'),'Navigation must not mutate the release manifest');
 assert(!nav.includes('version116'),'Legacy version locking flag must be removed');
-assert(nav.includes('function hasChanges()')&&nav.includes('hookToast()'),'Keep unsaved changes warning and toast hook');
+assert(html.includes('if(ratibVoucherHasUnsavedEdits())return ratibAskVoucherLeave()')&&nav.includes('hookToast()'),'Keep unsaved changes warning and toast hook');
 assert(/ratib-navigation-v3\.6\.149\.js\?v=3\.6\.\d+/.test(html),'Navigation must retain its immutable asset path');
 assert(sw.includes(trial),'Worker must refresh cached navigation resources under current release');
 assert(sw.includes('"./ratib-navigation-v3.6.149.js"'),'Offline shell must store the versioned navigation script');

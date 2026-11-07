@@ -76,3 +76,20 @@
  #pageReports .ratib-special-actions,#pageReports .ratib-report-budget-actions,
  #pageReports #trialBalanceCard .report-actions,#pageReports .trial-fx-toolbar {display:none!important;}
 }
+
+/* Let Arabic report commands wrap at a readable size on compact phones. */
+@media screen and (max-width:420px){
+ #pageReports .ratib-special-actions,#pageReports #trialBalanceCard .report-actions{
+  grid-template-columns:repeat(auto-fit,minmax(min(100%,5.25rem),1fr))!important;
+  gap:.4rem!important;
+ }
+ #pageReports .ratib-report-action{
+  min-height:3.5rem!important;font-size:.82rem!important;line-height:1.4!important;
+ }
+ #pageReports .ratib-report-action-label{max-inline-size:100%;white-space:normal;overflow-wrap:anywhere}
+}
+@media (prefers-reduced-motion:reduce){
+ #ratibPageNav button,#ratibReportMenu button,.ratib-report-action,.main-menu-btn,.tx-log-item{
+  animation:none!important;transition:none!important;scroll-behavior:auto!important;
+ }
+}

@@ -67,3 +67,14 @@
   #ratibDiscardEdits form{display:flex;gap:.5rem}
   #ratibDiscardEdits::backdrop{background:rgba(0,0,0,.4)}
 }
+
+@media screen{
+ #ratibPageNav{border-block-end:1px solid var(--border)}
+ #ratibPageTitle{min-inline-size:0;line-height:1.4;overflow-wrap:anywhere}
+ .ratib-dialog-heading>:is(h1,h2,h3){min-inline-size:0;line-height:1.4;overflow-wrap:anywhere}
+}
+@media print{
+ body.printing-budget #printBudgetContainer .ps-table thead{display:table-header-group}
+ body.printing-budget #printBudgetContainer .ps-table tbody tr{break-inside:avoid;page-break-inside:avoid}
+ body.printing-budget #printBudgetContainer .ps-table td{overflow-wrap:break-word}
+}

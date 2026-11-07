@@ -90,7 +90,7 @@ function ensure(){
  $('rhToday').onclick=function(){dialogDate=today();if(target){setDate(target,dialogDate);close();}else{view=hdate(dialogDate);draw();}};
 }
 function open(input){ensure();target=input||null;lastFocus=document.activeElement;dialogDate=target&&valid(target.value)?target.value:today();view=hdate(dialogDate);draw();dialog.hidden=false;$('rhClose').focus({preventScroll:true});}
-var fields=new Set(),marker=new WeakSet(),descriptor=Object.getOwnPropertyDescriptor(HTMLInputElement.prototype,'value');
+var marker=new WeakSet(),descriptor=Object.getOwnPropertyDescriptor(HTMLInputElement.prototype,'value');
 function sync(input){
  var b=input._ratibDateButton;if(!b)return;var s=valid(input.value)?input.value:'';
  var title=s?first(s):'اختر التاريخ',other=s&&pref.showOther?second(s):'';
@@ -100,13 +100,13 @@ function sync(input){
  b.setAttribute('aria-label',title+(other?' الموافق '+other:'')+', اضغط لاختيار تاريخ');
 }
 function wrap(input){
- if(marker.has(input))return;marker.add(input);fields.add(input);
+ if(marker.has(input))return;marker.add(input);
  var host=document.createElement('span');host.className='ratib-native-date-wrap';
  var b=document.createElement('button');b.className='ratib-native-date-button';b.type='button';
  input.before(host);host.append(input,b);input._ratibDateWrapper=host;input._ratibDateButton=b;
  b.onclick=function(e){e.preventDefault();open(input);};
  try{Object.defineProperty(input,'value',{configurable:true,get:function(){return descriptor.get.call(this);},set:function(v){descriptor.set.call(this,v);sync(input);}});}catch(e){}
- input.addEventListener('input',function(){sync(input);});input.addEventListener('change',function(){sync(input);});if(input.form)input.form.addEventListener('reset',function(){setTimeout(function(){sync(input);},0);});sync(input);
+ input.addEventListener('input',function(){sync(input);});input.addEventListener('change',function(){sync(input);});sync(input);
 }
 function setDate(input,s){input.value=s;input.dispatchEvent(new Event('input',{bubbles:true}));input.dispatchEvent(new Event('change',{bubbles:true}));sync(input);decorate();}
 var scopes=['#reportAccountOpsPanel','#pageAccountOperations','#statementBody','#printStatementContainer','#printPreviewBody','#printBudgetContainer','#pvDate','#pbPeriod','#pbGeneratedDate','#pageLedger','#pageReports','#pageDashboard','#ratibSpecialPrintHost','#trialPrintHost','.tx-date-line','.tx-log-item','.global-result'];
@@ -121,18 +121,40 @@ function dateForExport(s){if(!valid(s))return String(s||'');return first(s)+(pre
 function dateParts(s){if(!valid(s))return {primary:String(s||''),secondary:''};return {primary:first(s),secondary:pref.showOther?second(s):''};}
 
 function renderSpan(el){var s=el.dataset.iso;if(!valid(s))return;var p=first(s),q=pref.showOther?second(s):'';if(el._p===p&&el._q===q)return;el._p=p;el._q=q;el.replaceChildren();var title=document.createElement('span');title.textContent=p;el.appendChild(title);if(q){var sm=document.createElement('small');sm.textContent=q;el.appendChild(sm);}}
+var scopeSelector=scopes.join(',');
+var excluded='.ratib-hijri-text,script,style,button,textarea,select';
+function decorateText(text){
+ var value=text.nodeValue;
+ if(!value||!text.parentElement||text.parentElement.closest(excluded))return;
+ pattern.lastIndex=0;
+ var match,previous=0,fragment=document.createDocumentFragment();
+ while((match=pattern.exec(value))){
+  var isoDate=match[0].replace(/\//g,'-');
+  if(!valid(isoDate))continue;
+  if(match.index>previous)fragment.append(value.slice(previous,match.index));
+  fragment.append(spanDate(isoDate));previous=match.index+match[0].length;
+ }
+ if(previous){fragment.append(value.slice(previous));text.replaceWith(fragment);}
+}
+function walkDates(root){
+ var walker=document.createTreeWalker(root,NodeFilter.SHOW_TEXT);
+ var text=walker.nextNode();
+ while(text){var next=walker.nextNode();decorateText(text);text=next;}
+}
+function matchingRoots(root,selector){
+ if(root.matches(selector))return [root];
+ return root.querySelectorAll(selector);
+}
+function decorateArea(root){
+ if(root.nodeType===3){if(root.parentElement?.closest(scopeSelector))decorateText(root);return;}
+ if(root.closest(excluded))return;
+ if(root.closest(scopeSelector)){walkDates(root);return;}
+ for(var scope of matchingRoots(root,scopeSelector)){
+  if(!scope.parentElement?.closest(scopeSelector))walkDates(scope);
+ }
+}
 function decorate(){
- var nodes=document.querySelectorAll(scopes.join(','));nodes.forEach(function(root){
-  var walk=document.createTreeWalker(root,NodeFilter.SHOW_TEXT),matches=[],node;
-  while((node=walk.nextNode())){if(!node.parentElement||node.parentElement.closest('.ratib-hijri-text,script,style,button,textarea,select'))continue;
-   pattern.lastIndex=0;if(pattern.test(node.nodeValue))matches.push(node);if(matches.length>=500)break;
-  }
-  matches.forEach(function(t){var str=t.nodeValue,frag=document.createDocumentFragment(),prev=0,m;pattern.lastIndex=0;
-   while((m=pattern.exec(str))){var s=m[0].replace(/\//g,'-');if(!valid(s))continue;
-    if(m.index>prev)frag.appendChild(document.createTextNode(str.slice(prev,m.index)));frag.appendChild(spanDate(s));prev=m.index+m[0].length;}
-   if(prev){if(prev<str.length)frag.appendChild(document.createTextNode(str.slice(prev)));t.replaceWith(frag);}
-  });
- });
+ decorateArea(document.body);
  document.querySelectorAll('.ratib-hijri-text[data-iso]').forEach(renderSpan);
 }
 function syncSettingsControls(){
@@ -150,8 +172,8 @@ function syncSettingsControls(){
   }
  }
 }
-function refresh(){fields.forEach(function(input){if(input.isConnected)sync(input);});decorate();syncSettingsControls();}
-function scan(){document.querySelectorAll('input[type=date]').forEach(function(input){if(input.closest('#ratib-hijri-dialog'))return;if(!marker.has(input))wrap(input);else if(input._ratibDateWrapper&&input.parentNode!==input._ratibDateWrapper){input.before(input._ratibDateWrapper);input._ratibDateWrapper.prepend(input);}});}
+function refresh(){document.querySelectorAll('.ratib-native-date-wrap input[type=date]').forEach(sync);decorate();syncSettingsControls();}
+function scan(root=document.body){Array.from(matchingRoots(root,'input[type=date]')).forEach(function(input){if(input.closest('#ratib-hijri-dialog'))return;if(!marker.has(input))wrap(input);else if(input._ratibDateWrapper&&input.parentNode!==input._ratibDateWrapper){input.before(input._ratibDateWrapper);input._ratibDateWrapper.prepend(input);}});}
 function addSettings(){
  var host=$('pageSettings');if(!host||$('rhSettingsCard'))return;
  var card=document.createElement('section');card.id='rhSettingsCard';
@@ -171,7 +193,31 @@ function addSettings(){
  $('rhSettingsButton').onclick=function(e){e.stopPropagation();open(null);};
  syncSettingsControls();
 }
-var pending=false;function queue(){if(pending)return;pending=true;(window.requestAnimationFrame||function(fn){return setTimeout(fn,16);})(function(){pending=false;scan();addSettings();decorate();});}
-function init(){scan();addSettings();decorate();new MutationObserver(queue).observe(document.body,{childList:true,subtree:true});window.addEventListener('beforeprint',decorate);window.RatibHijriFirst={format:formatted,toISO:reverse,refresh:refresh,open:open,markup:dateMarkup,parts:dateParts,exportText:dateForExport,calendar:'umalqura'};}
+var changed=new Set(),scheduled=false;
+function flush(){
+ scheduled=false;
+ var batch=new Set(changed);changed.clear();
+ for(var node of batch){
+  if(!node.isConnected)continue;
+  var ancestor=node.parentElement;
+  while(ancestor&&!batch.has(ancestor))ancestor=ancestor.parentElement;
+  if(ancestor)continue;
+  if(node.nodeType===1)scan(node);
+  decorateArea(node);
+ }
+ if(!$('rhSettingsCard'))addSettings();
+}
+function queue(records){
+ for(var record of records){
+  if(record.target.parentElement?.closest('.ratib-hijri-text')||record.target.closest?.('.ratib-hijri-text'))continue;
+  if(record.type==='characterData')changed.add(record.target);
+  else for(var added of record.addedNodes)if(added.nodeType===1||added.nodeType===3)changed.add(added);
+ }
+ if(changed.size&&!scheduled){scheduled=true;(window.requestAnimationFrame||function(fn){return setTimeout(fn,16);})(flush);}
+}
+function init(){document.addEventListener('reset',function(event){
+ var form=event.target;
+ setTimeout(function(){form.querySelectorAll('input[type=date]').forEach(function(input){if(marker.has(input))sync(input);});},0);
+},true);scan();addSettings();decorate();new MutationObserver(queue).observe(document.body,{childList:true,subtree:true,characterData:true});window.addEventListener('beforeprint',decorate);window.RatibHijriFirst={format:formatted,toISO:reverse,refresh:refresh,open:open,markup:dateMarkup,parts:dateParts,exportText:dateForExport,calendar:'umalqura'};}
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();
 })();

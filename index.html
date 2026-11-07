@@ -5683,7 +5683,6 @@ function goBackInApp(){
   if(_appBackStack.length&&_appHistoryInitialized&&history.state?.ratibSession===_appHistorySession){const result=beginAppHistoryMovement();history.back();return result;}
   const previous=_appBackStack.pop();if(previous){restoreAppView(typeof previous==='string'?{tab:previous}:previous);return;}
   if(currentActiveTab==='pageDashboard'){showExitModal();return;}
-  if(currentActiveTab==='pageExpenses'&&(!document.getElementById('cashFlowCard')?.classList.contains('hidden')||!document.getElementById('multiVoucherCard')?.classList.contains('hidden'))){initVoucherSelectorView();return;}
   if(currentActiveTab==='pageAccountOperations'){navigateToTab(accountOperationsReturnTab||'pageAccountsTree',false);return;}
   navigateToTab('pageDashboard',false);
 }

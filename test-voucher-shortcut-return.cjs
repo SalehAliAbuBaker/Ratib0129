@@ -21,3 +21,13 @@ for(const type of ['entry','spend','multi']){
  hidden.clear();ctx.setVoucherFormHistory('entry');assert.equal(visited.at(-1),'selector');
 }
 console.log('PASS home voucher shortcuts return directly home; a visited selector keeps its own history entry.');
+
+const restored=[];
+const fallback={
+ ratibRestorePrintScreen(){},document:{getElementById:()=>({style:{display:'none'}})},
+ _appExited:false,_exitPromise:null,_appHistoryPending:null,closeTransientAppUi:()=>false,
+ ratibVoucherHasUnsavedEdits:()=>false,currentActiveTab:'pageExpenses',_appBackStack:[],
+ navigateToTab:(destination,remember)=>restored.push([destination,remember])
+};
+vm.runInNewContext(functionSource('goBackInApp')+';goBackInApp();',fallback);
+assert.deepEqual(restored,[['pageDashboard',false]],'A resumed voucher without a previous view returns home');

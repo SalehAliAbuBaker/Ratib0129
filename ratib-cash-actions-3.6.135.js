@@ -46,9 +46,19 @@ function init(){
   if(save.disabled)return;
   save.disabled=true;
   try{
+   // Only an existing posted voucher carries a return-to-list context.
+   // New vouchers and drafts keep their original Save-and-Exit behavior.
+   const posted=typeof getAllTransactions==='function'&&typeof multiVoucherDraftId!=='undefined'&&multiVoucherDraftId
+    &&getAllTransactions().some(t=>t.id===multiVoucherDraftId||t.multiVoucherId===multiVoucherDraftId);
+   const sourceTab=posted&&typeof multiVoucherReturnTab==='string'?multiVoucherReturnTab:null;
    await commitMultiVoucher(()=>{
     if(typeof hasUnsavedChanges!=='undefined')hasUnsavedChanges=false;
     if(typeof restoreQuickVoucherOriginAfterSave==='function'&&restoreQuickVoucherOriginAfterSave())return;
+    if(sourceTab&&sourceTab!=='pageDashboard'&&sourceTab!=='pageExpenses'&&typeof navigateToTab==='function'){
+     // Do not use generic Back: Android popstate can send an edited document to Home.
+     navigateToTab(sourceTab,false);
+     return;
+    }
     if(typeof backToVoucherSelector==='function')backToVoucherSelector();
    });
   }catch(error){

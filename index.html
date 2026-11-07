@@ -1074,7 +1074,7 @@ body.ratib-sidebar-open,body.ratib-about-open{overflow:hidden}
 }
 
  /* Approved voucher correction, scoped strictly to cash receipt/payment forms. */
- body:has(#multiVoucherCard.spend-voucher:not(.hidden)) #backToMenuBtn{display:none!important}
+
  #multiVoucherCard.spend-voucher{width:100%!important;max-width:min(100%,860px)!important;box-sizing:border-box;padding:12px 14px 22px!important;background:var(--card)!important}
  #multiVoucherCard.spend-voucher .multi-voucher-grid{width:100%!important;grid-template-columns:minmax(0,1.12fr) minmax(66px,.36fr) minmax(0,1.12fr)!important;align-items:stretch!important;gap:9px!important}
  #multiVoucherCard.spend-voucher .multi-voucher-grid>.spend-sequence{grid-column:1/3!important;grid-row:1!important}
@@ -1389,7 +1389,7 @@ body.ratib-sidebar-open,body.ratib-about-open{overflow:hidden}
 }
 </style>
 <link rel="stylesheet" href="./ratib-theme.css?v=3.6.53">
-<link rel="stylesheet" href="./ratib-navigation-v3.css?v=3.6.107">
+<link rel="stylesheet" href="./ratib-navigation-v3.css?v=3.6.154">
 <style id="ratib-354-account-toolbar-css-only">
 /* Scoped UI correction only. No script, event handlers, or navigation changes. */
 #pageAccountOperations .account-operations-screen-head{display:flex!important;flex-direction:column!important;align-items:stretch!important;overflow:visible!important;gap:8px!important}
@@ -1581,8 +1581,8 @@ body.ratib-sidebar-open,body.ratib-about-open{overflow:hidden}
 <link rel="stylesheet" href="./ratib-dashboard-finance-3.6.144.css?v=3.6.148">
 <link rel="stylesheet" href="./ratib-global-button-size-3.6.146.css?v=3.6.139">
 <link rel="stylesheet" href="./ratib-interface-font-3.6.148.css?v=3.6.139">
-<link rel="stylesheet" href="./ratib-feedback-3.6.149.css?v=3.6.153">
-<link rel="stylesheet" href="./ratib-country-currency-3.6.151.css?v=3.6.153">
+<link rel="stylesheet" href="./ratib-feedback-3.6.149.css?v=3.6.154">
+<link rel="stylesheet" href="./ratib-country-currency-3.6.151.css?v=3.6.154">
 <link rel="stylesheet" href="./ratib-interactive-tree-3.6.105.05.css?v=3.6.139">
 <style id="ratib-official-home-entry-grid">
 /* Preserve Ratib visual identity while matching all eleven home shortcut heights. */
@@ -1655,10 +1655,10 @@ body.ratib-sidebar-open,body.ratib-about-open{overflow:hidden}
 <link rel="stylesheet" href="./ratib-cloud-due-3.6.130.css?v=3.6.139">
 <link rel="stylesheet" href="./ratib-cash-actions-3.6.135.css?v=3.6.142-single-label-20261106">
 <link rel="stylesheet" href="./ratib-compound-layout-3.6.142.css?v=3.6.148">
-<link rel="stylesheet" href="./ratib-cash-reference-3.6.148.css?v=3.6.153">
-<link rel="stylesheet" href="./ratib-compound-output-3.6.150.css?v=3.6.153">
-<link rel="stylesheet" href="./ratib-simple-output-3.6.151.css?v=3.6.153">
-<link rel="stylesheet" href="./ratib-voucher-colors-totals-3.6.152.css?v=3.6.153">
+<link rel="stylesheet" href="./ratib-cash-reference-3.6.148.css?v=3.6.154">
+<link rel="stylesheet" href="./ratib-compound-output-3.6.150.css?v=3.6.154">
+<link rel="stylesheet" href="./ratib-simple-output-3.6.151.css?v=3.6.154">
+<link rel="stylesheet" href="./ratib-voucher-colors-totals-3.6.152.css?v=3.6.154">
 </head>
 <body>
 
@@ -1689,7 +1689,7 @@ body.ratib-sidebar-open,body.ratib-about-open{overflow:hidden}
     <div class="header-tools"><div class="header-actions">
       <button class="icon-btn" id="themeBtn" title="الوضع الليلي">🌙</button>
       <button class="icon-btn" id="sidebarMenuBtn" aria-haspopup="dialog" aria-controls="appSidebar" aria-expanded="false" title="الإعدادات" aria-label="فتح الإعدادات">⚙</button>
-    </div><small id="appVersionLabel" class="app-version">الإصدار 3.6.153</small></div>
+    </div><small id="appVersionLabel" class="app-version">الإصدار 3.6.154</small></div>
   </header>
   <div class="summary-toolbar hidden no-print" id="storageFeedback"><span id="persistentSaveStatus" hidden aria-hidden="true">جاهز</span><button type="button" id="retryStorageBtn" class="btn btn-ghost hidden">إعادة محاولة الحفظ</button></div>
 <div class="app-update-banner hidden no-print" id="appUpdateBanner" role="status"><span id="appUpdateMessage">يتوفر تحديث لراتب. هل تريد تطبيقه؟</span><button type="button" class="btn btn-ghost" id="applyAppUpdateBtn">موافق، تطبيق التحديث</button><div id="appUpdateDetails" class="hidden"></div></div>
@@ -1737,7 +1737,7 @@ body.ratib-sidebar-open,body.ratib-about-open{overflow:hidden}
       <img src="Icons/icon-192.png" width="72" height="72" alt="" decoding="async">
       <h2 id="ratibAboutTitle">راتب</h2>
       <p class="ratib-about-subtitle">للتنظيم والتدبير المالي</p>
-      <p class="ratib-about-version">الإصدار 3.6.153</p>
+      <p class="ratib-about-version">الإصدار 3.6.154</p>
       <p id="ratibAboutDescription">إدارة الحسابات والسندات والميزانية، ومتابعة العمليات والتقارير المالية، مع حفظ البيانات على جهازك ودعم العمل دون الإنترنت.</p>
       <button type="button" class="btn btn-primary" id="closeRatibAboutBtn">إغلاق</button>
     </div>
@@ -1759,9 +1759,10 @@ body.ratib-sidebar-open,body.ratib-about-open{overflow:hidden}
   </form>
 </dialog>
 
-  <button class="back-to-menu-btn hidden no-print" id="backToMenuBtn" onclick="goBackInApp()">
-    <span>⬅️ الرجوع إلى الشاشة السابقة</span>
-  </button>
+  <nav id="ratibPageNav" class="no-print" aria-label="التنقل داخل التطبيق" hidden>
+    <button type="button" id="backToMenuBtn" aria-label="رجوع" onclick="goBackInApp()"><span aria-hidden="true">→</span></button>
+    <strong id="ratibPageTitle"></strong>
+  </nav>
 
   <p hidden aria-hidden="true" class="offline-ready no-print" id="offlineReadyStatus"></p>
   <div class="install-banner" id="installBanner"><span>ثبّت راتب على جوالك للوصول السريع والعمل كأنه تطبيق.</span><button id="installAppBtn">تثبيت</button></div>
@@ -2864,8 +2865,8 @@ body.ratib-sidebar-open,body.ratib-about-open{overflow:hidden}
       <p id="ratibVoucherLeaveHelp">هل ترغب في حفظ السند كمسودة قبل المغادرة؟</p>
       <div class="ratib-voucher-leave-actions">
         <button type="button" class="btn btn-primary" id="ratibVoucherLeaveSave">حفظ مسودة والخروج</button>
-        <button type="button" class="btn btn-danger" id="ratibVoucherLeaveDiscard">الخروج دون حفظ</button>
-        <button type="button" class="btn btn-ghost" id="ratibVoucherLeaveCancel">إلغاء — البقاء في السند</button>
+        <button type="button" class="btn btn-danger" id="ratibVoucherLeaveDiscard">تجاهل التعديلات</button>
+        <button type="button" class="btn btn-ghost" id="ratibVoucherLeaveCancel">متابعة التحرير</button>
       </div>
       <p class="ratib-voucher-leave-status" id="ratibVoucherLeaveStatus" role="alert" aria-live="polite"></p>
     </div>
@@ -3030,12 +3031,12 @@ body.ratib-sidebar-open,body.ratib-about-open{overflow:hidden}
   </div>
   <div class="modal-overlay" id="printPreviewModal">
     <div class="modal-content" style="max-width: 640px; width: 96%; max-height: 92vh; padding: 12px;">
-      <h3 style="text-align:center; font-size:1.1rem; margin-bottom:8px;">معاينة قبل الطباعة</h3>
+      <div class="ratib-dialog-heading"><button class="btn btn-ghost" aria-label="إغلاق المعاينة" id="printPreviewCancelBtn" style="flex:1; margin-top:0; border:2px solid var(--border);">إلغاء</button><h3 style="text-align:center; font-size:1.1rem; margin-bottom:8px;">معاينة قبل الطباعة</h3></div>
       <p style="text-align:center; font-size:0.95rem; color:var(--muted); font-weight:700; margin-bottom:10px;">يمكنك تكبير/تصغير هذا العرض بإصبعين قبل المتابعة للطباعة الفعلية</p>
       <div id="printPreviewBody" style="overflow:auto; -webkit-overflow-scrolling:touch; border:1px solid var(--border); border-radius:8px; padding:10px; background:#fff; color:#000; max-height:65vh;"></div>
       <div style="display:flex; gap:8px; margin-top:12px;">
         <button class="btn btn-primary" id="printPreviewConfirmBtn" style="flex:1; margin-top:0;">🖨️ طباعة الآن</button>
-        <button class="btn btn-ghost" id="printPreviewCancelBtn" style="flex:1; margin-top:0; border:2px solid var(--border);">إلغاء</button>
+        
       </div>
     </div>
   </div>
@@ -3049,7 +3050,7 @@ body.ratib-sidebar-open,body.ratib-about-open{overflow:hidden}
 // (أو localhost أثناء التطوير) — هذا شرط أساسي من المتصفح نفسه لأي Service Worker.
 let _briefAppNoticeTimer=null;
 let _releaseSummaryDisplayed=false;
-const RATIB_RELEASE={"version":"3.6.153","build":"p15300","highlights":["ضبط معاينة سندات القبض والصرف على شاشة الجوال وتفعيل الطباعة والإلغاء","الرجوع إلى قائمة العمليات بعد حفظ السند المعدّل"],"changes":["نجري بانتظام تحديثات لتحسين الموثوقية والأداء وإصلاح الأخطاء","حصر تمرير معاينة القبض والصرف داخل نافذة مستقلة مع شريط أزرار ظاهر","حفظ سياق قائمة العمليات عند تعديل سند والعودة إليها بعد الحفظ دون تغيير القيود المالية"]};
+const RATIB_RELEASE={"version":"3.6.154","build":"p15400","highlights":["توحيد زر الرجوع والعودة إلى الشاشة السابقة","حماية مسودة السند عند الرجوع"],"changes":["نجري بانتظام تحديثات لتحسين الموثوقية والأداء وإصلاح الأخطاء","حصر تمرير معاينة القبض والصرف داخل نافذة مستقلة مع شريط أزرار ظاهر","حفظ سياق قائمة العمليات عند تعديل سند والعودة إليها بعد الحفظ دون تغيير القيود المالية"]};
 window.ratibCurrentTrialVersion=()=>String(RATIB_RELEASE.version);
 window.ratibCurrentTrialVersionLabel=()=>`الإصدار ${RATIB_RELEASE.version}`;
 window.ratibSyncTrialVersion=()=>{
@@ -5574,7 +5575,7 @@ function ratibAskVoucherLeave(){
  const modal=document.getElementById('ratibVoucherLeaveModal');
  const status=document.getElementById('ratibVoucherLeaveStatus');
  const save=document.getElementById('ratibVoucherLeaveSave'),discard=document.getElementById('ratibVoucherLeaveDiscard'),cancel=document.getElementById('ratibVoucherLeaveCancel');
- const opener=document.activeElement;status.textContent='';modal.classList.add('show');
+ const opener=document.activeElement;status.textContent='';save.disabled=false;discard.disabled=false;cancel.disabled=false;modal.classList.add('show');
  _ratibVoucherLeavePending=new Promise(resolve=>{
   let finished=false;
   const close=ok=>{if(finished)return;finished=true;save.removeEventListener('click',saveDraft);discard.removeEventListener('click',abandon);cancel.removeEventListener('click',stay);modal.classList.remove('show');_ratibVoucherLeavePending=null;if(!ok&&opener?.isConnected)opener.focus({preventScroll:true});resolve(ok);};
@@ -5618,13 +5619,18 @@ function navigateToTab(target, pushToHistory = true) {
   else if(pushToHistory&&currentActiveTab&&currentActiveTab!==next)rememberAppView();
   recordAppHistory({page:'tab',tab:next});
   document.getElementById('appVersionLabel')?.classList.remove('hidden');
-  const backBtn = document.getElementById('backToMenuBtn');
+  const navigation = document.getElementById('ratibPageNav');
+  navigation.hidden = next === 'pageDashboard';
+  const pageNames = {pageExpenses:'السندات', pageLedger:'سجل العمليات', pageReports:'التقارير',
+    pageAccountsTree:'الحسابات', pageAccountOperations:'كشف الحساب', pageSettings:'الإعدادات', pageCommerce:'إدارة المخزون والعمليات'};
+  document.getElementById('ratibPageTitle').textContent = pageNames[next] || '';
+  const previousTitle = pageNames[_appBackStack.at(-1)?.tab] || 'الرئيسية';
+  document.getElementById('backToMenuBtn').setAttribute('aria-label', 'رجوع إلى ' + previousTitle);
   TABS_ORDER.forEach(id => document.getElementById(id).classList.add('hidden'));
 
   if (!target || target === 'pageDashboard') {
     currentActiveTab = 'pageDashboard';
     syncSidebarCurrentPage();
-    backBtn.classList.add('hidden');
     document.getElementById('pageDashboard').classList.remove('hidden');
     closeDashboardHome(false);
     updateProDashboard();
@@ -5632,12 +5638,10 @@ function navigateToTab(target, pushToHistory = true) {
     renderRemindersChart();
     return;
   }
-  backBtn.classList.remove('hidden');
   document.getElementById(target).classList.remove('hidden');
   currentActiveTab = target;
   syncSidebarCurrentPage();
   // للشاشتين شريط تنقل داخلي؛ إخفاء زر الرجوع الكبير المكرر يترك اسم الحساب واضحاً.
-  if (target === 'pageLedger' || target === 'pageAccountOperations' || target === 'pageCommerce') backBtn.classList.add('hidden');
 
   if (target === 'pageLedger') renderAllData(true);
   if (target === 'pageExpenses') {initVoucherSelectorView();updateDraftButton();}
@@ -5662,10 +5666,11 @@ window.addEventListener('popstate',handleRatibPopState);
 
 function goBackInApp(){
   ratibRestorePrintScreen();
-  if(ratibVoucherHasUnsavedEdits())return ratibAskVoucherLeave().then(ok=>ok?goBackInApp():false);
+  if(document.getElementById('lockScreen')?.style.display==='flex')return Promise.resolve(false);
   if(_appExited||_exitPromise)return Promise.resolve(false);
   if(_appHistoryPending)return _appHomeReset?_appHistoryPending.promise.then(goBackInApp):_appHistoryPending.promise;
   if(closeTransientAppUi())return Promise.resolve(true);
+  if(ratibVoucherHasUnsavedEdits())return ratibAskVoucherLeave().then(ok=>ok?goBackInApp():false);
   if(currentActiveTab==='pageCommerce'&&window.RatibCommerce?.requestLeave?.()===false)return Promise.resolve(false);
   if(_appBackStack.length&&_appHistoryInitialized&&history.state?.ratibSession===_appHistorySession){const result=beginAppHistoryMovement();history.back();return result;}
   const previous=_appBackStack.pop();if(previous){restoreAppView(typeof previous==='string'?{tab:previous}:previous);return;}
@@ -10203,6 +10208,7 @@ function entryrestoreAppView(view){
   }
   _restoringAppView=true;
   try{
+    window.ratibResetSettingsDetail?.();
     navigateToTab(view.tab,false);
     if(view.tab==='pageCommerce'&&view.commerce)window.RatibCommerce?.restoreView?.(view.commerce);
     if(view.tab==='pageExpenses'){
@@ -10224,6 +10230,8 @@ function entryrestoreAppView(view){
     for(const [id,index] of Object.entries(view.carousels||{}))goCarousel(id,index);
     if(view.focusId){const field=document.getElementById(view.focusId);if(field&&!field.closest('.hidden,[inert]'))field.focus({preventScroll:true});}
     document.getElementById(view.tab)?.querySelectorAll('.searchable-dropdown').forEach(el=>el.classList.toggle('open',Boolean(view.openDropdowns?.includes(el.id))));
+    const focus=document.getElementById(view.focusId);
+    if(focus && !focus.closest('.hidden,[hidden]'))focus.focus({preventScroll:true});
     window.scrollTo({top:view.scrollY||0,behavior:'instant'});
     recordAppHistory({page:'tab',tab:view.tab});
   }finally{_restoringAppView=false;}
@@ -10252,10 +10260,24 @@ function initExitDialog(){
 }
 
 function closeTransientAppUi(){
-  const sidebar=document.getElementById('appSidebar');
-  if(sidebar?.classList.contains('show')){document.getElementById('closeSidebarBtn')?.click();return true;}
+  const shown=id=>document.getElementById(id)?.classList.contains('show');
+  if(shown('ratibOpeningLeaveModal')){document.getElementById('ratibOpeningLeaveCancel')?.click();return true;}
+  if(shown('ratibVoucherLeaveModal')){document.getElementById('ratibVoucherLeaveCancel')?.click();return true;}
+  const year=document.getElementById('yearToolOverlay');
+  if(year?.style.display==='flex'){document.getElementById('yearToolDismiss')?.click();return true;}
+  if(shown('printPreviewModal')){
+    if(document.getElementById('printPreviewModal').dataset.importedOpening==='1')closeImportedOpeningPreview();
+    else document.getElementById('printPreviewCancelBtn')?.click();
+    return true;
+  }
   const modals=[...document.querySelectorAll('.modal-overlay.show')];
   if(modals.length){const modal=modals.find(m=>m===_ratibOverlayState?.surface)||modals.at(-1);if(modal.id==='ratibVoucherLeaveModal')document.getElementById('ratibVoucherLeaveCancel')?.click();else if(modal.id==='exitConfirmModal')hideExitModal();else if(modal.id==='ratibAboutModal')closeRatibAbout();else if(modal.id==='spendFxModal')closeSpendFx();else if(modal.id==='legacyImportModal')closeLegacyImport();else if(modal.id==='importedRecordModal')closeImportedRecordEditor();else if(modal.id==='printPreviewModal'&&modal.dataset.importedOpening==='1')closeImportedOpeningPreview();else if(modal.id==='importedOpeningVoucherModal')closeImportedOpeningVoucher();else if(modal.id==='financialCalculatorModal')closeFinancialCalculator();else if(modal.id==='trialPreviewModal')closeTrialPreview();else modal.classList.remove('show');return true;}
+  const sidebar=document.getElementById('appSidebar');
+  if(sidebar?.classList.contains('show')){document.getElementById('closeSidebarBtn')?.click();return true;}
+  if(document.getElementById('ratibCashMoreToggle')?.getAttribute('aria-expanded')==='true'){
+    document.getElementById('ratibCashMoreToggle').click();return true;
+  }
+  if(currentActiveTab==='pageCommerce' && window.RatibCommerce?.closeDetail?.())return true;
   if(document.getElementById('accountScreenMenu')?.classList.contains('open')){closeAccountScreenMenu();return true;}
   const advanced=document.getElementById('accountAdvancedSearchPanel');
   if(currentActiveTab==='pageAccountOperations'&&advanced&&!advanced.classList.contains('hidden')){advanced.classList.add('hidden');return true;}
@@ -10311,30 +10333,33 @@ function handleRatibPopState(){
   // Reuse existing entries when closing an overlay or showing root confirmation.
   // Inserting a new entry from popstate makes subsequent phone Back gestures skippable.
   if(closeTransientAppUi()){_appReplayDepth=_appCurrentHistoryDepth;history.go(known?_appCurrentHistoryDepth-depth:1);return;}
-  // All physical Back gestures from internal views land on the main dashboard.
-  // Preserve the original root guard so the next Back requests exit normally.
-  if(currentActiveTab!=='pageDashboard'){
+  if(currentActiveTab!=='pageDashboard' && (ratibVoucherHasUnsavedEdits() || !ratibGestureDraftCheck())){
+    // Restore the browser entry before the user's decision can start another movement.
+    _appReplayDepth=_appCurrentHistoryDepth;
+    const replay=beginAppHistoryMovement();
+    history.go(known ? _appCurrentHistoryDepth-depth : 1);
     if(ratibVoucherHasUnsavedEdits()){
-      _appReplayDepth=_appCurrentHistoryDepth;
-      const steps=known?_appCurrentHistoryDepth-depth:1;
-      if(steps>0)history.go(steps);else history.forward();
-      ratibAskVoucherLeave().then(ok=>{if(ok)ratibGestureDashboard(true,0);});
-      return;
+      Promise.all([replay,ratibAskVoucherLeave()]).then(([,leave])=>{if(leave)goBackInApp();});
     }
-    if(!ratibGestureDraftCheck()){
-      _appReplayDepth=_appCurrentHistoryDepth;
-      const steps=known?_appCurrentHistoryDepth-depth:1;
-      if(steps>0)history.go(steps);else history.forward();
-      return;
-    }
-    ratibGestureDashboard(known,depth);
     return;
   }
   _appSavedViews.set(_appCurrentHistoryDepth,captureAppView());
   if(known&&depth!==_appCurrentHistoryDepth){
     const view=_appSavedViews.get(depth)||_appBackStack[depth];
-    if(view){_appBackStack.length=0;for(let i=0;i<depth;i++){const previous=_appSavedViews.get(i);if(previous)_appBackStack.push(previous);}_appCurrentHistoryDepth=depth;restoreAppView(view);finishAppHistoryMovement();return;}
+    if(view){
+      const earlier=_appBackStack.slice(0,depth);
+      _appBackStack.length=0;
+      for(let i=0;i<depth;i++){
+        const previous=_appSavedViews.get(i)||earlier[i];
+        if(previous)_appBackStack.push(previous);
+      }
+      _appCurrentHistoryDepth=depth;
+      restoreAppView(view);
+      finishAppHistoryMovement();
+      return;
+    }
   }
+  if(currentActiveTab!=='pageDashboard'){ratibGestureDashboard(known,depth);return;}
   if(!known){_appReplayDepth=_appCurrentHistoryDepth;showExitModal();history.forward();return;}
   if(currentActiveTab==='pageDashboard')showExitModal();finishAppHistoryMovement();
 }
@@ -11997,7 +12022,7 @@ selfHealStorageFromIdb().then(boot).catch(error=>{showRatibFatalBanner(error.mes
 </div>
 
 <div class="modal-overlay no-print" id="financialCalculatorModal" role="dialog" aria-modal="true" aria-labelledby="financialCalcTitle" tabindex="-1"><div class="modal-content financial-calculator"><div class="spend-fx-title"><h2 id="financialCalcTitle">الحاسبة</h2><button type="button" class="icon-btn" id="financialCalcClose" aria-label="إغلاق الحاسبة">×</button></div><label>العملية<input id="financialCalcExpression" type="text" inputmode="decimal" autocomplete="off" dir="ltr"></label><output id="financialCalcResult" dir="ltr" aria-live="polite"></output><small id="financialCalcPrecision"></small><div class="financial-calc-keys"><button type="button" data-calc-key="clear">مسح</button><button type="button" data-calc-key="back">⌫</button><button type="button" data-calc-key="(">(</button><button type="button" data-calc-key=")">)</button><button type="button" data-calc-key="7">7</button><button type="button" data-calc-key="8">8</button><button type="button" data-calc-key="9">9</button><button type="button" data-calc-key="÷">÷</button><button type="button" data-calc-key="4">4</button><button type="button" data-calc-key="5">5</button><button type="button" data-calc-key="6">6</button><button type="button" data-calc-key="×">×</button><button type="button" data-calc-key="1">1</button><button type="button" data-calc-key="2">2</button><button type="button" data-calc-key="3">3</button><button type="button" data-calc-key="−">−</button><button type="button" data-calc-key="0">0</button><button type="button" data-calc-key=".">.</button><button type="button" data-calc-key="+">+</button></div><button type="button" class="btn btn-primary" id="financialCalcUse">استخدام النتيجة</button></div></div>
-<div class="modal-overlay no-print" id="trialPreviewModal" role="dialog" aria-modal="true" aria-labelledby="trialPreviewTitle" tabindex="-1"><div class="modal-content trial-print-preview"><div class="spend-fx-title"><h2 id="trialPreviewTitle">معاينة ميزان المراجعة</h2><button type="button" class="icon-btn" id="trialPreviewClose" aria-label="إغلاق معاينة الميزان">×</button></div><div class="trial-preview-content" id="trialPreviewContent"></div></div></div><div id="trialPrintHost" class="trial-print-host"></div>
+<div class="modal-overlay no-print" id="trialPreviewModal" role="dialog" aria-modal="true" aria-labelledby="trialPreviewTitle" tabindex="-1"><div class="modal-content trial-print-preview"><div class="spend-fx-title"><h2 id="trialPreviewTitle">معاينة ميزان المراجعة</h2><button type="button" class="icon-btn" aria-label="إغلاق المعاينة" id="trialPreviewClose" aria-label="إغلاق معاينة الميزان">×</button></div><div class="trial-preview-content" id="trialPreviewContent"></div></div></div><div id="trialPrintHost" class="trial-print-host"></div>
 <script>
 
 // Use the existing selector and catalog identifiers for every voucher row.
@@ -12897,7 +12922,7 @@ function importedOpeningModal(){
  openingLeave.id='ratibOpeningLeaveModal';openingLeave.className='modal-overlay no-print';
  openingLeave.setAttribute('role','dialog');openingLeave.setAttribute('aria-modal','true');
  openingLeave.setAttribute('aria-labelledby','ratibOpeningLeaveTitle');
- openingLeave.innerHTML='<div class="modal-content ratib-opening-leave-content"><h3 id="ratibOpeningLeaveTitle">تغييرات غير محفوظة في القيد</h3><p>هل ترغب في حفظ القيد قبل إغلاقه؟</p><div class="ratib-opening-leave-actions"><button type="button" class="btn btn-primary" id="ratibOpeningLeaveSave">حفظ القيد والخروج</button><button type="button" class="btn btn-danger" id="ratibOpeningLeaveDiscard">الخروج دون حفظ</button><button type="button" class="btn btn-ghost" id="ratibOpeningLeaveCancel">إلغاء — البقاء في القيد</button></div><p id="ratibOpeningLeaveStatus" role="alert" aria-live="polite"></p></div>';
+ openingLeave.innerHTML='<div class="modal-content ratib-opening-leave-content"><h3 id="ratibOpeningLeaveTitle">تغييرات غير محفوظة في القيد</h3><p>هل ترغب في حفظ القيد قبل إغلاقه؟</p><div class="ratib-opening-leave-actions"><button type="button" class="btn btn-primary" id="ratibOpeningLeaveSave">حفظ القيد والخروج</button><button type="button" class="btn btn-danger" id="ratibOpeningLeaveDiscard">تجاهل التعديلات</button><button type="button" class="btn btn-ghost" id="ratibOpeningLeaveCancel">إلغاء — البقاء في القيد</button></div><p id="ratibOpeningLeaveStatus" role="alert" aria-live="polite"></p></div>';
  modal.appendChild(openingLeave);
  return modal;
 }
@@ -13356,18 +13381,18 @@ try{currenciesUi();sync();}catch(e){console.error('Ratib 3.6.12 initialization',
 <script>
 (()=>{const previous=renderMultiVoucherLines;renderMultiVoucherLines=function(...args){const result=previous.apply(this,args);queueMicrotask(ratibOrderDocumentAccounts);return result;};})();
 </script>
-<script src="./ratib-license-draft.js?v=3.6.153" defer></script>
+<script src="./ratib-license-draft.js?v=3.6.154" defer></script>
 <script src="./ratib-ui-v3.6.37.js?v=3.6.148" defer></script>
-<script src="./ratib-favorites-v3.js?v=3.6.153" defer></script>
+<script src="./ratib-favorites-v3.js?v=3.6.154" defer></script>
 <script src="./ratib-whatsapp-support-3.6.113.js?v=3.6.139" defer></script>
-<script src="./ratib-voice-dictation-3.6.117.js?v=3.6.153" defer></script>
+<script src="./ratib-voice-dictation-3.6.117.js?v=3.6.154" defer></script>
 <script src="./ratib-import-manager.js?v=2" defer></script>
 <script src="./ratib-annual-close.js?v=1" defer></script>
 <script src="./ratib-fiscal-ledger.js?v=1" defer></script>
 <script src="./ratib-statement-prior-year.js?v=1" defer></script>
 <script src="./ratib-reconciliation-print.js?v=3.6.139" defer></script>
 <script src="./ratib-theme.js?v=3.6.53" defer></script>
-<script src="./ratib-navigation-v3.6.149.js?v=3.6.153" defer></script>
+<script src="./ratib-navigation-v3.6.149.js?v=3.6.154" defer></script>
 <script src="./ratib-accounting-3.6.59.js?v=3.6.100" defer></script>
 <script src="./ratib-cash-layout-3.6.83.js?v=3.6.83" defer></script>
 <script src="./ratib-quick-account-3.6.87.js?v=3.6.105.01" defer></script>
@@ -13378,30 +13403,30 @@ try{currenciesUi();sync();}catch(e){console.error('Ratib 3.6.12 initialization',
 <script src="./ratib-report-buttons-3.6.106.js?v=3.6.139" defer></script>
 <script src="./ratib-print-logo-3.6.108.js?v=3.6.139" defer></script>
 <div id="ratibSpecialPrintHost" aria-hidden="true"></div>
-<script src="./ratib-sidebar-3.6.124.js?v=3.6.139" defer></script>
-<script src="./ratib-commerce-3.6.131.js?v=3.6.139" defer></script>
-<script src="./ratib-simple-accounts-3.6.105.13.js?v=3.6.153" defer></script>
+<script src="./ratib-sidebar-3.6.124.js?v=3.6.154" defer></script>
+<script src="./ratib-commerce-3.6.131.js?v=3.6.154" defer></script>
+<script src="./ratib-simple-accounts-3.6.105.13.js?v=3.6.154" defer></script>
 <script src="./ratib-interactive-tree-3.6.105.05.js?v=3.6.139" defer></script>
-<script src="./ratib-login-3.6.124.js?v=3.6.153" defer></script>
+<script src="./ratib-login-3.6.124.js?v=3.6.154" defer></script>
 <script src="./ratib-trial-home-sidebar-3.6.143.js?v=3.6.148" defer></script>
-<script src="./ratib-trial-ui-3.6.143.js?v=3.6.153" defer></script>
-<script src="./ratib-dashboard-finance-3.6.144.js?v=3.6.153" defer></script>
+<script src="./ratib-trial-ui-3.6.143.js?v=3.6.154" defer></script>
+<script src="./ratib-dashboard-finance-3.6.144.js?v=3.6.154" defer></script>
 <script src="./ratib-global-button-size-3.6.146.js?v=3.6.139" defer></script>
 <script src="./ratib-document-signatures-3.6.148.js?v=3.6.148-automatic" defer></script>
-<script src="./ratib-cash-reference-3.6.148.js?v=3.6.153" defer></script>
-<script src="./ratib-compound-output-3.6.150.js?v=3.6.153" defer></script>
-<script src="./ratib-simple-output-3.6.151.js?v=3.6.153" defer></script>
+<script src="./ratib-cash-reference-3.6.148.js?v=3.6.154" defer></script>
+<script src="./ratib-compound-output-3.6.150.js?v=3.6.154" defer></script>
+<script src="./ratib-simple-output-3.6.151.js?v=3.6.154" defer></script>
 <script src="./ratib-feedback-3.6.149.js?v=3.6.139" defer></script>
-<script src="./ratib-mobile-edge-back-3.6.128.js?v=3.6.139" defer></script>
+<script src="./ratib-mobile-edge-back-3.6.128.js?v=3.6.154" defer></script>
 <script src="./ratib-cash-pulse.js?v=3.6.139" defer></script>
 <script src="./ratib-statement-marks-3.6.106.05.js?v=3.6.139" defer>
 </script>
-<script src="./ratib-country-currency-3.6.151.js?v=3.6.153" defer></script>
+<script src="./ratib-country-currency-3.6.151.js?v=3.6.154" defer></script>
 <script src="./ratib-date-display.js?v=3.6.139" defer></script>
 <script src="./ratib-statement-compact-3.6.119.js?v=3.6.139" defer></script>
 <script src="./ratib-display-separation-3.6.122.js?v=3.6.139" defer></script>
 <script src="./ratib-trial-voucher-statement-3.6.125.js?v=3.6.139" defer></script>
-<script src="./ratib-cash-actions-3.6.135.js?v=3.6.153" defer></script>
+<script src="./ratib-cash-actions-3.6.135.js?v=3.6.154" defer></script>
 <script src="./ratib-compound-layout-3.6.142.js?v=3.6.148" defer></script>
 </body>
 </html>

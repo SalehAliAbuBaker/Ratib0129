@@ -31,16 +31,7 @@ function reportsMenu(){
   if(el.tagName!=='BUTTON'&&!el.dataset.ratibKeyboard){el.dataset.ratibKeyboard='1';el.setAttribute('role','button');el.tabIndex=0;el.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();el.click();}});}
  }
 }
-function backIcons(){
- document.querySelectorAll('button').forEach(b=>{
-  const label=[b.getAttribute('aria-label'),b.title,b.textContent].filter(Boolean).join(' ').trim();
-  const back=b.matches('#backToMenuBtn,#ledgerBackBtn,[data-account-action="close"],#yearToolDismiss')||/^(?:[←↩⬅️\s]*)(?:رجوع|الرجوع|العودة إلى|العودة للشاشة)/u.test(label);
-  if(!back)return;
-  b.classList.add('ratib-back-control');
-  if(/^[←↩⬅️\s]+$/u.test(b.textContent.trim()))b.classList.add('ratib-back-icon-only');
- });
-}
-function refresh(){reportsMenu();backIcons();}
+function refresh(){reportsMenu();}
 refresh();let pending=false;
 new MutationObserver(()=>{if(pending)return;pending=true;queueMicrotask(()=>{pending=false;refresh();});}).observe(document.body,{childList:true,subtree:true});
 })();
@@ -49,38 +40,6 @@ new MutationObserver(()=>{if(pending)return;pending=true;queueMicrotask(()=>{pen
 /* Ratib trial 3.6.118: guard unsaved voucher inputs and style success toasts. */
 (function ratibTrialBackAndToast116(){
  'use strict';
- const originals=new Map();
- const editor='#cashFlowCard,#multiVoucherCard';
- const backButtons='button.ratib-back-control,#ratibCashBackBtn,#backToMenuBtn,#ledgerBackBtn,button.back-to-menu-btn,[data-account-action="close"]';
- function trackable(el){
-  return !!el?.closest?.(editor) && !el.closest('.hidden,[hidden]') &&
-    !el.disabled&&!el.readOnly&&/^(INPUT|SELECT|TEXTAREA)$/.test(el.tagName)&&
-    !/^(hidden|button|submit|checkbox|radio|file)$/.test(el.type||'');
- }
- function hasChanges(){
-  for(const [el,initial] of originals){
-   if(!el.isConnected||!trackable(el)){originals.delete(el);continue;}
-   if(el.value!==initial)return true;
-  }
-  return false;
- }
- document.addEventListener('focusin',e=>{
-  const el=e.target;
-  if(trackable(el)&&!originals.has(el))originals.set(el,el.value);
- },true);
- document.addEventListener('input',e=>{
-  if(!e.isTrusted)return;
-  const el=e.target;
-  if(trackable(el)&&!originals.has(el))originals.set(el,el.defaultValue??'');
- },true);
- document.addEventListener('click',e=>{
-  const button=e.target?.closest?.(backButtons);
-  if(!button||!hasChanges())return;
-  if(!window.confirm('هناك تغييرات في السند لم تُحفظ. هل تريد الرجوع دون حفظها؟')){
-   e.preventDefault();e.stopImmediatePropagation();e.stopPropagation();return;
-  }
-  originals.clear();
- },true);
  function successStyle(message){
   const value=String(message??'').trim();if(!value)return;
   for(const el of document.querySelectorAll('#toast,.toast,.toast-message,#toastNotification,#appToast,.app-toast,.notification,.toast-notification,[role="status"]')){
@@ -96,7 +55,7 @@ new MutationObserver(()=>{if(pending)return;pending=true;queueMicrotask(()=>{pen
    const result=old.apply(this,[message,kind,...args]);
    if(kind==='success'){
     const msg=String(message||'');
-    if(/حفظ|تسجيل|إضافة/.test(msg)&&/سند|قيد|عملية/.test(msg))originals.clear();
+ 
     queueMicrotask(()=>successStyle(message));setTimeout(()=>successStyle(message),60);
    }
    return result;

@@ -1,6 +1,6 @@
 // Ratib 3.1.9: cache identity is unique to this app's scope.
-const CACHE_VERSION='v260-opening-mobile-clean-3.6.139-compound-compact-auto-signature-tafqit-cash-reference-amount-currency-compound-ref-simple-ref-totals-cash-colors-cash-preview-return-3.6.153';
-const APP_RELEASE={"version":"3.6.153","build":"p15300","highlights":["ضبط معاينة سندات القبض والصرف على شاشة الجوال وتفعيل الطباعة والإلغاء","الرجوع إلى قائمة العمليات بعد حفظ السند المعدّل"],"changes":["نجري بانتظام تحديثات لتحسين الموثوقية والأداء وإصلاح الأخطاء","حصر تمرير معاينة القبض والصرف داخل نافذة مستقلة مع شريط أزرار ظاهر","حفظ سياق قائمة العمليات عند تعديل سند والعودة إليها بعد الحفظ دون تغيير القيود المالية"]};
+const CACHE_VERSION='v260-opening-mobile-clean-3.6.139-compound-compact-auto-signature-tafqit-cash-reference-amount-currency-compound-ref-simple-ref-totals-cash-colors-cash-preview-return-3.6.154';
+const APP_RELEASE={"version":"3.6.154","build":"p15400","highlights":["توحيد زر الرجوع والعودة إلى الشاشة السابقة","حماية مسودة السند عند الرجوع"],"changes":["نجري بانتظام تحديثات لتحسين الموثوقية والأداء وإصلاح الأخطاء","حصر تمرير معاينة القبض والصرف داخل نافذة مستقلة مع شريط أزرار ظاهر","حفظ سياق قائمة العمليات عند تعديل سند والعودة إليها بعد الحفظ دون تغيير القيود المالية"]};
 const CACHE_PREFIX=`ratib:${self.registration.scope}:`;
 const CACHE_NAME=CACHE_PREFIX+CACHE_VERSION;
 const APP_SHELL=[

@@ -51,6 +51,12 @@
    if(back)Promise.resolve(back()).catch(error=>console.warn('Ratib edge Back failed',error));
   }catch(error){console.warn('Ratib edge Back unavailable',error);}
  }
+ // Android may dispatch its native callback for the same completed touch.
+ window.ratibNativeBack=function(){
+  start=null;
+  if(now()-lastBack<380)return;
+  window.goBackInApp();
+ };
  // Browser/system Back already handled the gesture: never trigger a second Back.
  window.addEventListener('popstate',()=>{nativeBackCount++;start=null;},true);
  document.addEventListener('touchstart',begin,{passive:true,capture:true});

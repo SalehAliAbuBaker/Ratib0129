@@ -182,7 +182,7 @@ root.innerHTML=`<button type="button" id="yearToolOpen" class="btn btn-ghost" st
 <textarea id="yearToolReason" rows="2" placeholder="مثال: تصحيح مبلغ سند صرف رقم 18" style="width:100%;box-sizing:border-box;padding:8px;font:inherit"></textarea>
 <small style="display:block;color:var(--muted);line-height:1.6;margin-top:5px">للسماح بتعديل السنة المغلقة يجب تنزيل نسخة شاملة وذكر السبب وإعادة فتح آخر سنة مغلقة. بعدها عدّل السند، ثم أعِد الإغلاق لتحديث الأرصدة المدورة.</small>
 </div><p id="yearToolMessage" role="status" style="font-size:12px"></p>
-<button type="button" class="btn btn-ghost" id="yearToolDismiss" style="width:auto">رجوع</button>
+<button type="button" class="btn btn-ghost" aria-label="إغلاق الإغلاق السنوي" id="yearToolDismiss" style="width:auto">رجوع</button>
 </div></div>`;
 if(!IS_TRIAL){
  root.innerHTML=root.innerHTML.replaceAll("الإغلاق السنوي (تجريبي)","الإغلاق السنوي").replaceAll("الإغلاق السنوي للحسابات — نسخة اختبار","الإغلاق السنوي للحسابات");

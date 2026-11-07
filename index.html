@@ -7196,7 +7196,11 @@ function renderAllData(force=false) {
   txs.slice().reverse().slice(0,ledgerVisibleLimit).forEach(item => {
     const card = document.createElement('div'); card.className = 'tx-log-item';
     card.dataset.ledgerKey=String(item._groupId || item.id);
-    card.tabIndex=-1;
+    function rememberLedgerRow(){
+      ledgerReturnAnchor={key:card.dataset.ledgerKey,top:card.getBoundingClientRect().top};
+    }
+    card.addEventListener('pointerdown',rememberLedgerRow,{passive:true});
+    card.addEventListener('keydown',rememberLedgerRow);
     if (item.isExpense) card.style.borderRight = '6px solid var(--danger)';
     if (item.voucherMode === 'income') card.style.borderRight = '6px solid var(--ok)';
     
@@ -10180,7 +10184,6 @@ function restoreLedgerAnchor(anchor){
     if(currentActiveTab!=='pageLedger')return;
     const row=Array.from(document.querySelectorAll('#ledgerList [data-ledger-key]')).find(el=>el.dataset.ledgerKey===anchor.key);
     if(!row)return;
-    row.focus({preventScroll:true});
     const delta=row.getBoundingClientRect().top-anchor.top;
     for(let parent=row.parentElement;parent&&parent!==document.body;parent=parent.parentElement){
       if(/auto|scroll/.test(getComputedStyle(parent).overflowY)&&parent.scrollHeight>parent.clientHeight){

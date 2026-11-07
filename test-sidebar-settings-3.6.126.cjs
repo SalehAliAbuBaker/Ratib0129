@@ -18,7 +18,8 @@ w.scrollTo=()=>{};w.closeRatibSidebar=()=>{};
 let visits=0,backs=0,history=0;
 w.navigateToTab=()=>{visits++;};
 w.rememberAppView=()=>{history++;};
-w.goBackInApp=()=>{backs++;};
+w.goBackInApp=()=>{backs++;w.ratibResetSettingsDetail();};
+doc.getElementById('backToMenuBtn').addEventListener('click',()=>w.goBackInApp());
 for(const label of [...labels.filter(v=>v!=='ألوان واجهة راتب'),'إعدادات الأمان وقفل الحماية']){
  const card=doc.createElement('div');card.className='settings-accordion-card';
  card.innerHTML='<div class="settings-accordion-header"><span></span></div><div class="settings-accordion-body"></div>';
@@ -62,7 +63,7 @@ assert.equal(history,1,'detail has one return entry');
 assert(page.classList.contains('ratib-settings-detail'));
 assert.equal(page.querySelectorAll(':scope > .ratib-settings-current').length,1);
 assert(page.querySelector('.ratib-settings-current').textContent.includes(labels[0]));
-assert.equal(doc.getElementById('backToMenuBtn').textContent.includes('الإعدادات'),true);
+assert.equal(doc.getElementById('backToMenuBtn').getAttribute('aria-label').includes('الإعدادات'),true);
 doc.getElementById('backToMenuBtn').click();
 assert(!page.classList.contains('ratib-settings-detail'),'single back restores settings list');
 assert.equal(backs,1,'one app back');

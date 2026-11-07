@@ -175,8 +175,6 @@ function resetSettingsDetail(){
  for(const c of page.querySelectorAll('.settings-accordion-card')){
   c.classList.remove('ratib-settings-current');c.removeAttribute('aria-hidden');setCardOpen(c,false);
  }
- const label=$('backToMenuBtn')?.querySelector('span');
- if(label?.dataset.ratibOriginalBackLabel)label.textContent=label.dataset.ratibOriginalBackLabel;
  try{window.scrollTo?.({top:0,behavior:'auto'});}catch(_){}
 }
 function focusSetting(key,makeHistory){
@@ -190,11 +188,11 @@ function focusSetting(key,makeHistory){
  }
  page.classList.add('ratib-settings-detail');page.classList.toggle('ratib-security-detail',key==='security');
  openCard(main);
+ $('backToMenuBtn')?.setAttribute('aria-label','رجوع إلى الإعدادات');
  // The independent security card opens directly.
- const label=$('backToMenuBtn')?.querySelector('span');
- if(label){if(!label.dataset.ratibOriginalBackLabel)label.dataset.ratibOriginalBackLabel=label.textContent;label.textContent='↪️ رجوع إلى الإعدادات';}
  requestAnimationFrame(()=>{main.scrollIntoView({behavior:'auto',block:'start'});});
 }
+window.ratibResetSettingsDetail=resetSettingsDetail;
 function installSettingsNavigation(){
  const page=$('pageSettings'),back=$('backToMenuBtn');if(!page||page.dataset.ratibSinglePanel==='1')return;
  page.dataset.ratibSinglePanel='1';
@@ -212,16 +210,6 @@ function installSettingsNavigation(){
   if(!['Enter',' '].includes(event.key))return;
   const h=event.target.closest('.settings-accordion-header');if(!h||!page.contains(h))return;
   event.preventDefault();event.stopImmediatePropagation();h.click();
- },true);
- back?.addEventListener('click',event=>{
-  if(!isSettingsDetail()||page.classList.contains('hidden'))return;
-  event.preventDefault();event.stopImmediatePropagation();
-  resetSettingsDetail();
-  if(typeof window.goBackInApp==='function')window.goBackInApp();
- },true);
- window.addEventListener('popstate',()=>{
-  if(!isSettingsDetail()||$('appSidebar')?.classList.contains('show')||document.querySelector('.modal-overlay.show'))return;
-  resetSettingsDetail();
  },true);
  new MutationObserver(()=>{
   if(page.classList.contains('hidden')&&isSettingsDetail())resetSettingsDetail();

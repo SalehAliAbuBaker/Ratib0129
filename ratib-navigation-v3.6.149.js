@@ -31,16 +31,7 @@ function reportsMenu(){
   if(el.tagName!=='BUTTON'&&!el.dataset.ratibKeyboard){el.dataset.ratibKeyboard='1';el.setAttribute('role','button');el.tabIndex=0;el.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();el.click();}});}
  }
 }
-function backIcons(){
- document.querySelectorAll('button').forEach(b=>{
-  const label=[b.getAttribute('aria-label'),b.title,b.textContent].filter(Boolean).join(' ').trim();
-  const back=b.matches('#backToMenuBtn,#ledgerBackBtn,[data-account-action="close"],#yearToolDismiss')||/^(?:[←↩⬅️\s]*)(?:رجوع|الرجوع|العودة إلى|العودة للشاشة)/u.test(label);
-  if(!back)return;
-  b.classList.add('ratib-back-control');
-  if(/^[←↩⬅️\s]+$/u.test(b.textContent.trim()))b.classList.add('ratib-back-icon-only');
- });
-}
-function refresh(){reportsMenu();backIcons();}
+function refresh(){reportsMenu();}
 refresh();let pending=false;
 new MutationObserver(()=>{if(pending)return;pending=true;queueMicrotask(()=>{pending=false;refresh();});}).observe(document.body,{childList:true,subtree:true});
 })();
@@ -49,38 +40,6 @@ new MutationObserver(()=>{if(pending)return;pending=true;queueMicrotask(()=>{pen
 /* Ratib trial 3.6.118: guard unsaved voucher inputs and style success toasts. */
 (function ratibTrialBackAndToast116(){
  'use strict';
- const originals=new Map();
- const editor='#cashFlowCard,#multiVoucherCard';
- const backButtons='button.ratib-back-control,#ratibCashBackBtn,#backToMenuBtn,#ledgerBackBtn,button.back-to-menu-btn,[data-account-action="close"]';
- function trackable(el){
-  return !!el?.closest?.(editor) && !el.closest('.hidden,[hidden]') &&
-    !el.disabled&&!el.readOnly&&/^(INPUT|SELECT|TEXTAREA)$/.test(el.tagName)&&
-    !/^(hidden|button|submit|checkbox|radio|file)$/.test(el.type||'');
- }
- function hasChanges(){
-  for(const [el,initial] of originals){
-   if(!el.isConnected||!trackable(el)){originals.delete(el);continue;}
-   if(el.value!==initial)return true;
-  }
-  return false;
- }
- document.addEventListener('focusin',e=>{
-  const el=e.target;
-  if(trackable(el)&&!originals.has(el))originals.set(el,el.value);
- },true);
- document.addEventListener('input',e=>{
-  if(!e.isTrusted)return;
-  const el=e.target;
-  if(trackable(el)&&!originals.has(el))originals.set(el,el.defaultValue??'');
- },true);
- document.addEventListener('click',e=>{
-  const button=e.target?.closest?.(backButtons);
-  if(!button||!hasChanges())return;
-  if(!window.confirm('هناك تغييرات في السند لم تُحفظ. هل تريد الرجوع دون حفظها؟')){
-   e.preventDefault();e.stopImmediatePropagation();e.stopPropagation();return;
-  }
-  originals.clear();
- },true);
  function successStyle(message){
   const value=String(message??'').trim();if(!value)return;
   for(const el of document.querySelectorAll('#toast,.toast,.toast-message,#toastNotification,#appToast,.app-toast,.notification,.toast-notification,[role="status"]')){
@@ -95,8 +54,7 @@ new MutationObserver(()=>{if(pending)return;pending=true;queueMicrotask(()=>{pen
    if(kind!=='success')document.querySelectorAll('.ratib-success-toast-116').forEach(el=>el.classList.remove('ratib-success-toast-116'));
    const result=old.apply(this,[message,kind,...args]);
    if(kind==='success'){
-    const msg=String(message||'');
-    if(/حفظ|تسجيل|إضافة/.test(msg)&&/سند|قيد|عملية/.test(msg))originals.clear();
+  
     queueMicrotask(()=>successStyle(message));setTimeout(()=>successStyle(message),60);
    }
    return result;
@@ -106,4 +64,94 @@ new MutationObserver(()=>{if(pending)return;pending=true;queueMicrotask(()=>{pen
  hookToast();
  let pending=false;
  new MutationObserver(()=>{if(pending)return;pending=true;queueMicrotask(()=>{pending=false;hookToast();});}).observe(document.body,{childList:true,subtree:true});
+})();
+
+/* The same dismiss action is used by the dialog button and by system Back. */
+(() => {
+  'use strict';
+  const actions = {
+    accountQuickVoucherModal:'accountQuickVoucherCancelBtn', cloudBackupDueModal:'cloudBackupDueCancelBtn',
+    cloudRestoreModal:'closeCloudRestoreBtn', categoryTransactionsModal:'closeCategoryModalBtn',
+    reminderModal:'closeReminderModalBtn', editAccountModal:'closeEditAccountModalBtn',
+    txModal:'closeModalBtn', addAccountModal:'closeAddAccountModalBtn',
+    longPressConfirmModal:'cancelEditDocBtn', globalSearchModal:'closeGlobalSearchBtn',
+    accountStatementCurrencyModal:'accountStatementCurrencyCancel', ratibAboutModal:'closeRatibAboutBtn',
+    importedRecordModal:'closeImportedRecordBtn', spendFxModal:'cancelSpendFxBtn',
+    legacyImportModal:'closeLegacyImportBtn', trialPreviewModal:'trialPreviewClose',
+    financialCalculatorModal:'financialCalcClose', yearToolOverlay:'yearToolDismiss',
+    ratibWhatsappSupportDialog:'ratibWhatsappSupportClose', importedOpeningVoucherModal:'importedOpeningClose'
+  };
+  const editors = new Set(['editAccountModal','addAccountModal','reminderModal','txModal','importedRecordModal']);
+  const baselines = new WeakMap();
+  const openers = new WeakMap();
+  let lastControl, pendingClose;
+  const prompt = document.createElement('dialog');
+  prompt.id = 'ratibDiscardEdits';
+  prompt.setAttribute('aria-labelledby','ratibDiscardTitle');
+  prompt.innerHTML = '<h3 id="ratibDiscardTitle">تجاهل التعديلات والرجوع؟</h3><form method="dialog"><button class="btn btn-ghost" value="stay" autofocus>متابعة التحرير</button><button class="btn btn-danger" value="discard">تجاهل التعديلات</button></form>';
+  document.body.append(prompt);
+  function fieldValues(modal) {
+    return JSON.stringify([...modal.querySelectorAll('input:not([type=button]):not([type=hidden]),select,textarea')]
+      .map(field => [field.value,field.checked]));
+  }
+  function visible(modal) {
+    return modal.open || modal.classList.contains('show') || modal.style.display === 'flex';
+  }
+  function refresh(modal) {
+    if (!visible(modal)) {
+      baselines.delete(modal);
+      const opener = openers.get(modal);
+      openers.delete(modal);
+      if (opener?.isConnected && !opener.closest('.hidden,[hidden],[inert]')) opener.focus({preventScroll:true});
+      return;
+    }
+    if (!openers.has(modal)) openers.set(modal,lastControl);
+    if (editors.has(modal.id) && !baselines.has(modal)) baselines.set(modal,fieldValues(modal));
+    const button = document.getElementById(actions[modal.id]);
+    const heading = modal.querySelector('h1,h2,h3,[role=heading]');
+    if (!button || !heading || button.classList.contains('ratib-dialog-dismiss')) return;
+    const row = document.createElement('div');
+    row.className = 'ratib-dialog-heading';
+    heading.before(row);
+    row.append(button,heading);
+    button.classList.add('ratib-dialog-dismiss');
+    button.setAttribute('aria-label','إغلاق '+heading.textContent.trim());
+  }
+  document.addEventListener('pointerdown',event => {
+    lastControl = event.target.closest('button,a,input,[tabindex],[role=button]') || document.activeElement;
+  },true);
+  document.addEventListener('focusin',event => {
+    if (!event.target.closest('.modal-overlay,dialog')) lastControl=event.target;
+  });
+  const observer = new MutationObserver(records => {
+    for (const record of records) {
+      if (actions[record.target.id]) refresh(record.target);
+    }
+  });
+  observer.observe(document.body,{subtree:true,attributes:true,attributeFilter:['class','style','open']});
+  document.addEventListener('click',event => {
+    const button = event.target.closest('button');
+    const modal = button?.closest('.modal-overlay');
+    if (!modal || !editors.has(modal.id) || !baselines.has(modal)) return;
+    if (![actions[modal.id],'closeModalActionBtn','cancelImportedRecordBtn'].includes(button.id)) return;
+    if (fieldValues(modal) === baselines.get(modal)) return;
+    event.preventDefault();event.stopImmediatePropagation();
+    if (prompt.open) return;
+    pendingClose = {button,modal};
+    prompt.returnValue='stay';
+    prompt.showModal();
+  },true);
+  prompt.addEventListener('close',() => {
+    const request = pendingClose;
+    pendingClose = null;
+    if (!request || prompt.returnValue !== 'discard') return;
+    baselines.delete(request.modal);
+    request.button.click();
+  });
+  window.ratibDismissDialog = modal => {
+    const button = document.getElementById(actions[modal.id]);
+    if (!button) return false;
+    button.click();
+    return true;
+  };
 })();

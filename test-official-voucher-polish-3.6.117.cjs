@@ -3,9 +3,9 @@ const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/st
 const html=fs.readFileSync('index.html','utf8'),css=fs.readFileSync('ratib-voucher-polish-3.6.117.css','utf8'),
 sw=fs.readFileSync('sw.js','utf8'),pkg=require('./package.json');
 const document=new JSDOM(html).window.document;
-assert.equal(pkg.version,'3.6.153');
-assert(html.includes('const RATIB_RELEASE={"version":"3.6.153","build":"p15300"'));
-assert(sw.includes('const APP_RELEASE={"version":"3.6.153","build":"p15300"'));
+assert.equal(pkg.version,'3.6.154');
+assert(html.includes('const RATIB_RELEASE={"version":"3.6.154","build":"p15400"'));
+assert(sw.includes('const APP_RELEASE={"version":"3.6.154","build":"p15400"'));
 assert(sw.includes('v260-opening-mobile-clean-3.6.139'));
 assert(sw.includes('"./ratib-voucher-polish-3.6.117.css"'));
 assert(document.querySelector('link[href="./ratib-voucher-polish-3.6.117.css?v=3.6.139"]'));
@@ -13,7 +13,7 @@ const modal=document.getElementById('ratibVoucherLeaveModal');assert(modal&&moda
 for(const id of ['ratibVoucherLeaveSave','ratibVoucherLeaveDiscard','ratibVoucherLeaveCancel','ratibVoucherLeaveStatus'])assert(document.getElementById(id),id);
 assert(html.includes("if(ratibVoucherHasUnsavedEdits())return ratibAskVoucherLeave().then(ok=>ok?goBackInApp():false);"),'internal Back uses three-way choice');
 assert(html.includes("if(next!=='pageExpenses'&&ratibVoucherHasUnsavedEdits()"),'outbound navigation guarded');
-assert(html.includes('ratibAskVoucherLeave().then(ok=>{if(ok)ratibGestureDashboard(true,0);});'),'mobile history gesture guarded');
+assert(html.includes('Promise.all([replay,ratibAskVoucherLeave()]).then(([,leave])=>{if(leave)goBackInApp();});'),'mobile history gesture guarded');
 assert(!html.includes("if(!confirm('هذا السند لم يُعتمد بعد."),'old two-choice confirmation removed');
 assert(html.includes('function ratibGestureDraftCheck(){'),'existing navigation contract preserved');
 assert(html.includes('ratibVoucherHasUnsavedEdits())return false'),'back veto while dialog pending');

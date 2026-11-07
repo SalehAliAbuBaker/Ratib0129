@@ -1380,6 +1380,10 @@ function commerceOpenDocument(docId){
 window.RatibCommerce={open,openFavorite,openDocument:commerceOpenDocument,documentAction:commerceDocumentOperation,render:paint,version:window.ratibCurrentTrialVersion?.()||'3.6.152'};
 window.RatibCommerce.hasUnsavedDraft=hasUnsavedDraft;
 window.RatibCommerce.requestLeave=requestLeave;
+window.RatibCommerce.closeDetail=()=>{
+ if(view!=='detail')return false;
+ view='records';paint();return true;
+};
 window.RatibCommerce.captureView=captureView;
 window.RatibCommerce.restoreView=restoreView;
 window.RatibCommerce.refreshDefaults=refreshDefaults;

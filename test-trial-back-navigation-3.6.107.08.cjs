@@ -28,12 +28,14 @@ function simulate({tab='pageSettings',depth=0,known=true,dirty=false,commerceDir
   allowExit:false,_appExited:false,_appHistoryInitialized:true,_exitPromise:null,_appHistoryPending:null,
   _appHistorySession:'sess',_appExitHistoryDelta:0,_restoringAppView:false,
   _appHomeReset:false,_appReplayDepth:null,_appCurrentHistoryDepth:Math.max(1,depth+1),
-  _appBackStack:Array.from({length:Math.max(1,depth+1)},()=>({tab:'pageDashboard'})),_appSavedViews:new Map(),
+  _appBackStack:Array.from({length:Math.max(1,depth+1)},(_,i)=>({tab:i?'pageLedger':'pageDashboard',scrollY:125,ledger:{search:'fixture'}})),_appSavedViews:new Map(),
   currentActiveTab:tab,hasUnsavedChanges:dirty,
   document:{getElementById:id=>({style:{display:'none'},classList:{contains:cl=>cl==='hidden'&&((id==='cashFlowCard'&&form==='multi')||(id==='multiVoucherCard'&&form==='single'))}})},
   window:{RatibCommerce:{hasUnsavedDraft:()=>commerceDirty}},
   history:{state:known?{ratibGuard:true,ratibSession:'sess',ratibDepth:depth}:{page:'ratib_app_base'},go:n=>log.go.push(n),forward:()=>log.forward++,back:()=>{}},
   closeTransientAppUi:()=>overlay,
+  beginAppHistoryMovement:()=>Promise.resolve(),goBackInApp:()=>{log.requested=true;},
+  restoreAppView:view=>{ctx.currentActiveTab=view.tab;log.restored=view;},
   ratibRestorePrintScreen:()=>{}, // Popstate test extracts navigation without the global print module.
   confirm:()=>{log.confirmed++;return accept;},
   ratibVoucherHasUnsavedEdits:()=>tab==='pageExpenses'&&dirty,
@@ -54,14 +56,15 @@ function simulate({tab='pageSettings',depth=0,known=true,dirty=false,commerceDir
 }
 for(const tab of ['pageExpenses','pageReports','pageLedger','pageSettings','pageAccountsTree','pageAccountOperations','pageCommerce']){
  const {log,ctx}=simulate({tab});
- assert.equal(log.home,1,tab+' must return to dashboard');
+ assert.equal(log.restored.tab,'pageDashboard');
  assert.equal(log.exit,0);assert.equal(ctx._appBackStack.length,0);
- assert.equal(log.history.at(-1)?.tab,'pageDashboard');
 }
-const nested=simulate({tab:'pageLedger',depth:2});
-assert.equal(nested.log.home,1);
-assert.deepEqual(nested.log.go,[-2]);
-assert.equal(nested.ctx._appHomeReset,true);
+const nested=simulate({tab:'pageExpenses',depth:2});
+assert.equal(nested.log.restored.tab,'pageLedger');
+assert.equal(nested.log.restored.scrollY,125);
+assert.equal(nested.log.restored.ledger.search,'fixture');
+assert.equal(nested.ctx._appBackStack.length,2);
+assert.deepEqual(nested.log.go,[]);
 const base=simulate({tab:'pageReports',known:false,depth:-1});
 assert.equal(base.log.home,1);
 assert.equal(base.log.forward,1);

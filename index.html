@@ -5563,6 +5563,8 @@ function openDashboardVoucher(type){
  if(!['spend','entry','multi'].includes(type))return;
  if(_appHistoryPending){_appHistoryPending.promise.then(()=>openDashboardVoucher(type));return;}
  navigateToTab('pageExpenses',true);
+ // A home shortcut goes directly into its editor. The selector was never visited.
+ document.getElementById('voucherSelectorCard').classList.add('hidden');
  if(type==='multi')selectMultiVoucherType();
  else selectVoucherTypeDirect(type);
 }

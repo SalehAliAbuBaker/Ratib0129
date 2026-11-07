@@ -124,6 +124,7 @@ new MutationObserver(records=>{
     row.className = 'ratib-dialog-heading';
     heading.before(row);
     row.append(button,heading);
+    button.replaceChildren(); // The visible × is drawn by the shared dismiss style.
     button.classList.add('ratib-dialog-dismiss');
     button.setAttribute('aria-label','إغلاق '+heading.textContent.trim());
   }

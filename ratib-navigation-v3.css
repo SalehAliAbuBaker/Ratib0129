@@ -78,3 +78,36 @@
  body.printing-budget #printBudgetContainer .ps-table tbody tr{break-inside:avoid;page-break-inside:avoid}
  body.printing-budget #printBudgetContainer .ps-table td{overflow-wrap:break-word}
 }
+
+@media screen{
+ html body #ratibPageNav:not([hidden]) #backToMenuBtn{
+  border-color:color-mix(in srgb,var(--accent) 38%,var(--border))!important;
+  background:color-mix(in srgb,var(--accent) 10%,var(--card))!important;
+  color:var(--accent-strong,var(--accent))!important;
+ }
+ #ratibPageNav:not([hidden]){padding-block:2px;gap:.5rem}
+ .ratib-dialog-heading{align-items:center}
+ .ratib-dialog-heading>button.ratib-dialog-dismiss{align-self:center;overflow:hidden}
+}
+@media screen and (max-width:600px){
+ #pageExpenses:not(.hidden) :is(#cashFlowCard,#multiVoucherCard):not(.hidden){
+  margin-block:0 6px!important;padding-block:6px!important;
+ }
+ #pageExpenses #multiVoucherCard:not(.hidden) .multi-voucher-grid{
+  row-gap:4px!important;margin-block:4px!important;align-content:start!important;
+ }
+ #pageExpenses #multiVoucherCard:not(.hidden) .multi-voucher-grid>.form-group,
+ #pageExpenses #cashFlowCard:not(.hidden) .form-group{
+  margin-block:0 4px!important;
+ }
+ #pageExpenses #multiVoucherCard:not(.hidden)>h2,
+ #pageExpenses #multiVoucherCard:not(.hidden) #ratibCompoundMeta142{
+  margin-block:0 4px!important;
+ }
+ #pageExpenses #multiVoucherCard:not(.hidden) .multi-voucher-table-wrap{
+  margin-block:4px!important;
+ }
+ #pageExpenses #multiVoucherCard.spend-voucher:not(.hidden) .ratib-approved-head-row{
+  margin-block:0!important;padding-block:3px!important;
+ }
+}

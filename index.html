@@ -1762,6 +1762,8 @@ body.ratib-sidebar-open,body.ratib-about-open{overflow:hidden}
   <nav id="ratibPageNav" class="no-print" aria-label="التنقل داخل التطبيق" hidden>
     <button type="button" id="backToMenuBtn" aria-label="رجوع" onclick="goBackInApp()"><span aria-hidden="true">→</span></button>
     <strong id="ratibPageTitle"></strong>
+    <span id="ratibVoucherHeading" hidden></span>
+    <span id="ratibVoucherSequence" aria-label="رقم السند" hidden></span>
   </nav>
 
   <p hidden aria-hidden="true" class="offline-ready no-print" id="offlineReadyStatus"></p>
@@ -1937,8 +1939,8 @@ body.ratib-sidebar-open,body.ratib-about-open{overflow:hidden}
         <input type="text" id="voucherAmountInput" class="number-formatted" placeholder="أدخل إجمالي المبلغ" inputmode="decimal">
       </div>
       <div style="flex: 0.9;">
-        <label>العملة:</label>
-        <select id="voucherCurrencySelect">
+        <label class="ratib-voucher-caption">العملة:</label>
+        <select id="voucherCurrencySelect" aria-label="العملة">
           <option value="YER" selected>🇾🇪 ر.ي</option>
           <option value="SAR">🇸🇦 ر.س</option>
           <option value="USD">💵 دولار</option>
@@ -1956,7 +1958,7 @@ body.ratib-sidebar-open,body.ratib-about-open{overflow:hidden}
     </div>
 
     <div class="form-group">
-      <label>تاريخ السند:</label>
+      <label class="ratib-voucher-caption">تاريخ السند:</label>
       <input type="date" id="voucherDateInput" dir="ltr" lang="en-CA">
     </div>
 
@@ -2692,8 +2694,8 @@ body.ratib-sidebar-open,body.ratib-about-open{overflow:hidden}
           <input type="text" id="editVoucherAmount" class="number-formatted" placeholder="المبلغ" inputmode="decimal">
         </div>
         <div style="flex: 0.9;">
-          <label>العملة:</label>
-          <select id="editVoucherCurrency">
+          <label class="ratib-voucher-caption">العملة:</label>
+          <select id="editVoucherCurrency" aria-label="العملة">
             <option value="YER">🇾🇪 ر.ي</option>
             <option value="SAR">🇸🇦 ر.س</option>
             <option value="USD">💵 دولار</option>
@@ -2725,7 +2727,7 @@ body.ratib-sidebar-open,body.ratib-about-open{overflow:hidden}
       </div>
 
       <div class="form-group">
-        <label>تاريخ السند:</label>
+        <label class="ratib-voucher-caption">تاريخ السند:</label>
         <input type="date" id="editVoucherDate">
       </div>
 
@@ -9736,7 +9738,7 @@ function showExitedScreen(wasSecured) {
     return true;
   }
   function install(){
-    amountIds.forEach(id=>{const el=document.getElementById(id);if(el){el.setAttribute('min','0.01');el.setAttribute('step','0.01');el.addEventListener('input',()=>validateAmount(id,false));addHint(el,'أدخل قيمة موجبة؛ ويُراجع التطبيق اتزان التوزيع قبل الترحيل.')}});
+    amountIds.forEach(id=>{const el=document.getElementById(id);if(el){el.setAttribute('min','0.01');el.setAttribute('step','0.01');el.addEventListener('input',()=>validateAmount(id,false))}});
     numericIds.forEach(id=>{const el=document.getElementById(id);if(el){el.setAttribute('min','0');el.setAttribute('step','0.01');el.addEventListener('input',()=>mark(el,el.value.trim()===''||Number(el.value)>=0));}});
     const commit=document.getElementById('commitVoucherBtn');
     if(commit)commit.addEventListener('click',e=>{if(!validateVoucherBeforeCommit('commitVoucherBtn',false)){e.preventDefault();e.stopImmediatePropagation()}},true);
@@ -12962,7 +12964,7 @@ function importedOpeningModal(){
  return modal;
 }
 function setOpeningEditorTitle(manual){
- document.getElementById('importedOpeningTitle').textContent=manual?'قيد افتتاحي — إدخال يدوي':'سند قيد مركب — أرصدة مستوردة';
+ document.getElementById('importedOpeningTitle').textContent=manual?'سند قيد افتتاحي':'قيد أرصدة مستوردة';
  document.getElementById('importedOpeningDescription').textContent=manual
   ?''
   :'تضم الدفعة جميع الأرصدة المحلية والأجنبية. عدّل البنود أو أضف بنودًا، ثم احفظ القيد كاملًا بعد توازن التقييم. لن تتغير البيانات قبل الحفظ.';

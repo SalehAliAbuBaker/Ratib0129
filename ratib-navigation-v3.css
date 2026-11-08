@@ -169,3 +169,8 @@
  }
  #importedOpeningVoucherModal .ratib-opening-heading>button::before{content:'→'}
 }
+@media screen{
+ #importedOpeningVoucherModal .ratib-opening-heading #importedOpeningClose{grid-column:1!important;grid-row:1!important;justify-self:start!important;order:0!important}
+ #importedOpeningVoucherModal .ratib-opening-heading #importedOpeningTitle{grid-column:2!important;grid-row:1!important;justify-self:center!important;width:auto!important;order:0!important}
+ #importedOpeningVoucherModal .ratib-opening-heading #importedOpeningSeq{grid-column:3!important;grid-row:1!important;width:5ch!important;justify-self:end!important;order:0!important}
+}

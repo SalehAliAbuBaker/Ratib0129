@@ -10532,7 +10532,7 @@ function cashCounterSide(){return multiVoucherMode==='income'?'credit':'debit';}
 
 function setCashVoucherDirection(mode){
   if(!['income','spend'].includes(mode)||mode===multiVoucherMode)return;
-  document.getElementById('cashDirectionSwitch').checked=multiVoucherMode==='income';rememberAppView();configureVoucherMode(mode);currentVoucherMode=mode;
+  document.getElementById('cashDirectionSwitch').checked=multiVoucherMode==='income';configureVoucherMode(mode);currentVoucherMode=mode;
   const existing=getAllTransactions().find(t=>t.multiVoucherId===multiVoucherDraftId||t.id===multiVoucherDraftId);
   document.getElementById('multiVoucherSeqBadge').textContent=`رقم: ${existing?.voucherMode===mode?existing.seqNum:getNextVoucherNumber(mode)}`;
   hasUnsavedChanges=true;renderMultiVoucherLines();pushAppHistoryState();

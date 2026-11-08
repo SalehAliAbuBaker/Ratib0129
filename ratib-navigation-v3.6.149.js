@@ -31,9 +31,19 @@ function reportsMenu(){
   if(el.tagName!=='BUTTON'&&!el.dataset.ratibKeyboard){el.dataset.ratibKeyboard='1';el.setAttribute('role','button');el.tabIndex=0;el.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();el.click();}});}
  }
 }
-function refresh(){reportsMenu();}
-refresh();let pending=false;
-new MutationObserver(()=>{if(pending)return;pending=true;queueMicrotask(()=>{pending=false;refresh();});}).observe(document.body,{childList:true,subtree:true});
+// Only rebuild navigation when a report launcher or its container is inserted.
+const launcherSelector=['#pageReports','#ratibReportMenu',...Object.keys(titles).map(id=>'#'+id)].join(',');
+reportsMenu();
+new MutationObserver(records=>{
+ for(const record of records){
+  for(const node of record.addedNodes){
+   if(node.nodeType===1&&(node.matches(launcherSelector)||node.querySelector(launcherSelector))){
+    reportsMenu();
+    return;
+   }
+  }
+ }
+}).observe(document.body,{childList:true,subtree:true});
 })();
 
 
@@ -114,8 +124,20 @@ new MutationObserver(()=>{if(pending)return;pending=true;queueMicrotask(()=>{pen
     row.className = 'ratib-dialog-heading';
     heading.before(row);
     row.append(button,heading);
+    button.replaceChildren(); // The visible × is drawn by the shared dismiss style.
     button.classList.add('ratib-dialog-dismiss');
     button.setAttribute('aria-label','إغلاق '+heading.textContent.trim());
+    if(modal.id==='importedOpeningVoucherModal'){
+      const number=modal.querySelector('#importedOpeningSeq');
+      const label=number?.closest('label');
+      if(number && label){
+        number.setAttribute('aria-label','رقم القيد');
+        row.classList.add('ratib-opening-heading');
+        row.append(number);
+        label.remove();
+        button.setAttribute('aria-label','رجوع من القيد الافتتاحي');
+      }
+    }
   }
   document.addEventListener('pointerdown',event => {
     lastControl = event.target.closest('button,a,input,[tabindex],[role=button]') || document.activeElement;
@@ -154,4 +176,41 @@ new MutationObserver(()=>{if(pending)return;pending=true;queueMicrotask(()=>{pen
     button.click();
     return true;
   };
+})();
+
+/* A single screen heading for vouchers opened from any entry point. */
+(()=>{
+ const byId=id=>document.getElementById(id);
+ const nav=byId('ratibPageNav'), heading=byId('ratibVoucherHeading'), sequence=byId('ratibVoucherSequence');
+ const page=byId('pageExpenses'), single=byId('cashFlowCard'), multi=byId('multiVoucherCard');
+ if(!nav||!heading||!sequence||!page||!single||!multi)return;
+ let placeholder=null;
+ function update(){
+  const inside=!page.classList.contains('hidden')&&!nav.hidden;
+  const simple=inside&&!single.classList.contains('hidden');
+  const compound=inside&&!multi.classList.contains('hidden');
+  const cash=compound&&multi.classList.contains('spend-voucher');
+  const toggle=byId('cashDirectionControl');
+  if(toggle&&cash&&toggle.parentElement!==heading){
+   placeholder=document.createComment('cash direction');
+   toggle.before(placeholder);heading.replaceChildren(toggle);
+  }else if(toggle&&!cash&&placeholder){
+   placeholder.replaceWith(toggle);placeholder=null;
+  }
+  nav.classList.toggle('ratib-voucher-nav',simple||compound);
+  heading.hidden=sequence.hidden=!(simple||compound);
+  if(!simple&&!compound)return;
+  if(!cash){
+   const title=simple?'سند قيد بسيط':'سند قيد مركب';
+   if(heading.textContent!==title)heading.textContent=title;
+  }
+  const badge=byId(simple?'voucherSeqNumBadge':'multiVoucherSeqBadge');
+  const number=badge?.textContent.match(/[0-9٠-٩۰-۹]+/)?.[0]||'—';
+  if(sequence.textContent!==number)sequence.textContent=number;
+ }
+ const obs=new MutationObserver(update);
+ for(const el of [page,single,multi])obs.observe(el,{attributes:true,attributeFilter:['class']});
+ obs.observe(nav,{attributes:true,attributeFilter:['hidden']});
+ for(const id of ['voucherSeqNumBadge','multiVoucherSeqBadge']){const el=byId(id);if(el)obs.observe(el,{childList:true,characterData:true,subtree:true});}
+ update();
 })();

@@ -1,8 +1,7 @@
 /* Ratib 3.6.142 — scoped compound entry styling. Screen only; printing untouched. */
 @media screen{
-/* 3.6.143: suppress the global back bar only while this editor is visible.
-   The original header return control remains keyboard accessible. */
-body:has(#multiVoucherCard.ratib-cmp-layout142:not(.hidden)) #backToMenuBtn{
+/* Older layouts can have a separate return control. The shared sticky navigation stays available. */
+body:has(#multiVoucherCard.ratib-cmp-layout142:not(.hidden)) #backToMenuBtn:not(#ratibPageNav > button){
   display:none!important;
 }
 /* Only the approved compound mode wins over legacy styling; cash vouchers untouched. */

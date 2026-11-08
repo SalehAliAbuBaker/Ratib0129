@@ -1762,6 +1762,8 @@ body.ratib-sidebar-open,body.ratib-about-open{overflow:hidden}
   <nav id="ratibPageNav" class="no-print" aria-label="التنقل داخل التطبيق" hidden>
     <button type="button" id="backToMenuBtn" aria-label="رجوع" onclick="goBackInApp()"><span aria-hidden="true">→</span></button>
     <strong id="ratibPageTitle"></strong>
+    <span id="ratibVoucherHeading" hidden></span>
+    <span id="ratibVoucherSequence" aria-label="رقم السند" hidden></span>
   </nav>
 
   <p hidden aria-hidden="true" class="offline-ready no-print" id="offlineReadyStatus"></p>
@@ -1937,8 +1939,8 @@ body.ratib-sidebar-open,body.ratib-about-open{overflow:hidden}
         <input type="text" id="voucherAmountInput" class="number-formatted" placeholder="أدخل إجمالي المبلغ" inputmode="decimal">
       </div>
       <div style="flex: 0.9;">
-        <label>العملة:</label>
-        <select id="voucherCurrencySelect">
+        <label class="ratib-voucher-caption">العملة:</label>
+        <select id="voucherCurrencySelect" aria-label="العملة">
           <option value="YER" selected>🇾🇪 ر.ي</option>
           <option value="SAR">🇸🇦 ر.س</option>
           <option value="USD">💵 دولار</option>
@@ -1956,7 +1958,7 @@ body.ratib-sidebar-open,body.ratib-about-open{overflow:hidden}
     </div>
 
     <div class="form-group">
-      <label>تاريخ السند:</label>
+      <label class="ratib-voucher-caption">تاريخ السند:</label>
       <input type="date" id="voucherDateInput" dir="ltr" lang="en-CA">
     </div>
 
@@ -2692,8 +2694,8 @@ body.ratib-sidebar-open,body.ratib-about-open{overflow:hidden}
           <input type="text" id="editVoucherAmount" class="number-formatted" placeholder="المبلغ" inputmode="decimal">
         </div>
         <div style="flex: 0.9;">
-          <label>العملة:</label>
-          <select id="editVoucherCurrency">
+          <label class="ratib-voucher-caption">العملة:</label>
+          <select id="editVoucherCurrency" aria-label="العملة">
             <option value="YER">🇾🇪 ر.ي</option>
             <option value="SAR">🇸🇦 ر.س</option>
             <option value="USD">💵 دولار</option>
@@ -2725,7 +2727,7 @@ body.ratib-sidebar-open,body.ratib-about-open{overflow:hidden}
       </div>
 
       <div class="form-group">
-        <label>تاريخ السند:</label>
+        <label class="ratib-voucher-caption">تاريخ السند:</label>
         <input type="date" id="editVoucherDate">
       </div>
 
@@ -4121,6 +4123,11 @@ function saveCloudCfg(patch, silent = false) {
 function _todayStr(d = new Date()) { return `${d.getFullYear()}-${_pad2(d.getMonth() + 1)}-${_pad2(d.getDate())}`; }
 function _cloudOriginOk() { return location.protocol === 'https:' || location.hostname === 'localhost' || location.hostname === '127.0.0.1'; }
 
+function preloadDriveWebClient(){
+  if(window.RatibAndroid || !_cloudOriginOk() || navigator.onLine === false)return;
+  loadGis().catch(()=>{});
+}
+
 function loadGis() {
   if (window.google && google.accounts && google.accounts.oauth2) return Promise.resolve();
   if (_gisPromise) return _gisPromise;
@@ -4558,7 +4565,7 @@ function initCloudBackup() {
   });
   refreshCloudBackupUI();
   // Preload Google's own script only; requesting a token is always click-initiated.
-  if (_cloudOriginOk() && navigator.onLine !== false) loadGis().catch(() => {});
+  preloadDriveWebClient();
   setInterval(checkCloudBackupDue, 60000);
   document.addEventListener('visibilitychange', () => { if (!document.hidden) checkCloudBackupDue(); });
   setTimeout(checkCloudBackupDue, 4000); // فحص "ما فاته" عند فتح التطبيق
@@ -5558,6 +5565,8 @@ function openDashboardVoucher(type){
  if(!['spend','entry','multi'].includes(type))return;
  if(_appHistoryPending){_appHistoryPending.promise.then(()=>openDashboardVoucher(type));return;}
  navigateToTab('pageExpenses',true);
+ // A home shortcut goes directly into its editor. The selector was never visited.
+ document.getElementById('voucherSelectorCard').classList.add('hidden');
  if(type==='multi')selectMultiVoucherType();
  else selectVoucherTypeDirect(type);
 }
@@ -5676,7 +5685,6 @@ function goBackInApp(){
   if(_appBackStack.length&&_appHistoryInitialized&&history.state?.ratibSession===_appHistorySession){const result=beginAppHistoryMovement();history.back();return result;}
   const previous=_appBackStack.pop();if(previous){restoreAppView(typeof previous==='string'?{tab:previous}:previous);return;}
   if(currentActiveTab==='pageDashboard'){showExitModal();return;}
-  if(currentActiveTab==='pageExpenses'&&(!document.getElementById('cashFlowCard')?.classList.contains('hidden')||!document.getElementById('multiVoucherCard')?.classList.contains('hidden'))){initVoucherSelectorView();return;}
   if(currentActiveTab==='pageAccountOperations'){navigateToTab(accountOperationsReturnTab||'pageAccountsTree',false);return;}
   navigateToTab('pageDashboard',false);
 }
@@ -9730,7 +9738,7 @@ function showExitedScreen(wasSecured) {
     return true;
   }
   function install(){
-    amountIds.forEach(id=>{const el=document.getElementById(id);if(el){el.setAttribute('min','0.01');el.setAttribute('step','0.01');el.addEventListener('input',()=>validateAmount(id,false));addHint(el,'أدخل قيمة موجبة؛ ويُراجع التطبيق اتزان التوزيع قبل الترحيل.')}});
+    amountIds.forEach(id=>{const el=document.getElementById(id);if(el){el.setAttribute('min','0.01');el.setAttribute('step','0.01');el.addEventListener('input',()=>validateAmount(id,false))}});
     numericIds.forEach(id=>{const el=document.getElementById(id);if(el){el.setAttribute('min','0');el.setAttribute('step','0.01');el.addEventListener('input',()=>mark(el,el.value.trim()===''||Number(el.value)>=0));}});
     const commit=document.getElementById('commitVoucherBtn');
     if(commit)commit.addEventListener('click',e=>{if(!validateVoucherBeforeCommit('commitVoucherBtn',false)){e.preventDefault();e.stopImmediatePropagation()}},true);
@@ -10460,8 +10468,8 @@ function closeRatibAbout(){
 }
 
 function openRatibCloudSettings(){
-  // Preload Google Identity before the explicit backup/restore tap.
-  loadGis().catch(()=>{});
+  // Prepare the browser client before an explicit backup or restore.
+  preloadDriveWebClient();
   if(typeof window.RatibSettingsOpen==='function')window.RatibSettingsOpen('backupsettings');
   else if(currentActiveTab!=='pageSettings')navigateToTab('pageSettings',true);
   const section=document.getElementById('cloudBackupSection'),card=section?.closest('.settings-accordion-card'),body=card?.querySelector('.settings-accordion-body');
@@ -10524,7 +10532,7 @@ function cashCounterSide(){return multiVoucherMode==='income'?'credit':'debit';}
 
 function setCashVoucherDirection(mode){
   if(!['income','spend'].includes(mode)||mode===multiVoucherMode)return;
-  document.getElementById('cashDirectionSwitch').checked=multiVoucherMode==='income';rememberAppView();configureVoucherMode(mode);currentVoucherMode=mode;
+  document.getElementById('cashDirectionSwitch').checked=multiVoucherMode==='income';configureVoucherMode(mode);currentVoucherMode=mode;
   const existing=getAllTransactions().find(t=>t.multiVoucherId===multiVoucherDraftId||t.id===multiVoucherDraftId);
   document.getElementById('multiVoucherSeqBadge').textContent=`رقم: ${existing?.voucherMode===mode?existing.seqNum:getNextVoucherNumber(mode)}`;
   hasUnsavedChanges=true;renderMultiVoucherLines();pushAppHistoryState();
@@ -12956,7 +12964,7 @@ function importedOpeningModal(){
  return modal;
 }
 function setOpeningEditorTitle(manual){
- document.getElementById('importedOpeningTitle').textContent=manual?'قيد افتتاحي — إدخال يدوي':'سند قيد مركب — أرصدة مستوردة';
+ document.getElementById('importedOpeningTitle').textContent=manual?'سند قيد افتتاحي':'قيد أرصدة مستوردة';
  document.getElementById('importedOpeningDescription').textContent=manual
   ?''
   :'تضم الدفعة جميع الأرصدة المحلية والأجنبية. عدّل البنود أو أضف بنودًا، ثم احفظ القيد كاملًا بعد توازن التقييم. لن تتغير البيانات قبل الحفظ.';

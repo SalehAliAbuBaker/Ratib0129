@@ -67,3 +67,123 @@
   #ratibDiscardEdits form{display:flex;gap:.5rem}
   #ratibDiscardEdits::backdrop{background:rgba(0,0,0,.4)}
 }
+
+@media screen{
+ #ratibPageNav{border-block-end:1px solid var(--border)}
+ #ratibPageTitle{min-inline-size:0;line-height:1.4;overflow-wrap:anywhere}
+ .ratib-dialog-heading>:is(h1,h2,h3){min-inline-size:0;line-height:1.4;overflow-wrap:anywhere}
+}
+@media print{
+ body.printing-budget #printBudgetContainer .ps-table thead{display:table-header-group}
+ body.printing-budget #printBudgetContainer .ps-table tbody tr{break-inside:avoid;page-break-inside:avoid}
+ body.printing-budget #printBudgetContainer .ps-table td{overflow-wrap:break-word}
+}
+
+@media screen{
+ html body #ratibPageNav:not([hidden]) #backToMenuBtn{
+  border-color:color-mix(in srgb,var(--accent) 38%,var(--border))!important;
+  background:color-mix(in srgb,var(--accent) 10%,var(--card))!important;
+  color:var(--accent-strong,var(--accent))!important;
+ }
+ #ratibPageNav:not([hidden]){padding-block:2px;gap:.5rem}
+ .ratib-dialog-heading{align-items:center}
+ .ratib-dialog-heading>button.ratib-dialog-dismiss{align-self:center;overflow:hidden}
+}
+@media screen and (max-width:600px){
+ #pageExpenses:not(.hidden) :is(#cashFlowCard,#multiVoucherCard):not(.hidden){
+  margin-block:0 6px!important;padding-block:6px!important;
+ }
+ #pageExpenses #multiVoucherCard:not(.hidden) .multi-voucher-grid{
+  row-gap:4px!important;margin-block:4px!important;align-content:start!important;
+ }
+ #pageExpenses #multiVoucherCard:not(.hidden) .multi-voucher-grid>.form-group,
+ #pageExpenses #cashFlowCard:not(.hidden) .form-group{
+  margin-block:0!important;
+ }
+ #pageExpenses #multiVoucherCard:not(.hidden)>h2,
+ #pageExpenses #multiVoucherCard:not(.hidden) #ratibCompoundMeta142{
+  margin-block:0 4px!important;
+ }
+ #pageExpenses #multiVoucherCard:not(.hidden) .multi-voucher-table-wrap{
+  margin-block:4px!important;
+ }
+ #pageExpenses #multiVoucherCard.spend-voucher:not(.hidden) .ratib-approved-head-row{
+  margin-block:0!important;padding-block:3px!important;
+ }
+ #pageExpenses #cashFlowCard.simple-journal:not(.hidden) .simple-journal-grid{
+  gap:4px 6px!important;margin-block:0 3px!important;
+ }
+ #pageExpenses #cashFlowCard.simple-journal:not(.hidden)>h2{margin-block:0 4px!important}
+ #pageExpenses #multiVoucherCard:not(.hidden) .spend-lines-toolbar,
+ #pageExpenses #multiVoucherCard:not(.hidden) #ratibCompoundToolbar142,
+ #pageExpenses #multiVoucherCard:not(.hidden) .multi-voucher-summary,
+ #pageExpenses #multiVoucherCard:not(.hidden) #ratibCashVoucherHeader{
+  margin-block:3px!important;
+ }
+ #pageExpenses #multiVoucherCard.ratib-cmp-layout142:not(.hidden) .multi-voucher-table tbody tr{
+  row-gap:4px!important;padding-block:5px!important;margin-block:3px!important;
+ }
+ #pageExpenses #multiVoucherCard:not(.hidden) .ratib-payment-beneficiary-row,
+ #pageExpenses #multiVoucherCard:not(.hidden) .ratib-approved-general-note{
+  margin-block:3px!important;
+ }
+
+}
+@media screen{
+ #mainWrap #ratibPageNav.ratib-voucher-nav:not([hidden]),
+ #importedOpeningVoucherModal .ratib-opening-heading{
+  display:grid!important;direction:rtl;grid-template-columns:minmax(48px,1fr) auto minmax(48px,1fr);
+  align-items:center;gap:6px;padding-block:2px;
+ }
+ #ratibPageNav.ratib-voucher-nav #ratibPageTitle{display:none!important}
+ #ratibPageNav.ratib-voucher-nav #backToMenuBtn,.ratib-opening-heading>button{justify-self:start}
+ #mainWrap #ratibVoucherHeading:not([hidden]),#importedOpeningVoucherModal .ratib-opening-heading>h2{
+  white-space:nowrap;margin:0!important;text-align:center;font-size:calc(14px * var(--ratib-font-scale,1))!important;
+  line-height:1.3!important;font-weight:700!important;color:var(--text);
+ }
+ #mainWrap #ratibVoucherSequence:not([hidden]),#importedOpeningVoucherModal .ratib-opening-heading #importedOpeningSeq{
+  justify-self:end;min-width:3ch;max-width:100%;box-sizing:border-box;
+  background:var(--card);border:1px solid var(--border);border-radius:9px;
+  color:var(--accent-strong,var(--accent));padding:3px 8px;text-align:center;
+  font:700 calc(14px * var(--ratib-font-scale,1))/1.35 Tajawal,sans-serif;font-variant-numeric:tabular-nums;
+ }
+ #ratibVoucherHeading #cashDirectionControl{display:flex!important;margin:0!important;padding:0!important}
+ #ratibVoucherHeading #cashDirectionControl>span{display:none!important}
+ #ratibVoucherHeading .cash-direction-switch{width:clamp(108px,33vw,154px);flex:auto;margin:0!important}
+ #ratibVoucherHeading .cash-switch-choice{font-size:calc(13px * var(--ratib-font-scale,1))!important;line-height:1.3}
+ #pageExpenses #cashFlowCard #voucherHeaderTitle,#pageExpenses #cashFlowCard #voucherSeqNumBadge,
+ #pageExpenses #multiVoucherCard:not(.hidden)>h2,#pageExpenses #multiVoucherCard #ratibCompoundMeta142>.ratib-cmp-number,
+ #pageExpenses #multiVoucherCard #ratibCashVoucherHeader>.spend-sequence{display:none!important}
+ #pageExpenses #cashFlowCard.simple-journal>h2{display:contents!important}
+ #pageExpenses #multiVoucherCard #ratibCashVoucherHeader:not([hidden]),
+ #pageExpenses #multiVoucherCard.ratib-cmp-layout142 #ratibCompoundMeta142:not([hidden]){
+  grid-template-columns:minmax(0,1fr)!important;
+ }
+ #pageExpenses #multiVoucherCard #ratibCompoundDate142,#pageExpenses #multiVoucherCard #ratibCashVoucherHeader>label:has(#multiVoucherDate){
+  grid-column:1/-1!important;width:100%!important;
+ }
+ #mainWrap .ratib-voucher-caption,#txModal .ratib-voucher-caption{display:none!important}
+ #mainWrap #pageExpenses #cashLineHeading,
+ #mainWrap #pageExpenses #multiVoucherCard.ratib-cmp-layout142:not(.spend-voucher):not(.hidden) .multi-voucher-table tbody tr::before{
+  font-size:calc(13px * var(--ratib-font-scale,1))!important;line-height:1.35!important;font-weight:600!important;
+ }
+ #importedOpeningVoucherModal .ratib-opening-heading>button::before{content:'→'}
+}
+@media screen{
+ #importedOpeningVoucherModal .ratib-opening-heading #importedOpeningClose{grid-column:1!important;grid-row:1!important;justify-self:start!important;order:0!important}
+ #importedOpeningVoucherModal .ratib-opening-heading #importedOpeningTitle{grid-column:2!important;grid-row:1!important;justify-self:center!important;width:auto!important;order:0!important}
+ #importedOpeningVoucherModal .ratib-opening-heading #importedOpeningSeq{grid-column:3!important;grid-row:1!important;width:5ch!important;justify-self:end!important;order:0!important}
+}
+@media screen{
+ #importedOpeningVoucherModal.modal-overlay.show .modal-content>.ratib-opening-heading{
+  display:grid!important;direction:rtl!important;width:100%!important;box-sizing:border-box;
+  grid-template-columns:minmax(48px,1fr) auto minmax(48px,1fr)!important;
+  grid-template-areas:"back title number"!important;align-items:center!important;
+ }
+ #importedOpeningVoucherModal.modal-overlay.show .ratib-opening-heading #importedOpeningClose{grid-area:back!important}
+ #importedOpeningVoucherModal.modal-overlay.show .ratib-opening-heading #importedOpeningTitle{grid-area:title!important}
+ #importedOpeningVoucherModal.modal-overlay.show .ratib-opening-heading #importedOpeningSeq{grid-area:number!important}
+ #ratibVoucherLeaveModal #ratibVoucherLeaveTitle,#ratibOpeningLeaveModal h3{
+  font-size:calc(15px * var(--ratib-font-scale,1))!important;line-height:1.4!important;
+ }
+}

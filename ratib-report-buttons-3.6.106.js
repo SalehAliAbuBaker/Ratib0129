@@ -72,9 +72,16 @@ function scan(){
 function start(){
  scan();const page=document.getElementById('pageReports');if(!page)return;
  let scheduled=false;
- const observer=new MutationObserver(()=>{
-  if(scheduled)return;scheduled=true;
-  queueMicrotask(()=>{scheduled=false;scan();});
+ const observer=new MutationObserver(records=>{
+  if(scheduled)return;
+  for(const record of records){
+   for(const added of record.addedNodes){
+    if(added.nodeType!==1||!(added.matches('button')||added.querySelector('button')))continue;
+    scheduled=true;
+    queueMicrotask(()=>{scheduled=false;scan();});
+    return;
+   }
+  }
  });
  observer.observe(page,{childList:true,subtree:true});
 }

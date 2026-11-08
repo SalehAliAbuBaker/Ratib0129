@@ -174,3 +174,16 @@
  #importedOpeningVoucherModal .ratib-opening-heading #importedOpeningTitle{grid-column:2!important;grid-row:1!important;justify-self:center!important;width:auto!important;order:0!important}
  #importedOpeningVoucherModal .ratib-opening-heading #importedOpeningSeq{grid-column:3!important;grid-row:1!important;width:5ch!important;justify-self:end!important;order:0!important}
 }
+@media screen{
+ #importedOpeningVoucherModal.modal-overlay.show .modal-content>.ratib-opening-heading{
+  display:grid!important;direction:rtl!important;width:100%!important;box-sizing:border-box;
+  grid-template-columns:minmax(48px,1fr) auto minmax(48px,1fr)!important;
+  grid-template-areas:"back title number"!important;align-items:center!important;
+ }
+ #importedOpeningVoucherModal.modal-overlay.show .ratib-opening-heading #importedOpeningClose{grid-area:back!important}
+ #importedOpeningVoucherModal.modal-overlay.show .ratib-opening-heading #importedOpeningTitle{grid-area:title!important}
+ #importedOpeningVoucherModal.modal-overlay.show .ratib-opening-heading #importedOpeningSeq{grid-area:number!important}
+ #ratibVoucherLeaveModal #ratibVoucherLeaveTitle,#ratibOpeningLeaveModal h3{
+  font-size:calc(15px * var(--ratib-font-scale,1))!important;line-height:1.4!important;
+ }
+}

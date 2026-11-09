@@ -15,6 +15,7 @@ assert(sw.includes('"version":"3.6.161"'));
 assert(sw.includes('"./ratib-account-lock-unified-3.6.161.css"'));
 assert(sw.includes('"./ratib-account-lock-unified-3.6.161.js"'));
 assert(css.includes('@media screen'),'Lock icon styling must not change printed vouchers');
+assert(css.includes('#multiVoucherCard:not(.spend-voucher)'),'Cash-only locks must remain hidden in non-cash voucher modes');
 assert(css.includes('44px'),'Shared lock button geometry');
 assert(css.includes('#075e47')&&css.includes('#f5cc6e'),'Approved dark-green and gold colors');
 assert(css.includes('data:image/svg+xml'),'A device-independent vector icon is required');

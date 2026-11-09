@@ -1,9 +1,10 @@
 // Ratib 3.1.9: cache identity is unique to this app's scope.
-const CACHE_VERSION='v261-date-render-r1-v260-opening-mobile-clean-3.6.139-compound-compact-auto-signature-tafqit-cash-reference-amount-currency-compound-ref-simple-ref-totals-cash-colors-cash-preview-return-3.6.155';
-const APP_RELEASE={"version":"3.6.155","build":"p15500","highlights":["توحيد الترويسات وضبط التباعد والخطوط في السندات","تحسين أيقونة شجرة الحسابات وتناسق القفل والتاريخ"],"changes":["نجري بانتظام تحديثات لتحسين الموثوقية والأداء وإصلاح الأخطاء","ضبط الترويسات وأحجام الحقول في الواجهات المحاسبية دون تعديل حفظ البيانات أو الطباعة","تحسين عرض التاريخين الهجري والميلادي وتمييز شجرة الحسابات بصريًا"]};
+const CACHE_VERSION='v261-date-render-r1-v260-opening-mobile-clean-3.6.139-compound-compact-auto-signature-tafqit-cash-reference-amount-currency-compound-ref-simple-ref-totals-cash-colors-cash-preview-return-3.6.156';
+const APP_RELEASE={"version":"3.6.156","build":"p15600","highlights":["تقليل الفراغ في سند القيد البسيط","توسيع رقم المستند وتوضيح سهم الرجوع"],"changes":["نجري بانتظام تحديثات لتحسين الموثوقية والأداء وإصلاح الأخطاء","تقريب التاريخ والحقول في سند القيد البسيط بإزالة الصف الزائد","تكبير عرض رقم المستند وتوحيد زر الرجوع العريض بسهم مرسوم ونص واضح"]};
 const CACHE_PREFIX=`ratib:${self.registration.scope}:`;
 const CACHE_NAME=CACHE_PREFIX+CACHE_VERSION;
 const APP_SHELL=[
+  "./ratib-ui-fixes-3.6.156.css",
   "./ratib-ui-unification-3.6.155.css",
   "./ratib-simple-accounts-3.6.105.13.js",
 "./ratib-first-run-3.6.105.11.js",

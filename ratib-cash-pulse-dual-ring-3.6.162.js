@@ -1,4 +1,4 @@
-/* Ratib 3.6.162 — read-only, responsive dual-ring Cash Pulse visualization.
+/* Ratib 3.6.163 improvement to 3.6.162 — read-only, responsive dual-ring Cash Pulse visualization.
    Financial values arrive from the existing Cash Pulse accounting engine.
    This module never posts, modifies, or persists an accounting record. */
 (function(global){
@@ -109,9 +109,9 @@ function ensure(){
  '<button type="button" data-flow="credit" class="ratib-dual-metric expense"><small>↘ المصروفات</small><strong id="ratibDualPayments">—</strong></button>'+
  '<div class="ratib-dual-metric neutral"><small>صافي الحركة</small><strong id="ratibDualNet">—</strong></div>'+
  '<div class="ratib-dual-metric balance"><small>الرصيد الحالي</small><strong id="ratibDualBalance">—</strong></div></div>'+
- '<div class="ratib-dual-figure"><svg id="ratibDualSvg" viewBox="0 0 360 360" role="group" aria-label="الحلقة الخارجية للنسب المعتمدة لبنود الميزانية والداخلية لحركة الحساب" focusable="false"></svg>'+
+ '<div class="ratib-dual-figure"><svg id="ratibDualSvg" viewBox="0 0 360 360" role="group" aria-label="الحلقة الخارجية للمصروفات الفعلية حسب البند والداخلية لحركة الحساب" focusable="false"></svg>'+
  '<div class="ratib-dual-center"><small id="ratibDualCenterAccount">الحساب المختار</small><b id="ratibDualCenterBalance">—</b><span id="ratibDualStatus" class="ratib-dual-status">—</span></div></div>'+
- '<div class="ratib-dual-legend" aria-label="بنود الميزانية والنسب المعتمدة"><b>بنود الميزانية</b><small>ألوان ونسب الإعدادات المعتمدة</small><div id="ratibDualLegend"></div></div></div>'+
+ '<div class="ratib-dual-legend" aria-label="بنود الميزانية ذات الحركات الفعلية"><b>بنود الميزانية المستخدمة</b><small>لون كل بند وإجمالي المصروف عليه</small><div id="ratibDualLegend"></div></div></div>'+
  '<div class="ratib-dual-budget-summary" id="ratibDualSummary" role="status"></div>'+
  '<div id="ratibDualDetail" class="ratib-dual-detail" aria-live="polite"></div>';
  const old=readout.querySelector('.ratib-pulse-visual');
@@ -151,28 +151,53 @@ function renderArc(container,receipts,payments){
 }
 function renderRing(rows){
  const svgEl=$('ratibDualSvg');svgEl.replaceChildren();
- const total=rows.reduce((n,c)=>n+c.pct,0);
+ // Leave room for readable, colored pointer labels while keeping the ring centered.
+ svgEl.setAttribute('viewBox','-60 -60 480 480');
+ const total=rows.reduce((sum,row)=>sum+num(row.spent),0);
  svgEl.append(svg('circle',{cx:180,cy:180,r:144,class:'ratib-dual-budget-track'}));
  let angle=-90;
+ const pointers=[];
  for(const row of rows){
-  const span=total>0?360*row.pct/total:0;
+  const span=total>0?360*num(row.spent)/total:0;
   if(span>0.2){
    const gap=Math.min(1,span*.08),end=angle+span-gap;
    const path=svg('path',{d:wedge(angle+gap,end),fill:row.color,
     class:'ratib-dual-sector'+(selected===row.id?' is-active':''),
     'data-budget-id':row.id,role:'button',tabindex:0,
-    'aria-label':row.name+'، النسبة المعتمدة '+percent(row.pct)});
+    'aria-label':row.name+'، إجمالي المصروف '+money(row.spent,lastSnapshot.currency)});
    path.addEventListener('click',()=>{selected=row.id;renderSelection();});
    path.addEventListener('keydown',event=>{
     if(event.key==='Enter'||event.key===' '){event.preventDefault();selected=row.id;renderSelection();}
    });
    svgEl.append(path);
+   if(rows.length<=3&&span>=12)pointers.push({row,angle:angle+span/2});
   }
   angle+=span;
  }
  renderArc(svgEl,num(lastSnapshot.receipts),num(lastSnapshot.payments));
- const ring=svg('circle',{cx:180,cy:180,r:73,class:'ratib-dual-inner-track'});
- svgEl.append(ring);
+ svgEl.append(svg('circle',{cx:180,cy:180,r:73,class:'ratib-dual-inner-track'}));
+ // For a few active categories, point at their actual colored sector.
+ // With many categories, the adjacent color/amount legend remains readable.
+ for(const item of pointers){
+  const start=point(180,180,169,item.angle),end=point(180,180,188,item.angle);
+  const at=point(180,180,206,item.angle);
+  const x=Math.max(-14,Math.min(374,at[0]));
+  const y=Math.max(-12,Math.min(379,at[1]));
+  const group=svg('g',{class:'ratib-dual-callout','data-budget-id':item.row.id,
+    role:'button',tabindex:0,'aria-label':item.row.name+'، '+money(item.row.spent,lastSnapshot.currency)});
+  const leader=svg('line',{x1:start[0],y1:start[1],x2:end[0],y2:end[1],
+    stroke:item.row.color,class:'ratib-dual-callout-line'});
+  const dot=svg('circle',{cx:end[0],cy:end[1],r:3.3,fill:item.row.color});
+  const label=svg('text',{x,y:y-4,class:'ratib-dual-callout-name','text-anchor':'middle'});
+  label.textContent=item.row.name.length>17?item.row.name.slice(0,15)+'…':item.row.name;
+  const amount=svg('text',{x,y:y+12,class:'ratib-dual-callout-amount','text-anchor':'middle'});
+  amount.textContent=money(item.row.spent);
+  group.append(leader,dot,label,amount);
+  group.addEventListener('keydown',event=>{
+   if(event.key==='Enter'||event.key===' '){event.preventDefault();selected=item.row.id;renderSelection();}
+  });
+  svgEl.append(group);
+ }
 }
 function addText(parent,tag,textValue,className){
  const node=document.createElement(tag);
@@ -187,19 +212,14 @@ function renderLegend(rows){
   btn.setAttribute('aria-pressed',String(c.id===selected));
   const swatch=document.createElement('i');swatch.style.backgroundColor=c.color;
   const label=document.createElement('span');label.textContent=c.name;
-  const amount=document.createElement('strong');amount.textContent=percent(c.pct);
+  const amount=document.createElement('strong');amount.textContent=money(c.spent,lastModel.currency);
   btn.append(swatch,label,amount);box.append(btn);
  }
 }
-function evaluate(row,model){
- if(!model.classified)return {name:'لا توجد مصروفات مصنفة للمقارنة',tone:'neutral'};
- if(row.delta>3)return {name:'أعلى من النسبة المرجعية',tone:'danger'};
- if(row.delta>=-1)return {name:'قريب من النسبة المرجعية',tone:'warn'};
- return {name:'أقل من النسبة المرجعية',tone:'success'};
-}
 function renderSelection(){
  if(!lastModel)return;
- const row=lastModel.rows.find(c=>c.id===selected)||lastModel.rows[0];
+ const active=lastModel.rows.filter(c=>c.spent>1e-8);
+ const row=active.find(c=>c.id===selected)||active[0];
  if(!row)return;
  selected=row.id;
  const box=$('ratibDualDetail');box.replaceChildren();
@@ -208,20 +228,16 @@ function renderSelection(){
  addText(head,'b',row.name);box.append(head);
  const kpis=document.createElement('div');kpis.className='ratib-dual-detail-grid';
  for(const [label,value] of [
-  ['النسبة المعتمدة',percent(row.pct)],
+  ['إجمالي مصروف البند',money(row.spent,lastModel.currency)],
   ['نسبته من المصروفات المصنفة',row.actualPct===null?'—':percent(row.actualPct)],
-  ['الصرف المصنف',money(row.spent,lastModel.currency)],
   ['عدد المستندات',String(row.count)],
-  ['متوسط المستند',money(row.count?row.spent/row.count:0,lastModel.currency)],
-  ['الفرق عن النسبة المرجعية',row.delta===null?'—':(row.delta>0?'+':'')+percent(row.delta)]
+  ['متوسط المستند',money(row.count?row.spent/row.count:0,lastModel.currency)]
  ]){
   const tile=document.createElement('div');addText(tile,'small',label);
   addText(tile,'strong',value);kpis.append(tile);
  }
  box.append(kpis);
- const state=evaluate(row,lastModel);
- addText(box,'p',state.name,'ratib-dual-evaluation '+state.tone);
- addText(box,'small','المقارنة بالنسب المعتمدة إرشادية لتوزيع المصروفات المصنفة، وليست حدًا ماليًا للمخصصات.');
+ addText(box,'small','تُظهر الدائرة البنود المستخدمة فعليًا في سندات الفترة؛ وتُحسب أحجام قطاعاتها بحسب المبالغ المصروفة.');
  for(const element of $('ratibDualSvg').querySelectorAll('[data-budget-id]')){
   element.classList.toggle('is-active',element.getAttribute('data-budget-id')===selected);
  }
@@ -234,9 +250,9 @@ function renderSummary(model){
  const box=$('ratibDualSummary');box.replaceChildren();
  const nonzero=model.rows.filter(r=>r.spent>0).length;
  addText(box,'span','المصروفات المصنفة: '+money(model.classified,model.currency));
- addText(box,'span','بنود ذات حركة: '+nonzero+' من '+model.rows.length);
+ addText(box,'span','بنود مستخدمة: '+nonzero);
  if(model.unclassified>1e-5)addText(box,'span','حركة صرف غير مصنفة: '+money(model.unclassified,model.currency),'ratib-dual-unclassified');
- if(!model.classified)addText(box,'small','لا توجد مصروفات يمكن ربطها ببنود الميزانية المختارة خلال هذه الفترة.');
+ if(!model.classified)addText(box,'small','لا توجد مصروفات مرتبطة ببنود الميزانية خلال هذه الفترة.');
 }
 function update(snapshot){
  if(!snapshot||!$('ratibCashPulse')||!$('ratibPulseReadout'))return;
@@ -244,7 +260,8 @@ function update(snapshot){
  lastSnapshot=snapshot;
  const cats=categories();
  lastModel=buildBudgetModel(snapshot.entries,cats,snapshot.currency);
- if(!cats.some(c=>c.id===selected))selected=cats[0]?.id||'';
+ const activeRows=lastModel.rows.filter(c=>c.spent>1e-8);
+ if(!activeRows.some(c=>c.id===selected))selected=activeRows[0]?.id||'';
  const set=(id,value)=>{const e=$(id);if(e)e.textContent=value;};
  set('ratibDualReceipts',money(snapshot.receipts,snapshot.currency));
  set('ratibDualPayments',money(snapshot.payments,snapshot.currency));
@@ -255,8 +272,8 @@ function update(snapshot){
  const status=snapshot.closing<0?'رصيد سالب':snapshot.closing===0?'رصيد صفر':'رصيد موجب';
  const element=$('ratibDualStatus');element.textContent=status;
  element.dataset.state=snapshot.closing<0?'negative':snapshot.closing===0?'zero':'positive';
- renderRing(lastModel.rows);renderLegend(lastModel.rows);renderSummary(lastModel);
- if(lastModel.rows.length)renderSelection();else $('ratibDualDetail').textContent='لا توجد بنود ميزانية معرّفة.';
+ renderRing(activeRows);renderLegend(activeRows);renderSummary(lastModel);
+ if(activeRows.length)renderSelection();else $('ratibDualDetail').textContent='لا توجد بنود مستخدمة في سندات الصرف للحساب والفترة المختارين.';
 }
 function clear(){
  lastModel=null;lastSnapshot=null;

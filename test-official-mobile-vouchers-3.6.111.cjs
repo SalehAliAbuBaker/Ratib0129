@@ -2,8 +2,8 @@
 const assert=require('node:assert/strict'),fs=require('node:fs'),{JSDOM}=require('jsdom');
 const html=fs.readFileSync('index.html','utf8'),css=fs.readFileSync('ratib-mobile-vouchers-3.6.111.css','utf8');
 const sw=fs.readFileSync('sw.js','utf8'),pkg=require('./package.json'),doc=new JSDOM(html).window.document;
-assert.equal(pkg.version,'3.6.156');
-assert(html.includes('"version":"3.6.156","build":"p15600"'));
+assert.equal(pkg.version,'3.6.157');
+assert(html.includes('"version":"3.6.157","build":"p15700"'));
 assert(sw.includes('v260-opening-mobile-clean-3.6.139'));
 assert(doc.querySelector('link[href="./ratib-mobile-vouchers-3.6.111.css?v=3.6.139"]'));
 assert(css.includes('@media screen and (max-width:640px)'));

@@ -1,4 +1,4 @@
-/* Ratib 3.6.156 regression: simple journal selectors and direct speech inputs. */
+/* Ratib 3.6.157 regression: simple journal selectors and direct speech inputs. */
 'use strict';
 const assert=require('node:assert/strict'),fs=require('node:fs');
 const {JSDOM}=require('jsdom');
@@ -105,5 +105,5 @@ assert(voice.includes('ratibSimpleVoiceDebit')&&voice.includes('ratibSimpleVoice
  debitMic.click();
  assert.equal(started,2,'Debit microphone can also activate');
  dom.window.close();
- console.log('PASS 3.6.156: direct typing, dropdown arrow, mobile focus-safe dictation, account IDs');
+ console.log('PASS 3.6.157: direct typing, dropdown arrow, mobile focus-safe dictation, account IDs');
 })().catch(err=>{console.error(err);process.exitCode=1;});

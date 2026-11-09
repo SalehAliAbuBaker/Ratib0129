@@ -1,0 +1,63 @@
+/* Ratib 3.6.157 — full-width opening date; statement footer; screen-only. */
+@media screen {
+  /* Opening voucher: the sequence was moved to the top heading, but the old
+     two-column date grid remained and stranded unused space. */
+  #importedOpeningVoucherModal.opening-manual #openingHeader {
+    display:grid!important;
+    grid-template-columns:minmax(0,1fr)!important;
+    box-sizing:border-box!important;
+    width:100%!important;max-width:100%!important;
+    min-width:0!important;align-items:stretch!important;
+    gap:5px!important;margin:5px 0 8px!important;padding:0!important;
+  }
+  #importedOpeningVoucherModal.opening-manual #openingHeader #openingDateLabel {
+    display:flex!important;grid-column:1/-1!important;
+    flex:1 1 auto!important;width:100%!important;
+    min-width:0!important;max-width:100%!important;
+    align-items:stretch!important;overflow:visible!important;
+  }
+  #importedOpeningVoucherModal.opening-manual #openingHeader #openingDateLabel :is(.ratib-native-date-wrap,.ratib-native-date-button,#importedOpeningHeaderDate) {
+    box-sizing:border-box!important;width:100%!important;
+    min-width:0!important;max-width:100%!important;
+  }
+  #importedOpeningVoucherModal.opening-manual #openingHeader #openingDateLabel .ratib-native-date-button {
+    min-height:58px!important;height:auto!important;white-space:normal!important;
+    overflow:visible!important;text-overflow:clip!important;text-align:right!important;
+  }
+  #importedOpeningVoucherModal.opening-manual #openingHeader #openingDateLabel .ratib-native-date-button :is(span,small) {
+    white-space:normal!important;overflow:visible!important;
+    text-overflow:clip!important;max-width:100%!important;
+  }
+  #importedOpeningVoucherModal.opening-manual #openingHeader #openingDateHijri {
+    max-width:100%!important;overflow-wrap:normal!important;
+    font:400 12px/1.35 Tajawal,system-ui,sans-serif!important;
+  }
+  :is(#accountOperationsStandalonePanel,#reportAccountOpsPanel) .ratib-statement-words {
+    font:600 14px/1.65 Tajawal,system-ui,sans-serif!important;
+    text-align:right;overflow-wrap:anywhere;
+    padding:8px 10px 3px;color:var(--text);
+  }
+  :is(#accountOperationsStandalonePanel,#reportAccountOpsPanel) .ratib-statement-notice {
+    font:400 12px/1.65 Tajawal,system-ui,sans-serif!important;
+    margin:0 10px 9px;padding:5px 0 0;
+    border-top:1px solid var(--border);color:var(--muted);
+    text-align:right;overflow-wrap:anywhere;
+  }
+  #pageSettings #ratibStatementOptions .ratib-statement-note-settings {
+    display:grid;gap:7px;min-width:0;
+    padding-top:11px;margin-top:12px;border-top:1px solid var(--border);
+  }
+  #pageSettings #ratibStatementOptions .ratib-statement-note-settings label {
+    font:500 14px/1.5 Tajawal,system-ui,sans-serif;
+  }
+  #pageSettings #ratibStatementOptions #ratibStatementNoticeInput {
+    box-sizing:border-box;width:100%;min-height:90px;
+    resize:vertical;max-width:100%;padding:9px;
+    border:1px solid var(--border);background:var(--card);
+    color:var(--text);border-radius:10px;
+    font:400 14px/1.5 Tajawal,system-ui,sans-serif;
+  }
+  #pageSettings #ratibStatementOptions #ratibStatementNoticeReset {
+    width:auto!important;justify-self:start;min-height:42px;
+  }
+}

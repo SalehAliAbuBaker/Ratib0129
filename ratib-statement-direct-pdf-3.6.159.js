@@ -54,16 +54,26 @@
   const head=[...table.querySelectorAll('thead tr th')].map(cellText).reverse();
   const body=[head];
   for(const tr of table.querySelectorAll('tbody tr')){
-   const row=[];
+   const row=[],merged=[];
    for(const td of tr.querySelectorAll(':scope > td')){
     const span=Math.max(1,Number(td.getAttribute('colspan'))||1);
-    row.push({text:cellText(td),bold:tr.classList.contains('ratib-vector-total'),
+    const entry={text:cellText(td),bold:tr.classList.contains('ratib-vector-total'),
       fillColor:tr.classList.contains('ratib-vector-total')?'#E2E8F0':tr.classList.contains('ratib-vector-opening')?'#F8FAFC':undefined,
-      alignment:'right'});
+      alignment:'right'};
+    row.push(entry);
     for(let i=1;i<span;i++)row.push({text:''});
+    if(span>1)merged.push({start:row.length-span,span,entry});
    }
    if(row.length!==head.length)throw Error('اختلاف عدد أعمدة كشف الحساب: '+row.length+'/'+head.length);
-   body.push(row.reverse());
+   row.reverse();
+   // pdfmake colSpan grows left-to-right. Place the merged label on the
+   // leftmost cell of its area after reversing the Arabic table columns.
+   for(const {start,span,entry} of merged){
+    const left=head.length-(start+span);
+    row[left]={...entry,colSpan:span};
+    for(let j=left+1;j<left+span;j++)row[j]={text:''};
+   }
+   body.push(row);
   }
   // Widths are visual left-to-right: after reversing, the final (date) cell
   // is on the far right. The descriptive column has extra space.
@@ -82,7 +92,7 @@
    fontSize:8
   };
  }
- function documentDefinition(html,orientation='portrait'){
+ function documentDefinition(html,orientation='portrait',logo=''){
   const host=document.createElement('div');
   host.innerHTML=html;
   const sheets=[...host.querySelectorAll('.ratib-vector-sheet')];
@@ -91,11 +101,15 @@
   sheets.forEach((sheet,index)=>{
    if(index)content.push({text:'',pageBreak:'before',margin:0});
    const org=sheet.querySelector('.ratib-vector-organization');
-   if(org?.textContent.trim()){
-    const name=plain(org.querySelector('strong')?.textContent);
-    const details=plain(org.querySelector('span')?.textContent);
-    if(name)content.push({text:name,fontSize:14,bold:true,alignment:'right',margin:[0,0,0,2]});
-    if(details)content.push({text:details,fontSize:9,alignment:'right',margin:[0,0,0,4]});
+   if(org?.textContent.trim()||logo){
+    const name=plain(org?.querySelector('strong')?.textContent);
+    const details=plain(org?.querySelector('span')?.textContent);
+    const header=[];
+    if(name)header.push({text:name,fontSize:14,bold:true,alignment:'right',margin:[0,0,0,2]});
+    if(details)header.push({text:details,fontSize:9,alignment:'right',margin:[0,0,0,4]});
+    if(logo&&/^data:image\/(?:png|jpeg);base64,/.test(logo))
+     content.push({columns:[{image:logo,width:48,fit:[48,48]},{stack:header,width:'*'}],columnGap:10,margin:[0,0,0,8]});
+    else content.push({stack:header,margin:[0,0,0,8]});
     content.push({canvas:[{type:'line',x1:0,y1:0,x2:orientation==='landscape'?758:511,y2:0,lineColor:'#B8C3CE',lineWidth:.6}],margin:[0,0,0,8]});
    }
    const title=plain(sheet.querySelector('h2')?.textContent);
@@ -123,14 +137,14 @@
    content
   };
  }
- async function make(html,orientation='portrait'){
+ async function make(html,orientation='portrait',logo=''){
   const pdf=await loadEngine(),vfs=await fonts();
   pdf.vfs={...(pdf.vfs||{}),...vfs};
   pdf.fonts={...(pdf.fonts||{}),Tajawal:{
    normal:'ratib-tajawal-regular.ttf',bold:'ratib-tajawal-bold.ttf',
    italics:'ratib-tajawal-regular.ttf',bolditalics:'ratib-tajawal-bold.ttf'
   }};
-  const definition=documentDefinition(html,orientation);
+  const definition=documentDefinition(html,orientation,logo);
   const blob=await new Promise((resolve,reject)=>{
    try{pdf.createPdf(definition).getBlob(blob=>blob?.size?resolve(blob):reject(Error('لم يتم إنشاء ملف PDF')));}
    catch(e){reject(e);}

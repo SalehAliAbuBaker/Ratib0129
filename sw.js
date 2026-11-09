@@ -1,9 +1,11 @@
 // Ratib 3.1.9: cache identity is unique to this app's scope.
-const CACHE_VERSION='v261-date-render-r1-v260-opening-mobile-clean-3.6.139-compound-compact-auto-signature-tafqit-cash-reference-amount-currency-compound-ref-simple-ref-totals-cash-colors-cash-preview-return-3.6.161';
-const APP_RELEASE={"version":"3.6.161","build":"p16100","highlights":["توحيد أيقونات تثبيت الحسابات في السندات","قفل أخضر داكن برمز ذهبي واضح للحالتين"],"changes":["نجري بانتظام تحديثات لتحسين الموثوقية والأداء وإصلاح الأخطاء","توحيد شكل وحجم وموقع أيقونات تثبيت الحساب في سند القبض والصرف والقيد البسيط وسائر مواضع التثبيت الموجودة","إظهار قفل مفتوح لغير المثبّت ومغلق للمثبّت دون الاعتماد على الخط أو رموز الهاتف","الإبقاء على وظائف التثبيت والحفظ والحسابات دون تعديل"]};
+const CACHE_VERSION='v261-date-render-r1-v260-opening-mobile-clean-3.6.139-compound-compact-auto-signature-tafqit-cash-reference-amount-currency-compound-ref-simple-ref-totals-cash-colors-cash-preview-return-3.6.162';
+const APP_RELEASE={"version":"3.6.162","build":"p16200","highlights":["نبض الصندوق بحلقتين تفاعليتين لحركة الحساب وبنود الميزانية","تحليل نسبي فعلي لكل بند مع الحفاظ على جميع الحسابات"],"changes":["نجري بانتظام تحديثات لتحسين الموثوقية والأداء وإصلاح الأخطاء","إظهار المقبوضات والمصروفات والرصيد الصحيح من محرك نبض الصندوق الحالي","عرض بنود الميزانية وألوانها ونسبها المرجعية المحفوظة مع بطاقة تحليل عند التحديد","استبعاد الأرصدة الافتتاحية من حركة الفترة والحفاظ على العملات والقيود المحاسبية","إضافة المؤثر داخل نبض الصندوق فقط دون تغيير بقية الصفحات والسندات"]};
 const CACHE_PREFIX=`ratib:${self.registration.scope}:`;
 const CACHE_NAME=CACHE_PREFIX+CACHE_VERSION;
 const APP_SHELL=[
+  "./ratib-cash-pulse-dual-ring-3.6.162.js",
+  "./ratib-cash-pulse-dual-ring-3.6.162.css",
   "./ratib-account-lock-unified-3.6.161.css",
   "./ratib-account-lock-unified-3.6.161.js",
   "./ratib-statement-search-totals-3.6.160.js",

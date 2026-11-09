@@ -37,7 +37,7 @@ const p2=payment('p2',[['general',10]]);
 const rLegacy={id:'r3',voucherMode:'income',distribution:{general:{amount:25}},amount:25};
 const rUnknown={id:'r4',voucherMode:'income',distribution:{},amount:35};
 const transfer={id:'bank_transfer',voucherMode:'multi-entry',distribution:{general:{amount:80}},amount:80};
-const e=(tx,side,currency=tx.currency,amount=tx.amount)=>({t:tx,side,currency,amount,opening:false});
+const e=(tx,side,currency=tx.currency||'YER',amount=tx.amount)=>({t:tx,side,currency,amount,opening:false});
 const entries=[e(r1,'debit'),e(r2,'debit'),e(rFx,'debit'),e(p1,'credit'),
  e(p2,'credit'),e(rLegacy,'debit'),e(rUnknown,'debit'),e(transfer,'debit'),
  {t:r1,side:'debit',currency:'YER',amount:9999,opening:true}];

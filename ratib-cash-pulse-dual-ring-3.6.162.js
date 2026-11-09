@@ -9,7 +9,8 @@ const num=n=>Number.isFinite(Number(n))?Math.max(0,Number(n)):0;
 const percent=n=>new Intl.NumberFormat('en-US',{maximumFractionDigits:1}).format(n)+'%';
 const safeColor=v=>/^#[0-9a-fA-F]{3}(?:[0-9a-fA-F]{3})?$/.test(String(v||''))?v:'#64748b';
 const svg=(tag,attributes={})=>{const e=document.createElementNS(NS,tag);for(const [k,v] of Object.entries(attributes))e.setAttribute(k,String(v));return e;};
-let selected='',lastModel=null,lastSnapshot=null;
+let selected='',activeSide='credit',lastModel=null,lastModels=null,lastSnapshot=null;
+const selectedBySide={debit:'',credit:''};
 function categories(){
  const defaults=typeof DEFAULT_CATS!=='undefined'&&Array.isArray(DEFAULT_CATS)?DEFAULT_CATS:[];
  let stored=null;
@@ -30,58 +31,66 @@ function docKey(e){
    t.isOpeningBalance&&t.importVoucherId?'opening:'+String(t.importVoucherId):
    'entry:'+String(t.id??'');
 }
-function assignments(tx,currency,catIds){
+// Classify only the actually posted counterpart lines. A receipt increases
+// cash (debit), so its classified budget lines are CREDIT; for a payment the
+// relationship is reversed. The balancing cash line is never a budget item.
+function assignments(tx,currency,catIds,side='credit'){
+ const expected=side==='debit'?'income':'spend';
  const d=tx?.multiVoucher;
- if(d&&Array.isArray(d.lines)&&String(d.baseCurrency||tx.currency||'YER')===currency){
-  const mode=String(d.mode||tx.voucherMode||'');
-  const candidates=d.lines.filter(l=>!l.autoBalance&&l.side==='debit'&&
-    (mode==='spend'||(l.budgetId&&l.budgetId!=='general'))&&catIds.has(String(l.budgetId||'general')));
-  if(candidates.length){
-   return candidates.map(l=>({id:String(l.budgetId||'general'),amount:num(l.base)})).filter(x=>x.amount>0);
-  }
+ const mode=String(d?.mode||tx?.voucherMode||'');
+ if(['income','spend'].includes(mode)&&mode!==expected)return [];
+ if(d&&Array.isArray(d.lines)&&String(d.baseCurrency||tx.currency||'YER')===currency&&mode===expected){
+  // Do not try the transaction's own distribution as a fallback: that can
+  // belong to the cash balancing line and misattribute all money to "عام".
+  return d.lines.filter(l=>!l.autoBalance&&l.side===(side==='debit'?'credit':'debit')&&
+    catIds.has(String(l.budgetId||'general'))).map(l=>({
+     id:String(l.budgetId||'general'),amount:num(l.base)
+    })).filter(x=>x.amount>0);
  }
+ if(d&&['income','spend'].includes(mode))return []; // Unknown foreign-currency conversion: never guess.
  const entries=Object.entries(tx?.distribution||{}).filter(([id,v])=>catIds.has(id)&&v&&!v.excluded);
  const explicit=entries.some(([id])=>id!=='general');
- const cashSpend=tx?.isExpense===true||tx?.voucherMode==='spend'||tx?.multiVoucher?.mode==='spend';
- if(!cashSpend&&!explicit)return [];
- return entries.map(([id,d])=>({
-  id,
-  amount:num(d.amount||(+d.pct>0?num(tx.amount)*num(d.pct)/100:0))
+ if(mode!==expected&&!explicit)return [];
+ return entries.map(([id,item])=>({
+  id,amount:num(item.amount||(+item.pct>0?num(tx.amount)*num(item.pct)/100:0))
  })).filter(x=>x.amount>0);
 }
-function buildBudgetModel(entries,cats,currency){
+function buildBudgetModel(entries,cats,currency,side='credit'){
  const available=new Map(cats.map(c=>[c.id,{...c,spent:0,count:0}]));
  const groups=new Map(),ids=new Set(available.keys());
  for(const e of entries||[]){
-  if(!e||e.opening||e.side!=='credit'||e.currency!==currency||!e.t)continue;
-  const key=docKey(e)+'\u001f'+currency;
+  if(!e||e.opening||e.side!==side||e.currency!==currency||!e.t)continue;
+  const key=docKey(e)+'\u001f'+currency+'\u001f'+side;
   const existing=groups.get(key)||{tx:e.t,amount:0,key};
   existing.amount+=num(e.amount);groups.set(key,existing);
  }
- let payments=0,classified=0,classifiedDocuments=0;
+ let movement=0,classified=0,classifiedDocuments=0;
  for(const doc of groups.values()){
-  payments+=doc.amount;
-  const assigned=assignments(doc.tx,currency,ids),rawTotal=assigned.reduce((s,x)=>s+x.amount,0);
+  movement+=doc.amount;
+  const assigned=assignments(doc.tx,currency,ids,side);
+  const rawTotal=assigned.reduce((sum,item)=>sum+item.amount,0);
   if(rawTotal<=0||doc.amount<=0)continue;
-  // One source can have several lines or imported partial legs: never attribute
-  // more spending than the booked cash outflow in the selected currency.
+  // Net cash movements may be smaller than the individual voucher lines
+  // (e.g. internal transfers). Do not classify beyond the real cash movement.
   const scale=Math.min(1,doc.amount/rawTotal);
-  let docClassified=0;
+  let documentClassified=0;
   const touched=new Set();
-  for(const a of assigned){
-   const part=a.amount*scale;
+  for(const item of assigned){
+   const part=item.amount*scale;
    if(part<=0)continue;
-   const category=available.get(a.id);category.spent+=part;
-   touched.add(a.id);classified+=part;docClassified+=part;
+   const category=available.get(item.id);
+   category.spent+=part;
+   touched.add(item.id);classified+=part;documentClassified+=part;
   }
-  if(docClassified>0)classifiedDocuments++;
+  if(documentClassified>0)classifiedDocuments++;
   for(const id of touched)available.get(id).count++;
  }
  const rows=[...available.values()].map(row=>({...row,
    actualPct:classified>0?row.spent/classified*100:null,
    delta:classified>0?row.spent/classified*100-row.pct:null}));
- return {rows,classified,payments,unclassified:Math.max(0,payments-classified),
-   classifiedDocuments,totalDocuments:groups.size,currency};
+ return {rows,classified,movement,receipts:side==='debit'?movement:0,
+   payments:side==='credit'?movement:0,unclassified:Math.max(0,movement-classified),
+   classifiedDocuments,totalDocuments:groups.size,currency,side};
 }
 function point(cx,cy,r,degrees){
  const a=degrees*Math.PI/180;return [cx+r*Math.cos(a),cy+r*Math.sin(a)];
@@ -103,6 +112,7 @@ function ensure(){
  host.setAttribute('aria-label','مؤشر نبض الصندوق وحركة الحساب وبنود الميزانية');
  host.innerHTML=
  '<div class="ratib-dual-heading"><b>حركة الحساب وبنود الميزانية</b><small>مؤشر تفاعلي • البيانات المحاسبية المرحّلة فقط</small></div>'+
+ '<div class="ratib-dual-budget-switch" role="group" aria-label="اختر تحليل المقبوضات أو المصروفات"><button type="button" data-budget-side="debit" aria-pressed="false">بنود المقبوضات</button><button type="button" data-budget-side="credit" aria-pressed="true">بنود المصروفات</button></div>'+
  '<div class="ratib-dual-layout">'+
  '<div class="ratib-dual-metrics" aria-label="مؤشرات حركة الحساب">'+
  '<button type="button" data-flow="debit" class="ratib-dual-metric receipt"><small>↗ المقبوضات</small><strong id="ratibDualReceipts">—</strong></button>'+
@@ -111,14 +121,16 @@ function ensure(){
  '<div class="ratib-dual-metric balance"><small>الرصيد الحالي</small><strong id="ratibDualBalance">—</strong></div></div>'+
  '<div class="ratib-dual-figure"><svg id="ratibDualSvg" viewBox="0 0 360 360" role="group" aria-label="الحلقة الخارجية للمصروفات الفعلية حسب البند والداخلية لحركة الحساب" focusable="false"></svg>'+
  '<div class="ratib-dual-center"><small id="ratibDualCenterAccount">الحساب المختار</small><b id="ratibDualCenterBalance">—</b><span id="ratibDualStatus" class="ratib-dual-status">—</span></div></div>'+
- '<div class="ratib-dual-legend" aria-label="بنود الميزانية ذات الحركات الفعلية"><b>بنود الميزانية المستخدمة</b><small>لون كل بند وإجمالي المصروف عليه</small><div id="ratibDualLegend"></div></div></div>'+
+ '<div class="ratib-dual-legend" aria-label="بنود الميزانية ذات الحركات الفعلية"><b id="ratibDualLegendTitle">بنود المصروفات المستخدمة</b><small id="ratibDualLegendCaption">لون كل بند وإجمالي المبلغ</small><div id="ratibDualLegend"></div></div></div>'+
  '<div class="ratib-dual-budget-summary" id="ratibDualSummary" role="status"></div>'+
  '<div id="ratibDualDetail" class="ratib-dual-detail" aria-live="polite"></div>';
  const old=readout.querySelector('.ratib-pulse-visual');
  if(old)old.before(host);else readout.prepend(host);
  host.addEventListener('click',event=>{
+  const toggle=event.target.closest('[data-budget-side]');
+  if(toggle){setBudgetSide(toggle.dataset.budgetSide);return;}
   const button=event.target.closest('[data-flow]');
-  if(button)global.RatibCashPulse?.openDetails?.(button.dataset.flow);
+  if(button){setBudgetSide(button.dataset.flow);global.RatibCashPulse?.openDetails?.(button.dataset.flow);}
   const pick=event.target.closest('[data-budget-id]');
   if(pick){selected=pick.dataset.budgetId;renderSelection();}
  });
@@ -142,7 +154,7 @@ function renderArc(container,receipts,payments){
    transform:'rotate(-90 180 180)',role:'button',tabindex:0,
    'aria-label':label+': '+money(amount,lastSnapshot.currency)
   });
-  circle.addEventListener('click',()=>global.RatibCashPulse?.openDetails?.(side));
+  circle.addEventListener('click',()=>{setBudgetSide(side);global.RatibCashPulse?.openDetails?.(side);});
   circle.addEventListener('keydown',event=>{
    if(event.key==='Enter'||event.key===' '){event.preventDefault();circle.dispatchEvent(new MouseEvent('click'));}
   });
@@ -221,15 +233,15 @@ function renderSelection(){
  const active=lastModel.rows.filter(c=>c.spent>1e-8);
  const row=active.find(c=>c.id===selected)||active[0];
  if(!row)return;
- selected=row.id;
+ selected=row.id;selectedBySide[activeSide]=row.id;
  const box=$('ratibDualDetail');box.replaceChildren();
  const head=document.createElement('div');head.className='ratib-dual-detail-title';
  const dot=document.createElement('i');dot.style.backgroundColor=row.color;head.append(dot);
  addText(head,'b',row.name);box.append(head);
  const kpis=document.createElement('div');kpis.className='ratib-dual-detail-grid';
  for(const [label,value] of [
-  ['إجمالي مصروف البند',money(row.spent,lastModel.currency)],
-  ['نسبته من المصروفات المصنفة',row.actualPct===null?'—':percent(row.actualPct)],
+  [activeSide==='debit'?'إجمالي مقبوض البند':'إجمالي مصروف البند',money(row.spent,lastModel.currency)],
+  [activeSide==='debit'?'نسبته من المقبوضات المصنفة':'نسبته من المصروفات المصنفة',row.actualPct===null?'—':percent(row.actualPct)],
   ['عدد المستندات',String(row.count)],
   ['متوسط المستند',money(row.count?row.spent/row.count:0,lastModel.currency)]
  ]){
@@ -237,7 +249,7 @@ function renderSelection(){
   addText(tile,'strong',value);kpis.append(tile);
  }
  box.append(kpis);
- addText(box,'small','تُظهر الدائرة البنود المستخدمة فعليًا في سندات الفترة؛ وتُحسب أحجام قطاعاتها بحسب المبالغ المصروفة.');
+ addText(box,'small','تُظهر الدائرة البنود المستخدمة فعليًا في '+(activeSide==='debit'?'سندات القبض':'سندات الصرف')+'، ويُحدد حجم القطاع بحسب المبالغ المحصلة أو المصروفة في الفترة المختارة.');
  for(const element of $('ratibDualSvg').querySelectorAll('[data-budget-id]')){
   element.classList.toggle('is-active',element.getAttribute('data-budget-id')===selected);
  }
@@ -248,20 +260,47 @@ function renderSelection(){
 }
 function renderSummary(model){
  const box=$('ratibDualSummary');box.replaceChildren();
- const nonzero=model.rows.filter(r=>r.spent>0).length;
- addText(box,'span','المصروفات المصنفة: '+money(model.classified,model.currency));
- addText(box,'span','بنود مستخدمة: '+nonzero);
- if(model.unclassified>1e-5)addText(box,'span','حركة صرف غير مصنفة: '+money(model.unclassified,model.currency),'ratib-dual-unclassified');
- if(!model.classified)addText(box,'small','لا توجد مصروفات مرتبطة ببنود الميزانية خلال هذه الفترة.');
+ const count=model.rows.filter(row=>row.spent>0).length;
+ const receiving=activeSide==='debit';
+ addText(box,'span',(receiving?'المقبوضات':'المصروفات')+' المصنفة: '+money(model.classified,model.currency));
+ addText(box,'span','بنود مستخدمة: '+count);
+ if(model.unclassified>1e-5)addText(box,'span','حركة '+(receiving?'قبض':'صرف')+' غير مصنفة: '+money(model.unclassified,model.currency),'ratib-dual-unclassified');
+ if(!model.classified)addText(box,'small','لا توجد '+(receiving?'مقبوضات':'مصروفات')+' مرتبطة ببنود الميزانية خلال هذه الفترة.');
+}
+function renderBudget(){
+ if(!lastModels)return;
+ lastModel=lastModels[activeSide];
+ const activeRows=lastModel.rows.filter(row=>row.spent>1e-8);
+ if(!activeRows.some(row=>row.id===selected))selected=activeRows[0]?.id||'';
+ selectedBySide[activeSide]=selected;
+ const receiving=activeSide==='debit';
+ for(const button of $('ratibPulseDual').querySelectorAll('[data-budget-side]')){
+  const active=button.dataset.budgetSide===activeSide;
+  button.classList.toggle('is-active',active);
+  button.setAttribute('aria-pressed',String(active));
+ }
+ $('ratibDualLegendTitle').textContent=receiving?'بنود المقبوضات المستخدمة':'بنود المصروفات المستخدمة';
+ $('ratibDualLegendCaption').textContent='لون كل بند وإجمالي '+(receiving?'المقبوض':'المصروف')+' عليه';
+ $('ratibDualSvg').setAttribute('aria-label',receiving?'تصنيف بنود المقبوضات':'تصنيف بنود المصروفات');
+ renderRing(activeRows);renderLegend(activeRows);renderSummary(lastModel);
+ if(activeRows.length)renderSelection();else $('ratibDualDetail').textContent='لا توجد بنود مستخدمة في سندات '+(receiving?'القبض':'الصرف')+' للحساب والفترة المختارين.';
+}
+function setBudgetSide(next){
+ if(next!=='debit'&&next!=='credit')return;
+ selectedBySide[activeSide]=selected;
+ activeSide=next;
+ selected=selectedBySide[next]||'';
+ if(lastModels)renderBudget();
 }
 function update(snapshot){
  if(!snapshot||!$('ratibCashPulse')||!$('ratibPulseReadout'))return;
  if(!ensure())return;
  lastSnapshot=snapshot;
  const cats=categories();
- lastModel=buildBudgetModel(snapshot.entries,cats,snapshot.currency);
- const activeRows=lastModel.rows.filter(c=>c.spent>1e-8);
- if(!activeRows.some(c=>c.id===selected))selected=activeRows[0]?.id||'';
+ lastModels={
+  debit:buildBudgetModel(snapshot.entries,cats,snapshot.currency,'debit'),
+  credit:buildBudgetModel(snapshot.entries,cats,snapshot.currency,'credit')
+ };
  const set=(id,value)=>{const e=$(id);if(e)e.textContent=value;};
  set('ratibDualReceipts',money(snapshot.receipts,snapshot.currency));
  set('ratibDualPayments',money(snapshot.payments,snapshot.currency));
@@ -272,15 +311,14 @@ function update(snapshot){
  const status=snapshot.closing<0?'رصيد سالب':snapshot.closing===0?'رصيد صفر':'رصيد موجب';
  const element=$('ratibDualStatus');element.textContent=status;
  element.dataset.state=snapshot.closing<0?'negative':snapshot.closing===0?'zero':'positive';
- renderRing(activeRows);renderLegend(activeRows);renderSummary(lastModel);
- if(activeRows.length)renderSelection();else $('ratibDualDetail').textContent='لا توجد بنود مستخدمة في سندات الصرف للحساب والفترة المختارين.';
+ renderBudget();
 }
 function clear(){
- lastModel=null;lastSnapshot=null;
+ lastModel=null;lastModels=null;lastSnapshot=null;
  const section=$('ratibPulseDual');if(section)section.remove();
  $('ratibPulseReadout')?.classList.remove('ratib-dual-ready');
 }
-global.RatibCashPulseViz={update,clear,buildBudgetModel,assignments};
+global.RatibCashPulseViz={update,clear,buildBudgetModel,assignments,setBudgetSide};
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>global.RatibCashPulse?.refresh?.(),{once:true});
 else global.RatibCashPulse?.refresh?.();
 })(window);

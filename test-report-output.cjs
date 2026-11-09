@@ -50,8 +50,15 @@ async function test(name,fn){await fn();results.push({name,status:'passed'});con
 
 async function run(){
  const f=makeFixture();await boot(f);const w=f.win,d=w.document;
- for(const name of ['ratib-annual-close.js','ratib-favorites-v3.js','ratib-theme.js','ratib-navigation-v3.js','ratib-unified-output.js','ratib-cash-reference-3.6.148.js','ratib-compound-output-3.6.150.js','ratib-simple-output-3.6.151.js'])w.eval(fs.readFileSync(require('node:path').join(__dirname,name),'utf8'));
+ for(const name of ['ratib-annual-close.js','ratib-favorites-v3.js','ratib-theme.js','ratib-navigation-v3.js','ratib-unified-output.js','ratib-cash-reference-3.6.148.js','ratib-compound-output-3.6.150.js','ratib-simple-output-3.6.151.js','ratib-statement-vector-3.6.158.js','ratib-statement-direct-pdf-3.6.159.js'])w.eval(fs.readFileSync(require('node:path').join(__dirname,name),'utf8'));
  await pause(30);
+ // The text/table builder is real; stub only the PDF encoder in this UX test.
+ // Binary, Arabic fonts and ToUnicode are verified in a separate regression.
+ w.RatibDirectVectorPdf.make=async (markup,orientation)=>{
+  assert(markup.includes('ratib-vector-table'),'PDF must contain semantic table');
+  assert(['portrait','landscape'].includes(orientation));
+  return new Blob(['%PDF-1.4\n'+('vector statement\n').repeat(16)],{type:'application/pdf'});
+ };
  for(let pass=0;pass<3;pass++)w.RatibUnifiedOutput.refresh();
  code(w,`{
   const names=getCanonicalCatalog().flatMap(row=>row.details.map(item=>item[1]));
@@ -97,12 +104,12 @@ async function run(){
   assert.equal(code(w,'JSON.stringify(accountOpsState)'),filters);
  });
  await test('Account PDF export asks for currencies and downloads the selected PDF without sharing',async()=>{
-  const before=f.downloads.length;action('pdfDownload');choose('ALL');assert.equal(f.downloads.length,before+1);
+  const before=f.downloads.length;action('pdfDownload');choose('ALL');await waitFor(()=>f.downloads.length===before+1,'direct vector PDF export');
   const file=f.downloads.at(-1);assert(file.name.includes('جميع-العملات'));assert(file.blob.size>100);assert((await file.blob.text()).startsWith('%PDF-1.4'));
  });
  await test('Account sharing uses native sharing, downloads unsupported PDF, and honors cancellation',async()=>{
   const shared=[];w.navigator.canShare=()=>true;w.navigator.share=async data=>shared.push(data);
-  const before=f.downloads.length;action('share');choose('USD');await pause(20);
+  const before=f.downloads.length;action('share');choose('USD');await waitFor(()=>shared.length===1,'direct vector PDF share');
   assert.equal(shared.length,1);assert(shared[0].files[0].name.includes('USD'));assert.equal(f.downloads.length,before);
   delete w.navigator.share;action('share');choose('YER');await pause(20);
   assert.equal(f.downloads.length,before+1,'Unsupported sharing downloads the prepared PDF');
@@ -136,7 +143,7 @@ async function run(){
   const count=prints.length,before=f.downloads.length;
   d.getElementById('ratibStatementPreviewBtn').click();assert.equal(prints.length,count);assert(d.getElementById('printPreviewModal').classList.contains('show'));d.getElementById('printPreviewCancelBtn').click();
   d.getElementById('printStatementBtn').click();assert.equal(prints.length,count+1);finishPrint();
-  d.getElementById('ratibReportStatementPdfBtn').click();assert.equal(f.downloads.length,before+1);assert(f.downloads.at(-1).name.includes('YER'));
+  d.getElementById('ratibReportStatementPdfBtn').click();await waitFor(()=>f.downloads.length===before+1,'report PDF');assert(f.downloads.at(-1).name.includes('YER'));
  });
  await test('A4 controls share one setting and apply to both PDF pages and native printing',async()=>{
   w.localStorage.setItem('ratib.statementLandscape','0');code(w,'ratibUpdatePaperOrientation()');

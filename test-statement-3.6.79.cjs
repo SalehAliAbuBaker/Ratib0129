@@ -129,7 +129,7 @@ async function main(){
 
  code("accountOpsState.from='2026-10-11';accountOpsState.to='2026-10-16';accountOpsState.filtered=true;");
  canvasText.length=0;
- const pdf=code("buildAccountOperationsPdf('YER')");
+ const pdf=code("buildPdfFromCanvases(ratibUnifiedStatementPageCanvases('YER'))");
  assert(pdf.size>100);
  const binary=await pdf.text();assert(binary.startsWith('%PDF-1.4'));
  const draw=canvasText.join('|');

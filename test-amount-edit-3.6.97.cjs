@@ -49,4 +49,4 @@ b.value='4.567';b.setSelectionRange(3,3);emit('input',b);
 assert.equal(b.value,'4.567','fractional exchange rates are retained');
 const skip=new Input('123','number');document.activeElement=skip;emit('focusin',skip);
 assert.equal(skip.selectCount,0,'native number inputs are not changed');
-console.log('PASS 3.6.158 amount/rate native selection, caret, grouping, Arabic digits, separator deletion, isolation');
+console.log('PASS 3.6.159 amount/rate native selection, caret, grouping, Arabic digits, separator deletion, isolation');

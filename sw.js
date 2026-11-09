@@ -1,9 +1,13 @@
 // Ratib 3.1.9: cache identity is unique to this app's scope.
-const CACHE_VERSION='v261-date-render-r1-v260-opening-mobile-clean-3.6.139-compound-compact-auto-signature-tafqit-cash-reference-amount-currency-compound-ref-simple-ref-totals-cash-colors-cash-preview-return-3.6.158';
-const APP_RELEASE={"version":"3.6.158","build":"p15800","highlights":["PDF نصي عالي الدقة لكشف الحساب","إبقاء PDF التقليدي للأجهزة غير الداعمة"],"changes":["نجري بانتظام تحديثات لتحسين الموثوقية والأداء وإصلاح الأخطاء","إضافة خيار لتوليد كشف حساب نصي عالي الدقة عبر طباعة المتصفح واختيار حفظ كـ PDF","الحفاظ على التواريخ والرصيد والتفقيط والعبارة التحريرية لكل عملة","الإبقاء على تصدير PDF التقليدي ومسار المشاركة دون تعديل البيانات"]};
+const CACHE_VERSION='v261-date-render-r1-v260-opening-mobile-clean-3.6.139-compound-compact-auto-signature-tafqit-cash-reference-amount-currency-compound-ref-simple-ref-totals-cash-colors-cash-preview-return-3.6.159';
+const APP_RELEASE={"version":"3.6.159","build":"p15900","highlights":["تصدير ومشاركة PDF نصي عالي الدقة مباشرةً","حفظ الحروف العربية والجداول كعناصر متجهية دون تكسّر"],"changes":["نجري بانتظام تحديثات لتحسين الموثوقية والأداء وإصلاح الأخطاء","تحويل زري تصدير PDF ومشاركة PDF لكشف الحساب إلى محرك نصي متجهي مستقل دون نافذة الطباعة","تضمين خط Tajawal العربي محليًا داخل PDF مع دعم العمل دون اتصال","الحفاظ على الأرصدة والتفقيط والتواريخ والعبارة أسفل الكشف والفصل بين العملات","الإبقاء على المعاينة والطباعة التقليديتين حتى إتمام توحيدهما لاحقًا"]};
 const CACHE_PREFIX=`ratib:${self.registration.scope}:`;
 const CACHE_NAME=CACHE_PREFIX+CACHE_VERSION;
 const APP_SHELL=[
+  "./ratib-statement-direct-pdf-3.6.159.js",
+  "./vendor/ratib-pdfmake-0.2.23.min.js",
+  "./vendor/ratib-tajawal-regular.ttf",
+  "./vendor/ratib-tajawal-bold.ttf",
   "./ratib-statement-vector-3.6.158.js",
   "./ratib-statement-vector-3.6.158.css",
   "./ratib-statement-footer-opening-3.6.157.css",

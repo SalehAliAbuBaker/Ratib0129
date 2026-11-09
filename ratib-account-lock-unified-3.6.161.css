@@ -39,3 +39,10 @@
   opacity:.5!important;cursor:not-allowed!important;
  }
 }
+
+/* Never expose cash-only fixation controls in compound/opening voucher modes. */
+@media screen {
+ #mainWrap #pageExpenses #multiVoucherCard:not(.spend-voucher) :is(#ratibLockSource,#ratibLockCounter) {
+  display:none!important;
+ }
+}

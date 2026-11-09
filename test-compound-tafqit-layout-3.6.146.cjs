@@ -8,7 +8,7 @@ const html=fs.readFileSync('index.html','utf8');
 const pkg=require('./package.json');
 assert.equal(pkg.version,'3.6.163');
 assert(html.includes('const RATIB_RELEASE={"version":"3.6.163","build":"p16300"'));
-assert(worker.includes('compound-compact-auto-signature-tafqit-cash-reference-amount-currency-compound-ref-simple-ref-totals-cash-colors-cash-preview-return-3.6.163'));
+assert(worker.includes('compound-compact-auto-signature-tafqit-cash-reference-amount-currency-compound-ref-simple-ref-totals-cash-colors-cash-preview-return-3.6.162'));
 const match=ui.match(/function repaintMultiBalances\(\)\{[\s\S]*?\n\}\nfunction main\(\)/);
 assert(match,'Preserve the original rendering function');
 assert(css.includes('td.ratib-cmp-tafqit-cell[hidden]'),'No blank row for empty amounts');

@@ -15,8 +15,11 @@ function categories(){
  let stored=null;
  try{stored=typeof store!=='undefined'?store.get('cats',null):null;}catch(_){/* locked: show defaults only */}
  const core=new Set(defaults.map(c=>String(c.id)));
+ const saved=new Map((Array.isArray(stored)?stored:[]).filter(c=>c&&c.id).map(c=>[String(c.id),c]));
  const custom=Array.isArray(stored)?stored.filter(c=>c&&c.id&&!core.has(String(c.id))):[];
- return [...defaults,...custom].filter(c=>c&&c.id).map(c=>({
+ // Read saved configuration without calling the legacy getCats() migration,
+ // which may write to the store. Never persist from this dashboard.
+ return [...defaults.map(c=>({...c,...(saved.get(String(c.id))||{})})),...custom].filter(c=>c&&c.id).map(c=>({
   id:String(c.id),name:String(c.name||c.id),color:safeColor(c.color),
   pct:Number.isFinite(Number(c.pct))?Math.max(0,Number(c.pct)):0
  }));

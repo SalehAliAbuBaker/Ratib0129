@@ -1389,7 +1389,7 @@ body.ratib-sidebar-open,body.ratib-about-open{overflow:hidden}
 }
 </style>
 <link rel="stylesheet" href="./ratib-theme.css?v=3.6.53">
-<link rel="stylesheet" href="./ratib-navigation-v3.css?v=3.6.158">
+<link rel="stylesheet" href="./ratib-navigation-v3.css?v=3.6.159">
 <style id="ratib-354-account-toolbar-css-only">
 /* Scoped UI correction only. No script, event handlers, or navigation changes. */
 #pageAccountOperations .account-operations-screen-head{display:flex!important;flex-direction:column!important;align-items:stretch!important;overflow:visible!important;gap:8px!important}
@@ -1581,8 +1581,8 @@ body.ratib-sidebar-open,body.ratib-about-open{overflow:hidden}
 <link rel="stylesheet" href="./ratib-dashboard-finance-3.6.144.css?v=3.6.148">
 <link rel="stylesheet" href="./ratib-global-button-size-3.6.146.css?v=3.6.139">
 <link rel="stylesheet" href="./ratib-interface-font-3.6.148.css?v=3.6.139">
-<link rel="stylesheet" href="./ratib-feedback-3.6.149.css?v=3.6.158">
-<link rel="stylesheet" href="./ratib-country-currency-3.6.151.css?v=3.6.158">
+<link rel="stylesheet" href="./ratib-feedback-3.6.149.css?v=3.6.159">
+<link rel="stylesheet" href="./ratib-country-currency-3.6.151.css?v=3.6.159">
 <link rel="stylesheet" href="./ratib-interactive-tree-3.6.105.05.css?v=3.6.139">
 <style id="ratib-official-home-entry-grid">
 /* Preserve Ratib visual identity while matching all eleven home shortcut heights. */
@@ -1655,14 +1655,14 @@ body.ratib-sidebar-open,body.ratib-about-open{overflow:hidden}
 <link rel="stylesheet" href="./ratib-cloud-due-3.6.130.css?v=3.6.139">
 <link rel="stylesheet" href="./ratib-cash-actions-3.6.135.css?v=3.6.142-single-label-20261106">
 <link rel="stylesheet" href="./ratib-compound-layout-3.6.142.css?v=3.6.148">
-<link rel="stylesheet" href="./ratib-cash-reference-3.6.148.css?v=3.6.158">
-<link rel="stylesheet" href="./ratib-compound-output-3.6.150.css?v=3.6.158">
-<link rel="stylesheet" href="./ratib-simple-output-3.6.151.css?v=3.6.158">
-<link rel="stylesheet" href="./ratib-voucher-colors-totals-3.6.152.css?v=3.6.158">
-<link rel="stylesheet" href="./ratib-ui-unification-3.6.155.css?v=3.6.158">
-<link rel="stylesheet" href="./ratib-ui-fixes-3.6.156.css?v=3.6.158">
-<link rel="stylesheet" href="./ratib-statement-footer-opening-3.6.157.css?v=3.6.158">
-<link rel="stylesheet" href="./ratib-statement-vector-3.6.158.css?v=3.6.158">
+<link rel="stylesheet" href="./ratib-cash-reference-3.6.148.css?v=3.6.159">
+<link rel="stylesheet" href="./ratib-compound-output-3.6.150.css?v=3.6.159">
+<link rel="stylesheet" href="./ratib-simple-output-3.6.151.css?v=3.6.159">
+<link rel="stylesheet" href="./ratib-voucher-colors-totals-3.6.152.css?v=3.6.159">
+<link rel="stylesheet" href="./ratib-ui-unification-3.6.155.css?v=3.6.159">
+<link rel="stylesheet" href="./ratib-ui-fixes-3.6.156.css?v=3.6.159">
+<link rel="stylesheet" href="./ratib-statement-footer-opening-3.6.157.css?v=3.6.159">
+<link rel="stylesheet" href="./ratib-statement-vector-3.6.158.css?v=3.6.159">
 </head>
 <body>
 
@@ -3057,7 +3057,7 @@ body.ratib-sidebar-open,body.ratib-about-open{overflow:hidden}
 // (أو localhost أثناء التطوير) — هذا شرط أساسي من المتصفح نفسه لأي Service Worker.
 let _briefAppNoticeTimer=null;
 let _releaseSummaryDisplayed=false;
-const RATIB_RELEASE={"version":"3.6.158","build":"p15800","highlights":["PDF نصي عالي الدقة لكشف الحساب","إبقاء PDF التقليدي للأجهزة غير الداعمة"],"changes":["نجري بانتظام تحديثات لتحسين الموثوقية والأداء وإصلاح الأخطاء","إضافة خيار لتوليد كشف حساب نصي عالي الدقة عبر طباعة المتصفح واختيار حفظ كـ PDF","الحفاظ على التواريخ والرصيد والتفقيط والعبارة التحريرية لكل عملة","الإبقاء على تصدير PDF التقليدي ومسار المشاركة دون تعديل البيانات"]};
+const RATIB_RELEASE={"version":"3.6.159","build":"p15900","highlights":["تصدير ومشاركة PDF نصي عالي الدقة مباشرةً","حفظ الحروف العربية والجداول كعناصر متجهية دون تكسّر"],"changes":["نجري بانتظام تحديثات لتحسين الموثوقية والأداء وإصلاح الأخطاء","تحويل زري تصدير PDF ومشاركة PDF لكشف الحساب إلى محرك نصي متجهي مستقل دون نافذة الطباعة","تضمين خط Tajawal العربي محليًا داخل PDF مع دعم العمل دون اتصال","الحفاظ على الأرصدة والتفقيط والتواريخ والعبارة أسفل الكشف والفصل بين العملات","الإبقاء على المعاينة والطباعة التقليديتين حتى إتمام توحيدهما لاحقًا"]};
 window.ratibCurrentTrialVersion=()=>String(RATIB_RELEASE.version);
 window.ratibCurrentTrialVersionLabel=()=>`الإصدار ${RATIB_RELEASE.version}`;
 window.ratibSyncTrialVersion=()=>{
@@ -8951,8 +8951,8 @@ function requestReportStatementOutput(kind){
     if(kind==='preview')openPrintPreview('printStatementContainer','printing-statement');else printRatibDocument('printing-statement');
   }catch(e){showToast('تعذّر تجهيز كشف الحساب: '+e.message,'error');}
 }
-function downloadCurrentAccountOperations(choice,currencies){
-  try{downloadFinancialFile(buildAccountOperationsPdf(choice,currencies),`كشف-${accountOpsState.accountName}-${choice==='ALL'?'جميع-العملات':choice}.pdf`);showToast('تم تنزيل ملف PDF','success');}
+async function downloadCurrentAccountOperations(choice,currencies){
+  try{downloadFinancialFile(await buildAccountOperationsPdf(choice,currencies),`كشف-${accountOpsState.accountName}-${choice==='ALL'?'جميع-العملات':choice}.pdf`);showToast('تم تنزيل ملف PDF','success');}
   catch(e){showToast('تعذّر تنزيل كشف الحساب: '+e.message,'error');}
 }
 function previewVoucherDocument(tx){
@@ -9003,15 +9003,42 @@ function ratibInitPaperOrientation(){
   });
   window.addEventListener('afterprint',()=>{style.textContent='';});
 }
-function buildAccountOperationsPdf(choice,currencies){
-  // PDF uses exactly the same source pages as HTML preview and browser printing.
-  return buildPdfFromCanvases(ratibUnifiedStatementPageCanvases(choice,currencies),
-    ratibPaperLandscape()?[842,595]:[595,842]);
+async function ratibAccountVectorPdfLogo(){
+  // Logos are the only permitted raster image; all text/table elements stay vector.
+  let config=null;
+  try{config=typeof store!=='undefined'?store.get('user_print_logo_v1',null):null;}catch(_){}
+  const src=config?.enabled===false?'':config?.data||'';
+  if(!/^data:image\/(?:png|jpeg|webp);base64,/.test(src))return '';
+  if(/^data:image\/(?:png|jpeg);base64,/.test(src))return src;
+  return new Promise(resolve=>{
+    const image=new Image();
+    image.onload=()=>{
+      try{
+        const canvas=document.createElement('canvas'),maxSide=180,ratio=Math.min(1,maxSide/Math.max(image.naturalWidth,image.naturalHeight));
+        canvas.width=Math.max(1,Math.round(image.naturalWidth*ratio));canvas.height=Math.max(1,Math.round(image.naturalHeight*ratio));
+        canvas.getContext('2d').drawImage(image,0,0,canvas.width,canvas.height);
+        const png=canvas.toDataURL('image/png');canvas.width=1;canvas.height=1;resolve(png);
+      }catch(_){resolve('');}
+    };
+    image.onerror=()=>resolve('');
+    image.src=src;
+  });
+}
+async function buildAccountOperationsPdf(choice,currencies){
+  // Direct vector PDF: no native print dialog and no JPEG page rasterization.
+  if(!window.RatibStatementVector?.markup||!window.RatibDirectVectorPdf?.make)
+    throw Error('يُرجى تحديث التطبيق إلى أحدث إصدار لتفعيل تصدير PDF عالي الدقة.');
+  const selected=choice==='ALL'?(currencies||printableAccountCurrencies()):[choice];
+  if(!selected.length)throw Error('لم يتم تحديد عملة كشف الحساب');
+  const data=selected.map(getAccountCurrencyReportData);
+  const markup=window.RatibStatementVector.markup(data);
+  return await window.RatibDirectVectorPdf.make(
+    markup,ratibPaperLandscape()?'landscape':'portrait',await ratibAccountVectorPdfLogo());
 }
 async function shareCurrentAccountOperations(choice=null,currencies=null){
   if(!choice){requestAccountStatementOutput('pdf');return;}
   try{
-    const file=new File([buildAccountOperationsPdf(choice,currencies)],`كشف-${accountOpsState.accountName||'حساب'}-${choice==='ALL'?'جميع-العملات':choice}.pdf`,{type:'application/pdf'});
+    const file=new File([await buildAccountOperationsPdf(choice,currencies)],`كشف-${accountOpsState.accountName||'حساب'}-${choice==='ALL'?'جميع-العملات':choice}.pdf`,{type:'application/pdf'});
     if(await shareRatibDocumentFile(file,`كشف حساب - ${accountOpsState.accountName}`))showToast('تمت مشاركة ملف PDF','success');
   }catch(e){showToast('تعذّر تجهيز كشف الحساب للمشاركة: '+(e?.message||'خطأ غير معروف'),'error');}
 }
@@ -13468,53 +13495,54 @@ try{currenciesUi();sync();}catch(e){console.error('Ratib 3.6.12 initialization',
 <script>
 (()=>{const previous=renderMultiVoucherLines;renderMultiVoucherLines=function(...args){const result=previous.apply(this,args);queueMicrotask(ratibOrderDocumentAccounts);return result;};})();
 </script>
-<script src="./ratib-license-draft.js?v=3.6.158" defer></script>
+<script src="./ratib-license-draft.js?v=3.6.159" defer></script>
 <script src="./ratib-ui-v3.6.37.js?v=3.6.148" defer></script>
-<script src="./ratib-favorites-v3.js?v=3.6.158" defer></script>
+<script src="./ratib-favorites-v3.js?v=3.6.159" defer></script>
 <script src="./ratib-whatsapp-support-3.6.113.js?v=3.6.139" defer></script>
-<script src="./ratib-voice-dictation-3.6.117.js?v=3.6.158" defer></script>
+<script src="./ratib-voice-dictation-3.6.117.js?v=3.6.159" defer></script>
 <script src="./ratib-import-manager.js?v=2" defer></script>
 <script src="./ratib-annual-close.js?v=1" defer></script>
 <script src="./ratib-fiscal-ledger.js?v=1" defer></script>
 <script src="./ratib-statement-prior-year.js?v=1" defer></script>
 <script src="./ratib-reconciliation-print.js?v=3.6.139" defer></script>
 <script src="./ratib-theme.js?v=3.6.53" defer></script>
-<script src="./ratib-navigation-v3.6.149.js?v=3.6.158" defer></script>
+<script src="./ratib-navigation-v3.6.149.js?v=3.6.159" defer></script>
 <script src="./ratib-accounting-3.6.59.js?v=3.6.100" defer></script>
 <script src="./ratib-cash-layout-3.6.83.js?v=3.6.83" defer></script>
 <script src="./ratib-quick-account-3.6.87.js?v=3.6.105.01" defer></script>
 <script src="./ratib-journal-layout-3.6.90.js?v=3.6.97" defer></script>
-<script src="./ratib-amount-edit-3.6.97.js?v=3.6.158" defer></script>
+<script src="./ratib-amount-edit-3.6.97.js?v=3.6.159" defer></script>
 <script src="./ratib-special-reports-3.6.102.js?v=3.6.139" defer></script>
 <script src="./ratib-fx-autofill-3.6.105.js?v=3.6.107" defer></script>
 <script src="./ratib-report-buttons-3.6.106.js?v=3.6.139" defer></script>
 <script src="./ratib-print-logo-3.6.108.js?v=3.6.139" defer></script>
 <div id="ratibSpecialPrintHost" aria-hidden="true"></div>
-<script src="./ratib-sidebar-3.6.124.js?v=3.6.158" defer></script>
-<script src="./ratib-commerce-3.6.131.js?v=3.6.158" defer></script>
-<script src="./ratib-simple-accounts-3.6.105.13.js?v=3.6.158" defer></script>
+<script src="./ratib-sidebar-3.6.124.js?v=3.6.159" defer></script>
+<script src="./ratib-commerce-3.6.131.js?v=3.6.159" defer></script>
+<script src="./ratib-simple-accounts-3.6.105.13.js?v=3.6.159" defer></script>
 <script src="./ratib-interactive-tree-3.6.105.05.js?v=3.6.139" defer></script>
-<script src="./ratib-login-3.6.124.js?v=3.6.158" defer></script>
+<script src="./ratib-login-3.6.124.js?v=3.6.159" defer></script>
 <script src="./ratib-trial-home-sidebar-3.6.143.js?v=3.6.148" defer></script>
-<script src="./ratib-trial-ui-3.6.143.js?v=3.6.158" defer></script>
-<script src="./ratib-dashboard-finance-3.6.144.js?v=3.6.158" defer></script>
+<script src="./ratib-trial-ui-3.6.143.js?v=3.6.159" defer></script>
+<script src="./ratib-dashboard-finance-3.6.144.js?v=3.6.159" defer></script>
 <script src="./ratib-global-button-size-3.6.146.js?v=3.6.139" defer></script>
 <script src="./ratib-document-signatures-3.6.148.js?v=3.6.148-automatic" defer></script>
-<script src="./ratib-cash-reference-3.6.148.js?v=3.6.158" defer></script>
-<script src="./ratib-compound-output-3.6.150.js?v=3.6.158" defer></script>
-<script src="./ratib-simple-output-3.6.151.js?v=3.6.158" defer></script>
+<script src="./ratib-cash-reference-3.6.148.js?v=3.6.159" defer></script>
+<script src="./ratib-compound-output-3.6.150.js?v=3.6.159" defer></script>
+<script src="./ratib-simple-output-3.6.151.js?v=3.6.159" defer></script>
 <script src="./ratib-feedback-3.6.149.js?v=3.6.139" defer></script>
-<script src="./ratib-mobile-edge-back-3.6.128.js?v=3.6.158" defer></script>
+<script src="./ratib-mobile-edge-back-3.6.128.js?v=3.6.159" defer></script>
 <script src="./ratib-cash-pulse.js?v=3.6.139" defer></script>
 <script src="./ratib-statement-marks-3.6.106.05.js?v=3.6.139" defer>
 </script>
-<script src="./ratib-country-currency-3.6.151.js?v=3.6.158" defer></script>
+<script src="./ratib-country-currency-3.6.151.js?v=3.6.159" defer></script>
 <script src="./ratib-date-display.js?v=3.6.139" defer></script>
 <script src="./ratib-statement-compact-3.6.119.js?v=3.6.139" defer></script>
 <script src="./ratib-display-separation-3.6.122.js?v=3.6.139" defer></script>
 <script src="./ratib-trial-voucher-statement-3.6.125.js?v=3.6.139" defer></script>
-<script src="./ratib-cash-actions-3.6.135.js?v=3.6.158" defer></script>
+<script src="./ratib-cash-actions-3.6.135.js?v=3.6.159" defer></script>
 <script src="./ratib-compound-layout-3.6.142.js?v=3.6.148" defer></script>
-<script src="./ratib-statement-vector-3.6.158.js?v=3.6.158" defer></script>
+<script src="./ratib-statement-vector-3.6.158.js?v=3.6.159" defer></script>
+<script src="./ratib-statement-direct-pdf-3.6.159.js?v=3.6.159" defer></script>
 </body>
 </html>

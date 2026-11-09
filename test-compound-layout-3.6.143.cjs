@@ -11,7 +11,7 @@ const pkg=JSON.parse(fs.readFileSync('package.json','utf8'));
 assert.equal(pkg.version,'3.6.163');
 assert(html.includes('ratib-compound-layout-3.6.142.css?v=3.6.148'));
 assert(html.includes('ratib-compound-layout-3.6.142.js?v=3.6.148'));
-assert(sw.includes('compound-compact-auto-signature-tafqit-cash-reference-amount-currency-compound-ref-simple-ref-totals-cash-colors-cash-preview-return-3.6.163'));
+assert(sw.includes('compound-compact-auto-signature-tafqit-cash-reference-amount-currency-compound-ref-simple-ref-totals-cash-colors-cash-preview-return-3.6.162'));
 assert(html.includes('ratib-compound-layout-3.6.142.css?v=3.6.148'));
 assert(html.includes('ratib-compound-layout-3.6.142.js?v=3.6.148'));
 const precise='#multiVoucherCard.ratib-cmp-layout142:not(.spend-voucher):not(.hidden)';

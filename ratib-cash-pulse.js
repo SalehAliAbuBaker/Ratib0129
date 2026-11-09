@@ -279,7 +279,18 @@ function details(side){
   const desc=document.createElement('span');desc.textContent=r.date+' — '+(r.note||'حركة مالية');
   const amount=document.createElement('strong');amount.textContent=fmt(r.amount,r.currency);
   item.append(desc,amount);
-  item.addEventListener('click',()=>{if(typeof openTxModal==='function')openTxModal(r.t);});
+  // Each movement links to its SAVED voucher, not the generic simple
+  // journal editor. The existing details modal labels income/spend by the
+  // persisted multiVoucher.mode and offers an explicit edit action that
+  // opens the canonical cash editor. Keep the old editor as a fallback only.
+  item.addEventListener('click',()=>{
+   const tx=r.t,mode=tx?.multiVoucher?.mode||tx?.voucherMode;
+   if(typeof openDocumentDetailsModal==='function')
+    openDocumentDetailsModal(tx);
+   else if(tx?.isMultiVoucher&&['income','spend'].includes(mode)&&typeof openMultiVoucherEditor==='function')
+    openMultiVoucherEditor(tx);
+   else if(typeof openTxModal==='function')openTxModal(tx);
+  });
   list.append(item);
  }
  if(rows.length>40){const el=document.createElement('p');el.textContent='تظهر أحدث 40 حركة، وبقية الحركات في سجل العمليات.';el.className='ratib-pulse-muted';list.append(el);}

@@ -279,7 +279,15 @@ function details(side){
   const desc=document.createElement('span');desc.textContent=r.date+' — '+(r.note||'حركة مالية');
   const amount=document.createElement('strong');amount.textContent=fmt(r.amount,r.currency);
   item.append(desc,amount);
-  item.addEventListener('click',()=>{if(typeof openTxModal==='function')openTxModal(r.t);});
+  // Cash receipts and payments are stored as several journal legs, but they
+  // remain ONE cash voucher. Open the canonical cash editor, not the generic
+  // journal/entry editor used for a simple accounting voucher.
+  item.addEventListener('click',()=>{
+   const tx=r.t,mode=tx?.multiVoucher?.mode||tx?.voucherMode;
+   if(tx?.isMultiVoucher&&['income','spend'].includes(mode)&&typeof openMultiVoucherEditor==='function')
+    openMultiVoucherEditor(tx);
+   else if(typeof openTxModal==='function')openTxModal(tx);
+  });
   list.append(item);
  }
  if(rows.length>40){const el=document.createElement('p');el.textContent='تظهر أحدث 40 حركة، وبقية الحركات في سجل العمليات.';el.className='ratib-pulse-muted';list.append(el);}

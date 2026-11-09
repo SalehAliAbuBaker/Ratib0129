@@ -1,4 +1,4 @@
-/* Ratib official 3.6.158 — final balance and editable statement notice. */
+/* Ratib official 3.6.159 — final balance and editable statement notice. */
 'use strict';
 const assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('node:vm');
 const {JSDOM}=require('jsdom');
@@ -6,8 +6,8 @@ const html=fs.readFileSync('index.html','utf8');
 const css=fs.readFileSync('ratib-statement-footer-opening-3.6.157.css','utf8');
 const sw=fs.readFileSync('sw.js','utf8');
 const pkg=require('./package.json');
-assert.equal(pkg.version,'3.6.158');
-assert(html.includes('ratib-statement-footer-opening-3.6.157.css?v=3.6.158'));
+assert.equal(pkg.version,'3.6.159');
+assert(html.includes('ratib-statement-footer-opening-3.6.157.css?v=3.6.159'));
 assert(sw.includes('"./ratib-statement-footer-opening-3.6.157.css"'));
 assert(css.includes('grid-template-columns:minmax(0,1fr)!important'));
 assert(css.includes('#openingHeader #openingDateLabel'));
@@ -36,4 +36,4 @@ const dom=new JSDOM(html),d=dom.window.document;
 assert(d.getElementById('printStatementContainer')?.querySelector('#psStatementNotice'));
 assert(d.getElementById('ratibPageNav')?.querySelector('#backToMenuBtn'));
 dom.window.close();
-console.log('PASS 3.6.158: signed balance, editable notice, canvas output and opening date width');
+console.log('PASS 3.6.159: signed balance, editable notice, canvas output and opening date width');

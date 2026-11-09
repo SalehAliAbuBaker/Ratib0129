@@ -1,9 +1,11 @@
 // Ratib 3.1.9: cache identity is unique to this app's scope.
-const CACHE_VERSION='v261-date-render-r1-v260-opening-mobile-clean-3.6.139-compound-compact-auto-signature-tafqit-cash-reference-amount-currency-compound-ref-simple-ref-totals-cash-colors-cash-preview-return-3.6.160';
-const APP_RELEASE={"version":"3.6.160","build":"p16000","highlights":["إجماليات نتائج البحث مباشرة في كشف الحساب","تصدير نتائج البحث دون تعديل الأرصدة الدفترية"],"changes":["نجري بانتظام تحديثات لتحسين الموثوقية والأداء وإصلاح الأخطاء","احتساب إجمالي المدين والدائن وصافي نتائج البحث عند إدخال النص أو المبلغ","إعادة الإجماليات الأصلية عند مسح البحث والحفاظ على رصيد كل حركة","طباعة ومشاركة كشف حركات مفلتر مع فصل العملات"]};
+const CACHE_VERSION='v261-date-render-r1-v260-opening-mobile-clean-3.6.139-compound-compact-auto-signature-tafqit-cash-reference-amount-currency-compound-ref-simple-ref-totals-cash-colors-cash-preview-return-3.6.161';
+const APP_RELEASE={"version":"3.6.161","build":"p16100","highlights":["توحيد أيقونات تثبيت الحسابات في السندات","قفل أخضر داكن برمز ذهبي واضح للحالتين"],"changes":["نجري بانتظام تحديثات لتحسين الموثوقية والأداء وإصلاح الأخطاء","توحيد شكل وحجم وموقع أيقونات تثبيت الحساب في سند القبض والصرف والقيد البسيط وسائر مواضع التثبيت الموجودة","إظهار قفل مفتوح لغير المثبّت ومغلق للمثبّت دون الاعتماد على الخط أو رموز الهاتف","الإبقاء على وظائف التثبيت والحفظ والحسابات دون تعديل"]};
 const CACHE_PREFIX=`ratib:${self.registration.scope}:`;
 const CACHE_NAME=CACHE_PREFIX+CACHE_VERSION;
 const APP_SHELL=[
+  "./ratib-account-lock-unified-3.6.161.css",
+  "./ratib-account-lock-unified-3.6.161.js",
   "./ratib-statement-search-totals-3.6.160.js",
   "./ratib-statement-direct-pdf-3.6.159.js",
   "./vendor/ratib-pdfmake-0.2.23.min.js",

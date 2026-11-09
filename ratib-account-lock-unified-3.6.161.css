@@ -1,0 +1,48 @@
+/* Ratib 3.6.161 — approved unified account fixation icon, all voucher editors.
+   Visual only: the four existing click handlers, accounts, and lock persistence are untouched. */
+@media screen {
+ #mainWrap #pageExpenses :is(#lockDebitAccBtn,#lockCreditAccBtn,#ratibLockSource,#ratibLockCounter,.ratib-account-lock) {
+  box-sizing:border-box!important;
+  display:inline-flex!important;align-items:center!important;justify-content:center!important;
+  flex:0 0 44px!important;width:44px!important;min-width:44px!important;max-width:44px!important;
+  height:44px!important;min-height:44px!important;max-height:44px!important;
+  padding:0!important;margin:0!important;
+  border:1px solid #075e47!important;border-radius:10px!important;
+  background:#075e47!important;color:#f5cc6e!important;
+  box-shadow:none!important;filter:none!important;
+  font-size:0!important;line-height:0!important;
+  text-indent:0!important;white-space:nowrap!important;
+  cursor:pointer;
+  -webkit-tap-highlight-color:transparent;
+ }
+ /* Hide font-dependent emoji/glyphs without removing or replacing the source elements. */
+ #mainWrap #pageExpenses :is(#lockDebitAccBtn,#lockCreditAccBtn,#ratibLockSource,#ratibLockCounter,.ratib-account-lock) > * {display:none!important}
+ #mainWrap #pageExpenses :is(#lockDebitAccBtn,#lockCreditAccBtn,#ratibLockSource,#ratibLockCounter,.ratib-account-lock)::before {
+  content:"";display:block!important;flex:0 0 22px;
+  width:22px;height:22px;min-width:22px;
+  background:#f5cc6e;
+  -webkit-mask:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22black%22%20stroke-width%3D%222.1%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Crect%20x%3D%225%22%20y%3D%2210%22%20width%3D%2214%22%20height%3D%2211%22%20rx%3D%222%22%2F%3E%3Cpath%20d%3D%22M8%2010V7a4%204%200%200%201%207.8-1.2M12%2015v2%22%2F%3E%3C%2Fsvg%3E") center/contain no-repeat;
+  mask:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22black%22%20stroke-width%3D%222.1%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Crect%20x%3D%225%22%20y%3D%2210%22%20width%3D%2214%22%20height%3D%2211%22%20rx%3D%222%22%2F%3E%3Cpath%20d%3D%22M8%2010V7a4%204%200%200%201%207.8-1.2M12%2015v2%22%2F%3E%3C%2Fsvg%3E") center/contain no-repeat;
+  pointer-events:none;
+ }
+ #mainWrap #pageExpenses :is(#lockDebitAccBtn,#lockCreditAccBtn,#ratibLockSource,#ratibLockCounter,.ratib-account-lock)[aria-pressed="true"]::before {
+  -webkit-mask:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22black%22%20stroke-width%3D%222.1%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Crect%20x%3D%225%22%20y%3D%2210%22%20width%3D%2214%22%20height%3D%2211%22%20rx%3D%222%22%2F%3E%3Cpath%20d%3D%22M8%2010V7a4%204%200%200%201%208%200v3M12%2015v2%22%2F%3E%3C%2Fsvg%3E") center/contain no-repeat;
+  mask:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22black%22%20stroke-width%3D%222.1%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Crect%20x%3D%225%22%20y%3D%2210%22%20width%3D%2214%22%20height%3D%2211%22%20rx%3D%222%22%2F%3E%3Cpath%20d%3D%22M8%2010V7a4%204%200%200%201%208%200v3M12%2015v2%22%2F%3E%3C%2Fsvg%3E") center/contain no-repeat;
+ }
+ #mainWrap #pageExpenses :is(#lockDebitAccBtn,#lockCreditAccBtn,#ratibLockSource,#ratibLockCounter,.ratib-account-lock)[aria-pressed="true"] {
+  box-shadow:inset 0 0 0 1px rgba(245,204,110,.35)!important;
+ }
+ #mainWrap #pageExpenses :is(#lockDebitAccBtn,#lockCreditAccBtn,#ratibLockSource,#ratibLockCounter,.ratib-account-lock):focus-visible {
+  outline:2px solid #f5cc6e!important;outline-offset:3px!important;
+ }
+ #mainWrap #pageExpenses :is(#lockDebitAccBtn,#lockCreditAccBtn,#ratibLockSource,#ratibLockCounter,.ratib-account-lock):disabled {
+  opacity:.5!important;cursor:not-allowed!important;
+ }
+}
+
+/* Never expose cash-only fixation controls in compound/opening voucher modes. */
+@media screen {
+ #mainWrap #pageExpenses #multiVoucherCard:not(.spend-voucher) :is(#ratibLockSource,#ratibLockCounter) {
+  display:none!important;
+ }
+}

@@ -203,4 +203,39 @@
       min-width:39px!important;max-width:65px!important;padding-inline:3px!important;
     }
   }
+
+  /* The older cash-voucher stylesheet uses two IDs and clips the primary
+     Umm al-Qura line. Override that exact editor only, without touching print. */
+  #pageExpenses #multiVoucherCard.spend-voucher > #ratibCashVoucherHeader{
+    grid-template-columns:minmax(68px,.7fr) minmax(0,2.3fr)!important;
+    align-items:stretch!important;
+  }
+  #pageExpenses #multiVoucherCard.spend-voucher > #ratibCashVoucherHeader .ratib-native-date-wrap{
+    min-height:56px!important;height:auto!important;
+  }
+  #pageExpenses #multiVoucherCard.spend-voucher > #ratibCashVoucherHeader .ratib-native-date-button{
+    min-height:56px!important;height:auto!important;overflow:visible!important;
+    white-space:normal!important;
+  }
+  #pageExpenses #multiVoucherCard.spend-voucher > #ratibCashVoucherHeader .ratib-native-date-button>span{
+    white-space:normal!important;overflow:visible!important;
+    text-overflow:clip!important;overflow-wrap:normal!important;
+    font-size:14px!important;
+  }
+  #pageExpenses #multiVoucherCard.spend-voucher > #ratibCashVoucherHeader .ratib-native-date-button>small{
+    font-size:12px!important;font-weight:400!important;
+    white-space:normal!important;overflow:visible!important;text-overflow:clip!important;
+  }
+  #pageExpenses #multiVoucherCard.spend-voucher > #ratibCashVoucherHeader #spendSeqInput{
+    min-height:56px!important;height:56px!important;
+    font-size:var(--ratib-input-font-size,14px)!important;
+    font-weight:400!important;
+  }
+  #mainWrap #pageExpenses #cashLineHeading{
+    font-size:var(--ratib-ux-section)!important;font-weight:500!important;
+  }
+  #mainWrap #pageAccountOperations .account-statement-row[data-tx-id]>.ratib-account-row-date .ratib-hijri-text>small{
+    font-size:12px!important;
+    font-weight:400!important;line-height:1.35!important;
+  }
 }

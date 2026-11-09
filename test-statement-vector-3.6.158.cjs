@@ -1,4 +1,4 @@
-/* Ratib 3.6.158: vector-text print path is independent of JPEG PDF. */
+/* Ratib 3.6.159: vector-text print path is independent of JPEG PDF. */
 'use strict';
 const assert=require('node:assert/strict'),fs=require('node:fs');
 const {JSDOM}=require('jsdom');
@@ -7,11 +7,11 @@ const css=fs.readFileSync('ratib-statement-vector-3.6.158.css','utf8');
 const html=fs.readFileSync('index.html','utf8');
 const pkg=require('./package.json');
 const sw=fs.readFileSync('sw.js','utf8');
-assert.equal(pkg.version,'3.6.158');
+assert.equal(pkg.version,'3.6.159');
 assert(sw.includes('"./ratib-statement-vector-3.6.158.js"'));
 assert(sw.includes('"./ratib-statement-vector-3.6.158.css"'));
-assert(html.includes('ratib-statement-vector-3.6.158.js?v=3.6.158'));
-assert(html.includes('ratib-statement-vector-3.6.158.css?v=3.6.158'));
+assert(html.includes('ratib-statement-vector-3.6.158.js?v=3.6.159'));
+assert(html.includes('ratib-statement-vector-3.6.158.css?v=3.6.159'));
 assert(html.includes('data-account-action="vector"'));
 assert(html.includes("if(kind==='vector')ratibVectorStatementPrint(choice,currencies)"));
 assert(html.includes("['print','preview','share','pdfDownload','vector']"));
@@ -61,4 +61,4 @@ assert.equal(w.ratibVectorStatementPrint('YER',['YER']),true);
 assert.equal(printed,1);
 assert(w.document.querySelector('#ratibVectorStatementHost .ratib-vector-table'));
 dom.window.close();
-console.log('PASS 3.6.158: semantic statement HTML, signed balances, RTL dates, vector print action, JPG fallback untouched');
+console.log('PASS 3.6.159: semantic statement HTML, signed balances, RTL dates, vector print action, JPG fallback untouched');

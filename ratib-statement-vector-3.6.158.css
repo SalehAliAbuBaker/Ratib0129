@@ -1,0 +1,108 @@
+/* Ratib 3.6.158 — real text/table paths for browser's Save as PDF. */
+@media screen {
+ #ratibVectorStatementHost {display:none!important}
+}
+@media print {
+ html:has(body.printing-vector-statement),body.printing-vector-statement{
+  height:auto!important;overflow:visible!important;background:#fff!important;color:#101827!important;
+ }
+ body.printing-vector-statement > :not(#ratibVectorStatementHost){display:none!important}
+ body.printing-vector-statement #ratibVectorStatementHost {
+  display:block!important;position:static!important;
+  width:100%!important;max-width:none!important;
+  height:auto!important;min-height:0!important;overflow:visible!important;
+  padding:0!important;margin:0!important;
+  background:#fff!important;color:#101827!important;
+ }
+ body.printing-vector-statement .ratib-vector-sheet {
+  width:100%;box-sizing:border-box;display:block;
+  direction:rtl;unicode-bidi:plaintext;background:white;color:#101827;
+  break-after:page;page-break-after:always;
+  font-family:Tajawal,Arial,sans-serif!important;
+  font-size:9.2pt;line-height:1.5;
+ }
+ body.printing-vector-statement .ratib-vector-sheet:last-child{
+  break-after:auto;page-break-after:auto
+ }
+ body.printing-vector-statement .ratib-vector-letterhead {
+  display:flex;align-items:center;gap:7mm;
+  padding:0 0 2.5mm;border-bottom:1px solid #b8c3ce;margin-bottom:2mm;
+ }
+ body.printing-vector-statement .ratib-vector-logo {
+  width:16mm;height:16mm;object-fit:contain;flex:none;
+ }
+ body.printing-vector-statement .ratib-vector-organization {
+  display:flex;flex-direction:column;gap:1mm;min-width:0;
+  font-size:9pt;
+ }
+ body.printing-vector-statement .ratib-vector-organization strong{
+  font-size:13pt;font-weight:700;
+ }
+ body.printing-vector-statement .ratib-vector-sheet h2 {
+  display:block;margin:2mm 0;padding:2.5mm 0;
+  text-align:center;font:700 13pt/1.35 Tajawal,Arial,sans-serif;
+  color:#111827;border:0;background:#f1f5f9;
+ }
+ body.printing-vector-statement .ratib-vector-details {
+  display:flex;align-items:start;justify-content:space-between;gap:3mm;
+  padding:2mm 0 3mm;font-size:8pt;
+ }
+ body.printing-vector-statement .ratib-vector-details span {
+  display:block;min-width:0;overflow-wrap:anywhere;
+ }
+ body.printing-vector-statement .ratib-vector-hijri{
+  display:block;font:500 8.4pt/1.45 Tajawal,Arial,sans-serif;
+ }
+ body.printing-vector-statement .ratib-vector-gregorian{
+  display:block;font:400 7pt/1.35 Tajawal,Arial,sans-serif;
+  color:#525f6d;
+ }
+ body.printing-vector-statement table.ratib-vector-table {
+  border-collapse:collapse!important;direction:rtl;
+  table-layout:fixed;width:100%!important;min-width:0!important;
+  font:400 8pt/1.45 Tajawal,Arial,sans-serif;
+ }
+ body.printing-vector-statement .ratib-vector-table thead {
+  display:table-header-group!important;
+ }
+ body.printing-vector-statement .ratib-vector-table tr {
+  break-inside:avoid;page-break-inside:avoid;
+ }
+ body.printing-vector-statement .ratib-vector-table :is(th,td){
+  padding:2mm 1.5mm;border:0.5pt solid #8494a7;
+  text-align:right!important;vertical-align:middle;
+  overflow-wrap:anywhere;white-space:normal;
+ }
+ body.printing-vector-statement .ratib-vector-table th {
+  background:#e2e8f0!important;print-color-adjust:exact;
+  -webkit-print-color-adjust:exact;font-weight:700;
+ }
+ body.printing-vector-statement .ratib-vector-table td.ratib-vector-number {
+  direction:rtl;text-align:right!important;font-variant-numeric:tabular-nums;
+  unicode-bidi:plaintext;
+ }
+ body.printing-vector-statement .ratib-vector-opening td {background:#f8fafc}
+ body.printing-vector-statement .ratib-vector-total td {
+  background:#e2e8f0!important;print-color-adjust:exact;
+  -webkit-print-color-adjust:exact;font-weight:700;border-top:1pt solid #64748b;
+ }
+ body.printing-vector-statement .ratib-vector-footer {
+  display:block;margin-top:3mm;break-inside:avoid;page-break-inside:avoid;
+ }
+ body.printing-vector-statement .ratib-vector-footer p {
+  margin:0 0 1.5mm;overflow-wrap:anywhere;
+ }
+ body.printing-vector-statement .ratib-vector-words {
+  border-top:0.75pt solid #bdc6d0;padding-top:2.5mm;
+  font:700 9.4pt/1.5 Tajawal,Arial,sans-serif;
+ }
+ body.printing-vector-statement .ratib-vector-notice {
+  font:400 8pt/1.55 Tajawal,Arial,sans-serif;
+ }
+ body.printing-vector-statement .ratib-vector-summary .ratib-vector-table {
+  font-size:9pt;
+ }
+ html:has(body.printing-vector-statement) {
+  print-color-adjust:exact;-webkit-print-color-adjust:exact;
+ }
+}

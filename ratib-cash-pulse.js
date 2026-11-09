@@ -219,6 +219,7 @@ function draw(){
   const accounts=cashAccounts();renderCashDirectory();
   if(!accounts.length){
    visible=[];kind='';byId('ratibPulseDetails').hidden=true;
+   window.RatibCashPulseViz?.clear?.();
    const select=byId('ratibPulseAccount');select.replaceChildren();lastAccount='';
    byId('ratibPulseReadout').hidden=true;
    help('اختر حسابًا واحدًا على الأقل لعرض نبض الصندوق. لا تُضاف أي حسابات تلقائيًا.');return;
@@ -255,6 +256,14 @@ function draw(){
   help('حركة '+scope.label+' — '+visible.length+' حركة مرحّلة'+(account===ALL_CASH?' ضمن '+accounts.length+' حساب مختار (بعد استبعاد التحويلات الداخلية من إجمالي الحركة)':' لحساب '+account)+'. الأرصدة الافتتاحية ليست مقبوضات.');
   const circum=2*Math.PI*71,total=receipts+payments,g=total?circum*receipts/total:0,p=total?circum*payments/total:0;
   arc('ratibPulseGreenArc',g,0);arc('ratibPulseGoldArc',p,g);
+  // 3.6.162: display the same verified cash values in the optional, read-only
+  // dual-ring module; its absence or failure never affects the original pulse.
+  try{window.RatibCashPulseViz?.update?.({
+   account,accountLabel:account===ALL_CASH?'الحسابات المختارة ('+accounts.length+')':account,
+   currency,period:scope,beginning,receipts,payments,closing,
+   entries:visible,selectedAccounts:accounts.map(a=>a.value)
+  });}catch(visualError){console.warn('Pulse visualization unavailable',visualError);
+   try{window.RatibCashPulseViz?.clear?.();}catch(_){}}
   if(kind)details(kind);
  }catch(error){
   console.error('Ratib Cash Pulse',error);byId('ratibPulseReadout').hidden=true;help('تعذر احتساب الملخص، ولم تُغيَّر أي بيانات.');
@@ -343,5 +352,5 @@ function mount(){
 }
 loadSelectedCash();
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',mount,{once:true});else mount();
-window.RatibCashPulse={refresh:schedule};
+window.RatibCashPulse={refresh:schedule,openDetails:details};
 })();

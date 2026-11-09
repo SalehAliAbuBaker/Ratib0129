@@ -1,0 +1,166 @@
+/* Ratib 3.6.156 — screen-only correction for simple journal spacing,
+   legible document numbers and a single accessible Back arrow design.
+   No form nodes, event listeners, stored dates, posting or print logic changed. */
+@media screen {
+  :root {
+    --ratib-back-width:70px;
+    --ratib-document-number-width:96px;
+  }
+
+  /* 3.6.155 inherited display:contents from an earlier navigation sheet.
+     It turned the date and swap controls into separate flex items, leaving
+     an unnecessary extra line inside the simple journal. */
+  #mainWrap #pageExpenses #cashFlowCard.simple-journal:not(.hidden) > h2 {
+    display:flex!important;
+    flex:0 0 auto!important;
+    flex-direction:row!important;
+    flex-wrap:nowrap!important;
+    align-items:center!important;
+    justify-content:stretch!important;
+    direction:rtl!important;
+    gap:7px!important;
+    width:100%!important;
+    height:auto!important;min-height:0!important;
+    padding:0!important;
+    margin:0 0 5px!important;
+    border:0!important;
+  }
+  #mainWrap #pageExpenses #cashFlowCard.simple-journal:not(.hidden) > h2 > .ratib-header-date {
+    display:block!important;
+    flex:1 1 auto!important;
+    width:auto!important;
+    max-width:100%!important;
+    min-width:0!important;
+    margin:0!important;padding:0!important;
+    align-self:center!important;
+  }
+  #mainWrap #pageExpenses #cashFlowCard.simple-journal:not(.hidden) > h2 > #swapAccountsBtn {
+    display:inline-flex!important;
+    flex:0 0 44px!important;
+    width:44px!important;
+    min-width:44px!important;max-width:44px!important;
+    height:46px!important;min-height:46px!important;
+    align-items:center!important;justify-content:center!important;
+    margin:0!important;padding:0!important;
+    border-radius:10px!important;
+  }
+  #mainWrap #pageExpenses #cashFlowCard.simple-journal:not(.hidden) > h2 > :is(#voucherHeaderTitle,#voucherSeqNumBadge),
+  #mainWrap #pageExpenses #cashFlowCard.simple-journal:not(.hidden) > h2 > div:empty {
+    display:none!important;
+  }
+  #mainWrap #pageExpenses #cashFlowCard.simple-journal:not(.hidden) > .simple-journal-grid {
+    grid-auto-rows:max-content!important;
+    align-content:start!important;
+    row-gap:5px!important;
+    margin:0 0 5px!important;
+    min-height:0!important;
+  }
+  #mainWrap #pageExpenses #cashFlowCard.simple-journal:not(.hidden) > .simple-journal-grid > :empty {
+    display:none!important;
+  }
+  #mainWrap #pageExpenses #cashFlowCard.simple-journal:not(.hidden) #ratibSimpleCurrencyDisclosure {
+    margin-block:3px!important;
+  }
+
+  /* Keep each document's original number and the working Back handler. */
+  #mainWrap #ratibPageNav.ratib-voucher-nav:not([hidden]) {
+    grid-template-columns:var(--ratib-back-width) minmax(0,1fr) minmax(88px,var(--ratib-document-number-width))!important;
+    gap:7px!important;
+    align-items:center!important;
+  }
+  #mainWrap #ratibPageNav #ratibVoucherSequence:not([hidden]) {
+    box-sizing:border-box!important;
+    justify-self:stretch!important;
+    width:100%!important;
+    min-width:88px!important;
+    max-width:none!important;
+    min-height:44px!important;
+    display:flex!important;
+    align-items:center!important;justify-content:center!important;
+    padding:6px 7px!important;
+    font:600 14px/1.35 Tajawal,system-ui,sans-serif!important;
+    font-variant-numeric:tabular-nums!important;
+    direction:ltr!important;
+    white-space:normal!important;
+    overflow-wrap:anywhere!important;
+  }
+
+  /* Original nav is shared by vouchers, ledger, accounts and other pages. */
+  #mainWrap #ratibPageNav:not([hidden]) #backToMenuBtn,
+  #importedOpeningVoucherModal .ratib-opening-heading #importedOpeningClose {
+    box-sizing:border-box!important;
+    display:inline-flex!important;
+    flex:0 0 var(--ratib-back-width)!important;
+    flex-direction:column!important;
+    align-items:center!important;justify-content:center!important;
+    gap:0!important;
+    width:var(--ratib-back-width)!important;
+    min-width:var(--ratib-back-width)!important;max-width:var(--ratib-back-width)!important;
+    height:48px!important;min-height:48px!important;max-height:48px!important;
+    padding:2px!important;margin:0!important;
+    border:1px solid var(--accent-strong)!important;
+    border-radius:11px!important;
+    background:var(--accent-strong)!important;
+    color:var(--card)!important;
+    font-size:0!important;
+    line-height:1!important;
+    box-shadow:none!important;
+    cursor:pointer;
+  }
+  #mainWrap #ratibPageNav #backToMenuBtn > span {display:none!important}
+  #mainWrap #ratibPageNav:not([hidden]) #backToMenuBtn::before,
+  #importedOpeningVoucherModal .ratib-opening-heading #importedOpeningClose::before {
+    content:""!important;
+    display:block!important;
+    width:24px!important;height:24px!important;
+    min-width:24px!important;min-height:24px!important;
+    flex:0 0 24px!important;
+    background:currentColor!important;
+    -webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M5 12h14m-6-6 6 6-6 6' fill='none' stroke='black' stroke-width='2.1' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center / contain no-repeat!important;
+    mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M5 12h14m-6-6 6 6-6 6' fill='none' stroke='black' stroke-width='2.1' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center / contain no-repeat!important;
+  }
+  #mainWrap #ratibPageNav:not([hidden]) #backToMenuBtn::after,
+  #importedOpeningVoucherModal .ratib-opening-heading #importedOpeningClose::after {
+    content:"رجوع"!important;
+    display:block!important;
+    color:inherit!important;
+    font:500 11px/1.1 Tajawal,system-ui,sans-serif!important;
+    padding:0!important;margin:0!important;
+  }
+  #mainWrap #ratibPageNav:not([hidden]) #backToMenuBtn:focus-visible,
+  #importedOpeningVoucherModal .ratib-opening-heading #importedOpeningClose:focus-visible {
+    outline:3px solid var(--ui-gold,var(--accent))!important;
+    outline-offset:2px!important;
+  }
+
+  /* Opening journal reuses its actual editable document number field. */
+  #importedOpeningVoucherModal.modal-overlay.show .modal-content > .ratib-opening-heading {
+    grid-template-columns:var(--ratib-back-width) minmax(0,1fr) minmax(90px,108px)!important;
+    gap:7px!important;
+  }
+  #importedOpeningVoucherModal .ratib-opening-heading #importedOpeningSeq {
+    box-sizing:border-box!important;
+    width:100%!important;
+    min-width:88px!important;max-width:108px!important;
+    min-height:44px!important;
+    padding:6px!important;
+    text-align:center!important;
+    font:400 14px/1.4 Tajawal,system-ui,sans-serif!important;
+    font-variant-numeric:tabular-nums!important;
+  }
+
+  @media(max-width:360px) {
+    :root{--ratib-back-width:64px;--ratib-document-number-width:88px}
+    #mainWrap #ratibPageNav.ratib-voucher-nav:not([hidden]) {
+      grid-template-columns:var(--ratib-back-width) minmax(0,1fr) minmax(86px,var(--ratib-document-number-width))!important;
+      gap:5px!important;
+    }
+    #importedOpeningVoucherModal.modal-overlay.show .modal-content > .ratib-opening-heading {
+      grid-template-columns:var(--ratib-back-width) minmax(0,1fr) minmax(86px,94px)!important;
+      gap:5px!important;
+    }
+    #importedOpeningVoucherModal .ratib-opening-heading #importedOpeningSeq {
+      min-width:86px!important;
+    }
+  }
+}

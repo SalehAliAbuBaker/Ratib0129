@@ -1,4 +1,4 @@
-/* Ratib 3.6.154 regression: simple journal selectors and direct speech inputs. */
+/* Ratib 3.6.155 regression: simple journal selectors and direct speech inputs. */
 'use strict';
 const assert=require('node:assert/strict'),fs=require('node:fs');
 const {JSDOM}=require('jsdom');

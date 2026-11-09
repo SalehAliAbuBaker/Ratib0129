@@ -1,4 +1,4 @@
-/* Ratib 3.6.161 — lock-icon consistency without replacing handlers or account data. */
+/* Ratib 3.6.162 — lock-icon consistency without replacing handlers or account data. */
 'use strict';
 const assert=require('node:assert/strict');
 const fs=require('node:fs');
@@ -8,10 +8,10 @@ const css=fs.readFileSync('ratib-account-lock-unified-3.6.161.css','utf8');
 const html=fs.readFileSync('index.html','utf8'),sw=fs.readFileSync('sw.js','utf8');
 const pkg=require('./package.json');
 const buttonIds=['lockDebitAccBtn','lockCreditAccBtn','ratibLockSource','ratibLockCounter'];
-assert.equal(pkg.version,'3.6.161');
-assert(html.includes('ratib-account-lock-unified-3.6.161.css?v=3.6.161'));
-assert(html.includes('ratib-account-lock-unified-3.6.161.js?v=3.6.161'));
-assert(sw.includes('"version":"3.6.161"'));
+assert.equal(pkg.version,'3.6.162');
+assert(html.includes('ratib-account-lock-unified-3.6.161.css?v=3.6.162'));
+assert(html.includes('ratib-account-lock-unified-3.6.161.js?v=3.6.162'));
+assert(sw.includes('"version":"3.6.162"'));
 assert(sw.includes('"./ratib-account-lock-unified-3.6.161.css"'));
 assert(sw.includes('"./ratib-account-lock-unified-3.6.161.js"'));
 assert(css.includes('@media screen'),'Lock icon styling must not change printed vouchers');
@@ -61,4 +61,4 @@ doc.getElementById('pageExpenses').append(dynamicallyRendered);
 win.RatibUnifiedAccountLocks.sync();
 assert.equal(dynamicallyRendered.getAttribute('aria-pressed'),'false');
 dom.window.close();
-console.log('PASS 3.6.161: fixed/unfixed vector icon styling, four lock buttons, accessibility and unchanged click handlers');
+console.log('PASS 3.6.162: fixed/unfixed vector icon styling, four lock buttons, accessibility and unchanged click handlers');

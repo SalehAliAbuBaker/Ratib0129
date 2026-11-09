@@ -1,4 +1,4 @@
-/* Ratib 3.6.161 regression: genuine editable caret/selection in account, financial and commerce fields. */
+/* Ratib 3.6.162 regression: genuine editable caret/selection in account, financial and commerce fields. */
 'use strict';
 const fs=require('node:fs'),assert=require('node:assert/strict'),{JSDOM}=require('jsdom'),vm=require('node:vm');
 const html=fs.readFileSync('index.html','utf8');
@@ -15,7 +15,7 @@ assert(trial,'A unified trial release is required');
 assert(sw.includes('const APP_RELEASE={"version":"'+trial+'"'),'Worker and page must match');
 assert(html.includes('الإصدار '+trial),'Visible release should match trial');
 assert(sw.includes(trial),'Offline cache should mention current release');
-assert(html.includes('ratib-amount-edit-3.6.97.js?v=3.6.161'),'Amount-edit asset kept unchanged');
+assert(html.includes('ratib-amount-edit-3.6.97.js?v=3.6.162'),'Amount-edit asset kept unchanged');
 assert(/ratib-commerce-3\.6\.131\.js\?v=3\.6\.\d+/.test(html),'Commerce asset must retain its versioned URL');
 assert.doesNotMatch(html,/ratibSelectNext/);
 assert.doesNotMatch(amount,/input\.select\(\)/);
@@ -105,7 +105,7 @@ assert.match(commerceSuggestions,/input\.value\s*=\s*match/,'One matching sugges
  w.commerceAutocompleteTest(party,['محمد','محسن'],new w.InputEvent('input',{inputType:'deleteContentBackward'}));
  assert.equal(party.value,'مح','deletion must not force autocomplete');
  dom.window.close();
- console.log('PASS 3.6.161: selected subtext editing, native caret, unique account identity, amounts, commerce suggestions');
+ console.log('PASS 3.6.162: selected subtext editing, native caret, unique account identity, amounts, commerce suggestions');
 })().catch(err=>{console.error(err);process.exitCode=1;});
 
 (async()=>{

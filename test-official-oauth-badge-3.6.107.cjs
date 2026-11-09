@@ -11,7 +11,7 @@ assert(worker.includes('const APP_RELEASE={"version":"3.6.107"'));
 assert(worker.includes('v201-official-statement-marks-3.6.107'));
 assert(!sidebar.includes("const label='الإصدار '+v+' (تجريبية)'"));
 assert(sidebar.includes("const label='الإصدار '+v;"));
-assert(html.includes('ratib-sidebar-3.6.124.js?v=3.6.157&officialBadge=2'));
+assert(html.includes('ratib-sidebar-3.6.124.js?v=3.6.158&officialBadge=2'));
 assert(html.includes("const CLOUD_FOLDER_NAME = 'Ratib Backups'"));
 assert(html.includes("const CLOUD_LEGACY_FOLDER_NAME = 'Ratib Trial Backups'"));
 assert(html.includes("const CLOUD_FILE_PREFIX = 'ratib-cloud-'"));

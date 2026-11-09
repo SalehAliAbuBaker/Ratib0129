@@ -1,9 +1,11 @@
 // Ratib 3.1.9: cache identity is unique to this app's scope.
-const CACHE_VERSION='v261-date-render-r1-v260-opening-mobile-clean-3.6.139-compound-compact-auto-signature-tafqit-cash-reference-amount-currency-compound-ref-simple-ref-totals-cash-colors-cash-preview-return-3.6.157';
-const APP_RELEASE={"version":"3.6.157","build":"p15700","highlights":["تفقيط الرصيد الختامي بكلمة لكم أو عليكم حسب طبيعته","إضافة عبارة أسفل كشف الحساب قابلة للتعديل وتوسيع تاريخ القيد الافتتاحي"],"changes":["نجري بانتظام تحديثات لتحسين الموثوقية والأداء وإصلاح الأخطاء","تفقيط الرصيد بعملة كل كشف في المعاينة والطباعة وPDF والمشاركة دون تعديل الحسابات","عبارة نصية أسفل الكشف قابلة للتعديل والإخفاء من خيارات إعدادات الطباعة","توسيع حقل التاريخ في القيد الافتتاحي ليستغل المساحة المتاحة"]};
+const CACHE_VERSION='v261-date-render-r1-v260-opening-mobile-clean-3.6.139-compound-compact-auto-signature-tafqit-cash-reference-amount-currency-compound-ref-simple-ref-totals-cash-colors-cash-preview-return-3.6.158';
+const APP_RELEASE={"version":"3.6.158","build":"p15800","highlights":["PDF نصي عالي الدقة لكشف الحساب","إبقاء PDF التقليدي للأجهزة غير الداعمة"],"changes":["نجري بانتظام تحديثات لتحسين الموثوقية والأداء وإصلاح الأخطاء","إضافة خيار لتوليد كشف حساب نصي عالي الدقة عبر طباعة المتصفح واختيار حفظ كـ PDF","الحفاظ على التواريخ والرصيد والتفقيط والعبارة التحريرية لكل عملة","الإبقاء على تصدير PDF التقليدي ومسار المشاركة دون تعديل البيانات"]};
 const CACHE_PREFIX=`ratib:${self.registration.scope}:`;
 const CACHE_NAME=CACHE_PREFIX+CACHE_VERSION;
 const APP_SHELL=[
+  "./ratib-statement-vector-3.6.158.js",
+  "./ratib-statement-vector-3.6.158.css",
   "./ratib-statement-footer-opening-3.6.157.css",
   "./ratib-ui-fixes-3.6.156.css",
   "./ratib-ui-unification-3.6.155.css",

@@ -100,7 +100,7 @@ const vdom=new JSDOM('<!doctype html><html lang="ar" dir="rtl"><body>'+
  '<section id="pageDashboardKpi"><div id="proDashboardCard">Legacy</div></section></div></body></html>',
  {url:'https://ratib.test/',runScripts:'outside-only',pretendToBeVisual:true});
 const v=vdom.window,doc=v.document;
-let openedCash=[],openedLegacy=[];
+let openedCash=[],openedLegacy=[],openedDetails=[];
 const posted=[r1,p1,rLegacy].map((tx,i)=>({...tx,status:'posted',
  legs:[{account:'صندوق النقدية',currency:'YER',date:'2026-11-09',
  debit:tx.voucherMode==='income'?tx.amount:0,
@@ -116,6 +116,7 @@ v.getLocalTodayISO=()=>'2026-11-09';
 v.getRatibBaseCurrency=()=>'YER';
 v.openMultiVoucherEditor=tx=>openedCash.push(tx.voucherMode);
 v.openTxModal=tx=>openedLegacy.push(tx.voucherMode);
+v.openDocumentDetailsModal=tx=>openedDetails.push({mode:tx.multiVoucher?.mode||tx.voucherMode,multi:!!tx.isMultiVoucher,id:tx.id});
 v.eval(pulse);
 doc.dispatchEvent(new v.Event('DOMContentLoaded'));
 const box=doc.getElementById('ratibCashPulse');
@@ -126,14 +127,18 @@ assert(items.length>=2);
 const multiReceiptItem=[...items].find(item=>item.textContent.includes('450'));
 assert(multiReceiptItem,'Multi-line receipt details are visible');
 multiReceiptItem.click();
-assert(openedCash.includes('income'),'Multi-line posted receipt uses dedicated cash editor');
+assert(openedDetails.some(x=>x.mode==='income'&&x.multi),'Saved multi-line receipt opens its persisted cash document, never a simple entry');
 const legacyItem=[...items].find(item=>item.textContent.includes('25'));
 assert(legacyItem,'Legacy single receipt is visible');
 legacyItem.click();
-assert(openedLegacy.includes('income'),'Legacy receipt retains original edit routing');
+assert(openedDetails.some(x=>x.mode==='income'&&!x.multi),'Saved legacy receipt also opens its stored document type');
 doc.querySelector('[data-pulse-side="credit"]').click();
 doc.querySelector('.ratib-pulse-entry').click();
-assert(openedCash.includes('spend'),'Multi-line posted payment uses dedicated cash editor');
-assert(!openedLegacy.includes('spend'),'Payment cannot incorrectly open as simple entry');
+assert(openedDetails.some(x=>x.mode==='spend'&&x.multi),'Saved multi-line payment opens its persisted cash document');
+assert.equal(openedLegacy.length,0,'Do not open the generic journal editor when viewing a saved cash voucher');
+assert.equal(openedCash.length,0,'Viewing is read-only until the user selects Edit');
+delete v.openDocumentDetailsModal;
+doc.querySelector('.ratib-pulse-entry').click();
+assert(openedCash.includes('spend'),'If the saved-document viewer is unavailable, cash editor fallback preserves voucher type');
 v.close();
 console.log('PASS pending Cash Pulse: receipt/payment category separation, General aggregation, voucher edit routing, no account writes');

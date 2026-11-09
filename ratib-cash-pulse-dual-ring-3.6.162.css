@@ -122,3 +122,12 @@
 @media print{
  #ratibCashPulse .ratib-dual{display:none!important}
 }
+
+/* Ratib 3.6.163: callouts are scoped entirely to the Cash Pulse SVG. */
+@media screen {
+ #ratibCashPulse #ratibDualSvg .ratib-dual-callout{cursor:pointer}
+ #ratibCashPulse #ratibDualSvg .ratib-dual-callout-line{stroke-width:2;fill:none;stroke-linecap:round}
+ #ratibCashPulse #ratibDualSvg .ratib-dual-callout-name{fill:var(--text);font:700 12px Tajawal,sans-serif;direction:rtl;unicode-bidi:plaintext}
+ #ratibCashPulse #ratibDualSvg .ratib-dual-callout-amount{fill:var(--muted);font:600 12px Tajawal,sans-serif;direction:ltr}
+ #ratibCashPulse #ratibDualSvg .ratib-dual-callout:focus-visible .ratib-dual-callout-name{fill:var(--accent);text-decoration:underline}
+}

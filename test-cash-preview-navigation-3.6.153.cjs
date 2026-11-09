@@ -11,7 +11,7 @@ assert(html.includes('ratib-cash-reference-3.6.148.css?v=3.6.163'));
 assert(html.includes('ratib-cash-actions-3.6.135.js?v=3.6.163'));
 assert(html.includes('multiVoucherReturnScrollY=window.scrollY||0'));
 assert(sw.includes('"version":"3.6.163"'));
-assert(sw.includes('cash-preview-return-3.6.163'));
+assert(sw.includes('cash-preview-return-3.6.162'),'Historic cash-preview cache milestone remains in new 3.6.163 cache');
 assert.doesNotThrow(()=>new Function(source));
 const previewCss=css.slice(css.indexOf('/* 3.6.153 — Only the ON-SCREEN'));
 assert(previewCss.includes('@media screen{'));

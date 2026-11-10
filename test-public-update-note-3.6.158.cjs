@@ -1,4 +1,4 @@
-/* Trial 3.6.166: same one-line update notice for pending updates and a freshly loaded release. */
+/* Trial 3.6.167: same one-line update notice for pending updates and a freshly loaded release. */
 'use strict';
 const assert=require('node:assert/strict'),fs=require('node:fs'),{JSDOM}=require('jsdom');
 const html=fs.readFileSync('index.html','utf8'),worker=fs.readFileSync('sw.js','utf8');

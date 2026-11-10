@@ -4687,7 +4687,7 @@ function ratibLedgerVoucherType(t){
 
 function transactionSearchText(t){
   const stamp=t.updatedAt||'',cached=_transactionSearchCache.get(t);if(cached?.stamp===stamp)return cached.text;
-  let text='';try{text=JSON.stringify(t??{}).toLowerCase();}catch(_){ }
+  let text='';try{text=ratibSearchFold(JSON.stringify(t??{}));}catch(_){ }
   _transactionSearchCache.set(t,{stamp,text});return text;
 }
 function openDashboardOperations(filter='all') {
@@ -5230,7 +5230,8 @@ function esc(s){ return String(s ?? '').replace(/[&<>"']/g, m => ({'&':'&amp;','
 function highlightText(text, query) {
   const original = String(text ?? '');
   if (!query || !String(query).trim()) return esc(original);
-  const regex = new RegExp(`(${escapeRegExp(String(query).trim())})`, 'giu');
+  const pattern = Array.from(String(query).trim(), ch => /[اأإآٱ]/.test(ch) ? '[اأإآٱ]' : escapeRegExp(ch)).join('');
+  const regex = new RegExp(`(${pattern})`, 'giu');
   let cursor = 0, output = '';
   for (const match of original.matchAll(regex)) {
     const start = match.index;
@@ -7209,7 +7210,7 @@ document.getElementById('cancelEditDocBtn')?.addEventListener('click', () => {
 
 document.getElementById('ledgerSearchInput')?.addEventListener('input', (e) => {
   ledgerVisibleLimit=50;
-  currentLedgerSearchQuery = e.target.value.trim().toLowerCase();
+  currentLedgerSearchQuery = ratibSearchFold(e.target.value.trim());
   currentLedgerQuickFilter = 'all';
   clearTimeout(ledgerRenderTimer); ledgerRenderTimer = setTimeout(renderAllData, 120);
 });
@@ -7681,7 +7682,7 @@ function getAccountMainCategory(name) {
 function runTrialBalanceReport(){const container=document.getElementById('trialBalanceSections');if(!container)return;try{refreshTrialDimensions();const paired=document.getElementById('trialMode').value==='paired';const trialBaseSelect=document.getElementById('trialBase');if(paired)trialBaseSelect.value='YER';trialBaseSelect.disabled=paired;document.getElementById('trialCurrencyField').classList.toggle('hidden',document.getElementById('trialMode').value!=='specific');const model=trialBuildModel(getAllTransactions(),trialFilters());container.innerHTML=trialReportHtml(model);}catch(e){container.textContent=e.message;}}
 
 document.getElementById('statementSearchInput')?.addEventListener('input', (e) => {
-  currentStatementSearchQuery = e.target.value.trim().toLowerCase();
+  currentStatementSearchQuery = ratibSearchFold(e.target.value.trim());
   runAccountStatement();
 });
 
@@ -7731,7 +7732,7 @@ function runAccountStatement() {
     matchingTxs = matchingTxs.filter(t => {
       const noteStr = t.execution?.[Object.keys(t.execution || {})[0]]?.note || getTransactionDisplayType(t) || '';
       const otherAcc = t.debitAccount === selectedAccount ? t.creditAccount : t.debitAccount;
-      return [t.seqNum, t.date, noteStr, otherAcc, t.amount].join(' ').toLowerCase().includes(q);
+      return ratibSearchFold([t.seqNum, t.date, noteStr, otherAcc, t.amount].join(' ')).includes(q);
     });
   }
 
@@ -8003,7 +8004,8 @@ function canonicalTreeProjection(catalog=CANONICAL_ACCOUNT_CATALOG){
 }
 function getCanonicalCatalog(){return store.get('account_catalog',CANONICAL_ACCOUNT_CATALOG)}
 function getSubgroupParents(){const x=store.get('account_subgroup_parents',{});return x&&typeof x==='object'&&!Array.isArray(x)?{...x}:{};}
-function normalizeParentQuery(x){return String(x??'').trim().replace(/[٠-٩]/g,c=>String(c.charCodeAt(0)-1632)).replace(/[۰-۹]/g,c=>String(c.charCodeAt(0)-1776)).replace(/\s+/g,' ').toLocaleLowerCase('ar');}
+function ratibSearchFold(value){return String(value??'').normalize('NFKC').replace(/[\u064B-\u065F\u0670\u0640]/g,'').replace(/[أإآٱ]/g,'ا').toLocaleLowerCase('ar');}
+function normalizeParentQuery(x){return ratibSearchFold(x).trim().replace(/[٠-٩]/g,c=>String(c.charCodeAt(0)-1632)).replace(/[۰-۹]/g,c=>String(c.charCodeAt(0)-1776)).replace(/\s+/g,' ');}
 function findSubgroupParents(cat,search){
  const q=normalizeParentQuery(search),groups=new Map(),subs=new Map();
  cat.forEach(x=>{

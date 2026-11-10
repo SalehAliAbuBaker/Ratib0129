@@ -200,7 +200,7 @@ function commerceChosenAccount(id,label,required=false){
  if(required&&!account)throw Error('اختر حسابًا فرعيًا من شجرة الحسابات: '+label);
  return account;
 }
-function commerceNormalize(value){return String(value||'').normalize('NFKC').replace(/[\u064B-\u065F\u0670]/g,'').trim().toLocaleLowerCase('ar');}
+function commerceNormalize(value){return String(value??'').normalize('NFKC').replace(/[\u064B-\u065F\u0670\u0640]/g,'').replace(/[أإآٱ]/g,'ا').trim().toLocaleLowerCase('ar');}
 function commerceProductLabel(p){return String(p.sku||'')+' — '+p.name;}
 function commerceFindProduct(products,value){
  const q=commerceNormalize(value);
@@ -433,8 +433,8 @@ const header=mode==='stock'?'المخزون':mode==='in'?'الوارد':'الص�
  orderCommerceAccounts();
 }
 function filteredCatalogProducts(db){
- const term=catalogSearch.trim().toLocaleLowerCase();
- return db.products.filter(p=>(!term||String(p.name||'').toLocaleLowerCase().includes(term)||String(p.sku||'').toLocaleLowerCase().includes(term))&&(!catalogGroup||p.group===catalogGroup));
+ const term=commerceNormalize(catalogSearch);
+ return db.products.filter(p=>(!term||commerceNormalize(p.name).includes(term)||commerceNormalize(p.sku).includes(term))&&(!catalogGroup||p.group===catalogGroup));
 }
 function catalogListMarkup(db){
  const items=filteredCatalogProducts(db);
@@ -513,7 +513,7 @@ function accounts(db){
 }
 function records(db){
  const docs=db.invoices.filter(d=>mode==='in'?['purchase','purchase_return'].includes(d.kind):['sale','sale_return'].includes(d.kind));
- const filtered=docs.filter(d=>!query||[d.number,docName(d),d.partyName,d.displayPartyName,d.date,d.note].join(' ').toLocaleLowerCase().includes(query.toLocaleLowerCase()));
+ const filtered=docs.filter(d=>!query||commerceNormalize([d.number,docName(d),d.partyName,d.displayPartyName,d.date,d.note].join(' ')).includes(commerceNormalize(query)));
  const cards=filtered.slice().reverse().map(x=>'<article class="rc-record-item">'+
   '<header class="rc-record-heading"><strong>'+esc(docName(x))+'</strong><span>'+esc(x.number)+'</span></header>'+
   '<div class="rc-record-meta"><span><b>التاريخ:</b> '+esc(x.date)+'</span><span><b>الطرف:</b> '+esc(x.partyName||'—')+'</span>'+

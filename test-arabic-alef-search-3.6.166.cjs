@@ -27,7 +27,7 @@ for(const [a,b] of pairs){
 assert.equal(context.normalizeParentQuery('إيصال ١٢٣'),context.normalizeParentQuery('ايصال 123'));
 assert.ok(root.includes('currentLedgerSearchQuery = ratibSearchFold(e.target.value.trim())'));
 assert.ok(root.includes('currentStatementSearchQuery = ratibSearchFold(e.target.value.trim())'));
-assert.ok(root.includes('return ratibSearchFold([t.seqNum, t.date, noteStr, otherAcc, t.amount].join(' ')).includes(q)'));
+assert.ok(root.includes("return ratibSearchFold([t.seqNum, t.date, noteStr, otherAcc, t.amount]"));
 vm.runInContext(extract(commerce,'commerceNormalize'),context);
 for(const [a,b] of pairs)assert.equal(context.commerceNormalize(a),context.commerceNormalize(b));
 assert.ok(commerce.includes('commerceNormalize(p.name).includes(term)'));

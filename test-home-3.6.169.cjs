@@ -1,9 +1,9 @@
 'use strict';
 const assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('node:vm'),{JSDOM}=require('jsdom');
 const html=fs.readFileSync('index.html','utf8'),sw=fs.readFileSync('sw.js','utf8'),src=fs.readFileSync('ratib-home-3.6.169.js','utf8'),css=fs.readFileSync('ratib-home-3.6.169.css','utf8'),fold=fs.readFileSync('ratib-trial-home-sidebar-3.6.143.js','utf8'),head=fs.readFileSync('ratib-home-3.6.167.js','utf8');
-new vm.Script(src);assert.equal(require('./package.json').version,'3.6.169');
-assert(html.includes('"version":"3.6.169","build":"p16900"'));assert(sw.includes('"version":"3.6.169","build":"p16900"'));
-for(const file of ['ratib-home-3.6.169.js','ratib-home-3.6.169.css']){assert(html.includes(file+'?v=3.6.169'));assert(sw.includes(file));}
+new vm.Script(src);assert.equal(require('./package.json').version,'3.6.170');
+assert(html.includes('"version":"3.6.170","build":"p17000"'));assert(sw.includes('"version":"3.6.170","build":"p17000"'));
+for(const file of ['ratib-home-3.6.169.js','ratib-home-3.6.169.css']){assert(html.includes(file+'?v=3.6.170'));assert(sw.includes(file));}
 assert(fold.includes('setFold(true, false);'),'Dashboard must start folded regardless of last saved state');
 assert(fold.includes('toggle.addEventListener('),'Dashboard manual reopening must remain active');
 assert(head.includes('ar-SA-u-ca-islamic-umalqura-nu-latn')&&head.includes('ar-YE-u-ca-gregory-nu-latn'),'Header dates must use Latin digits');
@@ -18,4 +18,4 @@ const d=dom.window.document;assert(d.getElementById('themeBtn').hidden,'No heade
 assert.equal(d.getElementById('ratibAppearanceMenu').parentElement.className,'ratib-palette-settings');
 assert(!d.getElementById('ratibAppearanceMenu').hidden,'Appearance controls available in options');
 for(const id of ['ratibHomeHijri','ratibHomeGregorian']){const v=d.getElementById(id).textContent;assert(v&&/\d/.test(v),id);assert(!/[٠-٩۰-۹]/.test(v),'Arabic digit found in '+id);}
-dom.window.close();console.log('PASS Ratib 3.6.169 collapsed dashboard, inline theme and Latin date digits');
+dom.window.close();console.log('PASS Ratib 3.6.170 collapsed dashboard, inline theme and Latin date digits');

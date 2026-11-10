@@ -8,7 +8,7 @@ const css=fs.readFileSync('ratib-compound-layout-3.6.142.css','utf8');
 const index=fs.readFileSync('index.html','utf8');
 const sw=fs.readFileSync('sw.js','utf8');
 const pkg=JSON.parse(fs.readFileSync('package.json','utf8'));
-assert.equal(pkg.version,'3.6.169');
+assert.equal(pkg.version,'3.6.170');
 assert(index.includes('ratib-compound-layout-3.6.142.js'));
 assert(index.includes('ratib-compound-layout-3.6.142.css'));
 assert(sw.includes('./ratib-compound-layout-3.6.142.js'));

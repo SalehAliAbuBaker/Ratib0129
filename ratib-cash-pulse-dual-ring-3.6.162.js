@@ -50,7 +50,15 @@ function assignments(tx,currency,catIds,side='credit'){
  if(d&&['income','spend'].includes(mode))return []; // Unknown foreign-currency conversion: never guess.
  const entries=Object.entries(tx?.distribution||{}).filter(([id,v])=>catIds.has(id)&&v&&!v.excluded);
  const explicit=entries.some(([id])=>id!=='general');
- if(mode!==expected&&!explicit)return [];
+ // A posted SIMPLE journal can carry an explicitly saved "عام" allocation.
+ // Previously the mode check ignored that allocation just because the
+ // journal is 'entry' rather than a receipt/payment voucher. Do not infer
+ // General from the journal title, note or cash side, or classify any
+ // multi-entry transfer by this exception.
+ const simpleGeneral=mode==='entry'&&!tx?.isMultiVoucher&&!d&&
+  !!String(tx?.debitAccount||'').trim()&&!!String(tx?.creditAccount||'').trim()&&
+  entries.some(([id,item])=>id==='general'&&Number(item?.amount)>0);
+ if(mode!==expected&&!explicit&&!simpleGeneral)return [];
  const booked=entries.map(([id,item])=>({
   id,amount:num(item.amount||(+item.pct>0?num(tx.amount)*num(item.pct)/100:0))
  })).filter(x=>x.amount>0);

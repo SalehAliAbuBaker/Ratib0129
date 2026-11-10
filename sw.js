@@ -1,9 +1,11 @@
 // Ratib 3.1.9: cache identity is unique to this app's scope.
-const CACHE_VERSION='v261-date-render-r1-v260-opening-mobile-clean-3.6.139-compound-compact-auto-signature-tafqit-cash-reference-amount-currency-compound-ref-simple-ref-totals-cash-colors-cash-preview-return-3.6.162-active-budget-callouts-r1-receipt-payment-separation-voucher-routing-3.6.165-alef-search-3.6.166-home-3.6.167-home-refine-3.6.168';
-const APP_RELEASE={"version":"3.6.168","build":"p16800","highlights":["عودة مفضلتي للاختصارات التنفيذية المباشرة وإظهار أرقام نبض الصندوق الفعلية","تجميع الوضع الليلي وألوان راتب في زر واحد وتحويل الذكر إلى شريط عابر لخمس ثوان"],"changes":["نجري بانتظام تحديثات لتحسين الموثوقية والأداء وإصلاح الأخطاء","إزالة ترس الإدارة والتواصل من الأعلى والإبقاء على المساعدة في الإعدادات","عرض الرصيد والمقبوضات والمصروفات من محرك نبض الصندوق نفسه لكل عملة بصورة مستقلة","عودة الاختصارات المحفوظة للعمل مباشرة من مفضلتي دون إعادة حفظها","جعل عبارة الذكر متحركة لخمس ثوان عند فتح التطبيق ثم إخفاءها دون ترك حشو"]};
+const CACHE_VERSION='v261-date-render-r1-v260-opening-mobile-clean-3.6.139-compound-compact-auto-signature-tafqit-cash-reference-amount-currency-compound-ref-simple-ref-totals-cash-colors-cash-preview-return-3.6.162-active-budget-callouts-r1-receipt-payment-separation-voucher-routing-3.6.165-alef-search-3.6.166-home-3.6.167-home-refine-3.6.168-fold-theme-dates-3.6.169';
+const APP_RELEASE={"version":"3.6.169","build":"p16900","highlights":["لوحة القيادة مطوية عند فتح التطبيق وتوسيعها عند الحاجة","نقل المظهر إلى الإعدادات وتوحيد أرقام جميع التواريخ بالصيغة اللاتينية"],"changes":["نجري بانتظام تحديثات لتحسين الموثوقية والأداء وإصلاح الأخطاء","طي لوحة القيادة افتراضيًا عند بدء التشغيل مع إمكانية فتحها يدويًا","نقل خيارات المظهر والألوان إلى إعدادات ألوان واجهة راتب وإخلاء مساحة الرأس","استخدام الأرقام اللاتينية في التواريخ الهجرية والميلادية والنسخ الاحتياطية","زيادة حجم التاريخ الميلادي قليلًا دون تجاوز خط التاريخ الهجري"]};
 const CACHE_PREFIX=`ratib:${self.registration.scope}:`;
 const CACHE_NAME=CACHE_PREFIX+CACHE_VERSION;
 const APP_SHELL=[
+  "./ratib-home-3.6.169.js",
+  "./ratib-home-3.6.169.css",
   "./ratib-home-3.6.168.js",
   "./ratib-home-3.6.168.css",
   "./ratib-home-3.6.167.js",

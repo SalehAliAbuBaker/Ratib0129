@@ -13,7 +13,7 @@ const allTx=data=>(data.masar_plan?.transactions||[]).concat(...(data.masar_hist
 const accountKey=a=>str(a.matchCode||a.preferredCode)+'|'+str(a.matchName||a.name);
 const items=b=>(b?.payload?.accounts||b?.accounts||[]).filter(a=>a&&str(a.id));
 const removedIds=b=>new Set(b?.importManagerRemoved||[]);
-const dates=b=>{const m=/^legacy_(\d{13})_/.exec(b.id||'');return m?new Date(Number(m[1])).toLocaleDateString('ar'):'';};
+const dates=b=>{const m=/^legacy_(\d{13})_/.exec(b.id||'');return m?new Date(Number(m[1])).toLocaleDateString('ar-u-nu-latn'):'';};
 function origins(b,data){
  const deleted=removedIds(b),txs=allTx(data),archive=new Set(data.masar_import_archived_accounts||[]);
  return items(b).map(a=>{

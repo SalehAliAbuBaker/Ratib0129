@@ -1,0 +1,21 @@
+/* Ratib 3.6.169 — reclaim header space and keep appearance alongside existing palette settings. */
+@media screen{
+#mainWrap>header.ratib-home-app-header{grid-template-areas:"brand date"!important;grid-template-rows:auto!important;align-items:center!important}
+#mainWrap>header.ratib-home-app-header .header-tools{display:none!important}
+#mainWrap>header.ratib-home-app-header #themeBtn{display:none!important}
+#ratibAppearanceMenu.ratib-appearance-inline{position:relative!important;top:auto!important;left:auto!important;right:auto!important;bottom:auto!important;transform:none!important;width:100%!important;max-width:100%!important;margin:0 0 12px!important;z-index:auto!important;box-shadow:none!important;padding:10px!important}
+#ratibAppearanceMenu.ratib-appearance-inline .ratib-appearance-close,
+#ratibAppearanceMenu.ratib-appearance-inline .ratib-appearance-colors,
+#ratibAppearanceMenu.ratib-appearance-inline .ratib-appearance-label{display:none!important}
+#ratibAppearanceMenu.ratib-appearance-inline .ratib-appearance-heading{justify-content:flex-start}
+#ratibAppearanceMenu.ratib-appearance-inline .ratib-appearance-modes{margin-bottom:0}
+#mainWrap .ratib-home-dates .ratib-date-hijri{font-size:.76rem!important;font-variant-numeric:lining-nums tabular-nums}
+#mainWrap .ratib-home-dates .ratib-date-gregorian{font-size:.71rem!important;font-weight:500!important;font-variant-numeric:lining-nums tabular-nums}
+#mainWrap .ratib-home-dates .ratib-date-day{font-size:.84rem!important}
+#ratibHomeHijri,#ratibHomeGregorian{unicode-bidi:plaintext}
+@media(max-width:390px){
+ #mainWrap .ratib-home-dates .ratib-date-hijri{font-size:.73rem!important}
+ #mainWrap .ratib-home-dates .ratib-date-gregorian{font-size:.68rem!important}
+}
+}
+@media print{#ratibAppearanceMenu{display:none!important}}

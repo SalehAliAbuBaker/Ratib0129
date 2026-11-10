@@ -5,8 +5,8 @@ const node=(tag,cls,text)=>{const x=document.createElement(tag);if(cls)x.classNa
 function date(){
 const d=new Date(),w=by('ratibHomeWeekday'),h=by('ratibHomeHijri'),g=by('ratibHomeGregorian');if(!w||!h||!g)return;
 w.textContent=new Intl.DateTimeFormat('ar-YE',{weekday:'long'}).format(d);
-try{const f=new Intl.DateTimeFormat('ar-SA-u-ca-islamic-umalqura',{day:'numeric',month:'long',year:'numeric'});h.textContent=f.resolvedOptions().calendar==='islamic-umalqura'?f.format(d).replace(/\s*هـ\s*$/,'هـ'):'التاريخ الهجري غير متاح';}catch(_){h.textContent='التاريخ الهجري غير متاح';}
-g.textContent=new Intl.DateTimeFormat('ar-YE-u-ca-gregory',{day:'numeric',month:'long',year:'numeric'}).format(d);
+try{const f=new Intl.DateTimeFormat('ar-SA-u-ca-islamic-umalqura-nu-latn',{day:'numeric',month:'long',year:'numeric'});h.textContent=f.resolvedOptions().calendar==='islamic-umalqura'?f.format(d).replace(/\s*هـ\s*$/,'هـ'):'التاريخ الهجري غير متاح';}catch(_){h.textContent='التاريخ الهجري غير متاح';}
+g.textContent=new Intl.DateTimeFormat('ar-YE-u-ca-gregory-nu-latn',{day:'numeric',month:'long',year:'numeric'}).format(d);
 }
 function header(){
 const head=document.querySelector('#mainWrap>header.no-print'),logo=head?.querySelector('.logo'),v=by('appVersionLabel');if(!head||!logo||!v||by('ratibHomeDate'))return;

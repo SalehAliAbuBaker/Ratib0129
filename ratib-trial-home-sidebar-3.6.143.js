@@ -78,7 +78,7 @@
       if (!folded && typeof window.goCarousel === 'function') window.goCarousel('dashboardCarousel', 0);
     }
     toggle.addEventListener('click', () => setFold(carousel.dataset.ratibCollapsed !== 'true', true));
-    setFold(getFold(), false);
+    setFold(true, false); // Always collapsed on a new app opening; manual toggle remains available.
   }
 
   function enhanceSidebar() {

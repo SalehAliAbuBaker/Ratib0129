@@ -1987,7 +1987,7 @@ body.ratib-sidebar-open,body.ratib-about-open{overflow:hidden}
         <button class="btn btn-ghost" id="exportDataBtn" style="margin-top:0; border-color: var(--accent); color: var(--accent); font-size: 1.05rem;">
           إنشاء نسخة احتياطية
         </button>
-        <input type="file" id="importFileInput" accept=".json" style="display:none;">
+        <input type="file" id="importFileInput" accept=".json,.gz,.json.gz,application/json,application/gzip" style="display:none;">
         <button class="btn btn-ghost" id="importDataBtn" style="margin-top:0; font-size: 1.05rem;">
           استعادة نسخة من ملف
         </button>
@@ -2786,7 +2786,12 @@ async function flushStorage(){
 }
 async function _replacePersistentData(records){
   const complete={...records,[STORAGE_META_KEY]:_nextStorageMeta()};
-  await _enqueuePersistence(()=>_persistRecords(complete,[],true));await _storageQueue;if(_storageError)throw _storageError;
+  const archive=records[APP_STORAGE_PREFIX+'history'];
+  const archiveRows=Array.isArray(archive)?archive.reduce((n,h)=>n+(h?.transactions?.length||0),0):0;
+  const largeSnapshot=archiveRows>1500||String(records[VAULT_BLOB_KEY]?.data||'').length>5*1024*1024;
+  // For a full historical restore require a complete IndexedDB transaction: localStorage cannot hold 50 MB.
+  await _enqueuePersistence(()=>largeSnapshot?_writeShadowRecords(complete,[],true):_persistRecords(complete,[],true));
+  await _storageQueue;if(_storageError)throw _storageError;
 }
 // Legacy helpers remain available to callers; their writes share the same transaction path.
 async function _shadowIdbSet(key,v){return _writeShadowRecords({[key]:cloneData(v)});}
@@ -2798,7 +2803,8 @@ async function selfHealStorageFromIdb(){
   try{shadow=await _readShadowRecords();}catch(e){console.warn('IndexedDB غير متاحة',e);}
   const stamp=r=>Number(r?.[STORAGE_META_KEY]?.updatedAt||0);
   if(localReadError?.message.includes('بيانات محلية غير صالحة')&&!Object.keys(shadow).length&&!stage)throw localReadError;
-  let source=stamp(shadow)>stamp(local)||(!Object.keys(local).length&&Object.keys(shadow).length)?shadow:local;
+  // The IndexedDB mirror is authoritative on tied timestamps: localStorage may retain an older partial history after a large restore.
+  let source=Object.keys(shadow).length&&stamp(shadow)>=stamp(local)?shadow:local;
   if(!stamp(shadow)&&!stamp(local)&&!local[SECURITY_CONFIG_KEY]?.enabled&&!shadow[SECURITY_CONFIG_KEY]?.enabled)source={...shadow,...local};
   if(stage&&typeof stage==='object'&&stamp(stage)>=stamp(source))source=stage;
   _storageStamp=stamp(source);
@@ -2806,7 +2812,12 @@ async function selfHealStorageFromIdb(){
   _vaultBlob=source[VAULT_BLOB_KEY]||null;
   if(!_securityConfigCache.enabled){for(const [key,value] of Object.entries(source))if(!_storageInternalKeys.has(key))_memStore[key]=value;}
   // A newer complete mirror takes precedence over an older partial local copy.
-  if(source!==local||stage){try{await _persistRecords(source,[],true);}catch(e){console.warn('تعذر إصلاح النسخة المحلية',e);}}
+  if(source!==local||stage){
+    // Large snapshots are kept canonically in IndexedDB; mirroring them to localStorage exceeds its quota.
+    const sourceHistory=source[APP_STORAGE_PREFIX+'history'];
+    const largeShadow=source===shadow&&!stage&&Array.isArray(sourceHistory)&&sourceHistory.reduce((n,h)=>n+(h?.transactions?.length||0),0)>1500;
+    if(!largeShadow)try{await _persistRecords(source,[],true);}catch(e){console.warn('تعذر إصلاح النسخة المحلية',e);}
+  }
 }
 async function enableVaultEncryption(pin){
   await flushStorage();
@@ -3313,33 +3324,53 @@ function normalizeRestoredData(data) {
 
 async function importBackupFile(file){
   try{
-    const payload=JSON.parse(await file.text());
+    if(!file)throw new Error('اختر ملف النسخة الاحتياطية.');
+    const compressed=/\.gz$/i.test(file.name||'');
+    if(compressed&&typeof DecompressionStream!=='function')throw new Error('المتصفح لا يدعم فتح النسخة المضغوطة. استخدم Chrome أو Edge حديثاً.');
+    const raw=compressed?await new Response(file.stream().pipeThrough(new DecompressionStream('gzip'))).text():await file.text();
+    const payload=JSON.parse(raw);
     if(!payload||typeof payload!=='object'||Array.isArray(payload))throw new Error('ملف النسخة الاحتياطية غير صالح.');
     if(Number(payload.schema||0)>APP_SCHEMA_VERSION)throw new Error('هذه النسخة من إصدار أحدث؛ حدّث التطبيق أولاً.');
-    if(payload.app!=='ratib'&&!confirm('هذه نسخة قديمة أو من تطبيق آخر. سيتم التحقق من بياناتها قبل الاسترجاع. متابعة؟'))return;
+    if(payload.app!=='ratib'&&!confirm('هذه نسخة قديمة أو من تطبيق آخر. سيتم التحقق من بياناتها قبل الاسترجاع. متابعة؟'))return false;
+    if(!payload.encrypted&&payload.data?.masar_history&&!payload.data?.[APP_STORAGE_PREFIX+'history']){
+      throw new Error('اختر ملف الاستعادة المخصص للتجريبية؛ هذا الملف يحمل مفاتيح الرسمية ولا يمكن استعادته هنا مباشرة.');
+    }
     let restored,importedKey=null;
     if(payload.encrypted){
-      const pin=prompt('أدخل الرقم السري المستخدم وقت إنشاء هذه النسخة:');if(!pin)return;
+      const pin=prompt('أدخل الرقم السري المستخدم وقت إنشاء هذه النسخة:');if(!pin)return false;
       try{importedKey=(await deriveVaultKey(pin,payload.salt)).key;restored=normalizeRestoredData(await decryptVaultBlob(importedKey,payload.blob));}
       catch(_){throw new Error('الرقم السري غير صحيح، أو النسخة تالفة.');}
     }else restored=normalizeRestoredData(payload.data||{});
     for(const k of Object.keys(restored))if(_storageInternalKeys.has(k))delete restored[k];
-    const count=validateRestoredData(restored);
-    if(!confirm(`سيتم استبدال جميع البيانات الحالية بنسخة تحتوي ${count} حركة محاسبية. ستُجهّز نسخة أمان من البيانات الحالية للتنزيل قبل الاستبدال. متابعة؟`))return;
+    const prefix=APP_STORAGE_PREFIX,history=restored[prefix+'history'],plan=restored[prefix+'plan'];
+    if(!plan||!Array.isArray(plan.transactions)||!Array.isArray(history))throw new Error('ملف الاستعادة لا يحتوي على دفتر وأرشيف بصيغة التجريبية. لم تُغيَّر البيانات.');
+    const count=validateRestoredData(restored),months=history.length;
+    const docs=new Set([...(plan.transactions||[]),...history.flatMap(h=>h.transactions)].map(t=>String(t.multiVoucherId||t.id)));
+    if(!confirm('الملف المختار يحتوي على '+count.toLocaleString('en-US')+' حركة محاسبية موزعة على '+docs.size.toLocaleString('en-US')+' مستنداً، عبر '+months+' شهراً أرشيفياً. ستُستبدل بيانات التجريبية بعد تنزيل نسخة أمان. هل توافق؟'))return false;
     if(_pendingFinancialCompletion)throw new Error('أكمل حفظ السند المعلّق قبل استرجاع نسخة أخرى.');
     await flushStorage();
-    const rollback=await buildBackupPayload();downloadBackupPayload(rollback,`ratib-before-restore-${backupStamp()}.json`);
+    const rollback=await buildBackupPayload();downloadBackupPayload(rollback,'ratib-before-restore-'+backupStamp()+'.json');
     let cfg={...getSecurityConfig()},key=_vaultCryptoKey,blob=null;
     if(!cfg.enabled&&payload.encrypted){cfg={enabled:true,salt:payload.salt,bioCredentialId:null};key=importedKey;}
-    if(cfg.enabled){if(!key)throw new Error('افتح قفل التطبيق قبل الاسترجاع.');blob=await encryptVaultBlob(key,restored);await _replacePersistentData({[VAULT_BLOB_KEY]:blob,[SECURITY_CONFIG_KEY]:cfg});}
-    else await _replacePersistentData({...restored,[SECURITY_CONFIG_KEY]:cfg});
+    if(cfg.enabled){
+      if(!key)throw new Error('افتح قفل التطبيق قبل الاسترجاع.');
+      blob=await encryptVaultBlob(key,restored);
+      await _replacePersistentData({[VAULT_BLOB_KEY]:blob,[SECURITY_CONFIG_KEY]:cfg});
+    }else await _replacePersistentData({...restored,[SECURITY_CONFIG_KEY]:cfg});
+    // Do not declare success from a completed write alone: read and validate the durable IndexedDB copy.
+    const durable=await _readShadowRecords();
+    const durableData=cfg.enabled?await decryptVaultBlob(key,durable[VAULT_BLOB_KEY]):durable;
+    const saved=validateRestoredData(durableData),savedMonths=durableData[prefix+'history']?.length||0;
+    if(saved!==count||savedMonths!==months)throw new Error('لم يكتمل الحفظ الدائم: المتوقع '+count+' حركة، والمحفوظ '+saved+'، والأشهر '+savedMonths+'/'+months+'. لا تعتبر الاستعادة ناجحة.');
     for(const k of Object.keys(_memStore))delete _memStore[k];Object.assign(_memStore,restored);
     _securityConfigCache=cfg;_vaultCryptoKey=key;_vaultUnlocked=!!cfg.enabled;_vaultBlob=blob;
     if(cfg.enabled){try{sessionStorage.setItem(SESSION_KEY_CACHE,_b64(await crypto.subtle.exportKey('raw',key)));}catch(_){ }}
     else try{sessionStorage.removeItem(SESSION_KEY_CACHE);}catch(_){ }
+    try{sessionStorage.setItem('ratib_trial_restore_verify_v1',JSON.stringify({count,months,docs:docs.size}));}catch(_){ }
     clearTimeout(_draftTimer);clearTimeout(_autoBackupTimer);hasUnsavedChanges=false;
-    showToast('اكتمل الاسترجاع والحفظ، سيُعاد فتح التطبيق.','info');setTimeout(()=>location.reload(),300);
-  }catch(e){console.error(e);showToast(e.message||'تعذّر استرجاع النسخة. لم يكتمل الاستبدال.','error',7000);}
+    showToast('تم حفظ '+count.toLocaleString('en-US')+' حركة والتحقق منها في قاعدة المتصفح؛ ستُراجع ثانية بعد إعادة الفتح.','success',7000);
+    setTimeout(()=>location.reload(),500);return true;
+  }catch(e){console.error(e);showToast(e.message||'تعذّر استرجاع النسخة. لا تعتبر الاستعادة ناجحة.','error',12000);return false;}
 }
 
 // ---- نسخ تلقائي لمجلد على الجهاز (Chrome/Edge على الكمبيوتر فقط) ----
@@ -8073,6 +8104,17 @@ function proceedAppInit() {
   initCloudBackup();
   initReminderNotifications();
   pushInitialHistoryBuffer();
+  setTimeout(()=>{
+    try{
+      const raw=sessionStorage.getItem('ratib_trial_restore_verify_v1');if(!raw)return;
+      sessionStorage.removeItem('ratib_trial_restore_verify_v1');
+      const wanted=JSON.parse(raw),rows=getAllTransactions(),months=store.get('history',[]).length;
+      const docs=new Set(rows.map(t=>String(t.multiVoucherId||t.id))).size;
+      if(rows.length!==wanted.count||months!==wanted.months||docs!==wanted.docs){
+        alert('تحذير: لم تتطابق الاستعادة بعد فتح التطبيق. الحركات '+rows.length+' من '+wanted.count+'، المستندات '+docs+' من '+wanted.docs+'، الأشهر '+months+' من '+wanted.months+'. لا تعتمد البيانات ولا تستعد فوق الرسمية.');
+      }else showToast('تم التأكد من استعادة '+docs.toLocaleString('en-US')+' مستنداً و'+rows.length.toLocaleString('en-US')+' حركة بعد إعادة فتح التطبيق.','success',12000);
+    }catch(e){console.error('restore verification',e);}
+  },1200);
 }
 
 // زر الوضع الليلي 🌙 كان موجوداً بالواجهة بلا أي كود يشغّله إطلاقاً (نفس نمط

@@ -14,10 +14,24 @@ w.navigateToTab=target=>{route=target;};w.RatibQuickFavorites={openQuick:()=>{ro
 w.eval(js);d.dispatchEvent(new w.Event('DOMContentLoaded'));
 const bar=d.getElementById('ratibHomeBottomNav'),editor=d.getElementById('ratibBottomNavSettings170'),api=w.RatibBottomNav;
 assert(editor&&api);assert.deepEqual([...api.get()],['home','operations','favorites','reports','settings']);
+assert(css.includes('.ratib-bottom-choice.active .ratib-bottom-icon'),'Active icon must have a distinct background');
+assert(css.includes('min-height:56px!important'),'Touch target must be at least 44px high');
+assert(css.includes('env(safe-area-inset-bottom)'),'Bottom safe area must be retained');
+assert(css.includes('.ratib-bottom-icon svg'),'Use uniform SVG styling instead of font glyphs');
+for(const key of ['home','operations','favorites','reports','settings']){
+ const b=bar.querySelector('[data-ratib-page="'+key+'"]');
+ assert(b?.querySelector('.ratib-bottom-icon svg path'),'Existing button displays an SVG: '+key);
+ assert.equal(b.querySelector('.ratib-bottom-icon').getAttribute('aria-hidden'),'true');
+ assert(b.querySelector('small').textContent,'Visible caption remains for '+key);
+}
+assert.equal(bar.querySelector('[data-ratib-page="home"]').getAttribute('aria-current'),'page');
+
 function choose(id,value){const row=[...editor.querySelectorAll('.ratib-bottom-editor-row')].find(r=>r.querySelector('input')?.getAttribute('aria-label')==='إظهار '+id);assert(row,'editor row '+id);const cb=row.querySelector('input');cb.checked=value;cb.dispatchEvent(new w.Event('change',{bubbles:true}));}
 choose('مفضلتي',false);assert(!api.get().includes('favorites'));assert(!bar.querySelector('[data-ratib-page="favorites"]'));
 choose('الإعدادات',false);assert(!api.get().includes('settings'));assert(bar.querySelector('.ratib-bottom-manage'),'Recovery control when settings icon removed');
 choose('الحسابات',true);assert(api.get().includes('accounts'));bar.querySelector('[data-ratib-page="accounts"]').click();assert.equal(route,'pageAccountsTree');
+assert(bar.querySelector('[data-ratib-page="accounts"] .ratib-bottom-icon svg path'),'Added shortcut has an SVG');
+assert(editor.querySelector('.ratib-bottom-editor-ico svg'),'Editor displays the same vector icon system');
 choose('مفضلتي',true);assert(api.get().includes('favorites'));
 const btn=bar.querySelector('[data-ratib-page="favorites"]');assert(btn); // The original favorite button and its existing listeners are preserved.
 const saved=[...api.get()];assert.equal(JSON.parse(w.localStorage.getItem('ratib.ui.bottom-nav.v1')).join('|'),saved.join('|'));

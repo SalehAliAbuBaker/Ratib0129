@@ -9,7 +9,7 @@ assert(fold.includes('toggle.addEventListener('),'Dashboard manual reopening mus
 assert(head.includes('ar-SA-u-ca-islamic-umalqura-nu-latn')&&head.includes('ar-YE-u-ca-gregory-nu-latn'),'Header dates must use Latin digits');
 assert(src.includes("migrateAppearance")&&src.includes("ratibPaletteSettingsCard"),'Appearance must live in established settings card');
 assert(css.includes('header.ratib-home-app-header .header-tools{display:none!important}'),'No top icon/gap');
-assert(css.includes('.ratib-date-gregorian{font-size:.71rem!important}'),'Gregorian date slightly larger');
+assert(css.includes('.ratib-date-gregorian{font-size:.71rem!important;'),'Gregorian date slightly larger');
 assert(html.includes("toLocaleString('ar-EG-u-nu-latn')"),'Local backup timestamps must have Latin digits');
 assert(fs.readFileSync('ratib-import-manager.js','utf8').includes("toLocaleDateString('ar-u-nu-latn')"));
 const dom=new JSDOM('<div id="pageSettings"><section id="ratibPaletteSettingsCard"><div class="ratib-palette-settings"><div class="ratib-palette-choices">ألوان راتب</div></div></section></div><button id="themeBtn">🎨</button><div id="ratibAppearanceMenu" hidden><button data-ratib-mode="light">فاتح</button><button data-ratib-mode="dark">ليلي</button></div><span id="ratibHomeHijri"></span><span id="ratibHomeGregorian"></span>',{url:'https://ratib.test',runScripts:'outside-only',pretendToBeVisual:true});

@@ -4,9 +4,9 @@ const html=fs.readFileSync('index.html','utf8');
 const js=fs.readFileSync('ratib-sidebar-3.6.124.js','utf8');
 const sw=fs.readFileSync('sw.js','utf8');
 new vm.Script(js);
-assert.equal(require('./package.json').version,'3.6.175');
-assert(html.includes('"version":"3.6.175","build":"p17500"'));
-assert(sw.includes('"version":"3.6.175","build":"p17500"'));
+assert.equal(require('./package.json').version,'3.6.176');
+assert(html.includes('"version":"3.6.176","build":"p17600"'));
+assert(sw.includes('"version":"3.6.176","build":"p17600"'));
 assert(sw.includes('./ratib-sidebar-3.6.124.js'));
 assert(!js.includes('#pageSettings #exportDataBtn,#pageSettings #importDataBtn'),'Do not hide native backup controls');
 const ids=['exportDataBtn','importDataBtn','importFileInput','autoBackupFolderBtn','restoreFromAutoBackupBtn','cloudSaveBtn','cloudRunNowBtn','cloudRestoreBtn'];
@@ -31,7 +31,7 @@ const fixture='<html lang="ar"><head></head><body>'+
  '</div></body></html>';
 const dom=new JSDOM(fixture,{url:'https://ratib.test/',runScripts:'outside-only',pretendToBeVisual:true});
 const w=dom.window,d=w.document;
-w.RatibCommerce={version:'3.6.175'};w.HTMLElement.prototype.scrollIntoView=function(){};
+w.RatibCommerce={version:'3.6.176'};w.HTMLElement.prototype.scrollIntoView=function(){};
 w.scrollTo=()=>{};w.RatibButtonSizing={get:()=> 'medium',getFont:()=> 'medium'};
 w.eval(js);w.dispatchEvent(new w.Event('load'));
 const card=d.getElementById('ratibBackupSettingsCard'),editor=d.getElementById('ratibBottomNavSettings170'),help=d.getElementById('ratibSettingsHelp168');
@@ -45,4 +45,4 @@ for(const id of ['exportDataBtn','importDataBtn','restoreFromAutoBackupBtn','clo
  assert(d.getElementById(id),'The actual preexisting control remains attached to original card: '+id);
 }
 dom.window.close();
-console.log('PASS Ratib 3.6.175: native local/cloud backup and restore visible, settings order and safety');
+console.log('PASS Ratib 3.6.176: native local/cloud backup and restore visible, settings order and safety');

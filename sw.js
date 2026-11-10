@@ -1,11 +1,10 @@
 // Ratib 3.1.9: cache identity is unique to this app's scope.
-const CACHE_VERSION='v261-date-render-r1-v260-opening-mobile-clean-3.6.139-compound-compact-auto-signature-tafqit-cash-reference-amount-currency-compound-ref-simple-ref-totals-cash-colors-cash-preview-return-3.6.162-active-budget-callouts-r1-receipt-payment-separation-voucher-routing-3.6.165-alef-search-3.6.166-home-3.6.167-home-refine-3.6.168-fold-theme-dates-3.6.169-nav-custom-3.6.170-report-compact-direct-statement-header-safe-statement-dhikr-home-reports-settings-backup-controls-settings-report-tiles-home-size-3.6.175';
-const APP_RELEASE={"version":"3.6.175","build":"p17500","highlights":["توحيد أبعاد أزرار أقسام التقارير الأربعة مع بطاقات الواجهة الرئيسية","عرض أقسام التقارير في شبكة موحدة من ثلاثة أعمدة مع بقاء السلوك المحاسبي"],"changes":["نجري بانتظام تحديثات لتحسين الموثوقية والأداء وإصلاح الأخطاء","توحيد مقاس بطاقات التقارير مع بطاقات الرئيسية (ارتفاع 100px وحشو 11px وأيقونة دائرية 43px)","الإبقاء على عناصر التقارير الأصلية وأحداث فتحها وطيها دون استنساخها","إبقاء أزرار تحديث وطباعة وPDF والمشاركة بأحجام أدوات العمل المعتادة","لا تغيير في احتساب الأرصدة أو كشف الحساب أو الطباعة أو بيانات المستخدم"]};
+const CACHE_VERSION='v261-date-render-r1-v260-opening-mobile-clean-3.6.139-compound-compact-auto-signature-tafqit-cash-reference-amount-currency-compound-ref-simple-ref-totals-cash-colors-cash-preview-return-3.6.162-active-budget-callouts-r1-receipt-payment-separation-voucher-routing-3.6.165-alef-search-3.6.166-home-3.6.167-home-refine-3.6.168-fold-theme-dates-3.6.169-nav-custom-3.6.170-report-compact-direct-statement-header-safe-statement-dhikr-home-reports-settings-backup-controls-settings-report-tiles-home-size-report-single-grid-fix-3.6.176';
+const APP_RELEASE={"version":"3.6.176","build":"p17600","highlights":["إصلاح ضخامة أزرار التقارير وإعادتها إلى مقاسات الواجهة الرئيسية","اعتماد شبكة واحدة من ثلاثة أعمدة تشمل الإغلاق السنوي"],"changes":["نجري بانتظام تحديثات لتحسين الموثوقية والأداء وإصلاح الأخطاء","إلغاء ازدواج بناء قائمة التقارير الذي كان يعيد نقل الأزرار ويفسد تنسيقها","مطابقة ارتفاع بطاقات أقسام التقارير الخمسة (100px) مع بطاقات الشاشة الرئيسية","ثلاثة أعمدة وأيقونات دائرية واضحة مع بقاء الإغلاق السنوي","الإبقاء على فتح وطي التقارير والطباعة وPDF والنسخ الاحتياطي دون تغيير البيانات"]};
 const CACHE_PREFIX=`ratib:${self.registration.scope}:`;
 const CACHE_NAME=CACHE_PREFIX+CACHE_VERSION;
 const APP_SHELL=[
-  "./ratib-report-tiles-3.6.175.js",
-  "./ratib-report-tiles-3.6.175.css",
+  "./ratib-report-menu-3.6.176.css",
   "./ratib-statement-safety-3.6.172.js",
   "./ratib-statement-safety-3.6.172.css",
   "./ratib-home-3.6.171.js",

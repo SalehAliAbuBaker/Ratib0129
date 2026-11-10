@@ -5,10 +5,10 @@ const sw=fs.readFileSync('sw.js','utf8');
 const css=fs.readFileSync('ratib-report-menu-3.6.176.css','utf8');
 const nav=fs.readFileSync('ratib-navigation-v3.6.149.js','utf8');
 new vm.Script(nav);
-assert.equal(require('./package.json').version,'3.6.176');
-assert(html.includes('"version":"3.6.176","build":"p17600"'));
-assert(sw.includes('"version":"3.6.176","build":"p17600"'));
-assert(html.includes('ratib-report-menu-3.6.176.css?v=3.6.176'));
+assert.equal(require('./package.json').version,'3.6.177');
+assert(html.includes('"version":"3.6.177","build":"p17700"'));
+assert(sw.includes('"version":"3.6.177","build":"p17700"'));
+assert(html.includes('ratib-report-menu-3.6.176.css?v=3.6.177'));
 assert(sw.includes('./ratib-report-menu-3.6.176.css'));
 assert(!html.includes('<script src="./ratib-report-tiles-3.6.175.js'),'Conflicting reparenting script MUST NOT execute');
 assert(!html.includes('<link rel="stylesheet" href="./ratib-report-tiles-3.6.175.css'),'Conflicting stylesheet MUST NOT apply');
@@ -45,6 +45,6 @@ const body='<div id="pageReports">'+
  assert.equal(d.querySelectorAll('.ratib-report-menu').length,1,'No extra competing report menu');
  budget.click();assert.equal(opens,1,'Original report event listeners remain active');
  dom.window.close();
- console.log('PASS Ratib 3.6.176: single 3-column, 100px report grid incl annual closure, original click handlers and icons');
+ console.log('PASS Ratib 3.6.177: single 3-column, 100px report grid incl annual closure, original click handlers and icons');
 })().catch(e=>{console.error(e);process.exitCode=1;});
 function documentSafeCreate(d){const button=d.createElement('button');button.id='yearToolOpen';button.textContent='الإغلاق السنوي';return button;}

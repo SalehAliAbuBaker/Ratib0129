@@ -1,9 +1,11 @@
 // Ratib 3.1.9: cache identity is unique to this app's scope.
-const CACHE_VERSION='v261-date-render-r1-v260-opening-mobile-clean-3.6.139-compound-compact-auto-signature-tafqit-cash-reference-amount-currency-compound-ref-simple-ref-totals-cash-colors-cash-preview-return-3.6.162-active-budget-callouts-r1-receipt-payment-separation-voucher-routing-3.6.165-alef-search-3.6.166-home-3.6.167-home-refine-3.6.168-fold-theme-dates-3.6.169-nav-custom-3.6.170-report-compact-direct-statement-header-safe-statement-dhikr-home-reports-settings-backup-controls-settings-report-tiles-home-size-report-single-grid-fix-3.6.176';
-const APP_RELEASE={"version":"3.6.176","build":"p17600","highlights":["إصلاح ضخامة أزرار التقارير وإعادتها إلى مقاسات الواجهة الرئيسية","اعتماد شبكة واحدة من ثلاثة أعمدة تشمل الإغلاق السنوي"],"changes":["نجري بانتظام تحديثات لتحسين الموثوقية والأداء وإصلاح الأخطاء","إلغاء ازدواج بناء قائمة التقارير الذي كان يعيد نقل الأزرار ويفسد تنسيقها","مطابقة ارتفاع بطاقات أقسام التقارير الخمسة (100px) مع بطاقات الشاشة الرئيسية","ثلاثة أعمدة وأيقونات دائرية واضحة مع بقاء الإغلاق السنوي","الإبقاء على فتح وطي التقارير والطباعة وPDF والنسخ الاحتياطي دون تغيير البيانات"]};
+const CACHE_VERSION='v261-date-render-r1-v260-opening-mobile-clean-3.6.139-compound-compact-auto-signature-tafqit-cash-reference-amount-currency-compound-ref-simple-ref-totals-cash-colors-cash-preview-return-3.6.162-active-budget-callouts-r1-receipt-payment-separation-voucher-routing-3.6.165-alef-search-3.6.166-home-3.6.167-home-refine-3.6.168-fold-theme-dates-3.6.169-nav-custom-3.6.170-report-compact-direct-statement-header-safe-statement-dhikr-home-reports-settings-backup-controls-settings-report-tiles-home-size-report-single-grid-fix-ledger-date-filter-3.6.177';
+const APP_RELEASE={"version":"3.6.177","build":"p17700","highlights":["إضافة البحث بالتاريخ داخل سجل العمليات باستخدام منتقي أم القرى","تصفية عمليات يوم محدد أو فترة عبر جميع السنوات والأرشيف"],"changes":["نجري بانتظام تحديثات لتحسين الموثوقية والأداء وإصلاح الأخطاء","حقل تاريخ العملية وحقل إلى تاريخ الاختياري وزر مسح مستقل","تطبيق البحث بالتاريخ مع البحث النصي وحالة السند ونوع المستند","شمول الأرشيف السنوي تلقائيًا عند اختيار التاريخ دون تغيير السندات","مراعاة التاريخ الهجري بأم القرى مع تخزين التاريخ الميلادي المعتمد","الإبقاء على وظائف تعديل وعرض وطباعة السندات دون مساس بالأرصدة"]};
 const CACHE_PREFIX=`ratib:${self.registration.scope}:`;
 const CACHE_NAME=CACHE_PREFIX+CACHE_VERSION;
 const APP_SHELL=[
+  "./ratib-ledger-date-filter-3.6.177.js",
+  "./ratib-ledger-date-filter-3.6.177.css",
   "./ratib-report-menu-3.6.176.css",
   "./ratib-statement-safety-3.6.172.js",
   "./ratib-statement-safety-3.6.172.css",

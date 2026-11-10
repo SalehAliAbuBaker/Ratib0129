@@ -1,0 +1,57 @@
+'use strict';
+const assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('node:vm'),{JSDOM}=require('jsdom');
+const html=fs.readFileSync('index.html','utf8');
+const css=fs.readFileSync('ratib-ledger-date-filter-3.6.177.css','utf8');
+const src=fs.readFileSync('ratib-ledger-date-filter-3.6.177.js','utf8');
+const sw=fs.readFileSync('sw.js','utf8');
+new vm.Script(src);
+assert.equal(require('./package.json').version,'3.6.177');
+assert(html.includes('"version":"3.6.177","build":"p17700"'));
+assert(sw.includes('"version":"3.6.177","build":"p17700"'));
+for(const id of ['ledgerDateFilter177','ledgerDateFrom177','ledgerDateTo177','ledgerDateClear177','ledgerDateHint177'])assert(html.includes('id="'+id+'"'),id);
+assert(html.includes('window.RatibLedgerDateFilter177.matches'),'The date predicate is used in actual ledger rendering');
+assert(html.includes('window.RatibLedgerDateFilter177?.clear(false)'),'Dashboard operations clear stale date search');
+assert(html.includes("document.addEventListener('ratib:ledger-date-render'"),'Core ledger re-renders and resets its paging');
+assert(sw.includes('./ratib-ledger-date-filter-3.6.177.js')&&sw.includes('./ratib-ledger-date-filter-3.6.177.css'));
+assert(html.includes('ratib-ledger-date-filter-3.6.177.js?v=3.6.177')&&html.includes('ratib-ledger-date-filter-3.6.177.css?v=3.6.177'));
+assert(css.includes('.ratib-native-date-wrap'),'Use the existing Umm al-Qura date control');
+const fixture='<div id="pageLedger"><div id="ledgerDateFilter177">'+
+ '<label>تاريخ العملية<input type="date" id="ledgerDateFrom177"></label>'+
+ '<label>إلى تاريخ<input type="date" id="ledgerDateTo177"></label>'+
+ '<button id="ledgerDateClear177" disabled>مسح</button><small id="ledgerDateHint177"></small></div>'+
+ '<select id="ratibFiscalLedgerYear"><option value="auto">تلقائي</option><option value="2026">2026</option><option value="all">كل السنوات</option></select></div>';
+const dom=new JSDOM(fixture,{url:'https://ratib.test/',runScripts:'outside-only',pretendToBeVisual:true});
+const w=dom.window,d=w.document;
+let renders=0,years=0;
+d.addEventListener('ratib:ledger-date-render',()=>renders++);
+d.getElementById('ratibFiscalLedgerYear').addEventListener('change',()=>{years++;renders++;});
+w.eval(src);d.dispatchEvent(new w.Event('DOMContentLoaded'));
+const api=w.RatibLedgerDateFilter177;
+assert(api&&api.version==='3.6.177');
+const day=d.getElementById('ledgerDateFrom177'),end=d.getElementById('ledgerDateTo177'),year=d.getElementById('ratibFiscalLedgerYear'),clear=d.getElementById('ledgerDateClear177');
+const oldRecord={isoDate:'2023-05-10'},current={isoDate:'2026-11-11'},past={isoDate:'2025-01-01'};
+assert(api.matches(oldRecord)&&api.matches(current),'Empty filter retains all years');
+assert.equal(api.date({date:'2024/3/2'}),'2024-03-02','Old ISO date separators are normalized');
+assert.equal(api.date({date:'2024-02-30'}),'','Invalid days are never matched');
+day.value='2023-05-10';day.dispatchEvent(new w.Event('change',{bubbles:true}));
+assert.equal(year.value,'all','Choosing a date searches across closed fiscal years');
+assert.equal(years,1,'Fiscal selection updated once');
+assert(api.matches(oldRecord),'Matching archived day included');
+assert(!api.matches(current)&&!api.matches({isoDate:'2023-05-11'}),'A single day does not mean all later transactions');
+assert(!clear.disabled);
+day.value='2025-01-01';end.value='2026-11-11';end.dispatchEvent(new w.Event('change',{bubbles:true}));
+assert(api.matches(past)&&api.matches(current),'Range boundaries included');
+assert(!api.matches(oldRecord),'Records before range excluded');
+day.value='2026-11-11';end.value='2025-01-01';end.dispatchEvent(new w.Event('change',{bubbles:true}));
+assert(!api.matches(past),'Inverted date range yields no false matches');
+assert(d.getElementById('ledgerDateHint177').textContent.includes('يسبق'));
+end.value='';day.value='';day.dispatchEvent(new w.Event('change',{bubbles:true}));
+assert(api.matches(oldRecord),'Cleared date fields restore all records');
+end.value='2025-01-01';end.dispatchEvent(new w.Event('change',{bubbles:true}));
+assert(api.matches(oldRecord)&&api.matches(past)&&!api.matches(current),'End-only mode supports older archive search');
+clear.click();
+assert.equal(day.value,'');assert.equal(end.value,'');assert.equal(clear.disabled,true);
+assert(api.matches(current)&&api.matches(oldRecord),'Reset restores all transactions');
+assert(renders>=5,'Changing and clearing search invokes ledger re-render');
+w.close();
+console.log('PASS Ratib 3.6.177: date search exact/range, historical archive, fiscal year, Umm al-Qura support, reset and no data mutation');

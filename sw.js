@@ -1,9 +1,11 @@
 // Ratib 3.1.9: cache identity is unique to this app's scope.
-const CACHE_VERSION='v261-date-render-r1-v260-opening-mobile-clean-3.6.139-compound-compact-auto-signature-tafqit-cash-reference-amount-currency-compound-ref-simple-ref-totals-cash-colors-cash-preview-return-3.6.162-active-budget-callouts-r1-receipt-payment-separation-voucher-routing-3.6.165-alef-search-3.6.166';
-const APP_RELEASE={"version":"3.6.166","build":"p16600","highlights":["بحث موحّد يعامل «أ، إ، ا، آ» على أنها شكل واحد في عمليات البحث","تحسين نتائج البحث في الحسابات والسندات وكشوف الحساب والمخزون دون تعديل البيانات"],"changes":["نجري بانتظام تحديثات لتحسين الموثوقية والأداء وإصلاح الأخطاء","تجاهل اختلاف شكل الألف في البحث مع المحافظة على أسماء الحسابات والنصوص الأصلية","توحيد بحث سجل العمليات وكشوف الحسابات والمنتجات والفواتير وحسابات نبض الصندوق","لا تغيير في طريقة حفظ السندات أو ترحيل القيود أو حساب الأرصدة"]};
+const CACHE_VERSION='v261-date-render-r1-v260-opening-mobile-clean-3.6.139-compound-compact-auto-signature-tafqit-cash-reference-amount-currency-compound-ref-simple-ref-totals-cash-colors-cash-preview-return-3.6.162-active-budget-callouts-r1-receipt-payment-separation-voucher-routing-3.6.165-alef-search-3.6.166-home-3.6.167';
+const APP_RELEASE={"version":"3.6.167","build":"p16700","highlights":["إعادة تنظيم الرئيسية مع نبض الصندوق في الأعلى وبطاقات ثلاثية","بحث ذكي للعمليات والحسابات ومخزون مطوي وشريط تنقل ثابت"],"changes":["نجري بانتظام تحديثات لتحسين الموثوقية والأداء وإصلاح الأخطاء","عرض اليوم ثم تاريخ أم القرى الهجري ثم الميلادي تحت بعض","إظهار رقم الإصدار تحت اسم راتب والعبارة التعريفية","الحفاظ على وظائف السندات والقيود والمفضلة الحالية دون تعديل الأرصدة","إضافة البحث في العمليات والحسابات مع مخزون قابل للطي"]};
 const CACHE_PREFIX=`ratib:${self.registration.scope}:`;
 const CACHE_NAME=CACHE_PREFIX+CACHE_VERSION;
 const APP_SHELL=[
+  "./ratib-home-3.6.167.js",
+  "./ratib-home-3.6.167.css",
   "./ratib-cash-pulse-dual-ring-3.6.162.js",
   "./ratib-cash-pulse-dual-ring-3.6.162.css",
   "./ratib-account-lock-unified-3.6.161.css",

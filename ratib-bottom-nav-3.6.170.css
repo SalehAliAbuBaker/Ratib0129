@@ -1,0 +1,27 @@
+/* Ratib 3.6.170: customizable bottom navigation and compact, accessible editor. */
+@media screen{
+#ratibHomeBottomNav[data-ratib-customizable="1"]{display:flex!important;grid-template-columns:none!important;align-items:stretch!important;overflow-x:auto!important;overscroll-behavior-x:contain;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+#ratibHomeBottomNav[data-ratib-customizable="1"]::-webkit-scrollbar{display:none}
+#ratibHomeBottomNav[data-ratib-customizable="1"] .ratib-bottom-choice{flex:0 0 calc(100% / var(--ratib-nav-vis,5));min-width:0}
+#ratibHomeBottomNav .ratib-bottom-manage{flex:0 0 38px;border:0;background:transparent;color:var(--accent,#0d5b45);font-weight:750;font-size:1.25rem;min-height:47px}
+.ratib-bottom-editor{border:1px solid var(--border,#d4e0d9);border-radius:14px;background:var(--card,#fff);color:var(--text,#222);margin:12px 0;padding:0;overflow:hidden}
+.ratib-bottom-editor-heading{min-height:54px;padding:14px;cursor:pointer;font-weight:750;list-style:none}
+.ratib-bottom-editor-heading::-webkit-details-marker{display:none}
+.ratib-bottom-editor-body{padding:0 13px 14px}
+.ratib-bottom-editor-description{font-size:.81rem;color:var(--muted,#686f69);line-height:1.55}
+.ratib-bottom-editor-note{font-size:.75rem;color:var(--muted,#686f69);padding:8px 0;line-height:1.5}
+.ratib-bottom-editor-list{display:flex;flex-direction:column;gap:4px}
+.ratib-bottom-editor-row{min-height:46px;display:flex;align-items:center;justify-content:space-between;gap:8px;border:1px solid var(--border,#dce4df);border-radius:9px;padding:4px 8px}
+.ratib-bottom-editor-option{display:flex;align-items:center;gap:10px;min-width:0;flex:1;font-size:.9rem;cursor:pointer;margin:0}
+.ratib-bottom-editor-option input{width:18px;height:18px;flex:none;accent-color:var(--accent,#0d5b45)}
+.ratib-bottom-editor-ico{font-size:1.2rem;width:24px;text-align:center;color:var(--accent,#0d5b45)}
+.ratib-bottom-reorder{display:flex;gap:4px;flex:none}
+.ratib-bottom-move{border:1px solid var(--border,#dce4df);background:var(--bg,#f8faf9);color:var(--text,#222);border-radius:7px;width:31px;min-height:32px;font:inherit;font-size:1.1rem}
+.ratib-bottom-move:disabled{opacity:.3}
+.ratib-bottom-reset{margin:12px 0 0;min-height:43px;padding:8px 12px;border-radius:9px;border:1px solid var(--accent,#0d5b45);color:var(--accent,#0d5b45);background:var(--card,#fff);font:inherit;font-size:.84rem}
+.ratib-bottom-recovery{width:100%;min-height:45px;margin-bottom:15px;border:1px dashed var(--accent,#0d5b45);border-radius:10px;color:var(--accent,#0d5b45);background:var(--card,#fff);font:inherit}
+.ratib-bottom-recovery[hidden]{display:none!important}
+#ratibHomeBottomNav[hidden]{display:none!important}
+@media(max-width:375px){#ratibHomeBottomNav .ratib-bottom-choice small{font-size:.63rem}}
+}
+@media print{.ratib-bottom-editor,.ratib-bottom-recovery{display:none!important}}

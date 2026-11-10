@@ -1,4 +1,4 @@
-/* Ratib official 3.6.166 — compact simple journal, wide document number and shared Back arrow. */
+/* Ratib official 3.6.167 — compact simple journal, wide document number and shared Back arrow. */
 'use strict';
 const assert=require('node:assert/strict');
 const fs=require('node:fs');
@@ -7,8 +7,8 @@ const html=fs.readFileSync('index.html','utf8');
 const css=fs.readFileSync('ratib-ui-fixes-3.6.156.css','utf8');
 const sw=fs.readFileSync('sw.js','utf8');
 const version=require('./tools/assert-release.cjs')();
-assert.equal(version,'3.6.166');
-assert(html.includes('ratib-ui-fixes-3.6.156.css?v=3.6.166'),'new visual corrections must load');
+assert.equal(version,'3.6.167');
+assert(html.includes('ratib-ui-fixes-3.6.156.css?v=3.6.167'),'new visual corrections must load');
 assert(sw.includes('"./ratib-ui-fixes-3.6.156.css"'),'offline version must include new CSS');
 assert(css.includes('@media screen')&&!css.includes('@media print'),'print and PDF must remain untouched');
 assert(css.includes('> h2 {\n    display:flex!important'),'simple journal heading must no longer use display:contents');
@@ -34,4 +34,4 @@ for(const id of ['voucherAmountInput','voucherCurrencySelect','inpDebitAcc','inp
 }
 assert.equal(d.querySelector('#pageExpenses #cashFlowCard > h2 #swapAccountsBtn'),null,'layout scripts must retain ownership of moving controls');
 d.defaultView.close();
-console.log('PASS Ratib 3.6.166: one-line journal metadata, number legibility, Back icon and no accounting/print changes');
+console.log('PASS Ratib 3.6.167: one-line journal metadata, number legibility, Back icon and no accounting/print changes');

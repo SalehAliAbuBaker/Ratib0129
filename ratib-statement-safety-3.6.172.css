@@ -1,0 +1,23 @@
+/* Ratib 3.6.172 — safe account picker; left-to-right remembrance banner. */
+@media screen{
+ /* Enter from the LEFT and leave to the RIGHT, keeping the approved 5 seconds. */
+ #ratibHomeDhikr .ratib-dhikr-text{animation:ratib-dhikr-pass 5s linear both!important}
+ @keyframes ratib-dhikr-pass{
+  from{transform:translateX(-100%)}
+  to{transform:translateX(100%)}
+ }
+ #pageAccountsTree.ratib-statement-pick-mode #accountsPagerCard{display:none!important}
+ #ratibDirectStatementChooser172[hidden]{display:none!important}
+ #ratibDirectStatementChooser172{max-width:700px;margin:10px auto 18px;}
+ #ratibDirectStatementChooser172 .ratib-statement-heading{display:flex;align-items:center;justify-content:space-between;gap:10px}
+ #ratibDirectStatementChooser172 .ratib-statement-heading h3{margin:0}
+ #ratibDirectStatementChooser172 .ratib-statement-back{
+  min-height:var(--rb-action-height,46px);padding:6px 12px;white-space:nowrap;
+  border:1px solid var(--border,#ccc);border-radius:9px;background:var(--card,#fff);
+  color:var(--accent,#145e40);font:700 .86rem Tajawal,sans-serif;
+ }
+}
+@media(prefers-reduced-motion:reduce){
+ #ratibHomeDhikr .ratib-dhikr-text{animation:none!important}
+}
+@media print{#ratibDirectStatementChooser172{display:none!important}}

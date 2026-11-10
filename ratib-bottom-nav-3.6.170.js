@@ -10,6 +10,48 @@ const DEFINITIONS=[
  ['incoming','↧','الوارد'],['outgoing','↥','الصادر'],['pulse','◉','نبض الصندوق'],
  ['help','ⓘ','المساعدة']
 ];
+
+/* One coherent outline icon set. No platform-dependent Unicode pictograms. */
+const SVG_ICONS={
+ home:'<path d="m3 10 9-7 9 7v10a1 1 0 0 1-1 1h-5v-7H9v7H4a1 1 0 0 1-1-1z"/>',
+ operations:'<rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/>',
+ favorites:'<path d="M20.8 4.6a5.4 5.4 0 0 0-7.6 0L12 5.8l-1.2-1.2a5.4 5.4 0 0 0-7.6 7.6L12 21l8.8-8.8a5.4 5.4 0 0 0 0-7.6z"/>',
+ reports:'<path d="M4 4v16h16M7 16l4-5 3 2 5-7M16 6h3v3"/>',
+ settings:'<path d="M4 7h16M4 17h16M9 4v6M15 14v6"/><circle cx="9" cy="7" r="2"/><circle cx="15" cy="17" r="2"/>',
+ accounts:'<circle cx="9" cy="8" r="3"/><path d="M3 20v-2a6 6 0 0 1 12 0v2zM17 6a3 3 0 0 1 0 6M17 15a5 5 0 0 1 4 5"/>',
+ statement:'<path d="M6 3h9l4 4v14H6zM15 3v5h4M9 12h7M9 16h7"/>',
+ voucher:'<path d="M3 8h17m0 0-4-4m4 4-4 4M21 16H4m0 0 4-4m-4 4 4 4"/>',
+ entry:'<rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h4"/>',
+ multi:'<path d="m12 3 9 5-9 5-9-5zM3 12l9 5 9-5M3 16l9 5 9-5"/>',
+ opening:'<path d="M6 3h9l4 4v14H6zM15 3v5h4M12 11v7m-3.5-3.5h7"/>',
+ stock:'<path d="m3 7 9-4 9 4v10l-9 4-9-4zM3 7l9 5 9-5M12 12v9"/>',
+ incoming:'<path d="M12 3v13m-4-4 4 4 4-4M4 18v3h16v-3"/>',
+ outgoing:'<path d="M12 16V3m-4 4 4-4 4 4M4 18v3h16v-3"/>',
+ pulse:'<path d="M3 12h4l3-6 4 12 3-6h4"/>',
+ help:'<circle cx="12" cy="12" r="9"/><path d="M9.5 9a2.5 2.5 0 0 1 5 0c0 2-2.5 2.5-2.5 4M12 17h.01"/>'
+};
+function makeOutline(kind){
+ const svg=document.createElementNS('http://www.w3.org/2000/svg','svg');
+ for(const [name,value] of Object.entries({viewBox:'0 0 24 24',width:'24',height:'24',fill:'none',
+ stroke:'currentColor','stroke-width':'1.8','stroke-linecap':'round','stroke-linejoin':'round'}))
+  svg.setAttribute(name,value);
+ svg.innerHTML=SVG_ICONS[kind]||SVG_ICONS.home;
+ svg.setAttribute('focusable','false');
+ return svg;
+}
+function upgradeIcon(button,kind){
+ let holder=button.querySelector('.ratib-bottom-icon');
+ if(!holder){holder=el('span','ratib-bottom-icon');button.prepend(holder);}
+ holder.setAttribute('aria-hidden','true');
+ holder.replaceChildren(makeOutline(kind));
+ button.classList.add('ratib-bottom-svg-choice');
+}
+function editorIcon(kind){
+ const holder=el('span','ratib-bottom-editor-ico');
+ holder.setAttribute('aria-hidden','true');
+ holder.append(makeOutline(kind));return holder;
+}
+
 const DEFAULT=['home','operations','favorites','reports','settings'];
 const by=id=>document.getElementById(id),catalog=new Map(DEFINITIONS.map(v=>[v[0],v]));
 const el=(tag,cls,text)=>{const e=document.createElement(tag);if(cls)e.className=cls;if(text!==undefined)e.textContent=text;return e;};
@@ -60,6 +102,7 @@ function renderNav(){
  const nodes=[];
  for(const key of chosen){
   const b=original.get(key)||newButtons.get(key)||button(key);
+  upgradeIcon(b,key);
   if(!original.has(key))newButtons.set(key,b);
   nodes.push(b);
  }
@@ -84,7 +127,7 @@ function renderEditor(){
    else chosen=chosen.filter(v=>v!==key);
    save();renderNav();renderEditor();
   });
-  label.append(checked,el('span','ratib-bottom-editor-ico',opt[1]),el('span','',opt[2]));row.append(label);
+  label.append(checked,editorIcon(key),el('span','',opt[2]));row.append(label);
   if(isVisible){
    const idx=chosen.indexOf(key),reorder=el('div','ratib-bottom-reorder');
    for(const [step,sign,title] of [[-1,'↑','تقديم'],[1,'↓','تأخير']]){

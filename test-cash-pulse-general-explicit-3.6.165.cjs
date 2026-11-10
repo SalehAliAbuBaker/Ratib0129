@@ -1,5 +1,5 @@
 'use strict';
-/* Ratib 3.6.166: reproduce an explicit 5,008 General journal on the receipt side,
+/* Ratib 3.6.167: reproduce an explicit 5,008 General journal on the receipt side,
  * without classifying unassigned journals or opposite-side/internal transfers. */
 const assert=require('node:assert/strict'),fs=require('node:fs'),{JSDOM}=require('jsdom');
 const script=fs.readFileSync('ratib-cash-pulse-dual-ring-3.6.162.js','utf8');
@@ -98,4 +98,4 @@ assert.equal(doc.querySelectorAll('#ratibDualSvg .ratib-dual-sector').length,2);
 assert.equal(JSON.stringify(entries),before,'No accounting data mutation');
 assert.equal(writes,0,'No storage writes');
 w.close();
-console.log('PASS 3.6.166: explicit 5008 General receipt and independent General payment, unchanged turnover/balances, no financial writes');
+console.log('PASS 3.6.167: explicit 5008 General receipt and independent General payment, unchanged turnover/balances, no financial writes');

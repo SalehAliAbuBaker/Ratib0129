@@ -7,11 +7,11 @@ const html=fs.readFileSync('index.html','utf8');
 const css=fs.readFileSync('ratib-ui-unification-3.6.155.css','utf8');
 const sw=fs.readFileSync('sw.js','utf8');
 const pkg=require('./package.json');
-assert.equal(pkg.version,'3.6.165');
+assert.equal(pkg.version,'3.6.166');
 assert.match(html,/const RATIB_RELEASE=\{"version":"3\.6\.165"/);
 assert.match(sw,/const APP_RELEASE=\{"version":"3\.6\.165"/);
 assert(sw.includes('./ratib-ui-unification-3.6.155.css'),'UI sheet must be cached for offline opening');
-assert(html.includes('ratib-ui-unification-3.6.155.css?v=3.6.165'),'New stylesheet must be linked to the live app');
+assert(html.includes('ratib-ui-unification-3.6.155.css?v=3.6.166'),'New stylesheet must be linked to the live app');
 assert(css.startsWith('/* Ratib 3.6.155'));
 assert(css.includes('@media screen')&&!css.includes('@media print'),'Accounting print/PDF must not be styled');
 for(const id of ['ratibPageNav','ratibVoucherHeading','ratibVoucherSequence','importedOpeningVoucherModal','pageLedger','pageAccountOperations','cashFlowCard','multiVoucherCard','lockDebitAccBtn','lockCreditAccBtn','ratibLockSource','ratibLockCounter']){

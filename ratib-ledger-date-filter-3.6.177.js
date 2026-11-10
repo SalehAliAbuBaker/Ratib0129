@@ -13,6 +13,34 @@
     return Number.isFinite(parsed.getTime())&&parsed.toISOString().slice(0,10)===normalized?normalized:'';
   };
   const values=()=>({from:$(START)?.value||'',to:$(END)?.value||''});
+  // Remember a fiscal-year selection while searching historical transactions.
+  let savedFiscalYear=null,autoFiscal=false,manualFiscal=false,changingFiscal=false,boundYear=null;
+  function fiscalSelector(){
+    const year=$('ratibFiscalLedgerYear');
+    if(year&&year!==boundYear){
+      year.addEventListener('change',()=>{
+        if(changingFiscal)return;
+        if(values().from||values().to){
+          manualFiscal=true;autoFiscal=false;savedFiscalYear=null;
+        }
+      });
+      boundYear=year;
+    }
+    return year;
+  }
+  function setFiscalYear(year,value){
+    if(![...year.options].some(option=>option.value===value))return false;
+    changingFiscal=true;
+    try{year.value=value;year.dispatchEvent(new Event('change',{bubbles:true}));}
+    finally{changingFiscal=false;}
+    return true;
+  }
+  function restoreFiscalYear(){
+    const year=fiscalSelector();
+    const restore=autoFiscal&&year&&year.value==='all'?savedFiscalYear:null;
+    savedFiscalYear=null;autoFiscal=false;manualFiscal=false;
+    return !!(restore&&setFiscalYear(year,restore));
+  }
   const matches=(tx,r=values())=>{
     const {from,to}=r;
     if(!from&&!to)return true;
@@ -40,13 +68,12 @@
   }
   function refresh(){
     hint();
-    // The fiscal selector defaults to a single year after an annual close.
-    // Date searches must include historical transactions without changing the
-    // user's accounting records. The built-in "all" option is read-only.
-    const {from,to}=values(),year=$('ratibFiscalLedgerYear');
-    if((from||to)&&year&&year.value!=='all'&&year.querySelector('option[value="all"]')){
-      year.value='all';
-      year.dispatchEvent(new Event('change',{bubbles:true}));
+    const {from,to}=values(),year=fiscalSelector();
+    if(!from&&!to){
+      if(restoreFiscalYear())return; // Fiscal change already redraws ledger.
+    }else if(!manualFiscal&&year&&year.value!=='all'&&[...year.options].some(o=>o.value==='all')){
+      if(!autoFiscal){savedFiscalYear=year.value;autoFiscal=true;}
+      setFiscalYear(year,'all');
       return;
     }
     document.dispatchEvent(new Event('ratib:ledger-date-render'));
@@ -56,10 +83,12 @@
     if(from)from.value='';
     if(to)to.value='';
     hint();
-    if(render)document.dispatchEvent(new Event('ratib:ledger-date-render'));
+    const restored=restoreFiscalYear();
+    if(render&&!restored)document.dispatchEvent(new Event('ratib:ledger-date-render'));
   }
   function bind(){
     if(!$(START)||!$(END))return;
+    fiscalSelector();
     for(const id of [START,END])$(id).addEventListener('change',refresh);
     $(CLEAR)?.addEventListener('click',()=>clear());
     hint();

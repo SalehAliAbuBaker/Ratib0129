@@ -14,9 +14,11 @@ assert(!html.includes('<script src="./ratib-report-tiles-3.6.175.js'),'Conflicti
 assert(!html.includes('<link rel="stylesheet" href="./ratib-report-tiles-3.6.175.css'),'Conflicting stylesheet MUST NOT apply');
 assert(!sw.includes('./ratib-report-tiles-3.6.175.js'),'Offline cache must no longer prefetch conflicting script');
 assert(css.includes('#pageReports #ratibReportMenu.ratib-report-menu'),'Style the actual existing menu, not a second invented menu');
-assert(css.includes('grid-template-columns:repeat(3,minmax(0,1fr))!important'),'Three columns');
-assert(css.includes('grid-auto-rows:100px!important'),'Rows cannot stretch to 250px on desktop');
-for(const p of ['min-height:100px!important','height:100px!important','max-height:100px!important','padding:11px 5px!important','gap:7px!important','border-radius:15px!important','width:43px!important','height:43px!important','width:25px!important','height:25px!important'])assert(css.includes(p),p);
+assert(css.includes('grid-template-columns:repeat(2,minmax(0,1fr))!important'),'Two columns by default for phones');
+assert(css.includes('@media screen and (min-width:680px)'),'Three columns only on wider layouts');
+assert(css.includes('grid-auto-rows:minmax(112px,auto)!important'),'Rows grow only as needed to avoid clipped labels');
+for(const p of ['min-height:112px!important','height:auto!important','max-height:none!important','padding:11px 5px!important','gap:7px!important','border-radius:15px!important','width:43px!important','height:43px!important','width:25px!important','height:25px!important'])assert(css.includes(p),p);
+assert(css.includes('overflow-wrap:break-word!important'),'Arabic names must wrap naturally');
 assert(css.includes('@media print {#ratibReportMenu{display:none!important}}'));
 const items=[
  ['reportsGroupBudgetHeader','بنود الميزانية'],['reportsGroupTrialHeader','ميزان المراجعة'],
@@ -45,6 +47,6 @@ const body='<div id="pageReports">'+
  assert.equal(d.querySelectorAll('.ratib-report-menu').length,1,'No extra competing report menu');
  budget.click();assert.equal(opens,1,'Original report event listeners remain active');
  dom.window.close();
- console.log('PASS Ratib 3.6.177: single 3-column, 100px report grid incl annual closure, original click handlers and icons');
+ console.log('PASS Ratib 3.6.177 hotfix: responsive report grid, original click handlers and icons');
 })().catch(e=>{console.error(e);process.exitCode=1;});
 function documentSafeCreate(d){const button=d.createElement('button');button.id='yearToolOpen';button.textContent='الإغلاق السنوي';return button;}

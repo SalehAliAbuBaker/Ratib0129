@@ -13,6 +13,10 @@ const dom=new JSDOM(fixture,{url:'https://ratib.test/',runScripts:'outside-only'
 w.navigateToTab=target=>{route=target;};w.RatibQuickFavorites={openQuick:()=>{route='favorites';}};
 w.eval(js);d.dispatchEvent(new w.Event('DOMContentLoaded'));
 const bar=d.getElementById('ratibHomeBottomNav'),editor=d.getElementById('ratibBottomNavSettings170'),api=w.RatibBottomNav;
+assert.equal(bar.querySelectorAll('.ratib-bottom-choice .ratib-bottom-icon svg').length,5,'All five existing buttons use vector icons');
+assert(!bar.querySelector('.ratib-bottom-icon')?.textContent?.trim(),'No old text glyph is displayed');
+assert(css.includes('.ratib-bottom-choice.active::before'),'Active state has visible indication');
+
 assert(editor&&api);assert.deepEqual([...api.get()],['home','operations','favorites','reports','settings']);
 function choose(id,value){const row=[...editor.querySelectorAll('.ratib-bottom-editor-row')].find(r=>r.querySelector('input')?.getAttribute('aria-label')==='إظهار '+id);assert(row,'editor row '+id);const cb=row.querySelector('input');cb.checked=value;cb.dispatchEvent(new w.Event('change',{bubbles:true}));}
 choose('مفضلتي',false);assert(!api.get().includes('favorites'));assert(!bar.querySelector('[data-ratib-page="favorites"]'));

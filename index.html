@@ -9764,6 +9764,8 @@ function ratibOrderDocumentAccounts(){
 function initThemeToggle() {
   const btn = document.getElementById('themeBtn');
   if (!btn) return;
+  // The unified appearance palette owns this button when present.
+  if (btn.dataset.ratibAppearanceHub === '1') return;
   const applyIcon = () => { btn.textContent = document.documentElement.dataset.theme === 'dark' ? '☀️' : '🌙'; };
   applyIcon();
   btn.addEventListener('click', () => {

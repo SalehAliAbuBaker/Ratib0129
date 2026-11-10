@@ -37,4 +37,19 @@ const btn=bar.querySelector('[data-ratib-page="favorites"]');assert(btn); // The
 const saved=[...api.get()];assert.equal(JSON.parse(w.localStorage.getItem('ratib.ui.bottom-nav.v1')).join('|'),saved.join('|'));
 api.set([]);assert.equal(api.get().length,0);assert(bar.querySelector('.ratib-bottom-manage'));assert.equal(d.getElementById('ratibBottomNavRecovery170').hidden,false);
 bar.querySelector('.ratib-bottom-manage').click();assert.equal(route,'pageSettings');api.reset();assert.deepEqual(Array.from(api.get()),['home','operations','favorites','reports','settings']);
+assert(css.includes('white-space:normal!important'),'Long optional labels may wrap on narrow phones');
+for(const keys of [
+ ['home','operations','favorites','reports','settings','accounts','statement','voucher'],
+ ['entry','multi','opening','stock','incoming','outgoing','pulse','help']
+]){
+ api.set(keys);
+ const buttons=bar.querySelectorAll('.ratib-bottom-choice');
+ assert.equal(buttons.length,keys.length);
+ for(const key of keys){
+  const b=bar.querySelector('[data-ratib-page="'+key+'"]');
+  assert(b&&b.querySelector('.ratib-bottom-icon svg path'),'SVG icon for optional shortcut: '+key);
+  assert(b.querySelector('small')?.textContent,'Readable caption for optional shortcut: '+key);
+ }
+}
+api.reset();
 dom.window.close();console.log('PASS Ratib 3.6.170 customizable footer, saved config, favorite removal and recovery');

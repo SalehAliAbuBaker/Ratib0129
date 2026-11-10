@@ -1,4 +1,4 @@
-/* Ratib trial 3.6.164: voice + manual input coverage across the application. */
+/* Ratib trial 3.6.165: voice + manual input coverage across the application. */
 'use strict';
 const assert=require('node:assert/strict');
 const fs=require('node:fs');
@@ -74,6 +74,6 @@ async function main(){
  }
  assert.equal(field('pin').value,'secret','PIN is never edited by speech');
  dom.window.close();
- console.log('PASS trial 3.6.164: modal, note, accounting numbers, dates, times, unique selects, datalist and protected inputs');
+ console.log('PASS trial 3.6.165: modal, note, accounting numbers, dates, times, unique selects, datalist and protected inputs');
 }
 main().catch(error=>{console.error(error);process.exitCode=1;});

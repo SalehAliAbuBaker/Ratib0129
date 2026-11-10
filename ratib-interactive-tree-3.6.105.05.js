@@ -91,7 +91,7 @@
  }
  function pathText(n){return (n.path||[]).join(' ← ');}
  function isGroup(n){return n.kind!=='detail';}
- function accountWords(value,query){const words=norm(query).split(/\s+/).filter(Boolean),text=norm(value);return words.every(w=>text.includes(w));}
+ function accountWords(value,query){const fold=v=>norm(v).replace(/[أإآٱ]/g,'ا').replace(/ى/g,'ي').replace(/ة/g,'ه');const words=fold(query).split(/\s+/).filter(Boolean),text=fold(value);return words.every(w=>text.includes(w));}
   function searched(n,q){return accountWords(n.code+' '+n.name+' '+pathText(n),q);}
  function match(n,q,type,ancestorMatch){
   const allow=type==='all'||(type==='detail'?n.kind==='detail':isGroup(n));
@@ -157,7 +157,28 @@
     '<span class="rit-simple-group-label"><b>'+esc(label)+'</b><small>'+leaves.length+' حساب</small></span>'+
     '<span class="rit-simple-group-balance">'+groupBalances(leaves)+'</span></button></div>';
  }
+ // Search ALWAYS covers the canonical accounting tree, even if the user is
+ // viewing only the five simplified groups. Do not switch presentation modes or
+ // write user preferences just to find accounts outside those groups.
+ function renderSimpleSearch(q){
+  const all=[...nodes.values()];
+  const details=all.filter(n=>n.kind==='detail'&&searched(n,q));
+  const groups=all.filter(n=>n.kind!=='detail'&&accountWords(n.code+' '+n.name,q));
+  const matched=[...details,...groups];
+  if(!matched.length)return '<div class="rit-empty">لم يُعثر على حساب مطابق في الدليل المحاسبي.</div>';
+  const types={detail:'حساب حركة',sub:'حساب تجميعي فرعي',group:'حساب تجميعي',main:'حساب رئيسي'};
+  const label='<div class="rit-search-results-head"><b>نتائج البحث في جميع الحسابات</b><small>'+matched.length+' نتيجة</small></div>';
+  return label+matched.map(n=>{
+   const active=selected===n.key,ancestors=(n.path||[]).slice(0,-1).join(' ← ');
+   return '<div class="rit-node rit-simple-node rit-global-search-result'+(active?' selected':'')+'">'+
+    '<button type="button" class="rit-node-main" data-rit="select" data-key="'+esc(n.key)+'" aria-pressed="'+active+'">'+
+    '<span class="rit-node-icon" aria-hidden="true">'+(n.kind==='detail'?'◉':'▣')+'</span>'+
+    '<span class="rit-node-label"><b>'+esc(n.name)+'</b><small>'+esc(n.code)+' · '+esc(types[n.kind]||'حساب')+(ancestors?' · '+esc(ancestors):'')+'</small></span></button>'+
+    '<span class="rit-node-balance">'+balanceHtml(n)+'</span></div>';
+  }).join('');
+ }
  function renderSimple(q){
+  if(q)return renderSimpleSearch(q);
   const buckets={cashbox:[],bank:[],clients:[],suppliers:[],income:[],expenses:[]};
   for(const n of nodes.values()){
    const bucket=simpleCategory(n);

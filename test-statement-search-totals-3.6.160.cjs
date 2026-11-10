@@ -1,4 +1,4 @@
-/* Ratib 3.6.163 — selected transaction totals must not rewrite booked balances. */
+/* Ratib 3.6.164 — selected transaction totals must not rewrite booked balances. */
 'use strict';
 const assert=require('node:assert/strict'),fs=require('node:fs');
 const {JSDOM}=require('jsdom');
@@ -91,4 +91,4 @@ assert.equal(sel('.balance'),'975 YER دائن');
 assert.equal(w.getAccountCurrencyReportData('YER').closing,975);
 assert(!w.accountPeriodTitle().includes('مفلتر'));
 dom.window.close();
-console.log('PASS 3.6.163: search totals, document output, CSV, booked balances and reset');
+console.log('PASS 3.6.164: search totals, document output, CSV, booked balances and reset');

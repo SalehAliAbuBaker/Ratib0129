@@ -9,7 +9,7 @@ const pkg=require('./package.json');
 const fontRegular=path.join(__dirname,'vendor/ratib-tajawal-regular.ttf');
 const fontBold=path.join(__dirname,'vendor/ratib-tajawal-bold.ttf');
 const bundle=path.join(__dirname,'vendor/ratib-pdfmake-0.2.23.min.js');
-assert.equal(pkg.version,'3.6.174');
+assert.equal(pkg.version,'3.6.175');
 assert.equal(pkg.devDependencies.pdfmake,'0.2.23');
 assert(fs.statSync(bundle).size>400000,'Offline PDF engine must be vendored');
 assert(fs.statSync(fontRegular).size>40000,'Full Arabic regular font must be vendored');
@@ -17,8 +17,8 @@ assert(fs.statSync(fontBold).size>40000,'Full Arabic bold font must be vendored'
 for(const asset of ['ratib-statement-direct-pdf-3.6.159.js','vendor/ratib-pdfmake-0.2.23.min.js',
  'vendor/ratib-tajawal-regular.ttf','vendor/ratib-tajawal-bold.ttf'])
  assert(sw.includes('"./'+asset+'"'),'Service worker must cache '+asset);
-assert(sw.includes('"version":"3.6.174"'));
-assert(html.includes('ratib-statement-direct-pdf-3.6.159.js?v=3.6.174'));
+assert(sw.includes('"version":"3.6.175"'));
+assert(html.includes('ratib-statement-direct-pdf-3.6.159.js?v=3.6.175'));
 assert(html.includes('new File([await buildAccountOperationsPdf(choice,currencies)]'));
 assert(html.includes('downloadFinancialFile(await buildAccountOperationsPdf(choice,currencies)'));
 assert(html.includes('window.RatibStatementVector.markup(data)'));

@@ -53,7 +53,7 @@ const settings=[
  ['palette','ألوان واجهة راتب','settings'],
  ['currencies','إدارة العملات','currency'],
  ['calendar','التقويم والتواريخ','settings'],
- ['backupsettings','النسخ الاحتياطي','backup'],
+ ['backupsettings','النسخ الاحتياطي والاستعادة','backup'],
  ['favorites','مفضلتي','favorites'],
  ['voice','الإدخال الصوتي','mic'],
  ['sound','أصوات التنبيهات والتذكيرات','sound']
@@ -97,7 +97,7 @@ function css(){if($('ratibApprovedSidebarStyle'))return;const e=document.createE
 '#pageSettings.ratib-settings-reordered .ratib-inside-identity{margin:10px 0;border:1px solid var(--border)!important;border-radius:8px;padding:0!important;box-shadow:none!important}',
 '#pageSettings.ratib-settings-reordered .ratib-inside-identity>.settings-accordion-header{padding:10px 12px;min-height:48px;font:900 1rem Tajawal,sans-serif!important}',
 '#pageSettings.ratib-settings-reordered .ratib-inside-identity>.settings-accordion-body{margin:0!important;padding:12px}',
-'#pageSettings #exportDataBtn,#pageSettings #importDataBtn,#pageSettings #restoreFromAutoBackupBtn,#pageSettings #cloudRunNowBtn,#pageSettings #cloudRestoreBtn{display:none!important}'
+'#pageSettings .ratib-backup-section-title{display:block;font-weight:700;font-size:1rem;color:var(--accent);margin:2px 0 8px}'
 ].join('\n');document.head.append(e);}
 function header(c){return c?.querySelector(':scope > .settings-accordion-header');}
 function title(c){return header(c)?.querySelector('span')?.textContent?.trim()||'';}
@@ -154,8 +154,19 @@ function reorder(){
      el.addEventListener('change',()=>{if(el.checked)ratibApplyPalette(el.value,true);});
    });
  }
- const order=settings.map(x=>map.get(x[0])).filter(Boolean);
+ // Keep the existing backup controls immediately before navigation customization and Help.
+ // No duplicate control IDs and no changes to the accounting backup/restore handlers.
+ const order=settings.filter(([key])=>key!=='backupsettings').map(x=>map.get(x[0])).filter(Boolean);
  for(let i=0;i<order.length;i++){const c=order[i],key=keyFor(c);setTitle(c,key);if(page.children[i]!==c)page.insertBefore(c,page.children[i]||null);}
+ const backupCard=map.get('backupsettings');
+ if(backupCard){
+  setTitle(backupCard,'backupsettings');
+  backupCard.id||='ratibBackupSettingsCard';
+  const editor=$('ratibBottomNavSettings170'),help=$('ratibSettingsHelp168');
+  const before=editor?.parentElement===page?editor:help?.parentElement===page?help:null;
+  if(before&&backupCard.nextElementSibling!==before)page.insertBefore(backupCard,before);
+  else if(!before&&backupCard!==page.lastElementChild)page.append(backupCard);
+ }
 }
 function setCardOpen(c,open){
  if(!c)return;

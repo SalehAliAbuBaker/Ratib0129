@@ -18,4 +18,4 @@ assert(sw.includes(trial),'Worker must refresh cached navigation resources under
 assert(sw.includes('"./ratib-navigation-v3.6.149.js"'),'Offline shell must store the versioned navigation script');
 assert(!html.includes('src="./ratib-navigation-v3.js?'),'Index must never load the stale old navigation script');
 new Function(nav);
-console.log('PASS trial 3.6.164: navigation no longer overwrites release badge with 3.6.123');
+console.log('PASS trial 3.6.165: navigation no longer overwrites release badge with 3.6.123');

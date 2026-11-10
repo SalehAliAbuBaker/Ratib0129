@@ -2,9 +2,9 @@
 const assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('node:vm'),{JSDOM}=require('jsdom');
 const js=fs.readFileSync('ratib-statement-safety-3.6.172.js','utf8'),css=fs.readFileSync('ratib-statement-safety-3.6.172.css','utf8'),html=fs.readFileSync('index.html','utf8'),sw=fs.readFileSync('sw.js','utf8');
 new vm.Script(js);
-assert.equal(require('./package.json').version,'3.6.172');
+assert.equal(require('./package.json').version,'3.6.173');
 for(const f of ['ratib-statement-safety-3.6.172.js','ratib-statement-safety-3.6.172.css']){
- assert(html.includes(f+'?v=3.6.172'),f+' included in HTML');
+ assert(html.includes(f+'?v=3.6.173'),f+' included in HTML');
  assert(sw.includes('./'+f),f+' cached offline');
 }
 assert.match(css,/@keyframes ratib-dhikr-pass\s*\{\s*from\{transform:translateX\(-100%\)\}\s*to\{transform:translateX\(100%\)\}/);
@@ -40,5 +40,5 @@ w.navigateToTab('pageDashboard'); // user gestures back without pressing picker 
 Promise.resolve().then(()=>{
  assert(!accounts.classList.contains('ratib-statement-pick-mode'),'Back gesture must clear picker');
  assert(d.getElementById('ratibDirectStatementChooser172').hidden,'Chooser hidden when navigating away');
- dom.window.close();console.log('PASS Ratib 3.6.172 no freeze: direct pick, search, account open, button/back gesture, reversed banner');
+ dom.window.close();console.log('PASS Ratib 3.6.173 no freeze: direct pick, search, account open, button/back gesture, reversed banner');
 }).catch(e=>{console.error(e);process.exitCode=1;});

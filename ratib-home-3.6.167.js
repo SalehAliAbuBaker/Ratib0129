@@ -19,14 +19,14 @@ for(const [id,cls] of [['ratibHomeWeekday','day'],['ratibHomeHijri','hijri'],['r
 date();window.addEventListener('focus',date);document.addEventListener('visibilitychange',()=>{if(!document.hidden)date();});
 }
 function navigate(id){if(typeof window.navigateToTab==='function')window.navigateToTab(id,true);}
-function statement(){navigate('pageReports');if(typeof openAccountStatementSearch==='function')openAccountStatementSearch(false);}
+// The sixth home tile opens Reports directly; statement remains optional in bottom navigation.
 function cards(){
 const grid=document.querySelector('#dashboardHomeContent .ratib-home-main-grid');if(!grid||grid.dataset.home167)return;grid.dataset.home167='1';
 grid.setAttribute('aria-label','الوظائف الرئيسية');const btns=Array.from(grid.querySelectorAll(':scope>.main-menu-btn'));
 for(const b of btns)if(/التقارير|الاعدادات|سجل العمليات/.test(fold(b.textContent)))b.classList.add('ratib-hidden-home-tile');
 const first=grid.querySelector('.ratib-home-voucher-shortcuts>.main-menu-btn');if(first)first.querySelector('span:last-child').textContent='قبض وصرف';
 const acc=btns.find(x=>fold(x.textContent)==='الحسابات');
-if(acc){const b=node('button','main-menu-btn ratib-statement-tile');b.type='button';b.innerHTML='<span class="main-menu-icon" aria-hidden="true">▤</span><span>كشف حساب</span>';b.addEventListener('click',statement);acc.after(b);}
+if(acc){const b=node('button','main-menu-btn ratib-reports-tile');b.type='button';b.setAttribute('aria-label','التقارير');b.innerHTML='<span class="main-menu-icon" aria-hidden="true">▥</span><span>التقارير</span>';b.addEventListener('click',()=>navigate('pageReports'));acc.after(b);}
 }
 function pulse(){
 const home=by('dashboardHomeContent'),car=by('dashboardCarousel'),grid=home?.querySelector('.ratib-home-main-grid');if(!home||!car||!grid)return;

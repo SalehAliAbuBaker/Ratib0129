@@ -113,6 +113,9 @@ function addEditor(){
   reset.addEventListener('click',()=>{chosen=DEFAULT.slice();save();renderNav();renderEditor();});
   body.append(reset);editor.append(summary,body);host.append(editor);
  }
+ // Keep the customization editor immediately before Help & Administration.
+ const help=by('ratibSettingsHelp168');
+ if(help?.parentElement===host&&editor.nextElementSibling!==help)host.insertBefore(editor,help);
  renderEditor();
  const home=by('dashboardHomeContent');
  if(home&&!by('ratibBottomNavRecovery170')){

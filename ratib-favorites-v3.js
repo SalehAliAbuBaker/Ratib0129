@@ -201,6 +201,30 @@ document.getElementById('ratibFavSearch').addEventListener('input',e=>{filterTex
 document.getElementById('ratibFavGroup').addEventListener('change',e=>{filterGroup=e.target.value;renderOptions();});
 function close(){panel.classList.remove('open');}
 function open(){discoverSettings();discoverReports();filterText='';filterGroup='';document.getElementById('ratibFavSearch').value='';document.getElementById('ratibFavGroup').value='';render();panel.classList.add('open');panel.querySelector('[data-close]').focus();}
+/* Quick favorites: direct original action, while preserving the existing saved IDs and editor. */
+let fastPanel=null,fastReturnFocus=null;
+function closeQuick(){if(fastPanel){fastPanel.hidden=true;fastReturnFocus?.focus?.({preventScroll:true});}}
+function openQuick(){
+ discoverSettings();discoverReports();
+ const pinned=selected.filter(id=>byId[id]);
+ if(!pinned.length){open();return;}
+ if(!fastPanel){
+  fastPanel=document.createElement('div');fastPanel.id='ratibFavoritesFastPanel';fastPanel.className='no-print';fastPanel.setAttribute('role','dialog');fastPanel.setAttribute('aria-modal','true');fastPanel.setAttribute('aria-label','مفضلتي السريعة');
+  fastPanel.innerHTML='<div class="ratib-fast-box"><div class="ratib-fast-head"><strong>مفضلتي — اختر الوظيفة</strong><button type="button" data-fast-close aria-label="إغلاق">×</button></div><div class="ratib-fast-list"></div></div>';
+  document.body.appendChild(fastPanel);
+  fastPanel.addEventListener('click',e=>{
+   if(e.target===fastPanel||e.target.closest('[data-fast-close]')){closeQuick();return;}
+   const b=e.target.closest('button[data-fast-id]');if(!b)return;
+   const choice=byId[b.dataset.fastId];if(!choice)return;
+   closeQuick();Promise.resolve().then(()=>choice.run()).catch(error=>{console.error('Ratib favorite direct action',error);window.showToast?.('تعذر فتح اختصار المفضلة','warn');});
+  });
+  document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!fastPanel.hidden)closeQuick();});
+ }
+ const list=fastPanel.querySelector('.ratib-fast-list');list.replaceChildren();
+ for(const id of pinned){const c=byId[id],b=document.createElement('button');b.type='button';b.dataset.fastId=id;b.textContent=c[2]+' '+c[1];list.appendChild(b);}
+ fastReturnFocus=document.activeElement;fastPanel.hidden=false;list.querySelector('button')?.focus({preventScroll:true});
+}
+
 panel.addEventListener('click',e=>{if(e.target===panel){close();return;}const b=e.target.closest('button');if(!b)return;const d=b.dataset;
 if('close'in d){close();return;}
 if('settings'in d){close();openFavoritesSettings();return;}
@@ -397,7 +421,7 @@ function registerFavorite(id,label,icon,run,group){
  if(document.getElementById('ratibSettingsFavCatalog'))render();
  return true;
 }
-window.RatibQuickFavorites={open,close,register:registerFavorite,refresh:()=>{discoverSettings();discoverReports();render();}};
+window.RatibQuickFavorites={open,openQuick,close,register:registerFavorite,refresh:()=>{discoverSettings();discoverReports();render();}};
 })();
 
 /* Load the approved unified output UI without touching accounting logic. */

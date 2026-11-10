@@ -1,9 +1,11 @@
 // Ratib 3.1.9: cache identity is unique to this app's scope.
-const CACHE_VERSION='v261-date-render-r1-v260-opening-mobile-clean-3.6.139-compound-compact-auto-signature-tafqit-cash-reference-amount-currency-compound-ref-simple-ref-totals-cash-colors-cash-preview-return-3.6.162-active-budget-callouts-r1-receipt-payment-separation-voucher-routing-3.6.165-alef-search-3.6.166-home-3.6.167';
-const APP_RELEASE={"version":"3.6.167","build":"p16700","highlights":["إعادة تنظيم الرئيسية مع نبض الصندوق في الأعلى وبطاقات ثلاثية","بحث ذكي للعمليات والحسابات ومخزون مطوي وشريط تنقل ثابت"],"changes":["نجري بانتظام تحديثات لتحسين الموثوقية والأداء وإصلاح الأخطاء","عرض اليوم ثم تاريخ أم القرى الهجري ثم الميلادي تحت بعض","إظهار رقم الإصدار تحت اسم راتب والعبارة التعريفية","الحفاظ على وظائف السندات والقيود والمفضلة الحالية دون تعديل الأرصدة","إضافة البحث في العمليات والحسابات مع مخزون قابل للطي"]};
+const CACHE_VERSION='v261-date-render-r1-v260-opening-mobile-clean-3.6.139-compound-compact-auto-signature-tafqit-cash-reference-amount-currency-compound-ref-simple-ref-totals-cash-colors-cash-preview-return-3.6.162-active-budget-callouts-r1-receipt-payment-separation-voucher-routing-3.6.165-alef-search-3.6.166-home-3.6.167-home-refine-3.6.168';
+const APP_RELEASE={"version":"3.6.168","build":"p16800","highlights":["عودة مفضلتي للاختصارات التنفيذية المباشرة وإظهار أرقام نبض الصندوق الفعلية","تجميع الوضع الليلي وألوان راتب في زر واحد وتحويل الذكر إلى شريط عابر لخمس ثوان"],"changes":["نجري بانتظام تحديثات لتحسين الموثوقية والأداء وإصلاح الأخطاء","إزالة ترس الإدارة والتواصل من الأعلى والإبقاء على المساعدة في الإعدادات","عرض الرصيد والمقبوضات والمصروفات من محرك نبض الصندوق نفسه لكل عملة بصورة مستقلة","عودة الاختصارات المحفوظة للعمل مباشرة من مفضلتي دون إعادة حفظها","جعل عبارة الذكر متحركة لخمس ثوان عند فتح التطبيق ثم إخفاءها دون ترك حشو"]};
 const CACHE_PREFIX=`ratib:${self.registration.scope}:`;
 const CACHE_NAME=CACHE_PREFIX+CACHE_VERSION;
 const APP_SHELL=[
+  "./ratib-home-3.6.168.js",
+  "./ratib-home-3.6.168.css",
   "./ratib-home-3.6.167.js",
   "./ratib-home-3.6.167.css",
   "./ratib-cash-pulse-dual-ring-3.6.162.js",

@@ -212,13 +212,14 @@ function arc(id,dash,offset){
  circle.style.pointerEvents=dash>0?'stroke':'none';circle.tabIndex=dash>0?0:-1;
 }
 function draw(){
- if(!expanded||!root)return;
+ if(!root)return;
  if(!appReady()){
   byId('ratibPulseReadout').hidden=true;help('افتح التطبيق لعرض البيانات المحاسبية المحفوظة.');return;
  }
  try{
   const accounts=cashAccounts();renderCashDirectory();
   if(!accounts.length){
+   window.dispatchEvent(new Event('ratib:pulse-summary-empty'));
    visible=[];kind='';byId('ratibPulseDetails').hidden=true;
    window.RatibCashPulseViz?.clear?.();
    const select=byId('ratibPulseAccount');select.replaceChildren();lastAccount='';
@@ -254,6 +255,8 @@ function draw(){
   byId('ratibPulseIncome').textContent=fmt(receipts,currency);
   byId('ratibPulseExpense').textContent=fmt(payments,currency);
   byId('ratibPulseNet').textContent=fmt(receipts-payments,currency);
+  window.dispatchEvent(new CustomEvent('ratib:pulse-summary',{detail:{closing,receipts,payments,currency,accountLabel:account===ALL_CASH?'الحسابات المختارة ('+accounts.length+')':account,periodLabel:scope.label}}));
+  if(!expanded)return;
   help('حركة '+scope.label+' — '+visible.length+' حركة مرحّلة'+(account===ALL_CASH?' ضمن '+accounts.length+' حساب مختار (بعد استبعاد التحويلات الداخلية من إجمالي الحركة)':' لحساب '+account)+'. الأرصدة الافتتاحية ليست مقبوضات.');
   const circum=2*Math.PI*71,total=receipts+payments,g=total?circum*receipts/total:0,p=total?circum*payments/total:0;
   arc('ratibPulseGreenArc',g,0);arc('ratibPulseGoldArc',p,g);
@@ -301,8 +304,8 @@ function setExpanded(next){
  if(expanded){draw();}else{kind='';byId('ratibPulseDetails').hidden=true;}
 }
 function schedule(){
- if(!expanded||refreshPending)return;refreshPending=true;
- requestAnimationFrame(()=>{refreshPending=false;if(expanded)draw();});
+ if(!root||refreshPending)return;refreshPending=true;
+ requestAnimationFrame(()=>{refreshPending=false;draw();});
 }
 function mount(){
  const dashboard=byId('dashboardHomeContent'),slide=byId('pageDashboardKpi');if(!dashboard||!slide||byId('ratibCashPulse'))return;

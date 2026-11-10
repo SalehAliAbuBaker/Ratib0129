@@ -26,7 +26,7 @@ assert.equal(previousCalled,0,'Old frozen shortcut must not run');
 assert.equal(ops.classList.contains('hidden'),true,'Never navigate to empty statement detail');
 assert(accounts.classList.contains('ratib-statement-pick-mode'));
 const field=d.getElementById('ratibStatementSearch172');assert(field);
-field.value='صندوق';field.dispatchEvent(new w.Event('input',{bubbles:true}));
+field.value='النقدية';field.dispatchEvent(new w.Event('input',{bubbles:true}));
 assert.equal(d.querySelectorAll('#ratibStatementResults172 button').length,1);
 d.querySelector('#ratibStatementResults172 button').click();
 assert.equal(opened,'صندوق النقدية');assert.equal(routes.at(-1),'pageAccountOperations');

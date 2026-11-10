@@ -22,5 +22,5 @@ choose('مفضلتي',true);assert(api.get().includes('favorites'));
 const btn=bar.querySelector('[data-ratib-page="favorites"]');assert(btn); // The original favorite button and its existing listeners are preserved.
 const saved=[...api.get()];assert.equal(JSON.parse(w.localStorage.getItem('ratib.ui.bottom-nav.v1')).join('|'),saved.join('|'));
 api.set([]);assert.equal(api.get().length,0);assert(bar.querySelector('.ratib-bottom-manage'));assert.equal(d.getElementById('ratibBottomNavRecovery170').hidden,false);
-bar.querySelector('.ratib-bottom-manage').click();assert.equal(route,'pageSettings');api.reset();assert.deepEqual(api.get(),['home','operations','favorites','reports','settings']);
+bar.querySelector('.ratib-bottom-manage').click();assert.equal(route,'pageSettings');api.reset();assert.deepEqual(Array.from(api.get()),['home','operations','favorites','reports','settings']);
 dom.window.close();console.log('PASS Ratib 3.6.170 customizable footer, saved config, favorite removal and recovery');

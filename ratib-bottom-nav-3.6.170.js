@@ -47,6 +47,12 @@ function paintIcon(button,kind){
  host.replaceChildren(svgIcon(kind));
  host.dataset.ratibSvgIcon=kind;
  host.setAttribute('aria-hidden','true');
+ // Older navigation buttons can be bare text; retain the localized caption.
+ if(!button.querySelector('small')){
+  const label=catalog.get(kind)?.[2]||button.getAttribute('aria-label')||button.textContent.trim();
+  for(const child of [...button.childNodes])if(child.nodeType===3)child.remove();
+  button.append(el('small','',label));
+ }
 }
 
 function validate(a){return Array.isArray(a)?[...new Set(a.filter(x=>typeof x==='string'&&catalog.has(x)))].slice(0,MAX):DEFAULT.slice();}

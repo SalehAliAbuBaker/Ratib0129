@@ -34,7 +34,7 @@ function docKey(e){
 // Classify only the actually posted counterpart lines. A receipt increases
 // cash (debit), so its classified budget lines are CREDIT; for a payment the
 // relationship is reversed. The balancing cash line is never a budget item.
-function assignments(tx,currency,catIds,side='credit'){
+function assignments(tx,currency,catIds,side='credit',context={}){
  const expected=side==='debit'?'income':'spend';
  const d=tx?.multiVoucher;
  const mode=String(d?.mode||tx?.voucherMode||'');
@@ -50,7 +50,21 @@ function assignments(tx,currency,catIds,side='credit'){
  if(d&&['income','spend'].includes(mode))return []; // Unknown foreign-currency conversion: never guess.
  const entries=Object.entries(tx?.distribution||{}).filter(([id,v])=>catIds.has(id)&&v&&!v.excluded);
  const explicit=entries.some(([id])=>id!=='general');
- if(mode!==expected&&!explicit)return [];
+ // A posted SIMPLE journal can carry an explicitly saved "عام" allocation.
+ // Previously the mode check ignored that allocation just because the
+ // journal is 'entry' rather than a receipt/payment voucher. Do not infer
+ // General from the journal title, note or cash side, or classify any
+ // multi-entry transfer by this exception.
+ const selected=context.selectedCashAccounts instanceof Set?context.selectedCashAccounts:null;
+ const cashAccount=String(context.cashAccount||'').trim();
+ const sideAccount=String(side==='debit'?(tx?.debitAccount||''):(tx?.creditAccount||'')).trim();
+ const internalCashTransfer=selected?.has(String(tx?.debitAccount||''))&&selected?.has(String(tx?.creditAccount||''));
+ const simpleGeneral=mode==='entry'&&!tx?.isMultiVoucher&&!d&&
+  cashAccount&&cashAccount===sideAccount&&
+  (!selected||selected.has(cashAccount))&&!internalCashTransfer&&
+  !!String(tx?.debitAccount||'').trim()&&!!String(tx?.creditAccount||'').trim()&&
+  entries.some(([id,item])=>id==='general'&&Number(item?.amount)>0);
+ if(mode!==expected&&!explicit&&!simpleGeneral)return [];
  const booked=entries.map(([id,item])=>({
   id,amount:num(item.amount||(+item.pct>0?num(tx.amount)*num(item.pct)/100:0))
  })).filter(x=>x.amount>0);
@@ -62,22 +76,23 @@ function assignments(tx,currency,catIds,side='credit'){
   return [{id:'general',amount:num(tx.amount)}];
  return booked;
 }
-function buildBudgetModel(entries,cats,currency,side='credit'){
+function buildBudgetModel(entries,cats,currency,side='credit',selectedCashAccounts=[]){
  const available=new Map(cats.map(c=>[c.id,{...c,spent:0,count:0}]));
  // General must remain available for posted historical movements even after
  // the user edits/archives budget definitions. Never change the ledger.
  if(!available.has('general'))available.set('general',{id:'general',name:'عام',color:'#64748b',pct:0,spent:0,count:0});
  const groups=new Map(),ids=new Set(available.keys());
+ const selected=new Set(Array.isArray(selectedCashAccounts)?selectedCashAccounts:[]);
  for(const e of entries||[]){
   if(!e||e.opening||e.side!==side||e.currency!==currency||!e.t)continue;
   const key=docKey(e)+'\u001f'+currency+'\u001f'+side;
-  const existing=groups.get(key)||{tx:e.t,amount:0,key};
+  const existing=groups.get(key)||{tx:e.t,amount:0,key,account:e.account||''};
   existing.amount+=num(e.amount);groups.set(key,existing);
  }
  let movement=0,classified=0,classifiedDocuments=0;
  for(const doc of groups.values()){
   movement+=doc.amount;
-  const assigned=assignments(doc.tx,currency,ids,side);
+  const assigned=assignments(doc.tx,currency,ids,side,{cashAccount:doc.account,selectedCashAccounts:selected});
   const rawTotal=assigned.reduce((sum,item)=>sum+item.amount,0);
   if(rawTotal<=0||doc.amount<=0)continue;
   // Net cash movements may be smaller than the individual voucher lines
@@ -308,8 +323,8 @@ function update(snapshot){
  lastSnapshot=snapshot;
  const cats=categories();
  lastModels={
-  debit:buildBudgetModel(snapshot.entries,cats,snapshot.currency,'debit'),
-  credit:buildBudgetModel(snapshot.entries,cats,snapshot.currency,'credit')
+  debit:buildBudgetModel(snapshot.entries,cats,snapshot.currency,'debit',snapshot.selectedAccounts),
+  credit:buildBudgetModel(snapshot.entries,cats,snapshot.currency,'credit',snapshot.selectedAccounts)
  };
  const set=(id,value)=>{const e=$(id);if(e)e.textContent=value;};
  set('ratibDualReceipts',money(snapshot.receipts,snapshot.currency));

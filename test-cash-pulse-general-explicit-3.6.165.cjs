@@ -40,13 +40,17 @@ const generalJournal={id:'j-5008',voucherMode:'entry',type:'سند قيد #1',cu
  amount:5008,debitAccount:'صندوق النقدية',creditAccount:'الإيرادات الأخرى',
  distribution:{general:{id:'general',name:'عام',amount:5008,pct:100,excluded:false}},
  status:'posted',note:'بند العام'};
-const p1=payment('p1',[['general',3000],['food_home',10632]]);
-const entry=(t,side,amount=t.amount,currency='YER')=>({t,side,currency,amount,opening:false});
-const entries=[entry(r1,'debit'),entry(r2,'debit'),entry(generalJournal,'debit'),entry(p1,'credit')];
+const p1=payment('p1',[['investment_savings',4800]]);
+const generalExpenseJournal={id:'j-exp-6600',voucherMode:'entry',type:'سند قيد #3',currency:'YER',amount:6600,
+ debitAccount:'مصاريف عامة',creditAccount:'صندوق النقدية',
+ distribution:{general:{id:'general',name:'عام',amount:6600,pct:100,excluded:false}},status:'posted',note:'مصاريف عامة'};
+const entry=(t,side,amount=t.amount,currency='YER')=>({t,side,currency,amount,opening:false,
+ account:side==='debit'?(t.debitAccount||'صندوق النقدية'):(t.creditAccount||'صندوق النقدية')});
+const entries=[entry(r1,'debit'),entry(r2,'debit'),entry(generalJournal,'debit'),entry(p1,'credit'),entry(generalExpenseJournal,'credit')];
 const before=JSON.stringify(entries);
 const row=(model,id)=>model.rows.find(c=>c.id===id);
-const receipts=v.buildBudgetModel(entries,cats,'YER','debit');
-const payments=v.buildBudgetModel(entries,cats,'YER','credit');
+const receipts=v.buildBudgetModel(entries,cats,'YER','debit',['صندوق النقدية']);
+const payments=v.buildBudgetModel(entries,cats,'YER','credit',['صندوق النقدية']);
 assert.equal(receipts.movement,61608,'Reported receipt total must remain unchanged');
 assert.equal(receipts.classified,61608,'Saved General 5008 must no longer show as unclassified');
 assert.equal(receipts.unclassified,0);
@@ -54,11 +58,11 @@ assert.equal(row(receipts,'general').spent,5008,'General appears as its own actu
 assert.equal(row(receipts,'charity_gifts').spent,6600);
 assert.equal(row(receipts,'investment_savings').spent,50000);
 assert.equal(row(receipts,'general').count,1);
-assert.equal(payments.movement,13632);
-assert.equal(payments.classified,13632);
-assert.equal(row(payments,'general').spent,3000,'Independent General payment amount');
-assert.equal(row(payments,'food_home').spent,10632);
-assert.equal(v.buildBudgetModel([entry(generalJournal,'credit')],cats,'YER','credit').classified,0,
+assert.equal(payments.movement,11400,'Screenshot: expense cash total remains 11,400');
+assert.equal(payments.classified,11400);
+assert.equal(row(payments,'general').spent,6600,'Explicit General 6,600 expense is shown');
+assert.equal(row(payments,'investment_savings').spent,4800,'Other expense category remains intact');
+assert.equal(v.buildBudgetModel([entry(generalJournal,'credit')],cats,'YER','credit',['صندوق النقدية']).classified,0,
  'A debit-side journal must not become a payment merely due to its note');
 const noDistribution={...generalJournal,id:'j-unassigned',amount:800,distribution:{},note:'بند العام'};
 assert.equal(v.buildBudgetModel([entry(noDistribution,'debit')],cats,'YER','debit').classified,0,
@@ -71,9 +75,14 @@ assert.equal(v.buildBudgetModel([entry(transfer,'debit')],cats,'YER','debit').cl
 const untrusted={...generalJournal,id:'unknown',voucherMode:'',amount:1200,note:'بند عام'};
 assert.equal(v.buildBudgetModel([entry(untrusted,'debit',1200)],cats,'YER','debit').classified,0,
  'Unknown voucher mode is not automatically promoted to General');
+const internalSimple={id:'cash-to-bank',voucherMode:'entry',amount:900,currency:'YER',
+ debitAccount:'صندوق النقدية',creditAccount:'بنك التوفير',status:'posted',
+ distribution:{general:{id:'general',amount:900,pct:100}}};
+assert.equal(v.buildBudgetModel([entry(internalSimple,'debit')],cats,'YER','debit',['صندوق النقدية','بنك التوفير']).classified,0,
+ 'Do not classify transfers between two selected cash accounts as General');
 assert.equal(v.buildBudgetModel(entries,cats,'USD','debit').classified,0,'Do not mix currencies');
-v.update({currency:'YER',receipts:61608,payments:13632,closing:47976,
-  accountLabel:'صندوق النقدية',entries});
+v.update({currency:'YER',receipts:61608,payments:11400,closing:50208,
+  accountLabel:'صندوق النقدية',selectedAccounts:['صندوق النقدية'],entries});
 doc.querySelector('[data-budget-side="debit"]').click();
 const general=doc.querySelector('#ratibDualLegend [data-budget-id="general"]');
 assert(general,'General must be rendered as a clickable legend');
@@ -84,7 +93,7 @@ general.click();
 assert(doc.getElementById('ratibDualDetail').textContent.includes('5,008'),'General detail amount');
 doc.querySelector('[data-budget-side="credit"]').click();
 const paymentGeneral=doc.querySelector('#ratibDualLegend [data-budget-id="general"]');
-assert(paymentGeneral?.textContent.includes('3,000'),'Payment classification stays independent');
+assert(paymentGeneral?.textContent.includes('6,600'),'Payment classification stays independent');
 assert.equal(doc.querySelectorAll('#ratibDualSvg .ratib-dual-sector').length,2);
 assert.equal(JSON.stringify(entries),before,'No accounting data mutation');
 assert.equal(writes,0,'No storage writes');

@@ -51,12 +51,22 @@ function assignments(tx,currency,catIds,side='credit'){
  const entries=Object.entries(tx?.distribution||{}).filter(([id,v])=>catIds.has(id)&&v&&!v.excluded);
  const explicit=entries.some(([id])=>id!=='general');
  if(mode!==expected&&!explicit)return [];
- return entries.map(([id,item])=>({
+ const booked=entries.map(([id,item])=>({
   id,amount:num(item.amount||(+item.pct>0?num(tx.amount)*num(item.pct)/100:0))
  })).filter(x=>x.amount>0);
+ // Older saved cash receipts/payments may not have a distribution object.
+ // A confirmed receipt/payment without explicit categories belongs to the
+ // default General category. Never apply this fallback to simple journals,
+ // internal transfers, opening balances or a movement of the opposite side.
+ if(!booked.length&&mode===expected&&catIds.has('general')&&num(tx?.amount)>0)
+  return [{id:'general',amount:num(tx.amount)}];
+ return booked;
 }
 function buildBudgetModel(entries,cats,currency,side='credit'){
  const available=new Map(cats.map(c=>[c.id,{...c,spent:0,count:0}]));
+ // General must remain available for posted historical movements even after
+ // the user edits/archives budget definitions. Never change the ledger.
+ if(!available.has('general'))available.set('general',{id:'general',name:'عام',color:'#64748b',pct:0,spent:0,count:0});
  const groups=new Map(),ids=new Set(available.keys());
  for(const e of entries||[]){
   if(!e||e.opening||e.side!==side||e.currency!==currency||!e.t)continue;

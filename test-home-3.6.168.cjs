@@ -7,7 +7,7 @@ for(const file of ['ratib-home-3.6.168.js','ratib-home-3.6.168.css']){assert(htm
 assert(html.includes('ratib-home-3.6.167.js?v=3.6.168'),'Keep existing home integration');
 assert(fav.includes('openQuick')&&fav.includes('choice.run()'),'Quick favorites must execute original saved action');
 assert(source.includes('RatibQuickFavorites?.openQuick'),'New bottom shortcut calls direct favorites');
-assert(source.includes('RatibPalette?.set')&&source.includes('data-ratib-color'),'Header theme selection reuses approved palette');
+assert(source.includes('RatibPalette?.set?.(')&&source.includes('data-ratib-color'),'Header theme selection reuses approved palette');
 assert(source.includes("ratib:dhi")===false,'No misspelled notification event');
 assert(source.includes('ratib:app-ready')&&source.includes('5000'),'Transient reminder lasts five seconds after unlock');
 assert(source.includes('ratib:pulse-summary')&&pulse.includes("CustomEvent('ratib:pulse-summary'"),'Read actual cash pulse values');

@@ -3352,14 +3352,32 @@ async function _writeShadowRecords(records,deleted=[],replace=false){
   return new Promise((resolve,reject)=>{
     const tx=db.transaction('handles','readwrite'),os=tx.objectStore('handles');
     const req=os.getAllKeys();
+    let archiveWriteError=null;
     req.onsuccess=()=>{
       const keys=req.result.map(String),index=new Set(keys.filter(k=>k.startsWith('shadow_'+APP_STORAGE_PREFIX)).map(k=>k.slice(7)));
-      if(replace){for(const key of index)os.delete('shadow_'+key);index.clear();}
-      for(const key of deleted){os.delete('shadow_'+key);index.delete(key);}
-      for(const [key,value] of Object.entries(records)){os.put(value,'shadow_'+key);index.add(key);}
-      os.put([...index],'shadow_index');
+      const write=()=>{
+        if(replace){for(const key of index)os.delete('shadow_'+key);index.clear();}
+        for(const key of deleted){os.delete('shadow_'+key);index.delete(key);}
+        for(const [key,value] of Object.entries(records)){os.put(value,'shadow_'+key);index.add(key);}
+        os.put([...index],'shadow_index');
+      };
+      // Another tab can retain an old one-month ledger. Verify the committed
+      // IndexedDB archive *in this write transaction* before accepting its writes.
+      const minimumRows=replace?0:_largeArchiveMarkerRows();
+      if(minimumRows<=1500){write();return;}
+      const historyRequest=os.get('shadow_'+APP_STORAGE_PREFIX+'history');
+      historyRequest.onsuccess=()=>{
+        const committedRows=_largeArchiveRows({[APP_STORAGE_PREFIX+'history']:historyRequest.result});
+        const incomingHistory=Object.prototype.hasOwnProperty.call(records,APP_STORAGE_PREFIX+'history');
+        const incomingRows=incomingHistory?_largeArchiveRows(records):committedRows;
+        if(committedRows<minimumRows||incomingRows<minimumRows||deleted.includes(APP_STORAGE_PREFIX+'history')){
+          archiveWriteError=new Error('حماية الأرشيف: تعارض بين نسخة المتصفح والأرشيف الكامل. تم منع الكتابة؛ احتفظ بالنسخة الاحتياطية وأغلق أي تبويب قديم لراتب.');
+          tx.abort();return;
+        }
+        write();
+      };
     };
-    tx.oncomplete=()=>resolve();tx.onerror=tx.onabort=()=>reject(tx.error||new Error('تعذرت كتابة قاعدة البيانات'));
+    tx.oncomplete=()=>resolve();tx.onerror=tx.onabort=()=>reject(archiveWriteError||tx.error||new Error('تعذرت كتابة قاعدة البيانات'));
   });
 }
 function _localRecords(){
@@ -3412,6 +3430,13 @@ function _largeArchiveRows(records){
   const h=records?.[APP_STORAGE_PREFIX+'history'];
   return Array.isArray(h)?h.reduce((sum,period)=>sum+(Array.isArray(period?.transactions)?period.transactions.length:0),0):0;
 }
+function _largeArchiveMarkerRows(){
+  try{
+    const marker=JSON.parse(localStorage.getItem(LARGE_ARCHIVE_AUTH_KEY)||'null');
+    const rows=Number(marker?.rows||0);
+    return Number.isSafeInteger(rows)&&rows>1500?rows:0;
+  }catch(_){return 0;}
+}
 async function _persistPending(){
   if(!_pendingWrites.size)return _storageQueue;
   clearTimeout(_storageTimer);_storageTimer=null;
@@ -3421,6 +3446,11 @@ async function _persistPending(){
   for(const [k,v] of pending){if(k===VAULT_BLOB_KEY)continue;if(v===undefined)deleted.push(k);else records[k]=cloneData(k===SECURITY_CONFIG_KEY?cfg:v);}
   return _enqueuePersistence(async()=>{
     try{
+      // A stale tab must not publish even a new storage timestamp or plan state
+      // while its in-memory historical ledger predates a verified restoration.
+      const protectedRows=_largeArchiveMarkerRows();
+      if(protectedRows>1500&&!cfg.enabled&&_largeArchiveRows(_memStore)<protectedRows)
+        throw new Error('حماية الأرشيف: هذا التبويب يحمل نسخة قديمة من السجل. تم منع الحفظ للحفاظ على المستندات المستعادة.');
       if(cfg.enabled){
         if(!key||!snapshot)throw new Error('الخزنة مقفلة');
         const blob=await encryptVaultBlob(key,snapshot);

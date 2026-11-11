@@ -10,7 +10,7 @@ let chosenYear="auto";
 // when no fiscal year has ever been closed. Historical years remain selectable.
 // A newly closed current year can advance to the next open fiscal year.
 const yearResolved=()=>chosenYear==="auto"?(lastYear()&&Number(lastYear())>=Number(currentYear())?String(Number(lastYear())+1):currentYear()):chosenYear;
-const money=x=>Number(x||0).toLocaleString("en-US",{maximumFractionDigits:6});
+const money=x=>Number(x||0).toLocaleString("en-US",{maximumFractionDigits:2});
 const all=()=>getAllTransactions();
 const active=tx=>tx&&tx.status!=="deleted"&&tx.status!=="reversed";
 const dateYear=t=>dateOf(t).slice(0,4);

@@ -236,7 +236,7 @@
       if(card.classList.contains('spend-voucher'))return;
       const n=Number(summary?.dataset.base);
       const output=el('ratibCompoundAmountValue');
-      if(output)output.textContent=Number.isFinite(n)?n.toLocaleString('en-US',{maximumFractionDigits:6}):'—';
+      if(output)output.textContent=Number.isFinite(n)?n.toLocaleString('en-US',{maximumFractionDigits:2}):'—';
     };
     if(summary&&!compoundObserver){
       compoundObserver=new MutationObserver(sync);

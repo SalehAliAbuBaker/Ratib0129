@@ -1,9 +1,11 @@
 // Ratib 3.1.9: cache identity is unique to this app's scope.
-const CACHE_VERSION='v261-date-render-r1-v260-opening-mobile-clean-3.6.139-compound-compact-auto-signature-tafqit-cash-reference-amount-currency-compound-ref-simple-ref-totals-cash-colors-cash-preview-return-3.6.162-active-budget-callouts-r1-receipt-payment-separation-voucher-routing-3.6.165-alef-search-3.6.166-home-3.6.167-home-refine-3.6.168-fold-theme-dates-3.6.169-nav-custom-3.6.170-report-compact-direct-statement-header-safe-statement-dhikr-home-reports-settings-backup-controls-settings-report-tiles-home-size-report-single-grid-fix-ledger-date-filter-report-mobile-2col-footer-svg-hotfix-01-archive-safety-20261111-r2-recovery-statement-fastlookup-20261111-current-year-lazy-search-decimals-r1-statement-page50-v1-20261111-home-firstpaint-r1-20261111-adhkar7-warmaccounts-20261111-r1-3.6.177';
-const APP_RELEASE={"version":"3.6.177","build":"p17700","highlights":["إضافة البحث بالتاريخ داخل سجل العمليات باستخدام منتقي أم القرى","تصفية عمليات يوم محدد أو فترة عبر جميع السنوات والأرشيف"],"changes":["نجري بانتظام تحديثات لتحسين الموثوقية والأداء وإصلاح الأخطاء","حقل تاريخ العملية وحقل إلى تاريخ الاختياري وزر مسح مستقل","تطبيق البحث بالتاريخ مع البحث النصي وحالة السند ونوع المستند","شمول الأرشيف السنوي تلقائيًا عند اختيار التاريخ دون تغيير السندات","مراعاة التاريخ الهجري بأم القرى مع تخزين التاريخ الميلادي المعتمد","الإبقاء على وظائف تعديل وعرض وطباعة السندات دون مساس بالأرصدة"]};
+const CACHE_VERSION='v262-official-statement-layout-3.6.178';
+const APP_RELEASE={"version":"3.6.178","build":"p17800","highlights":["ترتيب كشف الحساب وجمع العملة وعدد العمليات بجانب إضافة عملية","تحسين تدرج الخط والأزرار وتخفيف تحديثات الواجهة"],"changes":["جمع ترتيب العرض وعدد البطاقات وتقليل ارتفاع أدوات كشف الحساب","فتح أدوات مطابقة الرصيد عند الطلب","تدرج متقارب لأحجام الخط والزر","عرض المبالغ بمنزلتين عشريتين"]};
 const CACHE_PREFIX=`ratib:${self.registration.scope}:`;
 const CACHE_NAME=CACHE_PREFIX+CACHE_VERSION;
 const APP_SHELL=[
+ "./ratib-statement-layout-3.6.178.css",
+ "./ratib-statement-layout-3.6.178.js",
   "./ratib-adhkar-20261111.js",
   "./ratib-adhkar-20261111.css",
   "./ratib-ledger-date-filter-3.6.177.js",

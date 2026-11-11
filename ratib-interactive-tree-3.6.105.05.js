@@ -11,7 +11,7 @@
  try{const saved=window.localStorage.getItem(SIMPLE_KEY);simpleView=saved===null?true:saved==='1';}catch(_){}
  function norm(s){return String(s==null?'':s).normalize('NFKC').replace(/[\u064b-\u065f\u0670]/g,'').trim().toLocaleLowerCase('ar');}
  function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(x){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[x];});}
- function money(n){return Number(n||0).toLocaleString('en-US',{maximumFractionDigits:6});}
+ function money(n){return Number(n||0).toLocaleString('en-US',{maximumFractionDigits:2});}
  function mk(kind,code,name,path,parent){
   const node={kind:kind,code:String(code||''),name:String(name||''),path:path||[],parent:parent||null,children:[],key:kind+':'+String(code||'')+':'+(path||[]).join('|')};
   nodes.set(node.key,node);return node;

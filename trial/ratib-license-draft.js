@@ -46,6 +46,7 @@
       // indicates a temporary service fault and must not revoke local activation.
       error.transient=response.status===408||response.status===429||response.status>=500;
       error.httpStatus=response.status;
+      error.code=result?.code||'';
       throw error;
     }
     return result;
@@ -53,6 +54,10 @@
 
   // Give the user an actionable, non-secret diagnostic; never echo a license key.
   function licenseCheckMessage(error) {
+    if (error?.httpStatus===404)
+      return 'تعذر العثور على سجل الترخيص في الخدمة. إذا سبق تفعيل هذا الجهاز فسيستمر عمله حتى نهاية الصلاحية المحفوظة، ويجب استعادة سجلات الخادم.';
+    if (error?.code==='DEVICE_BINDING_MISSING')
+      return 'سجل ارتباط الجهاز غير متاح في الخدمة. لا يلزم تجديد ترخيص سبق التحقق منه؛ يرجى استعادة سجل الارتباط.';
     if (Number(error?.httpStatus)>=500)
       return 'خدمة التراخيص غير متاحة حاليًا. لا حاجة لتجديد الترخيص، ويمكن إعادة المحاولة عند عودة الخدمة.';
     if (error?.httpStatus===429 || error?.httpStatus===408 || error instanceof TypeError)
@@ -133,17 +138,24 @@
       return true;
     } catch(err) {
       const transient=err?.transient===true || err instanceof TypeError;
+      // A missing D1 record is an uncertain backend state, not evidence of
+      // an explicit revocation. Protect only an ALREADY verified, unexpired device.
+      // An explicit revoked license/device (403 without a binding-missing code)
+      // remains a hard denial, even when an old local verification exists.
+      const uncertainRecord=err?.httpStatus===404 ||
+        (err?.httpStatus===403 && (err?.code==='DEVICE_BINDING_MISSING' ||
+          String(err?.message||'').includes('لم يُفعّل الترخيص على هذا الجهاز.')));
       s.lastCheckError=licenseCheckMessage(err);
       s.lastCheckAt=Date.now();
       // Preserve a previously server-verified, still-unexpired license only
       // for connection/service errors, never for explicit invalid/revoked responses.
-      if (transient && priorVerified && unexpired) {
+      if ((transient || uncertainRecord) && priorVerified && unexpired) {
         s.lastTransientCheckAt=Date.now();
         safeWrite(s);
         updateTrialCounter();
         return true;
       }
-      if (!transient) {
+      if (!transient && !uncertainRecord) {
         s.verifiedAt=0;s.checkedAt=0;s.lastTransientCheckAt=0;
       }
       // Persist the diagnostic even if an earlier release erased verifiedAt.

@@ -24,7 +24,14 @@ assert(html.includes("if(view.account){accountOpsState=cloneData(view.account)")
 const first=html.indexOf('function ratibAccountMovementNormalize(value){'),last=html.indexOf('function accountOpsMatchesSearch(',first);
 assert(first>0&&last>first);
 const testDoc=new JSDOM('<div id="accountOperationsStandalonePanel"><section class="account-currency-page" data-currency="YER"><div class="account-statement-table"><div class="account-statement-row" data-tx-id="1">نص أول</div><div class="account-statement-row" data-tx-id="2">نص ثان</div></div></section></div><input id="ratibAccountMovementSearchInput" type="search"><button id="ratibAccountMovementSearchClear"></button><small id="ratibAccountMovementSearchCount"></small>').window.document;
-const ctx={document:testDoc,accountOpsState:{movementSearch:''},getAccountOpsDate:t=>t.isoDate||'',getTransactionDisplayType:t=>t.type||''};
+const ctx={
+ document:testDoc,
+ accountOpsState:{accountName:'صندوق المؤسسة',scopeNames:['صندوق المؤسسة'],movementSearch:'',viewPages:{}},
+ accountOpsUi:{panelId:'accountOperationsStandalonePanel'},
+ getAccountOpsDate:t=>t.isoDate||'',getTransactionDisplayType:t=>t.type||'',
+ clearTimeout:()=>{},setTimeout:fn=>{fn();return 1;},
+ renderAccountOperations:()=>ctx.ratibApplyAccountMovementSearch(),
+};
 vm.createContext(ctx);vm.runInContext(html.slice(first,last),ctx);
 const tx1={id:'1',seqNum:78,isoDate:'2026-10-28',type:'سند قبض',beneficiary:'أحمد',reference:'MR-77',amount:1500,execution:{person:{note:'تحويل للصندوق'}}};
 const tx2={id:'2',seqNum:90,isoDate:'2026-10-29',type:'قيد بسيط',beneficiary:'صالح',reference:'AB-14',amount:250,execution:{person:{note:'مصاريف مكتبية'}}};

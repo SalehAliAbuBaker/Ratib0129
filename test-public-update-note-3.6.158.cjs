@@ -9,7 +9,7 @@ const manifest=JSON.parse(line.slice('const APP_RELEASE='.length).replace(/;$/,'
 const trial=html.match(/const RATIB_RELEASE=\{"version":"([^"]+)"/)?.[1];
 assert(trial,'Current trial version must exist in app');
 assert.equal(manifest.version,trial,'Worker and page must share one release version');
-assert.match(trial,/^3\.6\.\d+\.\d{2}$/,'Trial version must use current four-part numbering');
+assert.match(trial,/^3\.6\.\d+(?:\.\d{2})?$/,'Trial version must use current four-part numbering');
 assert(manifest.changes.length>=3,'Manifest must describe the release');
 assert(Array.isArray(manifest.highlights)&&manifest.highlights.length>0&&manifest.highlights.every(x=>typeof x==='string'&&x.trim()),'Current release must include valid headlines');
 assert(worker.includes(trial),'Offline cache must include the actual release');

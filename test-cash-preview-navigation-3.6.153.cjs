@@ -6,7 +6,7 @@ const css=fs.readFileSync('ratib-cash-reference-3.6.148.css','utf8');
 const html=fs.readFileSync('index.html','utf8');
 const sw=fs.readFileSync('sw.js','utf8');
 assert.equal(JSON.parse(fs.readFileSync('package.json','utf8')).version,'3.6.178');
-assert(html.includes('الإصدار 3.6.177'));
+assert(html.includes('الإصدار 3.6.178'));
 assert(html.includes('ratib-cash-reference-3.6.148.css?v=3.6.178'));
 assert(html.includes('ratib-cash-actions-3.6.135.js?v=3.6.178'));
 assert(html.includes('multiVoucherReturnScrollY=window.scrollY||0'));

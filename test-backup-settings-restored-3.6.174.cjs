@@ -31,7 +31,7 @@ const fixture='<html lang="ar"><head></head><body>'+
  '</div></body></html>';
 const dom=new JSDOM(fixture,{url:'https://ratib.test/',runScripts:'outside-only',pretendToBeVisual:true});
 const w=dom.window,d=w.document;
-w.RatibCommerce={version:'3.6.177'};w.HTMLElement.prototype.scrollIntoView=function(){};
+w.RatibCommerce={version:'3.6.178'};w.HTMLElement.prototype.scrollIntoView=function(){};
 w.scrollTo=()=>{};w.RatibButtonSizing={get:()=> 'medium',getFont:()=> 'medium'};
 w.eval(js);w.dispatchEvent(new w.Event('load'));
 const card=d.getElementById('ratibBackupSettingsCard'),editor=d.getElementById('ratibBottomNavSettings170'),help=d.getElementById('ratibSettingsHelp168');

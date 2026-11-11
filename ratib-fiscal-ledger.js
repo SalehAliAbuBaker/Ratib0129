@@ -26,6 +26,8 @@ function filtered(transactions){
   return year==="all"||dateYear(tx)===year;
  });
 }
+// The UI cache follows the resolved fiscal year, including annual close changes.
+window.ratibFiscalLedgerScopeKey=yearResolved;
 window.ratibFiscalVisibleLedgerTransactions=filtered;
 const $=id=>document.getElementById(id);
 const sel=document.createElement("select");

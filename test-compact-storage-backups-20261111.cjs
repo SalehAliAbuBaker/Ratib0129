@@ -48,6 +48,19 @@ async function main(){
   assert.equal(JSON.stringify(decoded),raw,'Lossless roundtrip preserves every ledger field');
   const small=[{month:'2026-11',transactions:[{id:'one'}]}];
   assert.equal(await codec.ratibEncodeArchive(small),small,'Small archives retain legacy format');
+  const unusual=history.slice();
+  unusual[0]={...unusual[0],transactions:[{id:'do-not-erase',undefinedField:undefined},
+    ...unusual[0].transactions]};
+  assert.equal(await codec.ratibEncodeArchive(unusual),unusual,
+    'Undefined fields must not be silently lost during compaction');
+  const dateArchive=history.slice();
+  dateArchive[0]={...dateArchive[0],createdAt:new Date('2026-11-11T00:00:00Z')};
+  assert.equal(await codec.ratibEncodeArchive(dateArchive),dateArchive,
+    'Date objects must remain structured-clone compatible');
+  const minusZero=history.slice();
+  minusZero[0]={...minusZero[0],balance:-0};
+  assert.equal(await codec.ratibEncodeArchive(minusZero),minusZero,
+    'Special numeric values must not be normalized');
 
   const payload={app:'ratib',schema:3,encrypted:false,
     data:{masar_plan:{month:'2026-11',transactions:[]},masar_history:history}};

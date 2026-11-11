@@ -71,6 +71,18 @@ async function main(){
  // Existing boot path must fail closed when authority marker differs from the physical archive.
  assert(html.includes('if(_largeArchiveRows(shadow)!==Number(archiveMarker.rows))'));
  assert(html.includes("throw new Error('توجد إشارة إلى أرشيف مستعاد"));
+ // Recovery must remain a user-approved, local-only file picker even on a blocked boot.
+ assert(html.includes('function showRatibArchiveRecovery()'));
+ assert(html.includes("showRatibArchiveRecovery();"));
+ const {JSDOM}=require('jsdom');
+ const dom=new JSDOM('<!doctype html><html lang="ar"><body></body></html>',{runScripts:'outside-only'});
+ const recoverySource=slice('function showRatibArchiveRecovery()', 'selfHealStorageFromIdb().then(boot)');
+ dom.window.eval(recoverySource+';this.showRatibArchiveRecovery=showRatibArchiveRecovery;');
+ dom.window.showRatibArchiveRecovery();
+ const recovery=dom.window.document.getElementById('ratibArchiveRecovery');
+ assert(recovery&&recovery.querySelector('input[type="file"]')&&recovery.querySelector('button'));
+ assert.equal(recovery.querySelector('input').accept,'.json,.gz,.json.gz,application/json,application/gzip');
+ dom.window.close();
  console.log('PASS: historic archive guarded against stale tabs, normal writes continue, corruption blocks writes');
 }
 main().then(()=>process.exit(0)).catch(e=>{console.error(e);process.exit(1)});

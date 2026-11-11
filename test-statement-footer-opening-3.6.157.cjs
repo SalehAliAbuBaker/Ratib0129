@@ -6,7 +6,7 @@ const html=fs.readFileSync('index.html','utf8');
 const css=fs.readFileSync('ratib-statement-footer-opening-3.6.157.css','utf8');
 const sw=fs.readFileSync('sw.js','utf8');
 const pkg=require('./package.json');
-assert.equal(pkg.version,'3.6.178');
+assert.equal(pkg.version,'3.6.179');
 assert(html.includes('ratib-statement-footer-opening-3.6.157.css?v=3.6.178'));
 assert(sw.includes('"./ratib-statement-footer-opening-3.6.157.css"'));
 assert(css.includes('grid-template-columns:minmax(0,1fr)!important'));

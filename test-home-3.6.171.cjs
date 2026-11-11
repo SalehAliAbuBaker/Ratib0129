@@ -2,7 +2,7 @@
 const assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('node:vm'),{JSDOM}=require('jsdom');
 const src=fs.readFileSync('ratib-home-3.6.171.js','utf8'),css=fs.readFileSync('ratib-home-3.6.171.css','utf8'),html=fs.readFileSync('index.html','utf8'),sw=fs.readFileSync('sw.js','utf8');
 new vm.Script(src);
-assert.equal(require('./package.json').version,'3.6.178');
+assert.equal(require('./package.json').version,'3.6.179');
 assert(html.includes('ratib-home-3.6.171.js?v=3.6.178')&&html.includes('ratib-home-3.6.171.css?v=3.6.178'));
 assert(sw.includes('./ratib-home-3.6.171.js')&&sw.includes('./ratib-home-3.6.171.css'));
 assert(css.includes('--rb-action-height')&&css.includes('#pageReports .ratib-report-action'),'Report buttons must use the same density variables');

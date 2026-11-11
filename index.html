@@ -8870,8 +8870,17 @@ function renderAccountOperations(accountName,scopeNames=null,ui=null){
     }).join('');
     return `<section class="account-currency-page" data-currency="${esc(currency)}" role="tabpanel" aria-label="حركات حساب ${esc(accountName)} ${esc(currency)}">${head}<div class="account-statement-table"><div class="account-statement-grid"><div class="account-statement-row header"><span>التاريخ</span><span>المستند</span><span>البيان</span><span>مدين</span><span>دائن</span><span>الرصيد</span></div>${openingRow}${rows}${totalsRows}</div></div>${txs.length?'':'<div class="accounts-empty">لا توجد عمليات بهذه العملة في الفترة المحددة.</div>'}<div class="ratib-statement-words">${esc(ratibStatementClosingText(closingBal,currency))}</div>${ratibStatementNoticeText()?'<p class="ratib-statement-notice">'+esc(ratibStatementNoticeText())+'</p>':''}</section>`;
   }).join('')}</div>`;
+  // A large restored ledger may contain 22,000+ accounting legs and thousands
+  // of statement rows. Build one read-only id index instead of scanning every
+  // transaction again for EACH rendered row (quadratic freeze on large accounts).
+  // Keep the FIRST occurrence, matching the previous Array.find() behavior.
+  const statementTxById=new Map();
+  for(const tx of getAllTransactions()){
+    const key=String(tx.id);
+    if(!statementTxById.has(key))statementTxById.set(key,tx);
+  }
   panel.querySelectorAll('[data-tx-id]').forEach(row=>{
-    const tx=getAllTransactions().find(x=>String(x.id)===String(row.dataset.txId));
+    const tx=statementTxById.get(String(row.dataset.txId));
     if(tx){if(accountOpsUi.panelId==='accountOperationsStandalonePanel')row.dataset.ratibMovementText=ratibAccountMovementSearchCorpus(tx,getAccountEntry(tx,scope),row.textContent);
       row.addEventListener('click',()=>openDocumentDetailsModal(tx));}
   });
@@ -12922,6 +12931,19 @@ document.addEventListener('scroll',e=>{if(!e.target.closest?.('.searchable-dropd
  function updateScreen(root){
   try{
    const v=read(),panels=[...root.querySelectorAll('.account-statement-grid')];
+   // Lazy, read-only lookup: the counterpart display must not scan 22,000+
+   // accounting legs once for EACH statement row.
+   let statementCounterpartIndex=null;
+   const findStatementTx=id=>{
+     if(!statementCounterpartIndex){
+       statementCounterpartIndex=new Map();
+       for(const tx of getAllTransactions()){
+         const key=String(tx.id);
+         if(!statementCounterpartIndex.has(key))statementCounterpartIndex.set(key,tx);
+       }
+     }
+     return statementCounterpartIndex.get(String(id));
+   };
    for(const grid of panels){
     const rows=grid.querySelectorAll(':scope > .account-statement-row');
     const count=5+Number(v.document)+Number(v.counterpart);
@@ -12933,7 +12955,7 @@ document.addEventListener('scroll',e=>{if(!e.target.closest?.('.searchable-dropd
       }
      }else if(row.hasAttribute('data-tx-id')){
       if(!row.querySelector('[data-statement-col="counterpart"]')){
-       const tx=getAllTransactions().find(t=>String(t.id)===row.dataset.txId);
+       const tx=findStatementTx(row.dataset.txId);
        const c=document.createElement('span');c.dataset.statementCol='counterpart';c.textContent=tx?counter(tx,accountOpsState.scopeNames):'—';cells[2]?.after(c);
       }
      }

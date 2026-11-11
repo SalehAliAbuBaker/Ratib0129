@@ -3341,6 +3341,8 @@ const store={
   _write(k,v,backup){
     if(getSecurityConfig().enabled&&!_vaultUnlocked)throw new Error('الخزنة مقفلة؛ لا يمكن الحفظ قبل فتحها.');
     const key=APP_STORAGE_PREFIX+k;_memStore[key]=v;_pendingWrites.set(key,v);scheduleStorageFlush();
+    // Read-only account pager index follows in-memory financial writes.
+    if(k==='plan'||k==='history'||k==='account_catalog')_ratibAccountsPagerRevision++;
     if(backup)scheduleAutoBackup();
   },
   remove(k){
@@ -9503,27 +9505,86 @@ function ratibAggregateOwner(t){
 }
 // Account pager index: one pass over posted accounting legs rather than scanning
 // 22,000 historical rows separately for every account and every currency.
-function ratibAccountsPagerActivityIndex(txs){
-  const result=new Map();
-  for(const t of txs){
-    if(!t)continue;
-    const names=new Set([t.debitAccount,t.creditAccount,t.isOpeningBalance?t.openingBalance?.account:null].filter(Boolean));
-    for(const name of names){
-      const e=getAccountEntry(t,[name]);
-      if(!e)continue;
-      const cur=e.currency||'YER';
-      let accounts=result.get(name);
-      if(!accounts){accounts=new Map();result.set(name,accounts);}
-      let item=accounts.get(cur);
-      if(!item){item={total:0,count:0,last:''};accounts.set(cur,item);}
-      item.total+=(e.side==='debit'?-1:1)*getAccountDisplayAmount(e);
-      item.count++;
-      const date=getAccountOpsDate(t);
-      if(date>item.last)item.last=date;
-    }
-  }
-  return result;
+// Cache is ephemeral and identity-bound: never store a computed balance in backups.
+let _ratibAccountsPagerRevision=0,_ratibAccountsPagerCache=null,_ratibAccountsPagerWarmInProgress=false;
+function ratibAccountsPagerCacheIdentity(){
+ return {plan:store.get('plan',null),history:store.get('history',[]),rev:_ratibAccountsPagerRevision};
 }
+function ratibAccountsPagerCacheMatches(identity){
+ const cache=_ratibAccountsPagerCache;
+ return !!cache&&cache.plan===identity.plan&&cache.history===identity.history&&cache.rev===identity.rev;
+}
+function ratibAccountsPagerIndexLeg(result,t){
+ if(!t||t.status==='reversed'||t.status==='deleted')return;
+ const names=new Set([t.debitAccount,t.creditAccount,t.isOpeningBalance?t.openingBalance?.account:null].filter(Boolean));
+ for(const name of names){
+   const e=getAccountEntry(t,[name]);
+   if(!e)continue;
+   const cur=e.currency||'YER';
+   let accounts=result.get(name);
+   if(!accounts){accounts=new Map();result.set(name,accounts);}
+   let item=accounts.get(cur);
+   if(!item){item={total:0,count:0,last:''};accounts.set(cur,item);}
+   item.total+=(e.side==='debit'?-1:1)*getAccountDisplayAmount(e);
+   item.count++;
+   const date=getAccountOpsDate(t);
+   if(date>item.last)item.last=date;
+ }
+}
+function ratibAccountsPagerActivityIndex(txs){
+ const result=new Map();
+ for(const t of txs)ratibAccountsPagerIndexLeg(result,t);
+ return result;
+}
+function ratibAccountsPagerCachedActivity(){
+ const identity=ratibAccountsPagerCacheIdentity();
+ if(ratibAccountsPagerCacheMatches(identity))return _ratibAccountsPagerCache.index;
+ const index=ratibAccountsPagerActivityIndex(getAllTransactions());
+ // Restoration may replace plan/history while indexing. Do not retain a stale index.
+ const now=ratibAccountsPagerCacheIdentity();
+ if(identity.plan===now.plan&&identity.history===now.history&&identity.rev===now.rev)
+   _ratibAccountsPagerCache={...identity,index};
+ return index;
+}
+// Build the account index in short idle slices after the financial app is unlocked.
+// The 22k accounting legs are read but never modified. User interaction and paint
+// remain responsive while opening the app; the pager reuses the finished index.
+function ratibWarmAccountsPagerIndex(){
+ if(!window.__ratibProceedInitialized||_ratibAccountsPagerWarmInProgress)return;
+ const identity=ratibAccountsPagerCacheIdentity();
+ if(ratibAccountsPagerCacheMatches(identity))return;
+ _ratibAccountsPagerWarmInProgress=true;
+ const txs=getAllTransactions(),index=new Map();
+ let offset=0;
+ const same=()=>{
+   const now=ratibAccountsPagerCacheIdentity();
+   return now.rev===identity.rev&&now.plan===identity.plan&&now.history===identity.history;
+ };
+ const schedule=()=>{
+   if(typeof requestIdleCallback==='function')requestIdleCallback(advance,{timeout:1600});
+   else setTimeout(()=>advance(null),24);
+ };
+ const advance=deadline=>{
+   if(!same()||ratibAccountsPagerCacheMatches(identity)){
+     _ratibAccountsPagerWarmInProgress=false;return;
+   }
+   // Processing is bounded per idle slice, not one 2–3 second UI-blocking loop.
+   const began=performance.now();
+   while(offset<txs.length){
+     ratibAccountsPagerIndexLeg(index,txs[offset++]);
+     if(offset%24===0&&(performance.now()-began>8||deadline?.timeRemaining?.()<1))break;
+   }
+   if(offset<txs.length){schedule();return;}
+   if(same())_ratibAccountsPagerCache={...identity,index};
+   _ratibAccountsPagerWarmInProgress=false;
+ };
+ schedule();
+}
+window.addEventListener('ratib:app-ready',()=>{
+ // Existing boot and financial reports are higher priority than this optional index.
+ setTimeout(ratibWarmAccountsPagerIndex,100);
+});
+
 function renderAccountsPager(){
   const tabs=document.getElementById('accountsPagerTabs'),track=document.getElementById('accountsPagerTrack');
   if(!tabs||!track)return;
@@ -9533,7 +9594,7 @@ function renderAccountsPager(){
   document.getElementById('accountsPagerCard')?.classList.toggle('ratib-simple-accounts-mode',simpleMode);
   const query=normalizeParentQuery(document.getElementById('accountsPagerSearchInput')?.value||'');
   const matches=(value)=>ratibAccountSearchMatch(value,query);
-  const activity=ratibAccountsPagerActivityIndex(getAllTransactions().filter(t=>t.status!=='reversed'&&t.status!=='deleted'));
+  const activity=ratibAccountsPagerCachedActivity();
   // لا تُخفِ الحسابات الرئيسية أو التجميعية التي لم تعد تحتها حسابات تفصيلية.
   const parentMatches=x=>[x.mainCode,x.main,x.groupCode,x.group,x.subCode,x.sub].some(matches);
   const mains=simpleMode?simpleApi.GROUPS.filter(group=>!query||

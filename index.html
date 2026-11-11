@@ -4776,8 +4776,7 @@ function openDashboardOperations(filter='all') {
   window.RatibLedgerDateFilter177?.clear(false);
   document.querySelectorAll('#ledgerStatusFilter .status-filter-btn').forEach(b => b.classList.toggle('active', b.dataset.status === 'all'));
   currentLedgerStatusFilter = 'all';
-  navigateToTab('pageLedger', true);
-  renderAllData();
+  navigateToTab('pageLedger', true); // navigateToTab renders the ledger once
   requestAnimationFrame(() => input?.focus());
 }
 let pendingLongPressTx = null;
@@ -9315,6 +9314,29 @@ function ratibAggregateOwner(t){
  if(!accountOpsState.aggregate)return '';
  return [...new Set([t.debitAccount,t.creditAccount].filter(name=>name&&accountOpsState.scopeNames.includes(name)))].join(' / ');
 }
+// Account pager index: one pass over posted accounting legs rather than scanning
+// 22,000 historical rows separately for every account and every currency.
+function ratibAccountsPagerActivityIndex(txs){
+  const result=new Map();
+  for(const t of txs){
+    if(!t)continue;
+    const names=new Set([t.debitAccount,t.creditAccount,t.isOpeningBalance?t.openingBalance?.account:null].filter(Boolean));
+    for(const name of names){
+      const e=getAccountEntry(t,[name]);
+      if(!e)continue;
+      const cur=e.currency||'YER';
+      let accounts=result.get(name);
+      if(!accounts){accounts=new Map();result.set(name,accounts);}
+      let item=accounts.get(cur);
+      if(!item){item={total:0,count:0,last:''};accounts.set(cur,item);}
+      item.total+=(e.side==='debit'?-1:1)*getAccountDisplayAmount(e);
+      item.count++;
+      const date=getAccountOpsDate(t);
+      if(date>item.last)item.last=date;
+    }
+  }
+  return result;
+}
 function renderAccountsPager(){
   const tabs=document.getElementById('accountsPagerTabs'),track=document.getElementById('accountsPagerTrack');
   if(!tabs||!track)return;
@@ -9324,6 +9346,7 @@ function renderAccountsPager(){
   document.getElementById('accountsPagerCard')?.classList.toggle('ratib-simple-accounts-mode',simpleMode);
   const query=normalizeParentQuery(document.getElementById('accountsPagerSearchInput')?.value||'');
   const matches=(value)=>ratibAccountSearchMatch(value,query);
+  const activity=ratibAccountsPagerActivityIndex(getAllTransactions().filter(t=>t.status!=='reversed'&&t.status!=='deleted'));
   // لا تُخفِ الحسابات الرئيسية أو التجميعية التي لم تعد تحتها حسابات تفصيلية.
   const parentMatches=x=>[x.mainCode,x.main,x.groupCode,x.group,x.subCode,x.sub].some(matches);
   const mains=simpleMode?simpleApi.GROUPS.filter(group=>!query||
@@ -9343,24 +9366,22 @@ function renderAccountsPager(){
     tab.addEventListener('click',()=>{const slide=track.children[index];slide?.scrollIntoView({behavior:'smooth',inline:'start',block:'nearest'});setAccountsPagerActive(index)});tabs.appendChild(tab);
     const slide=document.createElement('section');slide.className='accounts-pager-slide';slide.role='tabpanel';slide.setAttribute('aria-label',main.main);
     const title=document.createElement('div');title.className='accounts-pager-slide-title';
-    const activeTxs=getAllTransactions().filter(t=>t.status!=='reversed'&&t.status!=='deleted');
-    const latest={};activeTxs.forEach(t=>{const date=t.isoDate||t.date||'';[t.debitAccount,t.creditAccount].filter(Boolean).forEach(n=>{if(!latest[n]||date>latest[n])latest[n]=date;});});
+    // Balances, currency availability and last movements were indexed in one pass.
     const baseItems=catalog.filter(x=>simpleMode?simpleApi.classify(x)===main.mainCode:x.main===main.main)
       .flatMap(x=>x.details.filter(d=>simpleMode?
         (!query||matches(main.main+' '+(simpleApi.GROUPS.find(g=>g.id===main.mainCode)?.hint||''))||matches([d[0],d[1]].join(' '))):
         matches(`${d[0]} ${d[1]} ${x.mainCode} ${x.main} ${x.groupCode} ${x.group} ${x.subCode} ${x.sub}`))
       .map(d=>({code:d[0],name:d[1],level:'المستوى الرابع — تفصيلي (يقبل الحركة)',path:simpleMode?'':`${x.main} > ${x.group} > ${x.sub}`,main:x.main})));
     const accountItems=[];
-    const currencyBalance=(name,currency)=>{let total=0,count=0,last='';activeTxs.forEach(t=>{const e=getAccountEntry(t,[name]);if(!e)return;const c=e.currency||'YER';if(c!==currency)return;total+=(e.side==='debit'?-1:1)*getAccountDisplayAmount(e);count++;const d=getAccountOpsDate(t);if(d>last)last=d;});return {total,count,last};};
     baseItems.forEach(base=>{
-      const currencies=[...new Set(activeTxs.map(t=>getAccountEntry(t,[base.name])?.currency||'').filter(Boolean))];
+      const currencies=[...(activity.get(base.name)?.keys()||[])];
       const foreign=currencies.filter(c=>c!=='YER');
       if(foreign.length){
         if(currencies.includes('YER'))accountItems.push({...base,currency:'YER',currencyLabel:''});
         foreign.forEach(c=>accountItems.push({...base,currency:c,currencyLabel:c}));
       }else accountItems.push({...base,currency:'YER',currencyLabel:''});
     });
-    accountItems.forEach(a=>{const x=currencyBalance(a.name,a.currency);a.currencyTotal=x.total;a.currencyCount=x.count;a.currencyLast=x.last;});
+    accountItems.forEach(a=>{const x=activity.get(a.name)?.get(a.currency)||{total:0,count:0,last:''};a.currencyTotal=x.total;a.currencyCount=x.count;a.currencyLast=x.last;});
     accountItems.sort((a,b)=>{const ad=a.currencyLast||'',bd=b.currencyLast||'';return (bd?1:0)-(ad?1:0)||bd.localeCompare(ad)||a.name.localeCompare(b.name,'ar')||a.currency.localeCompare(b.currency);});
     title.innerHTML=`<span>${simpleMode?esc(main.main):'حسابات '+esc(main.main)}</span><small>${accountItems.length} حساب / عملة</small>`;slide.appendChild(title);
     if(!query&&!simpleMode){const picker=document.createElement('details');picker.style.cssText='margin:8px 0;padding:9px;border:1px solid var(--border);border-radius:10px';const label=document.createElement('summary');label.textContent='كشوف الحسابات الرئيسية والتجميعية والفرعية';label.style.cssText='cursor:pointer;font-weight:700';picker.append(label);ratibAggregateParents(catalog,main).forEach(p=>picker.append(ratibAggregateCard(p)));slide.append(picker);}
@@ -9762,11 +9783,10 @@ function proceedAppInit() {
   navigateToTab('pageDashboard', false);
   initCarousels();
   // Dashboard was already calculated by navigateToTab; avoid a redundant full-history scan.
-  renderAllData();
+  // Render ledger only when its tab is opened; account trees when their settings/tabs are opened.
+  // The dashboard has already been updated by navigateToTab, so avoid an extra full-history scan.
   draftCats = JSON.parse(JSON.stringify(getCats(true)));
   renderCategoryRows();
-  renderCanonicalChartOfAccounts();
-  initCanonicalLiveAccountsTreePage();
   initCompatibilityImprovements();
   initLegacyImport();
   initTrialMulticurrency();

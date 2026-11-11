@@ -83,3 +83,47 @@ jobs:
           path: compact-preview-benchmark.json
           retention-days: 7
           if-no-files-found: ignore
+
+  publish-preview:
+    needs: isolated-smoke
+    runs-on: ubuntu-latest
+    # An explicit non-production branch always targets a Pages preview, never live.
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Build privacy-safe static preview bundle
+        run: |
+          node - <<'NODE'
+          const {execFileSync}=require('child_process'),fs=require('fs'),path=require('path');
+          const tracked=execFileSync('git',['ls-files','-z']).toString().split('\0').filter(Boolean);
+          const isAsset=f=>/\.(?:html|js|css|json|png|svg|ico|webp|woff2|ttf)$/i.test(f)
+            && !/(?:^|\/)(?:tools|cloudflare|trial|\.github|node_modules)\//.test(f)
+            && !/(?:^|\/)test-[^/]+/.test(f)
+            && !/(?:^|\/)package(?:-lock)?\.json$/.test(f);
+          let count=0;
+          for(const file of tracked.filter(isAsset)){
+            const dest=path.join('dist',file);
+            fs.mkdirSync(path.dirname(dest),{recursive:true});fs.copyFileSync(file,dest);count++;
+          }
+          if(!fs.existsSync('dist/index.html')||!fs.existsSync('dist/sw.js'))
+            throw Error('Missing production app shell');
+          const html=fs.readFileSync('dist/index.html','utf8');
+          if(!html.includes('ratibCompactExistingArchive'))
+            throw Error('Preview bundle is missing the compact-storage fix');
+          console.log('Safe preview assets:',count,'files; production and user data untouched');
+          NODE
+      - name: Deploy to a separate Cloudflare Pages preview branch only when authorized secrets exist
+        run: |
+          if [ -z "$CLOUDFLARE_API_TOKEN" ] || [ -z "$CLOUDFLARE_ACCOUNT_ID" ]; then
+            echo "SKIPPED: Cloudflare deployment secrets are unavailable in this repository."
+            echo "No deployment was attempted; verified branch and tests remain available."
+            exit 0
+          fi
+          npx --yes wrangler@4 pages deploy dist \
+            --project-name=ratibtrial \
+            --branch=preview/ratib-compact-20261111

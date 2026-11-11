@@ -4,8 +4,12 @@ const dateOf=t=>String(t?.isoDate||t?.date|| (t?.timestamp?new Date(t.timestamp)
 const closings=()=>store.get("annual_closures_v1",{})||{};
 const activeClosings=()=>Object.values(closings()).sort((a,b)=>Number(a.year)-Number(b.year));
 const lastYear=()=>activeClosings().at(-1)?.year||"";
+const currentYear=()=>String(new Date().getFullYear());
 let chosenYear="auto";
-const yearResolved=()=>chosenYear==="auto"?(lastYear()?String(Number(lastYear())+1):"all"):chosenYear;
+// Open the operations register in the actual calendar year by default, even
+// when no fiscal year has ever been closed. Historical years remain selectable.
+// A newly closed current year can advance to the next open fiscal year.
+const yearResolved=()=>chosenYear==="auto"?(lastYear()&&Number(lastYear())>=Number(currentYear())?String(Number(lastYear())+1):currentYear()):chosenYear;
 const money=x=>Number(x||0).toLocaleString("en-US",{maximumFractionDigits:6});
 const all=()=>getAllTransactions();
 const active=tx=>tx&&tx.status!=="deleted"&&tx.status!=="reversed";
@@ -49,7 +53,7 @@ const style=document.createElement("style");style.textContent=`
 @media print{#ratibFiscalLedgerBar{display:none!important}}`;
 document.head.append(style);
 function allYears(){
- const years=new Set(all().map(dateYear).filter(x=>/^\d{4}$/.test(x)));
+ const years=new Set([currentYear(),...all().map(dateYear).filter(x=>/^\d{4}$/.test(x))]);
  for(const y of Object.keys(closings())){years.add(y);years.add(String(Number(y)+1));}
  return [...years].sort((a,b)=>Number(b)-Number(a));
 }
@@ -57,8 +61,9 @@ function refreshOptions(){
  const year=yearResolved();
  const years=allYears();
  const options=[];
- if(lastYear())options.push({value:"auto",label:`${String(Number(lastYear())+1)} — السنة الجديدة (الرصيد المُدوّر)`});
- else options.push({value:"auto",label:"جميع السنوات — لم تُغلق أي سنة بعد"});
+ if(lastYear()&&yearResolved()===String(Number(lastYear())+1))
+  options.push({value:"auto",label:`${yearResolved()} — السنة المفتوحة الحالية (الرصيد المُدوّر)`});
+ else options.push({value:"auto",label:`${yearResolved()} — السنة الحالية (افتراضي)`});
  for(const y of years){
   if(lastYear()&&y===String(Number(lastYear())+1))continue;
   const item=closings()[y];

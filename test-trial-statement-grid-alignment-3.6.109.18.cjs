@@ -1,7 +1,7 @@
 'use strict';
 const assert=require('node:assert/strict'),fs=require('node:fs'),{JSDOM}=require('jsdom');
 const html=fs.readFileSync('index.html','utf8'),css=fs.readFileSync('ratib-statement-grid-alignment.css','utf8'),sw=fs.readFileSync('sw.js','utf8');
-assert(html.includes('ratib-statement-grid-alignment.css?v=3.6.109.19'));
+assert(html.includes('ratib-statement-grid-alignment.css?v=3.6.178'));
 assert(sw.includes('"./ratib-statement-grid-alignment.css"'));
 assert(css.includes('var(--ratib-statement-aligned-columns'));
 assert(css.includes('white-space:nowrap!important'));

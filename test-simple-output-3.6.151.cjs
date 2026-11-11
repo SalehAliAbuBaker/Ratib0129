@@ -6,7 +6,7 @@ const html=fs.readFileSync('index.html','utf8');
 const sw=fs.readFileSync('sw.js','utf8');
 const pkg=JSON.parse(fs.readFileSync('package.json','utf8'));
 assert.doesNotThrow(()=>new Function(src));
-assert.equal(pkg.version,'3.6.178');
+assert.equal(pkg.version,'3.6.179');
 const doc=new JSDOM('<!doctype html><html><body><div id="printVoucherContainer"><div class="pv-header"><h1 id="pvOrgName"></h1><p id="pvOrgDetails"></p></div><div class="pv-title" id="pvVoucherTitle"></div><div class="pv-grid"><span id="pvDate"></span><span id="pvAmount"></span></div>'+
  ['pvDebit','pvCredit','pvTafqit','pvNote','pvTableBox','pvRecipientRow','pvRecipientSignRow'].map(id=>'<div id="'+id+'"></div>').join('')+'<div class="pv-signatures"></div></div></body></html>');
 const texts=[],sigs=[],landscape=[],logo=[];

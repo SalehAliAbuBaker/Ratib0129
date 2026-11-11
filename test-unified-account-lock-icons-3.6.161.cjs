@@ -8,7 +8,7 @@ const css=fs.readFileSync('ratib-account-lock-unified-3.6.161.css','utf8');
 const html=fs.readFileSync('index.html','utf8'),sw=fs.readFileSync('sw.js','utf8');
 const pkg=require('./package.json');
 const buttonIds=['lockDebitAccBtn','lockCreditAccBtn','ratibLockSource','ratibLockCounter'];
-assert.equal(pkg.version,'3.6.178');
+assert.equal(pkg.version,'3.6.179');
 assert(html.includes('ratib-account-lock-unified-3.6.161.css?v=3.6.178'));
 assert(html.includes('ratib-account-lock-unified-3.6.161.js?v=3.6.178'));
 assert(sw.includes('"version":"3.6.178"'));

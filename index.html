@@ -3372,6 +3372,7 @@ async function _writeShadowRecords(records,deleted=[],replace=false){
         const incomingRows=incomingHistory?_largeArchiveRows(records):committedRows;
         if(committedRows<minimumRows||incomingRows<minimumRows||deleted.includes(APP_STORAGE_PREFIX+'history')){
           archiveWriteError=new Error('حماية الأرشيف: تعارض بين نسخة المتصفح والأرشيف الكامل. تم منع الكتابة؛ احتفظ بالنسخة الاحتياطية وأغلق أي تبويب قديم لراتب.');
+          archiveWriteError.code='RATIB_ARCHIVE_INTEGRITY';
           tx.abort();return;
         }
         write();
@@ -3396,7 +3397,12 @@ function _mirrorRecords(records,deleted=[],replace=false){
 }
 async function _persistRecords(records,deleted=[],replace=false){
   let idbOK=false,localOK=false,idbError,localError;
-  try{await _writeShadowRecords(records,deleted,replace);idbOK=true;}catch(e){idbError=e;}
+  try{await _writeShadowRecords(records,deleted,replace);idbOK=true;}catch(e){
+    // An integrity abort is NOT a quota error. Never report a successful save
+    // merely because the stale localStorage fallback accepted a partial ledger.
+    if(e?.code==='RATIB_ARCHIVE_INTEGRITY')throw e;
+    idbError=e;
+  }
   const localReplacement=replace||!idbOK;
   let mirrored=records;
   if(!replace&&!idbOK){

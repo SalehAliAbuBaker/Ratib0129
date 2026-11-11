@@ -61,7 +61,7 @@ async function main(){
  // Guard cannot silently accept a mismatched committed archive either.
  await write({masar_history:stale},[],true); // Explicit replacement path, e.g. a user-approved restore
  await assert.rejects(write({masar_theme:'light'},[],false),/حماية الأرشيف/);
- assert.equal(await read('masar_theme'),'dark');
+ assert.equal(await read('masar_theme'),undefined,'Explicit replacement correctly removes old preference keys');
 
  // Existing boot path must fail closed when authority marker differs from the physical archive.
  assert(html.includes('if(_largeArchiveRows(shadow)!==Number(archiveMarker.rows))'));

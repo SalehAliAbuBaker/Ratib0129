@@ -7,9 +7,9 @@ const sw=fs.readFileSync('sw.js','utf8');
 const css=fs.readFileSync('ratib-trial-voucher-statement-3.6.125.css','utf8');
 const js=fs.readFileSync('ratib-trial-voucher-statement-3.6.125.js','utf8');
 const pkg=require('./package.json');
-assert.equal(pkg.version,'3.6.178');
-assert(html.includes('const RATIB_RELEASE={"version":"3.6.178","build":"p17800"'));
-assert(sw.includes('const APP_RELEASE={"version":"3.6.178","build":"p17800"'));
+assert.equal(pkg.version,'3.6.179');
+assert(html.includes('const RATIB_RELEASE={"version":"3.6.179","build":"p17900"'));
+assert(sw.includes('const APP_RELEASE={"version":"3.6.179","build":"p17900"'));
 assert(sw.includes("v260-opening-mobile-clean-3.6.139"));
 for(const file of ['ratib-trial-voucher-statement-3.6.125.js','ratib-trial-voucher-statement-3.6.125.css']){
   assert(html.includes('./'+file+'?v=3.6.139'),'Versioned new asset '+file);

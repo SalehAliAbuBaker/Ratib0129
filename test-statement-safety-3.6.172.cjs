@@ -2,7 +2,7 @@
 const assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('node:vm'),{JSDOM}=require('jsdom');
 const js=fs.readFileSync('ratib-statement-safety-3.6.172.js','utf8'),css=fs.readFileSync('ratib-statement-safety-3.6.172.css','utf8'),html=fs.readFileSync('index.html','utf8'),sw=fs.readFileSync('sw.js','utf8');
 new vm.Script(js);
-assert.equal(require('./package.json').version,'3.6.178');
+assert.equal(require('./package.json').version,'3.6.179');
 for(const f of ['ratib-statement-safety-3.6.172.js','ratib-statement-safety-3.6.172.css']){
  assert(html.includes(f+'?v=3.6.178'),f+' included in HTML');
  assert(sw.includes('./'+f),f+' cached offline');

@@ -11,7 +11,7 @@ const end = html.indexOf('function normalizeTransaction(tx)', start);
 assert(start > 0 && end > start, 'The original Ratib cloud integration must remain in place');
 const cloud = html.slice(start, end);
 
-function fixture() {
+function fixture({compressed=false}={}) {
   const saved = { cloud_backup_cfg: { enabled: true, email: '', time: '00:00', lastDate: '', lastTime: '', lastError: '' } };
   const state = { posts: 0, metadataGets: 0, snapshots: 0, remote: false, mode: 'normal', notifications: [], requestUrls: [], lastSaved: null, confirmed: true };
   const status = { textContent: '' }, last = { textContent: '' }, warn = { textContent: '', style: {} };
@@ -39,7 +39,7 @@ function fixture() {
       if (state.mode === 'metadataUnavailable') throw new TypeError('Google Drive temporarily offline');
       const pending = saved.cloud_backup_cfg.pendingUpload;
       const bytes = state.mode === 'wrongSize' ? pending.bytes - 1 : pending.bytes;
-      return response({ id: 'backup-1', name: pending.name, parents: ['folder-official'], size: String(bytes), mimeType: 'application/json', trashed: false });
+      return response({ id: 'backup-1', name: pending.name, parents: ['folder-official'], size: String(bytes), mimeType: /\.gz$/.test(pending.name)?'application/gzip':'application/json', trashed: false });
     }
     if (url.includes('/drive/v3/files?') && method === 'GET') {
       const query = new URL(url).searchParams.get('q') || '';
@@ -50,7 +50,7 @@ function fixture() {
     throw new Error('Unexpected Google API endpoint: ' + method + ' ' + url);
   };
   const context = {
-    crypto: webcrypto, TextEncoder, URL, AbortController, setTimeout, clearTimeout, encodeURIComponent,
+    crypto: webcrypto, TextEncoder, Blob, URL, AbortController, setTimeout, clearTimeout, encodeURIComponent,
     location: { protocol: 'https:', hostname: 'ratibtrial.pages.dev' },
     navigator: { onLine: true }, window: { google: null },
     document: { getElementById: id => documents[id] || null, activeElement: null },
@@ -61,6 +61,10 @@ function fixture() {
     showTransientAppNotice: () => {},
     backupStamp: () => 'test-fixture',
     buildBackupPayload: async () => { state.snapshots++; return { app: 'ratib', schema: 3, encrypted: true, blob: { iv: 'iv', data: 'fixture' } }; },
+    ratibPackBackup: async payload => {
+      const blob=new Blob([JSON.stringify(payload)]);
+      return {blob,extension:compressed?'.json.gz':'.json',mime:compressed?'application/gzip':'application/json',rawBytes:blob.size};
+    },
     flushStorage: async () => {},
     confirm: () => state.confirmed,
     console: { warn() {}, error() {} }
@@ -86,6 +90,15 @@ function fixture() {
     assert(status.textContent.includes('✅'));
     assert(last.textContent.includes('test-fixture.json'));
     assert(state.snapshots === 1);
+  }
+  // Compressed uploads must be verified with gzip MIME and exact stored byte size.
+  {
+    const {f,state,saved}=fixture({compressed:true});
+    assert.equal(await f.runCloudBackup(true),true);
+    assert.equal(state.posts,1);
+    assert.equal(state.metadataGets,1);
+    assert(saved.cloud_backup_cfg.lastFileName.endsWith('.json.gz'));
+    assert.equal(saved.cloud_backup_cfg.lastStatus,'verified');
   }
   // If post-upload verification fails, preserve the last known success and the pending id.
   // A second request first verifies the existing file rather than uploading a duplicate.

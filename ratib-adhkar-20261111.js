@@ -58,6 +58,11 @@
    const screen=byId('lockScreen'),content=screen?.querySelector('.lock-content');
    if(!content)return;
    const el=banner(content,'ratibLoginDhikr');write(el);
+   if(chosen&&el){
+     const hide=()=>{el.classList.remove('ratib-dhikr-visible');el.hidden=true;};
+     el.querySelector('.ratib-dhikr-text')?.addEventListener('animationend',hide,{once:true});
+     setTimeout(hide,7000);
+   }
  }
  function homeBanner(){
    if(started||!window.__ratibProceedInitialized)return;

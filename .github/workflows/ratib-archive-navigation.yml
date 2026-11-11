@@ -1,0 +1,24 @@
+name: Ratib archive navigation and decimal display smoke check
+
+on:
+  pull_request:
+    paths:
+      - index.html
+      - ratib-accounting-3.6.59.js
+      - ratib-special-reports-3.6.102.js
+      - ratib-fiscal-ledger.js
+      - ratib-cash-reference-3.6.148.js
+      - test-archive-navigation-decimals.cjs
+      - .github/workflows/ratib-archive-navigation.yml
+  workflow_dispatch:
+
+jobs:
+  archive-display:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Test preserved document link and two-decimal display
+        run: node test-archive-navigation-decimals.cjs

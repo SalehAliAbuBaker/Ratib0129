@@ -8,7 +8,7 @@ function amount(value){
  const n=Number(String(value??0).replace(/,/g,''));
  return Number.isFinite(n)?n:0;
 }
-function money(value){return amount(value).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:6});}
+function money(value){return amount(value).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});}
 function currencyName(code){
  try{return accountCurrencyLabel(code)||code||'';}catch(_){return code||'';}
 }

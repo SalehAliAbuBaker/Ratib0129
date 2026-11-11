@@ -3423,6 +3423,44 @@ async function _readShadowRecords(){
   if(out[key]?.__ratibArchiveGzip===1)out[key]=await ratibDecodeArchive(out[key]);
   return out;
 }
+// Background, one-time compaction of an existing large archive. The timestamp is
+// rechecked inside a read-write transaction, so another tab's newer changes win.
+async function ratibCompactExistingArchive(){
+  if(!_largeArchiveAuthority||typeof CompressionStream!=='function')return false;
+  await _storageQueue;
+  const db=await _openBackupIdb(),key='shadow_'+APP_STORAGE_PREFIX+'history',metaKey='shadow_'+STORAGE_META_KEY;
+  const snapshot=await new Promise((resolve,reject)=>{
+    const tx=db.transaction('handles','readonly'),os=tx.objectStore('handles');
+    const archive=os.get(key),meta=os.get(metaKey);
+    tx.oncomplete=()=>resolve({archive:archive.result,meta:meta.result});
+    tx.onerror=tx.onabort=()=>reject(tx.error||new Error('تعذرت قراءة الأرشيف للضغط'));
+  });
+  if(!Array.isArray(snapshot.archive)||_largeArchiveRows({[APP_STORAGE_PREFIX+'history']:snapshot.archive})<=1500)return false;
+  const packed=await ratibEncodeArchive(snapshot.archive);
+  if(!ratibIsPackedArchive(packed))return false;
+  let updated=false;
+  await _enqueuePersistence(async()=>{
+    const database=await _openBackupIdb();
+    await new Promise((resolve,reject)=>{
+      const tx=database.transaction('handles','readwrite'),os=tx.objectStore('handles');
+      const metaReq=os.get(metaKey);
+      metaReq.onsuccess=()=>{
+        if(metaReq.result?.updatedAt!==snapshot.meta?.updatedAt)return;
+        const archiveReq=os.get(key);
+        archiveReq.onsuccess=()=>{
+          const current=archiveReq.result;
+          const rows=_largeArchiveRows({[APP_STORAGE_PREFIX+'history']:current});
+          const initialRows=_largeArchiveRows({[APP_STORAGE_PREFIX+'history']:snapshot.archive});
+          if(!Array.isArray(current)||rows!==initialRows)return;
+          os.put(packed,key);updated=true;
+        };
+      };
+      tx.oncomplete=()=>resolve();
+      tx.onerror=tx.onabort=()=>reject(tx.error||new Error('تعذر ضغط الأرشيف الحالي'));
+    });
+  });
+  return updated;
+}
 async function _writeShadowRecords(records,deleted=[],replace=false){
   // Compression must happen before opening an IDB transaction; otherwise the
   // transaction could auto-commit while awaiting the compression stream.
@@ -3598,9 +3636,13 @@ async function selfHealStorageFromIdb(){
   if(source!==local||stage){
     const archive=source[APP_STORAGE_PREFIX+'history'];
     const shadowLarge=source===shadow&&Array.isArray(archive)&&archive.reduce((n,h)=>n+(h?.transactions?.length||0),0)>1500;
-    // Do not mirror 50 MB back into quota-limited localStorage on startup.
+    // Do not mirror large data back into quota-limited localStorage on startup.
     if(!shadowLarge)try{await _persistRecords(source,[],true);}catch(e){console.warn('تعذر إصلاح النسخة المحلية',e);}
   }
+  // Compact legacy IndexedDB archives in place without altering the ledger in memory.
+  // A competing update cancels this migration rather than overwriting new records.
+  if(_largeArchiveAuthority&&typeof CompressionStream==='function')
+    setTimeout(()=>ratibCompactExistingArchive().catch(e=>console.warn('تعذر ضغط الأرشيف الحالي؛ لم تتغير البيانات',e)),5000);
 }
 async function enableVaultEncryption(pin){
   await flushStorage();

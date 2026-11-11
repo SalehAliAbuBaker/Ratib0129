@@ -98,7 +98,7 @@ async function main(){
   context._enqueuePersistence=job=>job();
   const rowsSource=snippet('function _largeArchiveRows(records)','function _largeArchiveMarkerRows()');
   const migration=snippet('async function ratibCompactExistingArchive()','async function _writeShadowRecords(');
-  vm.runInNewContext(rowsSource+'\\n'+migration+'\\nthis.compactExisting=ratibCompactExistingArchive;',context);
+  vm.runInNewContext(rowsSource+'\n'+migration+'\nthis.compactExisting=ratibCompactExistingArchive;',context);
   await save(history,1);
   assert.equal(await context.compactExisting(),true,'Old archive is compacted atomically');
   assert.equal((await get('masar_history')).__ratibArchiveGzip,1);

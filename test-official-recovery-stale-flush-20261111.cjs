@@ -73,7 +73,8 @@ async function run(){
  const a=fixture();
  assert.equal(await a.state.importBackupFile(file),false,'Normal restore must remain blocked by stale storage');
  assert.equal(a.flushes,1);assert.equal(a.commits,0);
- assert.equal(await a.state.importBackupFile(file,{archiveRecovery:true}),true,'Authorized recovery should bypass blocked stale flush');
+ const recovered=await a.state.importBackupFile(file,{archiveRecovery:true});
+ assert.equal(recovered,true,'Authorized recovery should bypass blocked stale flush: '+JSON.stringify({notices:a.notices,flushes:a.flushes,commits:a.commits,confirms:a.confirms.length}));
  assert.equal(a.flushes,1,'Recovery must not flush old memory');
  assert.equal(a.commits,1);
  assert.equal(a.state._pendingWrites.size,0);

@@ -6,7 +6,7 @@ const styles=fs.readFileSync('ratib-cash-pulse-dual-ring-3.6.162.css','utf8');
 const sourcePulse=fs.readFileSync('ratib-cash-pulse.js','utf8');
 const html=fs.readFileSync('index.html','utf8');
 const sw=fs.readFileSync('sw.js','utf8');
-assert.equal(require('./package.json').version,'3.6.178');
+assert.equal(require('./package.json').version,'3.6.179');
 assert(sw.includes('ratib-cash-pulse-dual-ring-3.6.162.js'));
 assert(sw.includes('ratib-cash-pulse-dual-ring-3.6.162.css'));
 assert(html.includes('ratib-cash-pulse-dual-ring-3.6.162.js?v=3.6.178'));

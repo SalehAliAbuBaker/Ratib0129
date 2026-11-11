@@ -9,7 +9,7 @@ const pkg=require('./package.json');
 const fontRegular=path.join(__dirname,'vendor/ratib-tajawal-regular.ttf');
 const fontBold=path.join(__dirname,'vendor/ratib-tajawal-bold.ttf');
 const bundle=path.join(__dirname,'vendor/ratib-pdfmake-0.2.23.min.js');
-assert.equal(pkg.version,'3.6.178');
+assert.equal(pkg.version,'3.6.179');
 assert.equal(pkg.devDependencies.pdfmake,'0.2.23');
 assert(fs.statSync(bundle).size>400000,'Offline PDF engine must be vendored');
 assert(fs.statSync(fontRegular).size>40000,'Full Arabic regular font must be vendored');

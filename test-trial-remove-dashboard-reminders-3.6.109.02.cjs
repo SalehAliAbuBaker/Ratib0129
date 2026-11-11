@@ -2,7 +2,7 @@
 const fs=require('node:fs'),assert=require('node:assert/strict'),vm=require('node:vm'),{JSDOM}=require('jsdom');
 const read=x=>fs.readFileSync(x,'utf8');
 const html=read('index.html'),home=read('ratib-trial-home-sidebar-3.6.143.js'),fav=read('ratib-favorites-v3.js'),feedback=read('ratib-feedback-3.6.149.js'),worker=read('sw.js'),currency=read('ratib-country-currency-3.6.151.js'),pkg=require('./package.json');
-assert.match(pkg.version,/^3\.6\.109\.\d{2}$/);
+assert.match(pkg.version,/^3\.6\.178$/);
 assert(html.includes('const RATIB_RELEASE={"version":"'+pkg.version+'"'));
 assert(worker.match(/const CACHE_VERSION='([^']+)'/)?.[1].endsWith('-'+pkg.version));
 assert(worker.includes('"version":"'+pkg.version+'"'));

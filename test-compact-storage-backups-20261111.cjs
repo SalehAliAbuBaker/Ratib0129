@@ -19,9 +19,9 @@ const context={
   APP_STORAGE_PREFIX:'masar_',Error,
 };
 vm.runInNewContext(
-  'function _b64(v){return Buffer.from(v).toString("base64")}\\n'+
-  'function _fromB64(v){return Uint8Array.from(Buffer.from(v,"base64"))}\\n'+
-  gzip+'\\n'+archive+'\\n'+
+  'function _b64(v){return Buffer.from(v).toString("base64")}\n'+
+  'function _fromB64(v){return Uint8Array.from(Buffer.from(v,"base64"))}\n'+
+  gzip+'\n'+archive+'\n'+
   'this.codec={ratibPackBackup,ratibGzipBlob,ratibGunzipText,ratibEncodeArchive,ratibDecodeArchive,ratibIsPackedArchive,encryptVaultBlob,decryptVaultBlob};',context
 );
 const codec=context.codec;

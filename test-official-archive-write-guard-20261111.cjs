@@ -12,6 +12,8 @@ const slice=(a,b)=>{
   return html.slice(start,end);
 };
 const writes=slice('async function _writeShadowRecords(records','function _localRecords()');
+const zipHelpers=slice('async function ratibGzipBlob(input)','function _snapshotMemStore()');
+const archiveHelpers=slice('function ratibIsPackedArchive(v)','async function _readShadowRecords()');
 const archive=slice('const LARGE_ARCHIVE_AUTH_KEY=', 'async function _persistPending()');
 const pending=slice('async function _persistPending()', 'async function flushStorage()');
 const persistence=slice('function _mirrorRecords(records','function _enqueuePersistence(');
@@ -32,10 +34,10 @@ const context={
   localStorage:{getItem:key=>local.get(key)??null,setItem:(key,val)=>local.set(key,String(val)),removeItem:key=>local.delete(key)},
   SECURITY_CONFIG_KEY:'masar_security_config_v2',STORAGE_META_KEY:'masar_storage_meta_v1',STORAGE_STAGE_KEY:'masar_storage_pending_v1',
   _snapshotMemStore:()=>({}),cloneData:structuredClone,console,
-  JSON,Number,Object,Array,Promise,Set,Error,
+  JSON,Number,Object,Array,Promise,Set,Error,Blob,Response,CompressionStream,DecompressionStream,TextEncoder,TextDecoder,
 };
-vm.runInNewContext(archive+'\n'+writes+'\n'+persistence+'\nthis.archiveGuard={write:_writeShadowRecords,persist:_persistRecords,rows:_largeArchiveRows,marker:_largeArchiveMarkerRows};',context);
-const {write,persist,rows,marker}=context.archiveGuard;
+vm.runInNewContext(zipHelpers+'\n'+archiveHelpers+'\n'+archive+'\n'+writes+'\n'+persistence+'\nthis.archiveGuard={write:_writeShadowRecords,persist:_persistRecords,rows:_largeArchiveRows,marker:_largeArchiveMarkerRows,decode:ratibDecodeArchive};',context);
+const {write,persist,rows,marker,decode}=context.archiveGuard;
 const history=Array.from({length:53},(_,i)=>({
  month:'2022-'+String(i%12+1).padStart(2,'0'),
  transactions:Array.from({length:i===52?110:420},(_,j)=>({id:'synthetic-'+i+'-'+j}))
@@ -48,6 +50,10 @@ const read=async(key)=>new Promise(async(resolve,reject)=>{
 async function main(){
  assert(expected>1500,'Large ledger scenario');
  await write({masar_history:history,masar_plan:{month:'2026-11',transactions:[]}},[],true);
+ const stored=await read('masar_history');
+ assert.equal(stored.__ratibArchiveGzip,1,'Large IndexedDB archive is stored compressed');
+ assert.equal((await decode(stored)).length,history.length,'Compressed archive is recoverable');
+ assert.equal(JSON.stringify(await decode(stored)),JSON.stringify(history),'Lossless archive round-trip');
  local.set('masar_large_archive_authority_v1',JSON.stringify({rows:expected,savedAt:Date.now()}));
  assert.equal(marker(),expected);
 

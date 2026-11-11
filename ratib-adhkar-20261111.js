@@ -27,7 +27,7 @@
  const cycle=()=>{
    const values=active(messages);
    if(!values.length){chosen='';return;}
-   let previous=-1;try{previous=Number(localStorage.getItem(ROTATION_KEY));if(!Number.isSafeInteger(previous)||previous<0)previous=-1;}catch(_){}
+   let previous=-1;try{const saved=localStorage.getItem(ROTATION_KEY);if(saved!==null){previous=Number(saved);if(!Number.isSafeInteger(previous)||previous<0)previous=-1;}}catch(_){}
    const next=(previous+1)%values.length;
    chosen=values[next];
    try{localStorage.setItem(ROTATION_KEY,String(next));}catch(_){}

@@ -141,6 +141,21 @@ async function main(){
   assert(html.includes("file.mimeType !== (/\\.gz$/i.test(item.name)?'application/gzip':'application/json')"),
     'Cloud upload integrity checks correct MIME');
   assert(html.includes("ratibCompactExistingArchive()"),'Existing archived data is compacted');
+  const scheduler=snippet('let _autoBackupTimer = null;', '// ===== نسخ احتياطية مؤرشفة');
+  let delay=null;
+  const now=Date.parse('2026-11-11T12:00:00Z');
+  const state={
+    store:{get:(k)=>k==='auto_backup_enabled'?true:k==='auto_backup_last_time'?new Date(now).toISOString():null},
+    _largeArchiveRows:()=>rows,_memStore:{},clearTimeout:()=>{},
+    setTimeout:(fn,ms)=>{delay=ms;return 1;},
+    Date:{parse:Date.parse,now:()=>now},Math,Number,
+    writeAutoBackup:()=>{}
+  };
+  vm.runInNewContext(scheduler+'\nthis.scheduleAutoBackup=scheduleAutoBackup;',state);
+  state.scheduleAutoBackup();
+  assert.equal(delay,300000,'Large-archive automatic backups do not compress on every edit');
+  state._largeArchiveRows=()=>0;state.scheduleAutoBackup();
+  assert.equal(delay,1500,'Small-ledger auto-backup cadence stays unchanged');
   console.log('PASS: 53 months, '+rows+' transactions, lossless GZIP, legacy JSON/AES and cloud checks');
 }
 main().catch(error=>{console.error(error);process.exitCode=1;});

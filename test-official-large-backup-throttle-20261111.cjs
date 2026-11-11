@@ -14,13 +14,13 @@ name==='auto_backup_last_time'?last:def},_memStore:{},
 _largeArchiveRows:()=>rows,clearTimeout:()=>{cancels++},
 setTimeout:(callback,ms)=>{delay=ms;return callback},
 writeAutoBackup:()=>{calls++},Date:DateClock,Math,Number};
-vm.runInNewContext(snippet+'\nthis.schedule=scheduleAutoBackup;',ctx);
+vm.runInNewContext(snippet+'\nthis.schedule=scheduleAutoBackup;this.pending=()=>_autoBackupTimer;',ctx);
 ctx.schedule();assert.equal(delay,null,'Disabled backups never schedule work');
 enabled=true;
 ctx.schedule();assert.equal(delay,1500,'First backup occurs promptly even with large ledger');
 last=new Date(now).toISOString();ctx.schedule();
 assert.equal(delay,300000,'Multiple updates do not reserialize archive before five-minute window');
-const pendingTimer=ctx._autoBackupTimer;
+const pendingTimer=ctx.pending();
 assert.equal(typeof pendingTimer,'function');
 pendingTimer();assert.equal(calls,1,'Scheduled backup still executes');
 last=new Date(now-360000).toISOString();ctx.schedule();

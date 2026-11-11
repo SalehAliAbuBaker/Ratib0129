@@ -57,7 +57,7 @@ async function flush(){await new Promise(resolve=>setTimeout(resolve,35));}
  third.w.document.getElementById('ratibAdhkarText3').value='';
  third.w.document.getElementById('ratibAdhkarSaveBtn').click();
  await flush();
- assert.deepEqual(third.data.messages,['الحمد لله وحده','','']);
+ assert.deepEqual(Array.from(third.data.messages),['الحمد لله وحده','','']);
  assert.equal(third.data.writes.length,1,'Save invokes financial-safe storage exactly once');
  assert.equal(third.data.financial.archiveRows,22100);
  const onlyPublic=Object.fromEntries([publicKey,rotationKey].map(k=>[k,third.w.localStorage.getItem(k)]));third.close();

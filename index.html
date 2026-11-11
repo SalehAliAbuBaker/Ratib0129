@@ -3356,13 +3356,17 @@ const store={
   _write(k,v,backup){
     if(getSecurityConfig().enabled&&!_vaultUnlocked)throw new Error('الخزنة مقفلة؛ لا يمكن الحفظ قبل فتحها.');
     const key=APP_STORAGE_PREFIX+k;_memStore[key]=v;_pendingWrites.set(key,v);scheduleStorageFlush();
+    // Invalidate read-only financial views after each approved ledger write.
+    if(k==='plan'||k==='history')this._ratibTxRevision=(this._ratibTxRevision||0)+1;
     // Read-only account pager index follows in-memory financial writes.
     if(k==='plan'||k==='history'||k==='account_catalog')_ratibAccountsPagerRevision++;
     if(backup)scheduleAutoBackup();
   },
   remove(k){
     if(getSecurityConfig().enabled&&!_vaultUnlocked)throw new Error('الخزنة مقفلة.');
-    const key=APP_STORAGE_PREFIX+k;delete _memStore[key];_pendingWrites.set(key,undefined);scheduleStorageFlush();scheduleAutoBackup();
+    const key=APP_STORAGE_PREFIX+k;delete _memStore[key];_pendingWrites.set(key,undefined);
+    if(k==='plan'||k==='history')this._ratibTxRevision=(this._ratibTxRevision||0)+1;
+    scheduleStorageFlush();scheduleAutoBackup();
   }
 };
 function _nextStorageMeta(){_storageStamp=Math.max(Date.now(),_storageStamp+1);return {updatedAt:_storageStamp};}
@@ -4900,10 +4904,27 @@ function audit(action, entityId, before=null, after=null) {
   store.set('audit_logs', logs.slice(-2000));
 }
 
+// Derived in-memory cache only; never persisted or used as accounting authority.
+const _ratibEmptyFinancialList=[];
+let _ratibAllTransactionsCache=null;
 function getAllTransactions() {
-  const current = store.get('plan', null)?.transactions || [];
-  const history = store.get('history', []);
-  return current.concat(...(Array.isArray(history) ? history.map(h => Array.isArray(h.transactions) ? h.transactions : []) : []));
+  const plan=store.get('plan',null);
+  const current=Array.isArray(plan?.transactions)?plan.transactions:_ratibEmptyFinancialList;
+  const rawHistory=store.get('history',_ratibEmptyFinancialList);
+  const history=Array.isArray(rawHistory)?rawHistory:_ratibEmptyFinancialList;
+  const revision=Number(store._ratibTxRevision||0);
+  const cached=_ratibAllTransactionsCache;
+  if(cached&&cached.revision===revision&&cached.current===current&&
+    cached.currentLength===current.length&&cached.history===history&&
+    cached.parts.length===history.length&&history.every((h,i)=>{
+      const txs=Array.isArray(h?.transactions)?h.transactions:_ratibEmptyFinancialList;
+      return cached.parts[i]===txs&&cached.lengths[i]===txs.length;
+    }))return cached.rows;
+  const parts=history.map(h=>Array.isArray(h?.transactions)?h.transactions:_ratibEmptyFinancialList);
+  const rows=current.concat(...parts);
+  _ratibAllTransactionsCache={revision,current,currentLength:current.length,history,
+    parts,lengths:parts.map(a=>a.length),rows};
+  return rows;
 }
 
 function effectiveTransactions(txs=getAllTransactions()) { return txs.filter(t => t.status !== 'reversed' && t.status !== 'deleted'); }
@@ -7470,19 +7491,32 @@ function entrygroupLedgerItemsForDisplay(txs){
   }
   return out;
 }
-function renderAllData(force=false) {
-  if(currentActiveTab!=='pageLedger'&&!force){ledgerNeedsRender=true;if(currentActiveTab==='pageDashboard')ratibRefreshDashboardAfterPaint();return;}
-  ledgerNeedsRender=false;
-  const sourceTxs = getAllTransactions();
-  const allTxs = typeof ratibFiscalVisibleLedgerTransactions==='function'
-    ? ratibFiscalVisibleLedgerTransactions(sourceTxs)
-    : sourceTxs;
-  const container = document.getElementById('ledgerList');
-  if (!container) return;
-  let txs = groupLedgerItemsForDisplay(allTxs).sort((a,b)=>{
+// Sorted journal cards are display-only and can be reused across navigation.
+let _ratibSortedLedgerCache=null;
+function ratibGetSortedLedgerRows(){
+  const sourceTxs=getAllTransactions();
+  const scope=typeof window.ratibFiscalLedgerScopeKey==='function'
+    ?String(window.ratibFiscalLedgerScopeKey()):'unscoped';
+  const fiscalEnabled=typeof ratibFiscalVisibleLedgerTransactions==='function';
+  const revision=Number(store._ratibTxRevision||0);
+  const cached=_ratibSortedLedgerCache;
+  if(cached&&cached.sourceTxs===sourceTxs&&cached.scope===scope&&
+    cached.fiscalEnabled===fiscalEnabled&&cached.revision===revision)
+    return cached.rows;
+  const visible=fiscalEnabled?ratibFiscalVisibleLedgerTransactions(sourceTxs):sourceTxs;
+  const rows=groupLedgerItemsForDisplay(visible).sort((a,b)=>{
     const ad=String(a.isoDate||a.date||''),bd=String(b.isoDate||b.date||'');
     return ad.localeCompare(bd)||(Number(a.seqNum)||0)-(Number(b.seqNum)||0)||String(a.id||'').localeCompare(String(b.id||''));
   });
+  _ratibSortedLedgerCache={sourceTxs,scope,fiscalEnabled,revision,rows};
+  return rows;
+}
+function renderAllData(force=false) {
+  if(currentActiveTab!=='pageLedger'&&!force){ledgerNeedsRender=true;if(currentActiveTab==='pageDashboard')ratibRefreshDashboardAfterPaint();return;}
+  ledgerNeedsRender=false;
+  const container = document.getElementById('ledgerList');
+  if (!container) return;
+  let txs=ratibGetSortedLedgerRows();
   const totalDocsCount = txs.length;
   if (currentLedgerStatusFilter === 'posted') txs = txs.filter(t => t.status !== 'reversed');
   else if (currentLedgerStatusFilter === 'reversed') txs = txs.filter(t => t.status === 'reversed');

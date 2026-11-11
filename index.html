@@ -12339,7 +12339,48 @@ function initExternalImport(){const section=document.getElementById('externalImp
   const tools=document.createElement('details');tools.className='external-import-section no-print';tools.innerHTML='<summary>استيراد الحسابات والأرصدة</summary><div class="report-actions"><button type="button" class="btn btn-primary" id="accountExcelImportBtn">استيراد الحسابات من Excel</button><button type="button" class="btn btn-ghost" id="accountTemplateBtn">تنزيل نموذج Excel</button><button type="button" class="btn btn-ghost" id="accountExternalImportBtn">استيراد بيانات من نظام خارجي</button></div>';document.getElementById('pageAccountsTree').prepend(tools);document.getElementById('accountExcelImportBtn').onclick=openLegacyImport;document.getElementById('accountExternalImportBtn').onclick=openLegacyImport;document.getElementById('accountTemplateBtn').onclick=downloadAccountTemplate;
 }
 
-selfHealStorageFromIdb().then(boot).catch(error=>{showRatibFatalBanner(error.message||"تعذرت قراءة البيانات. لم يتم استبدالها.");});
+function showRatibArchiveRecovery(){
+  if(document.getElementById('ratibArchiveRecovery'))return;
+  const overlay=document.createElement('section');
+  overlay.id='ratibArchiveRecovery';
+  overlay.setAttribute('role','alertdialog');
+  overlay.setAttribute('aria-modal','true');
+  overlay.setAttribute('aria-label','حماية الأرشيف واستعادة النسخة الاحتياطية');
+  overlay.style.cssText='position:fixed;inset:0;z-index:1000002;background:rgba(15,23,42,.86);display:flex;align-items:center;justify-content:center;direction:rtl;padding:16px';
+  const panel=document.createElement('div');
+  panel.style.cssText='max-width:540px;width:100%;background:var(--card,#fff);color:var(--text,#111);padding:22px;border-radius:16px;box-shadow:0 15px 35px #0005;font-family:Tajawal,system-ui,sans-serif;line-height:1.8';
+  const heading=document.createElement('h2');
+  heading.textContent='حماية الأرشيف المالي';
+  const description=document.createElement('p');
+  description.textContent='اكتشف راتب عدم تطابق بين الأرشيف المحفوظ ومؤشر استعادته. أُوقف فتح الدفتر لحماية المستندات. إذا كانت لديك نسخة احتياطية سليمة، يمكنك استعادتها هنا من جهازك دون مسح بيانات المتصفح ودون رفع الملف إلى أي خادم.';
+  description.style.margin='12px 0 18px';
+  const input=document.createElement('input');
+  input.type='file';input.accept='.json,.gz,.json.gz,application/json,application/gzip';input.hidden=true;
+  const button=document.createElement('button');
+  button.type='button';button.className='btn btn-primary';button.textContent='استعادة النسخة الاحتياطية من الجهاز';
+  button.style.cssText='width:100%;min-height:46px';
+  const status=document.createElement('p');
+  status.setAttribute('role','status');
+  status.style.cssText='font-size:13px;margin-top:12px';
+  status.textContent='يجب الاحتفاظ بملف النسخة الاحتياطية ونسخة الأمان السابقة. لا تمسح بيانات الموقع.';
+  button.addEventListener('click',()=>input.click());
+  input.addEventListener('change',async()=>{
+    const file=input.files?.[0];if(!file)return;
+    button.disabled=true;status.textContent='جارٍ التحقق من الملف وحفظه. لا تغلق النافذة.';
+    try{
+      const ok=await importBackupFile(file);
+      if(!ok)status.textContent='لم تكتمل الاستعادة. احتفظ بالملف الأصلي وتحقق من رسالة الخطأ.';
+    }catch(error){
+      console.error('archive recovery',error);
+      status.textContent='تعذرت الاستعادة. لم يتم الإقرار بنجاحها. احتفظ بالنسخة الأصلية.';
+    }finally{button.disabled=false;input.value='';}
+  });
+  panel.append(heading,description,input,button,status);overlay.append(panel);document.body.append(overlay);
+}
+selfHealStorageFromIdb().then(boot).catch(error=>{
+  showRatibFatalBanner(error.message||"تعذرت قراءة البيانات. لم يتم استبدالها.");
+  if(String(error?.message||'').includes('إشارة إلى أرشيف مستعاد'))showRatibArchiveRecovery();
+});
 </script>
 <div class="modal-overlay no-print" id="spendFxModal" role="dialog" aria-modal="true" aria-labelledby="spendFxTitle">
   <div class="modal-content spend-fx-dialog">

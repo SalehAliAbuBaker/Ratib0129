@@ -92,7 +92,9 @@ function compute(txs,catalog,currency,period,currentMonth,getLegs,convert){
 }
 window.RatibDashboardFinance144={compute,classify};
 let view='cash',latest=null,modal=null,rendering=false;
-const money=(value,currency)=>value===null?'—':Number(value).toLocaleString('en-US',{maximumFractionDigits:6})+' '+(currency==='YER'?'ر.ي':currency==='SAR'?'ر.س':currency==='USD'?'دولار':currency);
+// Display rounding only (two decimal places). Retain all six-decimal
+// accounting computations, journal legs, FX calculations and export values.
+const money=(value,currency)=>value===null?'—':Number(value).toLocaleString('en-US',{maximumFractionDigits:2})+' '+(currency==='YER'?'ر.ي':currency==='SAR'?'ر.س':currency==='USD'?'دولار':currency);
 const titleMap={cashIn:'المقبوضات الخارجية',cashOut:'المدفوعات الخارجية',cashNet:'صافي الحركة النقدية',cashBalance:'رصيد النقدية والبنوك',revenue:'الإيرادات الفعلية',expenses:'المصروفات الفعلية',surplus:'الفائض أو العجز'};
 const definitions={
  cash:[['cashNet','صافي الحركة النقدية'],['cashIn','المقبوضات الخارجية'],['cashOut','المدفوعات الخارجية'],['cashBalance','رصيد النقدية والبنوك']],

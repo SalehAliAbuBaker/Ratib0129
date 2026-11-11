@@ -3,6 +3,7 @@ const assert=require('node:assert/strict');
 const fs=require('node:fs');
 const vm=require('node:vm');
 const {webcrypto}=require('node:crypto');
+const {IDBFactory}=require('fake-indexeddb');
 
 // Synthetic test only. Financial records and source backups must not enter Git.
 const html=fs.readFileSync('index.html','utf8');
@@ -71,6 +72,58 @@ async function main(){
   assert.equal(JSON.stringify(await codec.decryptVaultBlob(key,old)),original,
     'Existing AES-GCM backup remains readable');
   await assert.rejects(codec.ratibDecodeArchive({...packed,blob:new Blob(['not-gzip'])}));
+  // Compact an existing plaintext archive without modifying the financial rows.
+  const indexedDB=new IDBFactory();
+  const dbPromise=new Promise((resolve,reject)=>{
+    const open=indexedDB.open('ratib-gzip-synthetic-test',1);
+    open.onupgradeneeded=()=>open.result.createObjectStore('handles');
+    open.onsuccess=()=>resolve(open.result);
+    open.onerror=()=>reject(open.error);
+  });
+  const save=async(historyValue,stamp)=>new Promise(async(resolve,reject)=>{
+    const db=await dbPromise,tx=db.transaction('handles','readwrite'),os=tx.objectStore('handles');
+    os.put(historyValue,'shadow_masar_history');
+    os.put({updatedAt:stamp},'shadow_masar_storage_meta_v1');
+    tx.oncomplete=()=>resolve();
+    tx.onerror=tx.onabort=()=>reject(tx.error);
+  });
+  const get=async(key)=>new Promise(async(resolve,reject)=>{
+    const db=await dbPromise,tx=db.transaction('handles','readonly'),req=tx.objectStore('handles').get('shadow_'+key);
+    req.onsuccess=()=>resolve(req.result);req.onerror=()=>reject(req.error);
+  });
+  context._storageQueue=Promise.resolve();
+  context._largeArchiveAuthority=true;
+  context.STORAGE_META_KEY='masar_storage_meta_v1';
+  context._openBackupIdb=()=>dbPromise;
+  context._enqueuePersistence=job=>job();
+  const rowsSource=snippet('function _largeArchiveRows(records)','function _largeArchiveMarkerRows()');
+  const migration=snippet('async function ratibCompactExistingArchive()','async function _writeShadowRecords(');
+  vm.runInNewContext(rowsSource+'\\n'+migration+'\\nthis.compactExisting=ratibCompactExistingArchive;',context);
+  await save(history,1);
+  assert.equal(await context.compactExisting(),true,'Old archive is compacted atomically');
+  assert.equal((await get('masar_history')).__ratibArchiveGzip,1);
+  assert.equal(JSON.stringify(await codec.ratibDecodeArchive(await get('masar_history'))),raw);
+  assert.equal((await get('masar_storage_meta_v1')).updatedAt,1,'Data revision remains unchanged');
+  assert.equal(await context.compactExisting(),false,'Already compacted archive remains stable');
+
+  // If another tab saves while compression runs, the old snapshot must not win.
+  await save(history,2);
+  const oldEncoder=context.ratibEncodeArchive;
+  context.ratibEncodeArchive=async(value)=>{
+    const result=await oldEncoder(value);
+    const db=await dbPromise;
+    await new Promise((resolve,reject)=>{
+      const tx=db.transaction('handles','readwrite');
+      tx.objectStore('handles').put({updatedAt:3},'shadow_masar_storage_meta_v1');
+      tx.oncomplete=()=>resolve();tx.onerror=tx.onabort=()=>reject(tx.error);
+    });
+    return result;
+  };
+  assert.equal(await context.compactExisting(),false,'Concurrent revision change skips stale overwrite');
+  assert(Array.isArray(await get('masar_history')),'Old storage remains unchanged after race');
+  assert.equal((await get('masar_storage_meta_v1')).updatedAt,3);
+  context.ratibEncodeArchive=oldEncoder;
+
   assert(html.includes("const compressed=/\\.gz$/i.test(file.name||'');"),'Legacy importer accepts gzip');
   assert(html.includes("file.mimeType !== (/\\.gz$/i.test(item.name)?'application/gzip':'application/json')"),
     'Cloud upload integrity checks correct MIME');

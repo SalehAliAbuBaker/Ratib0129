@@ -8110,10 +8110,31 @@ function pruneSubgroupParents(cat){
 
 function migrateLegacyAccountNames(){
   const map={'الصندوق الرئيسي':'صندوق النقدية الرئيسي','حساب بنكي / كاش':'حساب البنك الجاري','عهدة يد':'صندوق النقدية الرئيسي','صالح الخطيب':'ذمم العملاء التجارية','عميل عام':'ذمم العملاء التجارية','مورد مواد':'ذمم الموردين التجارية'};
-  const renameTxs=list=>Array.isArray(list)?list.map(t=>({...t,debitAccount:map[t.debitAccount]||t.debitAccount,creditAccount:map[t.creditAccount]||t.creditAccount})):list;
-  const plan=store.get('plan',null);if(plan&&Array.isArray(plan.transactions)){plan.transactions=renameTxs(plan.transactions);store.set('plan',plan)}
-  const history=store.get('history',null);if(Array.isArray(history))store.set('history',history.map(h=>({...h,transactions:renameTxs(h.transactions)})));
-  const defs=store.get('default_accounts',null);if(defs){if(map[defs.incomeDebit])defs.incomeDebit=map[defs.incomeDebit];if(map[defs.spendCredit])defs.spendCredit=map[defs.spendCredit];store.set('default_accounts',defs)}
+  // An idempotent migration is essential: restoring multiple years of history must not
+  // rewrite the entire archive into IndexedDB on EVERY application start.
+  const needsRename=t=>!!t&&(!!map[t.debitAccount]||!!map[t.creditAccount]);
+  const renameTxs=list=>list.map(t=>needsRename(t)?{...t,debitAccount:map[t.debitAccount]||t.debitAccount,creditAccount:map[t.creditAccount]||t.creditAccount}:t);
+  const plan=store.get('plan',null);
+  if(plan&&Array.isArray(plan.transactions)&&plan.transactions.some(needsRename)){
+    plan.transactions=renameTxs(plan.transactions);
+    store.set('plan',plan);
+  }
+  const history=store.get('history',null);
+  if(Array.isArray(history)){
+    let changed=false;
+    const migrated=history.map(period=>{
+      if(!Array.isArray(period?.transactions)||!period.transactions.some(needsRename))return period;
+      changed=true;
+      return {...period,transactions:renameTxs(period.transactions)};
+    });
+    if(changed)store.set('history',migrated);
+  }
+  const defs=store.get('default_accounts',null);
+  if(defs&&(map[defs.incomeDebit]||map[defs.spendCredit])){
+    if(map[defs.incomeDebit])defs.incomeDebit=map[defs.incomeDebit];
+    if(map[defs.spendCredit])defs.spendCredit=map[defs.spendCredit];
+    store.set('default_accounts',defs);
+  }
 }
 function initializeCanonicalChart(){
   if(!store.get('account_catalog',null)){
@@ -9740,14 +9761,13 @@ function proceedAppInit() {
   setupReportSections('pageReports', false);
   navigateToTab('pageDashboard', false);
   initCarousels();
-  updateProDashboard();
+  // Dashboard was already calculated by navigateToTab; avoid a redundant full-history scan.
   renderAllData();
   draftCats = JSON.parse(JSON.stringify(getCats(true)));
   renderCategoryRows();
   renderCanonicalChartOfAccounts();
   initCanonicalLiveAccountsTreePage();
   initCompatibilityImprovements();
-  updateProDashboard();
   initLegacyImport();
   initTrialMulticurrency();
   window.__ratibProceedInitialized=true;

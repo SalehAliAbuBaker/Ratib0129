@@ -4185,10 +4185,16 @@ async function getAutoBackupHandle(promptIfNeeded = false) {
 }
 
 let _autoBackupTimer = null;
+// The archive is already committed to IndexedDB. Avoid serializing a 60+ MiB
+// backup every time a small UI preference or voucher is saved.
+const LARGE_ARCHIVE_AUTO_BACKUP_MIN_GAP_MS=5*60*1000;
 function scheduleAutoBackup() {
   if (!store.get('auto_backup_enabled', false)) return;
   clearTimeout(_autoBackupTimer);
-  _autoBackupTimer = setTimeout(writeAutoBackup, 1500);
+  const large=_largeArchiveRows(_memStore)>1500;
+  const last=Date.parse(store.get('auto_backup_last_time',''))||0;
+  const wait=large?Math.max(1500,last+LARGE_ARCHIVE_AUTO_BACKUP_MIN_GAP_MS-Date.now()):1500;
+  _autoBackupTimer=setTimeout(()=>{_autoBackupTimer=null;writeAutoBackup();},wait);
 }
 
 // ===== نسخ احتياطية مؤرشفة بأسماء (تاريخ + زمن) بدل استبدال الملف القديم =====

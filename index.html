@@ -3407,7 +3407,10 @@ function ratibIsJsonSafeArchive(value){
     if(typeof v!=='object'||seen.has(v))return false;
     seen.add(v);
     const array=Array.isArray(v),proto=Object.getPrototypeOf(v);
-    if(!array&&proto!==Object.prototype&&proto!==null)return false;
+    // Plain objects from another JavaScript realm have a different Object.prototype.
+    const plain=proto===null||proto===Object.prototype||
+      (Object.prototype.toString.call(v)==='[object Object]'&&proto&&Object.getPrototypeOf(proto)===null);
+    if(!array&&!plain)return false;
     if(array){
       for(let i=0;i<v.length;i++){if(!(i in v))return false;pending.push(v[i]);}
     }else for(const key of Object.keys(v))pending.push(v[key]);

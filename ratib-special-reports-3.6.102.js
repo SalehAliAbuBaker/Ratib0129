@@ -3,7 +3,7 @@
 const el=id=>document.getElementById(id);
 const safe=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const val=v=>Number.isFinite(Number(v))?Number(v):0;
-const fmt=v=>Math.abs(val(v))<0.0000005?'0':val(v).toLocaleString('en-US',{maximumFractionDigits:6});
+const fmt=v=>Math.abs(val(v))<0.0000005?'0':val(v).toLocaleString('en-US',{maximumFractionDigits:2});
 const zero=v=>Math.abs(val(v))<0.000001;
 const keys=['openingDebit','openingCredit','periodDebit','periodCredit','closingDebit','closingCredit'];
 function calculate(from,to,currency,level){

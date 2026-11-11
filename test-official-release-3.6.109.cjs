@@ -12,7 +12,7 @@ assert(sw.includes("v260-opening-mobile-clean-3.6.139"));
 assert(index.includes('id="appVersionLabel" class="app-version">الإصدار 3.6.179</small>'));
 assert(index.includes('class="ratib-about-version">الإصدار 3.6.179</p>'));
 assert(index.includes('window.ratibCurrentTrialVersionLabel=()=>`الإصدار ${RATIB_RELEASE.version}`'));
-assert(!index.includes('الإصدار 3.6.178 (تجريبية)'));
+assert(!index.includes('الإصدار 3.6.179 (تجريبية)'));
 assert(sidebar.includes("const label='الإصدار '+v;")&&!sidebar.includes("const label='الإصدار '+v+' (تجريبية)'"));
 assert(index.includes("const CLOUD_FOLDER_NAME = 'Ratib Backups'"));
 assert(index.includes("const CLOUD_LEGACY_FOLDER_NAME = 'Ratib Trial Backups'"));

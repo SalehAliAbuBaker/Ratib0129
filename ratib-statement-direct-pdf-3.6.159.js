@@ -4,7 +4,7 @@
  */
 (()=>{
  'use strict';
- const LIB='./vendor/ratib-pdfmake-0.2.23.min.js';
+ const LIB='./vendor/ratib-pdfmake-rtl-0.2.23.js';
  const FONT_NORMAL='./vendor/ratib-tajawal-regular.ttf';
  const FONT_BOLD='./vendor/ratib-tajawal-bold.ttf';
  let enginePromise=null,fontsPromise=null;
@@ -40,7 +40,7 @@
   })).catch(error=>{fontsPromise=null;throw error;});
   return fontsPromise;
  }
- const plain=value=>String(value??'').replace(/\s+/g,' ').trim();
+ const plain=value=>String(value??'').replace(/[\u061C\u200E\u200F\u202A-\u202E\u2066-\u2069]/g,'').replace(/[٠-٩۰-۹]/g,ch=>String(ch.charCodeAt(0)-(ch<='٩'?0x660:0x6f0))).replace(/٬/g,',').replace(/٫/g,'.').replace(/\s+/g,' ').trim().replace(/\b(?:\d{4}-\d{2}-\d{2}|\d{1,2}:\d{2}(?::\d{2})?)\b/g,text=>'‎'+text+'‎');
  function cellText(cell){
   const copy=cell.cloneNode(true),lines=[];
   copy.querySelectorAll('.ratib-vector-hijri,.ratib-vector-gregorian').forEach(child=>{
@@ -58,7 +58,7 @@
    for(const td of tr.querySelectorAll(':scope > td')){
     const span=Math.max(1,Number(td.getAttribute('colspan'))||1);
     const entry={text:cellText(td),bold:tr.classList.contains('ratib-vector-total'),
-      fillColor:tr.classList.contains('ratib-vector-total')?'#E2E8F0':tr.classList.contains('ratib-vector-opening')?'#F8FAFC':undefined,
+      fillColor:td.classList.contains('ratib-vector-matched')?'#DCFCE7':tr.classList.contains('ratib-vector-total')?'#E2E8F0':tr.classList.contains('ratib-vector-opening')?'#F8FAFC':undefined,
       alignment:'right'};
     row.push(entry);
     for(let i=1;i<span;i++)row.push({text:''});
@@ -116,7 +116,14 @@
    content.push({text:title,fontSize:14,bold:true,alignment:'center',color:'#111827',
     margin:[0,4,0,8],fillColor:'#F1F5F9'});
    const info=sheet.querySelector('.ratib-vector-details');
-   if(info)content.push({text:plain(info.textContent),fontSize:8,alignment:'right',margin:[0,0,0,5],color:'#374151'});
+   if(info){
+    const fields=[...info.children].map(field=>{
+     const copy=field.cloneNode(true);
+     copy.querySelectorAll('.ratib-vector-hijri,.ratib-vector-gregorian').forEach(date=>date.append(' '));
+     return plain(copy.textContent);
+    });
+    content.push({text:fields.length?fields.join(' | '):plain(info.textContent),fontSize:8,alignment:'right',margin:[0,0,0,5],color:'#374151'});
+   }
    const table=sheet.querySelector('.ratib-vector-table');
    if(table)content.push(tableDefinition(table));
    const footer=sheet.querySelector('.ratib-vector-footer');

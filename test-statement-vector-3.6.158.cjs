@@ -7,11 +7,11 @@ const css=fs.readFileSync('ratib-statement-vector-3.6.158.css','utf8');
 const html=fs.readFileSync('index.html','utf8');
 const pkg=require('./package.json');
 const sw=fs.readFileSync('sw.js','utf8');
-assert.equal(pkg.version,'3.6.180');
+assert.equal(pkg.version,'3.6.181');
 assert(sw.includes('"./ratib-statement-vector-3.6.158.js"'));
 assert(sw.includes('"./ratib-statement-vector-3.6.158.css"'));
-assert(html.includes('ratib-statement-vector-3.6.158.js?v=3.6.180'));
-assert(html.includes('ratib-statement-vector-3.6.158.css?v=3.6.180'));
+assert(html.includes('ratib-statement-vector-3.6.158.js?v=3.6.181'));
+assert(html.includes('ratib-statement-vector-3.6.158.css?v=3.6.181'));
 assert(!html.includes('data-account-action="vector"'),'No redundant print-dialog PDF button after direct export');
 assert(html.includes('تصدير PDF<small>ملف نصي عالي الدقة'));
 assert(html.includes('مشاركة<small>PDF نصي عالي الدقة'));
@@ -62,5 +62,19 @@ assert.equal(output.includes('<canvas'),false);
 assert.equal(w.ratibVectorStatementPrint('YER',['YER']),true);
 assert.equal(printed,1);
 assert(w.document.querySelector('#ratibVectorStatementHost .ratib-vector-table'));
+// Only a current, in-period reconciliation marks its last balance cell.
+w.ratibStatementSettings=()=>({document:true,counterpart:true,reconciliation:true});
+w.ratibReconciliationEvidence=()=>({stable:true,inPeriod:true,dateAfterPeriod:false,date:'2026-11-02'});
+const confirmed=w.RatibStatementVector.markup([w.getAccountCurrencyReportData()]);
+const check=w.document.createElement('div');check.innerHTML=confirmed;
+assert.equal(check.querySelectorAll('.ratib-vector-matched').length,1);
+assert(check.querySelector('.ratib-vector-matched').textContent.includes('(مطابق)'));
+for(const proof of [null,{stable:false,inPeriod:true,date:'2026-11-02'},{stable:true,inPeriod:false,date:'2026-11-02'},{stable:true,inPeriod:true,dateAfterPeriod:true,date:'2026-11-02'}]){
+ w.ratibReconciliationEvidence=()=>proof;
+ assert(!w.RatibStatementVector.markup([w.getAccountCurrencyReportData()]).includes('ratib-vector-matched'));
+}
+w.ratibReconciliationEvidence=()=>({stable:true,inPeriod:true,dateAfterPeriod:false,date:'2026-11-02'});
+w.ratibStatementSettings=()=>({reconciliation:false});
+assert(!w.RatibStatementVector.markup([w.getAccountCurrencyReportData()]).includes('ratib-vector-matched'));
 dom.window.close();
 console.log('PASS 3.6.170: semantic statement HTML, signed balances, RTL dates, vector print action, JPG fallback untouched');

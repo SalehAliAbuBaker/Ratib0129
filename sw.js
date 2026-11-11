@@ -1,6 +1,6 @@
 // Ratib 3.1.9: cache identity is unique to this app's scope.
-const CACHE_VERSION='v261-date-render-r1-v260-opening-mobile-clean-3.6.139-compound-compact-auto-signature-tafqit-cash-reference-amount-currency-compound-ref-simple-ref-totals-cash-colors-cash-preview-return-3.6.162-active-budget-callouts-r1-receipt-payment-separation-voucher-routing-3.6.165-alef-search-3.6.166-home-3.6.167-home-refine-3.6.168-fold-theme-dates-3.6.169-nav-custom-3.6.170-report-compact-direct-statement-header-safe-statement-dhikr-home-reports-settings-backup-controls-settings-report-tiles-home-size-report-single-grid-fix-ledger-date-filter-report-mobile-2col-footer-svg-hotfix-01-archive-safety-20261111-r2-recovery-statement-fastlookup-20261111-current-year-lazy-search-decimals-r1-statement-page50-v1-20261111-home-firstpaint-r1-20261111-adhkar7-warmaccounts-20261111-r1-3.6.177-statement-layout-r4-3.6.178-compact-archive-fast-nav-r2-3.6.179-save-flow-r3-3.6.180';
-const APP_RELEASE={"version":"3.6.180","build":"p18000","highlights":["تسريع حفظ سندات القبض والصرف","بدء التطبيق من الرئيسية وتوحيد تدرج الخط"],"changes":["نجري بانتظام تحديثات لتحسين الموثوقية والأداء وإصلاح الأخطاء","تأجيل حساب ملخص الرئيسية وهي مخفية وتجميع تنبيهات الحسابات في مرور واحد","بدء الفتح الجديد من الرئيسية مع حفظ حالة المستندات أثناء التنقل","الحفاظ على دقة القيود وقراءة النسخ القديمة والمضغوطة"]};
+const CACHE_VERSION='v261-date-render-r1-v260-opening-mobile-clean-3.6.139-compound-compact-auto-signature-tafqit-cash-reference-amount-currency-compound-ref-simple-ref-totals-cash-colors-cash-preview-return-3.6.162-active-budget-callouts-r1-receipt-payment-separation-voucher-routing-3.6.165-alef-search-3.6.166-home-3.6.167-home-refine-3.6.168-fold-theme-dates-3.6.169-nav-custom-3.6.170-report-compact-direct-statement-header-safe-statement-dhikr-home-reports-settings-backup-controls-settings-report-tiles-home-size-report-single-grid-fix-ledger-date-filter-report-mobile-2col-footer-svg-hotfix-01-archive-safety-20261111-r2-recovery-statement-fastlookup-20261111-current-year-lazy-search-decimals-r1-statement-page50-v1-20261111-home-firstpaint-r1-20261111-adhkar7-warmaccounts-20261111-r1-3.6.177-statement-layout-r4-3.6.178-compact-archive-fast-nav-r2-3.6.179-save-flow-r3-3.6.180-rtl-statement-3.6.181';
+const APP_RELEASE={"version":"3.6.181","build":"p18100","highlights":["تصحيح ترتيب الكلمات العربية في مشاركة وتصدير كشف الحساب","إظهار الرصيد المصادق عليه بتظليل أخضر"],"changes":["تصحيح اتجاه النص العربي المختلط بالأرقام والتواريخ والتفاف السطور في PDF","نقل علامة المصادقة وتظليل خانة الرصيد المثبت إلى التصدير والمشاركة والطباعة","الحفاظ على تحسينات الحفظ والتنقل والنسخ الاحتياطي"]};
 const CACHE_PREFIX=`ratib:${self.registration.scope}:`;
 const CACHE_NAME=CACHE_PREFIX+CACHE_VERSION;
 const APP_SHELL=[
@@ -30,7 +30,7 @@ const APP_SHELL=[
   "./ratib-account-lock-unified-3.6.161.js",
   "./ratib-statement-search-totals-3.6.160.js",
   "./ratib-statement-direct-pdf-3.6.159.js",
-  "./vendor/ratib-pdfmake-0.2.23.min.js",
+  "./vendor/ratib-pdfmake-rtl-0.2.23.js",
   "./vendor/ratib-tajawal-regular.ttf",
   "./vendor/ratib-tajawal-bold.ttf",
   "./ratib-statement-vector-3.6.158.js",

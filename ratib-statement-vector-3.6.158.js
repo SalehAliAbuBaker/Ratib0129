@@ -42,12 +42,12 @@
      balance=balanceMap.get(tx),note=ratibStatementText(
        [ratibAggregateOwner(tx),entry.line?.note||tx.execution?.[Object.keys(tx.execution||{})[0]]?.note||'بدون بيان'].filter(Boolean).join(' — '),'بدون بيان'),
      doc=ratibStatementDocumentLabel(tx);
-   const matched=i===lastMatched?' ✓ مطابق':'';
+   const matched=i===lastMatched?' (مطابق)':'';
    return '<tr><td>'+dateHtml(getAccountOpsDate(tx))+'</td>'+
       (opts.document?td(doc):'')+td(note)+(opts.counterpart?td(ratibResolveCounterpart(tx,scope)):'')+
       td(debit?money(amount):'','ratib-vector-number')+
       td(credit?money(amount):'','ratib-vector-number')+
-      td(signed(balance)+matched,'ratib-vector-number')+'</tr>';
+      td(signed(balance)+matched,'ratib-vector-number'+(i===lastMatched?' ratib-vector-matched':''))+'</tr>';
   }).join('');
   const total='<tr class="ratib-vector-total"><td colspan="'+(cols-3)+'">'+escapeText(ratibStatementTotalsTitle(started,accountOpsState.to,data.opening!==0))+'</td>'+
    td(money(totals.debit),'ratib-vector-number')+td(money(totals.credit),'ratib-vector-number')+td(signed(data.closing),'ratib-vector-number')+'</tr>';

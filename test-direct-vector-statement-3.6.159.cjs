@@ -2,23 +2,23 @@
 'use strict';
 const assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path');
 const {JSDOM}=require('jsdom');
-const PdfPrinter=require('pdfmake');
+const pdfEngine=require('./vendor/ratib-pdfmake-rtl-0.2.23.js');
 const html=fs.readFileSync('index.html','utf8'),sw=fs.readFileSync('sw.js','utf8');
 const src=fs.readFileSync('ratib-statement-direct-pdf-3.6.159.js','utf8');
 const pkg=require('./package.json');
 const fontRegular=path.join(__dirname,'vendor/ratib-tajawal-regular.ttf');
 const fontBold=path.join(__dirname,'vendor/ratib-tajawal-bold.ttf');
-const bundle=path.join(__dirname,'vendor/ratib-pdfmake-0.2.23.min.js');
-assert.equal(pkg.version,'3.6.180');
+const bundle=path.join(__dirname,'vendor/ratib-pdfmake-rtl-0.2.23.js');
+assert.equal(pkg.version,'3.6.181');
 assert.equal(pkg.devDependencies.pdfmake,'0.2.23');
 assert(fs.statSync(bundle).size>400000,'Offline PDF engine must be vendored');
 assert(fs.statSync(fontRegular).size>40000,'Full Arabic regular font must be vendored');
 assert(fs.statSync(fontBold).size>40000,'Full Arabic bold font must be vendored');
-for(const asset of ['ratib-statement-direct-pdf-3.6.159.js','vendor/ratib-pdfmake-0.2.23.min.js',
+for(const asset of ['ratib-statement-direct-pdf-3.6.159.js','vendor/ratib-pdfmake-rtl-0.2.23.js',
  'vendor/ratib-tajawal-regular.ttf','vendor/ratib-tajawal-bold.ttf'])
  assert(sw.includes('"./'+asset+'"'),'Service worker must cache '+asset);
-assert(sw.includes('"version":"3.6.180"'));
-assert(html.includes('ratib-statement-direct-pdf-3.6.159.js?v=3.6.180'));
+assert(sw.includes('"version":"3.6.181"'));
+assert(html.includes('ratib-statement-direct-pdf-3.6.159.js?v=3.6.181'));
 assert(html.includes('new File([await buildAccountOperationsPdf(choice,currencies)]'));
 assert(html.includes('downloadFinancialFile(await buildAccountOperationsPdf(choice,currencies)'));
 assert(html.includes('window.RatibStatementVector.markup(data)'));
@@ -57,14 +57,30 @@ assert(model.content.some(x=>x.text?.includes('خمسة وسبعون')));
 assert(model.content.some(x=>x.text?.includes('14 يومًا')));
 const three=h+h.replace('الصندوق','المصرف').replace('YER','SAR');
 assert(win.RatibDirectVectorPdf.documentDefinition(three).content.some(x=>x.pageBreak==='before'),'Multiple currencies must be separated');
-const printer=new PdfPrinter({Tajawal:{normal:fontRegular,bold:fontBold,italics:fontRegular,bolditalics:fontBold}});
-async function pdfBuffer(def){
- return new Promise((resolve,reject)=>{
-  const pdf=printer.createPdfKitDocument(def),buffers=[];
-  pdf.on('data',chunk=>buffers.push(chunk));pdf.on('end',()=>resolve(Buffer.concat(buffers)));pdf.on('error',reject);pdf.end();
- });
-}
+pdfEngine.vfs={'normal.ttf':fs.readFileSync(fontRegular).toString('base64'),'bold.ttf':fs.readFileSync(fontBold).toString('base64')};
+pdfEngine.fonts={Tajawal:{normal:'normal.ttf',bold:'bold.ttf',italics:'normal.ttf',bolditalics:'bold.ttf'}};
+async function pdfBuffer(def){return new Promise(resolve=>pdfEngine.createPdf(def).getBuffer(resolve));}
+async function pdfPages(def){return new Promise(resolve=>pdfEngine.createPdf(def)._getPages({},resolve));}
 (async()=>{
+ // Assert visual word positions, not merely a valid PDF/font header.
+ const pages=await pdfPages({defaultStyle:{font:'Tajawal'},content:[
+  {text:'كشف حساب عمر حسين الراقي',alignment:'right'},
+  {text:'الرصيد 300,000 دائن بتاريخ \u200e2026-11-12\u200e',alignment:'right'},
+  {text:'\u200e2026-11-12\u200e',alignment:'right'},
+  {columns:[{width:100,text:'هذه جملة عربية طويلة لاختبار ترتيب الكلمات عندما يلتف البيان إلى أكثر من سطر',alignment:'right'}]}
+ ]});
+ const lines=pages.flatMap(p=>p.items.filter(i=>i.type==='line').map(i=>i.item.inlines));
+ assert.deepEqual(lines[0].map(i=>i.text.trim()).filter(Boolean),['الراقي','حسين','عمر','حساب','كشف'],'Arabic words must run right to left');
+ assert(lines[1].some(i=>i.text==='300,000'),'Amount digits retain their order');
+ assert(lines[1].some(i=>i.text==='2026-11-12'),'Mixed ISO date retains its order');
+ assert.equal(lines[2].map(i=>i.text).join(''),'2026-11-12','Standalone ISO date has no painted direction controls');
+ assert(lines.length>5,'Long Arabic text must wrap into several lines');
+ const wrapped=lines.slice(3).map(line=>line.map(i=>i.text.trim()).filter(Boolean).reverse().join(' ')).join(' ');
+ assert.equal(wrapped,'هذه جملة عربية طويلة لاختبار ترتيب الكلمات عندما يلتف البيان إلى أكثر من سطر','Logical word sequence survives line wrapping');
+ const marked=h.replace('<td>75 مدين</td>','<td class="ratib-vector-matched">٧٥٬٠٠٠ مدين (مطابق)</td>');
+ const balance=win.RatibDirectVectorPdf.documentDefinition(marked).content.find(x=>x.table).table.body[1][0];
+ assert.equal(balance.fillColor,'#DCFCE7');assert.equal(balance.text,'75,000 مدين (مطابق)');
+ assert.equal(body[1][0].fillColor,undefined,'Unverified balance stays unhighlighted');
  const buf=await pdfBuffer(model);
  assert(buf.subarray(0,8).toString().startsWith('%PDF-'),'Must generate valid PDF');
  assert(buf.length>12000,'Embedded Arabic font should be present');

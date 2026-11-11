@@ -106,3 +106,10 @@
   print-color-adjust:exact;-webkit-print-color-adjust:exact;
  }
 }
+
+@media print {
+ body.printing-vector-statement .ratib-vector-table td.ratib-vector-matched {
+  background:#dcfce7!important;color:#14532d!important;font-weight:700;
+  print-color-adjust:exact;-webkit-print-color-adjust:exact;
+ }
+}

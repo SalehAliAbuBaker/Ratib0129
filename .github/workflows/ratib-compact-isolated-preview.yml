@@ -1,0 +1,85 @@
+name: Ratib compact-storage isolated preview verification
+on:
+  push:
+    branches: ['preview/ratib-compact-20261111']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  isolated-smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Install test libraries
+        run: npm install --ignore-scripts --no-audit --no-fund
+      - name: Verify lossless archive compression and existing safety protections
+        run: |
+          node test-compact-storage-backups-20261111.cjs
+          node test-official-archive-write-guard-20261111.cjs
+          node test-official-recovery-stale-flush-20261111.cjs
+          node test-accounting-3.6.59.cjs
+          node test-statement-3.6.60.cjs
+          node test-statement-3.6.79.cjs
+      - name: Measure synthetic 22,100-row backup compression
+        run: |
+          node - <<'NODE'
+          const zlib=require('node:zlib'),crypto=require('node:crypto');
+          const history=Array.from({length:53},(_,i)=>({
+            month:'2022-'+String(i%12+1).padStart(2,'0'),
+            transactions:[]
+          }));
+          let j=0;
+          for(let i=0;i<22100;i++){
+            const h=history[i%history.length];
+            h.transactions.push({
+              id:'synthetic-'+i,multiVoucherId:'v-'+Math.floor(i*10421/22100),
+              isoDate:'2024-10-12',amount:(i*19.15).toFixed(2),currency:'YER',
+              accountCode:'230101',description:'بيان حسابي اصطناعي للتجربة',
+              legacySource:{system:'Synthetic',sourceRows:[String(i)],rounding:'HALF_UP_2_DECIMALS'}
+            });
+          }
+          const p={app:'ratib',schema:3,encrypted:false,data:{
+            masar_plan:{month:'2026-11',transactions:[]},masar_history:history
+          }};
+          const raw=Buffer.from(JSON.stringify(p));
+          const zipped=zlib.gzipSync(raw,{level:6});
+          if(!zlib.gunzipSync(zipped).equals(raw))throw Error('Lossless synthetic backup comparison failed');
+          const result={
+            source:'SYNTHETIC ONLY / not user accounting data',
+            transactions:22100,periods:53,
+            original_bytes:raw.length,compressed_bytes:zipped.length,
+            reduction_percent:Number((100*(1-zipped.length/raw.length)).toFixed(2)),
+            sha256:crypto.createHash('sha256').update(raw).digest('hex'),
+            roundtrip:'PASS'
+          };
+          require('node:fs').writeFileSync('compact-preview-benchmark.json',JSON.stringify(result,null,2));
+          console.log(JSON.stringify(result,null,2));
+          NODE
+      - name: Probe branch-specific Cloudflare Pages preview without claiming publication
+        if: always()
+        run: |
+          set +e
+          echo "Only exact matching branch-preview HTML is considered confirmed."
+          echo "Expected source contains: ratibCompactExistingArchive"
+          for site in ratibtrial ratib; do
+            url="https://preview-ratib-compact-20261111.${site}.pages.dev/"
+            output="/tmp/ratib-preview-${site}.html"
+            code=$(curl -sS -L --max-time 15 -o "$output" -w '%{http_code}' "$url" 2>/dev/null)
+            if [ "$code" = "200" ] && grep -q 'ratibCompactExistingArchive' "$output"; then
+              echo "CONFIRMED_PREVIEW_URL=$url"
+            else
+              echo "NOT_CONFIRMED_PREVIEW_URL=$url HTTP=${code:-error}"
+            fi
+          done
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ratib-compact-synthetic-benchmark
+          path: compact-preview-benchmark.json
+          retention-days: 7
+          if-no-files-found: ignore

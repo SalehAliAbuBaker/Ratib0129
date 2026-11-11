@@ -52,16 +52,16 @@ runAllAccountsSummaryReport=function(targetTxs){
   const name=document.createElement("td"),debit=document.createElement("td"),credit=document.createElement("td"),balance=document.createElement("td");
   const strong=document.createElement("b");strong.textContent=account.name;name.append(strong);
   const group=document.createElement("small");group.style.color="var(--muted)";group.textContent=" ("+account.group+")";name.append(group);
-  debit.textContent=round(account.debit).toLocaleString("en-US",{maximumFractionDigits:6});
-  credit.textContent=round(account.credit).toLocaleString("en-US",{maximumFractionDigits:6});
+  debit.textContent=round(account.debit).toLocaleString("en-US",{maximumFractionDigits:2});
+  credit.textContent=round(account.credit).toLocaleString("en-US",{maximumFractionDigits:2});
   const net=round(account.credit-account.debit);
-  balance.textContent=Math.abs(net).toLocaleString("en-US",{maximumFractionDigits:6})+" "+(net<0?"مدين":"دائن");
+  balance.textContent=Math.abs(net).toLocaleString("en-US",{maximumFractionDigits:2})+" "+(net<0?"مدين":"دائن");
   debit.style.color="var(--danger)";credit.style.color="var(--ok)";balance.style.fontWeight="700";
   tr.append(name,debit,credit,balance);
   tr.addEventListener("click",()=>{toggleReportView("accounts");selReportAccount.setValue(account.name,account.name);runAccountStatement();});
   tbody.append(tr);
  }
- const display=n=>round(n).toLocaleString("en-US",{maximumFractionDigits:6});
+ const display=n=>round(n).toLocaleString("en-US",{maximumFractionDigits:2});
  const d=document.getElementById("allTotalDebit"),c=document.getElementById("allTotalCredit"),b=document.getElementById("allTotalBalance");
  if(d)d.textContent=display(gDebit);if(c)c.textContent=display(gCredit);
  const net=round(gCredit-gDebit);
@@ -86,12 +86,12 @@ preparePrintStatementTemplate=function(accountName,transactions,opening,periodTi
   for(const leg of visible){
    const tr=document.createElement("tr"),tx=leg.tx||{};
    const note=leg.meta?.note||Object.values(tx.execution||{})[0]?.note||"";
-   const values=[leg.date,String(tx.seqNum||"—"),leg.account+(note?" — "+note:""),leg.debit?round(leg.debit).toLocaleString("en-US",{maximumFractionDigits:6}):"",leg.credit?round(leg.credit).toLocaleString("en-US",{maximumFractionDigits:6}):"",""];
+   const values=[leg.date,String(tx.seqNum||"—"),leg.account+(note?" — "+note:""),leg.debit?round(leg.debit).toLocaleString("en-US",{maximumFractionDigits:2}):"",leg.credit?round(leg.credit).toLocaleString("en-US",{maximumFractionDigits:2}):"",""];
    for(const value of values){const td=document.createElement("td");td.textContent=value;tr.append(td);}
    tbody.append(tr);debit+=Number(leg.debit);credit+=Number(leg.credit);
   }
  }
- const net=round(credit-debit),fmt=n=>round(n).toLocaleString("en-US",{maximumFractionDigits:6});
+ const net=round(credit-debit),fmt=n=>round(n).toLocaleString("en-US",{maximumFractionDigits:2});
  set("psTotAlaykom",fmt(debit));set("psTotLakam",fmt(credit));
  set("psNetBal",fmt(Math.abs(net))+" "+(net<0?"مدين":"دائن"));
  set("psTafqitText","فروق تجميع القيود "+currency+": "+fmt(Math.abs(net))+" "+(net<0?"مدين":"دائن"));

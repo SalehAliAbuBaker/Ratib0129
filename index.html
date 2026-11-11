@@ -3272,14 +3272,42 @@ async function deriveVaultKey(pin,saltB64){
   const key=await crypto.subtle.deriveKey({name:'PBKDF2',salt,iterations:150000,hash:'SHA-256'},baseKey,{name:'AES-GCM',length:256},true,['encrypt','decrypt']);
   return {key,saltB64:saltB64||_b64(salt)};
 }
+// Lossless browser-native gzip. Legacy JSON and legacy AES-GCM blobs remain readable.
+async function ratibGzipBlob(input){
+  if(typeof CompressionStream!=='function')return null;
+  return new Response(new Blob([input]).stream().pipeThrough(new CompressionStream('gzip'))).blob();
+}
+async function ratibGunzipText(blob){
+  if(typeof DecompressionStream!=='function')throw new Error('يلزم متصفح يدعم فك ضغط GZIP لقراءة الأرشيف.');
+  return new Response(blob.stream().pipeThrough(new DecompressionStream('gzip'))).text();
+}
+async function ratibPackBackup(payload){
+  const json=JSON.stringify(payload);
+  const plain=new Blob([json],{type:'application/json'});
+  const packed=await ratibGzipBlob(plain);
+  if(packed&&packed.size>0&&packed.size<plain.size)
+    return {blob:packed,extension:'.json.gz',mime:'application/gzip',rawBytes:plain.size};
+  return {blob:plain,extension:'.json',mime:'application/json',rawBytes:plain.size};
+}
 async function encryptVaultBlob(key,dataObj){
   const iv=crypto.getRandomValues(new Uint8Array(12));
-  const cipher=await crypto.subtle.encrypt({name:'AES-GCM',iv},key,new TextEncoder().encode(JSON.stringify(dataObj)));
-  return {iv:_b64(iv),data:_b64(cipher)};
+  let bytes=new TextEncoder().encode(JSON.stringify(dataObj)),compression=null;
+  if(bytes.byteLength>256000&&typeof CompressionStream==='function'){
+    const packed=await ratibGzipBlob(bytes);
+    if(packed&&packed.size>0&&packed.size<bytes.byteLength){
+      bytes=new Uint8Array(await packed.arrayBuffer());compression='gzip';
+    }
+  }
+  const cipher=await crypto.subtle.encrypt({name:'AES-GCM',iv},key,bytes);
+  return {iv:_b64(iv),data:_b64(cipher),...(compression?{compression}:{})};
 }
 async function decryptVaultBlob(key,blob){
   const plain=await crypto.subtle.decrypt({name:'AES-GCM',iv:_fromB64(blob.iv)},key,_fromB64(blob.data));
-  return JSON.parse(new TextDecoder().decode(plain));
+  if(blob.compression&&blob.compression!=='gzip')throw new Error('صيغة ضغط الخزنة غير مدعومة.');
+  const json=blob.compression==='gzip'
+    ?await ratibGunzipText(new Blob([plain]))
+    :new TextDecoder().decode(plain);
+  return JSON.parse(json);
 }
 function _snapshotMemStore(){
   const out=Object.create(null);
@@ -3365,15 +3393,42 @@ const store={
   }
 };
 function _nextStorageMeta(){_storageStamp=Math.max(Date.now(),_storageStamp+1);return {updatedAt:_storageStamp};}
+// Only the durable IndexedDB representation is compact; all application-facing
+// archive objects stay unchanged. Atomic writes preserve the old archive on error.
+function ratibIsPackedArchive(v){return !!(v&&v.__ratibArchiveGzip===1&&v.codec==='gzip'&&v.blob instanceof Blob);}
+async function ratibEncodeArchive(history){
+  if(!Array.isArray(history)||typeof CompressionStream!=='function')return history;
+  const rows=history.reduce((n,p)=>n+(Array.isArray(p?.transactions)?p.transactions.length:0),0);
+  if(rows<=1500)return history;
+  const json=JSON.stringify(history),packed=await ratibGzipBlob(json);
+  if(!packed||!packed.size||packed.size>=new Blob([json]).size)return history;
+  return {__ratibArchiveGzip:1,codec:'gzip',rows,periods:history.length,blob:packed};
+}
+async function ratibDecodeArchive(packed){
+  if(!ratibIsPackedArchive(packed))return packed;
+  const history=JSON.parse(await ratibGunzipText(packed.blob));
+  if(!Array.isArray(history)||history.length!==packed.periods||
+     history.reduce((n,p)=>n+(Array.isArray(p?.transactions)?p.transactions.length:0),0)!==packed.rows)
+    throw new Error('تعذر التحقق من سلامة الأرشيف المضغوط؛ لم تُحمّل بيانات ناقصة.');
+  return history;
+}
 async function _readShadowRecords(){
   const db=await _openBackupIdb();
-  return new Promise((resolve,reject)=>{
+  const out=await new Promise((resolve,reject)=>{
     const tx=db.transaction('handles','readonly'),os=tx.objectStore('handles'),out=Object.create(null);
     const req=os.openCursor();req.onsuccess=()=>{const c=req.result;if(!c)return;const key=String(c.key);if(key.startsWith('shadow_'+APP_STORAGE_PREFIX))out[key.slice(7)]=c.value;c.continue();};
     tx.oncomplete=()=>resolve(out);tx.onerror=tx.onabort=()=>reject(tx.error||new Error('تعذرت قراءة قاعدة البيانات'));
   });
+  const key=APP_STORAGE_PREFIX+'history';
+  if(out[key]?.__ratibArchiveGzip===1)out[key]=await ratibDecodeArchive(out[key]);
+  return out;
 }
 async function _writeShadowRecords(records,deleted=[],replace=false){
+  // Compression must happen before opening an IDB transaction; otherwise the
+  // transaction could auto-commit while awaiting the compression stream.
+  const durable={...records},archiveKey=APP_STORAGE_PREFIX+'history';
+  if(Object.prototype.hasOwnProperty.call(durable,archiveKey))
+    durable[archiveKey]=await ratibEncodeArchive(durable[archiveKey]);
   const db=await _openBackupIdb();
   return new Promise((resolve,reject)=>{
     const tx=db.transaction('handles','readwrite'),os=tx.objectStore('handles');
@@ -3384,7 +3439,7 @@ async function _writeShadowRecords(records,deleted=[],replace=false){
       const write=()=>{
         if(replace){for(const key of index)os.delete('shadow_'+key);index.clear();}
         for(const key of deleted){os.delete('shadow_'+key);index.delete(key);}
-        for(const [key,value] of Object.entries(records)){os.put(value,'shadow_'+key);index.add(key);}
+        for(const [key,value] of Object.entries(durable)){os.put(value,'shadow_'+key);index.add(key);}
         os.put([...index],'shadow_index');
       };
       // Another tab can retain an old one-month ledger. Verify the committed
@@ -3463,6 +3518,7 @@ let _largeArchiveAuthority=false;
 let _ratibArchiveRecoveryRequired=false;
 function _largeArchiveRows(records){
   const h=records?.[APP_STORAGE_PREFIX+'history'];
+  if(ratibIsPackedArchive(h))return Number.isSafeInteger(h.rows)?h.rows:0;
   return Array.isArray(h)?h.reduce((sum,period)=>sum+(Array.isArray(period?.transactions)?period.transactions.length:0),0):0;
 }
 function _largeArchiveMarkerRows(){
@@ -3984,8 +4040,13 @@ async function buildBackupPayload() {
 }
 
 async function exportBackupFile(){
-  try{const payload=await buildBackupPayload();downloadBackupPayload(payload,`ratib-backup-${backupStamp()}.json`);showToast('تم تجهيز ملف النسخة الاحتياطية للتنزيل','info');return true;}
-  catch(e){console.error(e);showToast('تعذّر إنشاء النسخة الاحتياطية؛ احتفظ بالصفحة مفتوحة.','error');return false;}
+  try{
+    await flushStorage();
+    const payload=await buildBackupPayload(),packed=await ratibPackBackup(payload);
+    downloadBackupBlob(packed.blob,`ratib-backup-${backupStamp()}${packed.extension}`);
+    showToast('تم تجهيز النسخة الاحتياطية للتنزيل'+(packed.extension.endsWith('.gz')?' بصيغة مضغوطة':''),'info');
+    return true;
+  }catch(e){console.error(e);showToast('تعذّر إنشاء النسخة الاحتياطية؛ احتفظ بالصفحة مفتوحة.','error');return false;}
 }
 
 function normalizeRestoredAccountTree(tree) {
@@ -4179,7 +4240,7 @@ const BACKUP_MAX_FILES = 100;
 // نُنشئ ملفاً جديداً دائماً كل هذه المدة، وبين ذلك نستبدل آخر ملف بنسخة أحدث منه.
 const LOCAL_NEW_FILE_MIN_INTERVAL_MS = 3 * 60 * 60 * 1000;
 const AUTO_BACKUP_PREFIX = 'ratib-auto-';
-const AUTO_BACKUP_NAME_RE = /^ratib-auto-\d{4}-\d{2}-\d{2}_\d{2}-\d{2}-\d{2}\.json$/;
+const AUTO_BACKUP_NAME_RE = /^ratib-auto-\d{4}-\d{2}-\d{2}_\d{2}-\d{2}-\d{2}\.json(?:\.gz)?$/;
 function _pad2(n) { return String(n).padStart(2, '0'); }
 function backupStamp(d = new Date()) {
   return `${d.getFullYear()}-${_pad2(d.getMonth() + 1)}-${_pad2(d.getDate())}_${_pad2(d.getHours())}-${_pad2(d.getMinutes())}-${_pad2(d.getSeconds())}`;
@@ -4213,10 +4274,11 @@ async function writeAutoBackup() {
     const items = await listLocalBackups(handle);
     const newest = items[items.length - 1] || null;
 
-    const name = AUTO_BACKUP_PREFIX + backupStamp(now) + '.json';
+    const packed = await ratibPackBackup(payload);
+    const name = AUTO_BACKUP_PREFIX + backupStamp(now) + packed.extension;
     const fileHandle = await handle.getFileHandle(name, { create: true });
     const writable = await fileHandle.createWritable();
-    await writable.write(JSON.stringify(payload));
+    await writable.write(packed.blob);
     await writable.close();
 
     // نافذة الدمج تُقاس من بداية النافذة (المرساة) لا من آخر حفظ، كي يبقى ملف واحد على الأقل كل 3 ساعات
@@ -4421,7 +4483,7 @@ async function listCloudBackups(token, folderId, origin = 'official') {
   do {
     const url = `https://www.googleapis.com/drive/v3/files?q=${q}&fields=nextPageToken,files(id,name,size,createdTime)&pageSize=1000` + (pageToken ? '&pageToken=' + encodeURIComponent(pageToken) : '');
     const r = await (await driveFetch(url, {}, token)).json();
-    results.push(...(r.files || []).filter(f => f.name && /^ratib-(?:trial-)?cloud-.*\.json$/i.test(f.name)).map(f => ({ ...f, origin })));
+    results.push(...(r.files || []).filter(f => f.name && /^ratib-(?:trial-)?cloud-.*\.json(?:\.gz)?$/i.test(f.name)).map(f => ({ ...f, origin })));
     pageToken = r.nextPageToken || '';
   } while (pageToken);
   return results.sort((a,b) => a.name.localeCompare(b.name));
@@ -4440,12 +4502,16 @@ async function pruneCloudBackups(token, folderId) {
 }
 
 async function uploadCloudBackup(token, folderId, name, content) {
-  const boundary = 'ratibB' + crypto.randomUUID().replaceAll('-', '');
-  const meta = JSON.stringify({ name, parents: [folderId], mimeType: 'application/json' });
-  const body = `--${boundary}\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n${meta}\r\n--${boundary}\r\nContent-Type: application/json\r\n\r\n${content}\r\n--${boundary}--`;
+  const boundary='ratibB'+crypto.randomUUID().replaceAll('-','');
+  const mime=/\.gz$/i.test(name)?'application/gzip':'application/json';
+  const meta=JSON.stringify({name,parents:[folderId],mimeType:mime});
+  const body=new Blob([
+    `--${boundary}\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n${meta}\r\n--${boundary}\r\nContent-Type: ${mime}\r\n\r\n`,
+    content,`\r\n--${boundary}--`
+  ]);
   return (await driveFetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id,name', {
-    method: 'POST', headers: { 'Content-Type': `multipart/related; boundary=${boundary}` }, body
-  }, token)).json();
+    method:'POST',headers:{'Content-Type':`multipart/related; boundary=${boundary}`},body
+  },token)).json();
 }
 
 // Do not call the upload complete until Drive confirms the stored file, folder, name and byte length.
@@ -4456,7 +4522,7 @@ async function verifyCloudFile(token, item) {
   const file = await response.json();
   if (!file || file.id !== item.id || file.name !== item.name ||
       !Array.isArray(file.parents) || !file.parents.includes(item.folderId) ||
-      file.trashed === true || file.mimeType !== 'application/json' ||
+      file.trashed === true || file.mimeType !== (/\.gz$/i.test(item.name)?'application/gzip':'application/json') ||
       !Number.isFinite(Number(file.size)) || Number(file.size) !== item.bytes || item.bytes < 1) {
     throw new Error('لم تتطابق بيانات النسخة الموجودة في Google Drive مع الملف المطلوب؛ لم يُعتمد نجاح الرفع.');
   }
@@ -4528,19 +4594,19 @@ async function runCloudBackup(interactive, destinationOverride = null) {
     // Include all saved accounting updates before taking the backup snapshot.
     await flushStorage();
     const payload = await buildBackupPayload();
-    const content = JSON.stringify(payload);
+    const packed = await ratibPackBackup(payload);
     const now = new Date();
     const prefix = dest === 'official' ? CLOUD_FILE_PREFIX : CLOUD_LEGACY_PREFIX;
     const baseName = `${prefix}${backupStamp(now)}`;
     const files = await listCloudBackups(token, folderId);
-    let name = baseName + '.json', suffix = 1;
-    while (files.some(f => f.name === name)) name = `${baseName}-${suffix++}.json`;
+    let name = baseName + packed.extension, suffix = 1;
+    while (files.some(f => f.name === name)) name = `${baseName}-${suffix++}${packed.extension}`;
     const pending = { id: null, name, folderId, destination: dest,
-      bytes: new TextEncoder().encode(content).length, attemptedAt: now.toISOString() };
+      bytes: packed.blob.size, attemptedAt: now.toISOString() };
     // Persist intention first: unexpected WebView suspension must not trigger duplicate uploads.
     saveCloudCfg({ pendingUpload: pending, lastStatus: 'uploading', lastError: '' }, true);
     await flushStorage();
-    const uploaded = await uploadCloudBackup(token, folderId, name, content);
+    const uploaded = await uploadCloudBackup(token, folderId, name, packed.blob);
     if (uploaded?.id) {
       pending.id = uploaded.id;
       saveCloudCfg({ pendingUpload: pending }, true);
@@ -4686,9 +4752,9 @@ async function openCloudRestoreModal() {
         try {
           const currentToken = await getDriveToken(true);
           const res = await driveFetch(`https://www.googleapis.com/drive/v3/files/${encodeURIComponent(f.id)}?alt=media`, {}, currentToken);
-          const content = await res.text();
-          if (!content.trim()) throw new Error('ملف النسخة السحابية فارغ؛ لم تتغير بيانات الجهاز.');
-          const restored = await importBackupFile(new File([content], f.name, { type: 'application/json' }));
+          const content = await res.blob();
+          if (!content.size) throw new Error('ملف النسخة السحابية فارغ؛ لم تتغير بيانات الجهاز.');
+          const restored = await importBackupFile(new File([content], f.name, { type: /\.gz$/i.test(f.name)?'application/gzip':'application/json' }));
           if (restored) modal.classList.remove('show');
         } catch (e) { showToast('تعذّرت الاستعادة: ' + (e.message || e), 'error', 6000); } finally { btn.disabled = false; }
       });
@@ -10533,8 +10599,13 @@ function validateRestoredData(data){
   return txs.length;
 }
 
+function downloadBackupBlob(blob,name){
+  const url=URL.createObjectURL(blob),a=document.createElement('a');
+  a.href=url;a.download=name;document.body.appendChild(a);a.click();a.remove();
+  setTimeout(()=>URL.revokeObjectURL(url),1500);
+}
 function downloadBackupPayload(payload,name){
-  const blob=new Blob([JSON.stringify(payload)],{type:'application/json'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1500);
+  downloadBackupBlob(new Blob([JSON.stringify(payload)],{type:'application/json'}),name);
 }
 
 let _backupDbPromise=null;

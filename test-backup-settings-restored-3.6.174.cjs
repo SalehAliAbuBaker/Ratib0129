@@ -17,7 +17,7 @@ assert(html.includes("document.getElementById('exportDataBtn')?.addEventListener
 assert(html.includes("document.getElementById('importDataBtn')?.addEventListener('click'"));
 assert(html.includes("$('cloudRunNowBtn')?.addEventListener('click'"));
 assert(html.includes("$('cloudRestoreBtn')?.addEventListener('click'"));
-assert(/downloadBackupPayload\\(rollback,\\s*(?:`ratib-before-restore-|['"]ratib-before-restore-['"]\\s*\\+)/.test(html),'Restore still saves rollback backup');
+assert(html.includes("downloadBackupPayload(rollback,'ratib-before-restore-'")||html.includes("downloadBackupPayload(rollback,`ratib-before-restore-"),'Restore still saves rollback backup');
 assert(html.includes("if(!confirm('سيتم استبدال بيانات راتب الرسمي.")||html.includes("if(!confirm(`سيتم استبدال جميع البيانات الحالية"),'Restore still explicitly confirms data replacement');
 const fixture='<html lang="ar"><head></head><body>'+
  '<button id="sidebarMenuBtn">⚙</button><button id="backToMenuBtn"></button>'+

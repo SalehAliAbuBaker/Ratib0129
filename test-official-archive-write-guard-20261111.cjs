@@ -14,6 +14,7 @@ const slice=(a,b)=>{
 const writes=slice('async function _writeShadowRecords(records','function _localRecords()');
 const archive=slice('const LARGE_ARCHIVE_AUTH_KEY=', 'async function _persistPending()');
 const pending=slice('async function _persistPending()', 'async function flushStorage()');
+const persistence=slice('function _mirrorRecords(records','function _enqueuePersistence(');
 assert(pending.includes('_largeArchiveRows(_memStore)<protectedRows'),
   'Prevent old in-memory account state from updating the storage timestamp');
 assert(pending.includes('throw new Error('),'Old tabs must explicitly report blocked writes');
@@ -28,11 +29,13 @@ const dbPromise=new Promise((resolve,reject)=>{
 const local=new Map();
 const context={
   APP_STORAGE_PREFIX:'masar_', _openBackupIdb:()=>dbPromise,
-  localStorage:{getItem:key=>local.get(key)??null,setItem:(key,val)=>local.set(key,String(val))},
+  localStorage:{getItem:key=>local.get(key)??null,setItem:(key,val)=>local.set(key,String(val)),removeItem:key=>local.delete(key)},
+  SECURITY_CONFIG_KEY:'masar_security_config_v2',STORAGE_META_KEY:'masar_storage_meta_v1',STORAGE_STAGE_KEY:'masar_storage_pending_v1',
+  _snapshotMemStore:()=>({}),cloneData:structuredClone,console,
   JSON,Number,Object,Array,Promise,Set,Error,
 };
-vm.runInNewContext(archive+'\n'+writes+'\nthis.archiveGuard={write:_writeShadowRecords,rows:_largeArchiveRows,marker:_largeArchiveMarkerRows};',context);
-const {write,rows,marker}=context.archiveGuard;
+vm.runInNewContext(archive+'\n'+writes+'\n'+persistence+'\nthis.archiveGuard={write:_writeShadowRecords,persist:_persistRecords,rows:_largeArchiveRows,marker:_largeArchiveMarkerRows};',context);
+const {write,persist,rows,marker}=context.archiveGuard;
 const history=Array.from({length:53},(_,i)=>({
  month:'2022-'+String(i%12+1).padStart(2,'0'),
  transactions:Array.from({length:i===52?110:420},(_,j)=>({id:'synthetic-'+i+'-'+j}))
@@ -62,6 +65,8 @@ async function main(){
  await write({masar_history:stale},[],true); // Explicit replacement path, e.g. a user-approved restore
  await assert.rejects(write({masar_theme:'light'},[],false),/حماية الأرشيف/);
  assert.equal(await read('masar_theme'),undefined,'Explicit replacement correctly removes old preference keys');
+ await assert.rejects(persist({masar_theme:'light'},[],false),/حماية الأرشيف/);
+ assert.equal(local.get('masar_theme'),undefined,'Integrity errors must never fall back to a stale localStorage copy');
 
  // Existing boot path must fail closed when authority marker differs from the physical archive.
  assert(html.includes('if(_largeArchiveRows(shadow)!==Number(archiveMarker.rows))'));

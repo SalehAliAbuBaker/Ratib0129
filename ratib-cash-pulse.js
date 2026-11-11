@@ -8,7 +8,7 @@
 const byId=id=>document.getElementById(id);
 const pulseSearchFold=value=>String(value??'').normalize('NFKC').replace(/[\u064B-\u065F\u0670\u0640]/g,'').replace(/[أإآٱ]/g,'ا').trim().toLocaleLowerCase('ar');
 const iso=x=>/^\d{4}-\d{2}-\d{2}$/.test(String(x||''));
-const fmt=(n,c)=>new Intl.NumberFormat('en-US',{maximumFractionDigits:3}).format(Math.abs(n)<1e-8?0:n)+(c?' '+c:'');
+const fmt=(n,c)=>new Intl.NumberFormat('en-US',{maximumFractionDigits:2}).format(Math.abs(n)<1e-8?0:n)+(c?' '+c:'');
 const ALL_CASH='__all_cash_and_banks__';
 let expanded=false,root=null,kind='',visible=[],lastAccount='',lastCurrency='',refreshPending=false;
 function today(){

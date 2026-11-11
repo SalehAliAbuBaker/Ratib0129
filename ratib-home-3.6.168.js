@@ -48,7 +48,7 @@ function pulseNumbers(){
  const hint=quick.nextElementSibling;
  function reset(message){for(const n of values)n.textContent='—';if(hint&&hint.classList.contains('ratib-pulse-hint'))hint.textContent=message||'اختر حسابًا نقديًا لعرض الأرصدة';}
  function show(e){const d=e.detail||{};const code=String(d.currency||'').trim();if(!/^[A-Z]{3}$/.test(code))return;
- const fmt=x=>new Intl.NumberFormat('en-US',{maximumFractionDigits:3}).format(Number(x)||0)+' '+code;
+ const fmt=x=>new Intl.NumberFormat('en-US',{maximumFractionDigits:2}).format(Number(x)||0)+' '+code;
  for(const [i,x] of [d.closing,d.receipts,d.payments].entries())values[i].textContent=fmt(x);
  if(hint&&hint.classList.contains('ratib-pulse-hint'))hint.textContent=(d.accountLabel||'الحسابات المختارة')+' · '+(d.periodLabel||'الفترة الحالية')+' · '+code;
  }

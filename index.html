@@ -1674,6 +1674,16 @@ body.ratib-sidebar-open,body.ratib-about-open{overflow:hidden}
 
 <link rel="stylesheet" href="./ratib-report-menu-3.6.176.css?v=3.6.177">
 <link rel="stylesheet" href="./ratib-ledger-date-filter-3.6.177.css?v=3.6.177">
+<style id="ratib-statement-page-style-20261111">
+.ratib-statement-page-tools{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin:8px 0 12px;padding:8px;background:var(--bg);border:1px solid var(--border);border-radius:12px;color:var(--text)}
+.ratib-statement-page-tools label{display:flex;align-items:center;gap:6px;flex:1 1 155px;min-width:0;font-size:13px;font-weight:500}
+.ratib-statement-page-tools select{flex:1 1 auto;min-width:0;max-width:185px;height:38px;font:inherit;background:var(--card);color:var(--text);border:1px solid var(--border);border-radius:9px;padding:4px}
+.ratib-statement-page-actions{display:flex;align-items:center;justify-content:center;gap:8px;flex:1 1 100%;font-size:13px;text-align:center}
+.ratib-statement-page-actions button{width:auto!important;min-width:74px;min-height:36px;padding:5px 9px;font:inherit;background:var(--card);color:var(--text);border:1px solid var(--border);border-radius:9px;cursor:pointer}
+.ratib-statement-page-actions button:disabled{opacity:.45;cursor:default}
+@media(max-width:450px){.ratib-statement-page-tools{padding:6px}.ratib-statement-page-tools label{flex:1 1 100%}.ratib-statement-page-tools select{max-width:none}}
+@media print{.ratib-statement-page-tools{display:none!important}}
+</style>
 </head>
 <body>
 
@@ -4859,7 +4869,7 @@ function audit(action, entityId, before=null, after=null) {
 }
 
 function getAllTransactions() {
-  const current = (store.get('plan', null) && store.get('plan', null).transactions) || [];
+  const current = store.get('plan', null)?.transactions || [];
   const history = store.get('history', []);
   return current.concat(...(Array.isArray(history) ? history.map(h => Array.isArray(h.transactions) ? h.transactions : []) : []));
 }
@@ -4918,7 +4928,7 @@ function updateProDashboard(){
   const txs=dashboardTransactions(),cur=getGlobalCurrency(),selected=txs.filter(t=>t.currency===cur);
   const income=selected.filter(t=>t.voucherMode==='income'&&(!t.isMultiVoucher||!!t.creditAccount)).reduce((sum,t)=>sum+Number(t.amount||0),0);
   const expense=selected.filter(t=>(t.isExpense||t.voucherMode==='spend')&&(!t.isMultiVoucher||!!t.debitAccount)).reduce((sum,t)=>sum+Number(t.amount||0),0);
-  for(const [id,value] of [['proIncomeKpi',income],['proExpenseKpi',expense],['proNetKpi',income-expense]]){const el=document.getElementById(id);if(el)el.textContent=fmt(value,cur);}
+  for(const [id,value] of [['proIncomeKpi',income],['proExpenseKpi',expense],['proNetKpi',income-expense]]){const el=document.getElementById(id);if(el)el.textContent=fmt(Number(Number(value||0).toFixed(2)),cur);}
   const pending=document.getElementById('proPendingKpi');if(pending)pending.textContent=String(txs.filter(t=>t.status==='draft'||t.status==='pending').length);
   const alerts=[],ceilings=getAccountCeilings();
   Object.entries(ceilings).forEach(([acc,c])=>{
@@ -5876,9 +5886,9 @@ function navigateToTab(target, pushToHistory = true) {
     syncSidebarCurrentPage();
     document.getElementById('pageDashboard').classList.remove('hidden');
     closeDashboardHome(false);
+    // updateProDashboard already updates reminders when their signature changes
+    // and schedules the graph. Do not render both a second time on home return.
     updateProDashboard();
-    renderRemindersList();
-    renderRemindersChart();
     return;
   }
   document.getElementById(target).classList.remove('hidden');
@@ -7514,7 +7524,9 @@ function renderAllData(force=false) {
     container.appendChild(card);
   });
   if(txs.length>ledgerVisibleLimit){const more=document.createElement('button');more.type='button';more.className='btn btn-ghost';more.textContent=`عرض المزيد (${txs.length-ledgerVisibleLimit})`;more.addEventListener('click',()=>{ledgerVisibleLimit+=50;renderAllData(true);});container.append(more);}
-  updateProDashboard();
+  // Ledger navigation is read-only. Recomputing the hidden dashboard and Cash Pulse
+  // here would scan the restored 22k-line archive again without any visible benefit.
+  if(currentActiveTab==='pageDashboard')updateProDashboard();
   // تحديث ميزان المراجعة إن كان قسمه مفتوحاً حالياً، حتى يعكس أي تعديل جديد فوراً
   if (document.getElementById('reportsGroupTrialBody')?.classList.contains('open')) runTrialBalanceReport();
 }
@@ -8639,7 +8651,7 @@ function getAccountPagerBalances(){
   });
   return balances;
 }
-let accountOpsState={accountName:'',scopeNames:[],from:'',to:'',filtered:false,currency:'ALL',activeCurrency:'YER',movementSearch:''};
+let accountOpsState={accountName:'',scopeNames:[],from:'',to:'',filtered:false,currency:'ALL',activeCurrency:'YER',movementSearch:'',viewOrder:'newest',viewPageSize:50,viewPages:{}};
 const ACCOUNT_OPS_UI_DEFAULT={panelId:'accountOperationsStandalonePanel',tabsId:'accountCurrencyTabs'};
 let accountOpsUi=ACCOUNT_OPS_UI_DEFAULT;
 let accountOperationsReturnTab='pageAccountsTree';
@@ -8766,6 +8778,16 @@ function ratibApplyAccountMovementSearch(){
  if(!panel||!input)return;
  const search=ratibAccountMovementNormalize(input.value),
        terms=search.split(/\s+/).filter(Boolean);
+ if(panel.dataset.ratibPaginated==='1'){
+   const pages=[...panel.querySelectorAll('.account-currency-page')];
+   const matched=pages.reduce((n,p)=>n+Number(p.dataset.ratibMatched||0),0);
+   const total=pages.reduce((n,p)=>n+Number(p.dataset.ratibAll||0),0);
+   if(counter)counter.textContent=terms.length?
+      'نتائج البحث: '+matched+' من '+total+' حركة (يشمل كل الصفحات). الأرصدة والإجماليات لم تتغير.':
+      'عدد الحركات في الحساب: '+total+' · المعروض 50 أو 100 حركة في الصفحة.';
+   if(clear)clear.disabled=!input.value;
+   return;
+ }
  const rows=panel.querySelectorAll('.account-statement-row[data-tx-id]');
  // Opening a 3,925-line statement should not stringify every voucher's notes,
  // allocations and currency legs when the movement search box is empty.
@@ -8805,14 +8827,23 @@ function ratibApplyAccountMovementSearch(){
   'عدد الحركات في الحساب: '+total;
  if(clear)clear.disabled=!input.value;
 }
+let _ratibStatementSearchTimer=null;
 document.getElementById('ratibAccountMovementSearchInput')?.addEventListener('input',e=>{
  accountOpsState.movementSearch=e.target.value;
- ratibApplyAccountMovementSearch();
+ accountOpsState.viewPages={};
+ clearTimeout(_ratibStatementSearchTimer);
+ _ratibStatementSearchTimer=setTimeout(()=>{
+   if(accountOpsState.accountName&&accountOpsUi.panelId==='accountOperationsStandalonePanel')
+     renderAccountOperations(accountOpsState.accountName,accountOpsState.scopeNames,accountOpsUi);
+ },220);
 });
 document.getElementById('ratibAccountMovementSearchClear')?.addEventListener('click',()=>{
  const field=document.getElementById('ratibAccountMovementSearchInput');
- if(!field)return;field.value='';accountOpsState.movementSearch='';
- ratibApplyAccountMovementSearch();field.focus();
+ if(!field)return;
+ clearTimeout(_ratibStatementSearchTimer);
+ field.value='';accountOpsState.movementSearch='';accountOpsState.viewPages={};
+ renderAccountOperations(accountOpsState.accountName,accountOpsState.scopeNames,accountOpsUi);
+ field.focus({preventScroll:true});
 });
 
 function accountOpsMatchesSearch(t,entry){const q=String(accountOpsState.search||'').trim().toLowerCase();if(!q)return true;const note=entry?.line?.note||t.execution?.[Object.keys(t.execution||{})[0]]?.note||getTransactionDisplayType(t)||'';return [t.seqNum,getAccountOpsDate(t),note,entry?.amount].join(' ').toLowerCase().includes(q);}
@@ -8838,7 +8869,7 @@ function getAccountOpeningBalanceForOperations(scopeNames,fromDate,currency=acco
 }
 function getAccountRunningBalances(txs,scope,opening){
   const balances=new Map();let balance=opening;
-  [...txs].forEach(t=>{
+  txs.forEach(t=>{
     const entry=getAccountEntry(t,scope);
     balance+=(entry.bothSides?0:entry.side==='debit'?-1:1)*getAccountDisplayAmount(entry);
     balances.set(t,balance);
@@ -8856,6 +8887,20 @@ function setAccountCurrencyPage(currency,scroll=true){
   });
   if(scroll&&track)track.scrollTo({left:index*(track.clientWidth||1),behavior:'smooth'});
 }
+// Screen-only pager. Account totals/balances and printed data remain chronological.
+function ratibStatementDisplayPage(rows,order='newest',requestedPage=1,requestedSize=50){
+  const size=requestedSize===100?100:50,total=rows.length,pages=Math.max(1,Math.ceil(total/size));
+  const page=Math.max(1,Math.min(pages,Math.floor(Number(requestedPage))||1));
+  const start=(page-1)*size;
+  const displayed=order==='oldest'
+    ? rows.slice(start,start+size)
+    : rows.slice(Math.max(0,total-start-size),total-start).reverse();
+  return {rows:displayed,page,pages,total,size,from:total?start+1:0,to:Math.min(total,start+size)};
+}
+function ratibStatementDisplayAmount(amount){
+  const n=Number(amount);
+  return Number.isFinite(n)?n.toLocaleString('en-US',{minimumFractionDigits:0,maximumFractionDigits:2}):'0';
+}
 function renderAccountOperations(accountName,scopeNames=null,ui=null){
   accountOpsUi=ui||ACCOUNT_OPS_UI_DEFAULT;
   const panel=document.getElementById(accountOpsUi.panelId);if(!panel)return;
@@ -8866,28 +8911,41 @@ function renderAccountOperations(accountName,scopeNames=null,ui=null){
   const currencies=accountOpsState.currency==='ALL'?getAccountCurrencies(accountName,scope):[accountOpsState.currency];
   const requested=accountOpsState.activeCurrency;
   accountOpsState.activeCurrency=currencies.includes(requested)?requested:currencies[0];
+  const viewOrder=accountOpsState.viewOrder==='oldest'?'oldest':'newest';
+  const viewSize=accountOpsState.viewPageSize===100?100:50;
+  const searchTerms=accountOpsUi.panelId==='accountOperationsStandalonePanel'
+    ? ratibAccountMovementNormalize(accountOpsState.movementSearch||'').split(/\s+/).filter(Boolean)
+    : [];
+  const viewPages=accountOpsState.viewPages||{};
   const tabs=document.getElementById(accountOpsUi.tabsId);
   if(tabs){tabs.innerHTML=currencies.length>1?currencies.map((currency,index)=>`<button type="button" role="tab" data-currency="${esc(currency)}" aria-selected="${currency===accountOpsState.activeCurrency}" aria-label="عرض حساب ${esc(accountName)} بعملة ${esc(currency)}">${index+1}. ${currency==='YER'?'ريال يمني':currency==='SAR'?'ريال سعودي':currency==='USD'?'دولار أمريكي':esc(currency)}</button>`).join(''):'';tabs.querySelectorAll('button').forEach(btn=>btn.addEventListener('click',()=>setAccountCurrencyPage(btn.dataset.currency)));}
   panel.innerHTML=`<div class="account-currency-track">${currencies.map(currency=>{
     const effectiveStart=window.ratibStatementEffectiveFrom?.(accountOpsState.from||'')??(accountOpsState.from||'');
     const data=getAccountCurrencyReportData(currency),{rows:txs,opening,totalDebit,totalCredit,closing:closingBal}=data;
-    const prior=effectiveStart&&opening!==0?` · الرصيد السابق ${Math.abs(opening).toLocaleString()} ${currency} ${opening>0?'دائن':'مدين'}`:'';
-    const head=`<div class="account-operations-head"><span>${esc(currency)}</span><small>${txs.length} عملية</small></div>`;
-    const openingRow=effectiveStart&&opening!==0?`<div class="account-statement-row opening"><span class="ratib-account-row-date">${ratibStatementDateHtml(effectiveStart)}</span><span>—</span><span>الرصيد السابق قبل بداية الفترة</span><span class="debit">${opening<0?Math.abs(opening).toLocaleString():''}</span><span class="credit">${opening>0?opening.toLocaleString():''}</span><span class="balance">${Math.abs(opening).toLocaleString()} ${esc(currency)} ${opening>0?'دائن':'مدين'}</span></div>`:'';
+    const filteredTxs=searchTerms.length?txs.filter(t=>{
+      const corpus=ratibAccountMovementSearchCorpus(t,getAccountEntry(t,scope),'');
+      return searchTerms.every(term=>corpus.includes(term));
+    }):txs;
+    const view=ratibStatementDisplayPage(filteredTxs,viewOrder,viewPages[currency],viewSize);
+    const prior=effectiveStart&&opening!==0?` · الرصيد السابق ${ratibStatementDisplayAmount(Math.abs(opening))} ${currency} ${opening>0?'دائن':'مدين'}`:'';
+    const head=`<div class="account-operations-head"><span>${esc(currency)}</span><small>${searchTerms.length?filteredTxs.length+' من '+txs.length:txs.length} عملية</small></div>`;
+    const controls=`<div class="ratib-statement-page-tools no-print" data-ratib-currency="${esc(currency)}"><label>ترتيب العرض <select data-ratib-statement-order aria-label="ترتيب عرض كشف الحساب"><option value="newest" ${viewOrder==='newest'?'selected':''}>الأحدث أولًا</option><option value="oldest" ${viewOrder==='oldest'?'selected':''}>الأقدم أولًا</option></select></label><label>عدد البطاقات <select data-ratib-statement-size aria-label="عدد بطاقات كشف الحساب"><option value="50" ${viewSize===50?'selected':''}>50</option><option value="100" ${viewSize===100?'selected':''}>100</option></select></label><div class="ratib-statement-page-actions"><button type="button" data-ratib-page-step="-1" ${view.page<=1?'disabled':''}>السابق</button><span aria-live="polite">صفحة ${view.page} من ${view.pages} · ${view.from}–${view.to} من ${view.total}</span><button type="button" data-ratib-page-step="1" ${view.page>=view.pages?'disabled':''}>التالي</button></div></div>`;
+    const openingRow=effectiveStart&&opening!==0&&(viewOrder==='oldest'?view.page===1:view.page===view.pages)?`<div class="account-statement-row opening"><span class="ratib-account-row-date">${ratibStatementDateHtml(effectiveStart)}</span><span>—</span><span>الرصيد السابق قبل بداية الفترة</span><span class="debit">${opening<0?ratibStatementDisplayAmount(Math.abs(opening)):''}</span><span class="credit">${opening>0?ratibStatementDisplayAmount(opening):''}</span><span class="balance">${ratibStatementDisplayAmount(Math.abs(opening))} ${esc(currency)} ${opening>0?'دائن':'مدين'}</span></div>`:'';
     const runningBalances=getAccountRunningBalances(txs,scope,opening);
     const totalsTitle=ratibStatementTotalsTitle(effectiveStart,accountOpsState.to,opening!==0);
     const closingType=closingBal===0?'صفر':closingBal>0?'دائن':'مدين';
     const inclusive=ratibStatementInclusiveTotals(data);
-    const totalsRows=`<div class="account-statement-row total statement-grand-total"><span class="statement-total-label">${totalsTitle}</span><span class="debit">${inclusive.debit.toLocaleString()}</span><span class="credit">${inclusive.credit.toLocaleString()}</span><span class="balance">${Math.abs(closingBal).toLocaleString()} ${esc(currency)} ${closingType}</span></div>`;
-    const rows=txs.map(t=>{
+    const totalsRows=`<div class="account-statement-row total statement-grand-total"><span class="statement-total-label">${totalsTitle}</span><span class="debit">${ratibStatementDisplayAmount(inclusive.debit)}</span><span class="credit">${ratibStatementDisplayAmount(inclusive.credit)}</span><span class="balance">${ratibStatementDisplayAmount(Math.abs(closingBal))} ${esc(currency)} ${closingType}</span></div>`;
+    const rows=view.rows.map(t=>{
       const entry=getAccountEntry(t,scope),amount=getAccountDisplayAmount(entry),debit=entry.side==='debit',balance=runningBalances.get(t);
       const rawNote=ratibStatementText(entry.line?.note||t.execution?.[Object.keys(t.execution||{})[0]]?.note||getTransactionDisplayType(t),'بدون بيان');
        const owner=ratibAggregateOwner(t),note=owner?'['+owner+'] '+rawNote:rawNote;
       const mode=ratibStatementDocumentLabel(t);
-      return `<div class="account-statement-row" data-tx-id="${esc(t.id)}" title="عرض تفاصيل السند"><span class="ratib-account-row-date">${ratibStatementDateHtml(getAccountOpsDate(t)||'-')}</span><span class="ratib-account-row-document">#${esc(ratibStatementText(t.seqNum,'-'))} · ${mode}</span><span class="ratib-account-row-note">${esc(note)}</span><span class="debit">${debit?amount.toLocaleString():''}</span><span class="credit">${debit&&!entry.bothSides?'':amount.toLocaleString()}</span><span class="balance">${Math.abs(balance).toLocaleString()} ${esc(currency)}</span></div>`;
+      return `<div class="account-statement-row" data-tx-id="${esc(t.id)}" title="عرض تفاصيل السند"><span class="ratib-account-row-date">${ratibStatementDateHtml(getAccountOpsDate(t)||'-')}</span><span class="ratib-account-row-document">#${esc(ratibStatementText(t.seqNum,'-'))} · ${mode}</span><span class="ratib-account-row-note">${esc(note)}</span><span class="debit">${debit?ratibStatementDisplayAmount(amount):''}</span><span class="credit">${debit&&!entry.bothSides?'':ratibStatementDisplayAmount(amount)}</span><span class="balance">${ratibStatementDisplayAmount(Math.abs(balance))} ${esc(currency)}</span></div>`;
     }).join('');
-    return `<section class="account-currency-page" data-currency="${esc(currency)}" role="tabpanel" aria-label="حركات حساب ${esc(accountName)} ${esc(currency)}">${head}<div class="account-statement-table"><div class="account-statement-grid"><div class="account-statement-row header"><span>التاريخ</span><span>المستند</span><span>البيان</span><span>مدين</span><span>دائن</span><span>الرصيد</span></div>${openingRow}${rows}${totalsRows}</div></div>${txs.length?'':'<div class="accounts-empty">لا توجد عمليات بهذه العملة في الفترة المحددة.</div>'}<div class="ratib-statement-words">${esc(ratibStatementClosingText(closingBal,currency))}</div>${ratibStatementNoticeText()?'<p class="ratib-statement-notice">'+esc(ratibStatementNoticeText())+'</p>':''}</section>`;
+    return `<section class="account-currency-page" data-currency="${esc(currency)}" data-ratib-matched="${view.total}" data-ratib-all="${txs.length}" role="tabpanel" aria-label="حركات حساب ${esc(accountName)} ${esc(currency)}">${head}${controls}<div class="account-statement-table"><div class="account-statement-grid"><div class="account-statement-row header"><span>التاريخ</span><span>المستند</span><span>البيان</span><span>مدين</span><span>دائن</span><span>الرصيد</span></div>${openingRow}${rows}${totalsRows}</div></div>${view.total?'':'<div class="accounts-empty">لا توجد عمليات مطابقة في هذه العملة والفترة.</div>'}<div class="ratib-statement-words">${esc(ratibStatementClosingText(closingBal,currency))}</div>${ratibStatementNoticeText()?'<p class="ratib-statement-notice">'+esc(ratibStatementNoticeText())+'</p>':''}</section>`;
   }).join('')}</div>`;
+  panel.dataset.ratibPaginated='1';
   // A large restored ledger may contain 22,000+ accounting legs and thousands
   // of statement rows. Build one read-only id index instead of scanning every
   // transaction again for EACH rendered row (quadratic freeze on large accounts).
@@ -8906,6 +8964,26 @@ function renderAccountOperations(accountName,scopeNames=null,ui=null){
     const tx=statementTxById.get(String(row.dataset.txId));
     if(tx)row.addEventListener('click',()=>openDocumentDetailsModal(tx));
   });
+  panel.querySelectorAll('[data-ratib-statement-order]').forEach(select=>select.addEventListener('change',()=>{
+    accountOpsState.viewOrder=select.value==='oldest'?'oldest':'newest';
+    accountOpsState.viewPages={};
+    renderAccountOperations(accountName,scope,accountOpsUi);
+  }));
+  panel.querySelectorAll('[data-ratib-statement-size]').forEach(select=>select.addEventListener('change',()=>{
+    accountOpsState.viewPageSize=Number(select.value)===100?100:50;
+    accountOpsState.viewPages={};
+    renderAccountOperations(accountName,scope,accountOpsUi);
+  }));
+  panel.querySelectorAll('[data-ratib-page-step]').forEach(button=>button.addEventListener('click',()=>{
+    const currency=button.closest('[data-ratib-currency]')?.dataset.ratibCurrency;
+    if(!currency)return;
+    const selected=button.closest('.ratib-statement-page-tools');
+    const match=(selected?.querySelector('[aria-live]')?.textContent||'').match(/صفحة (\d+) من (\d+)/);
+    const page=Number(match?.[1])||1,pages=Number(match?.[2])||1;
+    const next=Math.max(1,Math.min(pages,page+Number(button.dataset.ratibPageStep)));
+    accountOpsState.viewPages={...(accountOpsState.viewPages||{}),[currency]:next};
+    renderAccountOperations(accountName,scope,accountOpsUi);
+  }));
   const track=panel.querySelector('.account-currency-track');
   if(track){
     track.addEventListener('scroll',()=>{
@@ -8927,8 +9005,8 @@ function openAccountFromPager(accountName, scopeNames=null, currency=null, aggre
   /* تبديل الحساب داخل شاشة الحسابات لا يضيف زيارة مكررة */
   accountOperationsReturnTab=currentActiveTab==='pageAccountOperations'?'pageAccountsTree':(currentActiveTab||'pageAccountsTree');
   const sameAccount=accountOpsState.accountName===accountName&&!!accountOpsState.aggregate===!!aggregate;
-  const previous={from:accountOpsState.from||'',to:accountOpsState.to||'',filtered:Boolean(accountOpsState.filtered),currency:accountOpsState.currency||'ALL',movementSearch:accountOpsState.movementSearch||''};
-  accountOpsState={accountName,scopeNames:Array.isArray(scopeNames)&&scopeNames.length?scopeNames:[accountName],aggregate:!!aggregate,from:sameAccount?previous.from:'',to:sameAccount?previous.to:'',filtered:sameAccount?previous.filtered:false,currency:currency||'ALL',activeCurrency:currency&&currency!=='ALL'?currency:'YER',movementSearch:sameAccount?previous.movementSearch:''};
+  const previous={from:accountOpsState.from||'',to:accountOpsState.to||'',filtered:Boolean(accountOpsState.filtered),currency:accountOpsState.currency||'ALL',movementSearch:accountOpsState.movementSearch||'',viewOrder:accountOpsState.viewOrder||'newest',viewPageSize:accountOpsState.viewPageSize===100?100:50,viewPages:{...(accountOpsState.viewPages||{})}};
+  accountOpsState={accountName,scopeNames:Array.isArray(scopeNames)&&scopeNames.length?scopeNames:[accountName],aggregate:!!aggregate,from:sameAccount?previous.from:'',to:sameAccount?previous.to:'',filtered:sameAccount?previous.filtered:false,currency:currency||'ALL',activeCurrency:currency&&currency!=='ALL'?currency:'YER',movementSearch:sameAccount?previous.movementSearch:'',viewOrder:sameAccount?previous.viewOrder:'newest',viewPageSize:sameAccount?previous.viewPageSize:50,viewPages:sameAccount?previous.viewPages:{}};
   const from=document.getElementById('accountOpsFromDate'),to=document.getElementById('accountOpsToDate'),currencySel=document.getElementById('accountOpsCurrencyFilter'),today=getLocalTodayISO?getLocalTodayISO():getLocalTodayISO();
   if(from&&!from.value)from.value=sameAccount?previous.from:today;if(to&&!to.value)to.value=sameAccount?previous.to:today;if(currencySel)currencySel.value=accountOpsState.currency;
   setAccountReportActionsEnabled(true);

@@ -1,0 +1,28 @@
+name: Verify official statement paging and performance 2026-11-11
+
+on:
+  pull_request:
+    paths:
+      - index.html
+      - ratib-home-3.6.168.js
+      - ratib-cash-pulse.js
+      - sw.js
+      - test-official-statement-paging-20261111.cjs
+      - .github/workflows/ratib-statement-paging-20261111.yml
+  workflow_dispatch:
+
+jobs:
+  paging-safety:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - run: npm install --ignore-scripts --no-audit --no-fund
+      - name: Test 50/100 paging with 22k synthetic accounting movements
+        run: node test-official-statement-paging-20261111.cjs
+      - name: Verify large-archive protection and recovery
+        run: node test-official-archive-write-guard-20261111.cjs && node test-official-recovery-stale-flush-20261111.cjs
+      - name: Recheck financial totals, printing and statements
+        run: node test-accounting-3.6.59.cjs && node test-statement-3.6.60.cjs && node test-statement-3.6.79.cjs

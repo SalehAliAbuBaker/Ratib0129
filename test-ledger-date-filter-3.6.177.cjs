@@ -27,7 +27,7 @@ d.addEventListener('ratib:ledger-date-render',()=>renders++);
 d.getElementById('ratibFiscalLedgerYear').addEventListener('change',()=>{years++;renders++;});
 w.eval(src);d.dispatchEvent(new w.Event('DOMContentLoaded'));
 const api=w.RatibLedgerDateFilter177;
-assert(api&&api.version==='3.6.178');
+assert(api&&api.version==='3.6.177');
 const day=d.getElementById('ledgerDateFrom177'),end=d.getElementById('ledgerDateTo177'),year=d.getElementById('ratibFiscalLedgerYear'),clear=d.getElementById('ledgerDateClear177');
 const oldRecord={isoDate:'2023-05-10'},current={isoDate:'2026-11-11'},past={isoDate:'2025-01-01'};
 assert(api.matches(oldRecord)&&api.matches(current),'Empty filter retains all years');

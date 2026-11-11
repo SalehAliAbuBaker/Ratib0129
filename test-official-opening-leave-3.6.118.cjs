@@ -3,8 +3,8 @@ const assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('nod
 const html=fs.readFileSync('index.html','utf8');
 const css=fs.readFileSync('ratib-opening-leave-3.6.118.css','utf8');
 const pkg=require('./package.json'),sw=fs.readFileSync('sw.js','utf8');
-assert.equal(pkg.version,'3.6.177');
-assert(html.includes('const RATIB_RELEASE={"version":"3.6.177","build":"p17700"'));
+assert.equal(pkg.version,'3.6.178');
+assert(html.includes('const RATIB_RELEASE={"version":"3.6.178","build":"p17800"'));
 assert(sw.includes('v260-opening-mobile-clean-3.6.139'));
 assert(sw.includes('"./ratib-opening-leave-3.6.118.css"'));
 assert(html.includes('ratib-opening-leave-3.6.118.css?v=3.6.139'));

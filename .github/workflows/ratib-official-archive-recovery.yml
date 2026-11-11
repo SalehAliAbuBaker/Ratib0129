@@ -1,0 +1,27 @@
+name: Verify official protected-archive recovery
+
+on:
+  pull_request:
+    paths:
+      - index.html
+      - sw.js
+      - test-official-recovery-stale-flush-20261111.cjs
+      - .github/workflows/ratib-official-archive-recovery.yml
+  workflow_dispatch:
+
+jobs:
+  restore-safety:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Install test dependencies
+        run: npm install --ignore-scripts --no-audit --no-fund
+      - name: Test failed protected restore and successful authorized recovery
+        run: node test-official-recovery-stale-flush-20261111.cjs
+      - name: Recheck original stale-tab write protection
+        run: node test-official-archive-write-guard-20261111.cjs
+      - name: Verify accounting and statement safety
+        run: node test-accounting-3.6.59.cjs && node test-statement-3.6.60.cjs && node test-statement-3.6.79.cjs

@@ -3432,6 +3432,9 @@ function _enqueuePersistence(job){
 }
 const LARGE_ARCHIVE_AUTH_KEY=APP_STORAGE_PREFIX+'large_archive_authority_v1';
 let _largeArchiveAuthority=false;
+// Enabled only after the boot integrity guard has blocked the app. Explicit,
+// user-approved backup recovery must not try to save its stale in-memory ledger.
+let _ratibArchiveRecoveryRequired=false;
 function _largeArchiveRows(records){
   const h=records?.[APP_STORAGE_PREFIX+'history'];
   return Array.isArray(h)?h.reduce((sum,period)=>sum+(Array.isArray(period?.transactions)?period.transactions.length:0),0):0;
@@ -3990,8 +3993,11 @@ function normalizeRestoredData(data) {
   return out;
 }
 
-async function importBackupFile(file){
+async function importBackupFile(file,options={}){
   try{
+    const archiveRecovery=options?.archiveRecovery===true&&_ratibArchiveRecoveryRequired;
+    if(options?.archiveRecovery===true&&!archiveRecovery)
+      throw new Error('لا يمكن تجاوز حماية الحفظ خارج شاشة استعادة الأرشيف.');
     if(!file)throw new Error('اختر ملف النسخة الاحتياطية.');
     const compressed=/\.gz$/i.test(file.name||'');
     if(compressed&&typeof DecompressionStream!=='function')throw new Error('المتصفح لا يدعم الملف المضغوط؛ استخدم Chrome أو Edge محدّثاً.');
@@ -4014,7 +4020,15 @@ async function importBackupFile(file){
     const docs=new Set([...(plan.transactions||[]),...history.flatMap(h=>h.transactions)].map(t=>String(t.multiVoucherId||t.id)));
     if(!confirm('سيتم استبدال بيانات راتب الرسمي. يحتوي الملف على '+count.toLocaleString('en-US')+' حركة و'+docs.size.toLocaleString('en-US')+' مستند عبر '+months+' فترة. سيُنزَّل ملف أمان أولاً. هل توافق؟'))return false;
     if(_pendingFinancialCompletion)throw new Error('أكمل حفظ السند المعلّق قبل الاستعادة.');
-    await flushStorage();
+    if(archiveRecovery){
+      // Boot was blocked because IndexedDB disagreed with the archive marker.
+      // Flush would attempt to publish stale data and correctly fail. Drain
+      // already queued writes instead; the old data is backed up below before
+      // the verified user-selected archive is atomically installed.
+      clearTimeout(_storageTimer);_storageTimer=null;
+      await _storageQueue;
+      if(_storageBusy)throw new Error('توجد عملية حفظ أخرى قيد التنفيذ. انتظر اكتمالها قبل استعادة الأرشيف.');
+    }else await flushStorage();
     const rollback=await buildBackupPayload();downloadBackupPayload(rollback,'ratib-before-restore-'+backupStamp()+'.json');
     let cfg={...getSecurityConfig()},key=_vaultCryptoKey,blob=null;
     if(!cfg.enabled&&payload.encrypted){cfg={enabled:true,salt:payload.salt,bioCredentialId:null};key=importedKey;}
@@ -4034,6 +4048,13 @@ async function importBackupFile(file){
     }else{
       _largeArchiveAuthority=false;
       try{localStorage.removeItem(LARGE_ARCHIVE_AUTH_KEY);}catch(_){}
+    }
+    if(archiveRecovery){
+      // Discard any unsaved stale-tab writes only AFTER the replacement archive
+      // was read back and fully validated. Never replay them on the next boot.
+      clearTimeout(_storageTimer);_storageTimer=null;
+      _pendingWrites.clear();
+      _ratibArchiveRecoveryRequired=false;
     }
     for(const k of Object.keys(_memStore))delete _memStore[k];Object.assign(_memStore,restored);
     _securityConfigCache=cfg;_vaultCryptoKey=key;_vaultUnlocked=!!cfg.enabled;_vaultBlob=blob;
@@ -12368,7 +12389,7 @@ function showRatibArchiveRecovery(){
     const file=input.files?.[0];if(!file)return;
     button.disabled=true;status.textContent='جارٍ التحقق من الملف وحفظه. لا تغلق النافذة.';
     try{
-      const ok=await importBackupFile(file);
+      const ok=await importBackupFile(file,{archiveRecovery:true});
       if(!ok)status.textContent='لم تكتمل الاستعادة. احتفظ بالملف الأصلي وتحقق من رسالة الخطأ.';
     }catch(error){
       console.error('archive recovery',error);
@@ -12379,7 +12400,10 @@ function showRatibArchiveRecovery(){
 }
 selfHealStorageFromIdb().then(boot).catch(error=>{
   showRatibFatalBanner(error.message||"تعذرت قراءة البيانات. لم يتم استبدالها.");
-  if(String(error?.message||'').includes('إشارة إلى أرشيف مستعاد'))showRatibArchiveRecovery();
+  if(String(error?.message||'').includes('إشارة إلى أرشيف مستعاد')){
+    _ratibArchiveRecoveryRequired=true;
+    showRatibArchiveRecovery();
+  }
 });
 </script>
 <div class="modal-overlay no-print" id="spendFxModal" role="dialog" aria-modal="true" aria-labelledby="spendFxTitle">

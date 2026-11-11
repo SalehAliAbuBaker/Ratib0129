@@ -5859,12 +5859,26 @@ function ratibAskVoucherLeave(){
  return _ratibVoucherLeavePending;
 }
 
+// Paint the home screen before expensive, read-only totals and cash-pulse refresh.
+// The archived accounting records remain untouched, and a later navigation
+// cancels any queued refresh instead of updating an invisible dashboard.
+let _ratibHomeRefreshSerial=0;
+function ratibRefreshDashboardAfterPaint(){
+  const serial=++_ratibHomeRefreshSerial;
+  requestAnimationFrame(()=>{
+    setTimeout(()=>{
+      if(serial!==_ratibHomeRefreshSerial||currentActiveTab!=='pageDashboard')return;
+      updateProDashboard();
+    },0);
+  });
+}
 function navigateToTab(target, pushToHistory = true) {
   // Never leave a stale printing-* body class hiding interactive pages.
   ratibRestorePrintScreen();
   if(_appExited||_exitPromise)return;
   if(_appHistoryPending&&!_restoringAppView){_appHistoryPending.promise.then(()=>navigateToTab(target,pushToHistory));return;}
   const next=target||'pageDashboard';
+  const previousTab=currentActiveTab;
   if(next!=='pageExpenses'&&ratibVoucherHasUnsavedEdits()&&!_restoringAppView){ratibAskVoucherLeave().then(ok=>{if(ok)navigateToTab(target,pushToHistory);});return;}
   if(currentActiveTab==='pageCommerce'&&next!=='pageCommerce'&&!_restoringAppView&&window.RatibCommerce?.requestLeave?.()===false)return;
   if(currentActiveTab==='pageExpenses'&&next!=='pageExpenses')quickVoucherOrigin=null;
@@ -5879,6 +5893,7 @@ function navigateToTab(target, pushToHistory = true) {
   document.getElementById('ratibPageTitle').textContent = pageNames[next] || '';
   const previousTitle = pageNames[_appBackStack.at(-1)?.tab] || 'الرئيسية';
   document.getElementById('backToMenuBtn').setAttribute('aria-label', 'رجوع إلى ' + previousTitle);
+  if(next!=='pageDashboard')_ratibHomeRefreshSerial++;
   TABS_ORDER.forEach(id => document.getElementById(id).classList.add('hidden'));
 
   if (!target || target === 'pageDashboard') {
@@ -5886,9 +5901,15 @@ function navigateToTab(target, pushToHistory = true) {
     syncSidebarCurrentPage();
     document.getElementById('pageDashboard').classList.remove('hidden');
     closeDashboardHome(false);
-    // updateProDashboard already updates reminders when their signature changes
-    // and schedules the graph. Do not render both a second time on home return.
-    updateProDashboard();
+    // On an existing session, let the browser paint the dashboard before scanning
+    // the restored archive for KPI balances and the cash pulse. First boot remains
+    // synchronous; voucher saves and all other refresh callers are unchanged.
+    if(previousTab!=='pageDashboard'&&window.__ratibProceedInitialized===true)
+      ratibRefreshDashboardAfterPaint();
+    else{
+      _ratibHomeRefreshSerial++;
+      updateProDashboard();
+    }
     return;
   }
   document.getElementById(target).classList.remove('hidden');

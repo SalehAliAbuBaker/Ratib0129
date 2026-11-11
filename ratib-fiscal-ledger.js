@@ -6,7 +6,7 @@ const activeClosings=()=>Object.values(closings()).sort((a,b)=>Number(a.year)-Nu
 const lastYear=()=>activeClosings().at(-1)?.year||"";
 let chosenYear="auto";
 const yearResolved=()=>chosenYear==="auto"?(lastYear()?String(Number(lastYear())+1):"all"):chosenYear;
-const money=x=>Number(x||0).toLocaleString("en-US",{maximumFractionDigits:6});
+const money=x=>Number(x||0).toLocaleString("en-US",{maximumFractionDigits:2});
 const all=()=>getAllTransactions();
 const active=tx=>tx&&tx.status!=="deleted"&&tx.status!=="reversed";
 const dateYear=t=>dateOf(t).slice(0,4);

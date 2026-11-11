@@ -7,7 +7,7 @@ const css=fs.readFileSync('ratib-statement-vector-3.6.158.css','utf8');
 const html=fs.readFileSync('index.html','utf8');
 const pkg=require('./package.json');
 const sw=fs.readFileSync('sw.js','utf8');
-assert.equal(pkg.version,'3.6.179');
+assert.equal(pkg.version,'3.6.180');
 assert(sw.includes('"./ratib-statement-vector-3.6.158.js"'));
 assert(sw.includes('"./ratib-statement-vector-3.6.158.css"'));
 assert(html.includes('ratib-statement-vector-3.6.158.js?v=3.6.178'));

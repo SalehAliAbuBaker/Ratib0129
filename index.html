@@ -1712,7 +1712,7 @@ body.ratib-sidebar-open,body.ratib-about-open{overflow:hidden}
   </div>
 
   <header class="no-print">
-    <div class="logo"><img class="app-brand-icon" src="Icons/icon-192.png" width="44" height="44" alt="" decoding="async"><span class="ratib-home-brand"><span class="ratib-brand-name">راتب</span><span class="ratib-brand-sub">للتنظيم والتدبير المالي</span><small id="appVersionLabel" class="app-version">الإصدار 3.6.179</small></span></div>
+    <div class="logo"><img class="app-brand-icon" src="Icons/icon-192.png" width="44" height="44" alt="" decoding="async"><span class="ratib-home-brand"><span class="ratib-brand-name">راتب</span><span class="ratib-brand-sub">للتنظيم والتدبير المالي</span><small id="appVersionLabel" class="app-version">الإصدار 3.6.180</small></span></div>
     <div class="header-tools"><div class="header-actions">
       <button class="icon-btn" id="themeBtn" title="الوضع الليلي">🌙</button>
       <button class="icon-btn" id="sidebarMenuBtn" aria-haspopup="dialog" aria-controls="appSidebar" aria-expanded="false" title="الإعدادات" aria-label="فتح الإعدادات">⚙</button>
@@ -1764,7 +1764,7 @@ body.ratib-sidebar-open,body.ratib-about-open{overflow:hidden}
       <img src="Icons/icon-192.png" width="72" height="72" alt="" decoding="async">
       <h2 id="ratibAboutTitle">راتب</h2>
       <p class="ratib-about-subtitle">للتنظيم والتدبير المالي</p>
-      <p class="ratib-about-version">الإصدار 3.6.179</p>
+      <p class="ratib-about-version">الإصدار 3.6.180</p>
       <p id="ratibAboutDescription">إدارة الحسابات والسندات والميزانية، ومتابعة العمليات والتقارير المالية، مع حفظ البيانات على جهازك ودعم العمل دون الإنترنت.</p>
       <button type="button" class="btn btn-primary" id="closeRatibAboutBtn">إغلاق</button>
     </div>
@@ -3122,7 +3122,7 @@ body.ratib-sidebar-open,body.ratib-about-open{overflow:hidden}
 // (أو localhost أثناء التطوير) — هذا شرط أساسي من المتصفح نفسه لأي Service Worker.
 let _briefAppNoticeTimer=null;
 let _releaseSummaryDisplayed=false;
-const RATIB_RELEASE={"version":"3.6.179","build":"p17900","highlights":["تقليل حجم الأرشيف والنسخ الاحتياطية باستخدام الضغط دون فقد البيانات","تسريع التنقل بين الواجهات وسجل العمليات مع أرشيف كبير"],"changes":["نجري بانتظام تحديثات لتحسين الموثوقية والأداء وإصلاح الأخطاء","ضغط أرشيف السندات المحفوظ محليًا مع المحافظة على إمكانية استعادة النسخ السابقة","تصدير نسخ GZIP المضغوطة ودعم استعادة ملفات JSON القديمة","تقليل إعادة تجميع وفرز الحركات عند التنقل بين الصفحات","المحافظة على ضوابط حماية الأرشيف من الكتابة المتعارضة"]};
+const RATIB_RELEASE={"version":"3.6.180","build":"p18000","highlights":["تسريع حفظ سندات القبض والصرف","بدء التطبيق من الرئيسية وتوحيد تدرج الخط"],"changes":["نجري بانتظام تحديثات لتحسين الموثوقية والأداء وإصلاح الأخطاء","تأجيل حساب ملخص الرئيسية وهي مخفية وتجميع تنبيهات الحسابات في مرور واحد","بدء الفتح الجديد من الرئيسية مع حفظ حالة المستندات أثناء التنقل","الحفاظ على دقة القيود وقراءة النسخ القديمة والمضغوطة"]};
 window.ratibCurrentTrialVersion=()=>String(RATIB_RELEASE.version);
 window.ratibCurrentTrialVersionLabel=()=>`الإصدار ${RATIB_RELEASE.version}`;
 window.ratibSyncTrialVersion=()=>{
@@ -5112,16 +5112,34 @@ function initReminderNotifications(){scheduleReminderCheck();}
 
 let remindersChartInstance = null;
 
+function ratibDashboardCeilingBalances(names,currency){
+  const wanted=new Set(names),balances=new Map();
+  for(const name of wanted)balances.set(name,{debit:0,credit:0});
+  for(const tx of effectiveTransactions()){
+    const candidates=new Set([tx.debitAccount,tx.creditAccount,tx.openingBalance?.account]);
+    for(const name of candidates){
+      if(!wanted.has(name))continue;
+      const entry=getAccountEntry(tx,[name]);
+      if(!entry||entry.currency!==currency)continue;
+      const amount=getAccountDisplayAmount(entry),sum=balances.get(name);
+      if(entry.bothSides){sum.debit+=amount;sum.credit+=amount;}
+      else sum[entry.side]+=amount;
+    }
+  }
+  return balances;
+}
 function updateProDashboard(){
+  if(currentActiveTab!=='pageDashboard')return;
   const txs=dashboardTransactions(),cur=getGlobalCurrency(),selected=txs.filter(t=>t.currency===cur);
   const income=selected.filter(t=>t.voucherMode==='income'&&(!t.isMultiVoucher||!!t.creditAccount)).reduce((sum,t)=>sum+Number(t.amount||0),0);
   const expense=selected.filter(t=>(t.isExpense||t.voucherMode==='spend')&&(!t.isMultiVoucher||!!t.debitAccount)).reduce((sum,t)=>sum+Number(t.amount||0),0);
   for(const [id,value] of [['proIncomeKpi',income],['proExpenseKpi',expense],['proNetKpi',income-expense]]){const el=document.getElementById(id);if(el)el.textContent=fmt(Number(Number(value||0).toFixed(2)),cur);}
   const pending=document.getElementById('proPendingKpi');if(pending)pending.textContent=String(txs.filter(t=>t.status==='draft'||t.status==='pending').length);
   const alerts=[],ceilings=getAccountCeilings();
+  const ceilingBalances=ratibDashboardCeilingBalances(Object.keys(ceilings),cur);
   Object.entries(ceilings).forEach(([acc,c])=>{
     if((c.currency||'YER')!==cur)return;
-    const balances=getCurrentAccountBalance(acc).byCurrency?.[cur]||{debit:0,credit:0},bal=balances.credit-balances.debit;
+    const balances=ceilingBalances.get(acc)||{debit:0,credit:0},bal=balances.credit-balances.debit;
     if(c.max!=null&&bal>Number(c.max))alerts.push(`⚠️ ${acc}: تجاوز السقف الأعلى (${cur})`);
     if(c.min!=null&&bal<Number(c.min))alerts.push(`⚠️ ${acc}: تجاوز السقف الأدنى (${cur})`);
   });
@@ -10263,7 +10281,6 @@ function proceedAppInit() {
       }else showToast('تحقق نجاح الاستعادة بعد إعادة الفتح: '+docs.toLocaleString('en-US')+' مستند و'+rows.length.toLocaleString('en-US')+' حركة.','success',12000);
     }catch(e){console.error('official restore verify',e);}
   },1200);
-  ratibRestoreBackgroundView();
   ratibBindBackgroundView();
   window.RatibFirstRunSetup?.start?.();
 }
@@ -12088,7 +12105,7 @@ function trialBuildModel(transactions,filters){
     const safeToOmit=deleted&&[...detail.currencies.values()].every(row=>emptyBalance(row.native)&&[...row.valuations.values()].every(emptyBalance)&&emptyBalance(row.equivalent));
     if(safeToOmit){omittedDeletedAccounts++;continue;}
     const desc=detail.descriptor||{code:getAccountCode(name),name,type:'حساب خارج الدليل الحالي — للمراجعة',main:'حساب خارج الدليل الحالي — للمراجعة',path:[]};
-    if(deleted){const reasons=[];for(const row of detail.currencies.values()){for(const [label,currency,balance] of [['الأصل',row.currency,net(row.native)],...[...row.valuations].map(([currency,value])=>['التقييم',currency,net(value)])])for(const field of fields)if(!isZero(balance[field]))reasons.push(label+' '+currency+' '+({openingDebit:'افتتاحي مدين',openingCredit:'افتتاحي دائن',periodDebit:'حركة مدين',periodCredit:'حركة دائن',closingDebit:'ختامي مدين',closingCredit:'ختامي دائن'})[field]+': '+trialNumber(balance[field]));if(row.missing)reasons.push('تحويل عملة العرض غير مكتمل');}reviewAccounts.push({name,code:desc.code,reasons});}
+    if(deleted){const reasons=[];for(const row of detail.currencies.values()){for(const [label,currency,balance] of [['الأصل',row.currency,net(row.native)],...[...row.valuations].map(([currency,value])=>['التقييم',currency,net(value)])])for(const field of fields)if(!isZero(balance[field]))reasons.push(label+' '+currency+' '+({openingDebit:'افتتاحي مدين',openingCredit:'افتتاحي دائن',periodDebit:'حركة مدين',periodCredit:'حركة دائن',closingDebit:'ختامي مدين',closingCredit:'ختامي دائن'})[field]+': '+Number(balance[field]).toLocaleString('en-US',{maximumFractionDigits:6}));if(row.missing)reasons.push('تحويل عملة العرض غير مكتمل');}reviewAccounts.push({name,code:desc.code,reasons});}
     const level=Number(filters.level),node=level>0?desc.path[Math.min(level-1,desc.path.length-1)]||desc:desc,key=node.code+'|'+node.name;
     for(const row of detail.currencies.values()){
       if(filters.mode==='specific'&&row.currency!==filters.currency)continue;
@@ -14250,10 +14267,10 @@ try{currenciesUi();sync();}catch(e){console.error('Ratib 3.6.12 initialization',
 <script src="./ratib-commerce-3.6.131.js?v=3.6.178" defer></script>
 <script src="./ratib-simple-accounts-3.6.105.13.js?v=3.6.178" defer></script>
 <script src="./ratib-interactive-tree-3.6.105.05.js?v=3.6.139" defer></script>
-<script src="./ratib-login-3.6.124.js?v=3.6.179" defer></script>
+<script src="./ratib-login-3.6.124.js?v=3.6.180" defer></script>
 <script src="./ratib-trial-home-sidebar-3.6.143.js?v=3.6.148" defer></script>
-<script src="./ratib-trial-ui-3.6.143.js?v=3.6.179" defer></script>
-<script src="./ratib-dashboard-finance-3.6.144.js?v=3.6.179&amp;patch=two-decimal-20261111" defer></script>
+<script src="./ratib-trial-ui-3.6.143.js?v=3.6.180" defer></script>
+<script src="./ratib-dashboard-finance-3.6.144.js?v=3.6.180&amp;patch=two-decimal-20261111" defer></script>
 <script src="./ratib-global-button-size-3.6.146.js?v=3.6.139" defer></script>
 <script src="./ratib-document-signatures-3.6.148.js?v=3.6.148-automatic" defer></script>
 <script src="./ratib-cash-reference-3.6.148.js?v=3.6.178" defer></script>

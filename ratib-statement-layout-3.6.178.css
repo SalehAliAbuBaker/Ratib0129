@@ -156,3 +156,12 @@
  #mainWrap #pageAccountOperations .account-operations-head-actions>.account-screen-menu-wrap{grid-column:3!important;grid-row:1!important;}
  #pageAccountOperations .account-currency-page>.account-operations-head{display:none!important;}
 }
+
+/* Browser typography mirrors Android's text-size steps. */
+@media screen {
+ html:not([data-ratib-native-font])[data-ratib-font-size="xsmall"]{font-size:13px!important;--ratib-font-scale:.656;--ratib-input-font-size:9.6px;}
+ html:not([data-ratib-native-font])[data-ratib-font-size="small"]{font-size:13px!important;--ratib-font-scale:.738;--ratib-input-font-size:10.8px;}
+ html:not([data-ratib-native-font])[data-ratib-font-size="medium"]{font-size:13px!important;--ratib-font-scale:.82;--ratib-input-font-size:12px;}
+ html:not([data-ratib-native-font])[data-ratib-font-size="large"]{font-size:13px!important;--ratib-font-scale:.902;--ratib-input-font-size:13.2px;}
+ html:not([data-ratib-native-font])[data-ratib-font-size="xlarge"]{font-size:13px!important;--ratib-font-scale:.984;--ratib-input-font-size:14.4px;}
+}

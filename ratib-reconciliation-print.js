@@ -1,7 +1,7 @@
 (function trialReconciliationEvidence(){
 "use strict";
 const REC_KEY="account_reconciliations_v1";
-const fmt=n=>Number(n||0).toLocaleString("en-US",{maximumFractionDigits:6});
+const fmt=n=>Number(n||0).toLocaleString("en-US",{maximumFractionDigits:2});
 const recordKey=(name,currency)=>encodeURIComponent(name)+"|"+encodeURIComponent(currency);
 function inspect(name,currency,from="",to=""){
  const saved=(store.get(REC_KEY,{})||{})[recordKey(name,currency)];

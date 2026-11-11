@@ -1,10 +1,12 @@
 // Ratib 3.1.9: cache identity is unique to this app's scope.
 // Retired cache for compatibility checks: v261-trial-muyassar-ui-3.6.109.04
-const CACHE_VERSION='v276-trial-statement-header-centering-3.6.109.19';
-const APP_RELEASE={"version":"3.6.109.19","highlights":["محاذاة عناوين المدين والدائن والرصيد مع الأرقام الموجودة تحتها."],"changes":["توسيط عناوين المدين والدائن والرصيد في كشف الحساب على الكمبيوتر والجوال عند ظهور رأس الجدول.","ترك مبالغ الحركات والإجمالي ومواقعها دون تغيير.","الحفاظ على جميع البيانات والقيود والتقارير المحاسبية والطباعة."]};
+const CACHE_VERSION='v277-trial-statement-layout-3.6.178';
+const APP_RELEASE={"version":"3.6.178","build":"p17800-trial","highlights":["ترتيب كشف الحساب وجمع العملة وعدد العمليات بجانب إضافة عملية","تحسين تدرج الخط والأزرار وتخفيف تحديثات الواجهة"],"changes":["جمع ترتيب العرض وعدد البطاقات وتقليل ارتفاع أدوات كشف الحساب","فتح أدوات مطابقة الرصيد عند الطلب","تدرج متقارب لأحجام الخط والزر","عرض المبالغ بمنزلتين عشريتين"]};
 const CACHE_PREFIX=`ratib:${self.registration.scope}:`;
 const CACHE_NAME=CACHE_PREFIX+CACHE_VERSION;
 const APP_SHELL=[
+ "./ratib-statement-layout-3.6.178.css",
+ "./ratib-statement-layout-3.6.178.js",
   "./ratib-statement-grid-alignment.css",
   "./ratib-backup-due-card.js",
   "./ratib-backup-due-card.css",

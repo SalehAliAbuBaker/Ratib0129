@@ -173,7 +173,13 @@ function main(){
    const help=document.createElement('details');help.className='ratib-reconcile-help';
    const tip=document.createElement('summary');tip.textContent='ⓘ';tip.title='معلومات مطابقة الرصيد';tip.setAttribute('aria-label','شرح مطابقة الرصيد');
    const explanation=document.createElement('small');explanation.textContent='المطابقة تسجل مراجعة الرصيد حتى التاريخ المحدد، ولا تغير أي قيد أو سند.';
-   help.append(tip,explanation);bar.append(label,save,clear,help,status);
+   help.append(tip,explanation);if(panel.id==='accountOperationsStandalonePanel'){
+     const options=document.createElement('details'),title=document.createElement('summary'),fields=document.createElement('div');
+     options.className='ratib-match-options';title.textContent='مطابقة الرصيد';
+     fields.className='ratib-match-fields';fields.append(label,save,clear,help);
+     options.append(title,fields);bar.append(options,status);
+     if(!saved){fields.append(status);}
+   }else bar.append(label,save,clear,help,status);
    page.querySelector('.account-operations-head')?.insertAdjacentElement('afterend',bar);
    if(stable){
     // Reconciled evidence belongs only to the verified transaction, not to a later closing balance.

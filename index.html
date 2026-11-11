@@ -3352,14 +3352,33 @@ async function _writeShadowRecords(records,deleted=[],replace=false){
   return new Promise((resolve,reject)=>{
     const tx=db.transaction('handles','readwrite'),os=tx.objectStore('handles');
     const req=os.getAllKeys();
+    let archiveWriteError=null;
     req.onsuccess=()=>{
       const keys=req.result.map(String),index=new Set(keys.filter(k=>k.startsWith('shadow_'+APP_STORAGE_PREFIX)).map(k=>k.slice(7)));
-      if(replace){for(const key of index)os.delete('shadow_'+key);index.clear();}
-      for(const key of deleted){os.delete('shadow_'+key);index.delete(key);}
-      for(const [key,value] of Object.entries(records)){os.put(value,'shadow_'+key);index.add(key);}
-      os.put([...index],'shadow_index');
+      const write=()=>{
+        if(replace){for(const key of index)os.delete('shadow_'+key);index.clear();}
+        for(const key of deleted){os.delete('shadow_'+key);index.delete(key);}
+        for(const [key,value] of Object.entries(records)){os.put(value,'shadow_'+key);index.add(key);}
+        os.put([...index],'shadow_index');
+      };
+      // Another tab can retain an old one-month ledger. Verify the committed
+      // IndexedDB archive *in this write transaction* before accepting its writes.
+      const minimumRows=replace?0:_largeArchiveMarkerRows();
+      if(minimumRows<=1500){write();return;}
+      const historyRequest=os.get('shadow_'+APP_STORAGE_PREFIX+'history');
+      historyRequest.onsuccess=()=>{
+        const committedRows=_largeArchiveRows({[APP_STORAGE_PREFIX+'history']:historyRequest.result});
+        const incomingHistory=Object.prototype.hasOwnProperty.call(records,APP_STORAGE_PREFIX+'history');
+        const incomingRows=incomingHistory?_largeArchiveRows(records):committedRows;
+        if(committedRows<minimumRows||incomingRows<minimumRows||deleted.includes(APP_STORAGE_PREFIX+'history')){
+          archiveWriteError=new Error('حماية الأرشيف: تعارض بين نسخة المتصفح والأرشيف الكامل. تم منع الكتابة؛ احتفظ بالنسخة الاحتياطية وأغلق أي تبويب قديم لراتب.');
+          archiveWriteError.code='RATIB_ARCHIVE_INTEGRITY';
+          tx.abort();return;
+        }
+        write();
+      };
     };
-    tx.oncomplete=()=>resolve();tx.onerror=tx.onabort=()=>reject(tx.error||new Error('تعذرت كتابة قاعدة البيانات'));
+    tx.oncomplete=()=>resolve();tx.onerror=tx.onabort=()=>reject(archiveWriteError||tx.error||new Error('تعذرت كتابة قاعدة البيانات'));
   });
 }
 function _localRecords(){
@@ -3378,7 +3397,12 @@ function _mirrorRecords(records,deleted=[],replace=false){
 }
 async function _persistRecords(records,deleted=[],replace=false){
   let idbOK=false,localOK=false,idbError,localError;
-  try{await _writeShadowRecords(records,deleted,replace);idbOK=true;}catch(e){idbError=e;}
+  try{await _writeShadowRecords(records,deleted,replace);idbOK=true;}catch(e){
+    // An integrity abort is NOT a quota error. Never report a successful save
+    // merely because the stale localStorage fallback accepted a partial ledger.
+    if(e?.code==='RATIB_ARCHIVE_INTEGRITY')throw e;
+    idbError=e;
+  }
   const localReplacement=replace||!idbOK;
   let mirrored=records;
   if(!replace&&!idbOK){
@@ -3412,6 +3436,13 @@ function _largeArchiveRows(records){
   const h=records?.[APP_STORAGE_PREFIX+'history'];
   return Array.isArray(h)?h.reduce((sum,period)=>sum+(Array.isArray(period?.transactions)?period.transactions.length:0),0):0;
 }
+function _largeArchiveMarkerRows(){
+  try{
+    const marker=JSON.parse(localStorage.getItem(LARGE_ARCHIVE_AUTH_KEY)||'null');
+    const rows=Number(marker?.rows||0);
+    return Number.isSafeInteger(rows)&&rows>1500?rows:0;
+  }catch(_){return 0;}
+}
 async function _persistPending(){
   if(!_pendingWrites.size)return _storageQueue;
   clearTimeout(_storageTimer);_storageTimer=null;
@@ -3421,6 +3452,11 @@ async function _persistPending(){
   for(const [k,v] of pending){if(k===VAULT_BLOB_KEY)continue;if(v===undefined)deleted.push(k);else records[k]=cloneData(k===SECURITY_CONFIG_KEY?cfg:v);}
   return _enqueuePersistence(async()=>{
     try{
+      // A stale tab must not publish even a new storage timestamp or plan state
+      // while its in-memory historical ledger predates a verified restoration.
+      const protectedRows=_largeArchiveMarkerRows();
+      if(protectedRows>1500&&!cfg.enabled&&_largeArchiveRows(_memStore)<protectedRows)
+        throw new Error('حماية الأرشيف: هذا التبويب يحمل نسخة قديمة من السجل. تم منع الحفظ للحفاظ على المستندات المستعادة.');
       if(cfg.enabled){
         if(!key||!snapshot)throw new Error('الخزنة مقفلة');
         const blob=await encryptVaultBlob(key,snapshot);
@@ -12303,7 +12339,48 @@ function initExternalImport(){const section=document.getElementById('externalImp
   const tools=document.createElement('details');tools.className='external-import-section no-print';tools.innerHTML='<summary>استيراد الحسابات والأرصدة</summary><div class="report-actions"><button type="button" class="btn btn-primary" id="accountExcelImportBtn">استيراد الحسابات من Excel</button><button type="button" class="btn btn-ghost" id="accountTemplateBtn">تنزيل نموذج Excel</button><button type="button" class="btn btn-ghost" id="accountExternalImportBtn">استيراد بيانات من نظام خارجي</button></div>';document.getElementById('pageAccountsTree').prepend(tools);document.getElementById('accountExcelImportBtn').onclick=openLegacyImport;document.getElementById('accountExternalImportBtn').onclick=openLegacyImport;document.getElementById('accountTemplateBtn').onclick=downloadAccountTemplate;
 }
 
-selfHealStorageFromIdb().then(boot).catch(error=>{showRatibFatalBanner(error.message||"تعذرت قراءة البيانات. لم يتم استبدالها.");});
+function showRatibArchiveRecovery(){
+  if(document.getElementById('ratibArchiveRecovery'))return;
+  const overlay=document.createElement('section');
+  overlay.id='ratibArchiveRecovery';
+  overlay.setAttribute('role','alertdialog');
+  overlay.setAttribute('aria-modal','true');
+  overlay.setAttribute('aria-label','حماية الأرشيف واستعادة النسخة الاحتياطية');
+  overlay.style.cssText='position:fixed;inset:0;z-index:1000002;background:rgba(15,23,42,.86);display:flex;align-items:center;justify-content:center;direction:rtl;padding:16px';
+  const panel=document.createElement('div');
+  panel.style.cssText='max-width:540px;width:100%;background:var(--card,#fff);color:var(--text,#111);padding:22px;border-radius:16px;box-shadow:0 15px 35px #0005;font-family:Tajawal,system-ui,sans-serif;line-height:1.8';
+  const heading=document.createElement('h2');
+  heading.textContent='حماية الأرشيف المالي';
+  const description=document.createElement('p');
+  description.textContent='اكتشف راتب عدم تطابق بين الأرشيف المحفوظ ومؤشر استعادته. أُوقف فتح الدفتر لحماية المستندات. إذا كانت لديك نسخة احتياطية سليمة، يمكنك استعادتها هنا من جهازك دون مسح بيانات المتصفح ودون رفع الملف إلى أي خادم.';
+  description.style.margin='12px 0 18px';
+  const input=document.createElement('input');
+  input.type='file';input.accept='.json,.gz,.json.gz,application/json,application/gzip';input.hidden=true;
+  const button=document.createElement('button');
+  button.type='button';button.className='btn btn-primary';button.textContent='استعادة النسخة الاحتياطية من الجهاز';
+  button.style.cssText='width:100%;min-height:46px';
+  const status=document.createElement('p');
+  status.setAttribute('role','status');
+  status.style.cssText='font-size:13px;margin-top:12px';
+  status.textContent='يجب الاحتفاظ بملف النسخة الاحتياطية ونسخة الأمان السابقة. لا تمسح بيانات الموقع.';
+  button.addEventListener('click',()=>input.click());
+  input.addEventListener('change',async()=>{
+    const file=input.files?.[0];if(!file)return;
+    button.disabled=true;status.textContent='جارٍ التحقق من الملف وحفظه. لا تغلق النافذة.';
+    try{
+      const ok=await importBackupFile(file);
+      if(!ok)status.textContent='لم تكتمل الاستعادة. احتفظ بالملف الأصلي وتحقق من رسالة الخطأ.';
+    }catch(error){
+      console.error('archive recovery',error);
+      status.textContent='تعذرت الاستعادة. لم يتم الإقرار بنجاحها. احتفظ بالنسخة الأصلية.';
+    }finally{button.disabled=false;input.value='';}
+  });
+  panel.append(heading,description,input,button,status);overlay.append(panel);document.body.append(overlay);
+}
+selfHealStorageFromIdb().then(boot).catch(error=>{
+  showRatibFatalBanner(error.message||"تعذرت قراءة البيانات. لم يتم استبدالها.");
+  if(String(error?.message||'').includes('إشارة إلى أرشيف مستعاد'))showRatibArchiveRecovery();
+});
 </script>
 <div class="modal-overlay no-print" id="spendFxModal" role="dialog" aria-modal="true" aria-labelledby="spendFxTitle">
   <div class="modal-content spend-fx-dialog">

@@ -144,7 +144,7 @@ function fixture() {
   assert(html.includes('const restored = await importBackupFile(new File([content], f.name'));
   assert(html.includes("if (restored) modal.classList.remove('show')"));
   assert(html.includes("return false;\n  }") === false || html.includes("catch(e)")); // Syntax covered below.
-  assert(html.includes("showToast('اكتمل الاسترجاع والحفظ، سيُعاد فتح التطبيق.','info');setTimeout(()=>location.reload(),300);return true;"));
+  assert(html.includes('const savedRecords=await _readShadowRecords()')&&html.includes('saved!==count||savedMonths!==months')&&html.includes('setTimeout(()=>location.reload(),500);return true;'),'Restore must verify stored row count before reloading');
   assert(!html.includes("client.requestAccessToken({ prompt: interactive ? '' : 'none' })"));
   assert(html.includes("const CLOUD_FOLDER_NAME = 'Ratib Backups'"));
   assert(html.includes("const CLOUD_LEGACY_FOLDER_NAME = 'Ratib Trial Backups'"));

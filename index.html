@@ -4869,7 +4869,7 @@ function audit(action, entityId, before=null, after=null) {
 }
 
 function getAllTransactions() {
-  const current = (store.get('plan', null) && store.get('plan', null).transactions) || [];
+  const current = store.get('plan', null)?.transactions || [];
   const history = store.get('history', []);
   return current.concat(...(Array.isArray(history) ? history.map(h => Array.isArray(h.transactions) ? h.transactions : []) : []));
 }
@@ -5886,9 +5886,9 @@ function navigateToTab(target, pushToHistory = true) {
     syncSidebarCurrentPage();
     document.getElementById('pageDashboard').classList.remove('hidden');
     closeDashboardHome(false);
+    // updateProDashboard already updates reminders when their signature changes
+    // and schedules the graph. Do not render both a second time on home return.
     updateProDashboard();
-    renderRemindersList();
-    renderRemindersChart();
     return;
   }
   document.getElementById(target).classList.remove('hidden');
@@ -7524,7 +7524,9 @@ function renderAllData(force=false) {
     container.appendChild(card);
   });
   if(txs.length>ledgerVisibleLimit){const more=document.createElement('button');more.type='button';more.className='btn btn-ghost';more.textContent=`عرض المزيد (${txs.length-ledgerVisibleLimit})`;more.addEventListener('click',()=>{ledgerVisibleLimit+=50;renderAllData(true);});container.append(more);}
-  updateProDashboard();
+  // Ledger navigation is read-only. Recomputing the hidden dashboard and Cash Pulse
+  // here would scan the restored 22k-line archive again without any visible benefit.
+  if(currentActiveTab==='pageDashboard')updateProDashboard();
   // تحديث ميزان المراجعة إن كان قسمه مفتوحاً حالياً، حتى يعكس أي تعديل جديد فوراً
   if (document.getElementById('reportsGroupTrialBody')?.classList.contains('open')) runTrialBalanceReport();
 }
@@ -8867,7 +8869,7 @@ function getAccountOpeningBalanceForOperations(scopeNames,fromDate,currency=acco
 }
 function getAccountRunningBalances(txs,scope,opening){
   const balances=new Map();let balance=opening;
-  [...txs].forEach(t=>{
+  txs.forEach(t=>{
     const entry=getAccountEntry(t,scope);
     balance+=(entry.bothSides?0:entry.side==='debit'?-1:1)*getAccountDisplayAmount(entry);
     balances.set(t,balance);

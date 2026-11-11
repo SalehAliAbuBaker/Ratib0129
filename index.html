@@ -3406,6 +3406,12 @@ function _enqueuePersistence(job){
   });
   return operation;
 }
+const LARGE_ARCHIVE_AUTH_KEY=APP_STORAGE_PREFIX+'large_archive_authority_v1';
+let _largeArchiveAuthority=false;
+function _largeArchiveRows(records){
+  const h=records?.[APP_STORAGE_PREFIX+'history'];
+  return Array.isArray(h)?h.reduce((sum,period)=>sum+(Array.isArray(period?.transactions)?period.transactions.length:0),0):0;
+}
 async function _persistPending(){
   if(!_pendingWrites.size)return _storageQueue;
   clearTimeout(_storageTimer);_storageTimer=null;
@@ -3419,7 +3425,12 @@ async function _persistPending(){
         if(!key||!snapshot)throw new Error('الخزنة مقفلة');
         const blob=await encryptVaultBlob(key,snapshot);
         await _persistRecords({[VAULT_BLOB_KEY]:blob,[SECURITY_CONFIG_KEY]:cfg,[STORAGE_META_KEY]:_nextStorageMeta()},[],true);_vaultBlob=blob;
-      }else{records[STORAGE_META_KEY]=_nextStorageMeta();await _persistRecords(records,deleted);}
+      }else{records[STORAGE_META_KEY]=_nextStorageMeta();
+        // An archive exceeding localStorage capacity must NEVER update the local mirror's timestamp.
+        // Otherwise the older, partial local snapshot wins on the next boot and hides the restored history.
+        if(_largeArchiveAuthority)await _writeShadowRecords(records,deleted);
+        else await _persistRecords(records,deleted);
+      }
     }catch(e){for(const [k,v] of pending)if(!_pendingWrites.has(k))_pendingWrites.set(k,v);throw e;}
   });
 }
@@ -3448,16 +3459,24 @@ async function selfHealStorageFromIdb(){
   if(localReadError?.message.includes('بيانات محلية غير صالحة')&&!Object.keys(shadow).length&&!stage)throw localReadError;
   // IndexedDB is authoritative when the timestamps tie: localStorage can hold a stale partial ledger after a large restore.
   let source=Object.keys(shadow).length&&stamp(shadow)>=stamp(local)?shadow:local;
+  let archiveMarker=null;
+  try{archiveMarker=JSON.parse(localStorage.getItem(LARGE_ARCHIVE_AUTH_KEY)||'null');}catch(_){}
+  if(archiveMarker?.rows>1500){
+    if(_largeArchiveRows(shadow)!==Number(archiveMarker.rows))
+      throw new Error('توجد إشارة إلى أرشيف مستعاد لكن نسخة IndexedDB غير متطابقة. احتفظ بنسخة الأمان ولا تواصل الحفظ قبل المراجعة.');
+    source=shadow; // Never prefer a partial local snapshot merely because it has a newer timestamp.
+  }
   if(!stamp(shadow)&&!stamp(local)&&!local[SECURITY_CONFIG_KEY]?.enabled&&!shadow[SECURITY_CONFIG_KEY]?.enabled)source={...shadow,...local};
-  if(stage&&typeof stage==='object'&&stamp(stage)>=stamp(source))source=stage;
+  if(!(archiveMarker?.rows>1500)&&stage&&typeof stage==='object'&&stamp(stage)>=stamp(source))source=stage;
   _storageStamp=stamp(source);
+  _largeArchiveAuthority=_largeArchiveRows(source)>1500;
   _securityConfigCache=source[SECURITY_CONFIG_KEY]||{enabled:false,salt:null,bioCredentialId:null};
   _vaultBlob=source[VAULT_BLOB_KEY]||null;
   if(!_securityConfigCache.enabled){for(const [key,value] of Object.entries(source))if(!_storageInternalKeys.has(key))_memStore[key]=value;}
   // A newer complete mirror takes precedence over an older partial local copy.
   if(source!==local||stage){
     const archive=source[APP_STORAGE_PREFIX+'history'];
-    const shadowLarge=source===shadow&&!stage&&Array.isArray(archive)&&archive.reduce((n,h)=>n+(h?.transactions?.length||0),0)>1500;
+    const shadowLarge=source===shadow&&Array.isArray(archive)&&archive.reduce((n,h)=>n+(h?.transactions?.length||0),0)>1500;
     // Do not mirror 50 MB back into quota-limited localStorage on startup.
     if(!shadowLarge)try{await _persistRecords(source,[],true);}catch(e){console.warn('تعذر إصلاح النسخة المحلية',e);}
   }
@@ -3587,7 +3606,7 @@ function showForgotPinInfo() {
 async function factoryResetApp(){
   try{
     clearTimeout(_draftTimer);clearTimeout(_autoBackupTimer);await flushStorage();await _replacePersistentData({});try{await _idbDelete('dir');}catch(_){ }
-    for(const k of Object.keys(_memStore))delete _memStore[k];_securityConfigCache={enabled:false,salt:null,bioCredentialId:null};_vaultCryptoKey=null;_vaultUnlocked=false;_vaultBlob=null;
+    for(const k of Object.keys(_memStore))delete _memStore[k];_largeArchiveAuthority=false;try{localStorage.removeItem(LARGE_ARCHIVE_AUTH_KEY);}catch(_){} _securityConfigCache={enabled:false,salt:null,bioCredentialId:null};_vaultCryptoKey=null;_vaultUnlocked=false;_vaultBlob=null;
     clearVaultBiometricSession();
     hasUnsavedChanges=false;location.reload();
   }catch(e){showToast('تعذّرت إعادة التهيئة. أعد محاولة الحفظ قبل المتابعة.','error');}
@@ -3972,6 +3991,14 @@ async function importBackupFile(file){
     const savedData=cfg.enabled?await decryptVaultBlob(key,savedRecords[VAULT_BLOB_KEY]):savedRecords;
     const saved=validateRestoredData(savedData),savedMonths=savedData[prefix+'history']?.length||0;
     if(saved!==count||savedMonths!==months)throw new Error('لم يكتمل الحفظ: المتوقع '+count+' حركة عبر '+months+' فترة، الموجود '+saved+' عبر '+savedMonths+'.');
+    if(_largeArchiveRows(savedData)>1500){
+      try{localStorage.setItem(LARGE_ARCHIVE_AUTH_KEY,JSON.stringify({rows:_largeArchiveRows(savedData),savedAt:Date.now()}));}
+      catch(_){throw new Error('حُفظ الأرشيف في قاعدة المتصفح لكن تعذر تثبيت مؤشر حمايته. لا تُغلق الصفحة قبل حفظ نسخة احتياطية ومراجعة التخزين.');}
+      _largeArchiveAuthority=true;
+    }else{
+      _largeArchiveAuthority=false;
+      try{localStorage.removeItem(LARGE_ARCHIVE_AUTH_KEY);}catch(_){}
+    }
     for(const k of Object.keys(_memStore))delete _memStore[k];Object.assign(_memStore,restored);
     _securityConfigCache=cfg;_vaultCryptoKey=key;_vaultUnlocked=!!cfg.enabled;_vaultBlob=blob;
     if(cfg.enabled)await cacheVaultKeyForBiometrics(key);else clearVaultBiometricSession();

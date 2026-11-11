@@ -1,0 +1,35 @@
+/* Ratib official: seven-second single remembrance on home and secure entry. */
+@media screen{
+ #ratibHomeDhikr.ratib-adhkar-banner.ratib-dhikr-visible,
+ #ratibLoginDhikr.ratib-adhkar-banner.ratib-dhikr-visible{
+   display:block!important;position:relative;max-width:100%;width:100%;min-height:40px;
+   overflow:hidden;white-space:nowrap;padding:8px 0!important;margin:5px 0 9px!important;
+   border-radius:9px;background:color-mix(in srgb,var(--accent,#145e40) 8%,var(--card,#fff));
+   color:var(--accent,#145e40);text-align:start;
+   font:600 clamp(1.05rem,2.7vw,1.25rem)/1.65 Tajawal,system-ui,sans-serif!important;
+ }
+ #ratibHomeDhikr[hidden],#ratibLoginDhikr[hidden]{display:none!important}
+ #ratibLoginDhikr{margin-top:14px!important;direction:rtl;}
+ #ratibHomeDhikr .ratib-dhikr-text,
+ #ratibLoginDhikr .ratib-dhikr-text{
+   display:inline-block!important;white-space:nowrap;min-width:100%;
+   animation:ratib-adhkar-seven-seconds 7s linear both!important;will-change:transform;
+ }
+ /* One message enters from the LEFT and leaves towards the RIGHT. */
+ @keyframes ratib-adhkar-seven-seconds{
+  from{transform:translateX(-100%)}to{transform:translateX(100%)}
+ }
+ .ratib-adhkar-settings .ratib-adhkar-field{display:flex;flex-direction:column;gap:4px;margin:0 0 10px}
+ .ratib-adhkar-settings textarea{display:block;box-sizing:border-box;width:100%;min-height:50px;resize:vertical;
+   padding:9px 10px;border:1px solid var(--border);border-radius:9px;background:var(--card);
+   color:var(--text);font:400 14px/1.5 Tajawal,system-ui,sans-serif;direction:rtl}
+ .ratib-adhkar-settings .ratib-adhkar-hint{color:var(--muted);font-size:13px;line-height:1.6;margin-bottom:12px}
+ .ratib-adhkar-settings .ratib-adhkar-save{min-height:42px;width:auto;max-width:100%;padding:8px 14px}
+ #ratibAdhkarSaveStatus{display:block;min-height:1.3em;margin-top:6px;font-size:13px;color:var(--muted)}
+}
+@media (prefers-reduced-motion:reduce){
+ #ratibHomeDhikr .ratib-dhikr-text,#ratibLoginDhikr .ratib-dhikr-text{animation:none!important}
+}
+@media print{
+ #ratibHomeDhikr,#ratibLoginDhikr,.ratib-adhkar-settings{display:none!important}
+}

@@ -1,0 +1,29 @@
+name: Verify official editable adhkar and warm account navigation
+
+on:
+  pull_request:
+    paths:
+      - index.html
+      - ratib-adhkar-20261111.js
+      - ratib-adhkar-20261111.css
+      - sw.js
+      - test-official-adhkar-20261111.cjs
+      - test-official-accounts-warm-index-20261111.cjs
+      - .github/workflows/ratib-adhkar-accounts-20261111.yml
+  workflow_dispatch:
+
+jobs:
+  secure-ui:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - run: npm install --ignore-scripts --no-audit --no-fund
+      - name: Verify three configurable adhkar and 7-second shared banner
+        run: node test-official-adhkar-20261111.cjs
+      - name: Verify 22,100-accounting-leg cache, idleness, and journal invalidation
+        run: node test-official-accounts-warm-index-20261111.cjs
+      - name: Recheck account and journal financial correctness
+        run: node test-accounting-3.6.59.cjs && node test-official-statement-paging-20261111.cjs && node test-official-archive-write-guard-20261111.cjs

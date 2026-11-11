@@ -9,6 +9,9 @@ on:
       - ratib-dashboard-finance-3.6.144.js
       - test-official-20261111-ledger-year-lazy-search.cjs
       - test-official-ledger-navigation-cache-20261111.cjs
+      - ratib-performance-watch-20261111.js
+      - test-ratib-performance-watch-20261111.cjs
+      - test-official-large-backup-throttle-20261111.cjs
       - .github/workflows/ratib-official-ledger-year-performance.yml
   workflow_dispatch:
 
@@ -22,7 +25,7 @@ jobs:
           node-version: '24'
       - run: npm install --ignore-scripts --no-audit --no-fund
       - name: Test the current-year default, two decimal display and lazy account search
-        run: node test-official-20261111-ledger-year-lazy-search.cjs && node test-official-ledger-navigation-cache-20261111.cjs
+        run: node test-official-20261111-ledger-year-lazy-search.cjs && node test-official-ledger-navigation-cache-20261111.cjs && node test-official-large-backup-throttle-20261111.cjs && node test-ratib-performance-watch-20261111.cjs
       - name: Ensure 22k ledger and archive protections still work
         run: node test-official-account-statement-fastlookup-20261111.cjs && node test-official-archive-write-guard-20261111.cjs && node test-official-recovery-stale-flush-20261111.cjs
       - name: Retest the 3.6.177 date search and financial statements

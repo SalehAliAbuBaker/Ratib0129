@@ -8766,18 +8766,36 @@ function ratibApplyAccountMovementSearch(){
  if(!panel||!input)return;
  const search=ratibAccountMovementNormalize(input.value),
        terms=search.split(/\s+/).filter(Boolean);
+ const rows=panel.querySelectorAll('.account-statement-row[data-tx-id]');
+ // Opening a 3,925-line statement should not stringify every voucher's notes,
+ // allocations and currency legs when the movement search box is empty.
+ // The full corpus is prepared lazily only when a user actually searches.
+ if(!terms.length&&panel.dataset.ratibMovementWasFiltered!=='1'){
+   if(counter)counter.textContent='عدد الحركات في الحساب: '+rows.length;
+   if(clear)clear.disabled=!input.value;
+   return;
+ }
+ panel.dataset.ratibMovementWasFiltered=terms.length?'1':'0';
  let total=0,matched=0;
  panel.querySelectorAll('.account-currency-page').forEach(page=>{
   let pageMatched=0;
   page.querySelectorAll('.account-statement-row[data-tx-id]').forEach(row=>{
    total++;
-   const haystack=row.dataset.ratibMovementText||ratibAccountMovementNormalize(row.textContent);
-   const visible=terms.every(term=>haystack.includes(term));
+   let visible=true;
+   if(terms.length){
+     let haystack=row.dataset.ratibMovementText;
+     if(haystack===undefined){
+       const tx=panel._ratibStatementTxById?.get(String(row.dataset.txId));
+       haystack=tx?ratibAccountMovementSearchCorpus(tx,getAccountEntry(tx,panel._ratibStatementScope||[]),row.textContent):ratibAccountMovementNormalize(row.textContent);
+       row.dataset.ratibMovementText=haystack;
+     }
+     visible=terms.every(term=>haystack.includes(term));
+   }
    row.classList.toggle('ratib-movement-hidden',!visible);
    if(visible){matched++;pageMatched++;}
   });
   let empty=page.querySelector('.ratib-movement-empty');
-  if(!empty){empty=document.createElement('p');empty.className='ratib-movement-empty no-print';
+  if(!empty&&terms.length){empty=document.createElement('p');empty.className='ratib-movement-empty no-print';
     empty.textContent='لا توجد حركات مطابقة لهذا البحث في هذه العملة.';
     page.querySelector('.account-statement-table')?.after(empty);}
   if(empty)empty.hidden=!terms.length||pageMatched!==0;
@@ -8879,10 +8897,14 @@ function renderAccountOperations(accountName,scopeNames=null,ui=null){
     const key=String(tx.id);
     if(!statementTxById.has(key))statementTxById.set(key,tx);
   }
+  if(accountOpsUi.panelId==='accountOperationsStandalonePanel'){
+    panel._ratibStatementTxById=statementTxById;
+    panel._ratibStatementScope=scope;
+    panel.dataset.ratibMovementWasFiltered='0';
+  }
   panel.querySelectorAll('[data-tx-id]').forEach(row=>{
     const tx=statementTxById.get(String(row.dataset.txId));
-    if(tx){if(accountOpsUi.panelId==='accountOperationsStandalonePanel')row.dataset.ratibMovementText=ratibAccountMovementSearchCorpus(tx,getAccountEntry(tx,scope),row.textContent);
-      row.addEventListener('click',()=>openDocumentDetailsModal(tx));}
+    if(tx)row.addEventListener('click',()=>openDocumentDetailsModal(tx));
   });
   const track=panel.querySelector('.account-currency-track');
   if(track){
@@ -9406,7 +9428,7 @@ function ratibAccountsPagerActivityIndex(txs){
 function renderAccountsPager(){
   const tabs=document.getElementById('accountsPagerTabs'),track=document.getElementById('accountsPagerTrack');
   if(!tabs||!track)return;
-  const catalog=getCanonicalCatalog(),balances=getAccountPagerBalances();
+  const catalog=getCanonicalCatalog(); // Account pager uses its indexed activity totals; no second full ledger scan.
   const simpleMode=window.RatibSimpleAccounts?.isSimple?.()===true;
   const simpleApi=window.RatibSimpleAccounts;
   document.getElementById('accountsPagerCard')?.classList.toggle('ratib-simple-accounts-mode',simpleMode);
@@ -13840,7 +13862,7 @@ try{currenciesUi();sync();}catch(e){console.error('Ratib 3.6.12 initialization',
 <script src="./ratib-voice-dictation-3.6.117.js?v=3.6.177" defer></script>
 <script src="./ratib-import-manager.js?v=2" defer></script>
 <script src="./ratib-annual-close.js?v=1" defer></script>
-<script src="./ratib-fiscal-ledger.js?v=1" defer></script>
+<script src="./ratib-fiscal-ledger.js?v=1&amp;patch=current-year-20261111" defer></script>
 <script src="./ratib-statement-prior-year.js?v=1" defer></script>
 <script src="./ratib-reconciliation-print.js?v=3.6.139" defer></script>
 <script src="./ratib-theme.js?v=3.6.53" defer></script>
@@ -13862,7 +13884,7 @@ try{currenciesUi();sync();}catch(e){console.error('Ratib 3.6.12 initialization',
 <script src="./ratib-login-3.6.124.js?v=3.6.177" defer></script>
 <script src="./ratib-trial-home-sidebar-3.6.143.js?v=3.6.148" defer></script>
 <script src="./ratib-trial-ui-3.6.143.js?v=3.6.177" defer></script>
-<script src="./ratib-dashboard-finance-3.6.144.js?v=3.6.177" defer></script>
+<script src="./ratib-dashboard-finance-3.6.144.js?v=3.6.177&amp;patch=two-decimal-20261111" defer></script>
 <script src="./ratib-global-button-size-3.6.146.js?v=3.6.139" defer></script>
 <script src="./ratib-document-signatures-3.6.148.js?v=3.6.148-automatic" defer></script>
 <script src="./ratib-cash-reference-3.6.148.js?v=3.6.177" defer></script>

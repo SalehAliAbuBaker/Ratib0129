@@ -18,7 +18,7 @@ const rows=Array.from({length:visible},(_,i)=>({
  textContent:'Synthetic statement row '+i,
  addEventListener(event,handler){assert.equal(event,'click');this.handler=handler;bindCount++;}
 }));
-const panel={querySelectorAll(selector){assert.equal(selector,'[data-tx-id]');return rows;}};
+const panel={dataset:{},querySelectorAll(selector){assert.equal(selector,'[data-tx-id]');return rows;}};
 const context={
  Map,String,panel,scope:['synthetic'],accountOpsUi:{panelId:'accountOperationsStandalonePanel'},
  getAllTransactions(){getCalls++;return txs;},
@@ -30,9 +30,9 @@ const frozenBefore=JSON.stringify(txs);
 vm.runInNewContext(snippet,context,{timeout:8000});
 assert.equal(getCalls,1,'Read the large ledger exactly once even for thousands of rendered rows');
 assert.equal(bindCount,visible,'All visible rows retain voucher-opening handlers');
-assert.equal(searchCorpusCount,visible,'Search corpus generated for each row');
-assert.equal(entryCalls,visible);
-assert(rows[0].dataset.ratibMovementText.includes('synthetic-0|1|'),'First duplicate ID must win, matching previous find');
+assert.equal(searchCorpusCount,0,'Search corpus generation is now lazy until a user searches');
+assert.equal(entryCalls,0,'Opening a statement must not extract voucher entries merely for unused search');
+assert.equal(panel._ratibStatementTxById.get('synthetic-0'),txs[0],'First duplicate ID must win, matching previous find');
 rows[0].handler();assert.equal(opened,txs[0],'Opening a row must locate the original first transaction object');
 rows[visible-1].handler();assert.equal(opened,txs[visible-1]);
 assert.equal(JSON.stringify(txs),frozenBefore,'Indexing must not modify financial records');

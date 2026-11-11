@@ -19,7 +19,7 @@ assert(css.includes('@media print')&&css.includes('display:grid!important'),'pri
 assert(html.includes("movementSearch:sameAccount?previous.movementSearch:''"),'new account clears query');
 assert(html.includes("movementSearch:accountOpsState.movementSearch||''"),'same-account query is retained');
 assert(html.includes("if(accountOpsUi.panelId==='accountOperationsStandalonePanel')"),'standalone only');
-assert(html.includes("row.dataset.ratibMovementText=ratibAccountMovementSearchCorpus("));
+assert(html.includes("row.dataset.ratibMovementText=haystack;")&&html.includes("haystack=tx?ratibAccountMovementSearchCorpus("),'Search corpus is now built lazily without losing Arabic voucher fields');
 assert(html.includes("if(view.account){accountOpsState=cloneData(view.account)"),'Back navigation preserves saved search state');
 const first=html.indexOf('function ratibAccountMovementNormalize(value){'),last=html.indexOf('function accountOpsMatchesSearch(',first);
 assert(first>0&&last>first);

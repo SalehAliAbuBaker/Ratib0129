@@ -46,7 +46,7 @@ f.dispatchEvent(new w.Event('submit',{bubbles:true,cancelable:true}));
 assert.equal(navigated.length,1);
 let u=new URL(navigated[0][0]);assert.equal(u.origin,'https://wa.me');assert.equal(u.pathname,'/967734915588');
 assert(u.searchParams.get('text').includes('مشكلة فنية'));
-assert(u.searchParams.get('text').includes('الإصدار 3.6.178'));
+assert(u.searchParams.get('text').includes('الإصدار 3.6.179'));
 assert(u.searchParams.get('text').includes(t.value));
 assert.equal(navigated[0][1],'_blank');
 assert(navigated[0][2].includes('noopener'));

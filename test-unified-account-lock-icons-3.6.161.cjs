@@ -11,7 +11,7 @@ const buttonIds=['lockDebitAccBtn','lockCreditAccBtn','ratibLockSource','ratibLo
 assert.equal(pkg.version,'3.6.179');
 assert(html.includes('ratib-account-lock-unified-3.6.161.css?v=3.6.178'));
 assert(html.includes('ratib-account-lock-unified-3.6.161.js?v=3.6.178'));
-assert(sw.includes('"version":"3.6.178"'));
+assert(sw.includes('"version":"3.6.179"'));
 assert(sw.includes('"./ratib-account-lock-unified-3.6.161.css"'));
 assert(sw.includes('"./ratib-account-lock-unified-3.6.161.js"'));
 assert(css.includes('@media screen'),'Lock icon styling must not change printed vouchers');

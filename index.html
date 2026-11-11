@@ -3122,7 +3122,7 @@ body.ratib-sidebar-open,body.ratib-about-open{overflow:hidden}
 // (أو localhost أثناء التطوير) — هذا شرط أساسي من المتصفح نفسه لأي Service Worker.
 let _briefAppNoticeTimer=null;
 let _releaseSummaryDisplayed=false;
-const RATIB_RELEASE={"version":"3.6.178","build":"p17800","highlights":["ترتيب كشف الحساب وجمع العملة وعدد العمليات بجانب إضافة عملية","تحسين تدرج الخط والأزرار وتخفيف تحديثات الواجهة"],"changes":["جمع ترتيب العرض وعدد البطاقات وتقليل ارتفاع أدوات كشف الحساب","فتح أدوات مطابقة الرصيد عند الطلب","تدرج متقارب لأحجام الخط والزر","عرض المبالغ بمنزلتين عشريتين"]};
+const RATIB_RELEASE={"version":"3.6.178","build":"p17800","highlights":["ترتيب كشف الحساب وجمع العملة وعدد العمليات بجانب إضافة عملية","تحسين تدرج الخط والأزرار وتخفيف تحديثات الواجهة"],"changes":["نجري بانتظام تحديثات لتحسين الموثوقية والأداء وإصلاح الأخطاء","جمع ترتيب العرض وعدد البطاقات وتقليل ارتفاع أدوات كشف الحساب","فتح أدوات مطابقة الرصيد عند الطلب","تدرج متقارب لأحجام الخط والزر","عرض المبالغ بمنزلتين عشريتين"]};
 window.ratibCurrentTrialVersion=()=>String(RATIB_RELEASE.version);
 window.ratibCurrentTrialVersionLabel=()=>`الإصدار ${RATIB_RELEASE.version}`;
 window.ratibSyncTrialVersion=()=>{

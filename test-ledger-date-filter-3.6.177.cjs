@@ -13,7 +13,7 @@ assert(html.includes('window.RatibLedgerDateFilter177.matches'),'The date predic
 assert(html.includes('window.RatibLedgerDateFilter177?.clear(false)'),'Dashboard operations clear stale date search');
 assert(html.includes("document.addEventListener('ratib:ledger-date-render'"),'Core ledger re-renders and resets its paging');
 assert(sw.includes('./ratib-ledger-date-filter-3.6.177.js')&&sw.includes('./ratib-ledger-date-filter-3.6.177.css'));
-assert(html.includes('ratib-ledger-date-filter-3.6.177.js?v=3.6.178')&&html.includes('ratib-ledger-date-filter-3.6.177.css?v=3.6.178'));
+assert(html.includes('ratib-ledger-date-filter-3.6.177.js?v=3.6.180')&&html.includes('ratib-ledger-date-filter-3.6.177.css?v=3.6.180'));
 assert(css.includes('.ratib-native-date-wrap'),'Use the existing Umm al-Qura date control');
 const fixture='<div id="pageLedger"><div id="ledgerDateFilter177">'+
  '<label>تاريخ العملية<input type="date" id="ledgerDateFrom177"></label>'+

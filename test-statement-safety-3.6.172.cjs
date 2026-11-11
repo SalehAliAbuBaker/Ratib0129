@@ -4,7 +4,7 @@ const js=fs.readFileSync('ratib-statement-safety-3.6.172.js','utf8'),css=fs.read
 new vm.Script(js);
 assert.equal(require('./package.json').version,'3.6.180');
 for(const f of ['ratib-statement-safety-3.6.172.js','ratib-statement-safety-3.6.172.css']){
- assert(html.includes(f+'?v=3.6.178'),f+' included in HTML');
+ assert(html.includes(f+'?v=3.6.180'),f+' included in HTML');
  assert(sw.includes('./'+f),f+' cached offline');
 }
 assert.match(css,/@keyframes ratib-dhikr-pass\s*\{\s*from\{transform:translateX\(-100%\)\}\s*to\{transform:translateX\(100%\)\}/);

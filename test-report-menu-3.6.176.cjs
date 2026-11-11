@@ -8,7 +8,7 @@ new vm.Script(nav);
 assert.equal(require('./package.json').version,'3.6.180');
 assert(html.includes('"version":"3.6.180","build":"p18000"'));
 assert(sw.includes('"version":"3.6.180","build":"p18000"'));
-assert(html.includes('ratib-report-menu-3.6.176.css?v=3.6.178'));
+assert(html.includes('ratib-report-menu-3.6.176.css?v=3.6.180'));
 assert(sw.includes('./ratib-report-menu-3.6.176.css'));
 assert(!html.includes('<script src="./ratib-report-tiles-3.6.175.js'),'Conflicting reparenting script MUST NOT execute');
 assert(!html.includes('<link rel="stylesheet" href="./ratib-report-tiles-3.6.175.css'),'Conflicting stylesheet MUST NOT apply');

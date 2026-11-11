@@ -8,7 +8,7 @@ assert.equal(require('./package.json').version,'3.6.180');
 assert(html.includes('const RATIB_RELEASE={"version":"3.6.180","build":"p18000"'));
 assert(sw.includes('v260-opening-mobile-clean-3.6.139'));
 assert(html.includes('ratib-feedback-3.6.149.js?v=3.6.139'));
-assert(html.includes('ratib-mobile-edge-back-3.6.128.js?v=3.6.178'));
+assert(html.includes('ratib-mobile-edge-back-3.6.128.js?v=3.6.180'));
 assert(sw.includes('"./ratib-mobile-edge-back-3.6.128.js"'));
 assert(!feedback.includes('store.set(\'transactions\''),'Feedback must not mutate ledger');
 const dom=new JSDOM('<!doctype html><html lang="ar"><body>'+

@@ -18,7 +18,7 @@ for(const asset of ['ratib-statement-direct-pdf-3.6.159.js','vendor/ratib-pdfmak
  'vendor/ratib-tajawal-regular.ttf','vendor/ratib-tajawal-bold.ttf'])
  assert(sw.includes('"./'+asset+'"'),'Service worker must cache '+asset);
 assert(sw.includes('"version":"3.6.180"'));
-assert(html.includes('ratib-statement-direct-pdf-3.6.159.js?v=3.6.178'));
+assert(html.includes('ratib-statement-direct-pdf-3.6.159.js?v=3.6.180'));
 assert(html.includes('new File([await buildAccountOperationsPdf(choice,currencies)]'));
 assert(html.includes('downloadFinancialFile(await buildAccountOperationsPdf(choice,currencies)'));
 assert(html.includes('window.RatibStatementVector.markup(data)'));

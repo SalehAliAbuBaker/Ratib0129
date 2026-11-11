@@ -8,7 +8,7 @@ const css=fs.readFileSync('ratib-ui-fixes-3.6.156.css','utf8');
 const sw=fs.readFileSync('sw.js','utf8');
 const version=require('./tools/assert-release.cjs')();
 assert.equal(version,'3.6.180');
-assert(html.includes('ratib-ui-fixes-3.6.156.css?v=3.6.178'),'new visual corrections must load');
+assert(html.includes('ratib-ui-fixes-3.6.156.css?v=3.6.180'),'new visual corrections must load');
 assert(sw.includes('"./ratib-ui-fixes-3.6.156.css"'),'offline version must include new CSS');
 assert(css.includes('@media screen')&&!css.includes('@media print'),'print and PDF must remain untouched');
 assert(css.includes('> h2 {\n    display:flex!important'),'simple journal heading must no longer use display:contents');

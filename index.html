@@ -9599,6 +9599,9 @@ window.addEventListener('ratib:app-ready',()=>{
  // Existing boot and financial reports are higher priority than this optional index.
  setTimeout(ratibWarmAccountsPagerIndex,100);
 });
+// The deferred script bundle can finish after an already-unlocked app has emitted
+// its ready event; warm the index in either initialization order.
+if(window.__ratibProceedInitialized)setTimeout(ratibWarmAccountsPagerIndex,160);
 
 function renderAccountsPager(){
   const tabs=document.getElementById('accountsPagerTabs'),track=document.getElementById('accountsPagerTrack');

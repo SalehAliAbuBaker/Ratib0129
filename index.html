@@ -12931,6 +12931,19 @@ document.addEventListener('scroll',e=>{if(!e.target.closest?.('.searchable-dropd
  function updateScreen(root){
   try{
    const v=read(),panels=[...root.querySelectorAll('.account-statement-grid')];
+   // Lazy, read-only lookup: the counterpart display must not scan 22,000+
+   // accounting legs once for EACH statement row.
+   let statementCounterpartIndex=null;
+   const findStatementTx=id=>{
+     if(!statementCounterpartIndex){
+       statementCounterpartIndex=new Map();
+       for(const tx of getAllTransactions()){
+         const key=String(tx.id);
+         if(!statementCounterpartIndex.has(key))statementCounterpartIndex.set(key,tx);
+       }
+     }
+     return statementCounterpartIndex.get(String(id));
+   };
    for(const grid of panels){
     const rows=grid.querySelectorAll(':scope > .account-statement-row');
     const count=5+Number(v.document)+Number(v.counterpart);
@@ -12942,7 +12955,7 @@ document.addEventListener('scroll',e=>{if(!e.target.closest?.('.searchable-dropd
       }
      }else if(row.hasAttribute('data-tx-id')){
       if(!row.querySelector('[data-statement-col="counterpart"]')){
-       const tx=getAllTransactions().find(t=>String(t.id)===row.dataset.txId);
+       const tx=findStatementTx(row.dataset.txId);
        const c=document.createElement('span');c.dataset.statementCol='counterpart';c.textContent=tx?counter(tx,accountOpsState.scopeNames):'—';cells[2]?.after(c);
       }
      }

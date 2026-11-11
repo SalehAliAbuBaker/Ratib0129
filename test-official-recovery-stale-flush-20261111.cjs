@@ -38,7 +38,7 @@ function fixture({failPersist=false,allowRecovery=true}={}){
  const notices=[],exports=[],confirms=[],timers=[],mem={masar_history:[{month:'2026-10',transactions:[{id:'old'}]}]};
  let saved=null,flushes=0,commits=0;
  const state={
-  APP_STORAGE_PREFIX:'masar_',APP_SCHEMA_VERSION:3,
+  APP_STORAGE_PREFIX:'masar_',APP_SCHEMA_VERSION:3,SECURITY_CONFIG_KEY:'masar_security_config_v2',VAULT_BLOB_KEY:'masar_vault_v1',
   _ratibArchiveRecoveryRequired:allowRecovery,
   _pendingWrites:new Map([['masar_plan',{month:'old',transactions:[{id:'old'}]}]]),
   _storageQueue:Promise.resolve(),_storageBusy:0,_storageTimer:123,

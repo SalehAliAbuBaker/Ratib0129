@@ -3467,7 +3467,7 @@ async function selfHealStorageFromIdb(){
     source=shadow; // Never prefer a partial local snapshot merely because it has a newer timestamp.
   }
   if(!stamp(shadow)&&!stamp(local)&&!local[SECURITY_CONFIG_KEY]?.enabled&&!shadow[SECURITY_CONFIG_KEY]?.enabled)source={...shadow,...local};
-  if(stage&&typeof stage==='object'&&stamp(stage)>=stamp(source))source=stage;
+  if(!(archiveMarker?.rows>1500)&&stage&&typeof stage==='object'&&stamp(stage)>=stamp(source))source=stage;
   _storageStamp=stamp(source);
   _largeArchiveAuthority=_largeArchiveRows(source)>1500;
   _securityConfigCache=source[SECURITY_CONFIG_KEY]||{enabled:false,salt:null,bioCredentialId:null};
@@ -3476,7 +3476,7 @@ async function selfHealStorageFromIdb(){
   // A newer complete mirror takes precedence over an older partial local copy.
   if(source!==local||stage){
     const archive=source[APP_STORAGE_PREFIX+'history'];
-    const shadowLarge=source===shadow&&!stage&&Array.isArray(archive)&&archive.reduce((n,h)=>n+(h?.transactions?.length||0),0)>1500;
+    const shadowLarge=source===shadow&&Array.isArray(archive)&&archive.reduce((n,h)=>n+(h?.transactions?.length||0),0)>1500;
     // Do not mirror 50 MB back into quota-limited localStorage on startup.
     if(!shadowLarge)try{await _persistRecords(source,[],true);}catch(e){console.warn('تعذر إصلاح النسخة المحلية',e);}
   }

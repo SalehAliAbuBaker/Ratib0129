@@ -1674,6 +1674,16 @@ body.ratib-sidebar-open,body.ratib-about-open{overflow:hidden}
 
 <link rel="stylesheet" href="./ratib-report-menu-3.6.176.css?v=3.6.177">
 <link rel="stylesheet" href="./ratib-ledger-date-filter-3.6.177.css?v=3.6.177">
+<style id="ratib-statement-page-style-20261111">
+.ratib-statement-page-tools{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin:8px 0 12px;padding:8px;background:var(--bg);border:1px solid var(--border);border-radius:12px;color:var(--text)}
+.ratib-statement-page-tools label{display:flex;align-items:center;gap:6px;flex:1 1 155px;min-width:0;font-size:13px;font-weight:500}
+.ratib-statement-page-tools select{flex:1 1 auto;min-width:0;max-width:185px;height:38px;font:inherit;background:var(--card);color:var(--text);border:1px solid var(--border);border-radius:9px;padding:4px}
+.ratib-statement-page-actions{display:flex;align-items:center;justify-content:center;gap:8px;flex:1 1 100%;font-size:13px;text-align:center}
+.ratib-statement-page-actions button{width:auto!important;min-width:74px;min-height:36px;padding:5px 9px;font:inherit;background:var(--card);color:var(--text);border:1px solid var(--border);border-radius:9px;cursor:pointer}
+.ratib-statement-page-actions button:disabled{opacity:.45;cursor:default}
+@media(max-width:450px){.ratib-statement-page-tools{padding:6px}.ratib-statement-page-tools label{flex:1 1 100%}.ratib-statement-page-tools select{max-width:none}}
+@media print{.ratib-statement-page-tools{display:none!important}}
+</style>
 </head>
 <body>
 
@@ -4918,7 +4928,7 @@ function updateProDashboard(){
   const txs=dashboardTransactions(),cur=getGlobalCurrency(),selected=txs.filter(t=>t.currency===cur);
   const income=selected.filter(t=>t.voucherMode==='income'&&(!t.isMultiVoucher||!!t.creditAccount)).reduce((sum,t)=>sum+Number(t.amount||0),0);
   const expense=selected.filter(t=>(t.isExpense||t.voucherMode==='spend')&&(!t.isMultiVoucher||!!t.debitAccount)).reduce((sum,t)=>sum+Number(t.amount||0),0);
-  for(const [id,value] of [['proIncomeKpi',income],['proExpenseKpi',expense],['proNetKpi',income-expense]]){const el=document.getElementById(id);if(el)el.textContent=fmt(value,cur);}
+  for(const [id,value] of [['proIncomeKpi',income],['proExpenseKpi',expense],['proNetKpi',income-expense]]){const el=document.getElementById(id);if(el)el.textContent=fmt(Number(Number(value||0).toFixed(2)),cur);}
   const pending=document.getElementById('proPendingKpi');if(pending)pending.textContent=String(txs.filter(t=>t.status==='draft'||t.status==='pending').length);
   const alerts=[],ceilings=getAccountCeilings();
   Object.entries(ceilings).forEach(([acc,c])=>{
@@ -8766,6 +8776,16 @@ function ratibApplyAccountMovementSearch(){
  if(!panel||!input)return;
  const search=ratibAccountMovementNormalize(input.value),
        terms=search.split(/\s+/).filter(Boolean);
+ if(panel.dataset.ratibPaginated==='1'){
+   const pages=[...panel.querySelectorAll('.account-currency-page')];
+   const matched=pages.reduce((n,p)=>n+Number(p.dataset.ratibMatched||0),0);
+   const total=pages.reduce((n,p)=>n+Number(p.dataset.ratibAll||0),0);
+   if(counter)counter.textContent=terms.length?
+      'نتائج البحث: '+matched+' من '+total+' حركة (يشمل كل الصفحات). الأرصدة والإجماليات لم تتغير.':
+      'عدد الحركات في الحساب: '+total+' · المعروض 50 أو 100 حركة في الصفحة.';
+   if(clear)clear.disabled=!input.value;
+   return;
+ }
  const rows=panel.querySelectorAll('.account-statement-row[data-tx-id]');
  // Opening a 3,925-line statement should not stringify every voucher's notes,
  // allocations and currency legs when the movement search box is empty.
@@ -8805,14 +8825,23 @@ function ratibApplyAccountMovementSearch(){
   'عدد الحركات في الحساب: '+total;
  if(clear)clear.disabled=!input.value;
 }
+let _ratibStatementSearchTimer=null;
 document.getElementById('ratibAccountMovementSearchInput')?.addEventListener('input',e=>{
  accountOpsState.movementSearch=e.target.value;
- ratibApplyAccountMovementSearch();
+ accountOpsState.viewPages={};
+ clearTimeout(_ratibStatementSearchTimer);
+ _ratibStatementSearchTimer=setTimeout(()=>{
+   if(accountOpsState.accountName&&accountOpsUi.panelId==='accountOperationsStandalonePanel')
+     renderAccountOperations(accountOpsState.accountName,accountOpsState.scopeNames,accountOpsUi);
+ },220);
 });
 document.getElementById('ratibAccountMovementSearchClear')?.addEventListener('click',()=>{
  const field=document.getElementById('ratibAccountMovementSearchInput');
- if(!field)return;field.value='';accountOpsState.movementSearch='';
- ratibApplyAccountMovementSearch();field.focus();
+ if(!field)return;
+ clearTimeout(_ratibStatementSearchTimer);
+ field.value='';accountOpsState.movementSearch='';accountOpsState.viewPages={};
+ renderAccountOperations(accountOpsState.accountName,accountOpsState.scopeNames,accountOpsUi);
+ field.focus({preventScroll:true});
 });
 
 function accountOpsMatchesSearch(t,entry){const q=String(accountOpsState.search||'').trim().toLowerCase();if(!q)return true;const note=entry?.line?.note||t.execution?.[Object.keys(t.execution||{})[0]]?.note||getTransactionDisplayType(t)||'';return [t.seqNum,getAccountOpsDate(t),note,entry?.amount].join(' ').toLowerCase().includes(q);}
@@ -8912,7 +8941,7 @@ function renderAccountOperations(accountName,scopeNames=null,ui=null){
       const mode=ratibStatementDocumentLabel(t);
       return `<div class="account-statement-row" data-tx-id="${esc(t.id)}" title="عرض تفاصيل السند"><span class="ratib-account-row-date">${ratibStatementDateHtml(getAccountOpsDate(t)||'-')}</span><span class="ratib-account-row-document">#${esc(ratibStatementText(t.seqNum,'-'))} · ${mode}</span><span class="ratib-account-row-note">${esc(note)}</span><span class="debit">${debit?ratibStatementDisplayAmount(amount):''}</span><span class="credit">${debit&&!entry.bothSides?'':ratibStatementDisplayAmount(amount)}</span><span class="balance">${ratibStatementDisplayAmount(Math.abs(balance))} ${esc(currency)}</span></div>`;
     }).join('');
-    return `<section class="account-currency-page" data-currency="${esc(currency)}" role="tabpanel" aria-label="حركات حساب ${esc(accountName)} ${esc(currency)}">${head}${controls}<div class="account-statement-table"><div class="account-statement-grid"><div class="account-statement-row header"><span>التاريخ</span><span>المستند</span><span>البيان</span><span>مدين</span><span>دائن</span><span>الرصيد</span></div>${openingRow}${rows}${totalsRows}</div></div>${view.total?'':'<div class="accounts-empty">لا توجد عمليات مطابقة في هذه العملة والفترة.</div>'}<div class="ratib-statement-words">${esc(ratibStatementClosingText(closingBal,currency))}</div>${ratibStatementNoticeText()?'<p class="ratib-statement-notice">'+esc(ratibStatementNoticeText())+'</p>':''}</section>`;
+    return `<section class="account-currency-page" data-currency="${esc(currency)}" data-ratib-matched="${view.total}" data-ratib-all="${txs.length}" role="tabpanel" aria-label="حركات حساب ${esc(accountName)} ${esc(currency)}">${head}${controls}<div class="account-statement-table"><div class="account-statement-grid"><div class="account-statement-row header"><span>التاريخ</span><span>المستند</span><span>البيان</span><span>مدين</span><span>دائن</span><span>الرصيد</span></div>${openingRow}${rows}${totalsRows}</div></div>${view.total?'':'<div class="accounts-empty">لا توجد عمليات مطابقة في هذه العملة والفترة.</div>'}<div class="ratib-statement-words">${esc(ratibStatementClosingText(closingBal,currency))}</div>${ratibStatementNoticeText()?'<p class="ratib-statement-notice">'+esc(ratibStatementNoticeText())+'</p>':''}</section>`;
   }).join('')}</div>`;
   panel.dataset.ratibPaginated='1';
   // A large restored ledger may contain 22,000+ accounting legs and thousands

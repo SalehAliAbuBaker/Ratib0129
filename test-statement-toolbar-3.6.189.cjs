@@ -14,6 +14,18 @@ assert.match(html,/الإصدار 3\.6\.190/);
 assert.match(sw,/reconciliation-layout-3\.6\.190/);
 assert.match(sw,/ratib-statement-toolbar-3\.6\.189\.js/);
 assert.match(css,/#pageAccountOperations \.ratib-reconcile-bar,/);
+assert.match(css,/body #pageAccountOperations \.ratib-reconcile-bar:has\(\.ratib-match-options\)\s*\{\s*display:none!important/,'stronger rule hides legacy top matching box');
+assert.doesNotMatch(src,/requestAnimationFrame\(\(\)=>input\.focus/,'advanced search never focuses text automatically');
+const directCash=html.split('\n').find(line=>line.startsWith('function createVoucherFromCurrentAccount(mode)'));
+const quickCash=html.split('\n').find(line=>line.startsWith('function openQuickVoucherForCurrentAccount()'));
+for(const fn of [directCash,quickCash]){
+ assert(fn,'direct account voucher entry exists');
+ const navigate=fn.indexOf("navigateToTab('pageExpenses',true)");
+ const hide=fn.indexOf("document.getElementById('voucherSelectorCard')?.classList.add('hidden')");
+ const open=fn.indexOf('selectVoucherTypeDirect(',hide);
+ assert(navigate>=0&&hide>navigate&&open>hide,'direct account voucher skips selector history');
+}
+
 assert.match(fs.readFileSync('ratib-date-display.js','utf8'),/input\.dataset\.ratibPlaceholder/);
 assert.match(src,/window\.RatibHijriFirst\?\.open/);
 assert.doesNotMatch(src,/\b(?:getAllTransactions|commitMultiVoucher|flushStorage)\s*\(/);
@@ -56,6 +68,7 @@ d.getElementById('pageAccountOperations').classList.remove('hidden');
  assert.equal(nav.querySelectorAll('[data-statement-tool]').length,9);
  nav.querySelector('[data-statement-tool="search"]').click();
  assert(!sheet.hidden,'search opens in sheet');
+ assert.notEqual(d.activeElement,sheet.querySelector('input[type="search"]'),'no keyboard focus on search open');
  const query=sheet.querySelector('input[type="search"]');
  assert.match(query.placeholder,/اسم.*بيان.*كلمة.*عملة/);
  query.value='ريال سعودي';query.dispatchEvent(new w.Event('input',{bubbles:true}));

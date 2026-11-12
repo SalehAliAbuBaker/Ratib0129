@@ -165,3 +165,12 @@
  html:not([data-ratib-native-font])[data-ratib-font-size="large"]{font-size:13px!important;--ratib-font-scale:.902;--ratib-input-font-size:13.2px;}
  html:not([data-ratib-native-font])[data-ratib-font-size="xlarge"]{font-size:13px!important;--ratib-font-scale:.984;--ratib-input-font-size:14.4px;}
 }
+
+/* 3.6.183: disable Chrome's native pull-to-refresh only while an account is open.
+   Nested ledger scrolling, horizontal currency paging, and every other tab retain their gestures. */
+@media screen{
+ html:has(#pageAccountOperations:not(.hidden)),
+ body:has(#pageAccountOperations:not(.hidden)){
+  overscroll-behavior-y:none!important;
+ }
+}

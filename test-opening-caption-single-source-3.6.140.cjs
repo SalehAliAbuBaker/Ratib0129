@@ -5,7 +5,7 @@ const css=fs.readFileSync('ratib-cash-actions-3.6.135.css','utf8');
 const html=fs.readFileSync('index.html','utf8');
 const sw=fs.readFileSync('sw.js','utf8');
 const version=require('./tools/assert-release.cjs')();
-assert.equal(version,'3.6.182','Release and its cache must be consistent');
+assert.equal(version,'3.6.183','Release and its cache must be consistent');
 assert(!css.includes('/* Manual opening display only: labels are INSIDE their controls, not above.'),'Competing caption CSS must not return');
 const at=css.indexOf('/* Official 3.6.140 — single caption source per editable opening field.');
 assert(at>0,'The high-specificity opening fix must exist');

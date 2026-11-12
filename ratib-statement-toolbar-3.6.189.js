@@ -132,7 +132,11 @@ function openSearch(){
   sourceObserver=new MutationObserver(()=>{if(count.isConnected)count.textContent=originalCount.textContent;});
   sourceObserver.observe(originalCount,{childList:true,characterData:true,subtree:true});
  }
- requestAnimationFrame(()=>input.focus({preventScroll:true}));
+ // Do not summon the mobile keyboard when users only want a date range.
+ // Keyboard focus is reserved for an explicit tap on the text field.
+ if(document.activeElement?.matches?.('input,textarea,[contenteditable="true"]'))document.activeElement.blur();
+ sheet.tabIndex=-1;
+ requestAnimationFrame(()=>{if(!sheet.hidden&&sheet.dataset.mode==='search')sheet.focus({preventScroll:true});});
 }
 function activeCurrencyPage(){
  const p=$('accountOperationsStandalonePanel');

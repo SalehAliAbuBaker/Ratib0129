@@ -166,7 +166,7 @@ function groupOf(id){
  if(['new-reminder','reminders-list'].includes(id))return 'التذكيرات';
  return 'النسخ والتفعيل';
 }
-function normalized(value){return value.normalize('NFKC').replace(/[أإآ]/g,'ا').replace(/[\u064B-\u065F\u0670]/g,'').trim().toLowerCase();}
+function normalized(value){return value.normalize('NFKC').replace(/[أإآ]/g,'ا').replace(/ة/g,'ه').replace(/[\u064B-\u065F\u0670]/g,'').trim().toLowerCase();}
 function renderOptions(){
  const available=choices.filter(x=>!selected.includes(x[0])&&(!filterGroup||groupOf(x[0])===filterGroup)&&normalized(x[1]).includes(normalized(filterText)));
  const groups=[...new Set(available.map(x=>groupOf(x[0])))];

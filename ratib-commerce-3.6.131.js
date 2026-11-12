@@ -200,7 +200,7 @@ function commerceChosenAccount(id,label,required=false){
  if(required&&!account)throw Error('اختر حسابًا فرعيًا من شجرة الحسابات: '+label);
  return account;
 }
-function commerceNormalize(value){return String(value??'').normalize('NFKC').replace(/[\u064B-\u065F\u0670\u0640]/g,'').replace(/[أإآٱ]/g,'ا').trim().toLocaleLowerCase('ar');}
+function commerceNormalize(value){return String(value??'').normalize('NFKC').replace(/[\u064B-\u065F\u0670\u0640]/g,'').replace(/[أإآٱ]/g,'ا').replace(/ة/g,'ه').trim().toLocaleLowerCase('ar');}
 function commerceProductLabel(p){return String(p.sku||'')+' — '+p.name;}
 function commerceFindProduct(products,value){
  const q=commerceNormalize(value);

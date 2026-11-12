@@ -49,7 +49,7 @@ const settings=[
  ['identity','الهوية والبيانات الشخصية','identity'],
  ['printing','إعدادات الطباعة','print'],
  ['defaults','إعدادات الحسابات الافتراضية للسندات','defaults'],
- ['buttonsize','حجم الأزرار والخط','settings'],
+ ['buttonsize','الخطوط والأزرار','settings'],
  ['palette','ألوان واجهة راتب','settings'],
  ['currencies','إدارة العملات','currency'],
  ['calendar','التقويم والتواريخ','settings'],
@@ -132,11 +132,33 @@ function reorder(){
  // The security card remains independent of the identity card.
  if(!map.has('buttonsize')){
    const holder=document.createElement('div');holder.className='ratib-global-size-card';
-    holder.innerHTML='<label for="ratibGlobalButtonSize">حجم أزرار التطبيق بالكامل</label><select id="ratibGlobalButtonSize" aria-label="حجم أزرار التطبيق"><option value="xsmall">صغير جدًا</option><option value="small">صغير</option><option value="medium">متوسط (الافتراضي)</option><option value="large">كبير</option><option value="xlarge">كبير جدًا</option></select><p>حجم الأزرار مستقل عن حجم الخط، ولا يغير الطباعة.</p><label for="ratibGlobalFontSize">حجم الخط في واجهة التطبيق</label><select id="ratibGlobalFontSize" aria-label="حجم الخط"><option value="xsmall">صغير جدًا — 82%</option><option value="small">صغير — 90%</option><option value="medium">متوسط (الافتراضي) — 100%</option><option value="large">كبير — 110%</option><option value="xlarge">كبير جدًا — 120%</option></select><p>حجم الخط لا يؤثر على طباعة وPDF أو مقاسات الأيقونات.</p>';
+    holder.innerHTML=`
+    <div class="ratib-size-control">
+      <label for="ratibGlobalFontSize">حجم الخط</label>
+      <div class="ratib-size-scale" dir="ltr">
+        <span class="ratib-size-letter small" aria-hidden="true">A</span>
+        <input type="range" id="ratibGlobalFontSize" min="1" max="7" step="1" value="4" list="ratibFontTicks" aria-label="حجم الخط، سبع درجات">
+        <span class="ratib-size-letter big" aria-hidden="true">A</span>
+      </div>
+      <datalist id="ratibFontTicks"><option value="1"></option><option value="2"></option><option value="3"></option><option value="4"></option><option value="5"></option><option value="6"></option><option value="7"></option></datalist>
+      <output id="ratibGlobalFontSizeValue" for="ratibGlobalFontSize" aria-live="polite">المستوى 4 من 7 — متوسط</output>
+      <p class="ratib-font-preview">معاينة الخط العربي — 123,456.78</p>
+    </div>
+    <div class="ratib-size-control">
+      <label for="ratibGlobalButtonSize">حجم الأزرار</label>
+      <div class="ratib-size-scale" dir="ltr">
+        <span class="ratib-size-letter small" aria-hidden="true">▭</span>
+        <input type="range" id="ratibGlobalButtonSize" min="1" max="7" step="1" value="4" list="ratibButtonTicks" aria-label="حجم الأزرار، سبع درجات">
+        <span class="ratib-size-letter big" aria-hidden="true">▭</span>
+      </div>
+      <datalist id="ratibButtonTicks"><option value="1"></option><option value="2"></option><option value="3"></option><option value="4"></option><option value="5"></option><option value="6"></option><option value="7"></option></datalist>
+      <output id="ratibGlobalButtonSizeValue" for="ratibGlobalButtonSize" aria-live="polite">المستوى 4 من 7 — متوسط</output>
+      <div class="ratib-button-preview" aria-hidden="true">معاينة الزر</div>
+    </div>
+    <p>يتغير العرض فورًا ويُحفظ على هذا الجهاز، دون تأثير على الأرصدة أو الطباعة وPDF.</p>`;
    const card=createCard('buttonsize',holder);
    card.id='ratibButtonSizeSettingsCard';page.append(card);map.set('buttonsize',card);
-   holder.querySelector('#ratibGlobalButtonSize').value=window.RatibButtonSizing?.get?.()||'medium';
-   holder.querySelector('#ratibGlobalFontSize').value=window.RatibButtonSizing?.getFont?.()||'medium';
+   window.RatibButtonSizing?.sync?.();
  }
  if(!map.has('palette')){
    const holder=document.createElement('div');holder.className='ratib-palette-settings';

@@ -2,11 +2,13 @@
    Fixed rem geometry, financial print templates, reports and PDF canvases are unchanged. */
 @media screen {
 :root{--ratib-font-scale:1}
+:root[data-ratib-font-size="xxsmall"]{--ratib-font-scale:.76}
 :root[data-ratib-font-size="xsmall"]{--ratib-font-scale:.82}
 :root[data-ratib-font-size="small"]{--ratib-font-scale:.9}
 :root[data-ratib-font-size="medium"],:root[data-ratib-font-size="normal"]{--ratib-font-scale:1}
 :root[data-ratib-font-size="large"]{--ratib-font-scale:1.1}
 :root[data-ratib-font-size="xlarge"]{--ratib-font-scale:1.2}
+:root[data-ratib-font-size="xxlarge"]{--ratib-font-scale:1.3}
 #mainWrap{font-size:calc(1rem * var(--ratib-font-scale));}
 #mainWrap :is(input:not([type="checkbox"]):not([type="radio"]),textarea,select):not(.ratib-sig-input):not(.ratib-sig-select){
  font-size:var(--ratib-input-font-size)!important;font-weight:400!important;line-height:1.45!important;

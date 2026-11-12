@@ -49,7 +49,7 @@ function touch(target,type,x,y){
 }
 function pull(fromY=100,toY=215,dx=1){
  touch(row,'touchstart',160,fromY);
- const move=touch(row,'touchmove',160+dx,fromY+28);
+ const move=touch(row,'touchmove',160+dx,fromY+88);
  const end=touch(row,'touchend',160+dx,toY);
  clock+=500;return {move,end};
 }

@@ -89,6 +89,8 @@
  #pageAccountOperations .ratib-reconcile-bar,
  #pageAccountOperations .ratib-statement-markbar{display:none!important}
  #pageAccountOperations #accountScreenMenu [data-account-action="advanced"]{display:none!important}
+ #pageAccountOperations #accountScreenMenu [data-account-action="documentQuery"]{display:none!important}
+ #pageAccountOperations #accountScreenMenu [data-statement-hidden-tool][hidden]{display:none!important}
  #pageAccountOperations #accountScreenMenu .ratib-stmt-customize-menu{min-height:55px!important;font-weight:750!important}
  @media(max-width:390px){
   #ratibStmtNav189 .ratib-stmt-nav-button{min-width:66px}

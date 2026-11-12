@@ -33,7 +33,7 @@ function addCompoundAccount(){
 }
 let seedingSecondParty=false;
 function ensureSecondParty(){
-  if(seedingSecondParty||!isCompound()||card.classList.contains('hidden'))return;
+  if(seedingSecondParty||card.dataset.ratibCmpSeeded==='1'||!isCompound()||card.classList.contains('hidden'))return;
   // Only brand-new, entirely blank documents receive the two-party starting
   // template. Never append to posted documents, drafts, or an edited form.
   if(typeof multiVoucherLines==='undefined'||!Array.isArray(multiVoucherLines)
@@ -45,6 +45,7 @@ function ensureSecondParty(){
   try{
     addCompoundAccount();
     if(multiVoucherLines.length===2){
+      card.dataset.ratibCmpSeeded='1';
       multiVoucherLines[1].side='credit';
       if(typeof renderMultiVoucherLines==='function')renderMultiVoucherLines();
     }
@@ -57,7 +58,7 @@ function initToolbar(){
   host.className='ratib-compound-toolbar142 no-print';
   const primary=document.createElement('div');primary.className='ratib-cmp-primary';
   primary.append(
-    makeButton('＋ إضافة حساب','add',addCompoundAccount),
+    makeButton('＋ إضافة طرف','add',addCompoundAccount),
     makeButton('✓ اعتماد وحفظ','commit',()=>clickOriginal('commitMultiVoucherBtn')),
     makeButton('إلغاء','cancel',()=>{
       const original=[...actions.children].find(x=>x.matches('button.btn-danger'));
@@ -207,6 +208,7 @@ function refresh(){
     if(card.classList.contains('ratib-cmp-layout142'))card.classList.remove('ratib-cmp-layout142');
     if(card.classList.contains('ratib-cmp-show-extras'))card.classList.remove('ratib-cmp-show-extras');
     if(meta)meta.hidden=true;
+    delete card.dataset.ratibCmpSeeded;
     byId('ratibCompoundMore142')?.setAttribute('hidden','');
     return;
   }

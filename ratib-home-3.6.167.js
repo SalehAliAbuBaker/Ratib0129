@@ -1,6 +1,6 @@
 /* Ratib 3.6.167 — additive home layout; no financial data writes. */
 (()=>{'use strict';
-const by=id=>document.getElementById(id),fold=x=>String(x??'').normalize('NFKC').replace(/[\u064B-\u065F\u0670\u0640]/g,'').replace(/[أإآٱ]/g,'ا').toLocaleLowerCase('ar').trim();
+const by=id=>document.getElementById(id),fold=x=>String(x??'').normalize('NFKC').replace(/[\u064B-\u065F\u0670\u0640]/g,'').replace(/[أإآٱ]/g,'ا').replace(/ة/g,'ه').replace(/ى/g,'ي').toLocaleLowerCase('ar').trim();
 const node=(tag,cls,text)=>{const x=document.createElement(tag);if(cls)x.className=cls;if(text!==undefined)x.textContent=text;return x;};
 function date(){
 const d=new Date(),w=by('ratibHomeWeekday'),h=by('ratibHomeHijri'),g=by('ratibHomeGregorian');if(!w||!h||!g)return;
@@ -45,9 +45,9 @@ const grid=document.querySelector('#dashboardHomeContent .ratib-home-main-grid')
 const host=node('section','ratib-smart-search no-print');host.id='ratibHomeSmartSearch';
 host.append(node('strong','ratib-smart-heading','البحث الذكي'));
 const row=node('div','ratib-smart-row'),input=node('input','ratib-smart-input'),select=node('select','ratib-smart-scope'),results=node('div','ratib-smart-results');
-input.type='search';input.id='ratibSmartInput';input.autocomplete='off';input.placeholder='رقم السند أو المبلغ أو البيان أو الحساب';input.setAttribute('aria-label','البحث الذكي');
+input.type='search';input.id='ratibSmartInput';input.autocomplete='off';input.placeholder='ابحث باسم الحساب أو رقمه';input.setAttribute('aria-label','البحث الذكي');
 select.id='ratibSmartScope';select.setAttribute('aria-label','نطاق البحث');
-for(const [val,label] of [['operations','العمليات'],['all','العمليات والحسابات'],['accounts','الحسابات']]){const option=node('option','',label);option.value=val;select.append(option);}
+for(const [val,label] of [['accounts','الحسابات'],['operations','العمليات'],['all','العمليات والحسابات']]){const option=node('option','',label);option.value=val;select.append(option);}select.value='accounts';
 row.append(node('span','ratib-smart-symbol','⌕'),input,select);results.id='ratibSmartResults';results.hidden=true;host.append(row,results);grid.after(host);
 const ready=()=>!!window.__ratibProceedInitialized;
 function accounts(){if(!ready()||typeof getCanonicalCatalog!=='function')return [];try{return (getCanonicalCatalog()||[]).flatMap(x=>(x.details||[]).map(d=>({name:String(d[1]||''),code:String(d[0]||''),path:[x.main,x.group,x.sub].join(' ')})));}catch(_){return [];}}

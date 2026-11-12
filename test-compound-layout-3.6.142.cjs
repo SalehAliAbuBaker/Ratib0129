@@ -8,7 +8,7 @@ const css=fs.readFileSync('ratib-compound-layout-3.6.142.css','utf8');
 const index=fs.readFileSync('index.html','utf8');
 const sw=fs.readFileSync('sw.js','utf8');
 const pkg=JSON.parse(fs.readFileSync('package.json','utf8'));
-assert.equal(pkg.version,'3.6.183');
+assert.equal(pkg.version,'3.6.184');
 assert(index.includes('ratib-compound-layout-3.6.142.js'));
 assert(index.includes('ratib-compound-layout-3.6.142.css'));
 assert(sw.includes('./ratib-compound-layout-3.6.142.js'));
@@ -75,7 +75,7 @@ for(const [id,fn] of [
 ['ratibMultiVoucherShareBtn',()=>share++]
 ])d.getElementById(id).addEventListener('click',fn);
 const buttons=[...d.querySelectorAll('#ratibCompoundToolbar142 button')];
-buttons.find(x=>x.textContent.includes('إضافة حساب')).click();
+buttons.find(x=>x.textContent.includes('إضافة طرف')).click();
 buttons.find(x=>x.textContent.includes('اعتماد وحفظ')).click();
 buttons.find(x=>x.textContent.includes('عرض')).click();
 buttons.find(x=>x.textContent.includes('مشاركة')).click();

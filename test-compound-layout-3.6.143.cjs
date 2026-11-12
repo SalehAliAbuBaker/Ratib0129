@@ -8,7 +8,7 @@ const js=fs.readFileSync('ratib-compound-layout-3.6.142.js','utf8');
 const html=fs.readFileSync('index.html','utf8');
 const sw=fs.readFileSync('sw.js','utf8');
 const pkg=JSON.parse(fs.readFileSync('package.json','utf8'));
-assert.equal(pkg.version,'3.6.183');
+assert.equal(pkg.version,'3.6.184');
 assert(html.includes('ratib-compound-layout-3.6.142.css?v=3.6.148'));
 assert(html.includes('ratib-compound-layout-3.6.142.js?v=3.6.148'));
 assert(sw.includes('compound-compact-auto-signature-tafqit-cash-reference-amount-currency-compound-ref-simple-ref-totals-cash-colors-cash-preview-return-3.6.162'));
@@ -71,7 +71,7 @@ async function test(){
  const title=d.querySelector('#multiVoucherCard>h2>span:first-child');
  assert.equal(title.textContent,'سند قيد مركب');
  assert.equal(d.getElementById('ratibCompoundMeta142').querySelectorAll('#multiVoucherDate').length,1);
- const add=[...d.querySelectorAll('#ratibCompoundToolbar142 button')].find(x=>x.textContent.includes('إضافة حساب'));
+ const add=[...d.querySelectorAll('#ratibCompoundToolbar142 button')].find(x=>x.textContent.includes('إضافة طرف'));
  add.click();await new Promise(r=>setTimeout(r,0));
  assert.equal(w.eval('addCalls'),2,'Visible add calls original function exactly once');
  assert.equal(d.querySelectorAll('#multiVoucherLinesBody tr').length,3);

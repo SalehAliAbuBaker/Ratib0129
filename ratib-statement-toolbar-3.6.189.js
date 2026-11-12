@@ -62,9 +62,11 @@ function labelDate(placeholder,value=''){
  const hint=make('span','ratib-stmt-date-hint',placeholder),input=make('input','ratib-stmt-date-control');
  input.type='date';input.lang='en-CA';input.dir='ltr';input.value=value||'';
  input.setAttribute('aria-label',placeholder);input.setAttribute('autocomplete','off');
+ input.dataset.ratibPlaceholder=placeholder;
+ input.addEventListener('click',()=>{if(window.RatibHijriFirst?.open)window.RatibHijriFirst.open(input);else try{input.showPicker?.();}catch(_){}});
  const update=()=>wrap.classList.toggle('ratib-stmt-date-filled',!!input.value);
  input.addEventListener('input',update);input.addEventListener('change',update);
- wrap.append(hint,input);wrap.addEventListener('click',e=>{if(e.target===wrap||e.target===hint){try{input.showPicker?.();}catch(_){input.focus();}}});
+ wrap.append(hint,input);wrap.addEventListener('click',e=>{if(e.target===wrap||e.target===hint){if(window.RatibHijriFirst?.open)window.RatibHijriFirst.open(input);else try{input.showPicker?.();}catch(_){input.focus();}}});
  update();return {wrap,input};
 }
 function sourceField(){return $('ratibAccountMovementSearchInput');}

@@ -83,6 +83,7 @@ d.getElementById('pageAccountOperations').classList.remove('hidden');
  const row=[...sheet.querySelectorAll('.ratib-stmt-editor-row')].find(r=>r.textContent.includes('تثبيت المطابقة'));
  row.querySelector('input[type="checkbox"]').click();
  assert(!nav.querySelector('[data-statement-tool="match"]'),'match shortcut optional');
+ assert(!d.querySelector('[data-statement-hidden-tool="match"]').hidden,'hidden match is still reachable under More');
  assert(nav.querySelector('[data-statement-tool="accounts"]'),'accounts always present');
  assert(nav.querySelector('[data-statement-tool="more"]'),'more always present');
  assert(w.localStorage.getItem('ratib.ui.statement-nav.v1'),'preferences persisted');

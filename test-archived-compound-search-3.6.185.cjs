@@ -8,9 +8,9 @@ const html=fs.readFileSync('index.html','utf8');
 const compact=fs.readFileSync('ratib-statement-compact-3.6.119.js','utf8');
 const sw=fs.readFileSync('sw.js','utf8');
 const pkg=require('./package.json');
-assert.equal(pkg.version,'3.6.185');
-assert(html.includes('const RATIB_RELEASE={"version":"3.6.185"'));
-assert(sw.includes('const APP_RELEASE={"version":"3.6.185"'));
+assert.equal(pkg.version,'3.6.186');
+assert(html.includes('const RATIB_RELEASE={"version":"3.6.186"'));
+assert(sw.includes('const APP_RELEASE={"version":"3.6.186"'));
 assert(sw.includes('compound-archive-search-focus-3.6.185'));
 assert(!compact.includes("anchor.insertAdjacentElement('afterend',search)"),
  'Do not put search inside the panel replaced by the statement renderer');
@@ -27,6 +27,7 @@ assert(commitCode.includes("d.mode==='multi-entry'"),'Archive edit is restricted
 assert(commitCode.includes('ratibArchiveEdit.history'),'Historic edits stay in the archive');
 assert(!commitCode.includes('if(multiVoucherDraftId){p.transactions=p.transactions.filter(t=>t.multiVoucherId!==multiVoucherDraftId&&t.id!==multiVoucherDraftId);removeMultiVoucherLinesFromHistory(multiVoucherDraftId);}'));
 assert(commitCode.includes("status:'reversed'"),'Superseded rows remain available for audit');
+assert(commitCode.includes('multiVoucher:ratibArchiveEdit?cloneData(d):d'),'Archived postings use independent voucher objects');
 assert(commitCode.includes("if(_pendingFinancialCompletion)"),'Do not display two storage-failure alerts');
 
 async function mobileSearch(){
@@ -71,7 +72,7 @@ async function archivedEdit(){
  let toasts=[],flushes=0,removed=0,prepared=0,audits=0;
  const ctx={
   multiVoucherDraftId:oldVoucher,_pendingFinancialCompletion:null,APP_SCHEMA_VERSION:1,showToast:(t)=>toasts.push(t),
-  validateMultiVoucher:()=>'',buildMultiVoucherData:()=>d,
+  validateMultiVoucher:()=>'',buildMultiVoucherData:()=>d,cloneData:structuredClone,
   getAllTransactions:()=>[...records.plan.transactions,...records.history.flatMap(h=>h.transactions)],
   getMasterPlan:()=>records.plan,
   store:{get:(key,def)=>records[key]??def,set:(key,value)=>{records[key]=value;}},
@@ -103,6 +104,8 @@ async function archivedEdit(){
  assert.equal(old.length,2,'Prior saved entries remain as reversed audit trail');
  assert(old.every(t=>t.status==='reversed'&&!t.isMultiVoucher&&!t.multiVoucherId));
  assert.equal(newer.length,3,'New editable debits and credits reside in the original archive');
+ assert.notEqual(newer[0].multiVoucher,newer[1].multiVoucher,'Archived journal legs must not share voucher references');
+ assert.equal(JSON.stringify(newer[0].multiVoucher),JSON.stringify(newer[1].multiVoucher),'Independent snapshots retain original values');
  assert.deepEqual([...new Set(newer.map(t=>t.id))].length,3);
  assert.equal(records.history[0].transactions.length,1803,'Archive never drops below the protected restored movement count');
  assert.equal(toasts.filter(t=>t.includes('لم يكتمل')).length,0,'Do not report a failed save after success');

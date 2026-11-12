@@ -24,29 +24,12 @@
   }
   function align(){
    scheduled=false;
-   const section=activePage();
-   if(!section)return;
-   // Reconciliation is inserted dynamically after the account renderer.
-   const anchor=section.querySelector(':scope > .ratib-reconcile-bar')
-     ||section.querySelector(':scope > .account-operations-head');
-   const table=section.querySelector(':scope > .account-statement-table');
-   const correct=anchor
-     ?search.parentElement===section&&search.previousElementSibling===anchor
-     :!!table&&search.parentElement===section&&search.nextElementSibling===table;
-   if(correct)return;
-   // insertAdjacentElement MOVES the original input, retaining keyboard focus, query and listeners.
-   if(anchor)anchor.insertAdjacentElement('afterend',search);
-   else if(table)table.insertAdjacentElement('beforebegin',search);
-   else section.append(search);
-   // The renderer may run while the input is detached. Reapply only visual filtering.
-   if(input){
-    try{
-     if(typeof accountOpsState==='object'&&accountOpsState&&input.value!==String(accountOpsState.movementSearch||''))
-      input.value=String(accountOpsState.movementSearch||'');
-    }catch(_){}
-   }
-   try{if(typeof ratibApplyAccountMovementSearch==='function')ratibApplyAccountMovementSearch();}
-   catch(err){console.warn('Ratib statement search placement:',err);}
+   // The full statement renderer replaces panel.innerHTML (including all
+   // currency pages). The search <input> MUST remain outside that subtree:
+   // otherwise Android closes the keyboard after the first typed character.
+   if(search.parentElement!==panel.parentElement||search.nextElementSibling!==panel)
+    panel.before(search);
+   // Never overwrite input.value or trigger a second render on relocation.
   }
   function schedule(){
    if(scheduled)return;

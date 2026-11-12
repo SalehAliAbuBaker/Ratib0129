@@ -1,14 +1,14 @@
 'use strict';
-/* Ratib official 3.6.184: compound-account freedom, safe FX balance, uninterrupted movement search, account-first smart search. */
+/* Ratib official 3.6.185: compound-account freedom, safe FX balance, uninterrupted movement search, account-first smart search. */
 const assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('node:vm'),{JSDOM}=require('jsdom');
 const index=fs.readFileSync('index.html','utf8'),
  compound=fs.readFileSync('ratib-compound-layout-3.6.142.js','utf8'),
  home=fs.readFileSync('ratib-home-3.6.167.js','utf8'),
  worker=fs.readFileSync('sw.js','utf8');
 const pkg=require('./package.json');
-assert.equal(pkg.version,'3.6.184');
-assert(index.includes('const RATIB_RELEASE={"version":"3.6.184"'));
-assert(worker.includes('const APP_RELEASE={"version":"3.6.184"'));
+assert.equal(pkg.version,'3.6.185');
+assert(index.includes('const RATIB_RELEASE={"version":"3.6.185"'));
+assert(worker.includes('const APP_RELEASE={"version":"3.6.185"'));
 assert(worker.includes('compound-edit-search-home-3.6.184'));
 assert(!index.includes("note:'سطر متمم تلقائي'"),'No forced auto-balancing leg in compound vouchers');
 assert(compound.includes("makeButton('＋ إضافة طرف'"));
@@ -74,4 +74,4 @@ lines[1].account='';lines[1].amount='';
 assert.equal(realm.validate().includes('طرفين فعليين'),true,'At least one valid debit and one valid credit');
 assert.equal(lines.length,2,'No missing third party is inserted by validation');
 dom.window.close();
-console.log('PASS 3.6.184: unlocked compound, no auto-balancing, three-party arithmetic, foreign exchange, safe validation, search and account default');
+console.log('PASS 3.6.185: unlocked compound, no auto-balancing, three-party arithmetic, foreign exchange, safe validation, search and account default');

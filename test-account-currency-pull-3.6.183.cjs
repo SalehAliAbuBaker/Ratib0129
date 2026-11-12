@@ -1,12 +1,12 @@
 'use strict';
-/* Ratib 3.6.184: downward swipe never refreshes to Home and only changes display currency. */
+/* Ratib 3.6.185: downward swipe never refreshes to Home and only changes display currency. */
 const assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('node:vm'),{JSDOM}=require('jsdom');
 const source=fs.readFileSync('index.html','utf8');
 const style=fs.readFileSync('ratib-statement-layout-3.6.178.css','utf8');
 const sw=fs.readFileSync('sw.js','utf8'),pkg=require('./package.json');
-assert.equal(pkg.version,'3.6.184');
-assert(source.includes('const RATIB_RELEASE={"version":"3.6.184"'));
-assert(sw.includes('const APP_RELEASE={"version":"3.6.184"'));
+assert.equal(pkg.version,'3.6.185');
+assert(source.includes('const RATIB_RELEASE={"version":"3.6.185"'));
+assert(sw.includes('const APP_RELEASE={"version":"3.6.185"'));
 assert(sw.includes('currency-pull-homefix-3.6.184'));
 assert(style.includes('html:has(#pageAccountOperations:not(.hidden))'));
 assert(style.includes('overscroll-behavior-y:none!important'));
@@ -83,4 +83,4 @@ screen.classList.add('hidden');pull();
 assert.equal(switched.length,3,'Hidden account screen does not switch');
 assert.equal(nav,0,'Swipe does not route to Home in any case');
 w.close();
-console.log('PASS Ratib 3.6.184: swipe currencies, filtered statement, one currency, scroll isolation, no refresh or Home navigation');
+console.log('PASS Ratib 3.6.185: swipe currencies, filtered statement, one currency, scroll isolation, no refresh or Home navigation');

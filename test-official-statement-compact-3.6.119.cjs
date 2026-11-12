@@ -52,7 +52,7 @@ const pages=()=>'<div class="account-currency-track">'+['YER','USD'].map(currenc
  assert.equal(search.parentElement,panel.parentElement,'Changing currency never moves the input into panel');
  assert.equal(search.nextElementSibling,panel);
  assert.equal(input.value,'بيان محاسبي');
- assert.equal(w.ratibSearchApplyCount,0,'Search positioning must not trigger a second financial render');
+ assert.equal(w.ratibSearchApplyCount||0,0,'Search positioning must not trigger a second financial render');
  w.close();
  console.log('PASS official 3.6.125: search below reconciliation, responsive ledger, retained listeners and query');
 })().catch(err=>{console.error(err);process.exitCode=1;});

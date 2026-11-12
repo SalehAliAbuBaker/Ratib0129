@@ -53,6 +53,12 @@
  #ratibStmtSheet189 .ratib-stmt-date:not(.ratib-stmt-date-filled) .ratib-stmt-date-control{color:transparent!important}
  #ratibStmtSheet189 .ratib-stmt-date:not(.ratib-stmt-date-filled) input::-webkit-datetime-edit{color:transparent!important}
  #ratibStmtSheet189 .ratib-stmt-date.ratib-stmt-date-filled .ratib-stmt-date-hint{display:none}
+
+ /* Existing Umm al-Qura wrapper owns the visible date caption and calendar. */
+ #ratibStmtSheet189 .ratib-stmt-date:has(.ratib-native-date-wrap)>.ratib-stmt-date-hint{display:none!important}
+ #ratibStmtSheet189 .ratib-stmt-date .ratib-native-date-wrap{width:100%!important;min-height:48px!important}
+ #ratibStmtSheet189 .ratib-stmt-date .ratib-native-date-button{height:100%!important;min-height:46px!important;border:0!important;border-radius:9px!important;padding:4px 9px!important;background:transparent!important;max-width:100%!important;box-shadow:none!important}
+
  #ratibStmtSheet189 .ratib-stmt-sheet-actions{display:flex;gap:8px;justify-content:space-between;align-items:center;margin:12px 0 4px}
  #ratibStmtSheet189 :is(.ratib-stmt-primary,.ratib-stmt-secondary,.ratib-stmt-danger),
  #pageSettings .ratib-stmt-settings .ratib-stmt-secondary{

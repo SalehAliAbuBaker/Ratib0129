@@ -13,7 +13,9 @@ assert.match(html,/ratib-statement-toolbar-3\.6\.189\.css/);
 assert.match(html,/الإصدار 3\.6\.189/);
 assert.match(sw,/statement-context-nav-3\.6\.189/);
 assert.match(sw,/ratib-statement-toolbar-3\.6\.189\.js/);
-assert.match(css,/#pageAccountOperations \.ratib-reconcile-bar\{display:none!important\}/);
+assert.match(css,/#pageAccountOperations \.ratib-reconcile-bar,/);
+assert.match(fs.readFileSync('ratib-date-display.js','utf8'),/input\.dataset\.ratibPlaceholder/);
+assert.match(src,/window\.RatibHijriFirst\?\.open/);
 assert.doesNotMatch(src,/\b(?:getAllTransactions|commitMultiVoucher|flushStorage)\s*\(/);
 new Function(src);
 const doc=[

@@ -103,7 +103,7 @@ function header(c){return c?.querySelector(':scope > .settings-accordion-header'
 function title(c){return header(c)?.querySelector('span')?.textContent?.trim()||'';}
 function keyFor(c){
  if(c.dataset.ratibCreated==='palette'||title(c).includes('ألوان واجهة راتب'))return 'palette';
- const t=title(c);if(c.dataset.ratibCreated==='buttonsize'||t.includes('حجم الأزرار'))return 'buttonsize';if(c.id==='notificationSoundCard'||t.includes('صوت إشعارات التذكيرات'))return 'sound';
+ const t=title(c);if(c.dataset.ratibCreated==='buttonsize'||t.includes('حجم الأزرار')||t.includes('الخطوط والأزرار'))return 'buttonsize';if(c.id==='notificationSoundCard'||t.includes('صوت إشعارات التذكيرات'))return 'sound';
  if(c.id==='ratibCurrencyManager'||t.includes('إدارة العملات'))return 'currencies';
  if(c.id==='rhSettingsCard'||c.dataset.ratibCreated==='calendar'||t.includes('التقويم والتواريخ'))return 'calendar';
  if(c.id==='ratibStatementOptions'||t.includes('عرض وطباعة كشف الحساب'))return 'printing';

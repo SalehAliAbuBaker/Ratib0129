@@ -125,6 +125,12 @@
  #pageAccountOperations #ratibAccountMovementSearchBar,
  #pageAccountOperations .ratib-reconcile-bar,
  #pageAccountOperations .ratib-statement-markbar{display:none!important}
+ /* Legacy statement layout has a stronger :has() + !important rule.
+    Keep source handlers in the DOM; only hide the duplicate UI. */
+ body #pageAccountOperations .ratib-reconcile-bar,
+ body #pageAccountOperations .ratib-reconcile-bar:has(.ratib-match-options){
+  display:none!important;
+ }
  #pageAccountOperations #accountScreenMenu [data-account-action="advanced"]{display:none!important}
  #pageAccountOperations #accountScreenMenu [data-account-action="documentQuery"]{display:none!important}
  #pageAccountOperations #accountScreenMenu [data-statement-hidden-tool][hidden]{display:none!important}

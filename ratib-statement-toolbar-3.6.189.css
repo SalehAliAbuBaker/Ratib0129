@@ -60,6 +60,43 @@
  #ratibStmtSheet189 .ratib-stmt-date .ratib-native-date-button{height:100%!important;min-height:46px!important;border:0!important;border-radius:9px!important;padding:4px 9px!important;background:transparent!important;max-width:100%!important;box-shadow:none!important}
 
  #ratibStmtSheet189 .ratib-stmt-sheet-actions{display:flex;gap:8px;justify-content:space-between;align-items:center;margin:12px 0 4px}
+
+ /* Reconciliation: compact three-row layout, no explanatory block. */
+ #ratibStmtSheet189[data-mode="match"]{max-width:580px;padding:12px;overflow-x:hidden}
+ #ratibStmtSheet189[data-mode="match"] .ratib-stmt-sheet-head{margin-bottom:10px;align-items:center}
+ #ratibStmtSheet189[data-mode="match"] .ratib-stmt-sheet-head strong{
+  flex:1;min-width:0;font-size:clamp(15px,3.8vw,19px);line-height:1.4;
+  overflow-wrap:break-word;white-space:normal
+ }
+ #ratibStmtSheet189[data-mode="match"] .ratib-stmt-sheet-close{flex:0 0 38px}
+ #ratibStmtSheet189 .ratib-stmt-match-date-row{
+  display:grid;grid-template-columns:minmax(0,1fr) 80px;
+  gap:8px;align-items:stretch;direction:rtl
+ }
+ #ratibStmtSheet189 .ratib-stmt-match-action-row{
+  display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.2fr);
+  gap:8px;align-items:stretch;direction:rtl;margin-top:10px
+ }
+ #ratibStmtSheet189[data-mode="match"] .ratib-stmt-match-date-row .ratib-stmt-date{
+  width:100%;min-width:0;min-height:54px
+ }
+ #ratibStmtSheet189[data-mode="match"] .ratib-stmt-match-date-row .ratib-native-date-wrap{
+  width:100%!important;min-width:0!important;min-height:54px!important
+ }
+ #ratibStmtSheet189[data-mode="match"] :is(.ratib-stmt-match-date-row,.ratib-stmt-match-action-row)>button{
+  width:100%;min-width:0;min-height:54px;box-sizing:border-box;margin:0;
+  padding:6px 5px;white-space:normal;overflow-wrap:break-word;
+  line-height:1.35;text-align:center;font-size:clamp(12px,3.2vw,15px)
+ }
+ #ratibStmtSheet189[data-mode="match"] .ratib-stmt-match-action-row>.ratib-stmt-danger{
+  border-color:#b87979;color:#a42e2e
+ }
+ @media(max-width:360px){
+  #ratibStmtSheet189 .ratib-stmt-match-date-row{grid-template-columns:minmax(0,1fr) 68px;gap:6px}
+  #ratibStmtSheet189 .ratib-stmt-match-action-row{gap:6px}
+  #ratibStmtSheet189[data-mode="match"] .ratib-stmt-match-action-row>button{font-size:12px}
+ }
+
  #ratibStmtSheet189 :is(.ratib-stmt-primary,.ratib-stmt-secondary,.ratib-stmt-danger),
  #pageSettings .ratib-stmt-settings .ratib-stmt-secondary{
   display:inline-flex;align-items:center;justify-content:center;gap:5px;

@@ -41,11 +41,26 @@ function pill(kind){
  b.addEventListener('click',()=>action(kind));
  return b;
 }
+function syncMoreShortcuts(){
+ const menu=$('accountScreenMenu');if(!menu)return;
+ for(const [kind,label] of [['match','تثبيت المطابقة'],['clear','إزالة العلامات']]){
+  let button=menu.querySelector('[data-statement-hidden-tool="'+kind+'"]');
+  if(!button){
+   button=make('button','ratib-stmt-hidden-menu',label);
+   button.type='button';button.dataset.statementHiddenTool=kind;
+   button.setAttribute('role','menuitem');
+   button.addEventListener('click',()=>{close();kind==='match'?openMatch():openClear();});
+   menu.append(button);
+  }
+  button.hidden=prefs.includes(kind);
+ }
+}
 function renderNav(){
  if(!nav)return;
  const selected=['accounts',...prefs,'more'];
  nav.replaceChildren(...selected.map(pill));
  nav.setAttribute('aria-label','شريط أدوات كشف الحساب');
+ syncMoreShortcuts();
  if(sheet&&!sheet.hidden){nav.querySelectorAll('[data-statement-tool]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.statementTool===sheet.dataset.mode)));}
 }
 function close(){if(!sheet||sheet.hidden)return false;sheet.hidden=true;sheet.dataset.mode='';renderNav();return true;}

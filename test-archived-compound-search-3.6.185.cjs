@@ -8,9 +8,9 @@ const html=fs.readFileSync('index.html','utf8');
 const compact=fs.readFileSync('ratib-statement-compact-3.6.119.js','utf8');
 const sw=fs.readFileSync('sw.js','utf8');
 const pkg=require('./package.json');
-assert.equal(pkg.version,'3.6.186');
-assert(html.includes('const RATIB_RELEASE={"version":"3.6.186"'));
-assert(sw.includes('const APP_RELEASE={"version":"3.6.186"'));
+assert.equal(pkg.version,'3.6.187');
+assert(html.includes('const RATIB_RELEASE={"version":"3.6.187"'));
+assert(sw.includes('const APP_RELEASE={"version":"3.6.187"'));
 assert(sw.includes('compound-archive-search-focus-3.6.185'));
 assert(!compact.includes("anchor.insertAdjacentElement('afterend',search)"),
  'Do not put search inside the panel replaced by the statement renderer');
@@ -111,6 +111,19 @@ async function archivedEdit(){
  assert(jsonStart>0&&jsonEnd>jsonStart);
  const jsonSafe=vm.runInNewContext(html.slice(jsonStart,jsonEnd)+';ratibIsJsonSafeArchive;');
  assert(jsonSafe(records.history),'Saving a historical voucher must remain eligible for compact IndexedDB storage');
+ const historicalShared={id:'voucher-with-two-legs',lines:[{amount:100,side:'debit'},{amount:100,side:'credit'}]};
+ const mixedHistory=[{month:'2022-05',transactions:[
+  {id:'A',multiVoucher:historicalShared},
+  {id:'B',multiVoucher:historicalShared},
+  {id:'C',multiVoucher:{id:'different'}}
+ ]}];
+ assert(jsonSafe(mixedHistory),'Unedited legacy vouchers with shared references must remain compressible');
+ assert.equal(JSON.stringify(JSON.parse(JSON.stringify(mixedHistory))),JSON.stringify(mixedHistory),
+  'Expanding a shared reference must preserve voucher content exactly');
+ const cyclic={id:'bad'};cyclic.related=cyclic;
+ assert.equal(jsonSafe(cyclic),false,'An actual circular reference must still prevent JSON compression');
+ assert.equal(jsonSafe({amount:undefined}),false,'Undefined legacy values must never be dropped');
+ assert.equal(jsonSafe({amount:NaN}),false,'Non-finite financial amounts must never be normalized');
  assert.equal(JSON.stringify(newer[0].multiVoucher),JSON.stringify(newer[1].multiVoucher),'Independent snapshots retain original values');
  assert.deepEqual([...new Set(newer.map(t=>t.id))].length,3);
  assert.equal(records.history[0].transactions.length,1803,'Archive never drops below the protected restored movement count');

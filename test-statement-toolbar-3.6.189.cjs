@@ -69,6 +69,14 @@ d.getElementById('pageAccountOperations').classList.remove('hidden');
  assert.equal(applied,1);
  nav.querySelector('[data-statement-tool="match"]').click();
  assert.match(sheet.textContent,/تثبيت مطابقة الرصيد/);
+ assert.equal(sheet.children.length,3,'matching sheet has only title, date/cancel, and action rows');
+ assert.equal(sheet.querySelectorAll('.ratib-stmt-match-date-row').length,1,'date and cancel share row');
+ assert.equal(sheet.querySelectorAll('.ratib-stmt-match-action-row').length,1,'confirm and saved-clear share row');
+ assert.deepEqual([...sheet.querySelector('.ratib-stmt-match-date-row').children].map(x=>x.className),['ratib-stmt-date','ratib-stmt-secondary']);
+ assert.deepEqual([...sheet.querySelector('.ratib-stmt-match-action-row').children].map(x=>x.textContent),['تأكيد المطابقة','إلغاء المطابقة المحفوظة']);
+ assert(!sheet.textContent.includes('تسجّل المطابقة'),'no explanatory paragraph');
+ assert(!sheet.querySelector('.ratib-stmt-match-action-row .ratib-stmt-danger').disabled,'existing saved match can be cleared');
+
  sheet.querySelector('.ratib-stmt-primary').click();
  assert.equal(recordDate,'2026-11-01','matching calls original handler');
  nav.querySelector('[data-statement-tool="clear"]').click();

@@ -59,11 +59,12 @@ async function mobileSearch(){
 
 async function archivedEdit(){
  const oldVoucher='mv_archived_123';
+ const oldSharedVoucher={id:oldVoucher};
  const preserved=[...Array.from({length:1798},(_,i)=>({id:'import_'+i,status:'posted',amount:1})),
-  {id:oldVoucher+'_0',multiVoucherId:oldVoucher,isMultiVoucher:true,status:'posted',amount:100,side:'debit',debitAccount:'صندوق',creditAccount:'',multiVoucher:{id:oldVoucher}},
-  {id:oldVoucher+'_1',multiVoucherId:oldVoucher,isMultiVoucher:true,status:'posted',amount:100,side:'credit',debitAccount:'',creditAccount:'مورد',multiVoucher:{id:oldVoucher}}];
+  {id:oldVoucher+'_0',multiVoucherId:oldVoucher,isMultiVoucher:true,status:'posted',amount:100,side:'debit',debitAccount:'صندوق',creditAccount:'',multiVoucher:oldSharedVoucher},
+  {id:oldVoucher+'_1',multiVoucherId:oldVoucher,isMultiVoucher:true,status:'posted',amount:100,side:'credit',debitAccount:'',creditAccount:'مورد',multiVoucher:oldSharedVoucher}];
  const records={plan:{month:'2026-11',transactions:[]},history:[{month:'2026-10',transactions:preserved}],multi_voucher_drafts:[]};
- const d={id:oldVoucher,mode:'multi-entry',seq:51,date:'2026-10-14',baseCurrency:'YER',baseTotal:100,beneficiary:'',
+ const d={id:oldVoucher,mode:'multi-entry',seq:51,date:'2026-10-14',baseCurrency:'YER',baseTotal:100,beneficiary:'',note:'',
   lines:[
     {side:'debit',account:'صندوق',base:100,accountId:'1',budgetId:'general',note:'',amount:100,currency:'YER',rate:1},
     {side:'credit',account:'مورد',base:60,accountId:'2',budgetId:'general',note:'',amount:60,currency:'YER',rate:1},
@@ -102,9 +103,14 @@ async function archivedEdit(){
  const old=records.history[0].transactions.filter(t=>t.ratibSupersededVoucherId===oldVoucher);
  const newer=records.history[0].transactions.filter(t=>t.multiVoucherId===oldVoucher&&t.status==='posted');
  assert.equal(old.length,2,'Prior saved entries remain as reversed audit trail');
+ assert.notEqual(old[0].multiVoucher,old[1].multiVoucher,'Audited superseded rows have distinct historical snapshots');
  assert(old.every(t=>t.status==='reversed'&&!t.isMultiVoucher&&!t.multiVoucherId));
  assert.equal(newer.length,3,'New editable debits and credits reside in the original archive');
  assert.notEqual(newer[0].multiVoucher,newer[1].multiVoucher,'Archived journal legs must not share voucher references');
+ const jsonStart=html.indexOf('function ratibIsJsonSafeArchive(value)'),jsonEnd=html.indexOf('\nasync function ratibEncodeArchive(',jsonStart);
+ assert(jsonStart>0&&jsonEnd>jsonStart);
+ const jsonSafe=vm.runInNewContext(html.slice(jsonStart,jsonEnd)+';ratibIsJsonSafeArchive;');
+ assert(jsonSafe(records.history),'Saving a historical voucher must remain eligible for compact IndexedDB storage');
  assert.equal(JSON.stringify(newer[0].multiVoucher),JSON.stringify(newer[1].multiVoucher),'Independent snapshots retain original values');
  assert.deepEqual([...new Set(newer.map(t=>t.id))].length,3);
  assert.equal(records.history[0].transactions.length,1803,'Archive never drops below the protected restored movement count');

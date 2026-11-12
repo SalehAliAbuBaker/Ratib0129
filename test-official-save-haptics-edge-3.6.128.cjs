@@ -5,7 +5,7 @@ const feedback=fs.readFileSync('ratib-feedback-3.6.149.js','utf8');
 const edge=fs.readFileSync('ratib-mobile-edge-back-3.6.128.js','utf8');
 const html=fs.readFileSync('index.html','utf8'),sw=fs.readFileSync('sw.js','utf8');
 assert.equal(require('./package.json').version,'3.6.183');
-assert(html.includes('const RATIB_RELEASE={"version":"3.6.183","build":"p18200"'));
+assert(html.includes('const RATIB_RELEASE={"version":"3.6.183","build":"p18300"'));
 assert(sw.includes('v260-opening-mobile-clean-3.6.139'));
 assert(html.includes('ratib-feedback-3.6.149.js?v=3.6.139'));
 assert(html.includes('ratib-mobile-edge-back-3.6.128.js?v=3.6.183'));

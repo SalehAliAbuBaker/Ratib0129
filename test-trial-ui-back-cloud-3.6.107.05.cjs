@@ -10,7 +10,7 @@ const buttonCss=read('ratib-global-button-size-3.6.146.css');
 const fontCss=read('ratib-interface-font-3.6.148.css');
 const sw=read('sw.js');
 const pkg=require('./package.json');
-const levels=['xsmall','small','medium','large','xlarge'];
+const levels=['xxsmall','xsmall','small','medium','large','xlarge','xxlarge'];
 assert.equal(pkg.version,currentRelease);
 assert(html.includes('const RATIB_RELEASE={"version":"'+currentRelease+'"'));
 assert(sw.includes('-'+currentRelease));
@@ -18,10 +18,11 @@ for(const size of levels){
  assert(sizeJs.includes("'"+size+"'"),'missing size value '+size);
  assert(buttonCss.includes('data-ratib-button-size="'+size+'"'),'button CSS missing '+size);
  assert(fontCss.includes('data-ratib-font-size="'+size+'"'),'font CSS missing '+size);
- assert(sidebar.includes('<option value="'+size+'">'),'settings selector missing '+size);
+ assert(sidebar.includes('type="range" id="ratibGlobalButtonSize" min="1" max="7" step="1"'),'7-step button slider exists');
+ assert(sidebar.includes('type="range" id="ratibGlobalFontSize" min="1" max="7" step="1"'),'7-step font slider exists');
 }
-assert(sidebar.includes('<option value="medium">متوسط (الافتراضي)'));
-assert(sizeJs.includes("x==='normal'?'medium'"),'migrate earlier normal font preference');
+assert(sidebar.includes('المستوى 4 من 7 — متوسط'));
+assert(sizeJs.includes("value==='normal'?'medium'"),'migrate earlier normal font preference');
 assert(html.includes("const RATIB_GOOGLE_CLIENT_ID = '127962228897-k19m5nstjaun38k38348er1c9cf8vemb.apps.googleusercontent.com'"));
 assert(html.includes("const CLOUD_FOLDER_NAME = 'Ratib Backups'"),'trial backups must remain separate');
 assert(html.includes("const CLOUD_LEGACY_FOLDER_NAME = 'Ratib Trial Backups'"),'restore/legacy browse must remain available');

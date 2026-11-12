@@ -10,14 +10,15 @@ const sw=fs.readFileSync('sw.js','utf8'),pkg=require('./package.json');
 assert.match(pkg.version,/^3\.6\.\d+(?:\.\d+)?$/);
 assert(html.includes('const RATIB_RELEASE={"version":"'+pkg.version+'"'));
 assert(sw.includes("const CACHE_VERSION='")&&sw.includes(pkg.version));
-for(const level of ['xsmall','small','medium','large','xlarge']){
+for(const level of ['xxsmall','xsmall','small','medium','large','xlarge','xxlarge']){
  assert(sizeJs.includes("'"+level+"'"));
  assert(sizeCss.includes('data-ratib-button-size="'+level+'"'));
  assert(fontCss.includes('data-ratib-font-size="'+level+'"'));
- assert(sidebar.includes('<option value="'+level+'">'));
+ assert(sidebar.includes('type="range" id="ratibGlobalButtonSize" min="1" max="7" step="1"'));
+ assert(sidebar.includes('type="range" id="ratibGlobalFontSize" min="1" max="7" step="1"'));
 }
-assert(sidebar.includes('<option value="medium">متوسط (الافتراضي)'));
-assert(sizeJs.includes("x==='normal'?'medium'"));
+assert(sidebar.includes('المستوى 4 من 7 — متوسط'));
+assert(sizeJs.includes("value==='normal'?'medium'"));
 assert(commerce.includes('window.RatibCommerce.hasUnsavedDraft='));
 const from=html.indexOf('function ratibGestureDraftCheck(){'),to=html.indexOf('const _appBackStack=[];',from);
 assert(from>0&&to>from);

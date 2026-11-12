@@ -93,7 +93,7 @@ function open(input){ensure();target=input||null;lastFocus=document.activeElemen
 var marker=new WeakSet(),descriptor=Object.getOwnPropertyDescriptor(HTMLInputElement.prototype,'value');
 function sync(input){
  var b=input._ratibDateButton;if(!b)return;var s=valid(input.value)?input.value:'';
- var title=s?first(s):'اختر التاريخ',other=s&&pref.showOther?second(s):'';
+ var title=s?first(s):(input.dataset.ratibPlaceholder||'اختر التاريخ'),other=s&&pref.showOther?second(s):'';
  if(b._title===title&&b._other===other)return;b._title=title;b._other=other;
  b.replaceChildren();var strong=document.createElement('span');strong.textContent=title;b.appendChild(strong);
  if(other){var sm=document.createElement('small');sm.textContent=other;b.appendChild(sm);}

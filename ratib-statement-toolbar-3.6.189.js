@@ -148,13 +148,16 @@ function openMatch(){
  const real=realReconcileButtons();
  if(!real.input||!real.save){window.showToast?.('تعذر العثور على أدوات مطابقة الرصيد؛ افتح كشف الحساب من جديد.','warn');return;}
  const currency=activeCurrencyPage()?.dataset.currency||'';
- open('match','تثبيت مطابقة الرصيد — '+currency);
- const explanatory=make('p','ratib-stmt-hint','تسجّل المطابقة مراجعة الرصيد حتى التاريخ المختار، دون تعديل أي حركة أو سند.');
+ open('match','تثبيت مطابقة الرصيد – '+currency);
  const date=labelDate('تاريخ المطابقة',real.input.value||'');
  date.input.max=typeof getLocalTodayISO==='function'?getLocalTodayISO():'';
- const actions=make('div','ratib-stmt-sheet-actions');
- const cancel=make('button','ratib-stmt-secondary','إلغاء');cancel.type='button';cancel.onclick=close;
- const accept=make('button','ratib-stmt-primary','تأكيد المطابقة');accept.type='button';
+ const dateRow=make('div','ratib-stmt-match-date-row');
+ const cancel=make('button','ratib-stmt-secondary','إلغاء');
+ cancel.type='button';cancel.onclick=close;
+ dateRow.append(date.wrap,cancel);
+ const actionRow=make('div','ratib-stmt-match-action-row');
+ const accept=make('button','ratib-stmt-primary','تأكيد المطابقة');
+ accept.type='button';
  accept.onclick=()=>{
   if(!date.input.value){window.showToast?.('اختر تاريخ المطابقة','warn');return;}
   if(date.input.max&&date.input.value>date.input.max){window.showToast?.('لا يمكن تثبيت مطابقة في تاريخ مستقبلي','warn');return;}
@@ -162,13 +165,18 @@ function openMatch(){
   if(!live.input||!live.save)return;
   live.input.value=date.input.value;live.save.click();close();
  };
- actions.append(cancel,accept);
- sheet.append(explanatory,date.wrap,actions);
- if(real.clear&&!real.clear.hidden){
-  const clear=make('button','ratib-stmt-danger','إلغاء المطابقة المحفوظة');clear.type='button';
-  clear.onclick=()=>{if(!confirm('إلغاء تثبيت مطابقة الرصيد لهذه العملة؟ لن تُحذف أي حركة.'))return;realReconcileButtons().clear?.click();close();};
-  sheet.append(clear);
- }
+ const clear=make('button','ratib-stmt-danger','إلغاء المطابقة المحفوظة');
+ clear.type='button';
+ clear.disabled=!real.clear||real.clear.disabled||real.clear.hidden;
+ clear.title=clear.disabled?'لا توجد مطابقة محفوظة لإلغائها':'إلغاء المطابقة المحفوظة دون حذف أي حركة';
+ clear.onclick=()=>{
+  if(!window.confirm('إلغاء تثبيت مطابقة الرصيد لهذه العملة؟ لن تُحذف أي حركة.'))return;
+  const live=realReconcileButtons();
+  if(!live.clear||live.clear.disabled||live.clear.hidden)return;
+  live.clear.click();close();
+ };
+ actionRow.append(accept,clear);
+ sheet.append(dateRow,actionRow);
 }
 function openClear(){
  const count=window.RatibStatementMarks?.count?.()||0;

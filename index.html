@@ -6653,7 +6653,14 @@ class SearchableSelect {
       if(this.isSimpleAccount&&!query)this.close();
       else this.open();
       clearTimeout(this._singleMatchTimer);
-      // Typing cannot choose an account or replace the typed text.
+      // A fully typed, unambiguous account may be accepted for financial-entry
+      // compatibility; a partial prefix never overwrites the user's text.
+      const exact=matches.filter(item=>normalizeParentQuery(item.text)===normalizeParentQuery(query));
+      if(query&&exact.length===1&&!e.isComposing){
+        const match=exact[0],typed=this.input.value;
+        this.setValue(match.id,typed,match.accountId||'');
+        if(this.onSelect&&(this.input.id==='inpReportAccount'||this.wrap.classList.contains('voucher-account-search')))this.onSelect(match);
+      }
       this._deleteInput=false;
     });
     this.input.addEventListener('pointerdown',()=>clearTimeout(this._singleMatchTimer));

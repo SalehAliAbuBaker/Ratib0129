@@ -50,7 +50,7 @@ const dropdownDOM=new JSDOM('<div id="wrapDebitAcc"><input id="inpDebitAcc"><but
 const d=dropdownDOM.window.document;
 const classStart=html.indexOf('class SearchableSelect {'),classEnd=html.indexOf('\nlet selDebitAcc',classStart);
 assert(classStart>=0&&classEnd>classStart);
-const selector=vm.createContext({document:d,window:dropdownDOM.window,normalizeParentQuery:fold,ratibAccountSearchMatch:find,highlightText:x=>String(x)});
+const selector=vm.createContext({document:d,window:dropdownDOM.window,clearTimeout:()=>{},setTimeout:()=>0,normalizeParentQuery:fold,ratibAccountSearchMatch:find,highlightText:x=>String(x)});
 vm.runInContext(html.slice(classStart,classEnd)+';window.SearchableSelectTest=SearchableSelect;',selector);
 const lookup=new dropdownDOM.window.SearchableSelectTest({wrapId:'wrapDebitAcc',inputId:'inpDebitAcc',dropId:'dropDebitAcc',hiddenId:'valDebitAcc',isGrouped:true});
 lookup.setItems(catalog[0].details.map(([code,name])=>({id:name,text:name,accountId:code,group:'الأصول > الصندوق'})));

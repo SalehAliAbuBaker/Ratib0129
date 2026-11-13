@@ -6533,19 +6533,20 @@ class SearchableSelect {
     this.visibleItems = [];
     this.inlineOpen = false;
     this.isSimpleAccount=['wrapDebitAcc','wrapCreditAcc'].includes(wrapId);
+    this.isAccountSelector=isGrouped===true;
     this.buildDropdownShell();
     this.input.setAttribute("role","combobox");this.input.setAttribute("aria-autocomplete","list");this.input.setAttribute("aria-controls",this.drop.id);this.input.setAttribute("aria-expanded","false");this.list.setAttribute("role","listbox");
     this.initEvents();
     // Simple journal fields sit inside compact grid/card containers. Their dropdowns
     // must escape clipping and stacking contexts while retaining the SAME selector.
-    if(this.isSimpleAccount){
+    if(this.isAccountSelector){
       document.body.append(this.drop);
       this.portaled=true;
       this.input.setAttribute('aria-haspopup','listbox');
       this.input.setAttribute('enterkeyhint','done');
       this.input.setAttribute('inputmode','text');
       this.input.removeAttribute('readonly');
-      this.input.setAttribute('aria-label',wrapId==='wrapDebitAcc'?'اكتب اسم الحساب المدين أو رقمه':'اكتب اسم الحساب الدائن أو رقمه');
+      this.input.setAttribute('aria-label',wrapId==='wrapDebitAcc'?'اكتب اسم الحساب المدين أو رقمه':wrapId==='wrapCreditAcc'?'اكتب اسم الحساب الدائن أو رقمه':this.input.getAttribute('aria-label')||'اكتب اسم الحساب أو رقمه');
       // On touch devices the input is for TYPING; the arrow alone opens the full list.
       // This prevents the entire account list stealing the keyboard's usable space.
       const arrow=this.wrap.querySelector('.searchable-arrow');
@@ -6584,8 +6585,7 @@ class SearchableSelect {
     this.toolbar.append(this.searchBtn, this.inlineInput);
     this.list = document.createElement('div'); this.list.className = 'sd-list';
     // The journal's visible input is the only search/dictation field.
-    if(this.isSimpleAccount)this.drop.append(this.list);
-    else this.drop.append(this.toolbar, this.list);
+    this.drop.append(this.list);
     this.searchBtn.addEventListener('click', (e) => { e.stopPropagation(); this.toggleInlineSearch(); });
     this.inlineInput.addEventListener('click', (e) => e.stopPropagation());
     this.inlineInput.addEventListener('input', (e) => { e.stopPropagation(); this.renderDropdown(''); });
@@ -6598,7 +6598,7 @@ class SearchableSelect {
     this.renderDropdown('');
     if (this.inlineOpen) setTimeout(() => this.inlineInput.focus(), 0);
   }
-  setItems(items) { this.items = items; this.renderDropdown(''); }
+  setItems(items) { this.items = items; if(this.drop.classList.contains('open'))this.renderDropdown(this.input.value.trim());else {this.visibleItems=[];this.list.replaceChildren();} }
   setValue(val, textVal = '', accountId = '') {
     const candidates=this.items.filter(i=>i.id===val&&(!accountId||i.accountId===accountId));
     const selected=candidates.length===1?candidates[0]:null;
@@ -6622,7 +6622,7 @@ class SearchableSelect {
   initEvents() {
     this.input.addEventListener('focus', (e) => {
       e.stopPropagation();
-      if(this.isSimpleAccount){
+      if(this.isAccountSelector){
         // No popup over the Android keyboard when the field is still empty.
         if(this.input.value.trim()&&!this.getValue()){this.renderDropdown(this.input.value.trim());this.open();}
         return;
@@ -6631,7 +6631,7 @@ class SearchableSelect {
     });
     this.input.addEventListener('click', (e) => {
       e.stopPropagation();
-      if(this.isSimpleAccount){
+      if(this.isAccountSelector){
         // Do not select the entire saved label when the user taps to edit a word.
         // The native caret/selection remains under the user's control.
         if(this.getValue())return;
@@ -6653,35 +6653,7 @@ class SearchableSelect {
       if(this.isSimpleAccount&&!query)this.close();
       else this.open();
       clearTimeout(this._singleMatchTimer);
-      const exact=matches.filter(item=>normalizeParentQuery(item.text)===normalizeParentQuery(query));
-      if(query&&exact.length===1&&!e.isComposing){
-        const match=exact[0],typed=this.input.value;
-        this.setValue(match.id,typed,match.accountId||'');
-        if(this.onSelect&&(this.input.id==='inpReportAccount'||this.wrap.classList.contains('voucher-account-search')))this.onSelect(match);
-      }
-      // Smart completion is only for a unique prefix and when the caret is at
-      // the end, never while correcting text in the middle or deleting.
-      const inputType=String(e.inputType||'');
-      const deleting=inputType.startsWith('delete')||this._deleteInput;
-      if(query.length>=2&&!e.isComposing&&!deleting&&(!inputType||inputType.startsWith('insert'))&&
-        this.input.selectionStart===this.input.selectionEnd&&this.input.selectionEnd===this.input.value.length){
-        const typed=this.input.value,choices=matches.filter(item=>
-          ratibAccountSearchMatch(item.text,typed)&&normalizeParentQuery(item.text)!==normalizeParentQuery(typed));
-        if(choices.length===1){
-          this._singleMatchTimer=setTimeout(()=>{
-            if(document.activeElement!==this.input||this.input.value!==typed||
-              this.input.selectionStart!==typed.length||this.input.selectionEnd!==typed.length)return;
-            const item=choices[0];
-            this.choose(item);
-            if(this.input.value===item.text){
-              const isPrefix=normalizeParentQuery(item.text).startsWith(normalizeParentQuery(typed));
-              this.input.setSelectionRange(window.RatibVoiceFirstAccountActive?.(this.input)?item.text.length:(isPrefix?typed.length:item.text.length),item.text.length);
-              this.input.classList.add('ratib-auto-accepted');
-              this.wrap.classList.add('ratib-auto-confirmed');
-            }
-          },450);
-        }
-      }
+      // Typing cannot choose an account or replace the typed text.
       this._deleteInput=false;
     });
     this.input.addEventListener('pointerdown',()=>clearTimeout(this._singleMatchTimer));
@@ -6731,33 +6703,39 @@ class SearchableSelect {
     rows.forEach((el, i) => { el.classList.toggle('active', i === this.activeIndex);el.setAttribute('aria-selected',String(i===this.activeIndex));if(i===this.activeIndex){this.input.setAttribute('aria-activedescendant',el.id);el.scrollIntoView({ block: 'nearest' });} });
   }
   renderDropdown(query = '') {
-    this.list.innerHTML = '';
-    // أثناء البحث الداخلي نبحث في كل الحسابات (وليس فقط في نص الحساب المختار حالياً)
-    const q = normalizeParentQuery(this.inlineOpen ? this.inlineInput.value : query);
-    const matches = this.items.filter(item => !q || ratibAccountSearchMatch([item.text,item.accountId,item.group].join(' '),q));
-    this.visibleItems = matches;
-    this.activeIndex = 0;
-    if (!matches.length) { this.list.innerHTML = '<div style="padding:10px; color:var(--muted); text-align:center; font-size:1.05rem;">لا توجد نتائج</div>'; return matches; }
-    const resultHeader = document.createElement('div'); resultHeader.className = 'search-results-count'; resultHeader.textContent = `نتائج البحث: ${matches.length}`; this.list.appendChild(resultHeader);
-    const groups = {};
-    matches.forEach(item => { const g = item.group || 'أخرى'; if (!groups[g]) groups[g] = []; groups[g].push(item); });
-    this.visibleItems=Object.values(groups).flat();
-    let flatIndex = 0;
-    Object.keys(groups).forEach(g => {
-      const gHeader = document.createElement('div'); gHeader.className = 'searchable-group-label'; gHeader.textContent = `📁 ${g}`;
-      this.list.appendChild(gHeader);
-      groups[g].forEach(item => {
-        const el = document.createElement('div'); el.className = `searchable-item ${flatIndex === 0 ? 'active' : ''}`; el.innerHTML = highlightText(item.text, q);
-        const itemIndex = flatIndex++;
-        el.addEventListener('mouseenter', () => { this.activeIndex = itemIndex; this.paintActiveItem(); });
-        el.addEventListener('pointerdown',e=>{if(e.pointerType==='mouse')e.preventDefault();});
-        el.addEventListener('click', () => this.choose(item));
-        el.setAttribute('role','option');el.id=this.drop.id+'_option_'+itemIndex;el.dataset.accountId=item.accountId||'';
-        if(item.accountId){const code=document.createElement('small');code.textContent=' ['+item.accountId+']';el.append(code);}
-        this.list.appendChild(el);
-      });
+    this.list.replaceChildren();
+    // Account selectors match leaf names and numbers, not their parent paths.
+    const q=normalizeParentQuery(query);
+    const matches=this.items.filter(item=>(!q||item.id!=='ALL')&&
+      (!q||ratibAccountSearchMatch([item.text,item.accountId].join(' '),q)));
+    const visible=matches.slice(0,40);
+    this.visibleItems=visible;this.activeIndex=0;
+    if(!visible.length){
+      const empty=document.createElement('div');empty.className='search-results-count';
+      empty.textContent='لا توجد حسابات تفصيلية مطابقة';this.list.appendChild(empty);
+      return visible;
+    }
+    if(q&&matches.length>40){
+      const hint=document.createElement('div');hint.className='search-results-count';
+      hint.textContent=matches.length+' حسابًا مطابقًا؛ اكتب أحرفًا إضافية';
+      this.list.appendChild(hint);
+    }
+    visible.forEach((item,index)=>{
+      const row=document.createElement('div');row.className='searchable-item'+(index===0?' active':'');
+      row.setAttribute('role','option');row.id=this.drop.id+'_option_'+index;
+      row.setAttribute('aria-selected',index===0?'true':'false');
+      row.dataset.accountId=item.accountId||'';
+      row.innerHTML=highlightText(item.text,q);
+      if(item.accountId){
+        const code=document.createElement('small');code.textContent=' ['+item.accountId+']';
+        row.appendChild(code);
+      }
+      row.addEventListener('mouseenter',()=>{this.activeIndex=index;this.paintActiveItem();});
+      row.addEventListener('pointerdown',e=>{if(e.pointerType==='mouse')e.preventDefault();});
+      row.addEventListener('click',()=>this.choose(item));
+      this.list.appendChild(row);
     });
-    return matches;
+    return visible;
   }
 }
 
@@ -9393,6 +9371,8 @@ function renderAccountOperations(accountName,scopeNames=null,ui=null){
 }
 function openAccountFromPager(accountName, scopeNames=null, currency=null, aggregate=false){
   if(!accountName)return;
+  window.RatibHomeSmartSearchReset?.();
+  const chartSearch=document.getElementById('chartAccountSearchInput');if(chartSearch)chartSearch.value='';
   // Text is a navigation query, distinct from the chosen account identity.
   const pagerInput=document.getElementById('accountsPagerSearchInput');
   if(pagerInput){pagerInput.value='';pagerInput.setAttribute('aria-expanded','false');}
@@ -9973,6 +9953,30 @@ function renderAccountsPager(){
   const simpleApi=window.RatibSimpleAccounts;
   document.getElementById('accountsPagerCard')?.classList.toggle('ratib-simple-accounts-mode',simpleMode);
   const query=normalizeParentQuery(document.getElementById('accountsPagerSearchInput')?.value||'');
+  // With a query: show only individual posting accounts, never aggregates.
+  if(query){
+    tabs.replaceChildren();track.replaceChildren();
+    document.getElementById('accountOperationsPanel')?.classList.add('hidden');
+    const items=accountsPagerCandidates(query).slice(0,80);
+    if(!items.length){
+      const empty=document.createElement('div');empty.className='accounts-empty';
+      empty.textContent='لا توجد حسابات تفصيلية مطابقة';track.appendChild(empty);
+    }else{
+      const list=document.createElement('div');list.className='ratib-direct-leaf-results';
+      items.forEach(item=>{
+        const button=document.createElement('button');button.type='button';
+        button.className='account-sub-card';
+        button.setAttribute('aria-label','فتح كشف الحساب التفصيلي '+item.name);
+        const name=document.createElement('span');name.className='account-sub-name';name.textContent=item.name;
+        const code=document.createElement('small');code.textContent='['+item.code+']';
+        button.append(name,code);
+        button.addEventListener('click',()=>openAccountFromPager(item.name,[item.name]));
+        list.appendChild(button);
+      });
+      track.appendChild(list);
+    }
+    return;
+  }
   const matches=(value)=>ratibAccountSearchMatch(value,query);
   const activity=ratibAccountsPagerCachedActivity();
   // لا تُخفِ الحسابات الرئيسية أو التجميعية التي لم تعد تحتها حسابات تفصيلية.
@@ -10060,7 +10064,7 @@ function accountsPagerCandidates(query){
     // Search all canonical accounts even without a simplified-mode category.
     seen.add(key);
     const group=simpleMode&&category?category.label:parent.main+' > '+parent.group+' > '+parent.sub;
-    if(ratibAccountSearchMatch([name,code,group].join(' '),q))found.push({code,name,group});
+    if(ratibAccountSearchMatch([name,code].join(' '),q))found.push({code,name,group});
   }));
   return found;
 }
@@ -10078,7 +10082,7 @@ function initAccountsPagerAutocomplete(){
     visible.slice(0,20).forEach((item,i)=>{
       const option=document.createElement('button');option.type='button';option.className='accounts-pager-suggestion'+(i===0?' active':'');option.setAttribute('role','option');option.setAttribute('aria-selected',i===0?'true':'false');
       option.textContent=item.name+' ['+item.code+']';
-      const meta=document.createElement('small');meta.textContent=item.group;option.appendChild(meta);
+      const meta=document.createElement('small');meta.textContent='حساب تفصيلي';option.appendChild(meta);
       option.addEventListener('mousedown',e=>e.preventDefault());option.addEventListener('click',()=>choose(item));popup.appendChild(option);
     });
     if(visible.length>20){const hint=document.createElement('small');hint.textContent='نتائج أخرى: '+(visible.length-20)+' — يمكن البحث بالاسم أو الرقم أو كلمات من مسار الحساب';hint.style.display='block';hint.style.padding='7px';popup.appendChild(hint);}
@@ -10088,24 +10092,9 @@ function initAccountsPagerAutocomplete(){
   input.addEventListener('compositionstart',()=>{composing=true;clearTimeout(timer);});
   input.addEventListener('compositionend',()=>{composing=false;input.dispatchEvent(new Event('input',{bubbles:true}));});
   input.addEventListener('input',e=>{
-    clearTimeout(timer);renderAccountsPager();render();
-    const inputType=String(e.inputType||'');
-    if(!composing&&!e.isComposing&&!inputType.startsWith('delete')&&
-      (!inputType||inputType.startsWith('insert'))&&input.value.trim().length>=2&&
-      input.selectionStart===input.selectionEnd&&input.selectionEnd===input.value.length){
-      const typed=input.value,choices=accountsPagerCandidates(typed).filter(item=>
-        ratibAccountSearchMatch(item.name,typed)&&normalizeParentQuery(item.name)!==normalizeParentQuery(typed));
-      if(choices.length===1){
-        timer=setTimeout(()=>{
-          if(document.activeElement!==input||input.value!==typed||
-            input.selectionStart!==typed.length||input.selectionEnd!==typed.length)return;
-          input.value=choices[0].name;
-          const isPrefix=normalizeParentQuery(input.value).startsWith(normalizeParentQuery(typed));
-           input.setSelectionRange(window.RatibVoiceFirstAccountActive?.(input)?input.value.length:(isPrefix?typed.length:input.value.length),input.value.length);
-          renderAccountsPager();render();
-        },450);
-      }
-    }
+    clearTimeout(timer);
+    // Do not overwrite the user's incomplete query before explicit selection.
+    renderAccountsPager();render();
   });
   input.addEventListener('focus',render);
   input.addEventListener('pointerdown',()=>clearTimeout(timer));

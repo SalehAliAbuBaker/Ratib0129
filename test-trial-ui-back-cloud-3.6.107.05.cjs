@@ -43,6 +43,7 @@ function gesture(initialTab,known=true,transient=false){
   _appHomeReset:false,_appReplayDepth:null,_appCurrentHistoryDepth:1,
   _appBackStack:[{tab:'pageDashboard'}],_appSavedViews:new Map(),
   closeTransientAppUi:()=>{if(!transient)return false;counts.close++;return true;},
+  ratibCancelSearchWithoutLeaving:()=>false, // this legacy fixture has no search filters
   ratibRestorePrintScreen:()=>{}, // Navigation is tested without loading the print module.
   navigateToTab:tab=>{assert.equal(tab,'pageDashboard');counts.home++;ctx.currentActiveTab=tab;},
   captureAppView:()=>({tab:ctx.currentActiveTab}),

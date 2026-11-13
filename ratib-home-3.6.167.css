@@ -38,7 +38,7 @@
 .ratib-smart-input{flex:1;min-width:0;border:0!important;box-shadow:none!important;background:transparent!important;font-size:.8rem!important;padding:8px 0!important;height:auto!important;font-weight:400!important}
 .ratib-smart-scope{flex:none;max-width:39%;min-width:86px;border:1px solid var(--border,#ddd)!important;border-radius:8px!important;background:var(--card,#fff);font-size:.68rem!important;height:auto!important;padding:7px 2px!important}
 .ratib-smart-results{margin-top:7px;max-height:260px;overflow:auto;border-top:1px solid var(--border,#eee);padding-top:5px}
-.ratib-smart-result,.ratib-smart-more{display:flex;gap:7px;align-items:center;width:100%;min-height:38px;border:0;border-bottom:1px solid var(--border,#eee);text-align:right;padding:7px 2px;background:transparent;color:var(--text,#222);font:inherit;font-size:.79rem}
+.ratib-smart-result,.ratib-smart-more{display:flex;gap:7px;align-items:center;width:100%;min-height:38px;border:0;border-bottom:1px solid var(--border,#eee);text-align:right;padding:7px 2px;background:transparent;color:var(--text,#222);font:inherit;font-size:calc(.79rem + 2px)}
 .ratib-result-kind{font-size:.67rem;color:var(--accent,#187247);flex:none}
 .ratib-smart-more{color:var(--accent,#187247);font-weight:700}
 .ratib-smart-empty{font-size:.76rem;color:var(--muted,#666)}

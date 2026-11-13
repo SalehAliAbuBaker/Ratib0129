@@ -228,7 +228,7 @@ header{display:flex; justify-content:space-between; align-items:center; margin-b
 .accounts-pager-search{display:block;position:relative;margin:0 0 10px;padding:0;background:transparent;border:0;box-shadow:none}
 .accounts-pager-suggestions{position:absolute;inset-inline:0;top:calc(100% + 3px);max-height:275px;overflow:auto;z-index:35;background:var(--card);border:1px solid var(--border);border-radius:9px;box-shadow:0 9px 25px #0002;padding:5px}
 .accounts-pager-suggestions[hidden]{display:none!important}
-.accounts-pager-suggestion{display:block;width:100%;padding:8px 10px;border:0;border-bottom:1px solid var(--border);background:transparent;color:var(--text);text-align:right;line-height:1.6;cursor:pointer;font-family:inherit;font-size:.94rem}
+.accounts-pager-suggestion{display:block;width:100%;padding:8px 10px;border:0;border-bottom:1px solid var(--border);background:transparent;color:var(--text);text-align:right;line-height:1.6;cursor:pointer;font-family:inherit;font-size:calc(.94rem + 2px)}
 .accounts-pager-suggestion:last-child{border-bottom:0}
 .accounts-pager-suggestion.active,.accounts-pager-suggestion:hover{background:var(--sidebar-hover,#eef5f1)}
 .accounts-pager-suggestion small{display:block;color:var(--muted);font-size:.76rem}
@@ -246,7 +246,7 @@ header{display:flex; justify-content:space-between; align-items:center; margin-b
 .accounts-pager-slide-title small{color:var(--muted);font-size:.9rem}
 .account-sub-card{display:grid;grid-template-columns:minmax(0,1fr) auto auto auto;align-items:center;gap:10px;background:var(--bg);border:2px solid var(--border);border-radius:10px;padding:12px;margin-bottom:8px;cursor:pointer;text-align:right;transition:border-color .2s,transform .15s,background .2s}
 .account-sub-card:hover{border-color:var(--accent);background:color-mix(in srgb,var(--accent) 7%,var(--bg));transform:translateY(-1px)}
-.account-sub-name{font-weight:700;font-size:1.08rem;min-width:0}.account-currency-badge{display:inline-block;color:var(--accent);background:color-mix(in srgb,var(--accent) 10%,var(--card));border:1px solid var(--accent);border-radius:999px;padding:2px 8px;font-size:.82rem;vertical-align:middle;direction:ltr}.account-sub-path{display:block;color:var(--muted);font-size:.84rem;margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.account-sub-meta{display:flex;flex-wrap:wrap;gap:6px;margin-top:7px;color:var(--muted);font-size:.78rem;font-weight:800}.account-sub-meta span{padding:2px 7px;border:1px solid var(--border);border-radius:999px;background:var(--card)}
+.account-sub-name{font-weight:700;font-size:calc(1.08rem + 2px);min-width:0}.account-currency-badge{display:inline-block;color:var(--accent);background:color-mix(in srgb,var(--accent) 10%,var(--card));border:1px solid var(--accent);border-radius:999px;padding:2px 8px;font-size:.82rem;vertical-align:middle;direction:ltr}.account-sub-path{display:block;color:var(--muted);font-size:.84rem;margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.account-sub-meta{display:flex;flex-wrap:wrap;gap:6px;margin-top:7px;color:var(--muted);font-size:.78rem;font-weight:800}.account-sub-meta span{padding:2px 7px;border:1px solid var(--border);border-radius:999px;background:var(--card)}
 .account-sub-balance{text-align:left;font-weight:700;white-space:nowrap}.account-sub-balance b{display:block;font-size:1.08rem}.account-sub-balance small{font-size:.82rem}.account-sub-balance.credit{color:var(--ok)}.account-sub-balance.debit{color:var(--danger)}
 .account-sub-arrow{font-size:1.25rem;color:var(--accent);font-weight:700}.account-operations-head-actions{order:-1;display:flex;align-items:center;gap:8px;direction:rtl;white-space:nowrap}.account-inline-actions{display:flex;align-items:center;gap:5px;direction:rtl}.account-inline-action{min-width:48px;height:42px;border:1px solid var(--border);border-radius:8px;background:var(--card);color:var(--accent);display:inline-flex;flex-direction:column;align-items:center;justify-content:center;gap:0;padding:3px 6px;font:900 1rem Tajawal,sans-serif;cursor:pointer}.account-inline-action span{font-size:.62rem;line-height:1.05}.account-inline-action:hover{border-color:var(--accent);background:var(--bg)}.account-inline-action:disabled{opacity:.4;cursor:not-allowed}.account-inline-back{color:var(--danger);border-color:color-mix(in srgb,var(--danger) 35%,var(--border))}.account-screen-menu-wrap{position:relative}.account-screen-menu-toggle{width:42px;height:40px;border:1px solid var(--border);border-radius:8px;background:var(--card);color:var(--accent);font-size:1.25rem;font-weight:700;cursor:pointer}.account-screen-menu{position:absolute;top:46px;right:0;left:auto;direction:rtl;z-index:50;display:none;min-width:245px;background:var(--card);border:1px solid var(--border);border-radius:10px;box-shadow:0 10px 28px rgba(15,23,42,.2);padding:6px}.account-screen-menu.open{display:block}.account-screen-menu .account-menu-section{padding:6px 10px 3px;color:var(--muted);font-size:.72rem;font-weight:700;border-bottom:1px solid var(--border);margin-top:3px}.account-screen-menu button{display:block;width:100%;border:0;background:transparent;text-align:right;padding:7px 9px;border-radius:7px;color:var(--text);font:900 .95rem Tajawal,sans-serif;cursor:pointer}.account-screen-menu button:hover{background:var(--bg);color:var(--accent)}.account-screen-menu button:disabled{opacity:.45;cursor:not-allowed}.account-screen-menu button:disabled:hover{background:transparent;color:var(--text)}.account-screen-menu button small{display:block;color:var(--muted);font-size:.78rem;margin-top:2px;font-weight:700}.account-screen-menu .account-menu-close{border-top:1px solid var(--border);margin-top:4px;color:var(--danger)}.account-advanced-search{display:grid;grid-template-columns:minmax(170px,1fr) minmax(170px,1fr) minmax(140px,auto) auto auto;align-items:end;gap:8px;margin:10px 0;padding:10px;border:1px solid var(--border);border-radius:10px;background:var(--bg)}.account-advanced-search label{display:flex;min-width:0;flex-direction:column;gap:4px;font-weight:700;color:var(--muted);font-size:.86rem}.account-advanced-search input{margin:0;padding:7px}.account-advanced-search .btn{width:auto;margin:0;padding:8px 12px}@media(max-width:760px){.account-advanced-search{grid-template-columns:1fr 1fr}.account-advanced-search label:nth-child(3){grid-column:1/-1}.account-advanced-search .btn{width:100%}}@media(max-width:600px){.account-operations-screen-head{align-items:center;overflow-x:auto}.account-operations-head-actions{flex-wrap:nowrap;justify-content:flex-end;flex:0 0 auto}.account-screen-menu{right:0;left:auto}}
 .account-operations-screen{max-width:760px;margin:0 auto}.account-operations-screen-head strong{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.account-operations-screen-head{position:sticky;top:0;z-index:15;overflow:visible;display:flex;direction:rtl;justify-content:flex-start;align-items:center;gap:10px;padding:10px 2px;background:var(--card);border-bottom:2px solid var(--border);font-size:1.2rem}.account-add-operation-btn,.account-direct-action-btn{width:auto!important;margin:0!important;padding:8px 12px!important;font-size:.95rem!important}.account-direct-action-btn{border:1px solid var(--accent);color:var(--accent);background:var(--card)}.account-direct-action-btn:hover{background:var(--bg)}.account-statement-table{width:100%;overflow-x:auto;border:2px solid var(--border);border-radius:10px}.account-statement-grid{min-width:650px}.account-statement-row{display:grid;grid-template-columns:110px 1.3fr 1.2fr 110px 110px 120px;gap:8px;align-items:center;padding:10px 8px;border-bottom:1px solid var(--border);font-weight:700}.account-statement-row:last-child{border-bottom:0}.account-statement-row.opening{background:#eef6f1;color:var(--accent);cursor:default;border-bottom:2px solid var(--accent)}.account-statement-row.total{background:var(--bg);cursor:default!important;border-bottom:1px solid var(--border)}.account-statement-row.total:hover{background:var(--bg)!important}.account-statement-row.total.final{background:color-mix(in srgb,var(--accent) 10%,var(--card));color:var(--accent);border-top:2px solid var(--accent)}.account-statement-row.header{background:var(--bg);color:var(--muted);border-bottom:2px solid var(--accent);font-size:.9rem}.account-statement-row:not(.header){cursor:pointer}.account-statement-row:not(.header):hover{background:color-mix(in srgb,var(--accent) 7%,var(--card))}.account-statement-row .debit{color:var(--danger)}.account-statement-row .credit{color:var(--ok)}.account-statement-row .balance{color:var(--accent)}
@@ -289,7 +289,7 @@ option { color: var(--text); font-weight: 800; }
 .sd-toolbar.searching .sd-search-btn{border-color:var(--accent);background:color-mix(in srgb,var(--accent) 12%,var(--card))}
 .sd-search-input{display:none;flex:1;min-width:0;padding:6px 10px;border:1px solid var(--accent);border-radius:8px;font:inherit;font-size:1rem;background:var(--card);color:var(--text)}
 .sd-toolbar.searching .sd-search-input{display:block}
-.searchable-item { padding: 12px 14px; cursor: pointer; font-weight:700; font-size: 1.1rem; border-bottom: 1.5px solid var(--border); }
+.searchable-item { padding: 12px 14px; cursor: pointer; font-weight:700; font-size: calc(1.1rem + 2px); border-bottom: 1.5px solid var(--border); }
 .searchable-item:last-child { border-bottom: none; }
 .searchable-item:hover, .searchable-item.active { background: color-mix(in srgb, var(--accent) 12%, transparent); color: var(--accent); }
 .search-results-count{padding:8px 12px;color:var(--accent);background:var(--bg);font-size:0.95rem;font-weight:700;border-bottom:2px solid var(--accent);position:sticky;top:0;z-index:1}
@@ -1389,7 +1389,7 @@ body.ratib-sidebar-open,body.ratib-about-open{overflow:hidden}
 }
 </style>
 <link rel="stylesheet" href="./ratib-theme.css?v=3.6.53">
-<link rel="stylesheet" href="./ratib-navigation-v3.css?v=3.6.193">
+<link rel="stylesheet" href="./ratib-navigation-v3.css?v=3.6.194">
 <style id="ratib-354-account-toolbar-css-only">
 /* Scoped UI correction only. No script, event handlers, or navigation changes. */
 #pageAccountOperations .account-operations-screen-head{display:flex!important;flex-direction:column!important;align-items:stretch!important;overflow:visible!important;gap:8px!important}
@@ -1579,10 +1579,10 @@ body.ratib-sidebar-open,body.ratib-about-open{overflow:hidden}
 <link rel="stylesheet" href="./ratib-trial-home-sidebar-3.6.143.css?v=3.6.148">
 <link rel="stylesheet" href="./ratib-trial-ui-3.6.143.css?v=3.6.148">
 <link rel="stylesheet" href="./ratib-dashboard-finance-3.6.144.css?v=3.6.148">
-<link rel="stylesheet" href="./ratib-global-button-size-3.6.146.css?v=3.6.193">
-<link rel="stylesheet" href="./ratib-interface-font-3.6.148.css?v=3.6.193">
-<link rel="stylesheet" href="./ratib-feedback-3.6.149.css?v=3.6.193">
-<link rel="stylesheet" href="./ratib-country-currency-3.6.151.css?v=3.6.193">
+<link rel="stylesheet" href="./ratib-global-button-size-3.6.146.css?v=3.6.194">
+<link rel="stylesheet" href="./ratib-interface-font-3.6.148.css?v=3.6.194">
+<link rel="stylesheet" href="./ratib-feedback-3.6.149.css?v=3.6.194">
+<link rel="stylesheet" href="./ratib-country-currency-3.6.151.css?v=3.6.194">
 <link rel="stylesheet" href="./ratib-interactive-tree-3.6.105.05.css?v=3.6.139">
 <style id="ratib-official-home-entry-grid">
 /* Preserve Ratib visual identity while matching all eleven home shortcut heights. */
@@ -1655,25 +1655,25 @@ body.ratib-sidebar-open,body.ratib-about-open{overflow:hidden}
 <link rel="stylesheet" href="./ratib-cloud-due-3.6.130.css?v=3.6.139">
 <link rel="stylesheet" href="./ratib-cash-actions-3.6.135.css?v=3.6.142-single-label-20261106">
 <link rel="stylesheet" href="./ratib-compound-layout-3.6.142.css?v=3.6.148">
-<link rel="stylesheet" href="./ratib-cash-reference-3.6.148.css?v=3.6.193">
-<link rel="stylesheet" href="./ratib-compound-output-3.6.150.css?v=3.6.193">
-<link rel="stylesheet" href="./ratib-simple-output-3.6.151.css?v=3.6.193">
-<link rel="stylesheet" href="./ratib-voucher-colors-totals-3.6.152.css?v=3.6.193">
-<link rel="stylesheet" href="./ratib-ui-unification-3.6.155.css?v=3.6.193">
-<link rel="stylesheet" href="./ratib-ui-fixes-3.6.156.css?v=3.6.193">
-<link rel="stylesheet" href="./ratib-statement-footer-opening-3.6.157.css?v=3.6.193">
-<link rel="stylesheet" href="./ratib-statement-vector-3.6.158.css?v=3.6.193">
-<link rel="stylesheet" href="./ratib-account-lock-unified-3.6.161.css?v=3.6.193">
-<link rel="stylesheet" href="./ratib-cash-pulse-dual-ring-3.6.162.css?v=3.6.193">
-<link rel="stylesheet" href="./ratib-home-3.6.167.css?v=3.6.193">
-<link rel="stylesheet" href="./ratib-home-3.6.168.css?v=3.6.193">
-<link rel="stylesheet" href="./ratib-home-3.6.169.css?v=3.6.193">
-<link rel="stylesheet" href="./ratib-bottom-nav-3.6.170.css?v=3.6.193">
-<link rel="stylesheet" href="./ratib-home-3.6.171.css?v=3.6.193">
-<link rel="stylesheet" href="./ratib-statement-safety-3.6.172.css?v=3.6.193">
+<link rel="stylesheet" href="./ratib-cash-reference-3.6.148.css?v=3.6.194">
+<link rel="stylesheet" href="./ratib-compound-output-3.6.150.css?v=3.6.194">
+<link rel="stylesheet" href="./ratib-simple-output-3.6.151.css?v=3.6.194">
+<link rel="stylesheet" href="./ratib-voucher-colors-totals-3.6.152.css?v=3.6.194">
+<link rel="stylesheet" href="./ratib-ui-unification-3.6.155.css?v=3.6.194">
+<link rel="stylesheet" href="./ratib-ui-fixes-3.6.156.css?v=3.6.194">
+<link rel="stylesheet" href="./ratib-statement-footer-opening-3.6.157.css?v=3.6.194">
+<link rel="stylesheet" href="./ratib-statement-vector-3.6.158.css?v=3.6.194">
+<link rel="stylesheet" href="./ratib-account-lock-unified-3.6.161.css?v=3.6.194">
+<link rel="stylesheet" href="./ratib-cash-pulse-dual-ring-3.6.162.css?v=3.6.194">
+<link rel="stylesheet" href="./ratib-home-3.6.167.css?v=3.6.194">
+<link rel="stylesheet" href="./ratib-home-3.6.168.css?v=3.6.194">
+<link rel="stylesheet" href="./ratib-home-3.6.169.css?v=3.6.194">
+<link rel="stylesheet" href="./ratib-bottom-nav-3.6.170.css?v=3.6.194">
+<link rel="stylesheet" href="./ratib-home-3.6.171.css?v=3.6.194">
+<link rel="stylesheet" href="./ratib-statement-safety-3.6.172.css?v=3.6.194">
 
-<link rel="stylesheet" href="./ratib-report-menu-3.6.176.css?v=3.6.193">
-<link rel="stylesheet" href="./ratib-ledger-date-filter-3.6.177.css?v=3.6.193">
+<link rel="stylesheet" href="./ratib-report-menu-3.6.176.css?v=3.6.194">
+<link rel="stylesheet" href="./ratib-ledger-date-filter-3.6.177.css?v=3.6.194">
 <style id="ratib-statement-page-style-20261111">
 .ratib-statement-page-tools{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin:8px 0 12px;padding:8px;background:var(--bg);border:1px solid var(--border);border-radius:12px;color:var(--text)}
 .ratib-statement-page-tools label{display:flex;align-items:center;gap:6px;flex:1 1 155px;min-width:0;font-size:13px;font-weight:500}
@@ -1684,9 +1684,9 @@ body.ratib-sidebar-open,body.ratib-about-open{overflow:hidden}
 @media(max-width:450px){.ratib-statement-page-tools{padding:6px}.ratib-statement-page-tools label{flex:1 1 100%}.ratib-statement-page-tools select{max-width:none}}
 @media print{.ratib-statement-page-tools{display:none!important}}
 </style>
-<link rel="stylesheet" href="./ratib-adhkar-20261111.css?v=3.6.193">
-<link rel="stylesheet" href="./ratib-statement-layout-3.6.178.css?v=3.6.193">
-<link rel="stylesheet" href="./ratib-statement-toolbar-3.6.189.css?v=3.6.193">
+<link rel="stylesheet" href="./ratib-adhkar-20261111.css?v=3.6.194">
+<link rel="stylesheet" href="./ratib-statement-layout-3.6.178.css?v=3.6.194">
+<link rel="stylesheet" href="./ratib-statement-toolbar-3.6.189.css?v=3.6.194">
 </head>
 <body>
 
@@ -1713,7 +1713,7 @@ body.ratib-sidebar-open,body.ratib-about-open{overflow:hidden}
   </div>
 
   <header class="no-print">
-    <div class="logo"><img class="app-brand-icon" src="Icons/icon-192.png" width="44" height="44" alt="" decoding="async"><span class="ratib-home-brand"><span class="ratib-brand-name">راتب</span><span class="ratib-brand-sub">للتنظيم والتدبير المالي</span><small id="appVersionLabel" class="app-version">الإصدار 3.6.193</small></span></div>
+    <div class="logo"><img class="app-brand-icon" src="Icons/icon-192.png" width="44" height="44" alt="" decoding="async"><span class="ratib-home-brand"><span class="ratib-brand-name">راتب</span><span class="ratib-brand-sub">للتنظيم والتدبير المالي</span><small id="appVersionLabel" class="app-version">الإصدار 3.6.194</small></span></div>
     <div class="header-tools"><div class="header-actions">
       <button class="icon-btn" id="themeBtn" title="الوضع الليلي">🌙</button>
       <button class="icon-btn" id="sidebarMenuBtn" aria-haspopup="dialog" aria-controls="appSidebar" aria-expanded="false" title="الإعدادات" aria-label="فتح الإعدادات">⚙</button>
@@ -1765,7 +1765,7 @@ body.ratib-sidebar-open,body.ratib-about-open{overflow:hidden}
       <img src="Icons/icon-192.png" width="72" height="72" alt="" decoding="async">
       <h2 id="ratibAboutTitle">راتب</h2>
       <p class="ratib-about-subtitle">للتنظيم والتدبير المالي</p>
-      <p class="ratib-about-version">الإصدار 3.6.193</p>
+      <p class="ratib-about-version">الإصدار 3.6.194</p>
       <p id="ratibAboutDescription">إدارة الحسابات والسندات والميزانية، ومتابعة العمليات والتقارير المالية، مع حفظ البيانات على جهازك ودعم العمل دون الإنترنت.</p>
       <button type="button" class="btn btn-primary" id="closeRatibAboutBtn">إغلاق</button>
     </div>
@@ -3123,7 +3123,7 @@ body.ratib-sidebar-open,body.ratib-about-open{overflow:hidden}
 // (أو localhost أثناء التطوير) — هذا شرط أساسي من المتصفح نفسه لأي Service Worker.
 let _briefAppNoticeTimer=null;
 let _releaseSummaryDisplayed=false;
-const RATIB_RELEASE={"version":"3.6.193","build":"p19300","highlights":["فتح الحسابات التفصيلية القابلة للحركة مباشرة من نتائج البحث","إزالة شريط العدسة والبحث الثاني من قائمة اختيار الحساب","مسح نصوص ومرشحات البحث، بما فيها التاريخ، بعد فتح النتيجة"],"changes":["نجري بانتظام تحديثات لتحسين الموثوقية والأداء وإصلاح الأخطاء","قائمة منسدلة واحدة تظهر فور الكتابة وتقتصر على الحسابات التفصيلية","البحث العربي المرن يطابق الهمزات والتاء المربوطة والهاء دون تغيير الأسماء","فتح كشف الحساب مباشرة من البحث الذكي في الرئيسية دون المرور بشجرة الحسابات","إفراغ البحث في الرئيسية والحسابات والسندات وكشف الحساب والعمليات والتقارير بعد الدخول إلى النتيجة","إزالة مرشحات من تاريخ وإلى تاريخ بعد فتح المستند المطلوب، مع إبقائها أثناء عرض النتائج","عدم مسح الحساب المحدد أو التاريخ المحاسبي أو المبالغ المحفوظة في السندات"]};
+const RATIB_RELEASE={"version":"3.6.194","build":"p19400","highlights":["تكبير أسماء الحسابات المعروضة بمقدار نقطتين بكسل","الرجوع من البحث داخل كشف الحساب يعرض الحساب نفسه دون مرشحات","توحيد سلوك التراجع من البحث بالنص أو التاريخ في بقية الصفحات"],"changes":["نجري بانتظام تحديثات لتحسين الموثوقية والأداء وإصلاح الأخطاء","زيادة حجم أسماء الحسابات في قوائم الاقتراحات ونتائج بحث الرئيسية وقائمة الحسابات بمقدار 2px دون تكبير الرموز أو الشروحات","عند التراجع من بحث كشف الحساب يُزال النص والفترة ويُعرض الكشف الكامل للحساب نفسه","عند الرجوع من بحث سجل العمليات أو التقارير أو الحسابات تُمسح المرشحات ويُحافَظ على الصفحة الحالية","دعم زر الرجوع داخل التطبيق وإيماءة رجوع المتصفح والهاتف مع المحافظة على تاريخ التنقل","عدم التأثير على الحساب المختار أو تاريخ السند أو المبلغ أو الأرصدة المحاسبية"]};
 window.ratibCurrentTrialVersion=()=>String(RATIB_RELEASE.version);
 window.ratibCurrentTrialVersionLabel=()=>`الإصدار ${RATIB_RELEASE.version}`;
 window.ratibSyncTrialVersion=()=>{
@@ -6171,12 +6171,77 @@ document.getElementById('confirmExitAppBtn').addEventListener('click',performRea
 
 window.addEventListener('popstate',handleRatibPopState);
 
+// One Back from a filtered view restores that SAME view to its unfiltered state.
+// Search state is ephemeral; never change the selected account or a voucher's dates.
+function ratibCancelSearchWithoutLeaving(force=false){
+  const field=id=>document.getElementById(id);
+  const clear=id=>{const el=field(id);if(el)el.value='';};
+  const tab=currentActiveTab;
+  if(tab==='pageAccountOperations'){
+    const query=Boolean(accountOpsState.movementSearch||field('ratibAccountMovementSearchInput')?.value);
+    const filtered=Boolean(accountOpsState.filtered||accountOpsState.from||accountOpsState.to);
+    if(!force&&!query&&!filtered)return false;
+    const name=accountOpsState.accountName,scope=accountOpsState.scopeNames;
+    clear('ratibAccountMovementSearchInput');clear('accountOpsFromDate');clear('accountOpsToDate');
+    clearTimeout(_ratibStatementSearchTimer);
+    accountOpsState.movementSearch='';accountOpsState.from='';accountOpsState.to='';
+    accountOpsState.filtered=false;accountOpsState.currency='ALL';
+    accountOpsState.viewPages={};
+    const currency=field('accountOpsCurrencyFilter');if(currency)currency.value='ALL';
+    window.RatibStatementToolbar?.close?.();
+    field('accountAdvancedSearchPanel')?.classList.add('hidden');
+    if(name)requestAnimationFrame(()=>{
+      if(currentActiveTab==='pageAccountOperations'&&accountOpsState.accountName===name)
+        renderAccountOperations(name,scope);
+    });
+  }else if(tab==='pageLedger'){
+    const date=window.RatibLedgerDateFilter177?.values?.()||{};
+    if(!force&&!currentLedgerSearchQuery&&!field('ledgerSearchInput')?.value&&!date.from&&!date.to)return false;
+    clear('ledgerSearchInput');currentLedgerSearchQuery='';ledgerVisibleLimit=50;
+    clearTimeout(ledgerRenderTimer);
+    window.RatibLedgerDateFilter177?.clear?.(false);
+    requestAnimationFrame(()=>{if(currentActiveTab==='pageLedger')renderAllData(true);});
+  }else if(tab==='pageReports'){
+    const period=field('reportFilterType'),periodSearch=period?.value==='custom'||period?.value==='month';
+    const active=Boolean(currentStatementSearchQuery||field('statementSearchInput')?.value||
+      reportAdv.active||reportAdv.from||reportAdv.to||periodSearch);
+    if(!force&&!active)return false;
+    clear('statementSearchInput');clear('reportAdvFrom');clear('reportAdvTo');
+    clear('reportStartDate');clear('reportEndDate');
+    currentStatementSearchQuery='';
+    reportAdv={from:'',to:'',currency:'ALL',active:false};
+    const currency=field('reportAdvCurrency');if(currency)currency.value='ALL';
+    if(periodSearch&&period){period.value='all';period.dispatchEvent(new Event('change',{bubbles:true}));}
+    requestAnimationFrame(()=>{if(currentActiveTab==='pageReports')runActiveReport();});
+  }else if(tab==='pageAccountsTree'){
+    const pager=field('accountsPagerSearchInput'),chart=field('chartAccountSearchInput');
+    const hadPager=Boolean(pager?.value),hadChart=Boolean(chart?.value);
+    if(!force&&!hadPager&&!hadChart)return false;
+    clear('accountsPagerSearchInput');clear('chartAccountSearchInput');
+    const popup=field('accountsPagerSuggestions');
+    if(popup){popup.hidden=true;popup.replaceChildren();}
+    pager?.setAttribute('aria-expanded','false');
+    if(hadPager)requestAnimationFrame(()=>{if(currentActiveTab==='pageAccountsTree')renderAccountsPager();});
+    if(hadChart)requestAnimationFrame(()=>{if(currentActiveTab==='pageAccountsTree')renderCanonicalChartOfAccounts();});
+  }else if(tab==='pageDashboard'){
+    if(!force&&!field('ratibSmartInput')?.value)return false;
+    window.RatibHomeSmartSearchReset?.();
+  }else return false;
+  // Hide the keyboard when Back is meant to show the unfiltered list.
+  const focused=document.activeElement;
+  if(focused?.matches?.('input[type="search"],input[type="date"],input[type="text"]')&&
+     !focused.closest?.('#pageExpenses'))focused.blur();
+  return true;
+}
+window.RatibCancelSearchWithoutLeaving=ratibCancelSearchWithoutLeaving;
+
 function goBackInApp(){
   ratibRestorePrintScreen();
   if(document.getElementById('lockScreen')?.style.display==='flex')return Promise.resolve(false);
   if(_appExited||_exitPromise)return Promise.resolve(false);
   if(_appHistoryPending)return _appHomeReset?_appHistoryPending.promise.then(goBackInApp):_appHistoryPending.promise;
   if(closeTransientAppUi())return Promise.resolve(true);
+  if(ratibCancelSearchWithoutLeaving())return Promise.resolve(true);
   if(ratibVoucherHasUnsavedEdits())return ratibAskVoucherLeave().then(ok=>ok?goBackInApp():false);
   if(currentActiveTab==='pageCommerce'&&window.RatibCommerce?.requestLeave?.()===false)return Promise.resolve(false);
   if(_appBackStack.length&&_appHistoryInitialized&&history.state?.ratibSession===_appHistorySession){const result=beginAppHistoryMovement();history.back();return result;}
@@ -11345,10 +11410,15 @@ function closeTransientAppUi(){
     document.getElementById('ratibCashMoreToggle').click();return true;
   }
   if(currentActiveTab==='pageCommerce' && window.RatibCommerce?.closeDetail?.())return true;
-  if(window.RatibStatementToolbar?.close?.())return true;
+  const toolbarSearch= document.getElementById('ratibStmtSheet189');
+  const wasStatementSearch=toolbarSearch?.dataset.mode==='search'&&!toolbarSearch.hidden;
+  if(window.RatibStatementToolbar?.close?.()){
+    if(wasStatementSearch)ratibCancelSearchWithoutLeaving(true);
+    return true;
+  }
    if(document.getElementById('accountScreenMenu')?.classList.contains('open')){closeAccountScreenMenu();return true;}
   const advanced=document.getElementById('accountAdvancedSearchPanel');
-  if(currentActiveTab==='pageAccountOperations'&&advanced&&!advanced.classList.contains('hidden')){advanced.classList.add('hidden');return true;}
+  if(currentActiveTab==='pageAccountOperations'&&advanced&&!advanced.classList.contains('hidden')){advanced.classList.add('hidden');ratibCancelSearchWithoutLeaving(true);return true;}
   const dropdown=document.querySelector('#'+currentActiveTab+' .searchable-dropdown.open');
   if(dropdown){dropdown.classList.remove('open');return true;}
   return false;
@@ -11400,7 +11470,17 @@ function handleRatibPopState(){
   if(_appReplayDepth!==null&&known&&depth===_appReplayDepth){_appReplayDepth=null;if(currentActiveTab==='pageDashboard'&&_appBackStack.length===0)recordAppHistory({page:'tab',tab:'pageDashboard'});finishAppHistoryMovement();return;}
   // Reuse existing entries when closing an overlay or showing root confirmation.
   // Inserting a new entry from popstate makes subsequent phone Back gestures skippable.
-  if(closeTransientAppUi()){_appReplayDepth=_appCurrentHistoryDepth;history.go(known?_appCurrentHistoryDepth-depth:1);return;}
+  if(closeTransientAppUi()){
+    _appSavedViews.set(_appCurrentHistoryDepth,captureAppView());
+    _appReplayDepth=_appCurrentHistoryDepth;history.go(known?_appCurrentHistoryDepth-depth:1);return;
+  }
+  // Hardware/browser Back must cancel the active query before leaving its account.
+  if((!known||depth<_appCurrentHistoryDepth)&&ratibCancelSearchWithoutLeaving()){
+    _appSavedViews.set(_appCurrentHistoryDepth,captureAppView());
+    _appReplayDepth=_appCurrentHistoryDepth;
+    history.go(known?_appCurrentHistoryDepth-depth:1);
+    return;
+  }
   if(currentActiveTab!=='pageDashboard' && (ratibVoucherHasUnsavedEdits() || !ratibGestureDraftCheck())){
     // Restore the browser entry before the user's decision can start another movement.
     _appReplayDepth=_appCurrentHistoryDepth;
@@ -14520,69 +14600,69 @@ try{currenciesUi();sync();}catch(e){console.error('Ratib 3.6.12 initialization',
 <script>
 (()=>{const previous=renderMultiVoucherLines;renderMultiVoucherLines=function(...args){const result=previous.apply(this,args);queueMicrotask(ratibOrderDocumentAccounts);return result;};})();
 </script>
-<script src="./ratib-license-draft.js?v=3.6.193" defer></script>
+<script src="./ratib-license-draft.js?v=3.6.194" defer></script>
 <script src="./ratib-ui-v3.6.37.js?v=3.6.148" defer></script>
-<script src="./ratib-favorites-v3.js?v=3.6.193" defer></script>
+<script src="./ratib-favorites-v3.js?v=3.6.194" defer></script>
 <script src="./ratib-whatsapp-support-3.6.113.js?v=3.6.139" defer></script>
-<script src="./ratib-voice-dictation-3.6.117.js?v=3.6.193" defer></script>
+<script src="./ratib-voice-dictation-3.6.117.js?v=3.6.194" defer></script>
 <script src="./ratib-import-manager.js?v=2" defer></script>
 <script src="./ratib-annual-close.js?v=1" defer></script>
 <script src="./ratib-fiscal-ledger.js?v=1&amp;patch=current-year-20261111" defer></script>
 <script src="./ratib-statement-prior-year.js?v=1" defer></script>
 <script src="./ratib-reconciliation-print.js?v=3.6.139" defer></script>
 <script src="./ratib-theme.js?v=3.6.53" defer></script>
-<script src="./ratib-navigation-v3.6.149.js?v=3.6.193" defer></script>
+<script src="./ratib-navigation-v3.6.149.js?v=3.6.194" defer></script>
 <script src="./ratib-accounting-3.6.59.js?v=3.6.100" defer></script>
 <script src="./ratib-cash-layout-3.6.83.js?v=3.6.83" defer></script>
 <script src="./ratib-quick-account-3.6.87.js?v=3.6.105.01" defer></script>
 <script src="./ratib-journal-layout-3.6.90.js?v=3.6.97" defer></script>
-<script src="./ratib-amount-edit-3.6.97.js?v=3.6.193" defer></script>
+<script src="./ratib-amount-edit-3.6.97.js?v=3.6.194" defer></script>
 <script src="./ratib-special-reports-3.6.102.js?v=3.6.139" defer></script>
 <script src="./ratib-fx-autofill-3.6.105.js?v=3.6.107" defer></script>
 <script src="./ratib-report-buttons-3.6.106.js?v=3.6.139" defer></script>
 <script src="./ratib-print-logo-3.6.108.js?v=3.6.139" defer></script>
 <div id="ratibSpecialPrintHost" aria-hidden="true"></div>
-<script src="./ratib-sidebar-3.6.124.js?v=3.6.193" defer></script>
-<script src="./ratib-commerce-3.6.131.js?v=3.6.193" defer></script>
-<script src="./ratib-simple-accounts-3.6.105.13.js?v=3.6.193" defer></script>
+<script src="./ratib-sidebar-3.6.124.js?v=3.6.194" defer></script>
+<script src="./ratib-commerce-3.6.131.js?v=3.6.194" defer></script>
+<script src="./ratib-simple-accounts-3.6.105.13.js?v=3.6.194" defer></script>
 <script src="./ratib-interactive-tree-3.6.105.05.js?v=3.6.139" defer></script>
-<script src="./ratib-login-3.6.124.js?v=3.6.193" defer></script>
+<script src="./ratib-login-3.6.124.js?v=3.6.194" defer></script>
 <script src="./ratib-trial-home-sidebar-3.6.143.js?v=3.6.148" defer></script>
-<script src="./ratib-trial-ui-3.6.143.js?v=3.6.193" defer></script>
-<script src="./ratib-dashboard-finance-3.6.144.js?v=3.6.193&amp;patch=two-decimal-20261111" defer></script>
-<script src="./ratib-global-button-size-3.6.146.js?v=3.6.193" defer></script>
+<script src="./ratib-trial-ui-3.6.143.js?v=3.6.194" defer></script>
+<script src="./ratib-dashboard-finance-3.6.144.js?v=3.6.194&amp;patch=two-decimal-20261111" defer></script>
+<script src="./ratib-global-button-size-3.6.146.js?v=3.6.194" defer></script>
 <script src="./ratib-document-signatures-3.6.148.js?v=3.6.148-automatic" defer></script>
-<script src="./ratib-cash-reference-3.6.148.js?v=3.6.193" defer></script>
-<script src="./ratib-compound-output-3.6.150.js?v=3.6.193" defer></script>
-<script src="./ratib-simple-output-3.6.151.js?v=3.6.193" defer></script>
+<script src="./ratib-cash-reference-3.6.148.js?v=3.6.194" defer></script>
+<script src="./ratib-compound-output-3.6.150.js?v=3.6.194" defer></script>
+<script src="./ratib-simple-output-3.6.151.js?v=3.6.194" defer></script>
 <script src="./ratib-feedback-3.6.149.js?v=3.6.139" defer></script>
-<script src="./ratib-mobile-edge-back-3.6.128.js?v=3.6.193" defer></script>
-<script src="./ratib-cash-pulse.js?v=3.6.193" defer></script>
+<script src="./ratib-mobile-edge-back-3.6.128.js?v=3.6.194" defer></script>
+<script src="./ratib-cash-pulse.js?v=3.6.194" defer></script>
 <script src="./ratib-statement-marks-3.6.106.05.js?v=3.6.139" defer>
 </script>
-<script src="./ratib-country-currency-3.6.151.js?v=3.6.193" defer></script>
+<script src="./ratib-country-currency-3.6.151.js?v=3.6.194" defer></script>
 <script src="./ratib-date-display.js?v=3.6.139" defer></script>
 <script src="./ratib-statement-compact-3.6.119.js?v=3.6.139" defer></script>
 <script src="./ratib-display-separation-3.6.122.js?v=3.6.139" defer></script>
 <script src="./ratib-trial-voucher-statement-3.6.125.js?v=3.6.139" defer></script>
-<script src="./ratib-cash-actions-3.6.135.js?v=3.6.193" defer></script>
+<script src="./ratib-cash-actions-3.6.135.js?v=3.6.194" defer></script>
 <script src="./ratib-compound-layout-3.6.142.js?v=3.6.148" defer></script>
-<script src="./ratib-statement-vector-3.6.158.js?v=3.6.193" defer></script>
-<script src="./ratib-statement-direct-pdf-3.6.159.js?v=3.6.193" defer></script>
-<script src="./ratib-statement-search-totals-3.6.160.js?v=3.6.193" defer></script>
-<script src="./ratib-account-lock-unified-3.6.161.js?v=3.6.193" defer></script>
-<script src="./ratib-cash-pulse-dual-ring-3.6.162.js?v=3.6.193" defer></script>
-<script src="./ratib-home-3.6.167.js?v=3.6.193" defer></script>
-<script src="./ratib-home-3.6.168.js?v=3.6.193" defer></script>
-<script src="./ratib-home-3.6.169.js?v=3.6.193" defer></script>
-<script src="./ratib-bottom-nav-3.6.170.js?v=3.6.193" defer></script>
-<script src="./ratib-home-3.6.171.js?v=3.6.193" defer></script>
-<script src="./ratib-statement-safety-3.6.172.js?v=3.6.193" defer></script>
-<script src="./ratib-ledger-date-filter-3.6.177.js?v=3.6.193" defer></script>
-<script src="./ratib-adhkar-20261111.js?v=3.6.193" defer></script>
+<script src="./ratib-statement-vector-3.6.158.js?v=3.6.194" defer></script>
+<script src="./ratib-statement-direct-pdf-3.6.159.js?v=3.6.194" defer></script>
+<script src="./ratib-statement-search-totals-3.6.160.js?v=3.6.194" defer></script>
+<script src="./ratib-account-lock-unified-3.6.161.js?v=3.6.194" defer></script>
+<script src="./ratib-cash-pulse-dual-ring-3.6.162.js?v=3.6.194" defer></script>
+<script src="./ratib-home-3.6.167.js?v=3.6.194" defer></script>
+<script src="./ratib-home-3.6.168.js?v=3.6.194" defer></script>
+<script src="./ratib-home-3.6.169.js?v=3.6.194" defer></script>
+<script src="./ratib-bottom-nav-3.6.170.js?v=3.6.194" defer></script>
+<script src="./ratib-home-3.6.171.js?v=3.6.194" defer></script>
+<script src="./ratib-statement-safety-3.6.172.js?v=3.6.194" defer></script>
+<script src="./ratib-ledger-date-filter-3.6.177.js?v=3.6.194" defer></script>
+<script src="./ratib-adhkar-20261111.js?v=3.6.194" defer></script>
 
-<script src="./ratib-statement-layout-3.6.178.js?v=3.6.193" defer></script>
-<script src="./ratib-statement-toolbar-3.6.189.js?v=3.6.193" defer></script>
+<script src="./ratib-statement-layout-3.6.178.js?v=3.6.194" defer></script>
+<script src="./ratib-statement-toolbar-3.6.189.js?v=3.6.194" defer></script>
 <script src="./ratib-performance-watch-20261111.js?v=opt-in-1" defer></script>
 </body>
 </html>

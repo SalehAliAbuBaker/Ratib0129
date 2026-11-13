@@ -35,6 +35,7 @@ function simulate({tab='pageSettings',depth=0,known=true,dirty=false,commerceDir
   window:{RatibCommerce:{hasUnsavedDraft:()=>commerceDirty}},
   history:{state:known?{ratibGuard:true,ratibSession:'sess',ratibDepth:depth}:{page:'ratib_app_base'},go:n=>log.go.push(n),forward:()=>log.forward++,back:()=>{}},
   closeTransientAppUi:()=>overlay,
+  ratibCancelSearchWithoutLeaving:()=>false, // no active query in these navigation fixtures
   beginAppHistoryMovement:()=>Promise.resolve(),goBackInApp:()=>{log.requested=true;},
   restoreAppView:view=>{ctx.currentActiveTab=view.tab;log.restored=view;},
   ratibRestorePrintScreen:()=>{}, // Popstate test extracts navigation without the global print module.

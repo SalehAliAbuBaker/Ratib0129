@@ -3,7 +3,7 @@
 (()=>{'use strict';
 const by=id=>document.getElementById(id);
 const el=(tag,cls,value)=>{const n=document.createElement(tag);if(cls)n.className=cls;if(value!==undefined)n.textContent=value;return n;};
-const normalize=s=>String(s||'').normalize('NFKC').replace(/[\u064B-\u065F\u0670\u0640]/g,'').replace(/[أإآٱ]/g,'ا').toLocaleLowerCase('ar').trim();
+const normalize=s=>String(s||'').normalize('NFKC').replace(/[\u064B-\u065F\u0670\u0640]/g,'').replace(/[أإآٱ]/g,'ا').replace(/ة/g,'ه').replace(/ى/g,'ي').toLocaleLowerCase('ar').trim();
 let returnTab='pageDashboard',chooser,search,results;
 function version(){
  const head=document.querySelector('#mainWrap>header.no-print'),logo=head?.querySelector('.logo');if(!logo)return;
@@ -35,13 +35,13 @@ function listAccounts(){
 function draw(){
  if(!results||!search)return;
  const phrase=normalize(search.value),accounts=listAccounts();
- const matches=accounts.filter(a=>!phrase||normalize(a.name+' '+a.code+' '+a.group).includes(phrase)).slice(0,30);
+ const matches=accounts.filter(a=>!phrase||normalize(a.name+' '+a.code).includes(phrase)).slice(0,30);
  results.replaceChildren();
  if(!accounts.length){results.append(el('p','ratib-statement-empty','لا توجد حسابات متاحة. تحقق من فتح بيانات راتب أولًا.'));return;}
  if(!matches.length){results.append(el('p','ratib-statement-empty','لا توجد حسابات مطابقة.'));return;}
  for(const a of matches){
   const b=el('button','ratib-statement-account');b.type='button';b.setAttribute('role','option');
-  b.append(el('strong','',a.name),el('small','',a.code+(a.group?' · '+a.group:'')));
+  b.append(el('strong','',a.name),el('small','','حساب تفصيلي · '+a.code));
   b.addEventListener('click',()=>choose(a.name));results.append(b);
  }
 }
@@ -61,11 +61,12 @@ function mountChooser(){
  watcher.observe(page,{attributes:true,attributeFilter:['class']});
  return true;
 }
+function clearSearch(){if(search)search.value='';results?.replaceChildren();}
 function choose(name){
  const page=by('pageAccountOperations');
  if(!name||typeof window.openAccountFromPager!=='function')return;
  page?.classList.remove('ratib-statement-pick-mode');if(chooser)chooser.hidden=true;
- window.openAccountFromPager(name,[name],null,false);
+ clearSearch();window.openAccountFromPager(name,[name],null,false);
  // The shortcut started from the dashboard (or a user-selected tab), not the account tree.
  if(typeof accountOperationsReturnTab!=='undefined')accountOperationsReturnTab=returnTab;
 }
@@ -96,7 +97,7 @@ function wire(){
   },true);
  }
 }
-window.RatibDirectStatement171=Object.freeze({open,version});
+window.RatibDirectStatement171=Object.freeze({open,version,clearSearch});
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',wire,{once:true});else wire();
 window.addEventListener('ratib:app-ready',version);
 })();

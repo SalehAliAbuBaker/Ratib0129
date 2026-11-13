@@ -8,9 +8,9 @@ const html=fs.readFileSync('index.html','utf8');
 const compact=fs.readFileSync('ratib-statement-compact-3.6.119.js','utf8');
 const sw=fs.readFileSync('sw.js','utf8');
 const pkg=require('./package.json');
-assert.equal(pkg.version,'3.6.188');
-assert(html.includes('const RATIB_RELEASE={"version":"3.6.188"'));
-assert(sw.includes('const APP_RELEASE={"version":"3.6.188"'));
+assert.equal(pkg.version,'3.6.192');
+assert(html.includes('const RATIB_RELEASE={"version":"3.6.192"'));
+assert(sw.includes('const APP_RELEASE={"version":"3.6.192"'));
 assert(sw.includes('compound-archive-search-focus-3.6.185'));
 assert(!compact.includes("anchor.insertAdjacentElement('afterend',search)"),
  'Do not put search inside the panel replaced by the statement renderer');

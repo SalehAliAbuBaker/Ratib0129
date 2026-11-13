@@ -2,9 +2,9 @@
 const fs=require('node:fs'),assert=require('node:assert/strict'),{JSDOM}=require('jsdom');
 const html=fs.readFileSync('index.html','utf8'),sw=fs.readFileSync('sw.js','utf8'),moduleCode=fs.readFileSync('ratib-date-display.js','utf8'),pdfCss=fs.readFileSync('ratib-umalqura-output-3.6.116.css','utf8');
 const pkg=require('./package.json');
-assert.equal(pkg.version,'3.6.188');
-assert(html.includes('const RATIB_RELEASE={"version":"3.6.188","build":"p18800"'));
-assert(sw.includes('const APP_RELEASE={"version":"3.6.188","build":"p18800"'));
+assert.equal(pkg.version,'3.6.192');
+assert(html.includes('const RATIB_RELEASE={"version":"3.6.192","build":"p19200"'));
+assert(sw.includes('const APP_RELEASE={"version":"3.6.192","build":"p19200"'));
 assert(sw.includes('v260-opening-mobile-clean-3.6.139'));
 for(const name of ['ratib-date-display.js','ratib-umalqura-output-3.6.116.css'])assert(sw.includes('"./'+name+'"'),'offline date asset '+name);
 assert(html.includes('ratib-date-display.js?v=3.6.139'));

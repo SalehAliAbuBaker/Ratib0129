@@ -3,8 +3,8 @@ const fs=require('node:fs'),assert=require('node:assert/strict'),vm=require('nod
 const html=fs.readFileSync('index.html','utf8'),css=fs.readFileSync('ratib-account-movement-search-3.6.114.css','utf8'),
  sw=fs.readFileSync('sw.js','utf8'),pkg=require('./package.json');
 const doc=new JSDOM(html).window.document;
-assert.equal(pkg.version,'3.6.188');
-assert(html.includes('const RATIB_RELEASE={"version":"3.6.188","build":"p18800"'));
+assert.equal(pkg.version,'3.6.192');
+assert(html.includes('const RATIB_RELEASE={"version":"3.6.192","build":"p19200"'));
 assert(sw.includes('v260-opening-mobile-clean-3.6.139'));
 assert(sw.includes('"./ratib-account-movement-search-3.6.114.css"'));
 assert(doc.querySelector('link[href="./ratib-account-movement-search-3.6.114.css?v=3.6.139"]'));
@@ -29,6 +29,7 @@ const ctx={
  accountOpsState:{accountName:'صندوق المؤسسة',scopeNames:['صندوق المؤسسة'],movementSearch:'',viewPages:{}},
  accountOpsUi:{panelId:'accountOperationsStandalonePanel'},
  getAccountOpsDate:t=>t.isoDate||'',getTransactionDisplayType:t=>t.type||'',
+ accountCurrencyLabel:code=>({YER:'ريال يمني',SAR:'ريال سعودي',USD:'دولار أمريكي'}[code]||code),
  clearTimeout:()=>{},setTimeout:fn=>{fn();return 1;},
  renderAccountOperations:()=>ctx.ratibApplyAccountMovementSearch(),
 };

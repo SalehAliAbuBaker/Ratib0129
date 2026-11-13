@@ -2,8 +2,9 @@
 const fs=require('node:fs'),assert=require('node:assert/strict'),vm=require('node:vm'),{JSDOM}=require('jsdom');
 const js=fs.readFileSync('ratib-adhkar-20261111.js','utf8'),css=fs.readFileSync('ratib-adhkar-20261111.css','utf8'),html=fs.readFileSync('index.html','utf8'),sw=fs.readFileSync('sw.js','utf8');
 new vm.Script(js);
-assert(html.includes('./ratib-adhkar-20261111.js?v=3.6.188'));
-assert(html.includes('./ratib-adhkar-20261111.css?v=3.6.188'));
+const currentVersion=require('./package.json').version;
+assert(html.includes(`./ratib-adhkar-20261111.js?v=${currentVersion}`));
+assert(html.includes(`./ratib-adhkar-20261111.css?v=${currentVersion}`));
 assert(sw.includes('./ratib-adhkar-20261111.js')&&sw.includes('./ratib-adhkar-20261111.css'));
 for(let i=1;i<=3;i++)assert(html.includes('id="ratibAdhkarText'+i+'"'));
 assert(html.includes('id="ratibAdhkarSaveBtn"')&&html.includes("window.RatibAdhkar?.loadSettings?.()"));

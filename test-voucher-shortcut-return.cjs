@@ -26,6 +26,7 @@ const restored=[];
 const fallback={
  ratibRestorePrintScreen(){},document:{getElementById:()=>({style:{display:'none'}})},
  _appExited:false,_exitPromise:null,_appHistoryPending:null,closeTransientAppUi:()=>false,
+ ratibCancelSearchWithoutLeaving:()=>false,
  ratibVoucherHasUnsavedEdits:()=>false,currentActiveTab:'pageExpenses',_appBackStack:[],
  navigateToTab:(destination,remember)=>restored.push([destination,remember])
 };

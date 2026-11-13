@@ -6661,6 +6661,33 @@ class SearchableSelect {
         this.setValue(match.id,typed,match.accountId||'');
         if(this.onSelect&&(this.input.id==='inpReportAccount'||this.wrap.classList.contains('voucher-account-search')))this.onSelect(match);
       }
+      // Unique typed prefix can propose the remaining suffix without changing
+      // the part the user entered; deletion and mid-text edits are never forced.
+      const inputType=String(e.inputType||'');
+      const deleting=inputType.startsWith('delete')||this._deleteInput;
+      if(query.length>=2&&!e.isComposing&&!deleting&&
+        (!inputType||inputType.startsWith('insert'))&&
+        this.input.selectionStart===this.input.selectionEnd&&
+        this.input.selectionEnd===this.input.value.length){
+        const typed=this.input.value,choices=matches.filter(item=>
+          ratibAccountSearchMatch(item.text,typed)&&
+          normalizeParentQuery(item.text)!==normalizeParentQuery(typed));
+        if(choices.length===1){
+          this._singleMatchTimer=setTimeout(()=>{
+            if(document.activeElement!==this.input||this.input.value!==typed||
+               this.input.selectionStart!==typed.length||this.input.selectionEnd!==typed.length)return;
+            const item=choices[0];
+            this.choose(item);
+            if(this.input.value===item.text){
+              const isPrefix=normalizeParentQuery(item.text).startsWith(normalizeParentQuery(typed));
+              this.input.setSelectionRange(window.RatibVoiceFirstAccountActive?.(this.input)?
+                item.text.length:(isPrefix?typed.length:item.text.length),item.text.length);
+              this.input.classList.add('ratib-auto-accepted');
+              this.wrap.classList.add('ratib-auto-confirmed');
+            }
+          },450);
+        }
+      }
       this._deleteInput=false;
     });
     this.input.addEventListener('pointerdown',()=>clearTimeout(this._singleMatchTimer));

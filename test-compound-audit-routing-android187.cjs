@@ -5,7 +5,7 @@ const posted=[{id:'v_0',multiVoucherId:'v',isMultiVoucher:true,status:'posted',s
 const old=posted.map((t,i)=>({...t,id:'old_'+i,multiVoucherId:'',isMultiVoucher:false,status:'reversed',ratibSupersededVoucherId:'v'}));
 const canceled={id:'really-canceled',status:'reversed',amount:10};
 const records=[...old,...posted,canceled],snapshot=JSON.stringify(records),box={innerHTML:'',querySelectorAll:()=>[]};let opened=null;
-const ctx={getAllTransactions:()=>records,showToast:()=>{},openMultiVoucherEditor:item=>opened=item,document:{getElementById:()=>box},globalSearchStatusFilter:'all',esc:String,fmt:String,getTransactionDisplayType:()=> 'compound',groupImportedOpeningItems:rows=>rows};
+const ctx={getAllTransactions:()=>records,showToast:()=>{},ratibClearTextSearchAfterTargetOpen:()=>{},openMultiVoucherEditor:item=>opened=item,document:{getElementById:()=>box},globalSearchStatusFilter:'all',esc:String,fmt:String,getTransactionDisplayType:()=> 'compound',groupImportedOpeningItems:rows=>rows};
 vm.createContext(ctx);
 vm.runInContext(cut('function ratibIsSupersededVoucherRevision(','function openTxModal(')+cut('function entrygroupLedgerItemsForDisplay(txs){','// Sorted journal cards')+';this.groupLedgerItemsForDisplay=entrygroupLedgerItemsForDisplay;',ctx);
 let rows=ctx.groupLedgerItemsForDisplay(records);

@@ -53,20 +53,58 @@ const ready=()=>!!window.__ratibProceedInitialized;
 function accounts(){if(!ready()||typeof getCanonicalCatalog!=='function')return [];try{return (getCanonicalCatalog()||[]).flatMap(x=>(x.details||[]).map(d=>({name:String(d[1]||''),code:String(d[0]||''),path:[x.main,x.group,x.sub].join(' ')})));}catch(_){return [];}}
 function txs(){if(!ready()||typeof getAllTransactions!=='function')return [];try{return getAllTransactions().filter(t=>t&&t.status!=='reversed'&&t.status!=='deleted');}catch(_){return [];}}
 function matchText(t){const m=t.multiVoucher||{};return [t.seq,t.id,t.voucherNumber,t.date,t.account,t.accountName,t.debitAcc,t.creditAcc,t.description,t.note,t.notes,t.beneficiary,t.payer,t.amount,t.currency,t.budgetCategory,m.mode,m.seq,m.beneficiary,...(Array.isArray(m.lines)?m.lines.slice(0,20).map(y=>[y.account,y.accountName,y.notes,y.amount].join(' ')):[])].filter(x=>x!==undefined&&x!==null).join(' ');}
-function goto(which,term){navigate(which==='accounts'?'pageAccountsTree':'pageLedger');const field=by(which==='accounts'?'accountsPagerSearchInput':'ledgerSearchInput');if(field){field.value=term;field.dispatchEvent(new Event('input',{bubbles:true}));field.focus({preventScroll:true});}}
+// The dashboard query is a temporary navigation aid, never a stored selection.
+function resetSearchSession(){
+ input.value='';select.value='accounts';results.hidden=true;results.replaceChildren();current=[];
+}
+window.RatibHomeSmartSearchReset=resetSearchSession;
+function goto(which,term){
+ if(which==='accounts'){
+   const found=accounts().find(a=>fold(a.name)===fold(term)||fold(a.code)===fold(term));
+   if(found&&typeof openAccountFromPager==='function'){
+     resetSearchSession();openAccountFromPager(found.name,[found.name]);return;
+   }
+   // A search without a chosen detail must remain in the live results list.
+   return;
+ }
+ resetSearchSession();
+ navigate('pageLedger');
+ const field=by('ledgerSearchInput');
+ if(field){field.value=term;field.dispatchEvent(new Event('input',{bubbles:true}));}
+}
 let current=[];
 function draw(){
 const term=input.value.trim(),type=select.value,needle=fold(term);results.replaceChildren();current=[];results.hidden=!term;if(!term)return;
 if(!ready()){results.append(node('p','ratib-smart-empty','افتح التطبيق أولًا لعرض النتائج.'));return;}
 if(type!=='accounts'){let count=0;for(const t of txs()){if(count>=8)break;if(fold(matchText(t)).includes(needle)){current.push({type:'op',data:t,label:('سند '+String(t.seq||t.voucherNumber||t.id||'')+' — '+String(t.note||t.description||t.date||'عملية مالية')).slice(0,115)});count++;}}}
-if(type!=='operations'){let count=0;for(const a of accounts()){if(count>=8)break;if(fold(a.name+' '+a.code+' '+a.path).includes(needle)){current.push({type:'account',data:a,label:a.name+' · '+a.code});count++;}}}
+if(type!=='operations'){let count=0;for(const a of accounts()){if(count>=8)break;if(fold(a.name+' '+a.code).includes(needle)){current.push({type:'account',data:a,label:a.name+' · '+a.code});count++;}}}
 if(!current.length)results.append(node('p','ratib-smart-empty','لا توجد نتائج مطابقة. استخدم البحث التفصيلي.'));
 for(const item of current){const b=node('button','ratib-smart-result',item.label);b.type='button';b.prepend(node('span','ratib-result-kind',item.type==='op'?'عملية':'حساب'));
-b.addEventListener('click',()=>{results.hidden=true;if(item.type==='account')goto('accounts',item.data.name);else{goto('operations',String(item.data.seq||item.data.voucherNumber||item.data.id||term));if(typeof openDocumentDetailsModal==='function')openDocumentDetailsModal(item.data);}});results.append(b);}
-const more=node('button','ratib-smart-more','فتح البحث التفصيلي');more.type='button';more.addEventListener('click',()=>goto(type==='accounts'?'accounts':'operations',term));results.append(more);
+b.addEventListener('click',()=>{
+ if(item.type==='account'){
+   resetSearchSession();
+   if(typeof openAccountFromPager==='function')openAccountFromPager(item.data.name,[item.data.name]);
+ }else{
+   goto('operations',String(item.data.seq||item.data.voucherNumber||item.data.id||term));
+   if(typeof openDocumentDetailsModal==='function')openDocumentDetailsModal(item.data);
+ }
+});results.append(b);}
+// Account matches are actionable leaf accounts: no second search or aggregate page.
+if(type==='operations' || type==='all'){
+ const more=node('button','ratib-smart-more','المزيد من العمليات');
+ more.type='button';more.addEventListener('click',()=>goto('operations',term));
+ results.append(more);
+}
 }
 input.addEventListener('input',draw);select.addEventListener('change',draw);
-input.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();if(select.value==='all'&&current.length)results.querySelector('.ratib-smart-result')?.click();else goto(select.value==='accounts'?'accounts':'operations',input.value.trim());}else if(e.key==='Escape')results.hidden=true;});
+input.addEventListener('keydown',e=>{
+ if(e.key==='Enter'){
+   e.preventDefault();
+   // Enter selects the actual detail, not a parent group or another search field.
+   if(current.length)results.querySelector('.ratib-smart-result')?.click();
+   else if(select.value==='operations')goto('operations',input.value.trim());
+ }else if(e.key==='Escape')results.hidden=true;
+});
 }
 function stock(){
 const search=by('ratibHomeSmartSearch'),tiles=document.querySelector('#dashboardHomeContent .ratib-commerce-shortcuts');if(!search||!tiles||by('ratibHomeInventory'))return;

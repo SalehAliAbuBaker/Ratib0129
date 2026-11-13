@@ -3,9 +3,9 @@ const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/st
 const html=fs.readFileSync('index.html','utf8'),css=fs.readFileSync('ratib-voucher-polish-3.6.117.css','utf8'),
 sw=fs.readFileSync('sw.js','utf8'),pkg=require('./package.json');
 const document=new JSDOM(html).window.document;
-assert.equal(pkg.version,'3.6.188');
-assert(html.includes('const RATIB_RELEASE={"version":"3.6.188","build":"p18800"'));
-assert(sw.includes('const APP_RELEASE={"version":"3.6.188","build":"p18800"'));
+assert.equal(pkg.version,'3.6.192');
+assert(html.includes('const RATIB_RELEASE={"version":"3.6.192","build":"p19200"'));
+assert(sw.includes('const APP_RELEASE={"version":"3.6.192","build":"p19200"'));
 assert(sw.includes('v260-opening-mobile-clean-3.6.139'));
 assert(sw.includes('"./ratib-voucher-polish-3.6.117.css"'));
 assert(document.querySelector('link[href="./ratib-voucher-polish-3.6.117.css?v=3.6.139"]'));

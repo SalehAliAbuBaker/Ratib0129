@@ -7357,7 +7357,7 @@ function ratibCurrentVoucherDocument(item){
  if(!current)showToast('هذه نسخة سابقة للمراجعة ولا يمكن تعديلها. افتح السند الحالي من سجل العمليات.','warn');
  return current||null;
 }
-function openTxModal(item) {item=ratibCurrentVoucherDocument(item);if(!item)return;if(item.isMultiVoucher&&!item.isOpeningBalance&&!item.commerceId)return openMultiVoucherEditor(item);if(item?.commerceId){showToast('مستند تجاري مرتبط بالمخزون؛ لا يعدل من شاشة السندات.','warn');return;}if(item&&!item.isOpeningBalance&&['income','spend'].includes(item.voucherMode)&&!item.isMultiVoucher)return openLegacyCashEditor(item);if(item?.isOpeningBalance)return openImportedOpeningVoucher(item);
+function openTxModal(item) {item=ratibCurrentVoucherDocument(item);if(!item)return;ratibClearTextSearchAfterTargetOpen();if(item.isMultiVoucher&&!item.isOpeningBalance&&!item.commerceId)return openMultiVoucherEditor(item);if(item?.commerceId){showToast('مستند تجاري مرتبط بالمخزون؛ لا يعدل من شاشة السندات.','warn');return;}if(item&&!item.isOpeningBalance&&['income','spend'].includes(item.voucherMode)&&!item.isMultiVoucher)return openLegacyCashEditor(item);if(item?.isOpeningBalance)return openImportedOpeningVoucher(item);
   activeEditingTx = item; lastPrintedTx = item; preparePrintVoucherTemplate(item);
   document.getElementById('modalSubtitle').textContent = `📅 تاريخ السند: ${item.date} | رقم السند: #${item.seqNum || '-'}`;
   setExistingAccountForEdit(selEditDebitAcc,item.debitAccount,item.debitAccountId);
@@ -7789,41 +7789,73 @@ function renderAllData(force=false) {
 
 // Reset temporary search text after successfully locating a target.
 // Never modify the selected account, journal contents, dates or saved data.
+// A search session ends only after a real account/voucher has been opened.
+// Date inputs for vouchers, stored account names and financial amounts are excluded.
 function ratibClearTextSearchAfterTargetOpen(){
-  if(currentActiveTab==='pageLedger'){
-    const field=document.getElementById('ledgerSearchInput');
-    const hadQuery=!!(field?.value||currentLedgerSearchQuery);
-    if(field)field.value='';
-    currentLedgerSearchQuery='';
-    if(hadQuery){
-      ledgerVisibleLimit=50;
-      clearTimeout(ledgerRenderTimer);
-      requestAnimationFrame(()=>{if(currentActiveTab==='pageLedger')renderAllData(true);});
-    }
-  }else if(currentActiveTab==='pageAccountOperations'){
-    const field=document.getElementById('ratibAccountMovementSearchInput');
-    const hadQuery=!!(field?.value||accountOpsState.movementSearch);
-    if(field)field.value='';
-    accountOpsState.movementSearch='';
-    if(hadQuery){
-      accountOpsState.viewPages={};
-      clearTimeout(_ratibStatementSearchTimer);
-      requestAnimationFrame(()=>{
-        if(currentActiveTab==='pageAccountOperations'&&accountOpsState.accountName&&
-           accountOpsUi.panelId==='accountOperationsStandalonePanel')
-          renderAccountOperations(accountOpsState.accountName,accountOpsState.scopeNames);
-      });
-    }
-  }else if(currentActiveTab==='pageReports'&&activeReportTab==='accounts'){
-    const field=document.getElementById('statementSearchInput');
-    const hadQuery=!!(field?.value||currentStatementSearchQuery);
-    if(field)field.value='';
-    currentStatementSearchQuery='';
-    if(hadQuery)requestAnimationFrame(()=>{
-      if(currentActiveTab==='pageReports'&&activeReportTab==='accounts')runAccountStatement();
+  const active=currentActiveTab;
+  window.RatibHomeSmartSearchReset?.();
+  window.RatibDirectStatement171?.clearSearch?.();
+  const clearInput=id=>{const field=document.getElementById(id);if(!field)return false;const used=!!field.value;field.value='';return used;};
+  clearInput('accountsPagerSearchInput');
+  clearInput('chartAccountSearchInput');
+  const pagerPopup=document.getElementById('accountsPagerSuggestions');
+  if(pagerPopup){pagerPopup.hidden=true;pagerPopup.replaceChildren();}
+  clearInput('globalSearchInput');
+
+  const ledgerUsed=clearInput('ledgerSearchInput')||!!currentLedgerSearchQuery;
+  currentLedgerSearchQuery='';
+  const dateValues=window.RatibLedgerDateFilter177?.values?.()||{};
+  const ledgerDateUsed=!!(dateValues.from||dateValues.to);
+  if(ledgerDateUsed){
+    window.RatibLedgerDateFilter177?.clear?.(false);
+    const fiscal=document.getElementById('ratibFiscalLedgerYear');
+    if(fiscal?.value==='all'&&fiscal.querySelector('option[value="auto"]'))fiscal.value='auto';
+  }
+
+  const hadMovement=!!(accountOpsState.movementSearch||document.getElementById('ratibAccountMovementSearchInput')?.value);
+  const hadAccountDates=!!(accountOpsState.from||accountOpsState.to||
+    document.getElementById('accountOpsFromDate')?.value||document.getElementById('accountOpsToDate')?.value);
+  clearInput('ratibAccountMovementSearchInput');
+  clearInput('accountOpsFromDate');
+  clearInput('accountOpsToDate');
+  accountOpsState.movementSearch='';
+  accountOpsState.from='';accountOpsState.to='';
+  accountOpsState.filtered=accountOpsState.currency!=='ALL';
+  accountOpsState.viewPages={};
+  clearTimeout(_ratibStatementSearchTimer);
+  window.RatibStatementToolbar?.close?.();
+  document.getElementById('accountAdvancedSearchPanel')?.classList.add('hidden');
+
+  const hadReportQuery=!!currentStatementSearchQuery||!!document.getElementById('statementSearchInput')?.value;
+  const reportDatesUsed=!!(reportAdv.active||reportAdv.from||reportAdv.to||
+    document.getElementById('reportAdvFrom')?.value||document.getElementById('reportAdvTo')?.value||
+    (document.getElementById('reportFilterType')?.value==='custom'));
+  clearInput('statementSearchInput');
+  clearInput('reportAdvFrom');
+  clearInput('reportAdvTo');
+  currentStatementSearchQuery='';
+  reportAdv={from:'',to:'',currency:'ALL',active:false};
+  const reportCurrency=document.getElementById('reportAdvCurrency');
+  if(reportCurrency)reportCurrency.value='ALL';
+  if(active==='pageReports'&&document.getElementById('reportFilterType')?.value==='custom'){
+    clearInput('reportStartDate');clearInput('reportEndDate');
+    const period=document.getElementById('reportFilterType');
+    period.value='all';period.dispatchEvent(new Event('change',{bubbles:true}));
+  }
+  if(active==='pageLedger'&&(ledgerUsed||ledgerDateUsed)){
+    ledgerVisibleLimit=50;clearTimeout(ledgerRenderTimer);
+    requestAnimationFrame(()=>{if(currentActiveTab==='pageLedger')renderAllData(true);});
+  }else if(active==='pageAccountOperations'&&(hadMovement||hadAccountDates)){
+    requestAnimationFrame(()=>{
+      if(currentActiveTab==='pageAccountOperations'&&accountOpsState.accountName&&
+         accountOpsUi.panelId==='accountOperationsStandalonePanel')
+        renderAccountOperations(accountOpsState.accountName,accountOpsState.scopeNames);
     });
+  }else if(active==='pageReports'&&(hadReportQuery||reportDatesUsed)){
+    requestAnimationFrame(()=>{if(currentActiveTab==='pageReports')runAccountStatement();});
   }
 }
+window.RatibResetSearchAfterTargetOpen=ratibClearTextSearchAfterTargetOpen;
 
 function openDocumentDetailsModal(item) {
   item=ratibCurrentVoucherDocument(item);if(!item)return;
@@ -9371,6 +9403,7 @@ function renderAccountOperations(accountName,scopeNames=null,ui=null){
 }
 function openAccountFromPager(accountName, scopeNames=null, currency=null, aggregate=false){
   if(!accountName)return;
+  ratibClearTextSearchAfterTargetOpen();
   window.RatibHomeSmartSearchReset?.();
   const chartSearch=document.getElementById('chartAccountSearchInput');if(chartSearch)chartSearch.value='';
   // Text is a navigation query, distinct from the chosen account identity.
@@ -14034,6 +14067,7 @@ function openManualOpeningVoucher(){
 function openImportedOpeningVoucher(item){
  try{
  const doc=importedOpeningDocument(item),modal=importedOpeningModal();
+ ratibClearTextSearchAfterTargetOpen();
  for(const id of ['longPressConfirmModal','txModal','importedRecordModal']){const old=document.getElementById(id);if(old?.classList.contains('show')){releaseRatibOverlay(old,false);old.classList.remove('show');}}
  importedOpeningEdit={key:importedOpeningKey(item),before:JSON.stringify(doc.records),rows:cloneData(doc.records),manual:!!doc.isManualOpeningVoucher,dirty:false,busy:false};setOpeningEditorTitle(importedOpeningEdit.manual);
  document.getElementById('importedOpeningSeq').value=doc.seqNum||1;document.getElementById('importedOpeningSeq').oninput=()=>{if(importedOpeningEdit)importedOpeningEdit.dirty=true;};document.getElementById('importedOpeningError').textContent='';

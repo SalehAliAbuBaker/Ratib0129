@@ -7801,6 +7801,16 @@ function ratibClearTextSearchAfterTargetOpen(){
   const pagerPopup=document.getElementById('accountsPagerSuggestions');
   if(pagerPopup){pagerPopup.hidden=true;pagerPopup.replaceChildren();}
   clearInput('globalSearchInput');
+  // Additional modules may mount their own text search fields dynamically.
+  // Clear only transient search controls, never account selectors or voucher data.
+  const known=new Set(['ratibSmartInput','ratibDirectStatementSearch',
+    'ledgerSearchInput','ratibAccountMovementSearchInput','statementSearchInput',
+    'chartAccountSearchInput','accountsPagerSearchInput','globalSearchInput']);
+  document.querySelectorAll('input[type="search"]').forEach(field=>{
+    if(known.has(field.id)||field.classList.contains('sd-search-input')||
+       field.closest('.searchable-wrap,.voucher-account-search'))return;
+    if(field.value){field.value='';field.dispatchEvent(new Event('input',{bubbles:true}));}
+  });
 
   const ledgerUsed=clearInput('ledgerSearchInput')||!!currentLedgerSearchQuery;
   currentLedgerSearchQuery='';

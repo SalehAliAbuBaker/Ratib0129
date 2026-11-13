@@ -11,7 +11,7 @@ const sw=fs.readFileSync('sw.js','utf8');
 assert.match(html,/ratib-statement-toolbar-3\.6\.189\.js/);
 assert.match(html,/ratib-statement-toolbar-3\.6\.189\.css/);
 assert.match(html,/الإصدار 3\.6\.193/);
-assert.match(sw,/smart-account-search-reset-3\.6\.193/);
+assert.match(sw,/direct-leaf-typeahead-date-search-reset-3\.6\.193/);
 assert.match(sw,/ratib-statement-toolbar-3\.6\.189\.js/);
 assert.match(css,/#pageAccountOperations \.ratib-reconcile-bar,/);
 assert.match(css,/body #pageAccountOperations \.ratib-reconcile-bar:has\(\.ratib-match-options\)\s*\{\s*display:none!important/,'stronger rule hides legacy top matching box');

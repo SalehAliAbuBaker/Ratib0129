@@ -29,6 +29,7 @@ const ctx={
  accountOpsState:{accountName:'صندوق المؤسسة',scopeNames:['صندوق المؤسسة'],movementSearch:'',viewPages:{}},
  accountOpsUi:{panelId:'accountOperationsStandalonePanel'},
  getAccountOpsDate:t=>t.isoDate||'',getTransactionDisplayType:t=>t.type||'',
+ accountCurrencyLabel:code=>({YER:'ريال يمني',SAR:'ريال سعودي',USD:'دولار أمريكي'}[code]||code),
  clearTimeout:()=>{},setTimeout:fn=>{fn();return 1;},
  renderAccountOperations:()=>ctx.ratibApplyAccountMovementSearch(),
 };

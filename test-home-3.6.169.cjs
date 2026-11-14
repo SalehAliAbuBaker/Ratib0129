@@ -1,9 +1,9 @@
 'use strict';
 const assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('node:vm'),{JSDOM}=require('jsdom');
 const html=fs.readFileSync('index.html','utf8'),sw=fs.readFileSync('sw.js','utf8'),src=fs.readFileSync('ratib-home-3.6.169.js','utf8'),css=fs.readFileSync('ratib-home-3.6.169.css','utf8'),fold=fs.readFileSync('ratib-trial-home-sidebar-3.6.143.js','utf8'),head=fs.readFileSync('ratib-home-3.6.167.js','utf8');
-new vm.Script(src);assert.equal(require('./package.json').version,'3.6.194');
-assert(html.includes('"version":"3.6.194","build":"p19400"'));assert(sw.includes('"version":"3.6.194","build":"p19400"'));
-for(const file of ['ratib-home-3.6.169.js','ratib-home-3.6.169.css']){assert(html.includes(file+'?v=3.6.194'));assert(sw.includes(file));}
+new vm.Script(src);assert.equal(require('./package.json').version,'3.6.195');
+assert(html.includes('"version":"3.6.195","build":"p19500"'));assert(sw.includes('"version":"3.6.195","build":"p19500"'));
+for(const file of ['ratib-home-3.6.169.js','ratib-home-3.6.169.css']){assert(html.includes(file+'?v=3.6.195'));assert(sw.includes(file));}
 assert(fold.includes('setFold(true, false);'),'Dashboard must start folded regardless of last saved state');
 assert(fold.includes('toggle.addEventListener('),'Dashboard manual reopening must remain active');
 assert(head.includes('ar-SA-u-ca-islamic-umalqura-nu-latn')&&head.includes('ar-YE-u-ca-gregory-nu-latn'),'Header dates must use Latin digits');

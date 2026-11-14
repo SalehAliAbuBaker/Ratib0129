@@ -15,7 +15,7 @@ assert(trial,'A unified trial release is required');
 assert(sw.includes('const APP_RELEASE={"version":"'+trial+'"'),'Worker and page must match');
 assert(html.includes('الإصدار '+trial),'Visible release should match trial');
 assert(sw.includes(trial),'Offline cache should mention current release');
-assert(html.includes('ratib-amount-edit-3.6.97.js?v=3.6.194'),'Amount-edit asset kept unchanged');
+assert(html.includes('ratib-amount-edit-3.6.97.js?v=3.6.195'),'Amount-edit asset kept unchanged');
 assert(/ratib-commerce-3\.6\.131\.js\?v=3\.6\.\d+/.test(html),'Commerce asset must retain its versioned URL');
 assert.doesNotMatch(html,/ratibSelectNext/);
 assert.doesNotMatch(amount,/input\.select\(\)/);

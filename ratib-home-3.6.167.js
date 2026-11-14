@@ -55,7 +55,7 @@ function txs(){if(!ready()||typeof getAllTransactions!=='function')return [];try
 function matchText(t){const m=t.multiVoucher||{};return [t.seq,t.id,t.voucherNumber,t.date,t.account,t.accountName,t.debitAcc,t.creditAcc,t.description,t.note,t.notes,t.beneficiary,t.payer,t.amount,t.currency,t.budgetCategory,m.mode,m.seq,m.beneficiary,...(Array.isArray(m.lines)?m.lines.slice(0,20).map(y=>[y.account,y.accountName,y.notes,y.amount].join(' ')):[])].filter(x=>x!==undefined&&x!==null).join(' ');}
 // The dashboard query is a temporary navigation aid, never a stored selection.
 function resetSearchSession(){
- input.value='';select.value='accounts';results.hidden=true;results.replaceChildren();current=[];
+ input.value='';select.value='accounts';results.hidden=true;results.replaceChildren();current=[];searchFocused=false;
 }
 window.RatibHomeSmartSearchReset=resetSearchSession;
 function goto(which,term){
@@ -72,31 +72,64 @@ function goto(which,term){
  const field=by('ledgerSearchInput');
  if(field){field.value=term;field.dispatchEvent(new Event('input',{bubbles:true}));}
 }
-let current=[];
+let current=[],searchFocused=false;
 function draw(){
-const term=input.value.trim(),type=select.value,needle=fold(term);results.replaceChildren();current=[];results.hidden=!term;if(!term)return;
-if(!ready()){results.append(node('p','ratib-smart-empty','افتح التطبيق أولًا لعرض النتائج.'));return;}
-if(type!=='accounts'){let count=0;for(const t of txs()){if(count>=8)break;if(fold(matchText(t)).includes(needle)){current.push({type:'op',data:t,label:('سند '+String(t.seq||t.voucherNumber||t.id||'')+' — '+String(t.note||t.description||t.date||'عملية مالية')).slice(0,115)});count++;}}}
-if(type!=='operations'){let count=0;for(const a of accounts()){if(count>=8)break;if(fold(a.name+' '+a.code).includes(needle)){current.push({type:'account',data:a,label:a.name+' · '+a.code});count++;}}}
-if(!current.length)results.append(node('p','ratib-smart-empty','لا توجد نتائج مطابقة. استخدم البحث التفصيلي.'));
-for(const item of current){const b=node('button','ratib-smart-result',item.label);b.type='button';b.prepend(node('span','ratib-result-kind',item.type==='op'?'عملية':'حساب'));
-b.addEventListener('click',()=>{
- if(item.type==='account'){
-   resetSearchSession();
-   if(typeof openAccountFromPager==='function')openAccountFromPager(item.data.name,[item.data.name]);
- }else{
-   goto('operations',String(item.data.seq||item.data.voucherNumber||item.data.id||term));
-   if(typeof openDocumentDetailsModal==='function')openDocumentDetailsModal(item.data);
+ const term=input.value.trim(),type=select.value,needle=fold(term),fav=window.RatibAccountFavorites;
+ const selectedFavorites=type!=='operations'?(fav?.all?.()||[]):[];
+ const pinned=!term&&searchFocused&&type==='accounts'?selectedFavorites:[];
+ const favoriteNames=new Set(selectedFavorites.map(a=>a.name));
+ results.replaceChildren();current=[];
+ results.hidden=!term&&!searchFocused;
+ if(!term&&type!=='accounts')results.hidden=true;
+ if(!term&&(!searchFocused||type!=='accounts'))return;
+ if(!ready()){results.append(node('p','ratib-smart-empty','افتح التطبيق أولًا لعرض النتائج.'));return;}
+ if(type!=='accounts'&&term){
+  let count=0;for(const t of txs()){if(count>=8)break;if(fold(matchText(t)).includes(needle)){
+   current.push({type:'op',data:t,label:('سند '+String(t.seq||t.voucherNumber||t.id||'')+' — '+String(t.note||t.description||t.date||'عملية مالية')).slice(0,115)});count++;
+  }}
  }
-});results.append(b);}
-// Account matches are actionable leaf accounts: no second search or aggregate page.
-if(type==='operations' || type==='all'){
- const more=node('button','ratib-smart-more','المزيد من العمليات');
- more.type='button';more.addEventListener('click',()=>goto('operations',term));
- results.append(more);
+ if(type!=='operations'){
+  let count=0;
+  const list=term?accounts().filter(a=>fold(a.name+' '+a.code).includes(needle)):pinned;
+  // Favorite accounts are prioritized only among matching results; other accounts remain searchable.
+  list.sort((a,b)=>Number(favoriteNames.has(b.name))-Number(favoriteNames.has(a.name)));
+  for(const a of list){if(term&&count>=8)break;current.push({type:'account',data:a,label:a.name+' · '+a.code});count++;}
+ }
+ if(!current.length){
+  results.append(node('p','ratib-smart-empty',term?'لا توجد نتائج مطابقة. استخدم البحث التفصيلي.':'لا توجد حسابات مفضلة. اكتب اسم الحساب لإضافته بالنجمة.'));
+ }
+ for(const item of current){
+  const b=node('button','ratib-smart-result',item.label);b.type='button';
+  b.prepend(node('span','ratib-result-kind',item.type==='op'?'عملية':'حساب'));
+  b.addEventListener('click',()=>{
+   if(item.type==='account'){
+    resetSearchSession();
+    if(typeof openAccountFromPager==='function'){
+     openAccountFromPager(item.data.name,[item.data.name]);
+     if(typeof accountOperationsReturnTab!=='undefined')accountOperationsReturnTab='pageDashboard';
+    }
+   }else{
+    goto('operations',String(item.data.seq||item.data.voucherNumber||item.data.id||term));
+    if(typeof openDocumentDetailsModal==='function')openDocumentDetailsModal(item.data);
+   }
+  });
+  if(item.type==='account'){
+   const wrapper=node('div','ratib-smart-result-row'),star=node('button','ratib-smart-star',favoriteNames.has(item.data.name)?'★':'☆');
+   star.type='button';star.title='إضافة الحساب إلى المفضلة أو إزالته';star.setAttribute('aria-label',star.title+': '+item.data.name);
+   star.setAttribute('aria-pressed',String(favoriteNames.has(item.data.name)));
+   star.addEventListener('click',e=>{e.stopPropagation();fav?.toggle?.(item.data);});
+   wrapper.append(b,star);results.append(wrapper);
+  }else results.append(b);
+ }
+ if(term&&(type==='operations'||type==='all')){
+  const more=node('button','ratib-smart-more','المزيد من العمليات');more.type='button';
+  more.addEventListener('click',()=>goto('operations',term));results.append(more);
+ }
 }
-}
-input.addEventListener('input',draw);select.addEventListener('change',draw);
+input.addEventListener('focus',()=>{searchFocused=true;draw();});
+input.addEventListener('input',()=>{searchFocused=true;draw();});select.addEventListener('change',draw);
+window.addEventListener('ratib:account-favorites-updated',()=>{if(searchFocused)draw();});
+document.addEventListener('pointerdown',e=>{if(!host.contains(e.target)){searchFocused=false;results.hidden=true;}});
 input.addEventListener('keydown',e=>{
  if(e.key==='Enter'){
    e.preventDefault();

@@ -8,7 +8,7 @@ const js=fs.readFileSync('ratib-compound-layout-3.6.142.js','utf8');
 const html=fs.readFileSync('index.html','utf8');
 const sw=fs.readFileSync('sw.js','utf8');
 const pkg=JSON.parse(fs.readFileSync('package.json','utf8'));
-assert.equal(pkg.version,'3.6.198');
+assert.equal(pkg.version,'3.6.199');
 assert(html.includes('ratib-compound-layout-3.6.142.css?v=3.6.148'));
 assert(html.includes('ratib-compound-layout-3.6.142.js?v=3.6.148'));
 assert(sw.includes('compound-compact-auto-signature-tafqit-cash-reference-amount-currency-compound-ref-simple-ref-totals-cash-colors-cash-preview-return-3.6.162'));

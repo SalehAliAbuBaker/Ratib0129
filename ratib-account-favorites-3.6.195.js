@@ -56,6 +56,13 @@ function toggle(account){
  if(i>=0)list.splice(i,1);else list.push(found);
  return persist(list);
 }
+function requestToggle(account){
+ if(has(account)){
+  const label=String(account?.name||'هذا الحساب');
+  if(!window.confirm('هل تريد إزالة «'+label+'» من الحسابات المفضلة؟'))return false;
+ }
+ return toggle(account);
+}
 function move(account,step){
  const list=all(),i=list.findIndex(x=>keyOf(x)===keyOf(account)),j=i+step;
  if(i<0||j<0||j>=list.length)return false;
@@ -95,9 +102,9 @@ function render(){
      b.setAttribute('aria-label',(step<0?'تقديم ':'تأخير ')+a.name);
      b.addEventListener('click',()=>move(a,step));actions.append(b);
     }
-    const remove=make('button','ratib-account-fav-action','☆');remove.type='button';
+    const remove=make('button','ratib-account-fav-action ratib-account-fav-remove','إزالة');remove.type='button';
     remove.title='إزالة من المفضلة';remove.setAttribute('aria-label','إزالة '+a.name+' من المفضلة');
-    remove.addEventListener('click',()=>toggle(a));actions.append(remove);tile.append(actions);
+    remove.addEventListener('click',()=>requestToggle(a));actions.append(remove);tile.append(actions);
    }
    grid.append(tile);
   }
@@ -117,7 +124,7 @@ function updateStatementStar(){
  statementStar.title=pinned?'إزالة الحساب من المفضلة':'إضافة الحساب إلى المفضلة';
  statementStar.setAttribute('aria-label',statementStar.title);
  statementStar.setAttribute('aria-pressed',String(pinned));
- statementStar.onclick=()=>toggle(account);
+ statementStar.onclick=()=>requestToggle(account);
 }
 function mount(){
  const inventory=$('ratibHomeInventory'),home=$('dashboardHomeContent');
@@ -152,6 +159,6 @@ function mount(){
  window.addEventListener('focus',render);
  document.addEventListener('visibilitychange',()=>{if(!document.hidden)render();});
 }
-window.RatibAccountFavorites=Object.freeze({all,has,toggle,move,open,refresh:render});
+window.RatibAccountFavorites=Object.freeze({all,has,toggle,requestToggle,move,open,refresh:render});
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',mount,{once:true});else mount();
 })();

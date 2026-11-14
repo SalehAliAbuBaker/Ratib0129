@@ -63,12 +63,24 @@ function html(key){
  if(!config.enabled||!config.people.length)return '';
  return '<div class="ratib-output-signatures">'+config.people.map(p=>'<div class="ratib-output-signature"><b>'+htmlEscape(p.label)+'</b><span>الاسم: '+(p.name?htmlEscape(p.name):'____________')+'</span><span>التوقيع: ____________</span></div>').join('')+'</div>';
 }
-function drawCanvas(ctx,key,width,y){
+function drawCanvas(ctx,key,width,y,options){
  const data=get(key);
  if(data.automatic){
-  ctx.save();ctx.fillStyle='#111827';ctx.direction='rtl';ctx.textAlign='center';
-  ctx.font='bold 18px Tajawal,Arial,sans-serif';
-  ctx.fillText(AUTOMATIC_NOTICE,width/2,y+32,width-80);
+  ctx.save();ctx.direction='rtl';
+  const balance=String(options?.rightNote||'').trim();
+  if(balance){
+   ctx.textAlign='right';
+   ctx.fillStyle=options?.rightNoteNegative?'#c62828':'#111827';
+   ctx.font='500 15px Tajawal,Arial,sans-serif';
+   ctx.fillText(balance,width-52,y+32,width*.71);
+   ctx.fillStyle='#111827';ctx.textAlign='left';
+   ctx.font='bold 15px Tajawal,Arial,sans-serif';
+   ctx.fillText(AUTOMATIC_NOTICE,40,y+32,width*.27);
+  }else{
+   ctx.fillStyle='#111827';ctx.textAlign='center';
+   ctx.font='bold 18px Tajawal,Arial,sans-serif';
+   ctx.fillText(AUTOMATIC_NOTICE,width/2,y+32,width-80);
+  }
   ctx.restore();return 66;
  }
  if(!data.enabled||!data.people.length)return 0;
@@ -87,12 +99,22 @@ function drawCanvas(ctx,key,width,y){
 function height(key){const v=get(key);return v.automatic?66:v.enabled&&v.people.length?Math.ceil(v.people.length/4)*91+12:0;}
 function fillVoucher(key){
  const element=document.querySelector('.pv-signatures');if(!element)return;
+ element.querySelector(':scope > .ratib-cash-post-balance')?.remove();
  for(const child of element.children){if(!child.classList.contains('ratib-sig-print-host'))child.style.display='none';}
  let host=element.querySelector('.ratib-sig-print-host');
  if(!host){host=document.createElement('div');host.className='ratib-sig-print-host';element.append(host);}
  host.style.width='100%';host.innerHTML=html(key);
  element.classList.add('ratib-signatures-managed');
+ element.classList.remove('ratib-cash-balance-signature');
+ if(get(key).automatic){
+  const balance=element.parentElement?.querySelector('#pvTableBox .ratib-cash-post-balance');
+  if(balance){
+   element.insertBefore(balance,host);
+   element.classList.add('ratib-cash-balance-signature');
+  }
+ }
 }
+
 let selected='payment',draft=null;
 function field(name,type='text',value=''){
  const inp=document.createElement('input');inp.type=type;inp.value=value;inp.className='ratib-sig-input';inp.setAttribute('aria-label',name);inp.maxLength=name==='name'?90:64;return inp;

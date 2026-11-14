@@ -84,4 +84,47 @@ assert(!ui.includes('getCurrentAccountBalance=function'),'In-form account balanc
 const signatures=require('node:fs').readFileSync('ratib-document-signatures-3.6.148.js','utf8');
 assert(signatures.includes("element.insertBefore(balance,host)"),'Automatic signature is laid out beside balance');
 assert(signatures.includes('rightNoteNegative'),'PDF sign and balance share one baseline');
+
+/* Zero display rule: suppress every unchanged zero currency, except one
+   that was cleared from a nonzero amount by this exact saved voucher. */
+saved.push(
+ {id:'r-zero-before',isoDate:'2026-11-08',status:'posted',debitAccount:'حساب قبض تمت تصفيته',creditAccount:'آخر',amount:50,currency:'SAR'},
+ {id:'r-zero-usd-a',isoDate:'2026-11-08',status:'posted',debitAccount:'حساب قبض تمت تصفيته',creditAccount:'آخر',amount:10,currency:'USD'},
+ {id:'r-zero-usd-b',isoDate:'2026-11-08',status:'posted',creditAccount:'حساب قبض تمت تصفيته',debitAccount:'آخر',amount:10,currency:'USD'},
+ {id:'r-zero-v',multiVoucherId:'settleReceipt',isoDate:'2026-11-14',status:'posted',voucherMode:'income',creditAccount:'حساب قبض تمت تصفيته',debitAccount:'صندوق المؤسسة',amount:50,currency:'SAR'},
+ {id:'s-zero-before',isoDate:'2026-11-08',status:'posted',creditAccount:'حساب صرف تمت تصفيته',debitAccount:'آخر',amount:80,currency:'YER'},
+ {id:'s-zero-v',multiVoucherId:'settlePayment',isoDate:'2026-11-14',status:'posted',voucherMode:'spend',debitAccount:'حساب صرف تمت تصفيته',creditAccount:'صندوق المؤسسة',amount:80,currency:'YER'},
+ {id:'no-op-credit',multiVoucherId:'netZero',isoDate:'2026-11-14',status:'posted',voucherMode:'income',creditAccount:'تسوية صفرية',debitAccount:'صندوق المؤسسة',amount:40,currency:'YER'},
+ {id:'no-op-debit',multiVoucherId:'netZero',isoDate:'2026-11-14',status:'posted',voucherMode:'income',debitAccount:'تسوية صفرية',creditAccount:'صندوق المؤسسة',amount:40,currency:'YER'},
+ {id:'multi-before-yer',isoDate:'2026-11-08',status:'posted',creditAccount:'حساب متعدد',debitAccount:'آخر',amount:10,currency:'YER'},
+ {id:'multi-before-sar',isoDate:'2026-11-08',status:'posted',debitAccount:'حساب متعدد',creditAccount:'آخر',amount:40,currency:'SAR'},
+ {id:'multi-before-usd-1',isoDate:'2026-11-08',status:'posted',debitAccount:'حساب متعدد',creditAccount:'آخر',amount:10,currency:'USD'},
+ {id:'multi-before-usd-2',isoDate:'2026-11-08',status:'posted',creditAccount:'حساب متعدد',debitAccount:'آخر',amount:10,currency:'USD'},
+ {id:'multi-v-yer',multiVoucherId:'multiSettle',isoDate:'2026-11-14',status:'posted',voucherMode:'income',creditAccount:'حساب متعدد',debitAccount:'صندوق المؤسسة',amount:2,currency:'YER'},
+ {id:'multi-v-sar',multiVoucherId:'multiSettle',isoDate:'2026-11-14',status:'posted',voucherMode:'income',creditAccount:'حساب متعدد',debitAccount:'صندوق المؤسسة',amount:40,currency:'SAR'}
+);
+const clearedReceipt={...receipt,id:'settleReceipt',lines:[{account:'حساب قبض تمت تصفيته',currency:'SAR',amount:50}]};
+const clearedPayment={...spent,id:'settlePayment',lines:[{account:'حساب صرف تمت تصفيته',currency:'YER',amount:80}]};
+const clearReceiptText='الرصيد الحالي بعد السند: ريال سعودي: صفر';
+const clearPaymentText='الرصيد الحالي بعد السند: ريال يمني: صفر';
+assert.equal(api.model(clearedReceipt).postBalance,clearReceiptText,'Receipt equality with pre-balance shows zero');
+assert.equal(api.model(clearedPayment).postBalance,clearPaymentText,'Payment equality with pre-balance shows zero');
+assert(!api.model(clearedReceipt).postBalance.includes('دولار أمريكي'),'Previously zero but unchanged currency is suppressed');
+assert(api.html(clearedReceipt).includes(clearReceiptText),'HTML prints the settlement exception');
+assert.equal(api.model({...receipt,id:'netZero',lines:[{account:'تسوية صفرية',currency:'YER',amount:40}]}).postBalance,'',
+ 'Voucher with zero NET effect on already-zero account must not print a zero');
+const mixed={...receipt,id:'multiSettle',lines:[
+ {account:'حساب متعدد',currency:'YER',amount:2},
+ {account:'حساب متعدد',currency:'SAR',amount:40}
+]};
+const mixedExpected='الرصيد الحالي بعد السند: ريال يمني: دائن 12، ريال سعودي: صفر';
+assert.equal(api.model(mixed).postBalance,mixedExpected,'Mixed balance shows nonzero and settled zero, suppresses unchanged USD zero');
+assert(api.html(mixed).includes(mixedExpected),'Mixed HTML print is consistent');
+canvasText=[];
+api.pdf(clearedPayment);
+assert(canvasText.includes(clearPaymentText),'PDF preserves cleared-to-zero exception');
+canvasText=[];
+api.pdf(mixed);
+assert(canvasText.includes(mixedExpected),'PDF shows mixed nonzero and cleared zero only');
+
 console.log('PASS: default picker, credited receipt/debited spend, all currencies, reverse sign/red, PDF, unchanged input');

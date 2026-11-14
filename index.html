@@ -284,6 +284,15 @@ option { color: var(--text); font-weight: 800; }
 .searchable-arrow { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--muted); font-size: 1rem; pointer-events: none; }
 .searchable-dropdown { position: absolute; top: calc(100% + 6px); right: 0; left: 0; background: var(--card); border: 2px solid var(--border); border-radius: 10px; box-shadow: 0 10px 25px rgba(0,0,0,0.15); max-height: 240px; overflow-y: auto; z-index: 5000; display: none; }
 .searchable-dropdown.open { display: block; }
+/* Default-account choices belong to Settings, not to an overlay above Save. */
+#pageSettings :is(#wrapDefaultIncomeDebit,#wrapDefaultSpendCredit) > .searchable-dropdown {
+  position:static!important;top:auto!important;right:auto!important;left:auto!important;
+  width:100%!important;max-height:min(184px,35dvh)!important;
+  margin-top:6px;overflow-y:auto;overscroll-behavior:contain;
+  z-index:auto!important;box-shadow:0 3px 10px rgba(0,0,0,.08);
+}
+#pageSettings #saveDefaultAccountsBtn {position:relative;scroll-margin-bottom:calc(92px + env(safe-area-inset-bottom));}
+
 .sd-toolbar{position:sticky;top:0;z-index:3;display:flex;gap:6px;align-items:center;padding:6px 8px;background:var(--card);border-bottom:1px solid var(--border)}
 .sd-search-btn{flex:0 0 auto;width:34px;height:34px;padding:0;border:1px solid var(--border);border-radius:8px;background:var(--bg);cursor:pointer;font-size:1rem;line-height:1}
 .sd-toolbar.searching .sd-search-btn{border-color:var(--accent);background:color-mix(in srgb,var(--accent) 12%,var(--card))}
@@ -6600,7 +6609,8 @@ class SearchableSelect {
     this.visibleItems = [];
     this.inlineOpen = false;
     this.isSimpleAccount=['wrapDebitAcc','wrapCreditAcc'].includes(wrapId);
-    this.isAccountSelector=isGrouped===true;
+    this.isDefaultAccountSelector=['wrapDefaultIncomeDebit','wrapDefaultSpendCredit'].includes(wrapId);
+    this.isAccountSelector=isGrouped===true&&!this.isDefaultAccountSelector;
     this.buildDropdownShell();
     this.input.setAttribute("role","combobox");this.input.setAttribute("aria-autocomplete","list");this.input.setAttribute("aria-controls",this.drop.id);this.input.setAttribute("aria-expanded","false");this.list.setAttribute("role","listbox");
     this.initEvents();

@@ -39,7 +39,7 @@ const saved=[
  {id:'mv3_0',multiVoucherId:'mv3',isoDate:'2026-11-13',status:'posted',voucherMode:'income',creditAccount:'إيرادات مستقرة',debitAccount:'صندوق المؤسسة',amount:7,currency:'YER'},
  {id:'late',isoDate:'2026-11-14',status:'posted',creditAccount:'إيرادات',debitAccount:'افتتاحي',amount:700,currency:'YER'}
 ];
-const canvasText.length=0;
+const canvasText=[];
 const context={
  window:{},
  getAllTransactions:()=>saved,

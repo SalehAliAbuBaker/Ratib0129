@@ -4,7 +4,7 @@
 const KEY='account_favorites_v1';
 const $=id=>document.getElementById(id);
 const make=(tag,cls,label)=>{const e=document.createElement(tag);if(cls)e.className=cls;if(label!==undefined)e.textContent=label;return e;};
-let expanded=false,host,grid,status,expandBtn,statementStar;
+let host,grid,status,summaryCount,statementStar;
 function ready(){return !!window.__ratibProceedInitialized&&typeof store!=='undefined'&&typeof getCanonicalCatalog==='function';}
 function catalog(){
  if(!ready())return [];
@@ -83,11 +83,11 @@ function render(){
   grid.append(empty);
  }else{
   for(const [index,a] of list.entries()){
-   if(!expanded&&index>=3)break;
+   // When opened, show every saved account without requiring a second tap.
    const tile=make('div','ratib-account-fav-tile');
    const link=make('button','ratib-account-fav-link',a.name);link.type='button';link.title='فتح كشف حساب '+a.name;link.addEventListener('click',()=>open(a));
    tile.append(link);
-   if(expanded){
+   {
     const actions=make('div','ratib-account-fav-actions');
     for(const [label,step] of [['↑',-1],['↓',1]]){
      const b=make('button','ratib-account-fav-action',label);b.type='button';
@@ -102,9 +102,8 @@ function render(){
    grid.append(tile);
   }
  }
- status.textContent=list.length?list.length+' حسابات مفضلة':'حساباتك الأكثر استخدامًا';
- expandBtn.hidden=list.length<=3;expandBtn.textContent=expanded?'عرض ثلاثة فقط':'عرض جميع المفضلة ('+list.length+')';
- expandBtn.setAttribute('aria-expanded',String(expanded));
+ summaryCount.textContent=list.length?list.length+' حسابات':'لا توجد حسابات';
+ status.textContent=list.length?'اضغط على الحساب لفتح كشفه، أو استخدم الأسهم لترتيب القائمة.':'أضف الحسابات من البحث الذكي بالنجمة ☆.';
  updateStatementStar();
 }
 function updateStatementStar(){
@@ -123,15 +122,20 @@ function updateStatementStar(){
 function mount(){
  const inventory=$('ratibHomeInventory'),home=$('dashboardHomeContent');
  if(!home||host)return;
- host=make('section','ratib-account-favorites no-print');host.id='ratibAccountFavorites';host.setAttribute('aria-label','الحسابات المفضلة');
- const head=make('div','ratib-account-fav-head');
+ host=make('details','ratib-account-favorites no-print');host.id='ratibAccountFavorites';
+ host.setAttribute('aria-label','الحسابات المفضلة');
+ // Native <details> is closed by default and supports keyboard, mouse and touch.
+ const summary=make('summary','ratib-account-fav-summary');
  const title=make('strong','ratib-account-fav-heading','☆ الحسابات المفضلة');
+ summaryCount=make('small','ratib-account-fav-count','لا توجد حسابات');
+ const chevron=make('span','ratib-account-fav-chevron','⌄');chevron.setAttribute('aria-hidden','true');
+ summary.append(title,summaryCount,chevron);
+ const head=make('div','ratib-account-fav-head');
  const add=make('button','ratib-account-fav-add','＋ إضافة حساب');add.type='button';add.addEventListener('click',addFromSearch);
- head.append(title,add);grid=make('div','ratib-account-fav-grid');grid.id='ratibAccountFavoritesGrid';
+ head.append(add);grid=make('div','ratib-account-fav-grid');grid.id='ratibAccountFavoritesGrid';
  const foot=make('div','ratib-account-fav-footer');status=make('small','ratib-account-fav-status');
- expandBtn=make('button','ratib-account-fav-expand');expandBtn.type='button';expandBtn.addEventListener('click',()=>{expanded=!expanded;render();});
- foot.append(status,expandBtn);host.append(head,grid,foot);
- if(inventory)inventory.after(host);else home.append(host);
+ foot.append(status);host.append(summary,head,grid,foot);
+ if(inventory)inventory.before(host);else home.append(host);
  const titleEl=$('accountOperationsScreenTitle');
  if(titleEl&&!$('ratibAccountStatementFavorite')){
   statementStar=make('button','ratib-statement-fav-star no-print','☆');

@@ -1,0 +1,25 @@
+/* Ratib 3.6.195 — compact account favorites under inventory. No accounting styles changed. */
+@media screen{
+#dashboardHomeContent>#ratibAccountFavorites{order:4}
+.ratib-account-favorites{min-width:0;margin:0 0 12px;padding:12px;border:1px solid var(--border,#dbe5df);border-radius:15px;background:var(--card,#fff);color:var(--text,#18332a)}
+.ratib-account-fav-head,.ratib-account-fav-footer{display:flex;align-items:center;justify-content:space-between;gap:9px;min-width:0}
+.ratib-account-fav-heading{font-weight:800;font-size:.98rem}
+.ratib-account-fav-add,.ratib-account-fav-expand{border:0;box-shadow:none;background:transparent;color:var(--accent,#0d5b45);font:700 .75rem/1.4 Tajawal,sans-serif;cursor:pointer;padding:7px 4px}
+.ratib-account-fav-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;margin:10px 0 6px;direction:rtl}
+.ratib-account-fav-tile{display:flex;flex-direction:column;min-width:0;border:1px solid var(--border,#dce5df);border-radius:12px;background:var(--bg,#f7faf8);overflow:hidden}
+.ratib-account-fav-link{font:700 .8rem/1.55 Tajawal,sans-serif;color:var(--text,#18332a);background:transparent;border:0;box-shadow:none;width:100%;min-height:58px;max-width:100%;padding:8px 6px;overflow-wrap:anywhere;white-space:normal;text-align:center;cursor:pointer}
+.ratib-account-fav-link:hover,.ratib-account-fav-link:focus-visible{outline:2px solid var(--accent,#0d5b45);outline-offset:-2px}
+.ratib-account-fav-actions{display:flex;justify-content:space-evenly;gap:1px;border-top:1px solid var(--border,#ddd)}
+.ratib-account-fav-action{font:700 .86rem Tajawal,sans-serif;color:var(--accent,#0d5b45);background:transparent;border:0;cursor:pointer;min-width:27px;min-height:30px}
+.ratib-account-fav-action:disabled{opacity:.3;cursor:default}
+.ratib-account-fav-status{font-size:.69rem;color:var(--muted,#718079)}
+.ratib-account-fav-empty{grid-column:1/-1;margin:0;padding:12px 6px;text-align:center;font-size:.76rem;color:var(--muted,#718079)}
+.ratib-smart-result-row{display:flex;align-items:stretch;gap:4px;min-width:0;border-bottom:1px solid var(--border,#eee)}
+.ratib-smart-result-row>.ratib-smart-result{flex:1;min-width:0;border-bottom:0}
+.ratib-smart-star{flex:none;min-width:40px;min-height:40px;border:0;background:transparent;color:var(--accent,#0d5b45);font-size:1.5rem;cursor:pointer}
+.ratib-smart-star[aria-pressed="true"]{color:#aa7b21}
+.ratib-statement-fav-star{display:inline-grid;place-items:center;margin-inline:7px;border:1px solid var(--border,#ddd);border-radius:50%;min-width:38px;min-height:38px;color:var(--accent,#0d5b45);background:var(--card,#fff);font-size:1.5rem}
+.ratib-statement-fav-star[aria-pressed="true"]{color:#aa7b21}
+#ratibAccountStatementFavorite[hidden]{display:none!important}
+}
+@media print{#ratibAccountFavorites,#ratibAccountStatementFavorite{display:none!important}}

@@ -1,4 +1,4 @@
-// Ratib 3.6.195 — action-only account suggestions and all search-session resets.
+// Ratib 3.6.196 — action-only account suggestions and all search-session resets.
 'use strict';
 const assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('node:vm');
 const {JSDOM}=require('jsdom');
@@ -6,9 +6,9 @@ const html=fs.readFileSync('index.html','utf8');
 const home=fs.readFileSync('ratib-home-3.6.167.js','utf8');
 const direct=fs.readFileSync('ratib-home-3.6.171.js','utf8');
 const pkg=require('./package.json'),sw=fs.readFileSync('sw.js','utf8');
-assert.equal(pkg.version,'3.6.195');
-assert.match(sw,/account-font-plus2-search-back-context-3\.6\.195/);
-assert.match(html,/الإصدار 3\.6\.195/);
+assert.equal(pkg.version,'3.6.196');
+assert.match(sw,/account-font-plus2-search-back-context-3\.6\.196/);
+assert.match(html,/الإصدار 3\.6\.196/);
 assert.match(home,/window\.RatibHomeSmartSearchReset=resetSearchSession/);
 assert.match(home,/openAccountFromPager\(item\.data\.name,\[item\.data\.name\]\)/);
 assert.doesNotMatch(home,/if\(item\.type==='account'\)goto\('accounts'/);
@@ -142,5 +142,5 @@ assert.equal(resetCtx.currentStatementSearchQuery,'');
 assert.equal(resetCtx.reportAdv.active,false);
 assert.equal(nodes.reportFilterType.value,'all');
 assert(calls.home>=3,'home search reset is included');
-console.log('PASS Ratib 3.6.195: leaf-only instant suggestions, no magnifier, session/date reset, financial fields preserved');
+console.log('PASS Ratib 3.6.196: leaf-only instant suggestions, no magnifier, session/date reset, financial fields preserved');
 pagerDOM.window.close();dropdownDOM.window.close();

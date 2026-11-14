@@ -43,6 +43,19 @@ function balanceAfterSavedVoucher(d){
   const active=accounts.filter(account=>saved.some(t=>trialTransactionLegs(t).some(l=>
    matches(l,account)&&Number(l[expected]||0)>0)));
   if(!active.length)return blank;
+  // Net movement made by THIS saved voucher in each account/currency.
+  // It distinguishes a settled balance from an unrelated zero balance.
+  const movement=new Map(active.map(account=>[account.id||account.name,new Map()]));
+  for(const tx of saved)for(const leg of trialTransactionLegs(tx)){
+   const currency=clean(leg.currency);
+   const debit=Number(leg.debit||0),credit=Number(leg.credit||0);
+   if(!currency||!Number.isFinite(debit)||!Number.isFinite(credit))continue;
+   for(const account of active){
+    if(!matches(leg,account))continue;
+    const currencies=movement.get(account.id||account.name);
+    currencies.set(currency,(currencies.get(currency)||0)+credit-debit);
+   }
+  }
   const dated=all.map((t,i)=>({t,i,date:clean(t.isoDate||t.date).slice(0,10)}))
    .sort((a,b)=>a.date.localeCompare(b.date)||a.i-b.i);
   let last=-1;
@@ -68,16 +81,23 @@ function balanceAfterSavedVoucher(d){
    const currencies=[...balances].sort((a,b)=>rank(a[0])-rank(b[0])||
     currencyName(a[0]).localeCompare(currencyName(b[0]),'ar'));
    if(!currencies.length)continue;
-   const labels=currencies.map(([code,raw])=>{
+   const labels=currencies.flatMap(([code,raw])=>{
     const value=Math.round(raw*1e6)/1e6;
     const zero=Math.abs(value)<.0000005;
-    const side=zero?'صفر':value<0?'مدين':'دائن';
-    const opposite=!zero&&(expected==='credit'?value<0:value>0);
+    if(zero){
+     const net=movement.get(account.id||account.name)?.get(code)||0;
+     const previous=Math.round((value-net)*1e6)/1e6;
+     // Show zero only when the voucher itself cleared a prior nonzero balance.
+     return Math.abs(net)>.0000005&&Math.abs(previous)>.0000005?
+      [currencyName(code)+': صفر']:[];
+    }
+    const side=value<0?'مدين':'دائن';
+    const opposite=expected==='credit'?value<0:value>0;
     if(opposite)reversed=true;
     const number=Math.abs(value).toLocaleString('en-US',{maximumFractionDigits:3});
-    return currencyName(code)+': '+side+' '+(opposite?'-':'')+number;
+    return [currencyName(code)+': '+side+' '+(opposite?'-':'')+number];
    });
-   parts.push((active.length>1?account.name+' — ':'')+labels.join('، '));
+   if(labels.length)parts.push((active.length>1?account.name+' — ':'')+labels.join('، '));
   }
   if(!parts.length)return blank;
   return {text:'الرصيد الحالي بعد السند: '+parts.join(' ؛ '),negative:reversed};

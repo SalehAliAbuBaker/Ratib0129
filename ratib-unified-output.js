@@ -153,8 +153,40 @@ function normalizeSimpleVoucher(){
  const share=ensureButton(host,'ratibSimpleVoucherShareBtn','share','مشاركة PDF',()=>window.outputCurrentSimpleVoucher('share'));
  orderGroup(host,[a4,preview,print,pdf,share]);
 }
+/*
+ * Default voucher-account selectors: an in-flow list, not an overlay over
+ * "Save default accounts". Only the two Settings selectors are affected.
+ * The original SearchableSelect retains search, account IDs and selection.
+ */
+function fixDefaultAccountDropdowns(){
+ const ids=[['wrapDefaultIncomeDebit','dropDefaultIncomeDebit'],
+            ['wrapDefaultSpendCredit','dropDefaultSpendCredit']];
+ if(!document.getElementById('ratibDefaultAccountDropdownStyle198')){
+  const css=document.createElement('style');css.id='ratibDefaultAccountDropdownStyle198';
+  css.textContent=`
+   #wrapDefaultIncomeDebit,#wrapDefaultSpendCredit{height:auto!important;min-height:44px!important}
+   #wrapDefaultIncomeDebit>.searchable-dropdown,#wrapDefaultSpendCredit>.searchable-dropdown{
+     position:static!important;inset:auto!important;right:auto!important;left:auto!important;
+     top:auto!important;bottom:auto!important;transform:none!important;
+     width:100%!important;max-width:100%!important;min-height:0!important;
+     max-height:172px!important;overflow-y:auto!important;overscroll-behavior:contain;
+     margin-top:5px!important;visibility:visible!important;z-index:auto!important;
+     box-sizing:border-box!important;scrollbar-width:thin;
+   }
+   #wrapDefaultIncomeDebit>.searchable-arrow,#wrapDefaultSpendCredit>.searchable-arrow{
+     top:22px!important;transform:translateY(-50%)!important;
+   }
+   #saveDefaultAccountsBtn{position:relative;z-index:1;max-width:100%}
+  `;
+  document.head.appendChild(css);
+ }
+ for(const [wrapId,dropId] of ids){
+  const wrap=document.getElementById(wrapId),drop=document.getElementById(dropId);
+  if(wrap&&drop&&drop.parentElement!==wrap)wrap.append(drop);
+ }
+}
 function cleanUi(){const home=document.getElementById('dashboardHomeContent');if(home)[...home.children].forEach(el=>{if(el.matches('button.btn.btn-ghost.no-print')&&/المفضلة السريعة/.test(el.textContent))el.style.display='none';});const label=document.querySelector('#filterAccountSelectBox>label');if(label)label.style.display='none';}
-function run(){addStyle();normalizeHeader();normalizeAccountToolbar();normalizeReports();normalizeVoucher();normalizeSimpleVoucher();cleanUi();restorePaper();}
+function run(){addStyle();fixDefaultAccountDropdowns();normalizeHeader();normalizeAccountToolbar();normalizeReports();normalizeVoucher();normalizeSimpleVoucher();cleanUi();restorePaper();}
 let pending=false;const observer=new MutationObserver(()=>{if(pending)return;pending=true;requestAnimationFrame(()=>{pending=false;run();});});
 function start(){run();observer.observe(document.body,{childList:true,subtree:true});}
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else start();

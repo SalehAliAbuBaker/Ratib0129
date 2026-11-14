@@ -20,43 +20,51 @@ function currencySymbol(code){return ({YER:'ر.ي',SAR:'ر.س',USD:'$'})[code]||
  */
 function balanceAfterSavedVoucher(d){
  const mode=clean(d?.mode),voucherId=clean(d?.id);
- const names=[...new Set((Array.isArray(d?.lines)?d.lines:[])
-   .filter(l=>l&&!l.autoBalance).map(l=>clean(l.account)).filter(Boolean))];
+ const choices=(Array.isArray(d?.lines)?d.lines:[])
+   .filter(l=>l&&!l.autoBalance&&clean(l.account))
+   .map(l=>({name:clean(l.account),id:clean(l.accountId)}));
+ const accounts=[...new Map(choices.map(c=>[c.id||c.name,c])).values()];
+ const matches=(leg,target)=>{
+  const legId=clean(leg.accountId);
+  return target.id&&legId?legId===target.id:clean(leg.account)===target.name;
+ };
  const blank={text:'',negative:false};
- if(!voucherId||!names.length||!['income','spend'].includes(mode)||
+ if(!voucherId||!accounts.length||!['income','spend'].includes(mode)||
     typeof getAllTransactions!=='function'||typeof trialTransactionLegs!=='function')return blank;
  try{
   // Show the account(s) from the printed voucher table, not the cash account.
   const all=getAllTransactions().filter(t=>t&&
-   !['deleted','reversed','draft'].includes(clean(t.status).toLowerCase()));
+   (!t.status||['posted','approved','confirmed'].includes(clean(t.status).toLowerCase())));
   const belongs=t=>clean(t.voucherMode)===mode&&
    (clean(t.multiVoucherId)===voucherId||clean(t.id)===voucherId);
   const saved=all.filter(belongs);
   if(!saved.length)return blank;
   const expected=mode==='income'?'credit':'debit';
-  const active=names.filter(name=>saved.some(t=>trialTransactionLegs(t).some(l=>
-   clean(l.account)===name&&Number(l[expected]||0)>0)));
+  const active=accounts.filter(account=>saved.some(t=>trialTransactionLegs(t).some(l=>
+   matches(l,account)&&Number(l[expected]||0)>0)));
   if(!active.length)return blank;
   const dated=all.map((t,i)=>({t,i,date:clean(t.isoDate||t.date).slice(0,10)}))
    .sort((a,b)=>a.date.localeCompare(b.date)||a.i-b.i);
   let last=-1;
   dated.forEach((row,i)=>{if(belongs(row.t))last=i;});
   if(last<0)return blank;
-  const totals=new Map(active.map(name=>[name,new Map()]));
+  const totals=new Map(active.map(account=>[account.id||account.name,{account,balances:new Map()}]));
   for(let i=0;i<=last;i++){
    for(const leg of trialTransactionLegs(dated[i].t)){
-    const account=clean(leg.account),currency=clean(leg.currency);
-    if(!totals.has(account)||!currency)continue;
+    const currency=clean(leg.currency);
+    if(!currency)continue;
     const debit=Number(leg.debit||0),credit=Number(leg.credit||0);
     if(!Number.isFinite(debit)||!Number.isFinite(credit))continue;
-    const currencies=totals.get(account);
-    currencies.set(currency,(currencies.get(currency)||0)+credit-debit);
+    for(const {account,balances} of totals.values()){
+     if(!matches(leg,account))continue;
+     balances.set(currency,(balances.get(currency)||0)+credit-debit);
+    }
    }
   }
   const rank=code=>({YER:0,SAR:1,USD:2})[code]??3;
   let reversed=false;
   const parts=[];
-  for(const [account,balances] of totals){
+  for(const {account,balances} of totals.values()){
    const currencies=[...balances].sort((a,b)=>rank(a[0])-rank(b[0])||
     currencyName(a[0]).localeCompare(currencyName(b[0]),'ar'));
    if(!currencies.length)continue;
@@ -69,7 +77,7 @@ function balanceAfterSavedVoucher(d){
     const number=Math.abs(value).toLocaleString('en-US',{maximumFractionDigits:3});
     return currencyName(code)+': '+side+' '+(opposite?'-':'')+number;
    });
-   parts.push((active.length>1?account+' — ':'')+labels.join('، '));
+   parts.push((active.length>1?account.name+' — ':'')+labels.join('، '));
   }
   if(!parts.length)return blank;
   return {text:'الرصيد الحالي بعد السند: '+parts.join(' ؛ '),negative:reversed};

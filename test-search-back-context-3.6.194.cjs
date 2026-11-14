@@ -6,7 +6,7 @@ const html=fs.readFileSync('index.html','utf8'),home=fs.readFileSync('ratib-home
 const sw=fs.readFileSync('sw.js','utf8'),pkg=require('./package.json');
 assert.equal(pkg.version,'3.6.199');
 assert.match(sw,/account-font-plus2-search-back-context-3\.6\.197/);
-assert.match(html,/الإصدار 3\.6\.198/);
+assert.match(html,/الإصدار 3\.6\.199/);
 assert.match(html,/\.searchable-item \{[^}]*font-size: calc\(1\.1rem \+ 2px\)/);
 assert.match(html,/\.account-sub-name\{[^}]*font-size:calc\(1\.08rem \+ 2px\)/);
 assert.match(html,/\.accounts-pager-suggestion\{[^}]*font-size:calc\(\.94rem \+ 2px\)/);

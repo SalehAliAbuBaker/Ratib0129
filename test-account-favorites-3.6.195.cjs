@@ -41,7 +41,7 @@ assert.equal(d.querySelectorAll('.ratib-account-fav-link').length,3,'default dis
 const expand=d.querySelector('.ratib-account-fav-expand');
 expand.click();
 assert.equal(d.querySelectorAll('.ratib-account-fav-link').length,4,'unlimited expanded list');
-assert.equal(api.move({code:'4',name:'الحساب البنكي'},-3),false,'invalid reorder is blocked');
+assert.equal(api.move({code:'4',name:'الحساب البنكي'},-4),false,'invalid reorder is blocked');
 api.move({code:'4',name:'الحساب البنكي'},-1);
 assert.equal(api.all()[2].name,'الحساب البنكي');
 assert.deepEqual(saved.get('history'),[{transactions:[{id:'unchanged'}]}],'financial ledger remains untouched');

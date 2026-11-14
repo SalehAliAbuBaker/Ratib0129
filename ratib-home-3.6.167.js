@@ -75,7 +75,9 @@ function goto(which,term){
 let current=[],searchFocused=false;
 function draw(){
  const term=input.value.trim(),type=select.value,needle=fold(term),fav=window.RatibAccountFavorites;
- const pinned=!term&&searchFocused&&type==='accounts'?(fav?.all?.()||[]):[];
+ const selectedFavorites=type!=='operations'?(fav?.all?.()||[]):[];
+ const pinned=!term&&searchFocused&&type==='accounts'?selectedFavorites:[];
+ const favoriteNames=new Set(selectedFavorites.map(a=>a.name));
  results.replaceChildren();current=[];
  results.hidden=!term&&!searchFocused;
  if(!term&&type!=='accounts')results.hidden=true;
@@ -90,7 +92,7 @@ function draw(){
   let count=0;
   const list=term?accounts().filter(a=>fold(a.name+' '+a.code).includes(needle)):pinned;
   // Favorite accounts are prioritized only among matching results; other accounts remain searchable.
-  list.sort((a,b)=>Number(!!fav?.has?.(b))-Number(!!fav?.has?.(a)));
+  list.sort((a,b)=>Number(favoriteNames.has(b.name))-Number(favoriteNames.has(a.name)));
   for(const a of list){if(count>=8)break;current.push({type:'account',data:a,label:a.name+' · '+a.code});count++;}
  }
  if(!current.length){
@@ -112,9 +114,9 @@ function draw(){
    }
   });
   if(item.type==='account'){
-   const wrapper=node('div','ratib-smart-result-row'),star=node('button','ratib-smart-star',fav?.has?.(item.data)?'★':'☆');
+   const wrapper=node('div','ratib-smart-result-row'),star=node('button','ratib-smart-star',favoriteNames.has(item.data.name)?'★':'☆');
    star.type='button';star.title='إضافة الحساب إلى المفضلة أو إزالته';star.setAttribute('aria-label',star.title+': '+item.data.name);
-   star.setAttribute('aria-pressed',String(!!fav?.has?.(item.data)));
+   star.setAttribute('aria-pressed',String(favoriteNames.has(item.data.name)));
    star.addEventListener('click',e=>{e.stopPropagation();fav?.toggle?.(item.data);});
    wrapper.append(b,star);results.append(wrapper);
   }else results.append(b);

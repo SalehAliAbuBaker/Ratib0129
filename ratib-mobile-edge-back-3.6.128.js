@@ -14,29 +14,34 @@
   return true;
  }
  function begin(event){
-  start=null;
+  cancel();
   if(!eligible(event))return;
   const finger=event.touches[0],width=window.innerWidth;
   const edge=Math.max(38,Math.min(58,width*.14));
   const side=finger.clientX<=edge?'left':finger.clientX>=width-edge?'right':null;
   if(!side)return;
   start={side,x:finger.clientX,y:finger.clientY,time:now(),claimed:false,nativeBackCount};
+  // Only a real edge candidate can block compositor scrolling.
+  document.addEventListener('touchmove',move,{passive:false,capture:true});
+  document.addEventListener('touchend',end,{passive:false,capture:true});
  }
  function move(event){
   const candidate=start;
-  if(!candidate||!event.touches||event.touches.length!==1){start=null;return;}
+  if(!candidate||!event.touches||event.touches.length!==1){cancel();return;}
   const dx=event.touches[0].clientX-candidate.x,dy=event.touches[0].clientY-candidate.y;
   const inward=candidate.side==='left'?dx>0:dx<0;
-  if(Math.abs(dy)>24&&Math.abs(dy)>Math.abs(dx)*1.15){start=null;return;}
-  if(!inward&&Math.abs(dx)>15){start=null;return;}
+  if(Math.abs(dy)>8&&Math.abs(dy)>=Math.abs(dx)*.8){cancel();return;}
+  if(!inward&&Math.abs(dx)>15){cancel();return;}
   if(inward&&Math.abs(dx)>=24&&Math.abs(dx)>=Math.abs(dy)*1.3){
    candidate.claimed=true;
    if(event.cancelable)event.preventDefault();
   }
  }
- function cancel(){start=null;}
+ function cancel(){
+  start=null;document.removeEventListener('touchmove',move,true);document.removeEventListener('touchend',end,true);
+ }
  function end(event){
-  const candidate=start;start=null;
+  const candidate=start;cancel();
   if(!candidate||!event.changedTouches?.length||candidate.nativeBackCount!==nativeBackCount)return;
   const dx=event.changedTouches[0].clientX-candidate.x;
   const dy=event.changedTouches[0].clientY-candidate.y;
@@ -53,14 +58,12 @@
  }
  // Android may dispatch its native callback for the same completed touch.
  window.ratibNativeBack=function(){
-  start=null;
+  cancel();
   if(now()-lastBack<380)return;
   window.goBackInApp();
  };
  // Browser/system Back already handled the gesture: never trigger a second Back.
- window.addEventListener('popstate',()=>{nativeBackCount++;start=null;},true);
+ window.addEventListener('popstate',()=>{nativeBackCount++;cancel();},true);
  document.addEventListener('touchstart',begin,{passive:true,capture:true});
- document.addEventListener('touchmove',move,{passive:false,capture:true});
- document.addEventListener('touchend',end,{passive:false,capture:true});
  document.addEventListener('touchcancel',cancel,{passive:true,capture:true});
 })();

@@ -10,7 +10,7 @@ const src=fs.readFileSync('ratib-statement-toolbar-3.6.189.js','utf8');
 const sw=fs.readFileSync('sw.js','utf8');
 assert.match(html,/ratib-statement-toolbar-3\.6\.189\.js/);
 assert.match(html,/ratib-statement-toolbar-3\.6\.189\.css/);
-assert.match(html,/الإصدار 3\.6\.201/);
+assert.match(html,/الإصدار 3\.6\.202/);
 assert.match(sw,/direct-leaf-typeahead-date-search-reset-3\.6\.193/);
 assert.match(sw,/ratib-statement-toolbar-3\.6\.189\.js/);
 assert.match(css,/#pageAccountOperations \.ratib-reconcile-bar,/);

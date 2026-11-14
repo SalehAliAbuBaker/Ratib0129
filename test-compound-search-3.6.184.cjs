@@ -6,9 +6,9 @@ const index=fs.readFileSync('index.html','utf8'),
  home=fs.readFileSync('ratib-home-3.6.167.js','utf8'),
  worker=fs.readFileSync('sw.js','utf8');
 const pkg=require('./package.json');
-assert.equal(pkg.version,'3.6.201');
-assert(index.includes('const RATIB_RELEASE={"version":"3.6.201"'));
-assert(worker.includes('const APP_RELEASE={"version":"3.6.201"'));
+assert.equal(pkg.version,'3.6.202');
+assert(index.includes('const RATIB_RELEASE={"version":"3.6.202"'));
+assert(worker.includes('const APP_RELEASE={"version":"3.6.202"'));
 assert(worker.includes('compound-edit-search-home-3.6.184'));
 assert(!index.includes("note:'سطر متمم تلقائي'"),'No forced auto-balancing leg in compound vouchers');
 assert(compound.includes("makeButton('＋ إضافة طرف'"));

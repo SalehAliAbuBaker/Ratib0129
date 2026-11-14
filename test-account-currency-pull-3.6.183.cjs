@@ -4,9 +4,9 @@ const assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('nod
 const source=fs.readFileSync('index.html','utf8');
 const style=fs.readFileSync('ratib-statement-layout-3.6.178.css','utf8');
 const sw=fs.readFileSync('sw.js','utf8'),pkg=require('./package.json');
-assert.equal(pkg.version,'3.6.201');
-assert(source.includes('const RATIB_RELEASE={"version":"3.6.201"'));
-assert(sw.includes('const APP_RELEASE={"version":"3.6.201"'));
+assert.equal(pkg.version,'3.6.202');
+assert(source.includes('const RATIB_RELEASE={"version":"3.6.202"'));
+assert(sw.includes('const APP_RELEASE={"version":"3.6.202"'));
 assert(sw.includes('currency-pull-homefix-3.6.184'));
 assert(style.includes('html:has(#pageAccountOperations:not(.hidden))'));
 assert(style.includes('overscroll-behavior-y:none!important'));

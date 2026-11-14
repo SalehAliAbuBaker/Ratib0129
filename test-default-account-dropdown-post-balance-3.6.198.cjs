@@ -39,7 +39,7 @@ const saved=[
  {id:'mv3_0',multiVoucherId:'mv3',isoDate:'2026-11-13',status:'posted',voucherMode:'income',creditAccount:'إيرادات مستقرة',debitAccount:'صندوق المؤسسة',amount:7,currency:'YER'},
  {id:'late',isoDate:'2026-11-14',status:'posted',creditAccount:'إيرادات',debitAccount:'افتتاحي',amount:700,currency:'YER'}
 ];
-const canvasText=[];
+const canvasText.length=0;
 const context={
  window:{},
  getAllTransactions:()=>saved,
@@ -120,10 +120,10 @@ const mixed={...receipt,id:'multiSettle',lines:[
 const mixedExpected='الرصيد الحالي بعد السند: ريال يمني: دائن 12، ريال سعودي: صفر';
 assert.equal(api.model(mixed).postBalance,mixedExpected,'Mixed balance shows nonzero and settled zero, suppresses unchanged USD zero');
 assert(api.html(mixed).includes(mixedExpected),'Mixed HTML print is consistent');
-canvasText=[];
+canvasText.length=0;
 api.pdf(clearedPayment);
 assert(canvasText.includes(clearPaymentText),'PDF preserves cleared-to-zero exception');
-canvasText=[];
+canvasText.length=0;
 api.pdf(mixed);
 assert(canvasText.includes(mixedExpected),'PDF shows mixed nonzero and cleared zero only');
 

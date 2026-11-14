@@ -1,0 +1,77 @@
+name: Ratib 3.6.200 one-time official release
+on:
+  push:
+    branches: [main]
+    paths:
+      - .github/workflows/ratib-release-3.6.200.yml
+permissions:
+  contents: write
+jobs:
+  release:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - name: Atomically bump Ratib release, offline cache, and visible version
+        run: |
+          python3 - <<'PY'
+          import json, re
+          from pathlib import Path
+
+          old, new = "3.6.199", "3.6.200"
+          note = "نجري بانتظام تحديثات لتحسين الموثوقية والأداء وإصلاح الأخطاء"
+          highlights = [
+            "إخفاء الرصيد الصفري إذا لم يكن السند سبب تصفيره",
+            "إظهار صفر عندما يساوي مبلغ السند الرصيد السابق ويصفّره",
+            "تطبيق القاعدة على كل عملة مستقلة في الطباعة والمعاينة وPDF",
+          ]
+          changes = [
+            note,
+            "عدم إظهار العملات ذات الرصيد الصفري غير المرتبطة بتسوية السند",
+            "إظهار صفر فقط حين يكون السند المحفوظ نفسه قد صفّر رصيدًا سابقًا",
+            "الحفاظ على الأرصدة غير الصفرية وطبيعتها المحاسبية دون تغيير",
+          ]
+          def rewrite_release(source, identifier):
+              pattern = r"(?m)^const " + re.escape(identifier) + r"=(\{[^\n]*\});"
+              matches = list(re.finditer(pattern, source))
+              assert len(matches) == 1, f"{identifier} missing or duplicated"
+              release = json.loads(matches[0].group(1))
+              assert release["version"] == old, f"Unexpected {identifier} version: {release['version']}"
+              release.update(version=new, build="p20000", highlights=highlights, changes=changes)
+              replacement = "const " + identifier + "=" + json.dumps(release, ensure_ascii=False, separators=(',', ':')) + ";"
+              return source[:matches[0].start()] + replacement + source[matches[0].end():]
+          index_path = Path("index.html")
+          html = index_path.read_text(encoding="utf-8")
+          assert "الإصدار " + old in html, "Visible header version changed unexpectedly"
+          html = rewrite_release(html, "RATIB_RELEASE")
+          html = html.replace("الإصدار " + old, "الإصدار " + new)
+          html = html.replace("?v=" + old, "?v=" + new)
+          assert "الإصدار " + new in html and 'RATIB_RELEASE={"version":"' + new + '"' in html
+          index_path.write_text(html, encoding="utf-8")
+
+          worker_path = Path("sw.js")
+          sw = worker_path.read_text(encoding="utf-8")
+          sw = rewrite_release(sw, "APP_RELEASE")
+          cache = re.search(r"(?m)^const CACHE_VERSION='([^']*)';", sw)
+          assert cache and cache.group(1).endswith(old), "Unexpected cache key"
+          sw = sw[:cache.start()] + "const CACHE_VERSION='" + cache.group(1) + "-zero-balance-" + new + "';" + sw[cache.end():]
+          assert "CACHE_VERSION=" in sw and new in sw
+          worker_path.write_text(sw, encoding="utf-8")
+
+          pkg_path = Path("package.json")
+          pkg = pkg_path.read_text(encoding="utf-8")
+          assert '"version": "' + old + '"' in pkg, "Unexpected package version"
+          pkg = pkg.replace('"version": "' + old + '"','"version": "' + new + '"',1)
+          pkg_path.write_text(pkg, encoding="utf-8")
+          print("Verified matching 3.6.200 release in page, worker, and package.")
+          PY
+      - name: Commit release and remove one-time publisher
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git rm .github/workflows/ratib-release-3.6.200.yml
+          git add index.html sw.js package.json
+          git commit -m "راتب 3.6.200: نشر قاعدة الرصيد الصفري وتحديث كاش الواجهة"
+          git push origin HEAD:main

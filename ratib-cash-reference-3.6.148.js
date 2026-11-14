@@ -217,8 +217,11 @@ function* pdfPages(d){
  }
  for(const line of m.postBalance.lines){
   if(y+50>BOTTOM){yield canvas;page();}
-  ctx.textAlign='right';drawText(line.text,RIGHT-12,y+32,15,line.reversed,INNER-24);
-  if(line.reversed){ctx.fillStyle='#b91c1c';ctx.font='700 15px Tajawal,Arial,sans-serif';ctx.fillText(line.text,RIGHT-12,y+32,INNER-24);}
+  ctx.textAlign='right';
+  if(line.reversed){
+   ctx.fillStyle='#b91c1c';ctx.font='700 15px Tajawal,Arial,sans-serif';
+   ctx.fillText(line.text,RIGHT-12,y+32,INNER-24);
+  }else drawText(line.text,RIGHT-12,y+32,15,false,INNER-24);
   y+=30;
  }
  yield canvas;

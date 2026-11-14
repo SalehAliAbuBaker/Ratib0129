@@ -23,6 +23,7 @@ function makeFixture({idb=new IDBFactory(),seed={},blockLocal=false,blockIDB=fal
   const errors=[],downloads=[],canvasText=[],logs=[],permissions={requests:0},faults={local:false,idb:false};
   const virtualConsole=new VirtualConsole();virtualConsole.on('jsdomError',e=>errors.push(e.message));virtualConsole.on('error',(...e)=>logs.push(e.map(v=>v?.stack||String(v)).join(' ')));virtualConsole.on('warn',(...e)=>logs.push(e.map(v=>v?.stack||String(v)).join(' ')));
   const dom=new JSDOM(html,{url:'https://ratib.test/Ratib0129/',runScripts:'dangerously',pretendToBeVisual:true,virtualConsole,...(loadResources?{resources:new LocalScripts()}:{}),beforeParse(win){
+    require('./test-helpers/dom-images.cjs')(win);
     historySetup.forEach((entry,index)=>{if(index)win.history.pushState(entry.state||{},'',entry.path);else win.history.replaceState(entry.state||{},'',entry.path);});
     for(const [k,v] of Object.entries(seed))win.localStorage.setItem(k,v);
     faults.local=blockLocal;faults.idb=blockIDB;
@@ -36,7 +37,7 @@ function makeFixture({idb=new IDBFactory(),seed={},blockLocal=false,blockIDB=fal
     const blobs=new Map();win.URL.createObjectURL=blob=>{const url='blob:fixture-'+blobs.size;blobs.set(url,blob);return url;};win.URL.revokeObjectURL=()=>{};
     win.HTMLAnchorElement.prototype.click=function(){downloads.push({name:this.download,blob:blobs.get(this.href)});};
     win.scrollTo=()=>{};win.HTMLElement.prototype.scrollIntoView=()=>{};win.HTMLElement.prototype.scrollTo=()=>{};
-    win.HTMLCanvasElement.prototype.getContext=function(){return {font:'',textAlign:'right',direction:'rtl',fillRect(){},strokeRect(){},beginPath(){},moveTo(){},lineTo(){},stroke(){},drawImage(){},measureText(value){return {width:String(value).length*10};},fillText(value){canvasText.push(String(value));}};};
+    win.HTMLCanvasElement.prototype.getContext=function(){return {font:'',textAlign:'right',direction:'rtl',fillRect(){},strokeRect(){},save(){},restore(){},beginPath(){},moveTo(){},lineTo(){},stroke(){},drawImage(){},measureText(value){return {width:String(value).length*10};},fillText(value){canvasText.push(String(value));}};};
     win.HTMLCanvasElement.prototype.toDataURL=()=> 'data:image/jpeg;base64,/9j/2Q==';
   }});
   const fixture={dom,win:dom.window,idb,errors,logs,downloads,canvasText,permissions,faults};
@@ -133,7 +134,7 @@ async function run(){
    d.getElementById(preview).click();assert.equal(prints.length,count);assert(d.getElementById('printPreviewModal').classList.contains('show'));
    d.getElementById('printPreviewConfirmBtn').click();assert.equal(prints.length,count+1);assert(d.body.classList.contains(mode));finishPrint();
    d.getElementById(print).click();assert.equal(prints.length,count+2);assert(d.body.classList.contains(mode));finishPrint();
-   d.getElementById(pdf).click();assert.equal(f.downloads.length,downloads+1);assert(f.downloads.at(-1).blob.size>100);
+   d.getElementById(pdf).click();await pause(20);assert.equal(f.downloads.length,downloads+1);assert(f.downloads.at(-1).blob.size>100);
    d.getElementById(share).click();await pause(20);assert.equal(shared.length,shares+1);
   }
   assert.equal(d.getElementById('trialFrom').value,'2026-10-01');assert.equal(d.getElementById('trialTo').value,'2026-10-31');

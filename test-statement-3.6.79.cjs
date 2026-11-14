@@ -1,3 +1,4 @@
+const displayDigits=require('./test-helpers/display-digits.cjs');
 const assert=require('node:assert/strict');
 const fs=require('node:fs');
 const path=require('node:path');
@@ -23,6 +24,7 @@ const dom=new JSDOM(html,{
  url:'https://ratib.test/Ratib0129/',runScripts:'dangerously',pretendToBeVisual:true,
  resources:new AppResources(),virtualConsole,
  beforeParse(w){
+  require('./test-helpers/dom-images.cjs')(w);
   Object.defineProperty(w,'indexedDB',{value:new IDBFactory()});
   Object.defineProperty(w,'crypto',{value:webcrypto});
   w.TextEncoder=TextEncoder;w.TextDecoder=TextDecoder;w.structuredClone=structuredClone;
@@ -34,7 +36,7 @@ const dom=new JSDOM(html,{
   w.HTMLAnchorElement.prototype.click=()=>{};
   w.HTMLCanvasElement.prototype.getContext=function(){
    return {font:'',direction:'rtl',textAlign:'right',fillStyle:'#000',strokeStyle:'#000',lineWidth:1,
-    fillRect(){},strokeRect(){},drawImage(){},beginPath(){},moveTo(){},lineTo(){},stroke(){},
+    fillRect(){},strokeRect(){},save(){},restore(){},drawImage(){},beginPath(){},moveTo(){},lineTo(){},stroke(){},
     measureText(v){return {width:String(v).length*10};},
     fillText(v){canvasText.push(String(v));}
    };
@@ -109,7 +111,7 @@ async function main(){
  let body=d.getElementById('psTableBody');
  assert.equal(body.querySelectorAll('.ps-total-row').length,1,'Printed totals are one row');
  assert.match(body.firstElementChild.textContent,/الرصيد السابق/);
- assert.match(body.lastElementChild.textContent,/3,200\s*دائن/);
+ assert.match(displayDigits(body.lastElementChild.textContent),/3,200\s*دائن/);
  assert.equal(body.querySelectorAll('.ps-opening-row').length,1,'Single opening row on print');
  assert(!d.getElementById('psStatementTitle').textContent.includes('undefined'));
  recorded.push('Print/preview template contains one opening and one fully shaded final totals row');
@@ -119,8 +121,8 @@ async function main(){
  body=d.getElementById('psTableBody');
  assert.equal(body.querySelectorAll('.ps-total-row').length,1);
  assert.equal(body.textContent.includes('الرصيد السابق'),false,'No opening in full print');
- assert.match(body.lastElementChild.textContent,/207,000/);
- assert.match(body.lastElementChild.textContent,/210,200/);
+ assert.match(displayDigits(body.lastElementChild.textContent),/207,000/);
+ assert.match(displayDigits(body.lastElementChild.textContent),/210,200/);
  const exportAll=code("accountExportRows('YER')");
  assert.equal(exportAll.filter(row=>String(row[2]).startsWith('إجمالي')).length,1,'Export has one total row');
  assert.equal(exportAll.at(-1)[5],3200,'Export total row includes balance');
@@ -132,7 +134,7 @@ async function main(){
  const pdf=code("buildPdfFromCanvases(ratibUnifiedStatementPageCanvases('YER'))");
  assert(pdf.size>100);
  const binary=await pdf.text();assert(binary.startsWith('%PDF-1.4'));
- const draw=canvasText.join('|');
+ const draw=canvasText.map(displayDigits).join('|');
  for(const value of ['35,600','119,000','86,600','3,200','إجمالي عمليات الفترة'])assert(draw.includes(value),'PDF missing '+value);
  assert(!canvasText.includes('undefined'),'PDF should not draw undefined');
  const labels=canvasText.filter(x=>x.includes('الرصيد السابق')&&!x.includes('شامل'));

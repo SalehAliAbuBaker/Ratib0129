@@ -6,7 +6,9 @@ function accountBalance(account,currency){
  if(!account||!available())return null;
  const sum=getCurrentAccountBalance(account).byCurrency?.[currency]||{debit:0,credit:0};
  const value=Number(sum.credit||0)-Number(sum.debit||0);
- return {value, label:`الرصيد الحالي: ${FORMAT(Math.abs(value))} ${currency} (${value<0?'مدين':'دائن'})`};
+ const direction=value>0?'دائن':value<0?'مدين':'';
+ const currencyName=typeof accountCurrencyLabel==='function'?accountCurrencyLabel(currency):currency;
+ return {value,label:`الرصيد الحالي${direction?' '+direction:''}: ${FORMAT(Math.abs(value))} - ${currencyName}`};
 }
 function smallHint(host,kind){
  if(!host)return null;
@@ -40,7 +42,7 @@ function repaintMultiBalances(){
  if(cash&&!source?.closest('.multi-voucher-grid'))return;
  let hint=source?.querySelector(':scope > .ratib-multi-source-balance');
  if(!hint){
-  hint=document.createElement('small');hint.className='ratib-current-balance ratib-multi-source-balance';source?.appendChild(hint);
+  hint=document.createElement('small');hint.className='ratib-current-balance ratib-multi-source-balance';hint.setAttribute('aria-live','polite');source?.appendChild(hint);
  }
  const currency=document.getElementById('multiVoucherBaseCurrency')?.value||'YER';
  if(hint){hint.textContent=cash&&name?accountBalance(name,currency)?.label||'':'';hint.hidden=!(cash&&name);}

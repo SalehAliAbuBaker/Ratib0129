@@ -75,5 +75,5 @@ assert.equal(d.getElementById('ratibAccountStatementFavorite').getAttribute('ari
 catalog=[{main:'الأصول',details:[['1','الصندوق الرئيسي'],['2','مؤسسة الرأفة'],['4','الحساب البنكي']]}];
 assert.equal(api.all().length,2,'removed catalog entries do not create stale account links');
 assert.equal(saved.get('account_favorites_v1').length,3,'stale IDs remain in saved preferences until user removes them');
-dom.window.close();
+queueMicrotask(()=>dom.window.close());
 console.log('PASS 3.6.195: favorites, backup store, search, Arabic matching, direct account, navigation, catalog safety');

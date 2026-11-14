@@ -46,3 +46,8 @@
  #ratibAccountFavorites .ratib-account-fav-action{min-width:31px;min-height:40px}
  #ratibAccountFavorites .ratib-account-fav-footer{padding:0 12px 11px}
 }
+
+/* 3.6.197: Explicit guarded removal; no accidental star-unpin in favorites. */
+@media screen{
+ #ratibAccountFavorites .ratib-account-fav-remove{min-width:48px;padding-inline:5px;color:var(--danger,#9d3c35);font:700 .7rem/1.2 Tajawal,sans-serif;border-inline-start:1px solid var(--border,#ddd)}
+}

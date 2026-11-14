@@ -1,6 +1,7 @@
-/* Ratib 3.6.195 — compact account favorites under inventory. No accounting styles changed. */
+/* Ratib 3.6.196 — collapsed account favorites before inventory; no ledger changes. */
 @media screen{
-#dashboardHomeContent>#ratibAccountFavorites{order:4}
+#dashboardHomeContent>#ratibAccountFavorites{order:3}
+#dashboardHomeContent>#ratibHomeInventory{order:4}
 .ratib-account-favorites{min-width:0;margin:0 0 12px;padding:12px;border:1px solid var(--border,#dbe5df);border-radius:15px;background:var(--card,#fff);color:var(--text,#18332a)}
 .ratib-account-fav-head,.ratib-account-fav-footer{display:flex;align-items:center;justify-content:space-between;gap:9px;min-width:0}
 .ratib-account-fav-heading{font-weight:800;font-size:.98rem}
@@ -23,3 +24,25 @@
 #ratibAccountStatementFavorite[hidden]{display:none!important}
 }
 @media print{#ratibAccountFavorites,#ratibAccountStatementFavorite{display:none!important}}
+
+/* Collapsible, full-length, single-column list with one-tap account navigation. */
+@media screen{
+ #dashboardHomeContent>details#ratibAccountFavorites{padding:0!important;overflow:hidden}
+ #ratibAccountFavorites:not([open])>:not(summary){display:none!important}
+ #ratibAccountFavorites .ratib-account-fav-summary{display:flex;align-items:center;gap:9px;min-height:60px;padding:12px 14px;cursor:pointer;list-style:none;user-select:none}
+ #ratibAccountFavorites .ratib-account-fav-summary::-webkit-details-marker{display:none}
+ #ratibAccountFavorites .ratib-account-fav-summary::marker{content:""}
+ #ratibAccountFavorites .ratib-account-fav-heading{flex:1;min-width:0;text-align:right;font-size:.96rem;font-weight:800}
+ #ratibAccountFavorites .ratib-account-fav-count{font:500 .74rem/1.4 Tajawal,sans-serif;color:var(--muted,#6b7971);white-space:nowrap}
+ #ratibAccountFavorites .ratib-account-fav-chevron{font-size:1.1rem;color:var(--accent,#0d5b45);transition:transform .18s ease;transform:rotate(0deg)}
+ #ratibAccountFavorites[open] .ratib-account-fav-chevron{transform:rotate(180deg)}
+ #ratibAccountFavorites .ratib-account-fav-summary:focus-visible{outline:2px solid var(--accent,#0d5b45);outline-offset:-3px;border-radius:12px}
+ #ratibAccountFavorites .ratib-account-fav-head{justify-content:flex-start;padding:0 12px 4px}
+ #ratibAccountFavorites .ratib-account-fav-add{min-height:36px}
+ #ratibAccountFavorites .ratib-account-fav-grid{grid-template-columns:minmax(0,1fr)!important;gap:6px;margin:0 12px 7px;max-height:min(46vh,380px);overflow-y:auto;overscroll-behavior:contain}
+ #ratibAccountFavorites .ratib-account-fav-tile{flex-direction:row;align-items:center;min-height:43px}
+ #ratibAccountFavorites .ratib-account-fav-link{flex:1;min-height:43px;text-align:right;padding:9px 10px;font-size:.8rem}
+ #ratibAccountFavorites .ratib-account-fav-actions{flex:none;align-self:stretch;align-items:center;border-top:0;border-inline-start:1px solid var(--border,#ddd);padding:0 4px}
+ #ratibAccountFavorites .ratib-account-fav-action{min-width:31px;min-height:40px}
+ #ratibAccountFavorites .ratib-account-fav-footer{padding:0 12px 11px}
+}

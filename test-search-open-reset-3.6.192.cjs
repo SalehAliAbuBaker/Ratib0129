@@ -1,11 +1,11 @@
-// Regression retained from 3.6.192; 3.6.195 expands its date/session coverage.
+// Regression retained from 3.6.192; 3.6.196 expands its date/session coverage.
 'use strict';
 const assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('node:vm');
 const html=fs.readFileSync('index.html','utf8'),sw=fs.readFileSync('sw.js','utf8'),pkg=require('./package.json');
-assert.equal(pkg.version,'3.6.195');
-assert.match(html,/الإصدار 3\.6\.195/);
+assert.equal(pkg.version,'3.6.196');
+assert.match(html,/الإصدار 3\.6\.196/);
 assert.match(sw,/smart-account-search-reset-3\.6\.192/);
-assert.match(sw,/account-font-plus2-search-back-context-3\.6\.195/);
+assert.match(sw,/account-font-plus2-search-back-context-3\.6\.196/);
 assert.match(html,/const choose=item=>\{if\(!item\)return;clearTimeout\(timer\);hide\(\);openAccountFromPager\(item.name,\[item.name\]\);\};/);
 assert.match(html,/function openDocumentDetailsModal\(item\) \{[\s\S]{0,180}ratibClearTextSearchAfterTargetOpen\(\)/);
 assert.match(html,/function openTxModal\(item\) \{item=ratibCurrentVoucherDocument\(item\);if\(!item\)return;ratibClearTextSearchAfterTargetOpen\(\);/);
@@ -23,4 +23,4 @@ for(const [x,y] of [['مؤسسة','مؤسسه'],['مدرسة','مدرسه'],['أ
 }
 assert.equal(vm.runInContext("accountsPagerCandidates('مؤسسه').length",ctx),1);
 assert.equal(vm.runInContext("accountsPagerCandidates('الصندوق').length",ctx),0,'no aggregate by path');
-console.log('Ratib 3.6.195: Arabic search + post-open reset contract — PASS');
+console.log('Ratib 3.6.196: Arabic search + post-open reset contract — PASS');

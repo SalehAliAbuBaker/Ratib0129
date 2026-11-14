@@ -8,7 +8,7 @@
   const KEY = 'ratib_license_client_v2';
   const WHATSAPP = '967734915588';
   const safeRead = () => { try { return JSON.parse(localStorage.getItem(KEY) || '{}'); } catch (_) { return {}; } };
-  const safeWrite = value => { try { localStorage.setItem(KEY, JSON.stringify(value)); } catch (_) {} };
+  const safeWrite = value => { try { localStorage.setItem(KEY, JSON.stringify(value)); global.dispatchEvent(new Event('ratib:license-changed')); } catch (_) {} };
   const randomId = () => global.crypto && crypto.randomUUID ? crypto.randomUUID() :
     'rtb-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2);
   const deviceId = () => { const data=safeRead(); if(data.deviceId)return data.deviceId;data.deviceId=randomId();safeWrite(data);return data.deviceId; };
@@ -87,6 +87,7 @@
     const n = Date.parse(String(value).replace(' ', 'T') + (String(value).endsWith('Z') ? '' : 'Z'));
     return Number.isFinite(n) && n > Date.now();
   }
+  function isLocallyLicensed(){const s=safeRead();return !!s.code&&Number(s.verifiedAt||0)>0&&validExpiry(s.expiryDate);}
   async function activate(code, email='') {
     code = String(code || '').trim();
     if (!code) throw new Error('أدخل رقم الترخيص.');
@@ -232,6 +233,6 @@
   }
   global.RatibLicense = Object.freeze({
     TRIAL_LIMIT,deviceId,requestText,whatsappUrl,recordCreated,used:getUsed,
-    remaining:()=>Math.max(0,TRIAL_LIMIT-getUsed()),activate,licensed,beforeCreate,showActivation
+    remaining:()=>Math.max(0,TRIAL_LIMIT-getUsed()),activate,licensed,isLocallyLicensed,beforeCreate,showActivation
   });
 })(window);

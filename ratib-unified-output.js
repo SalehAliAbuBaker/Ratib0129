@@ -93,8 +93,8 @@ function normalizeReportToolbar(cardId,printId,shareId,pdfId,pdfBuilder,pdfName,
  setKind(print,'print','طباعة');setKind(share,'share','مشاركة PDF');
  const preview=ensureButton(host,previewId,'preview','معاينة قبل الطباعة',previewHandler);
  const a4=ensureButton(host,`ratib-${cardId}-a4`,'a4','A4 / اتجاه الصفحة',togglePaper);
- const pdf=ensureButton(host,pdfId,'pdf','تنزيل PDF',()=>{
-  try{const blob=pdfBuilder();if(blob&&directDownload(blob,pdfName))window.showToast?.('تم تنزيل ملف PDF','success');}
+ const pdf=ensureButton(host,pdfId,'pdf','تنزيل PDF',async()=>{
+  try{await window.ratibEnsurePrintLogoReady?.();const blob=await pdfBuilder();if(blob&&directDownload(blob,pdfName))window.showToast?.('تم تنزيل ملف PDF','success');}
   catch(e){console.error(e);window.showToast?.('تعذّر تنزيل ملف PDF','error');}
  });
  orderGroup(host,[a4,preview,print,pdf,share,cardId==='trialBalanceCard'?document.getElementById('trialExcelBtn'):null]);

@@ -1,0 +1,9 @@
+/* Shared identity, without changing financial tables. */
+.ratib-identity-header{display:flex;align-items:center;gap:14px;min-height:72px;margin:0 0 12px;direction:rtl;break-inside:avoid}
+.ratib-identity-header>img{width:64px;height:64px;object-fit:contain;flex:none}
+.ratib-identity-header>div{min-width:0;flex:1}.ratib-identity-header strong{display:block;font-size:1.1em;overflow-wrap:anywhere}.ratib-identity-header span{display:block;margin-top:4px;white-space:pre-line}
+html[data-ratib-custom-brand="1"] header .ratib-brand-name{white-space:normal;overflow-wrap:anywhere;line-height:1.4;font-size:1.05rem}
+html[data-ratib-custom-brand="1"] header .ratib-brand-sub{display:none!important}
+@media print{.ratib-identity-header img{print-color-adjust:exact;-webkit-print-color-adjust:exact}}
+
+.ratib-identity-header[hidden]{display:none!important}

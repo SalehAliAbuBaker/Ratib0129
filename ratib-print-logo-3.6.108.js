@@ -9,7 +9,7 @@ const $=id=>document.getElementById(id);
 const safeGet=()=>{try{const v=store.get(KEY,null);return v&&typeof v==='object'&&typeof v.data==='string'&&/^data:image\/(?:png|jpeg|webp);base64,/.test(v.data)?v:null;}catch(_){return null;}};
 let cachedSource='',cachedImage=null,loaded=false,active=null,pendingReady=Promise.resolve(false);
 function refreshAsset(){
- const item=safeGet();
+ const item=window.RatibBranding?.logo?.()||(window.RatibLicense?.isLocallyLicensed?.()?safeGet():{data:'Icons/icon-192.png',enabled:true});
  active=item;
  const source=item?.enabled===false?'':item?.data||'';
  if(source===cachedSource)return item;
@@ -67,10 +67,10 @@ function syncRoot(root,position='header'){
  const item=refreshAsset();
  const desired=item&&item.enabled!==false?item.data:'';
  let img=root.querySelector(':scope > .ratib-user-print-logo');
- if(position==='special'&&root.querySelector('.ps-header .ratib-user-print-logo,.pv-header .ratib-user-print-logo')){if(img)img.remove();return;}
+ if(position==='special'&&root.querySelector('.ps-header .ratib-user-print-logo,.pv-header .ratib-user-print-logo,.ratib-identity-header img')){if(img)img.remove();return;}
  if(!desired){if(img)img.remove();return;}
  if(!img){img=printLogoNode();root.insertBefore(img,root.firstChild);}
- if(img.src!==desired)img.src=desired;
+ if(img.getAttribute('src')!==desired)img.src=desired;
  root.classList.add('ratib-with-user-logo');
  if(position==='special')img.classList.add('ratib-print-logo-special');
 }
@@ -100,7 +100,7 @@ function drawCanvas(canvas){
 async function persist(item){
  store.set(KEY,item);
  if(typeof flushStorage==='function')await flushStorage();
- cachedSource='';refreshAsset();await pendingReady;syncPrint();
+ cachedSource='';refreshAsset();await pendingReady;syncPrint();window.RatibBranding?.refresh?.();
 }
 function addOptions(){
  if($('ratibPrintLogoOptions'))return;
@@ -110,15 +110,15 @@ function addOptions(){
  const title=card.querySelector('.settings-accordion-header span:first-child');
  if(title)title.textContent='🖨️ خيارات عرض وطباعة التقارير والمستندات';
  const box=document.createElement('section');box.id='ratibPrintLogoOptions';box.className='ratib-print-logo-settings';
- box.innerHTML='<strong>شعار المستخدم في التقارير والمستندات</strong><p class="ratib-logo-help">اختر الشعار من الجهاز مرة واحدة. يصغّره التطبيق تلقائيًا ويحفظه محليًا ليظهر في الطباعة وPDF دون إنترنت. لا يتغير شعار «راتب» في أعلى التطبيق.</p>'+
+ box.innerHTML='<strong>شعار المستخدم في التقارير والمستندات</strong><p class="ratib-logo-help">اختر الشعار من الجهاز مرة واحدة. يصغّره التطبيق تلقائيًا ويحفظه محليًا ليظهر في الطباعة وPDF دون إنترنت. بعد تفعيل النسخة يظهر اسم الترويسة وشعارك في الواجهة والتقارير والمطبوعات. قبل التفعيل تظهر هوية راتب.</p>'+
   '<div class="ratib-logo-controls"><label class="btn btn-ghost ratib-logo-pick">＋ اختيار صورة شعار<input id="ratibPrintLogoFile" type="file" accept="image/png,image/jpeg,image/webp" hidden></label><button id="ratibPrintLogoRemove" class="btn btn-ghost" type="button">حذف الشعار</button></div>'+
-  '<label class="ratib-logo-visibility"><input type="checkbox" id="ratibPrintLogoEnabled"> إظهار الشعار في التقارير والمستندات المطبوعة</label>'+
+  '<label class="ratib-logo-visibility"><input type="checkbox" id="ratibPrintLogoEnabled"> استخدام الشعار المخصص في الواجهة والتقارير</label>'+
   '<div class="ratib-logo-view"><img id="ratibPrintLogoPreview" alt="معاينة شعار المستخدم" hidden><small id="ratibPrintLogoInfo" aria-live="polite"></small></div>';
  const btn=$('saveHeaderSettingsBtn');
  if(btn)btn.before(box);else field.append(box);
  const file=$('ratibPrintLogoFile'),enabled=$('ratibPrintLogoEnabled'),remove=$('ratibPrintLogoRemove'),preview=$('ratibPrintLogoPreview'),info=$('ratibPrintLogoInfo');
  const repaint=()=>{
-  const item=refreshAsset();const has=!!item;
+  const item=safeGet();const has=!!item;
   preview.hidden=!has;if(has&&preview.src!==item.data)preview.src=item.data;else if(!has)preview.removeAttribute('src');
   enabled.checked=has&&item.enabled!==false;enabled.disabled=!has;remove.disabled=!has;
   info.textContent=has?'الشعار محفوظ محليًا — '+Math.max(1,Math.round((item.bytes||0)/1024))+' كيلوبايت':'لم تُحدد صورة شعار بعد';
@@ -130,7 +130,7 @@ function addOptions(){
   try{
    const output=await optimize(selected);
    await persist({...output,enabled:true,updatedAt:new Date().toISOString()});
-   repaint();if(typeof showToast==='function')showToast('تم حفظ الشعار، وسيظهر في الطباعة وPDF','success');
+   repaint();if(typeof showToast==='function')showToast(window.RatibLicense?.isLocallyLicensed?.()?'تم تحديث الشعار في الواجهة والتقارير':'تم حفظ الشعار؛ سيظهر بعد تفعيل النسخة','success');
   }catch(e){repaint();if(typeof showToast==='function')showToast(e.message,'warn');else alert(e.message);}
   finally{file.value='';if(label)label.classList.remove('ratib-logo-busy');}
  });
@@ -141,7 +141,7 @@ function addOptions(){
  });
  remove.addEventListener('click',async()=>{
   if(!safeGet()||!confirm('حذف صورة الشعار المحفوظة من هذا الجهاز؟ لا تُحذف المستندات أو البيانات المالية.'))return;
-  try{store.remove(KEY);if(typeof flushStorage==='function')await flushStorage();cachedSource='';refreshAsset();syncPrint();repaint();}
+  try{store.remove(KEY);if(typeof flushStorage==='function')await flushStorage();cachedSource='';refreshAsset();syncPrint();window.RatibBranding?.refresh?.();repaint();}
   catch(e){if(typeof showToast==='function')showToast('تعذّر حذف الشعار','error');}
  });
  card.querySelector('.settings-accordion-header')?.addEventListener('click',()=>queueMicrotask(repaint));

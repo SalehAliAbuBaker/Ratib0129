@@ -74,7 +74,7 @@ const issues=notes=>notes?.length?'<details class="ratib-special-issues"><summar
 function movementHtml(r){
  let lines=r.rows.map(a=>'<tr><th>'+safe(a.name)+' <small>'+safe(a.code)+'</small></th><td>'+safe(a.currency)+'</td>'+a.values.map(v=>'<td>'+numeric(v)+'</td>').join('')+'</tr>').join('');
  lines+=r.totals.map(t=>'<tr class="ratib-special-total"><th>إجمالي '+safe(t.currency)+'</th><td>'+safe(t.currency)+'</td>'+keys.map(k=>'<td>'+numeric(t[k])+'</td>').join('')+'</tr>').join('');
- return '<h2>حركة الحسابات</h2><p class="ratib-special-caption">من '+(r.from?dateHtml(r.from):'أول عملية')+' إلى '+(r.to?dateHtml(r.to):'آخر عملية')+' — '+safe(r.currency==='ALL'?'العملات منفصلة':r.currency)+'</p>'+
+ return (window.RatibBranding?.html?.()||'')+'<h2>حركة الحسابات</h2><p class="ratib-special-caption">من '+(r.from?dateHtml(r.from):'أول عملية')+' إلى '+(r.to?dateHtml(r.to):'آخر عملية')+' — '+safe(r.currency==='ALL'?'العملات منفصلة':r.currency)+'</p>'+
  '<div class="ratib-special-scroll"><table class="ratib-special-table"><thead><tr><th rowspan="2">الحساب</th><th rowspan="2">العملة</th><th colspan="2">رصيد سابق</th><th colspan="2">حركة الفترة</th><th colspan="2">صافي الرصيد</th></tr><tr>'+Array(3).fill('<th>مدين</th><th>دائن</th>').join('')+'</tr></thead><tbody>'+(lines||'<tr><td colspan="8">لا توجد حركة ضمن المرشحات</td></tr>')+'</tbody></table></div>'+issues(r.warnings);
 }
 function positionHtml(r){
@@ -83,7 +83,7 @@ function positionHtml(r){
  const statusText=r.status==='incomplete'
   ?'⚠ المركز المالي غير مكتمل: '+r.missing+' طرفًا دون سعر تقييم موثق. الأرقام المعروضة جزئية.'
   :r.status==='balanced'?'✓ المركز المالي متوازن بالعملة الأساسية':'⚠ فرق يحتاج مراجعة: '+fmt(r.difference)+' '+r.currency;
- return '<h2>المركز المالي</h2><p class="ratib-special-caption">كما في '+dateHtml(r.to)+' — المعادل بالعملة الأساسية '+safe(r.currency)+' (جميع العملات الأصلية)</p>'+
+ return (window.RatibBranding?.html?.()||'')+'<h2>المركز المالي</h2><p class="ratib-special-caption">كما في '+dateHtml(r.to)+' — المعادل بالعملة الأساسية '+safe(r.currency)+' (جميع العملات الأصلية)</p>'+
  '<div class="ratib-special-position"><section><h3>الأصول</h3>'+sect('الأصول','assets')+'<div class="ratib-special-sum">إجمالي الأصول '+numeric(r.assets)+'</div></section>'+
  '<section><h3>الالتزامات وحقوق الملكية</h3>'+sect('الالتزامات','liabilities')+sect('حقوق الملكية','equity')+
  '<div class="ratib-special-item"><span>نتيجة النشاط (ربح / خسارة)</span>'+numeric(r.profit)+'</div><div class="ratib-special-sum">الإجمالي '+numeric(r.total)+'</div></section></div>'+
@@ -111,7 +111,7 @@ function canvases(kind,r){
   ctx.fillStyle='#344054';ctx.font='22px Tajawal,Arial';const primary=kind==='movement'?'من '+(r.from?dateParts(r.from).primary:'البداية')+' إلى '+(r.to?dateParts(r.to).primary:'النهاية')+' — '+(r.currency==='ALL'?'العملات منفصلة':r.currency):'كما في '+dateParts(r.to).primary+' — '+r.currency;ctx.fillText(primary,W/2,91);
   const other=kind==='movement'?[r.from,r.to].filter(Boolean).map(x=>dateParts(x).secondary).filter(Boolean).join(' — '):dateParts(r.to).secondary;
   if(other){ctx.font='13px Tajawal,Arial';ctx.fillText(other,W/2,114);}
-  ctx.font='17px Tajawal,Arial';ctx.fillText('راتب للتنظيم والتدبير المالي',W/2,144);
+  const cfg=getHeaderConfig();ctx.font='17px Tajawal,Arial';if(cfg.show){ctx.fillText(cfg.name||'',W/2,140,W-240);if(cfg.details){ctx.font='12px Tajawal,Arial';ctx.fillText(cfg.details,W/2,158,W-240);}}
   function draw(items,y,head){
    let right=W-left;
    items.forEach((item,i)=>{
@@ -121,7 +121,7 @@ function canvases(kind,r){
    });
   }
   draw(t.heads,top,true);t.rows.slice(offset,offset+per).forEach((a,i)=>draw(a,top+(i+1)*rowHeight,false));
-  ctx.fillStyle='#64748b';ctx.textAlign='center';ctx.font='18px Tajawal,Arial';ctx.fillText('صفحة '+(pages.length+1)+(kind==='movement'?' — الأرقام حسب عملتها الأصلية':' — المركز المالي بمعادل '+r.currency+(r.status==='incomplete'?' — غير مكتمل':'')),W/2,H-45);pages.push(c);
+  ctx.fillStyle='#64748b';ctx.textAlign='center';ctx.font='18px Tajawal,Arial';ctx.fillText('صفحة '+(pages.length+1)+(kind==='movement'?' — الأرقام حسب عملتها الأصلية':' — المركز المالي بمعادل '+r.currency+(r.status==='incomplete'?' — غير مكتمل':'')),W/2,H-45);window.RatibPrintLogo?.drawCanvas?.(c);pages.push(c);
  }
  return pages;
 }
@@ -132,12 +132,13 @@ function generate(kind){
   saved[kind]=r;el(kind==='movement'?'ratibMovementReportBody':'ratibPositionReportBody').innerHTML=kind==='movement'?movementHtml(r):positionHtml(r);return r;
  }catch(e){saved[kind]=null;el(kind==='movement'?'ratibMovementReportBody':'ratibPositionReportBody').textContent='تعذر عرض التقرير: '+e.message;return null;}
 }
-function output(kind,action){
+async function output(kind,action){
  const r=generate(kind);if(!r)return;
  try{
+  await ratibEnsurePrintLogoReady();
   if(action==='print'){
    el('ratibSpecialPrintHost').innerHTML=kind==='movement'?movementHtml(r):positionHtml(r);
-   document.body.classList.add('ratib-special-print');const cleanup=()=>document.body.classList.remove('ratib-special-print');
+   window.RatibPrintLogo?.syncPrint?.();document.body.classList.add('ratib-special-print');const cleanup=()=>document.body.classList.remove('ratib-special-print');
    window.addEventListener('afterprint',cleanup,{once:true});try{window.print()}catch(e){cleanup();throw e}return;
   }
   const file=new File([buildPdfFromCanvases(canvases(kind,r),[842,595])],kind==='movement'?'حركة-الحسابات.pdf':'المركز-المالي.pdf',{type:'application/pdf'});
@@ -146,9 +147,10 @@ function output(kind,action){
  }catch(e){showToast('تعذر إخراج التقرير: '+e.message,'error');}
 }
 /* Preview the exact canvas pages used for PDF, without printing or editing accounts. */
-function preview(kind){
+async function preview(kind){
  const r=generate(kind);if(!r)return;
  try{
+  await ratibEnsurePrintLogoReady();
   const pages=canvases(kind,r);
   let dialog=el('ratibSpecialPreview');
   if(!dialog){

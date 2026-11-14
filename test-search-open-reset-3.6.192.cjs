@@ -2,8 +2,8 @@
 'use strict';
 const assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('node:vm');
 const html=fs.readFileSync('index.html','utf8'),sw=fs.readFileSync('sw.js','utf8'),pkg=require('./package.json');
-assert.equal(pkg.version,'3.6.199');
-assert.match(html,/الإصدار 3\.6\.199/);
+assert.equal(pkg.version,'3.6.201');
+assert.match(html,/الإصدار 3\.6\.201/);
 assert.match(sw,/smart-account-search-reset-3\.6\.192/);
 assert.match(sw,/account-font-plus2-search-back-context-3\.6\.197/);
 assert.match(html,/const choose=item=>\{if\(!item\)return;clearTimeout\(timer\);hide\(\);openAccountFromPager\(item.name,\[item.name\]\);\};/);

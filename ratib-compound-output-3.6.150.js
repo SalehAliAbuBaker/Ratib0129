@@ -66,7 +66,7 @@ function html(d){
   totalCells('إجمالي التقييم',m.baseDebit,m.baseCredit,m.baseCurrency,true);
  
  return '<article class="ratib-compound-reference" dir="rtl">'+
-  '<div class="ratib-cmp-out-head"><div class="ratib-cmp-out-identity"><b>راتب</b><span>للتنظيم والتدبير المالي</span></div>'+
+  '<div class="ratib-cmp-out-head"><div class="ratib-cmp-out-identity"></div>'+
   '<div class="ratib-cmp-out-title">سند قيد مركب</div>'+
   '<div class="ratib-cmp-out-number">رقم السند <strong>'+enc(m.seq)+'</strong></div></div>'+
   '<div class="ratib-cmp-out-info">'+
@@ -123,7 +123,6 @@ function* pages(d){
    if(m.header.name)text(m.header.name,R,88,23,true,660);
    if(m.header.details)text(m.header.details,R,111,15,false,660);
   }
-  text('راتب – للتنظيم والتدبير المالي',L+680,90,25,true,655);
   ctx.fillStyle='#e2f3e9';ctx.fillRect(W/2-232,122,464,58);
   stroke(W/2-232,122,464,58,'#b99e47');
   ctx.textAlign='center';text(m.title,W/2,161,31,true,420);

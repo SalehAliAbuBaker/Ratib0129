@@ -70,7 +70,7 @@ function draw(){
  $('rfrFields').replaceChildren();
  if(step===0){
   $('rfrFields').innerHTML='<label>اسم الشركة / الاسم الشخصي<input type="text" id="rfrName" maxlength="140" placeholder="اكتب الاسم" required></label><label>العنوان أو بيانات التواصل (اختياري)<input type="text" id="rfrDetails" maxlength="250" placeholder="المدينة — الهاتف — التفاصيل"></label><label class="rfr-check"><input type="checkbox" id="rfrHeader" checked><span>إظهار الترويسة في المطبوعات</span></label>';
-  const cfg=getHeaderConfig(),previous=store.get('header_config',null);
+  const cfg=typeof getSavedHeaderConfig==='function'?getSavedHeaderConfig():getHeaderConfig(),previous=store.get('header_config',null);
   $('rfrName').value=previous?cfg.name:'';$('rfrDetails').value=cfg.details||'';$('rfrHeader').checked=cfg.show!==false;
   $('rfrName').focus({preventScroll:true});
  }else if(step===1){

@@ -8,7 +8,7 @@ const css=fs.readFileSync('ratib-cash-pulse.css','utf8');
 const js=fs.readFileSync('ratib-cash-pulse.js','utf8');
 const pkg=require('./package.json');
 assert.equal(pkg.version,'3.6.199');
-assert(html.includes('const RATIB_RELEASE={"version":"3.6.199","build":"p19800"'));
+assert(html.includes('const RATIB_RELEASE={"version":"3.6.199","build":"p19900"'));
 assert(sw.includes('v260-opening-mobile-clean-3.6.139'));
 assert(html.includes('ratib-cash-pulse.js?v=3.6.199'));
 assert(html.includes('ratib-cash-pulse.css?v=3.6.139'));

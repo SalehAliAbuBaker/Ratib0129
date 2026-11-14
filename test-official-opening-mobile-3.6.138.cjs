@@ -6,7 +6,7 @@ const css=fs.readFileSync('ratib-cash-actions-3.6.135.css','utf8');
 const sw=fs.readFileSync('sw.js','utf8');
 const pkg=JSON.parse(fs.readFileSync('package.json','utf8'));
 assert.equal(pkg.version,'3.6.199');
-assert(html.includes('"version":"3.6.199","build":"p19800"'));
+assert(html.includes('"version":"3.6.199","build":"p19900"'));
 assert(sw.includes("v260-opening-mobile-clean-3.6.139"));
 const start=html.indexOf('function openingFormRate(raw){');
 const end=html.indexOf('function openingFormDecorate(){',start);

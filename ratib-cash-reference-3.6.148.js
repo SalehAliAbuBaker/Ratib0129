@@ -14,66 +14,81 @@ function currencyName(code){
 }
 function currencySymbol(code){return ({YER:'ر.ي',SAR:'ر.س',USD:'$'})[code]||code||'';}
 /*
- * The printed balance is for the voucher's COUNTERPARTY account:
- * receipt = credit leg, payment = debit leg. It is derived from already
- * posted ledger legs up to this voucher, never added to the ledger.
- * A reversal of the expected side is printed as a negative red amount.
+ * Read the signed account balance after the SAVED voucher (not a simulated
+ * posting). Reprints use the ledger state at this document's position in the
+ * dated transaction sequence, so later transactions are not included.
  */
 function balanceAfterSavedVoucher(d){
- const voucherId=clean(d?.id),mode=clean(d?.mode);
- const expectedSide=mode==='income'?'credit':'debit';
+ const mode=clean(d?.mode),voucherId=clean(d?.id);
  const choices=(Array.isArray(d?.lines)?d.lines:[])
-  .filter(l=>l&&!l.autoBalance&&clean(l.account))
-  .map(l=>({name:clean(l.account),id:clean(l.accountId),currency:clean(l.currency)||clean(d.baseCurrency)||'YER'}));
- const wanted=[...new Map(choices.map(c=>[c.id||c.name+'\x1f'+c.currency,c])).values()];
- const empty={text:'',lines:[],reversed:false};
- if(!voucherId||!['income','spend'].includes(mode)||!wanted.length||
-    typeof getAllTransactions!=='function'||typeof trialTransactionLegs!=='function')return empty;
+   .filter(l=>l&&!l.autoBalance&&clean(l.account))
+   .map(l=>({name:clean(l.account),id:clean(l.accountId)}));
+ const accounts=[...new Map(choices.map(c=>[c.id||c.name,c])).values()];
+ const matches=(leg,target)=>{
+  const legId=clean(leg.accountId);
+  return target.id&&legId?legId===target.id:clean(leg.account)===target.name;
+ };
+ const blank={text:'',negative:false};
+ if(!voucherId||!accounts.length||!['income','spend'].includes(mode)||
+    typeof getAllTransactions!=='function'||typeof trialTransactionLegs!=='function')return blank;
  try{
+  // Show the account(s) from the printed voucher table, not the cash account.
   const all=getAllTransactions().filter(t=>t&&
-   (!t.status||['posted','approved','confirmed'].includes(String(t.status).toLowerCase())));
+   (!t.status||['posted','approved','confirmed'].includes(clean(t.status).toLowerCase())));
   const belongs=t=>clean(t.voucherMode)===mode&&
    (clean(t.multiVoucherId)===voucherId||clean(t.id)===voucherId);
-  const matched=all.filter(belongs);
-  if(!matched.length)return empty;
+  const saved=all.filter(belongs);
+  if(!saved.length)return blank;
+  const expected=mode==='income'?'credit':'debit';
+  const active=accounts.filter(account=>saved.some(t=>trialTransactionLegs(t).some(l=>
+   matches(l,account)&&Number(l[expected]||0)>0)));
+  if(!active.length)return blank;
   const dated=all.map((t,i)=>({t,i,date:clean(t.isoDate||t.date).slice(0,10)}))
-   .sort((x,y)=>x.date.localeCompare(y.date)||x.i-y.i);
+   .sort((a,b)=>a.date.localeCompare(b.date)||a.i-b.i);
   let last=-1;
   dated.forEach((row,i)=>{if(belongs(row.t))last=i;});
-  if(last<0)return empty;
-  const matches=(leg,c)=>clean(leg.currency)===c.currency&&
-   (c.id?clean(leg.accountId)===c.id||(!leg.accountId&&clean(leg.account)===c.name)
-        :clean(leg.account)===c.name);
-  const out=[];
-  for(const target of wanted){
-   const present=matched.some(t=>trialTransactionLegs(t).some(leg=>
-    matches(leg,target)&&Number(leg[expectedSide]||0)>0));
-   if(!present)continue;
-   let signed=0;
-   for(let i=0;i<=last;i++)
-    for(const leg of trialTransactionLegs(dated[i].t)){
-     if(!matches(leg,target))continue;
-     signed+=Number(leg[expectedSide]||0)-Number(leg[expectedSide==='credit'?'debit':'credit']||0);
+  if(last<0)return blank;
+  const totals=new Map(active.map(account=>[account.id||account.name,{account,balances:new Map()}]));
+  for(let i=0;i<=last;i++){
+   for(const leg of trialTransactionLegs(dated[i].t)){
+    const currency=clean(leg.currency);
+    if(!currency)continue;
+    const debit=Number(leg.debit||0),credit=Number(leg.credit||0);
+    if(!Number.isFinite(debit)||!Number.isFinite(credit))continue;
+    for(const {account,balances} of totals.values()){
+     if(!matches(leg,account))continue;
+     balances.set(currency,(balances.get(currency)||0)+credit-debit);
     }
-   if(!Number.isFinite(signed))continue;
-   signed=Math.round(signed*1e6)/1e6;
-   const reverse=signed<-.0000005;
-   const direction=Math.abs(signed)<.0000005?'صفر':reverse?
-    (expectedSide==='credit'?'مدين':'دائن'):(expectedSide==='credit'?'دائن':'مدين');
-   const value=(reverse?'-':'')+Math.abs(signed).toLocaleString('en-US',{maximumFractionDigits:3});
-   out.push({text:'الرصيد الحالي بعد السند – '+direction+': '+value+' '+currencyName(target.currency),
-    account:target.name,reversed:reverse});
+   }
   }
-  if(!out.length)return empty;
-  const lines=out.map(item=>({...item,text:item.text+(out.length>1?' – '+item.account:'')}));
-  return {text:lines.map(x=>x.text).join('\n'),lines,reversed:lines.some(x=>x.reversed)};
- }catch(error){console.warn('Could not calculate saved voucher counterparty balance',error);return empty;}
+  const rank=code=>({YER:0,SAR:1,USD:2})[code]??3;
+  let reversed=false;
+  const parts=[];
+  for(const {account,balances} of totals.values()){
+   const currencies=[...balances].sort((a,b)=>rank(a[0])-rank(b[0])||
+    currencyName(a[0]).localeCompare(currencyName(b[0]),'ar'));
+   if(!currencies.length)continue;
+   const labels=currencies.map(([code,raw])=>{
+    const value=Math.round(raw*1e6)/1e6;
+    const zero=Math.abs(value)<.0000005;
+    const side=zero?'صفر':value<0?'مدين':'دائن';
+    const opposite=!zero&&(expected==='credit'?value<0:value>0);
+    if(opposite)reversed=true;
+    const number=Math.abs(value).toLocaleString('en-US',{maximumFractionDigits:3});
+    return currencyName(code)+': '+side+' '+(opposite?'-':'')+number;
+   });
+   parts.push((active.length>1?account.name+' — ':'')+labels.join('، '));
+  }
+  if(!parts.length)return blank;
+  return {text:'الرصيد الحالي بعد السند: '+parts.join(' ؛ '),negative:reversed};
+ }catch(error){console.warn('Could not calculate saved voucher running balance',error);return blank;}
 }
 function referenceModel(d){
  if(!d||!['income','spend'].includes(d.mode))throw Error('السند المرجعي مخصص لسندات القبض والصرف.');
  const categories=new Map((typeof getCats==='function'?getCats():[]).map(x=>[x.id,x.name]));
  const code=clean(d.baseCurrency)||'YER',isReceipt=d.mode==='income',lines=Array.isArray(d.lines)?d.lines.filter(l=>l&&!l.autoBalance):[];
  const note=clean(d.note),beneficiary=clean(d.beneficiary),source=clean(d.sourceAccount);
+ const balanceAfter=balanceAfterSavedVoucher(d);
  const rows=lines.map(line=>{
   const cur=clean(line.currency)||code,acc=clean(line.account);
   let accountCode='';try{const val=getAccountCode(acc);accountCode=val==='—'?'':clean(val);}catch(_){}
@@ -90,7 +105,8 @@ function referenceModel(d){
   date:clean(d.date),currencyCode:code,currencyName:currencyName(code),cashAccount:source,
   money:money(d.baseTotal),beneficiary,amountWords:typeof tafqitAccountCurrency==='function'?tafqitAccountCurrency(amount(d.baseTotal),code):'',
   notes:note,openingLabel:isReceipt?'استلمنا من':'صرفنا إلى',rows:rows.length?rows:[{account:'',accountCode:'',amount:'',currency:'',notes:'',budget:''}],
-  signatureKey:isReceipt?'receipt':'payment',postBalance:balanceAfterSavedVoucher(d)
+  signatureKey:isReceipt?'receipt':'payment',postBalance:balanceAfter.text,
+  postBalanceNegative:balanceAfter.negative
  };
 }
 function html(d){
@@ -109,15 +125,15 @@ function html(d){
  '</div><div class="ratib-cash-record-label">ويقيد في الحساب:</div>'+
  '<table class="ratib-cash-grid"><colgroup><col style="width:36%"><col style="width:14%"><col style="width:9%"><col style="width:26%"><col style="width:15%"></colgroup>'+
  '<thead><tr><th>الحساب</th><th>المبلغ</th><th>العملة</th><th>ملاحظات</th><th>بند الميزانية</th></tr></thead><tbody>'+rows+'</tbody></table></div>'+ 
- (m.postBalance.lines.length?'<div class="ratib-cash-post-balance" style="margin:12px 2px 1px;text-align:right;font:500 9pt/1.5 Tajawal,Arial,sans-serif;break-inside:avoid;page-break-inside:avoid">'+m.postBalance.lines.map(line=>'<div style="color:'+(line.reversed?'#b91c1c':'#475569')+';font-weight:'+(line.reversed?'700':'500')+'">'+e(line.text)+'</div>').join('')+'</div>':'')+'</div>';
+ (m.postBalance?'<div class="ratib-cash-post-balance" data-negative="'+(m.postBalanceNegative?'true':'false')+'" style="margin:7px 2px 0;text-align:right;font:500 9pt/1.5 Tajawal,Arial,sans-serif;color:'+(m.postBalanceNegative?'#c62828':'#475569')+';white-space:nowrap;break-inside:avoid;page-break-inside:avoid">'+e(m.postBalance)+'</div>':'')+'</div>';
 }
 function* pdfPages(d){
  const m=referenceModel(d),cfg=getHeaderConfig(),WIDTH=1190,HEIGHT=1684,LEFT=50,RIGHT=1140,INNER=1090,BOTTOM=1518;
  const widths=[390,153,98,285,164],labels=['الحساب','المبلغ','العملة','ملاحظات','بند الميزانية'];
  let canvas,ctx,y,pageNo=0,frameStart=315;
- function drawText(value,x,top,size=18,bold=false,maxWidth){
+ function drawText(value,x,top,size=18,bold=false,maxWidth,color='#163524'){
   ctx.font=(bold?'700 ':'500 ')+size+'px Tajawal,Arial,sans-serif';
-  ctx.fillStyle='#163524';if(Number.isFinite(maxWidth)&&maxWidth>0)ctx.fillText(String(value??''),x,top,maxWidth);else ctx.fillText(String(value??''),x,top);
+  ctx.fillStyle=color;if(Number.isFinite(maxWidth)&&maxWidth>0)ctx.fillText(String(value??''),x,top,maxWidth);else ctx.fillText(String(value??''),x,top);
  }
  function wrap(value,width,size=18){
   ctx.font='500 '+size+'px Tajawal,Arial,sans-serif';
@@ -210,19 +226,18 @@ function* pdfPages(d){
  }
  closeFrame();
  const signatureHeight=window.RatibSignatureSettings?.height?.(m.signatureKey)||0;
- if(signatureHeight){
-  if(y+signatureHeight+75>BOTTOM){yield canvas;page();}
-  window.RatibSignatureSettings.drawCanvas(ctx,m.signatureKey,WIDTH,y+26);
-  y+=signatureHeight+26;
- }
- for(const line of m.postBalance.lines){
+ const automatic=window.RatibSignatureSettings?.get?.(m.signatureKey)?.automatic===true;
+ if(m.postBalance&&!automatic){
   if(y+50>BOTTOM){yield canvas;page();}
   ctx.textAlign='right';
-  if(line.reversed){
-   ctx.fillStyle='#b91c1c';ctx.font='700 15px Tajawal,Arial,sans-serif';
-   ctx.fillText(line.text,RIGHT-12,y+32,INNER-24);
-  }else drawText(line.text,RIGHT-12,y+32,15,false,INNER-24);
-  y+=30;
+  drawText(m.postBalance,RIGHT-12,y+32,15,false,INNER-24,m.postBalanceNegative?'#c62828':'#163524');
+  y+=44;
+ }
+ if(signatureHeight){
+  if(y+signatureHeight+75>BOTTOM){yield canvas;page();}
+  window.RatibSignatureSettings.drawCanvas(ctx,m.signatureKey,WIDTH,y+26,
+   automatic&&m.postBalance?{rightNote:m.postBalance,rightNoteNegative:m.postBalanceNegative}:undefined);
+  y+=signatureHeight+26;
  }
  yield canvas;
 }

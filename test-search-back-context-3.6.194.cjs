@@ -1,12 +1,12 @@
-// Ratib 3.6.198: Back cancels a search in place, without leaving a selected account.
+// Ratib 3.6.199: Back cancels a search in place, without leaving a selected account.
 'use strict';
 const assert=require('node:assert/strict');
 const fs=require('node:fs'),vm=require('node:vm');
 const html=fs.readFileSync('index.html','utf8'),home=fs.readFileSync('ratib-home-3.6.167.css','utf8'),direct=fs.readFileSync('ratib-home-3.6.171.css','utf8');
 const sw=fs.readFileSync('sw.js','utf8'),pkg=require('./package.json');
-assert.equal(pkg.version,'3.6.198');
+assert.equal(pkg.version,'3.6.199');
 assert.match(sw,/account-font-plus2-search-back-context-3\.6\.197/);
-assert.match(html,/الإصدار 3\.6\.198/);
+assert.match(html,/الإصدار 3\.6\.199/);
 assert.match(html,/\.searchable-item \{[^}]*font-size: calc\(1\.1rem \+ 2px\)/);
 assert.match(html,/\.account-sub-name\{[^}]*font-size:calc\(1\.08rem \+ 2px\)/);
 assert.match(html,/\.accounts-pager-suggestion\{[^}]*font-size:calc\(\.94rem \+ 2px\)/);
@@ -151,4 +151,4 @@ assert.equal(calls.hist,1,'phone Back replays the same history entry');
 assert.equal(context.accountOpsState.accountName,'حساب المؤسسة');
 assert.equal(context.accountOpsState.movementSearch,'');
 assert.equal(calls.navigate,1,'phone Back does not cause a second page navigation');
-console.log('PASS Ratib 3.6.198: account font +2px and Back clears text/date in place');
+console.log('PASS Ratib 3.6.199: account font +2px and Back clears text/date in place');

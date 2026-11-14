@@ -27,17 +27,19 @@ new vm.Script(ui);new vm.Script(cash);
 }
 
 const saved=[
- {id:'open',isoDate:'2026-11-10',status:'posted',creditAccount:'إيرادات',debitAccount:'صندوق',amount:100,currency:'YER'},
- {id:'openingSpend',isoDate:'2026-11-10',status:'posted',debitAccount:'مصاريف',creditAccount:'صندوق',amount:60,currency:'YER'},
- {id:'mv1_0',multiVoucherId:'mv1',isoDate:'2026-11-11',status:'posted',voucherMode:'income',debitAccount:'صندوق',creditAccount:'إيرادات',amount:40,currency:'YER'},
- {id:'next',isoDate:'2026-11-12',status:'posted',creditAccount:'إيرادات',debitAccount:'صندوق',amount:30,currency:'YER'},
- {id:'mv2_0',multiVoucherId:'mv2',isoDate:'2026-11-13',status:'posted',voucherMode:'spend',creditAccount:'صندوق',debitAccount:'مصاريف',amount:25,currency:'YER'},
- {id:'revIncomeOpening',isoDate:'2026-11-09',status:'posted',debitAccount:'مرتجعات',creditAccount:'صندوق',amount:120,currency:'YER'},
- {id:'revIncome',multiVoucherId:'rev1',isoDate:'2026-11-14',status:'posted',voucherMode:'income',debitAccount:'صندوق',creditAccount:'مرتجعات',amount:20,currency:'YER'},
- {id:'revSpendOpening',isoDate:'2026-11-09',status:'posted',creditAccount:'سلف',debitAccount:'صندوق',amount:120,currency:'YER'},
- {id:'revSpend',multiVoucherId:'rev2',isoDate:'2026-11-14',status:'posted',voucherMode:'spend',creditAccount:'صندوق',debitAccount:'سلف',amount:20,currency:'YER'}
+ {id:'open',isoDate:'2026-11-10',status:'posted',creditAccount:'صندوق المؤسسة',debitAccount:'حساب افتتاحي',amount:100,currency:'YER'},
+ {id:'rev-usd',isoDate:'2026-11-09',status:'posted',debitAccount:'إيرادات',creditAccount:'افتتاحي',amount:50,currency:'USD'},
+ {id:'revenue-before',isoDate:'2026-11-10',status:'posted',creditAccount:'إيرادات',debitAccount:'افتتاحي',amount:100,currency:'YER'},
+ {id:'revenue-sar',isoDate:'2026-11-10',status:'posted',creditAccount:'إيرادات',debitAccount:'افتتاحي',amount:250,currency:'SAR'},
+ {id:'expense-before',isoDate:'2026-11-10',status:'posted',debitAccount:'مصاريف',creditAccount:'افتتاحي',amount:80,currency:'YER'},
+ {id:'expense-reverse',isoDate:'2026-11-10',status:'posted',creditAccount:'مصاريف',debitAccount:'افتتاحي',amount:30,currency:'SAR'},
+ {id:'mv1_0',multiVoucherId:'mv1',isoDate:'2026-11-11',status:'posted',voucherMode:'income',debitAccount:'صندوق المؤسسة',creditAccount:'إيرادات',amount:40,currency:'YER'},
+ {id:'next',isoDate:'2026-11-12',status:'posted',creditAccount:'صندوق المؤسسة',debitAccount:'مصروفات',amount:30,currency:'YER'},
+ {id:'mv2_0',multiVoucherId:'mv2',isoDate:'2026-11-13',status:'posted',voucherMode:'spend',creditAccount:'صندوق المؤسسة',debitAccount:'مصاريف',amount:25,currency:'YER'},
+ {id:'mv3_0',multiVoucherId:'mv3',isoDate:'2026-11-13',status:'posted',voucherMode:'income',creditAccount:'إيرادات مستقرة',debitAccount:'صندوق المؤسسة',amount:7,currency:'YER'},
+ {id:'late',isoDate:'2026-11-14',status:'posted',creditAccount:'إيرادات',debitAccount:'افتتاحي',amount:700,currency:'YER'}
 ];
-let pdfDraws=[];
+const canvasText=[];
 const context={
  window:{},
  getAllTransactions:()=>saved,
@@ -45,40 +47,41 @@ const context={
   {account:tx.debitAccount,currency:tx.currency,debit:tx.amount,credit:0},
   {account:tx.creditAccount,currency:tx.currency,debit:0,credit:tx.amount}
  ],
- accountCurrencyLabel:code=>code==='YER'?'ريال يمني':code,
+ accountCurrencyLabel:code=>({YER:'ريال يمني',SAR:'ريال سعودي',USD:'دولار أمريكي'})[code]||code,
  getHeaderConfig:()=>({show:false}),
  ratibCanvasDateParts:date=>({primary:date,secondary:''}),
  ratibStatementDateHtml:date=>date,
  wrapCanvasText:(ctx,line)=>[String(line)],
- document:{createElement:()=>({width:0,height:0,getContext:()=>({
+ document:{createElement:tag=>({width:0,height:0,getContext:()=>({
   fillStyle:'',strokeStyle:'',lineWidth:0,textAlign:'right',direction:'rtl',
-  fillRect(){},strokeRect(){},fillText(value){pdfDraws.push(String(value));}
+  fillRect(){},strokeRect(){},fillText(value){canvasText.push(String(value));},
  })})},
  buildPdfFromCanvases:pages=>[...pages]
 };
 vm.createContext(context);vm.runInContext(cash,context);
 const api=context.window.RatibCashReference;
-const receipt={id:'mv1',mode:'income',seq:12,date:'2026-11-11',baseCurrency:'YER',baseTotal:40,sourceAccount:'صندوق',lines:[{account:'إيرادات',currency:'YER',amount:40}]};
+const receipt={id:'mv1',mode:'income',seq:12,date:'2026-11-11',baseCurrency:'YER',baseTotal:40,sourceAccount:'صندوق المؤسسة',lines:[{account:'إيرادات',currency:'YER',amount:40}]};
 const spent={...receipt,id:'mv2',mode:'spend',seq:13,date:'2026-11-13',baseTotal:25,lines:[{account:'مصاريف',currency:'YER',amount:25}]};
-const receiptText='الرصيد الحالي بعد السند – دائن: 140 ريال يمني';
-const spentText='الرصيد الحالي بعد السند – مدين: 85 ريال يمني';
-assert.equal(api.model(receipt).postBalance.text,receiptText,'Receipt must print CREDIT counterparty, not source debit');
-assert.equal(api.model(spent).postBalance.text,spentText,'Payment must print DEBIT counterparty, not source credit');
-assert(api.html(receipt).includes(receiptText),'Printed receipt contains counterparty balance');
-assert(api.html(spent).includes(spentText),'Printed payment contains counterparty balance');
-assert(!api.html(receipt).includes('الرصيد الحالي بعد السند – مدين: 140'),'Do not use source account balance');
-assert.equal(api.model({...receipt,id:'not-posted'}).postBalance.text,'','Do not report a draft balance');
-api.pdf(receipt);api.pdf(spent);
-assert(pdfDraws.includes(receiptText)&&pdfDraws.includes(spentText),'PDF share and download reflect printed counterparty');
-
-const reverseIncome={...receipt,id:'rev1',lines:[{account:'مرتجعات',currency:'YER',amount:20}]};
-const reverseSpend={...spent,id:'rev2',lines:[{account:'سلف',currency:'YER',amount:20}]};
-for(const [doc,expected] of [[reverseIncome,'الرصيد الحالي بعد السند – مدين: -100 ريال يمني'],[reverseSpend,'الرصيد الحالي بعد السند – دائن: -100 ريال يمني']]){
- assert.equal(api.model(doc).postBalance.text,expected,'Reversed balance must show minus and opposite side');
- assert(api.model(doc).postBalance.reversed,'Opposite-side balance flagged red');
- assert(api.html(doc).includes('color:#b91c1c'),'Entire reversed line is red');
- pdfDraws=[];api.pdf(doc);
- assert(pdfDraws.includes(expected),'PDF also shows reversed minus amount');
-}
-assert(!ui.includes('getCurrentAccountBalance=function'),'Do not replace in-form account balance');
-console.log('PASS: Settings picker, receipt-credit/payment-debit counterparty, reversed red, draft safety, print/PDF');
+const expectReceipt='الرصيد الحالي بعد السند: ريال يمني: دائن 140، ريال سعودي: دائن 250، دولار أمريكي: مدين -50';
+const expectSpent='الرصيد الحالي بعد السند: ريال يمني: مدين 105، ريال سعودي: دائن -30';
+assert.equal(api.model(receipt).postBalance,expectReceipt,'Receipt shows credited table account for every currency; later postings excluded');
+assert.equal(api.model(spent).postBalance,expectSpent,'Payment shows debited table account for every currency');
+assert.equal(api.model(receipt).postBalanceNegative,true,'Any opposite receipt currency triggers red');
+assert.equal(api.model(spent).postBalanceNegative,true,'Any opposite payment currency triggers red');
+assert(api.html(receipt).includes(expectReceipt),'Native print and preview contain all currencies on one line');
+assert(api.html(receipt).includes('data-negative="true"'),'Reverse balance has red style hook');
+assert(api.html(receipt).includes('color:#c62828'),'All the balance text is red');
+assert(api.html(receipt).includes('font:500 9pt'),'Balance line is small');
+assert.equal(api.model({...receipt,id:'not-posted'}).postBalance,'','Draft/unsaved voucher cannot report posted balance');
+assert(!api.html({...receipt,id:'not-posted'}).includes('الرصيد الحالي بعد السند'),'No draft balance');
+const plain={...receipt,id:'mv3',lines:[{account:'إيرادات مستقرة',currency:'YER',amount:7}]};
+assert.equal(api.model(plain).postBalance,'الرصيد الحالي بعد السند: ريال يمني: دائن 7');
+assert.equal(api.model(plain).postBalanceNegative,false,'Normal balance is not red');
+assert(!api.html(plain).includes('data-negative="true"'),'Normal balance is not flagged negative');
+api.pdf(receipt);
+assert(canvasText.includes(expectReceipt),'Download/shared PDF renders all currency balances');
+assert(!ui.includes('getCurrentAccountBalance=function'),'In-form account balance remains unchanged');
+const signatures=require('node:fs').readFileSync('ratib-document-signatures-3.6.148.js','utf8');
+assert(signatures.includes("element.insertBefore(balance,host)"),'Automatic signature is laid out beside balance');
+assert(signatures.includes('rightNoteNegative'),'PDF sign and balance share one baseline');
+console.log('PASS: default picker, credited receipt/debited spend, all currencies, reverse sign/red, PDF, unchanged input');

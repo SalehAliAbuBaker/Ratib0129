@@ -3,8 +3,8 @@ const fs=require('node:fs'),assert=require('node:assert/strict'),{JSDOM}=require
 const html=fs.readFileSync('index.html','utf8'),css=fs.readFileSync('ratib-receipt-payer-3.6.115.css','utf8'),sw=fs.readFileSync('sw.js','utf8'),pkg=require('./package.json');
 const doc=new JSDOM(html).window.document;
 assert.equal(pkg.version,'3.6.199');
-assert(html.includes('const RATIB_RELEASE={"version":"3.6.199","build":"p19800"'));
-assert(sw.includes('const APP_RELEASE={"version":"3.6.199","build":"p19800"'));
+assert(html.includes('const RATIB_RELEASE={"version":"3.6.199","build":"p19900"'));
+assert(sw.includes('const APP_RELEASE={"version":"3.6.199","build":"p19900"'));
 assert(sw.includes('v260-opening-mobile-clean-3.6.139'));
 assert(sw.includes('"./ratib-receipt-payer-3.6.115.css"'));
 assert(doc.querySelector('link[href="./ratib-receipt-payer-3.6.115.css?v=3.6.139"]'));

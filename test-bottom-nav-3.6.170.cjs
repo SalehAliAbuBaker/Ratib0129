@@ -2,7 +2,7 @@
 const assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('node:vm'),{JSDOM}=require('jsdom');
 const js=fs.readFileSync('ratib-bottom-nav-3.6.170.js','utf8'),css=fs.readFileSync('ratib-bottom-nav-3.6.170.css','utf8'),html=fs.readFileSync('index.html','utf8'),sw=fs.readFileSync('sw.js','utf8');
 new vm.Script(js);
-assert.equal(require('./package.json').version,'3.6.199');assert(html.includes('"version":"3.6.199","build":"p19800"'));assert(sw.includes('"version":"3.6.199","build":"p19800"'));
+assert.equal(require('./package.json').version,'3.6.199');assert(html.includes('"version":"3.6.199","build":"p19900"'));assert(sw.includes('"version":"3.6.199","build":"p19900"'));
 for(const asset of ['ratib-bottom-nav-3.6.170.js','ratib-bottom-nav-3.6.170.css']){assert(html.includes(asset+'?v=3.6.199'));assert(sw.includes(asset));}
 assert(css.includes('overflow-x:auto'),'Overflowed navigation must scroll horizontally');
 assert(js.includes('ratib.ui.bottom-nav.v1'),'Navigation preference persisted separately');

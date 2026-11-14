@@ -75,3 +75,28 @@
   direction:rtl;padding:8px!important;
  }
 }
+
+/* Posted balances sit in the indicated space, without a border or background.
+   In automatic vouchers the notice is on the left and currencies on the right. */
+.pv-signatures.ratib-signatures-managed.ratib-cash-balance-signature{
+ display:flex!important;flex-wrap:nowrap!important;justify-content:space-between!important;
+ align-items:baseline!important;gap:8px!important;margin-top:6px!important;
+ padding:0!important;border:0!important;direction:rtl!important;
+}
+.pv-signatures.ratib-cash-balance-signature>.ratib-cash-post-balance{
+ flex:1 1 72%!important;min-width:0!important;max-width:none!important;
+ margin:0!important;padding:0!important;text-align:right!important;
+ font:500 8pt/1.5 Tajawal,Arial,sans-serif!important;
+ white-space:nowrap!important;background:none!important;border:0!important;
+}
+.pv-signatures.ratib-cash-balance-signature>.ratib-cash-post-balance[data-negative="true"]{
+ color:#c62828!important;
+}
+.pv-signatures.ratib-cash-balance-signature>.ratib-sig-print-host{
+ flex:0 0 26%!important;min-width:0!important;max-width:26%!important;width:26%!important;
+}
+.pv-signatures.ratib-cash-balance-signature .ratib-automatic-document-note{
+ margin:0!important;padding:0!important;border:0!important;background:none!important;
+ text-align:left!important;white-space:nowrap!important;
+ font:700 8pt/1.5 Tajawal,Arial,sans-serif!important;
+}

@@ -139,6 +139,8 @@ function mount(){
   titleEl.after(statementStar);
   const page=$('pageAccountOperations');
   if(page)new MutationObserver(updateStatementStar).observe(page,{attributes:true,attributeFilter:['class']});
+  // A different account can open without hiding this page: keep the star tied to the visible account.
+  new MutationObserver(updateStatementStar).observe(titleEl,{childList:true,characterData:true,subtree:true});
  }
  render();
  window.addEventListener('ratib:app-ready',render);

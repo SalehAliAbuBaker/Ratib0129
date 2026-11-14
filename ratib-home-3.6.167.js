@@ -93,7 +93,7 @@ function draw(){
   const list=term?accounts().filter(a=>fold(a.name+' '+a.code).includes(needle)):pinned;
   // Favorite accounts are prioritized only among matching results; other accounts remain searchable.
   list.sort((a,b)=>Number(favoriteNames.has(b.name))-Number(favoriteNames.has(a.name)));
-  for(const a of list){if(count>=8)break;current.push({type:'account',data:a,label:a.name+' · '+a.code});count++;}
+  for(const a of list){if(term&&count>=8)break;current.push({type:'account',data:a,label:a.name+' · '+a.code});count++;}
  }
  if(!current.length){
   results.append(node('p','ratib-smart-empty',term?'لا توجد نتائج مطابقة. استخدم البحث التفصيلي.':'لا توجد حسابات مفضلة. اكتب اسم الحساب لإضافته بالنجمة.'));

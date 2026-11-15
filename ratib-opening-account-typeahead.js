@@ -6,6 +6,15 @@
  const previousRender=renderImportedOpeningRows;
  const previousClose=closeImportedOpeningVoucher;
  let selectors=[];
+ // The global voice button normally lives under <body>. While the opening editor
+ // is modal, body siblings are inert, so the microphone must join the modal.
+ function scopeVoiceButton(modal,inside){
+  const mic=document.getElementById('ratibVoiceButton');
+  if(!mic||!modal)return;
+  if(inside){if(!modal.contains(mic))modal.append(mic);}
+  else if(modal.contains(mic))document.body.append(mic);
+ }
+
 
  function dispose(){
   for(const item of selectors){
@@ -83,14 +92,26 @@
   dispose();
   const result=previousRender.apply(this,arguments);
   const state=importedOpeningEdit,modal=document.getElementById('importedOpeningVoucherModal');
-  if(!state?.manual||!modal)return result;
+  if(!state?.manual||!modal){if(modal)scopeVoiceButton(modal,false);return result;}
+  scopeVoiceButton(modal,true);
   const rows=[...document.querySelectorAll('#importedOpeningRows > tr')],items=accounts();
-  rows.forEach((tr,index)=>installRow(tr,index,items,modal,state));
+  rows.forEach((tr,index)=>{
+   // The opening journal stores up to six decimals; the calculator must not
+   // silently truncate foreign or locally entered opening balances to two.
+   tr.querySelectorAll('input[data-field="debit"],input[data-field="credit"]').forEach(input=>{
+    input.dataset.precision='6';
+   });
+   installRow(tr,index,items,modal,state);
+  });
   return result;
  };
  closeImportedOpeningVoucher=function(){
   const result=previousClose.apply(this,arguments);
-  if(!importedOpeningEdit||!document.getElementById('importedOpeningVoucherModal')?.classList.contains('show'))dispose();
+  const modal=document.getElementById('importedOpeningVoucherModal');
+  if(!importedOpeningEdit||!modal?.classList.contains('show')){
+   dispose();
+   scopeVoiceButton(modal,false);
+  }
   return result;
  };
  window.RatibOpeningAccountTypeahead=Object.freeze({

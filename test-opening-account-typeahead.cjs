@@ -59,7 +59,7 @@ assert.equal(d.querySelectorAll('.opening-account-dropdown').length,2,'Two porta
 assert(![...d.querySelectorAll('.opening-account-dropdown')].some(p=>p.parentElement===d.body),'Portal stays within active modal');
 inputs[0].focus();
 assert(!d.getElementById('openingAccountDrop_0').classList.contains('open'),'Empty focus does not cover keyboard');
-inputs[0].value='موسسه';
+inputs[0].value='مؤسسه';
 inputs[0].dispatchEvent(new w.InputEvent('input',{bubbles:true,inputType:'insertText'}));
 const drop=d.getElementById('openingAccountDrop_0');
 assert(drop.classList.contains('open'),'Typing opens live suggestions');

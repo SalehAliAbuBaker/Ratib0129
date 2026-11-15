@@ -103,6 +103,12 @@
    });
    installRow(tr,index,items,modal,state);
   });
+  // Attach the calculator to each new opening amount immediately. Waiting for
+  // the global MutationObserver leaves a brief non-interactive period and makes
+  // newly added rows depend on asynchronous observer scheduling.
+  if(typeof enhanceFinancialFields==='function'){
+   enhanceFinancialFields(document.getElementById('importedOpeningRows'));
+  }
   return result;
  };
  closeImportedOpeningVoucher=function(){

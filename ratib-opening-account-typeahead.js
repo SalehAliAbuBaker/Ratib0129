@@ -66,7 +66,9 @@
   };
   // Escape dismisses suggestions first; a subsequent Escape may close the editor.
   input.addEventListener('keydown',event=>{
-   if(event.key==='Escape'&&selector.drop.classList.contains('open'))event.stopPropagation();
+   if(event.key==='Escape'&&selector.drop.classList.contains('open')){
+    event.preventDefault();event.stopPropagation();selector.close();
+   }
   },true);
   selector.setItems(items);
   if(draft.account){

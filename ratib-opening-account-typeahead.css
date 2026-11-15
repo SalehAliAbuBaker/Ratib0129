@@ -62,6 +62,8 @@
  #importedOpeningVoucherModal.opening-manual #importedOpeningRows>tr>td:nth-child(4)>.financial-number-field>input{
   flex:1 1 0%!important;width:0!important;min-width:0!important;
   text-align:start!important;font-variant-numeric:tabular-nums!important;
+  height:48px!important;min-height:48px!important;max-height:48px!important;
+  padding:20px 6px 4px!important;box-sizing:border-box!important;
  }
  #importedOpeningVoucherModal.opening-manual #importedOpeningRows>tr>td:nth-child(3) .financial-calc-trigger,
  #importedOpeningVoucherModal.opening-manual #importedOpeningRows>tr>td:nth-child(4) .financial-calc-trigger{

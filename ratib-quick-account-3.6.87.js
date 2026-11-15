@@ -7,7 +7,8 @@
   const allowedIds=new Set(['inpDebitAcc','inpCreditAcc','inpEditDebitAcc','inpEditCreditAcc','inpMultiSourceAcc']);
   const normalized=text=>normalizeParentQuery(String(text||''));
   const isVoucherSelector=selector=>Boolean(selector?.input&&(allowedIds.has(selector.input.id)||
-    (selector.input.id.startsWith('voucherAccount_')&&selector.input.closest('#multiVoucherLinesBody'))));
+    (selector.input.id.startsWith('voucherAccount_')&&selector.input.closest('#multiVoucherLinesBody'))||
+    (selector.input.id.startsWith('openingAccountInput_')&&selector.input.closest('#importedOpeningRows'))));
   let current=null,busy=false;
 
   function inputCurrency(selector){
@@ -16,6 +17,8 @@
     const field=selector?.input;
     const row=field?.closest('#multiVoucherLinesBody tr');
     if(row)return row.querySelector('.multi-line-currency')?.value||'YER';
+    const openingRow=field?.closest('#importedOpeningRows tr');
+    if(openingRow)return openingRow.querySelector('select[data-field="currency"]')?.value||'YER';
     if(field?.closest('#cashFlowCard'))return document.getElementById('voucherCurrencySelect')?.value||'YER';
     if(field?.id.startsWith('inpEdit'))return document.getElementById('editVoucherCurrency')?.value||'YER';
     return document.getElementById('multiVoucherBaseCurrency')?.value||
@@ -136,7 +139,13 @@
     if((!isVoucherSelector(selector)&&!selector?.ratibExternal)||busy)return;
     buildModal();current={selector,inputId:selector.input.id,lineId:selector.input.closest('tr')?.querySelector('.multi-line-account')?.dataset.index??null,priorFocus:document.activeElement};
     selector.close();
-    const host=document.getElementById(modalId);host.hidden=false;
+    const host=document.getElementById(modalId);
+    // Opening vouchers make sibling dialogs inert; quick-create belongs to the
+    // active editor while it is open so the creation controls remain usable.
+    const editor=selector.input.closest('#importedOpeningVoucherModal.opening-manual.show');
+    if(editor)editor.append(host);
+    else if(host.parentNode!==document.body)document.body.append(host);
+    host.hidden=false;
     const name=document.getElementById('ratibQuickAccountName');name.value=typed.trim();
     const code=document.getElementById('ratibQuickAccountCode');code.value='';delete code.dataset.manual;
     document.getElementById('ratibQuickParentSearch').value='';
@@ -151,7 +160,8 @@
   }
   function cancel(){
     if(busy)return;
-    const modal=document.getElementById(modalId);if(modal)modal.hidden=true;
+    const modal=document.getElementById(modalId);
+    if(modal){modal.hidden=true;if(modal.parentNode!==document.body)document.body.append(modal);}
     const target=current?.selector?.input;
     current=null;
     if(target?.isConnected)target.focus();
@@ -163,7 +173,7 @@
       const hit=voucherRowSelectors.find(x=>x.selector.input.id===current.inputId);
       if(hit)return hit.selector;
     }
-    return null;
+    return window.RatibOpeningAccountTypeahead?.forInput?.(current.inputId)||null;
   }
   async function save(){
     if(busy||!current)return;
@@ -201,8 +211,12 @@
       if(selected.items&&!selected.items.some(x=>x.id===name&&x.accountId===code))selected.setItems(getMultiAccountItems());
       selected.choose(item);
       selected.close();
+      if(typeof selected.getValue==='function'&&selected.getValue()!==name)throw new Error('لم يكتمل ربط حساب السند بالقائمة الداخلية؛ أعد فتح نتائج البحث.');
+      if(typeof selected.getAccountId==='function'&&String(selected.getAccountId())!==code)throw new Error('رقم الحساب المختار لا يطابق رقم الحساب المحفوظ.');
       try{refreshAccountsTreesPreservingPosition();}catch(err){console.warn('Quick account tree refresh:',err);}
-      document.getElementById(modalId).hidden=true;
+      const quickModal=document.getElementById(modalId);
+      quickModal.hidden=true;
+      if(quickModal.parentNode!==document.body)document.body.append(quickModal);
       current=null;
       const voucherCurrency=inputCurrency(selected);
       if(voucherCurrency&&voucherCurrency!==currency){

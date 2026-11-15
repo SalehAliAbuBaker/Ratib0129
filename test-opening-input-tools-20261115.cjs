@@ -138,5 +138,7 @@ assert.equal(d.querySelectorAll('.opening-account-dropdown').length,2,'Re-render
 w.eval('closeImportedOpeningVoucher()');
 assert.equal(mic.parentNode,d.body,'Closing returns global microphone to its original body scope');
 assert.equal(w.RatibOpeningAccountTypeahead.size(),0,'Closing removes all dynamic account selectors');
-dom.window.close();
+// The real financial enhancer and voice module both queue animation/mutation
+// callbacks. Leave jsdom alive for those microtasks; closing synchronously
+// makes jsdom's own requestAnimationFrame access a destroyed Window location.
 console.log('PASS opening input tools: calculator apply, six decimals, account/amount/note speech, modal lifecycle and amount width');

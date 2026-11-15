@@ -49,7 +49,7 @@ let listening=0;
 const engines=[];
 w.SpeechRecognition=function(){const engine={start(){listening++;},stop(){this.onend?.();}};engines.push(engine);return engine;};
 w.eval(voice);
-w.eval(html.slice(foldBegin,foldEnd)+'\n'+html.slice(matchBegin,matchEnd)+'\n'+selectSource+'\nfunction highlightText(value){return String(value);}');
+w.eval(html.slice(foldBegin,foldEnd)+'\n'+html.slice(matchBegin,matchEnd)+'\n'+selectSource+'\nwindow.SearchableSelect=SearchableSelect;\nfunction highlightText(value){return String(value);}');
 w.eval(`
 var importedOpeningEdit={
  manual:true,dirty:false,busy:false,

@@ -14285,7 +14285,7 @@ function openingFormDecorate(){
  const state=importedOpeningEdit,body=document.getElementById('importedOpeningRows');if(!state?.manual||!body)return;
  state.rows.forEach((row,index)=>{
   const o=row.openingBalance,tr=body.children[index];if(!tr)return;
-  row._openingSide=row._openingSide||(Number(o.credit)>0?'credit':'debit');
+  row._openingSide=row._openingSide||(Number(o.credit)>0||(!Number(o.debit)&&!Number(o.credit)&&row.creditAccount)?'credit':'debit');
   tr.dataset.openingIndex=index;
   tr.classList.add('opening-card-row',row._openingSide==='credit'?'opening-credit':'opening-debit');
   if(o.currency!==o.baseCurrency)tr.classList.add('opening-foreign');
@@ -14368,7 +14368,7 @@ function renderImportedOpeningRows(){
      }
      renderImportedOpeningTotals();};td.append(el);tr.append(td);
   }
-  const td=document.createElement('td'),button=document.createElement('button');button.type='button';button.className='btn btn-ghost';button.textContent=t.id?'تصفير':'إزالة';button.onclick=()=>{if(importedOpeningEdit.busy)return;importedOpeningEdit.dirty=true;if(t.id){for(const key of ['debit','credit','baseDebit','baseCredit'])o[key]='0';}else importedOpeningEdit.rows.splice(index,1);renderImportedOpeningRows();};td.append(button);tr.append(td);body.append(tr);
+  const td=document.createElement('td'),button=document.createElement('button');button.type='button';button.className='btn btn-ghost';button.textContent=t.id?'تصفير':'إزالة';button.onclick=()=>{if(importedOpeningEdit.busy)return;importedOpeningEdit.dirty=true;if(t.id){for(const key of ['debit','credit','baseDebit','baseCredit'])o[key]='0';t._openingZeroed=true;}else importedOpeningEdit.rows.splice(index,1);renderImportedOpeningRows();};td.append(button);tr.append(td);body.append(tr);
  });if(importedOpeningEdit?.manual)openingFormDecorate();renderImportedOpeningTotals();
 }
 function importedOpeningExactTotals(rows){
@@ -14401,7 +14401,16 @@ function buildImportedOpeningVoucher(state,data){
   if(!allowed.includes(o.currency)||!allowed.includes(o.baseCurrency))throw Error('اختر عملة متاحة في التطبيق.');
   if(!/^\d{4}-\d{2}-\d{2}$/.test(draft.isoDate)||new Date(draft.isoDate+'T00:00:00Z').toISOString().slice(0,10)!==draft.isoDate)throw Error('حدد تاريخًا صحيحًا لكل بند.');
   for(const key of ['debit','credit','baseDebit','baseCredit'])o[key]=importedRecordDecimal(o[key]).raw;
-   if(state.manual&&o.currency!==o.baseCurrency){
+  // A saved opening line may be explicitly zeroed without deleting its audit
+  // record. New blank rows and altered account/currency identities are never
+  // exempt from the normal positive-amount and exchange-rate validation.
+  const zeroKeys=['debit','credit','baseDebit','baseCredit'];
+  const savedZero=!!old&&zeroKeys.every(k=>Number(old.openingBalance[k]||0)===0);
+  const preserveZeroedSavedLine=state.manual&&!!old&&sameAccount&&
+   o.currency===old.openingBalance.currency&&o.baseCurrency===old.openingBalance.baseCurrency&&
+   zeroKeys.every(k=>importedRecordDecimal(o[k]).units===0n)&&
+   (draft._openingZeroed===true||savedZero);
+   if(state.manual&&o.currency!==o.baseCurrency&&!preserveZeroedSavedLine){
     const changed=!old||['currency','baseCurrency','debit','credit','baseDebit','baseCredit','exchangeRate'].some(k=>String(o[k]??'')!==String(old.openingBalance[k]??''));
     if(changed){
      const rate=openingFormRate(o.exchangeRate);
@@ -14415,15 +14424,15 @@ function buildImportedOpeningVoucher(state,data){
    if(state.manual&&o.currency===o.baseCurrency){
     if(importedRecordDecimal(o.debit).units!==importedRecordDecimal(o.baseDebit).units||importedRecordDecimal(o.credit).units!==importedRecordDecimal(o.baseCredit).units)throw Error('عندما تتطابق العملة وعملة التقييم يجب أن تتطابق مبالغها أيضًا.');
    }
-   if(state.manual&&!(Number(o.debit)>0||Number(o.credit)>0))throw Error('أدخل مبلغًا أصليًا موجبًا في كل بند افتتاحي.');
-   if(state.manual&&!(Number(o.baseDebit)>0||Number(o.baseCredit)>0))throw Error('أدخل تقييمًا موجبًا لكل بند افتتاحي.');
+   if(state.manual&&!preserveZeroedSavedLine&&!(Number(o.debit)>0||Number(o.credit)>0))throw Error('أدخل مبلغًا أصليًا موجبًا في كل بند افتتاحي.');
+   if(state.manual&&!preserveZeroedSavedLine&&!(Number(o.baseDebit)>0||Number(o.baseCredit)>0))throw Error('أدخل تقييمًا موجبًا لكل بند افتتاحي.');
   if(Number(o.debit)&&Number(o.credit)||Number(o.baseDebit)&&Number(o.baseCredit))throw Error('أدخل رصيدًا صافيًا واحدًا لكل حساب وعملة.');
   // Preserve imported independent valuations, including valuation-only rows.
   const pair=o.account+'|'+o.currency;if(pairs.has(pair))throw Error('تكرر الحساب والعملة داخل القيد.');pairs.add(pair);
   if(outsidePairs.has(pair)&&(!old||o.account!==old.openingBalance.account||o.currency!==old.openingBalance.currency))throw Error('يوجد رصيد افتتاحي آخر لهذا الحساب والعملة.');
   if(account.length===1)o.accountId=account[0].code;else o.accountId=old.openingBalance.accountId||'';
   o.sourceRef=String(o.sourceRef||'').slice(0,250);o.note=String(o.note||'').slice(0,2000);if(old&&['debit','credit','baseDebit','baseCredit','currency','baseCurrency'].some(k=>String(o[k])!==String(old.openingBalance[k]))&&!(state.manual&&o.currency!==o.baseCurrency&&Number.isFinite(openingFormRate(o.exchangeRate))))delete o.exchangeRate;o.valuationReview=(!Number(o.debit)&&!Number(o.credit)&&Boolean(Number(o.baseDebit)||Number(o.baseCredit)))||Boolean(Number(o.debit)&&Number(o.baseCredit)||Number(o.credit)&&Number(o.baseDebit));
-  const baseAmount=Number(o.baseDebit)+Number(o.baseCredit),side=baseAmount?(Number(o.baseCredit)?'credit':'debit'):(Number(o.credit)?'credit':'debit');
+  const baseAmount=Number(o.baseDebit)+Number(o.baseCredit),side=preserveZeroedSavedLine?(old.creditAccount?'credit':'debit'):(baseAmount?(Number(o.baseCredit)?'credit':'debit'):(Number(o.credit)?'credit':'debit'));
   const next={...(old||{id:state.key+'_added_'+Date.now()+'_'+index,isOpeningBalance:true,importBatchId:state.manual?state.key:current[0].importBatchId,status:'posted',isExpense:false,distribution:{},execution:{},schemaVersion:3}),isManualOpeningBalance:!!state.manual,openingBalance:o,importVoucherId:state.key,voucherMode:'opening',seqNum:Number(seq),isoDate:draft.isoDate,date:draft.isoDate,timestamp:new Date(draft.isoDate+'T00:00:00Z').getTime(),amount:baseAmount,currency:o.baseCurrency,debitAccount:side==='debit'?o.account:'',creditAccount:side==='credit'?o.account:'',debitAccountId:side==='debit'?o.accountId:'',creditAccountId:side==='credit'?o.accountId:'',type:state.manual?'قيد افتتاحي يدوي':'سند قيد مركب — أرصدة مستوردة'};
   if(old&&JSON.stringify(importedRecordOriginal(next))!==JSON.stringify(importedRecordOriginal(old)))next.importEditHistory=[...(old.importEditHistory||[]),{at:stamp,before:importedRecordOriginal(old),after:importedRecordOriginal(next)}];
   return next;

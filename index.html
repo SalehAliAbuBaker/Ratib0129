@@ -1692,6 +1692,7 @@ body.ratib-sidebar-open,body.ratib-about-open{overflow:hidden}
 <link rel="stylesheet" href="./ratib-statement-toolbar-3.6.189.css?v=3.6.203">
 <link rel="stylesheet" href="./ratib-home-uniform-3.6.196.css?v=3.6.203">
 <link rel="stylesheet" href="./ratib-branding-3.6.201.css?v=3.6.203">
+<link rel="stylesheet" href="./ratib-opening-account-typeahead.css?v=3.6.203-opening1">
 </head>
 <body>
 
@@ -6642,6 +6643,7 @@ class SearchableSelect {
         arrow.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();toggle(e);}});
       }
       const relocate=()=>{if(this.drop.classList.contains('open'))this.positionPortal();};
+      this._relocateHandler=relocate;
       window.addEventListener('resize',relocate,{passive:true});
       window.addEventListener('scroll',relocate,{passive:true,capture:true});
       window.visualViewport?.addEventListener?.('resize',relocate,{passive:true});
@@ -6684,7 +6686,17 @@ class SearchableSelect {
   }
   getValue() { const id=this.hidden.dataset.accountId;const matches=this.items.filter(i=>i.id===this.hidden.value&&(!id||i.accountId===id));return matches.length===1?this.hidden.value:''; }
   getAccountId() { const value=this.getValue();return value?(this.hidden.dataset.accountId||this.items.find(i=>i.id===value)?.accountId||''):''; }
-  destroy() { document.removeEventListener('click',this.documentClick);this.drop.remove(); }
+  destroy() {
+    clearTimeout(this._singleMatchTimer);
+    document.removeEventListener('click',this.documentClick);
+    if(this._relocateHandler){
+      window.removeEventListener('resize',this._relocateHandler);
+      window.removeEventListener('scroll',this._relocateHandler,true);
+      window.visualViewport?.removeEventListener?.('resize',this._relocateHandler);
+      window.visualViewport?.removeEventListener?.('scroll',this._relocateHandler);
+    }
+    this.drop.remove();
+  }
   choose(item) {
     if (!item) return;
     this.setValue(item.id, item.text, item.accountId||'');
@@ -14673,5 +14685,6 @@ try{currenciesUi();sync();}catch(e){console.error('Ratib 3.6.12 initialization',
 <script src="./ratib-statement-layout-3.6.178.js?v=3.6.203" defer></script>
 <script src="./ratib-statement-toolbar-3.6.189.js?v=3.6.203" defer></script>
 <script src="./ratib-performance-watch-20261111.js?v=opt-in-1" defer></script>
+<script src="./ratib-opening-account-typeahead.js?v=3.6.203-opening1" defer></script>
 </body>
 </html>

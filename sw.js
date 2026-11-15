@@ -4,6 +4,8 @@ const APP_RELEASE={"version":"3.6.203","build":"p20300","highlights":["تصحي�
 const CACHE_PREFIX=`ratib:${self.registration.scope}:`;
 const CACHE_NAME=CACHE_PREFIX+CACHE_VERSION;
 const APP_SHELL=[
+ "./ratib-opening-account-typeahead.js",
+ "./ratib-opening-account-typeahead.css",
  "./ratib-branding-3.6.201.js",
  "./ratib-branding-3.6.201.css",
  "./ratib-home-uniform-3.6.196.css",

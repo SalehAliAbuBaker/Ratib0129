@@ -19,14 +19,14 @@ const selectorSrc=html.slice(html.indexOf('class SearchableSelect {'),html.index
 assert(selectorSrc.startsWith('class SearchableSelect {'));
 const foldSrc=html.slice(html.indexOf('function ratibSearchFold(value){'),html.indexOf('function findSubgroupParents',html.indexOf('function ratibSearchFold(value){')));
 const matchSrc=html.slice(html.indexOf('function ratibAccountSearchMatch(value,query){'),html.indexOf('// Aggregated statements',html.indexOf('function ratibAccountSearchMatch(value,query){')));
-w.eval(foldSrc+'\n'+matchSrc+'\n'+selectorSrc+'\nfunction highlightText(value){return String(value);}');
+w.eval(foldSrc+'\n'+matchSrc+'\n'+selectorSrc+'\nwindow.SearchableSelect=SearchableSelect;\nfunction highlightText(value){return String(value);}');
 w.eval(`
 const sampleAccounts=[
  {id:'مؤسسة الرأفة',text:'مؤسسة الرأفة',accountId:'1201'},
  {id:'مدرسة الإيمان',text:'مدرسة الإيمان',accountId:'1202'},
  {id:'صندوق النقدية',text:'صندوق النقدية',accountId:'1101'}
 ];
-let importedOpeningEdit={
+var importedOpeningEdit={
  manual:true,dirty:false,busy:false,
  rows:[
   {openingBalance:{account:'',accountId:'',currency:'SAR',debit:'1250',credit:'0'}},

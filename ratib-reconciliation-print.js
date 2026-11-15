@@ -79,23 +79,46 @@ renderAccountOperations=function(name,scope=null,ui=null){
  const to=accountOpsState.to||"";
  panel.querySelectorAll(".account-currency-page").forEach(page=>{
   const currency=page.dataset.currency,proof=currency?inspect(name,currency,from,to):null;
-  page.querySelectorAll(".ratib-reconciliation-screen-proof").forEach(el=>el.remove());
-  if(!proof)return;
-  if(window.ratibStatementSettings?.().reconciliation!==false&&proof.stable&&proof.inPeriod&&!proof.dateAfterPeriod){
-    const rows=[...page.querySelectorAll(".account-statement-row[data-tx-id]")];
-    const group=getAccountOperations(name,scope,currency);
-    let last=-1;
-    for(let i=0;i<Math.min(group.length,rows.length);i++)if(getAccountOpsDate(group[i])<=proof.date)last=i;
-    if(last>=0){
-     const cell=rows[last].querySelector(".balance")||rows[last].lastElementChild;
-     if(cell){
-      cell.style.background="#e1f1e5";cell.style.color="#24513c";cell.style.fontWeight="900";
-      cell.querySelectorAll(".ratib-match-mark").forEach(e=>e.remove());
-      const marker=document.createElement("small");marker.className="ratib-reconciliation-screen-proof ratib-match-mark";
-      marker.style.cssText="display:block;font-weight:900;font-size:11px";marker.textContent="✓ مطابق";
-      cell.appendChild(marker);
-     }
-    }
+  // Screen-only: do not change the confirmed print/share reconciliation output.
+  // Remove the legacy date-string badge too: Hijri display text cannot be compared
+  // with the saved ISO date, and its position may differ from the ledger row.
+  page.querySelectorAll(".ratib-reconciliation-screen-proof,.account-statement-row .balance .ratib-match-mark").forEach(el=>el.remove());
+  if(!proof||window.ratibStatementSettings?.().reconciliation===false||
+     !proof.stable||!proof.inPeriod||proof.dateAfterPeriod)return;
+  const report=getAccountCurrencyReportData(currency);
+  const transactions=Array.isArray(report?.rows)?report.rows:[];
+  const scopeNames=accountOpsState.scopeNames||scope||[name];
+  const balanceMap=getAccountRunningBalances(transactions,scopeNames,report.opening);
+  let lastTx=null, lastDate="";
+  for(const tx of transactions){
+   const date=getAccountOpsDate(tx);
+   if(!date||date>proof.date)continue;
+   // Reconciliation is an end-of-day checkpoint; never match a later movement.
+   if(date>=lastDate){lastDate=date;lastTx=tx;}
+  }
+  let cell=null;
+  if(lastTx){
+   const balance=balanceMap.get(lastTx);
+   if(Number.isFinite(balance)&&Math.abs(balance-proof.balance)<0.000001){
+    const row=[...page.querySelectorAll(".account-statement-row[data-tx-id]")]
+     .find(row=>String(row.dataset.txId)===String(lastTx.id));
+    cell=row?.querySelector(".balance")||null;
+   }
+  }else if(Number.isFinite(report?.opening)&&Math.abs(report.opening-proof.balance)<0.000001){
+   // A checkpoint after the period starts but before its first transaction
+   // belongs to the opening balance, not to the first later transaction.
+   cell=page.querySelector(".account-statement-row.opening .balance");
+  }
+  // On a paged statement, mark only the actual matching balance if visible.
+  if(cell){
+   cell.style.background="#e1f1e5";
+   cell.style.color="#24513c";
+   cell.style.fontWeight="900";
+   const marker=document.createElement("small");
+   marker.className="ratib-reconciliation-screen-proof ratib-match-mark";
+   marker.style.cssText="display:block;font-weight:900;font-size:11px";
+   marker.textContent="✓ مطابق";
+   cell.appendChild(marker);
   }
  });
  return out;

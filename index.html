@@ -14203,7 +14203,8 @@ function openManualOpeningVoucher(){
   document.getElementById('importedOpeningError').textContent='';
   document.getElementById('importedOpeningAccounts').innerHTML=getCanonicalCatalog().flatMap(row=>row.details.map(([code,name])=>'<option value="'+esc(name)+'">'+esc(code)+'</option>')).join('');
   renderImportedOpeningRows();modal.classList.add('show');activateRatibOverlay(modal,document.activeElement);pushAppHistoryState();
-  document.getElementById('importedOpeningRows').querySelector('input[data-field="account"]')?.focus();
+  const openingTitle=document.getElementById('importedOpeningTitle');
+  openingTitle.setAttribute('tabindex','-1');openingTitle.focus({preventScroll:true});
  }catch(e){showToast(e.message,'warn');}
 }
 
@@ -14215,7 +14216,7 @@ function openImportedOpeningVoucher(item){
  importedOpeningEdit={key:importedOpeningKey(item),before:JSON.stringify(doc.records),rows:cloneData(doc.records),manual:!!doc.isManualOpeningVoucher,dirty:false,busy:false};setOpeningEditorTitle(importedOpeningEdit.manual);
  document.getElementById('importedOpeningSeq').value=doc.seqNum||1;document.getElementById('importedOpeningSeq').oninput=()=>{if(importedOpeningEdit)importedOpeningEdit.dirty=true;};document.getElementById('importedOpeningError').textContent='';
  document.getElementById('importedOpeningAccounts').innerHTML=getCanonicalCatalog().flatMap(row=>row.details.map(([code,name])=>'<option value="'+esc(name)+'">'+esc(code)+'</option>')).join('');
- renderImportedOpeningRows();modal.classList.add('show');activateRatibOverlay(modal,document.activeElement);pushAppHistoryState();document.getElementById('importedOpeningSeq').focus();
+ renderImportedOpeningRows();modal.classList.add('show');activateRatibOverlay(modal,document.activeElement);pushAppHistoryState();if(importedOpeningEdit.manual){const title=document.getElementById('importedOpeningTitle');title.setAttribute('tabindex','-1');title.focus({preventScroll:true});}else document.getElementById('importedOpeningSeq').focus();
  }catch(e){showToast(e.message,'warn');}
 }
 let _ratibOpeningLeavePending=false;

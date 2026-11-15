@@ -34,6 +34,7 @@ var importedOpeningEdit={
  ]
 };
 function getMultiAccountItems(){return sampleAccounts;}
+function buildImportedOpeningVoucher(state){return {records:state.rows.map(r=>({...r.openingBalance}))};}
 function renderImportedOpeningRows(){
  const body=document.getElementById('importedOpeningRows');body.replaceChildren();
  importedOpeningEdit.rows.forEach((r,i)=>{
@@ -83,6 +84,20 @@ assert.equal(escaped,0,'First Escape closes suggestions, not voucher');
 assert(!drop.classList.contains('open'));
 inputs[0].dispatchEvent(new w.KeyboardEvent('keydown',{key:'Escape',bubbles:true,cancelable:true}));
 assert.equal(escaped,1,'Second Escape reaches existing voucher close flow');
+// A leaf created after the editor was opened must appear immediately and
+// be bound to its numeric account ID before the real save validator runs.
+w.eval("getMultiAccountItems().push({id:'حساب أنشئ حديثا',text:'حساب أنشئ حديثا',accountId:'1204'});");
+inputs[0].value='حساب أنشئ حديثا';
+inputs[0].dispatchEvent(new w.InputEvent('input',{bubbles:true,inputType:'insertText'}));
+assert(drop.textContent.includes('حساب أنشئ حديثا'),'New leaf is searchable without closing the editor');
+const newChoice=[...drop.querySelectorAll('.searchable-item')].find(el=>el.textContent.includes('حساب أنشئ حديثا'));
+assert(newChoice,'Fresh account has a selectable result');
+newChoice.click();
+assert.equal(w.eval('importedOpeningEdit.rows[0].openingBalance.accountId'),'1204');
+w.eval("importedOpeningEdit.rows[0].openingBalance.accountId='';");
+const saved=w.eval('buildImportedOpeningVoucher(importedOpeningEdit,{}).records');
+assert.equal(saved[0].account,'حساب أنشئ حديثا');
+assert.equal(saved[0].accountId,'1204','Save validation gets the canonical ID despite a stale draft');
 w.eval("importedOpeningEdit.rows.push({openingBalance:{account:'',currency:'YER',debit:'10',credit:'0'}});renderImportedOpeningRows();");
 assert.equal(w.RatibOpeningAccountTypeahead.size(),3,'Adding rows initializes the same autocomplete');
 assert.equal(d.querySelectorAll('.opening-account-dropdown').length,3,'Re-render removes detached dropdowns');

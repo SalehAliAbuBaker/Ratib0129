@@ -23,8 +23,21 @@
   selectors=[];
  }
  function accounts(){
-  // The cash voucher source includes every detailed account, regardless of tree view.
-  return getMultiAccountItems().filter(item=>item&&item.id&&item.id!=='ALL'&&item.accountId);
+  // Include newly persisted leaf accounts even if the cached voucher search
+  // index has not yet been rebuilt. Do not create or infer any ledger account.
+  const items=getMultiAccountItems().filter(item=>item&&item.id&&item.id!=='ALL'&&item.accountId);
+  if(typeof getCanonicalCatalog!=='function')return items;
+  const known=new Set(items.map(item=>String(item.id)+'|'+String(item.accountId)));
+  for(const group of getCanonicalCatalog()||[]){
+   for(const detail of group.details||[]){
+    if(!Array.isArray(detail)||!detail[0]||!detail[1])continue;
+    const code=String(detail[0]),name=String(detail[1]),key=name+'|'+code;
+    if(known.has(key))continue;
+    items.push({id:name,text:name,accountId:code});
+    known.add(key);
+   }
+  }
+  return items;
  }
  function installRow(tr,index,items,modal,state){
   const input=tr.querySelector('input[data-field="account"]');
@@ -80,6 +93,16 @@
    }
   },true);
   selector.setItems(items);
+  // A new account can be created while this editor remains open. Refresh its
+  // items at the start of each interaction, before the live search runs.
+  const refresh=()=>{
+   const fresh=accounts(),seen=selector.items||[];
+   if(fresh.length!==seen.length||fresh.some(item=>!seen.some(x=>x.id===item.id&&String(x.accountId)===String(item.accountId)))){
+    selector.setItems(fresh);
+   }
+  };
+  input.addEventListener('focus',refresh,true);
+  input.addEventListener('input',refresh,true);
   if(draft.account){
    const match=items.find(item=>item.id===draft.account&&
      (!draft.accountId||String(item.accountId)===String(draft.accountId)));
@@ -87,6 +110,37 @@
    selector.setValue(draft.account,draft.account,match?.accountId||draft.accountId||'');
   }else selector.setValue('','');
   selectors.push({selector,input,index});
+ }
+ // A matching label alone is not a committed account in the opening editor.
+ // Resolve it against the *current* leaf catalog immediately before validation.
+ // Never guess between duplicate labels or modify a historical unknown account.
+ function reconcileOpeningAccounts(state){
+  const latest=accounts();
+  for(const {selector,input,index} of selectors){
+   const draft=state.rows[index]?.openingBalance;
+   if(!draft||!input.isConnected)continue;
+   const visible=String(input.value||'').trim();
+   if(!visible)continue;
+   const hits=latest.filter(item=>String(item.id)===visible||
+     String(item.text||'')===visible||String(item.accountId)===visible);
+   if(hits.length!==1)continue;
+   const item=hits[0],code=String(item.accountId);
+   if(draft.account!==item.id||String(draft.accountId||'')!==code){
+    draft.account=item.id;
+    draft.accountId=code;
+    state.dirty=true;
+   }
+   if(typeof selector.getValue==='function'&&selector.getValue()!==item.id){
+    selector.setValue(item.id,item.text||item.id,code);
+   }
+  }
+ }
+ if(typeof buildImportedOpeningVoucher==='function'){
+  const previousBuild=buildImportedOpeningVoucher;
+  buildImportedOpeningVoucher=function(state,data){
+   if(state?.manual&&state===importedOpeningEdit)reconcileOpeningAccounts(state);
+   return previousBuild.apply(this,arguments);
+  };
  }
  renderImportedOpeningRows=function(){
   dispose();

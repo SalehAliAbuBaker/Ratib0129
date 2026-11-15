@@ -86,7 +86,7 @@ inputs[0].dispatchEvent(new w.KeyboardEvent('keydown',{key:'Escape',bubbles:true
 assert.equal(escaped,1,'Second Escape reaches existing voucher close flow');
 // A leaf created after the editor was opened must appear immediately and
 // be bound to its numeric account ID before the real save validator runs.
-w.eval("sampleAccounts.push({id:'حساب أنشئ حديثا',text:'حساب أنشئ حديثا',accountId:'1204'});");
+w.eval("getMultiAccountItems().push({id:'حساب أنشئ حديثا',text:'حساب أنشئ حديثا',accountId:'1204'});");
 inputs[0].value='حساب أنشئ حديثا';
 inputs[0].dispatchEvent(new w.InputEvent('input',{bubbles:true,inputType:'insertText'}));
 assert(drop.textContent.includes('حساب أنشئ حديثا'),'New leaf is searchable without closing the editor');

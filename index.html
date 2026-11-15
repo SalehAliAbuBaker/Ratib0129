@@ -6676,6 +6676,17 @@ class SearchableSelect {
   setValue(val, textVal = '', accountId = '') {
     const candidates=this.items.filter(i=>i.id===val&&(!accountId||i.accountId===accountId));
     const selected=candidates.length===1?candidates[0]:null;
+    // Dynamic voucher rows still use a native <select> as the hidden value.
+    // It was created BEFORE a quick-added account existed, so assigning its
+    // name without first adding an <option> silently sets select.value to ''.
+    // The text then looks selected but saving fails as "choose an account".
+    // Synchronize the actual select value with the verified catalog identity.
+    if(selected&&this.hidden.tagName==='SELECT'&&this.hidden.matches('.multi-line-account')&&
+       ![...this.hidden.options].some(option=>option.value===selected.id)){
+      const option=document.createElement('option');
+      option.value=selected.id;option.textContent=selected.text;
+      this.hidden.append(option);
+    }
     this.hidden.dataset.accountId=selected?.accountId||'';
     this.input.dataset.accountId=this.hidden.dataset.accountId;
     this.hidden.value = val;
@@ -7019,7 +7030,11 @@ function refreshSuggestedAccountCodes(force=false){
 ['newAccountSubCodeInput','newParentCategoryCodeInput'].forEach(id=>document.getElementById(id)?.addEventListener('input',e=>{e.target.dataset.manual='1';}));
 document.getElementById('newAccountParentSelect')?.addEventListener('change',()=>refreshSuggestedAccountCodes());
 document.getElementById('newParentCategoryParentSelect')?.addEventListener('change',()=>refreshSuggestedAccountCodes());
-function openAddAccountModal(preParent = '') {
+let accountModalVoucherOrigin=null;
+function openAddAccountModal(preParent = '',voucherSelector=null) {
+  // A tree opened from a voucher must return to that SAME account field.
+  // Opened from settings/tree: there is no voucher to update.
+  accountModalVoucherOrigin=voucherSelector;
   updateParentAccountSelect();
   { const sel = document.getElementById('newAccountParentSelect');
     if (preParent) {
@@ -7048,10 +7063,13 @@ function setAccountModalSubTab(tab) {
 
 document.getElementById('tabAddSubAcc').addEventListener('click', () => setAccountModalSubTab('sub'));
 document.getElementById('tabAddParentAcc').addEventListener('click', () => setAccountModalSubTab('parent'));
-document.getElementById('addNewDebitAccBtn').addEventListener('click', () => openAddAccountModal('العملاء والمدينون'));
-document.getElementById('addNewCreditAccBtn').addEventListener('click', () => openAddAccountModal('الصناديق والبنوك'));
+document.getElementById('addNewDebitAccBtn').addEventListener('click', () => openAddAccountModal('العملاء والمدينون',selDebitAcc));
+document.getElementById('addNewCreditAccBtn').addEventListener('click', () => openAddAccountModal('الصناديق والبنوك',selCreditAcc));
 document.getElementById('openAddAccountDialogBtn').addEventListener('click', () => openAddAccountModal());
-document.getElementById('closeAddAccountModalBtn').addEventListener('click', () => document.getElementById('addAccountModal').classList.remove('show'));
+document.getElementById('closeAddAccountModalBtn').addEventListener('click', () => {
+  accountModalVoucherOrigin=null;
+  document.getElementById('addAccountModal').classList.remove('show');
+});
 
 document.getElementById('saveNewAccountTreeBtn').addEventListener('click', () => {
   const sel=document.getElementById('newAccountParentSelect');
@@ -7083,6 +7101,23 @@ document.getElementById('saveNewAccountTreeBtn').addEventListener('click', () =>
   refreshSuggestedAccountCodes(true);
   document.getElementById('newAccountSubNameInput').focus();
   updateSearchableData();
+  // A newly saved account is only usable in a voucher when its exact
+  // canonical code and name are reflected in the selector's hidden value.
+  const origin=accountModalVoucherOrigin;
+  if(origin?.input?.isConnected){
+    const item=getMultiAccountItems().find(x=>x.id===subName&&String(x.accountId)===String(subCode));
+    if(item){
+      origin.setItems(getMultiAccountItems());
+      origin.choose(item);
+    }
+    if(!item||origin.getValue()!==subName||String(origin.getAccountId())!==String(subCode)){
+      showToast('حُفظ الحساب في الشجرة، لكن لم يكتمل اختياره في السند. اختره من نتائج البحث قبل الحفظ.','warn',6000);
+      return;
+    }
+    document.getElementById('addAccountModal').classList.remove('show');
+    accountModalVoucherOrigin=null;
+    origin.input.focus({preventScroll:true});
+  }
   refreshAccountsTreesPreservingPosition();
   showToast('تمت إضافة الحساب تحت: '+parent.main+' ← '+parent.group+' ← '+parent.sub,'success',4000);
 });

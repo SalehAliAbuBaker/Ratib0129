@@ -122,6 +122,7 @@
  };
  window.RatibOpeningAccountTypeahead=Object.freeze({
   size:()=>selectors.length,
-  closeAll:()=>selectors.forEach(({selector})=>selector.close())
+  closeAll:()=>selectors.forEach(({selector})=>selector.close()),
+  forInput:(id)=>selectors.find(({selector})=>selector.input.id===id)?.selector||null
  });
 })();

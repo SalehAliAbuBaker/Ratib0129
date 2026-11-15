@@ -47,7 +47,9 @@ async function testFlow(){
   w.refreshAccountsTreesPreservingPosition=()=>{};
   w.showToast=s=>toasts.push(s);
   let chooser;
-  w.updateSearchableData=()=>{if(chooser)chooser.setItems(w.getMultiAccountItems());};
+  // Recreate the selector while its old input stays attached: the failure
+  // that left a visible account name but no committed voucher value.
+  w.updateSearchableData=()=>{if(chooser){chooser=new w.SearchableSelect('inpDebitAcc','wrapDebitAcc','dropDebitAcc');w.selDebitAcc=chooser;chooser.setItems(w.getMultiAccountItems());}};
   w.SearchableSelect=class {
     constructor(inputId,wrapId,dropId){
       this.input=w.document.getElementById(inputId);this.wrap=w.document.getElementById(wrapId);
@@ -78,7 +80,8 @@ async function testFlow(){
   for(let i=0;i<10;i++){await new Promise(ok=>setTimeout(ok,1));if(modal.hidden)break;}
   assert(modal.hidden,'Modal closes after verified persistence');
   assert.equal(accounts[0].details.length,2,'Detail added once');
-  assert.equal(chooser.chosen,'شركة المشقاص','Newly created account chosen in originating voucher');
+  assert.equal(chooser.chosen,'شركة المشقاص','Newly created account chosen in the LIVE voucher selector after a rebuild');
+  assert.equal(w.selDebitAcc.getValue(),'شركة المشقاص','The validated form selector has the same saved account');
   assert.equal(w.document.getElementById('voucherAmountInput').value,'6500','Amount retained unchanged');
   assert.deepEqual(transactions,[{amount:123,account:'حساب قديم'}],'No posting mutation');
   assert.deepEqual(Array.from(storage.get('account_currencies')['شركة المشقاص']),['YER']);

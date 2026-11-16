@@ -27,7 +27,9 @@ def patch_release(source: str, variable: str) -> str:
     assert data["version"] == NEW, (variable, data["version"])
     assert data["build"] == NEW_BUILD
     data["highlights"] = [HIGHLIGHT] + [item for item in data.get("highlights", []) if item != HIGHLIGHT][:2]
-    data["changes"] = [DETAIL] + [item for item in data.get("changes", []) if item != DETAIL][:5]
+    existing = data.get("changes", [])
+    public_note = "نجري بانتظام تحديثات لتحسين الموثوقية والأداء وإصلاح الأخطاء"
+    data["changes"] = [public_note, DETAIL] + [item for item in existing if item not in (public_note, DETAIL)][:4]
     replacement = match.group(1) + json.dumps(data, ensure_ascii=False, separators=(",", ":")) + match.group(3)
     return source[:match.start()] + replacement + source[match.end():]
 

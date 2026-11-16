@@ -1,4 +1,4 @@
-/* Ratib trial 3.6.117: user-initiated speech input, never autosaves vouchers. */
+/* Ratib voice: one in-field microphone, keyboard-aware; never autosaves vouchers. */
 (()=>{'use strict';
 const Recognition=window.SpeechRecognition||window.webkitSpeechRecognition;
 const LANG_KEY='ratib.voice.language.v1',LANGUAGES=['ar-SA','ar-YE','ar-EG'];
@@ -33,7 +33,7 @@ document.addEventListener('keyup',e=>{if(eligible(e.target))remember(e.target);}
 document.addEventListener('mouseup',e=>{if(eligible(e.target))remember(e.target);},true);
 const css=document.createElement('style');
 css.textContent=[
-'#ratibVoiceButton{position:fixed;left:0;top:0;right:auto;bottom:auto;z-index:9200;display:flex;align-items:center;justify-content:center;width:32px;height:32px;min-width:32px;min-height:32px;padding:3px;border-radius:10px;border:1px solid var(--border,#cbd5e1);background:var(--card,#fff);color:var(--text,#0f172a);font-family:inherit;font-size:17px;line-height:1;cursor:pointer;box-shadow:0 2px 8px #0002;margin:0}',
+'#ratibVoiceButton{position:fixed;left:0;top:0;right:auto;bottom:auto;z-index:9200;display:flex;align-items:center;justify-content:center;width:32px;height:32px;min-width:32px;min-height:32px;padding:3px;border-radius:10px;border:1px solid var(--border,#cbd5e1);background:var(--card,#fff);color:var(--text,#0f172a);font-family:inherit;font-size:17px;line-height:1;cursor:pointer;box-shadow:0 2px 5px #0002;margin:0;touch-action:manipulation}',
 '#ratibVoiceButton[data-listening="true"]{background:#a12727;color:#fff;border-color:#a12727}',
 '#ratibVoiceButton:focus-visible{outline:3px solid #fbbf24;outline-offset:2px}',
 '#ratibVoiceStatus{position:absolute!important;width:1px!important;height:1px!important;overflow:hidden!important;clip-path:inset(50%)!important;white-space:nowrap!important;padding:0!important;margin:-1px!important;border:0!important}',
@@ -50,42 +50,66 @@ status.id='ratibVoiceStatus';status.className='no-print';status.hidden=true;
 status.setAttribute('role','status');status.setAttribute('aria-live','polite');
 document.body.append(button,status);
 const MIC_SIZE=32,MIC_GAP=6;
-let positioning=false;
+let positioning=false,keyboardEditing=false,keyboardField=null,paddedField=null,paddedStyle=null;
+let baselineHeight=Math.max(window.innerHeight||0,window.visualViewport?.height||0,400);
 function micTarget(){
  const current=eligible(document.activeElement);
  if(!current)return null;
- // Inputs inside editing / quick account dialogs are editable too. Protected types
- // (password, PIN, file, hidden, readonly) never receive voice transcription.
+ // Do not dictate into protected settings, inert windows or inactive overlays.
  if(current.closest('#ratibVoiceSettingsCard,#ratibFavoritesPanel,#ratibCenterFavoritesMenu'))return null;
  if(current.closest('.hidden,[hidden],[inert]'))return null;
  return current;
 }
+function fieldHasInlineMic(target){
+ if(!target||target.matches?.('select,input[type="number"],input[type="date"],input[type="time"]'))return false;
+ if(target.closest?.('.financial-number-field,#financialCalculatorModal'))return false;
+ if(target.matches?.('input')&&/^(decimal|numeric)$/.test((target.inputMode||target.getAttribute('inputmode')||'').toLowerCase()))return false;
+ return !!(target.matches?.('textarea,input[type="text"],input[type="search"],input[type="tel"],input[type="url"],input[type="email"]')||target.isContentEditable);
+}
+function keyboardIsOpen(){
+ const visual=window.visualViewport?.height;
+ if(!visual)return false;
+ const height=window.innerHeight||baselineHeight;
+ return (baselineHeight-visual>Math.max(130,baselineHeight*.22))||(height-visual>130);
+}
+function releaseFieldPadding(){
+ if(!paddedField)return;
+ if(paddedStyle?.value)paddedField.style.setProperty('padding-inline-start',paddedStyle.value,paddedStyle.priority);
+ else paddedField.style.removeProperty('padding-inline-start');
+ paddedField=null;paddedStyle=null;
+}
+function reserveMicSpace(target){
+ if(paddedField===target)return;
+ releaseFieldPadding();
+ paddedStyle={value:target.style.getPropertyValue('padding-inline-start'),priority:target.style.getPropertyPriority('padding-inline-start')};
+ const current=Number.parseFloat(window.getComputedStyle(target).paddingInlineStart)||0;
+ target.style.setProperty('padding-inline-start',Math.max(current,MIC_SIZE+MIC_GAP*2+2)+'px','important');
+ paddedField=target;
+}
+function hideVoiceIcon(){
+ releaseFieldPadding();button.hidden=true;button.style.display='none';
+}
 function updateVoicePosition(){
  const target=micTarget();
- if(!visible||!target){
-  button.hidden=true;button.style.display='none';
-  return;
- }
+ if(!visible||!target){hideVoiceIcon();return;}
  const rect=target.getBoundingClientRect();
  const width=window.innerWidth||document.documentElement.clientWidth||360;
  const height=window.visualViewport?.height||window.innerHeight||720;
- if(rect.width<12||rect.height<12||rect.bottom<0||rect.top>height||rect.right<0||rect.left>width){
-  button.hidden=true;button.style.display='none';return;
+ if(rect.width<MIC_SIZE+MIC_GAP*2||rect.height<MIC_SIZE||rect.bottom<0||rect.top>height||rect.right<0||rect.left>width){
+  hideVoiceIcon();return;
  }
- let x,y;
- const preferRight=window.getComputedStyle(target).direction!=='ltr';
- if(preferRight&&rect.right+MIC_GAP+MIC_SIZE<=width-4)x=rect.right+MIC_GAP;
- else if(rect.left-MIC_SIZE-MIC_GAP>=4)x=rect.left-MIC_SIZE-MIC_GAP;
- else if(rect.right+MIC_GAP+MIC_SIZE<=width-4)x=rect.right+MIC_GAP;
- else x=Math.max(4,Math.min(width-MIC_SIZE-4,preferRight?rect.right-MIC_SIZE:rect.left));
- // Outside the input and above its dropdown whenever possible.
- if(rect.left-MIC_SIZE-MIC_GAP<4&&rect.right+MIC_GAP+MIC_SIZE>width-4){
-  if(rect.top>=MIC_SIZE+MIC_GAP+4)y=rect.top-MIC_SIZE-MIC_GAP;
-  else y=rect.bottom+MIC_GAP;
- }else y=rect.top+Math.max(0,(rect.height-MIC_SIZE)/2);
- y=Math.max(4,Math.min(height-MIC_SIZE-4,y));
- button.style.left=Math.round(x)+'px';
- button.style.top=Math.round(y)+'px';
+ // The single microphone is located WITHIN the editable field, never in the
+ // calculator column or in a neighboring field. RTL uses the field's right edge.
+ const rtl=window.getComputedStyle(target).direction!=='ltr';
+ const x=rtl?rect.right-MIC_SIZE-MIC_GAP:rect.left+MIC_GAP;
+ const y=rect.top+Math.max(0,(Math.min(rect.height,48)-MIC_SIZE)/2);
+ button.style.left=Math.round(Math.max(4,Math.min(width-MIC_SIZE-4,x)))+'px';
+ button.style.top=Math.round(Math.max(4,Math.min(height-MIC_SIZE-4,y)))+'px';
+ const calculatorOpen=!!document.querySelector('#financialCalculatorModal.show');
+ if(!fieldHasInlineMic(target)||calculatorOpen||keyboardEditing||keyboardIsOpen()){
+  hideVoiceIcon();return;
+ }
+ reserveMicSpace(target);
  button.hidden=false;button.style.display='flex';
 }
 function scheduleVoicePosition(){
@@ -99,12 +123,34 @@ function applyVoiceVisibility(){
  if(!visible){button.hidden=true;button.style.display='none';}
  else scheduleVoicePosition();
 }
-document.addEventListener('focusin',scheduleVoicePosition,true);
-document.addEventListener('focusout',scheduleVoicePosition,true);
-document.addEventListener('scroll',scheduleVoicePosition,true);
-window.addEventListener('resize',scheduleVoicePosition);
+// Keep field identity stable on Android. Keyboards hide the button; only a
+// deliberate click on the microphone may initiate recognition.
+document.addEventListener('focusin',event=>{
+ if(event.target!==keyboardField){keyboardEditing=false;keyboardField=event.target;}
+ scheduleVoicePosition();
+},true);
+document.addEventListener('focusout',event=>{
+ if(event.target===keyboardField){keyboardEditing=false;keyboardField=null;}
+ scheduleVoicePosition();
+},true);
+document.addEventListener('keydown',event=>{
+ if(eligible(event.target)&&!event.ctrlKey&&!event.metaKey&&event.key!=='Tab'&&event.key!=='Shift'&&event.key!=='Escape'){
+  keyboardEditing=true;keyboardField=event.target;scheduleVoicePosition();
+ }
+},true);
+document.addEventListener('beforeinput',event=>{
+ if(eligible(event.target)&&!listening){keyboardEditing=true;keyboardField=event.target;scheduleVoicePosition();}
+},true);
+document.addEventListener('input',event=>{
+ if(eligible(event.target)&&!listening){keyboardEditing=true;keyboardField=event.target;scheduleVoicePosition();}
+},true);
+window.addEventListener('resize',()=>{
+ if(!eligible(document.activeElement))baselineHeight=Math.max(window.innerHeight||0,window.visualViewport?.height||0,400);
+ scheduleVoicePosition();
+});
 window.visualViewport?.addEventListener?.('resize',scheduleVoicePosition);
 window.visualViewport?.addEventListener?.('scroll',scheduleVoicePosition);
+applyVoiceVisibility();
 applyVoiceVisibility();
 function notify(message,kind='info'){
  if(typeof window.showToast==='function')window.showToast(message,kind,4500);
@@ -407,29 +453,9 @@ function settings(){
 }
 settings();
 function addAccountMicrophones(){
- for(const [inputId,buttonId,title] of [
-  ['inpDebitAcc','ratibSimpleVoiceDebit','إملاء اسم الحساب المدين'],
-  ['inpCreditAcc','ratibSimpleVoiceCredit','إملاء اسم الحساب الدائن']
- ]){
-  const input=document.getElementById(inputId),wrap=input?.closest('.searchable-select-wrap');
-  const row=wrap?.parentElement;
-  if(!input||!wrap||!row||document.getElementById(buttonId))continue;
-  const direct=document.createElement('button');
-  direct.type='button';direct.id=buttonId;
-  direct.className='icon-btn ratib-simple-account-mic no-print';
-  direct.textContent='🎙️';direct.title=title;
-  direct.setAttribute('aria-label',title);direct.setAttribute('aria-pressed','false');
-  direct.style.cssText='flex:0 0 40px;width:40px;min-width:40px;height:44px;padding:4px;margin:0;border-radius:9px';
-  direct.addEventListener('pointerdown',e=>{remember(input);e.preventDefault();});
-  direct.addEventListener('mousedown',e=>e.preventDefault());
-  direct.addEventListener('click',e=>{
-   e.stopPropagation();
-   // Preserve the intended field even when Android moves focus to the button.
-   remember(input);
-   startSpeech(input);
-  });
-  wrap.after(direct);
- }
+ // One contextual microphone serves every editable text field. Remove
+ // historical fixed duplicate buttons without affecting the account selectors.
+ document.querySelectorAll('.ratib-simple-account-mic').forEach(m=>m.remove());
 }
 addAccountMicrophones();
 window.RatibVoiceDictation=Object.freeze({

@@ -56,6 +56,8 @@ test_updates = 0
 for path in root.glob("test-*.cjs"):
     original = path.read_text(encoding="utf-8")
     updated = original.replace(OLD, NEW).replace(OLD_BUILD, NEW_BUILD)
+    # Preserve JavaScript regex escapes while updating the asserted release.
+    updated = updated.replace(r"3\\.6\\.208", r"3\\.6\\.209")
     updated = updated.replace("test-voice-first-3.6.209.cjs", "test-voice-first-3.6.208.cjs")
     if updated != original:
         path.write_text(updated, encoding="utf-8")

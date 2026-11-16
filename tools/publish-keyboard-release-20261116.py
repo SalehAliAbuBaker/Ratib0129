@@ -39,9 +39,7 @@ sw = sw_path.read_text(encoding="utf-8")
 assert f'"version":"{OLD}"' in sw
 sw = sw.replace(OLD, NEW).replace(OLD_BUILD, NEW_BUILD)
 sw = patch_release(sw, "APP_RELEASE")
-assert "keyboard-focus" not in sw
-sw = sw.replace(f"-{NEW}';", f"-{NEW}-keyboard-focus';", 1)
-assert "keyboard-focus" in sw
+assert re.search(r"const CACHE_VERSION=['\"]([^'\"]*-"+re.escape(NEW)+r")['\"]", sw), "cache must end with current version"
 sw_path.write_text(sw, encoding="utf-8")
 
 pkg_path = root / "package.json"
@@ -66,6 +64,6 @@ for path in root.glob("test-*.cjs"):
 assert f'"version":"{NEW}"' in index
 assert f'"version":"{NEW}"' in sw
 assert f"?v={NEW}" in index
-assert f"-{NEW}-keyboard-focus" in sw
+assert re.search(r"const CACHE_VERSION=['\"]([^'\"]*-"+re.escape(NEW)+r")['\"]", sw)
 assert (root / "ratib-voice-dictation-3.6.117.js").read_text(encoding="utf-8").count("ratib-keyboard-open") >= 2
 print(f"Release {NEW} prepared. Test expectations updated in {test_updates} files.")

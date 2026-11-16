@@ -152,7 +152,108 @@ window.addEventListener('resize',()=>{
 window.visualViewport?.addEventListener?.('resize',scheduleVoicePosition);
 window.visualViewport?.addEventListener?.('scroll',scheduleVoicePosition);
 applyVoiceVisibility();
-applyVoiceVisibility();
+
+/* Keep the active text field visible above Android's software keyboard.
+   Uses the visual viewport rather than assuming window.innerHeight shrinks.
+   Only moves the page after keyboard detection, never on each typed letter. */
+const keyboardFocusCss=document.createElement('style');
+keyboardFocusCss.textContent=[
+ '@media screen and (max-width:900px){',
+ 'html.ratib-keyboard-open #ratibHomeBottomNav{display:none!important}',
+ 'html.ratib-keyboard-open #ratibSmartResults{max-height:max(90px,calc(var(--ratib-keyboard-view-height,330px) - 145px))!important;overflow-y:auto!important}',
+ '}',
+ '@media print{#ratibKeyboardFocusReserve{display:none!important}}'
+].join('\n');
+document.head.appendChild(keyboardFocusCss);
+const keyboardReserve=document.createElement('div');
+keyboardReserve.id='ratibKeyboardFocusReserve';
+keyboardReserve.hidden=true;
+keyboardReserve.setAttribute('aria-hidden','true');
+keyboardReserve.style.cssText='height:0;pointer-events:none;visibility:hidden;flex:none;';
+document.body.appendChild(keyboardReserve);
+let keyboardFocusTarget=null,keyboardFocusFrame=0,keyboardFocusTimer=0;
+function isKeyboardTextField(el){
+ if(!el||!el.isConnected||el.disabled||el.readOnly||el.closest?.('[inert],[hidden],.hidden'))return false;
+ if(el.matches?.('textarea,[contenteditable="true"],[contenteditable="plaintext-only"]'))return true;
+ return el.matches?.('input')&&/^(text|search|tel|email|url|number|password)$/.test((el.type||'text').toLowerCase());
+}
+function keyboardVisibleForFocusedField(){
+ const vv=window.visualViewport;
+ if(!vv||!keyboardFocusTarget||!isKeyboardTextField(keyboardFocusTarget))return false;
+ const baseline=Math.max(baselineHeight,window.innerHeight||0);
+ return baseline-vv.height>Math.max(145,baseline*.22);
+}
+function stopKeyboardFocusAdjustment(){
+ document.documentElement.classList.remove('ratib-keyboard-open');
+ document.documentElement.style.removeProperty('--ratib-keyboard-view-height');
+ keyboardReserve.hidden=true;
+ keyboardReserve.style.height='0';
+}
+function scrollInputInLocalPanels(target,desiredTop,visibleBottom){
+ let node=target.parentElement;
+ while(node&&node!==document.body&&node!==document.documentElement){
+  const cs=window.getComputedStyle(node);
+  if(/auto|scroll|overlay/.test(cs.overflowY||'')&&node.scrollHeight>node.clientHeight+8){
+   const limit=node.getBoundingClientRect();
+   const current=target.getBoundingClientRect();
+   const top=Math.max(limit.top+12,desiredTop);
+   const bottom=Math.min(limit.bottom-12,visibleBottom-12);
+   if(bottom>top&&current.top>top+12)node.scrollTop+=current.top-top;
+   else if(bottom>top&&current.bottom>bottom)node.scrollTop+=current.bottom-bottom;
+   else if(current.top<limit.top+8)node.scrollTop+=current.top-limit.top-8;
+  }
+  node=node.parentElement;
+ }
+}
+function alignKeyboardFocusedField(){
+ keyboardFocusFrame=0;
+ const field=keyboardFocusTarget;
+ if(!field||document.activeElement!==field||!keyboardVisibleForFocusedField()){
+  stopKeyboardFocusAdjustment();return;
+ }
+ const vv=window.visualViewport;
+ const viewportTop=vv.offsetTop||0,viewportBottom=viewportTop+vv.height;
+ const targetTop=viewportTop+Math.min(100,Math.max(64,vv.height*.21));
+ document.documentElement.classList.add('ratib-keyboard-open');
+ document.documentElement.style.setProperty('--ratib-keyboard-view-height',Math.round(vv.height)+'px');
+ // Ensure there is room to raise fields near the bottom of short pages.
+ keyboardReserve.hidden=false;
+ keyboardReserve.style.height=Math.round(Math.max(130,Math.min(260,vv.height*.55)))+'px';
+ scrollInputInLocalPanels(field,targetTop,viewportBottom);
+ const rect=field.getBoundingClientRect();
+ const needsLift=rect.top>targetTop+16||rect.bottom>viewportBottom-12;
+ const needsRecover=rect.top<viewportTop+8;
+ if(!needsLift&&!needsRecover)return;
+ // Fixed dialogs should scroll their own content only; never move the page behind them.
+ if(field.closest('[role="dialog"],.modal.show,.modal.active,#financialCalculatorModal.show'))return;
+ const delta=rect.top-targetTop;
+ if(Math.abs(delta)>8){
+  try{window.scrollBy({left:0,top:delta,behavior:'instant'});}
+  catch(_){window.scrollBy(0,delta);}
+ }
+}
+function scheduleKeyboardFocusAdjustment(){
+ if(keyboardFocusFrame)return;
+ keyboardFocusFrame=(window.requestAnimationFrame||window.setTimeout)(alignKeyboardFocusedField);
+}
+document.addEventListener('focusin',e=>{
+ if(!isKeyboardTextField(e.target))return;
+ keyboardFocusTarget=e.target;
+ scheduleKeyboardFocusAdjustment();
+ // Some Android browsers report the reduced viewport after focusin.
+ clearTimeout(keyboardFocusTimer);
+ keyboardFocusTimer=setTimeout(scheduleKeyboardFocusAdjustment,240);
+},true);
+document.addEventListener('focusout',e=>{
+ if(e.target!==keyboardFocusTarget)return;
+ keyboardFocusTarget=null;
+ clearTimeout(keyboardFocusTimer);
+ scheduleKeyboardFocusAdjustment();
+},true);
+window.visualViewport?.addEventListener?.('resize',scheduleKeyboardFocusAdjustment);
+window.visualViewport?.addEventListener?.('scroll',scheduleKeyboardFocusAdjustment);
+window.addEventListener('resize',scheduleKeyboardFocusAdjustment);
+
 function notify(message,kind='info'){
  if(typeof window.showToast==='function')window.showToast(message,kind,4500);
  else{status.hidden=false;status.textContent=message;setTimeout(()=>{if(!listening)status.hidden=true;},3500);}

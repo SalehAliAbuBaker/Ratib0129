@@ -168,12 +168,22 @@
   }
   function findTarget(){
     if(!current)return null;
+    // A catalog refresh can replace SearchableSelect while leaving the input
+    // connected. The originating selector may then be a stale instance.
+    const live=[
+      typeof selDebitAcc!=='undefined'?selDebitAcc:null,
+      typeof selCreditAcc!=='undefined'?selCreditAcc:null,
+      typeof selEditDebitAcc!=='undefined'?selEditDebitAcc:null,
+      typeof selEditCreditAcc!=='undefined'?selEditCreditAcc:null,
+      typeof multiSourceAcc!=='undefined'?multiSourceAcc:null,
+      ...(typeof voucherRowSelectors!=='undefined'?voucherRowSelectors.map(x=>x.selector):[])
+    ].find(x=>x?.input?.isConnected&&x.input.id===current.inputId);
+    if(live)return live;
+    // The opening editor recreates its rows independently of cash/journal selectors.
+    const opening=window.RatibOpeningAccountTypeahead?.forInput?.(current.inputId);
+    if(opening?.input?.isConnected)return opening;
     if(current.selector?.input?.isConnected)return current.selector;
-    if(typeof voucherRowSelectors!=='undefined'){
-      const hit=voucherRowSelectors.find(x=>x.selector.input.id===current.inputId);
-      if(hit)return hit.selector;
-    }
-    return window.RatibOpeningAccountTypeahead?.forInput?.(current.inputId)||null;
+    return null;
   }
   async function save(){
     if(busy||!current)return;
@@ -203,17 +213,27 @@
       if(typeof flushStorage==='function')await flushStorage();
       const confirmed=getCanonicalCatalog().some(x=>(x.details||[]).some(d=>String(d[0])===code&&d[1]===name));
       if(!confirmed)throw new Error('تعذر التحقق من إضافة الحساب في الدليل.');
-      updateSearchableData();
-      const item=getMultiAccountItems().find(x=>x.id===name&&x.accountId===code);
-      if(!item)throw new Error('أضيف الحساب، لكن تعذر تحديث قائمة البحث.');
-      const selected=findTarget()||target;
-      // Dynamic journal/cash rows use their own SearchableSelect instances.
-      if(selected.items&&!selected.items.some(x=>x.id===name&&x.accountId===code))selected.setItems(getMultiAccountItems());
-      selected.choose(item);
-      selected.close();
-      if(typeof selected.getValue==='function'&&selected.getValue()!==name)throw new Error('لم يكتمل ربط حساب السند بالقائمة الداخلية؛ أعد فتح نتائج البحث.');
-      if(typeof selected.getAccountId==='function'&&String(selected.getAccountId())!==code)throw new Error('رقم الحساب المختار لا يطابق رقم الحساب المحفوظ.');
+      // Rebuild tree/search *before* selecting. Rebuilding after choosing can
+      // silently replace the selector and leave its form value uncommitted.
       try{refreshAccountsTreesPreservingPosition();}catch(err){console.warn('Quick account tree refresh:',err);}
+      updateSearchableData();
+      const item=getMultiAccountItems().find(x=>x.id===name&&String(x.accountId)===code);
+      if(!item)throw new Error('أضيف الحساب، لكن تعذر تحديث قائمة البحث.');
+      const selected=findTarget();
+      if(!selected)throw new Error('تغير حقل السند أثناء تحديث الحسابات. الحساب محفوظ في الشجرة؛ أعد اختياره من القائمة.');
+      // Dynamic journal/cash rows have independently recreated selectors.
+      if(selected.items&&!selected.items.some(x=>x.id===name&&String(x.accountId)===code))selected.setItems(getMultiAccountItems());
+      selected.choose(item);
+      if(typeof selected.getValue==='function'&&selected.getValue()!==name&&typeof selected.setValue==='function'){
+        selected.setValue(name,item.text||name,code);
+      }
+      if(typeof selected.getValue==='function'&&selected.getValue()!==name){
+        throw new Error('تم إنشاء الحساب في الشجرة، لكن لم يثبت اختياره في السند. اختره من القائمة قبل الحفظ.');
+      }
+      if(typeof selected.getAccountId==='function'&&String(selected.getAccountId())!==code){
+        throw new Error('رقم الحساب المختار لا يطابق رقم الحساب المحفوظ.');
+      }
+      selected.close();
       const quickModal=document.getElementById(modalId);
       quickModal.hidden=true;
       if(quickModal.parentNode!==document.body)document.body.append(quickModal);

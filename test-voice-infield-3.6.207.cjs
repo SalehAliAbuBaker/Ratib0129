@@ -50,7 +50,8 @@ async function run(){
  mic.click();
  amount.focus();
  await settle();
- assert(mic.hidden,'decimal amount fields have no voice icon over calculator');
+ assert(!mic.hidden,'decimal amount field has its microphone inside the input');
+ assert.equal(mic.style.left,'212px','amount microphone stays within input, away from calculator column');
  assert.equal(d.getElementById('calc').disabled,false,'calculator control remains enabled');
  statement.focus();
  await settle();

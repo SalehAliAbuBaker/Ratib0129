@@ -1,4 +1,4 @@
-/* Ratib voice: one in-field microphone, keyboard-aware; never autosaves vouchers. */
+/* Ratib voice: first field tap dictates, second tap types when enabled; never autosaves vouchers. */
 (()=>{'use strict';
 const Recognition=window.SpeechRecognition||window.webkitSpeechRecognition;
 const LANG_KEY='ratib.voice.language.v1',LANGUAGES=['ar-SA','ar-YE','ar-EG'];
@@ -51,6 +51,7 @@ status.setAttribute('role','status');status.setAttribute('aria-live','polite');
 document.body.append(button,status);
 const MIC_SIZE=32,MIC_GAP=6;
 let positioning=false,keyboardEditing=false,keyboardField=null,paddedField=null,paddedStyle=null;
+let voiceField=null,voiceMode=false,originalMode=null,fieldTap=null;
 let baselineHeight=Math.max(window.innerHeight||0,window.visualViewport?.height||0,400);
 function micTarget(){
  const current=eligible(document.activeElement);
@@ -61,10 +62,9 @@ function micTarget(){
  return current;
 }
 function fieldHasInlineMic(target){
- if(!target||target.matches?.('select,input[type="number"],input[type="date"],input[type="time"]'))return false;
- if(target.closest?.('.financial-number-field,#financialCalculatorModal'))return false;
- if(target.matches?.('input')&&/^(decimal|numeric)$/.test((target.inputMode||target.getAttribute('inputmode')||'').toLowerCase()))return false;
- return !!(target.matches?.('textarea,input[type="text"],input[type="search"],input[type="tel"],input[type="url"],input[type="email"]')||target.isContentEditable);
+ if(!target||target.matches?.('select,input[type="date"],input[type="time"]'))return false;
+ if(target.closest?.('#financialCalculatorModal'))return false;
+ return !!(target.matches?.('textarea,input')||target.isContentEditable);
 }
 function keyboardIsOpen(){
  const visual=window.visualViewport?.height;
@@ -120,11 +120,12 @@ function scheduleVoicePosition(){
 }
 function applyVoiceVisibility(){
  if(!visible&&listening)stop();
+ if(!visible)releaseVoiceField();
  if(!visible){button.hidden=true;button.style.display='none';}
  else scheduleVoicePosition();
 }
-// Keep field identity stable on Android. Keyboards hide the button; only a
-// deliberate click on the microphone may initiate recognition.
+// Programmatic focus and Tab remain keyboard actions. Only a completed field
+// tap starts dictation; scrolling and canceled gestures never record.
 document.addEventListener('focusin',event=>{
  if(event.target!==keyboardField){keyboardEditing=false;keyboardField=event.target;}
  scheduleVoicePosition();
@@ -326,7 +327,7 @@ function insert(spoken){
  // Invoice quantities, exchange rates and voucher amounts can be text inputs
  // whose inputmode is decimal/numeric; they must not accept arbitrary words.
  const numeric=type==='number'||(target.matches?.('input')&&
-  /^(decimal|numeric)$/.test(target.getAttribute('inputmode')||''));
+  /^(decimal|numeric)$/.test(originalInputMode(target)||''));
  const content=numeric?parseNumber(raw):raw;
  if(content===null){notify('لم أتعرف على مبلغ واضح. انطقه بالأرقام أو بالكلمات؛ لم تتغير القيمة.','warn');return;}
  try{
@@ -408,11 +409,50 @@ button.addEventListener('click',()=>{
  startSpeech(target);
 });
 
-/* A field tap only focuses its input and opens the normal keyboard.
-   Speech recognition must be initiated by the microphone's own click.
-   Preserve the old query API for account auto-completion compatibility. */
-window.RatibVoiceFirstAccountActive=()=>false;
-window.addEventListener('pagehide',stop);
+function originalInputMode(target){return target===voiceField?originalMode:target.getAttribute('inputmode');}
+function releaseVoiceField(){
+ if(voiceField){
+  if(originalMode===null)voiceField.removeAttribute('inputmode');
+  else voiceField.setAttribute('inputmode',originalMode);
+ }
+ voiceField=null;voiceMode=false;originalMode=null;fieldTap=null;
+}
+function fieldForTap(target){
+ const field=eligible(target);
+ if(!visible||!field||!fieldHasInlineMic(field))return null;
+ if(field.closest('#ratibVoiceSettingsCard,#ratibFavoritesPanel,#ratibCenterFavoritesMenu'))return null;
+ return field;
+}
+document.addEventListener('pointerdown',event=>{
+ if(event.isPrimary===false||(event.button!==undefined&&event.button!==0))return;
+ const field=fieldForTap(event.target);
+ if(!field)return;
+ if(field===voiceField){
+  // Restore inputmode before the native click so Android can open its keyboard.
+  if(voiceMode){stop();releaseVoiceField();voiceField=field;originalMode=field.getAttribute('inputmode');voiceMode=false;}
+  keyboardEditing=true;keyboardField=field;scheduleVoicePosition();return;
+ }
+ if(listening)stop();
+ releaseVoiceField();voiceField=field;originalMode=field.getAttribute('inputmode');voiceMode=true;
+ field.setAttribute('inputmode','none');
+ fieldTap={field,id:event.pointerId,x:event.clientX||0,y:event.clientY||0};
+ // Suppress the keyboard while keeping the field focusable and selectable.
+ event.preventDefault();field.focus({preventScroll:true});remember(field);
+ keyboardEditing=false;keyboardField=field;scheduleVoicePosition();
+},true);
+document.addEventListener('pointermove',event=>{
+ if(fieldTap&&Math.hypot((event.clientX||0)-fieldTap.x,(event.clientY||0)-fieldTap.y)>10)releaseVoiceField();
+},{capture:true,passive:true});
+document.addEventListener('pointercancel',()=>{if(fieldTap)releaseVoiceField();},true);
+document.addEventListener('pointerup',event=>{
+ const tap=fieldTap;if(!tap||tap.id!==event.pointerId)return;
+ fieldTap=null;
+ if(Math.hypot((event.clientX||0)-tap.x,(event.clientY||0)-tap.y)>10){releaseVoiceField();return;}
+ if(!fieldForTap(tap.field)){releaseVoiceField();return;}
+ remember(tap.field);startSpeech(tap.field);
+},true);
+window.RatibVoiceFirstAccountActive=field=>visible&&voiceMode&&voiceField===field;
+window.addEventListener('pagehide',()=>{stop();releaseVoiceField();});
 
 
 async function requestMicrophoneAccess(targetId){
@@ -439,7 +479,7 @@ function settings(){
  const parent=document.getElementById('pageSettings');
  if(!parent||document.getElementById('ratibVoiceSettingsCard'))return;
  const card=document.createElement('div');card.id='ratibVoiceSettingsCard';card.className='card settings-accordion-card no-print';
- card.innerHTML='<div class="settings-accordion-header" role="button" tabindex="0" aria-expanded="false"><span>🎙️ الإملاء الصوتي</span><span class="accordion-arrow">▼</span></div><div class="settings-accordion-body"><label style="display:flex;align-items:center;justify-content:space-between;gap:10px"><span>إظهار زر الإملاء الصوتي</span><input type="checkbox" id="ratibVoiceVisible" style="width:22px;height:22px"></label><p class="ratib-voice-hint">حدد الحقل ثم اضغط زر الميكروفون. يمكن إملاء المبلغ بالأرقام أو بالكلمات العربية، مثل ستة وثلاثين ألفًا ومئة واثنين وخمسين. تتاح الكتابة بالصوت للنص والمبلغ والتاريخ والوقت وخيارات القوائم عند تطابق اسم الخيار؛ لن يُحفظ مستند تلقائيًا. أمّا الرقم السري والملفات فمستثناة.</p><label for="ratibVoiceLanguage">لغة التعرف على الصوت</label><select id="ratibVoiceLanguage"><option value="ar-SA">العربية</option><option value="ar-YE">العربية — اليمن</option><option value="ar-EG">العربية — مصر</option></select><button type="button" id="ratibVoiceMicPermissionBtn" class="btn" style="margin:8px 0 4px;min-height:42px">فحص إذن الميكروفون والسماح به</button><p id="ratibVoiceMicPermissionStatus" class="ratib-voice-hint" role="status" aria-live="polite"></p><p class="ratib-voice-hint">قد يحتاج التعرف على الصوت إلى الإنترنت وخدمة المتصفح. لا يتم تشغيل الميكروفون تلقائيًا، وقد تُعالج الخدمة الصوت وفق سياسة المتصفح.</p></div>';
+ card.innerHTML='<div class="settings-accordion-header" role="button" tabindex="0" aria-expanded="false"><span>🎙️ الإملاء الصوتي</span><span class="accordion-arrow">▼</span></div><div class="settings-accordion-body"><label style="display:flex;align-items:center;justify-content:space-between;gap:10px"><span>تفعيل الإدخال الصوتي</span><input type="checkbox" id="ratibVoiceVisible" style="width:22px;height:22px"></label><p class="ratib-voice-hint">عند تفعيل الإدخال الصوتي، المس حقل النص أو المبلغ مرة لبدء الإملاء، والمس الحقل نفسه ثانية للكتابة بلوحة المفاتيح. ويمكن بدء الإملاء من أيقونة الميكروفون داخل الحقل. يمكن إملاء المبلغ بالأرقام أو بالكلمات العربية، مثل ستة وثلاثين ألفًا ومئة واثنين وخمسين. تتاح الكتابة بالصوت للنص والمبلغ والتاريخ والوقت وخيارات القوائم عند تطابق اسم الخيار؛ لن يُحفظ مستند تلقائيًا. أمّا الرقم السري والملفات فمستثناة.</p><label for="ratibVoiceLanguage">لغة التعرف على الصوت</label><select id="ratibVoiceLanguage"><option value="ar-SA">العربية</option><option value="ar-YE">العربية — اليمن</option><option value="ar-EG">العربية — مصر</option></select><button type="button" id="ratibVoiceMicPermissionBtn" class="btn" style="margin:8px 0 4px;min-height:42px">فحص إذن الميكروفون والسماح به</button><p id="ratibVoiceMicPermissionStatus" class="ratib-voice-hint" role="status" aria-live="polite"></p><p class="ratib-voice-hint">قد يحتاج التعرف على الصوت إلى الإنترنت وخدمة المتصفح. لا يعمل الميكروفون إلا بلمس الحقل عند تفعيل الخيار أو بالضغط على أيقونته، وقد تُعالج الخدمة الصوت وفق سياسة المتصفح.</p></div>';
  parent.prepend(card);
  const head=card.querySelector('.settings-accordion-header'),body=card.querySelector('.settings-accordion-body');
  const toggle=()=>{const opened=body.classList.toggle('open');head.setAttribute('aria-expanded',String(opened));head.querySelector('.accordion-arrow').textContent=opened?'▲':'▼';};

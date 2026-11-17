@@ -421,6 +421,93 @@ function registerFavorite(id,label,icon,run,group){
  if(document.getElementById('ratibSettingsFavCatalog'))render();
  return true;
 }
+
+/* Smart user guide: static offline knowledge, using the same verified shortcut actions. */
+const ratibGuideTopics=[
+ ['مقدمة عن راتب','ℹ️','تعريف البداية تنظيم تدبير','حول التطبيق',null,['راتب يساعدك على تنظيم الحسابات والمعاملات المالية والمخزون والتقارير.','ابدأ بتحديد حساباتك وعملاتك، ثم سجل الأرصدة الافتتاحية والحركات الفعلية.']],
+ ['إضافة حساب جديد','📁','انشاء فتح حساب فرعي مدين دائن','الإعدادات ← إدارة شجرة الحسابات والأسقف','add-account',['افتح إدارة شجرة الحسابات واختر إضافة حساب.','حدد الحساب الرئيسي والتصنيف والاسم، ثم احفظ.','يمكن استخدام الحساب الفرعي بعد اختياره من نتائج البحث.']],
+ ['سند القبض','📥','استلام ايراد مقبوضات دخل استلام نقد','الرئيسية ← قبض','receipt',['اختر حساب القبض والحساب المقابل وفق طبيعة المعاملة.','حدد المبلغ والعملة والبيان، وراجع البيانات قبل الحفظ.','بعد الحفظ يمكنك المعاينة أو المشاركة أو الطباعة.']],
+ ['سند الصرف','📤','دفع مصروفات صرف نقد','الرئيسية ← صرف','payment',['حدد حساب الصرف والحساب المستفيد.','أدخل المبلغ والعملة والبيان وبند الميزانية عند الحاجة.','راجع السند واحفظه، ثم شاركه أو اطبعه عند الحاجة.']],
+ ['القيد البسيط','📝','يومية تحويل طرفين مدين دائن','القيد البسيط','simple-entry',['اختر الحساب المدين والحساب الدائن.','حدد المبلغ والعملة واكتب البيان.','راجع اتجاه القيد قبل الحفظ.']],
+ ['القيد المركب','📑','قيد متعدد اطراف عدة عملات مدين دائن','القيد المركب','multi-entry',['يبدأ القيد بطرفين قابلين للتعديل.','استخدم إضافة طرف عند الحاجة، وحدد الحساب والمبلغ والعملة وطبيعة كل طرف.','أدخل أسعار الصرف عند الحاجة وتأكد من توازن القيد قبل الحفظ.']],
+ ['القيد الافتتاحي','📖','رصيد ارصدة سابقة بداية السنة','الرئيسية ← القيد الافتتاحي',null,['سجل الأرصدة التي يبدأ بها الحساب أو الفترة المالية.','حدد الحساب وطبيعة الرصيد والمبلغ والعملة.','أدخل بيانات التقييم للحسابات الأجنبية عند الحاجة وراجع التوازن.']],
+ ['كشف الحساب ومطابقة الرصيد','📋','كشف حركة حساب تثبيت مطابقة بحث متقدم','الرئيسية ← البحث عن الحساب','home',['ابحث عن الحساب الفرعي وافتح كشفه بالعملة المطلوبة.','استخدم البحث المتقدم لتحديد الفترة أو البحث عن بيان أو سند.','راجع الرصيد ثم استخدم تثبيت المطابقة لتوثيقها أو إزالة العلامات عند الحاجة.']],
+ ['البحث الذكي والحسابات المفضلة','🔎','نجمة مفضلة بحث اسم جزئي','الرئيسية','home',['اكتب جزءا من اسم الحساب لعرض النتائج الفورية.','يدعم البحث اختلافات كتابة الألف والتاء المربوطة دون تغيير الاسم المحفوظ.','استخدم الحسابات المفضلة للوصول إلى الحسابات المتكررة.']],
+ ['نبض الصندوق','📊','رصيد نقدية مقبوضات مصروفات بند عام','الرئيسية ← نبض الصندوق','home',['تظهر مؤشرات الرصيد والمقبوضات والمصروفات.','راجع البنود المستخدمة وانتقل إلى تفاصيل الحركات عند إتاحتها.']],
+ ['العملات وأسعار الصرف','💱','سعودي يمني دولار مصارفة تقييم','الإعدادات ← إدارة العملات','settings:currencies',['راجع العملات المعتمدة من إدارة العملات.','حدد العملة في المعاملة وسعر الصرف عندما يتطلب القيد التقييم.','لا تخلط بين الرصيد بالعملة الأصلية ومعادله.']],
+ ['المخزون والبيع والشراء','📦','صنف بضاعة فاتورة مخزن توريد وارد صادر','المخزون / الوارد / الصادر','commerce:stock:products',['أضف الصنف وراجع وحدته وبياناته.','سجل مستندات الوارد أو الصادر من القسم المناسب.','تابع حركة الأصناف وتقارير المخزون.']],
+ ['التقارير المالية','📈','ميزان مراجعة مركز مالي حركة ميزانية','التقارير','reports-home',['اختر التقرير المطلوب مثل ميزان المراجعة.','حدد الفترة والعملة والمرشحات المناسبة.','راجع التقرير وتنبيهاته قبل التصدير أو الطباعة.']],
+ ['تعديل وحذف العمليات','✏️','تصحيح الغاء سند سجل الحركات','سجل العمليات','ledger',['ابحث عن العملية باستخدام رقمها أو تاريخها أو بيانها.','افتح المستند واستخدم التعديل أو الحذف عندما يسمح النظام.','راجع أثر التغيير، واحفظ نسخة أمان قبل المعالجة الجماعية.']],
+ ['الطباعة والمشاركة','🖨️','pdf بي دي اف تصدير هوية معاينة','الإعدادات ← إعدادات الطباعة','settings:printing',['راجع بيانات الهوية وإعدادات الطباعة.','عاين السند أو الكشف قبل طباعته أو مشاركته.','استخدم صيغة التصدير التي يتيحها التقرير المطلوب.']],
+ ['الإدخال الصوتي والحاسبة','🎙️','املاء صوت حساب الة مبلغ','الإعدادات ← الإدخال الصوتي','settings:voice',['استخدم الميكروفون داخل الحقول المدعومة بعد منح الإذن اللازم.','راجع النص أو الرقم الناتج قبل حفظ المعاملة.','استخدم الحاسبة في حقول المبالغ المدعومة ثم اعتمد النتيجة.']],
+ ['النسخ الاحتياطي والاستعادة','💾','حماية قاعدة البيانات استرجاع نقل جوجل درايف سحابي','القائمة ← النسخ المحلي والسحابي','backup-file',['أنشئ نسخة احتياطية محلية بانتظام واحتفظ بها في مكان آمن.','يمكن استخدام النسخ السحابي إذا كانت الخدمة مهيأة.','تحقق من النسخة وتاريخها واحفظ نسخة من البيانات الحالية قبل الاستعادة.']],
+ ['الإعدادات والتخصيص','⚙️','الوان مظهر حجم الخط الهوية شريط سفلي حسابات افتراضية','الإعدادات',null,['راجع بيانات الهوية والمظهر وإعدادات الطباعة.','حدد الحسابات الافتراضية وبنود الميزانية حسب احتياجاتك.','خصص الأزرار والشريط السفلي والأدوات المتاحة.']],
+ ['التفعيل والتحديثات','🔑','ترخيص اصدار ما الجديد تحديث','القائمة ← إدخال كود التفعيل','license',['اطلع على رقم الإصدار في حول التطبيق.','راجع حالة التفعيل عند الحاجة.','اقرأ ما الجديد عند عرض تحديث واحفظ عملك قبل تطبيقه.']],
+ ['سياسة الخصوصية','🔒','حقوق سرية امن حماية بيانات','حول التطبيق ← سياسة الخصوصية',null,['اطلع على نص سياسة الخصوصية المعتمد في التطبيق.','حافظ على بيانات الدخول والنسخ الاحتياطية ولا تشاركها مع غير المخولين.']]
+];
+const ratibGuideNormalize=value=>String(value||'').toLowerCase().replace(/[أإآٱ]/g,'ا').replace(/ة/g,'ه').replace(/ى/g,'ي').replace(/[\u064b-\u065f\u0670\u0640]/g,'');
+function ratibGuideMatch(topic,query){
+ const hay=ratibGuideNormalize([topic[0],topic[2],topic[3],...topic[5]].join(' '));
+ return ratibGuideNormalize(query).trim().split(/\s+/).every(word=>hay.includes(word));
+}
+function installRatibUserGuide(){
+ const modal=document.getElementById('ratibAboutModal');
+ const version=modal?.querySelector('.ratib-about-version');
+ if(!version||modal.querySelector('#ratibSmartUserGuide'))return;
+ const make=(tag,txt)=>{const el=document.createElement(tag);if(txt)el.textContent=txt;return el;};
+ const root=make('details');root.id='ratibSmartUserGuide';root.dir='rtl';root.className='no-print';
+ const title=make('summary','📖 دليل الاستخدام الذكي');
+ const body=make('div');body.className='rg-body';
+ const search=make('input');search.type='search';search.className='rg-search';search.placeholder='كيف يمكنني مساعدتك؟';search.setAttribute('aria-label','البحث في دليل الاستخدام');search.autocomplete='off';
+ const count=make('p');count.className='rg-count';count.setAttribute('aria-live','polite');
+ const list=make('div');list.className='rg-list';
+ body.append(search,count,list);root.append(title,body);
+ function render(){
+  const query=search.value,topics=ratibGuideTopics.filter(topic=>ratibGuideMatch(topic,query));
+  list.replaceChildren();count.textContent=topics.length+' موضوعًا في دليل الاستخدام';
+  if(!topics.length){list.append(make('p','لا توجد نتائج. جرّب كلمة أخرى.'));return;}
+  for(const [name,ico,keywords,route,id,steps] of topics){
+   const item=make('details');item.className='rg-item';
+   const heading=make('summary',ico+'  '+name);const detail=make('div');detail.className='rg-detail';
+   const ol=make('ol');for(const step of steps)ol.append(make('li',step));
+   const where=make('p','مسار الوصول: '+route);where.className='rg-path';detail.append(ol,where);
+   if(id&&byId[id]){
+    const btn=make('button','انتقل إلى '+byId[id][1]);btn.type='button';btn.className='rg-action';
+    btn.addEventListener('click',()=>{
+     const launcher=document.getElementById('closeRatibAboutBtn');
+     if(!launcher)return;
+     launcher.click();
+     Promise.resolve().then(()=>byId[id].run()).catch(error=>{console.error('Ratib guide',error);window.showToast?.('تعذر فتح الإجراء؛ استخدم المسار الموضح في الدليل.','warn');});
+    });
+    detail.append(btn);
+   }
+   item.append(heading,detail);list.append(item);
+  }
+ }
+ root.addEventListener('toggle',()=>{if(!root.open){search.value='';render();}});
+ list.addEventListener('toggle',event=>{const target=event.target;if(target.parentElement!==list||!target.open)return;for(const other of list.children)if(other!==target)other.open=false;},true);
+ search.addEventListener('input',render);
+ const style=make('style');style.id='ratibSmartUserGuideStyle';
+ style.textContent=[
+ '#ratibSmartUserGuide{box-sizing:border-box;text-align:right;font:inherit;color:inherit;min-width:0;width:100%;margin:12px 0;line-height:1.65;border:1px solid var(--border,#c5cec9);border-radius:12px;background:var(--card,transparent)}',
+ '#ratibSmartUserGuide summary{cursor:pointer;list-style-position:inside;padding:11px 12px;font-weight:700;min-height:44px;box-sizing:border-box;overflow-wrap:anywhere;white-space:normal}',
+ '#ratibSmartUserGuide .rg-body{padding:8px 10px 12px;min-width:0}',
+ '#ratibSmartUserGuide .rg-search{font:inherit;color:inherit;background:transparent;border:1px solid var(--border,#a5b5ae);border-radius:9px;box-sizing:border-box;width:100%;min-height:44px;padding:8px 12px}',
+ '#ratibSmartUserGuide .rg-count{font-size:.85em;margin:6px 2px}',
+ '#ratibSmartUserGuide .rg-list{display:grid;gap:7px;max-height:min(48vh,420px);overflow:auto;overscroll-behavior:contain}',
+ '#ratibSmartUserGuide .rg-item{border:1px solid var(--border,#c5cec9);border-radius:9px;min-width:0}',
+ '#ratibSmartUserGuide .rg-detail{padding:0 12px 12px}',
+ '#ratibSmartUserGuide ol{margin:4px 0 12px;padding-inline-start:22px;font-size:.94em;line-height:1.7}',
+ '#ratibSmartUserGuide .rg-path{font-size:.86em;margin:8px 0;font-weight:600;overflow-wrap:anywhere}',
+ '#ratibSmartUserGuide .rg-action{width:100%;min-height:44px;border:0;border-radius:8px;background:var(--primary,#0d5b45);color:white;font:inherit;padding:8px;cursor:pointer;white-space:normal}',
+ '#ratibSmartUserGuide summary:focus-visible,#ratibSmartUserGuide button:focus-visible,#ratibSmartUserGuide input:focus-visible{outline:2px solid currentColor;outline-offset:1px}',
+ '@media print{#ratibSmartUserGuide{display:none!important}}'
+ ].join('\n');
+ if(!document.getElementById(style.id))document.head.append(style);
+ version.insertAdjacentElement('afterend',root);render();
+}
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',installRatibUserGuide,{once:true});else installRatibUserGuide();
+
 window.RatibQuickFavorites={open,openQuick,close,register:registerFavorite,refresh:()=>{discoverSettings();discoverReports();render();}};
 })();
 

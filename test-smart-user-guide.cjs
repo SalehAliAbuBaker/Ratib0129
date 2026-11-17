@@ -1,0 +1,34 @@
+/* Focused guide regression: node test-smart-user-guide.cjs */
+const assert=require('node:assert/strict');
+const fs=require('node:fs');
+const vm=require('node:vm');
+const {JSDOM}=require('jsdom');
+const source=fs.readFileSync('ratib-favorites-v3.js','utf8');
+new vm.Script(source);
+const start=source.indexOf('const ratibGuideTopics=');
+const end=source.indexOf('window.RatibQuickFavorites={',start);
+assert(start>=0&&end>start);
+const dom=new JSDOM('<div id="ratibAboutModal"><p class="ratib-about-version">الإصدار</p><button id="closeRatibAboutBtn">إغلاق</button></div>',{runScripts:'outside-only'});
+const w=dom.window,d=w.document;
+let closed=false,routed=false;
+d.getElementById('closeRatibAboutBtn').addEventListener('click',()=>{closed=true;});
+w.byId={receipt:['receipt','سند قبض',''], 'settings:currencies':['settings:currencies','إدارة العملات','']};
+w.byId.receipt.run=()=>{assert(closed);routed=true;};
+vm.runInContext(source.slice(start,end)+'\ninstallRatibUserGuide();',dom.getInternalVMContext());
+const root=d.getElementById('ratibSmartUserGuide');
+assert(root&&!root.open);
+assert.equal(d.querySelectorAll('#ratibSmartUserGuide').length,1);
+assert.equal(d.querySelectorAll('.rg-item').length,20);
+assert.equal(d.querySelector('.ratib-about-version').nextElementSibling,root);
+const search=root.querySelector('input');
+function query(q){search.value=q;search.dispatchEvent(new w.Event('input'));return [...root.querySelectorAll('.rg-item summary')].map(x=>x.textContent);}
+root.open=true;
+assert(query('إضافه حساب').some(x=>x.includes('إضافة حساب جديد')));
+assert(query('مُطَابَقَة').some(x=>x.includes('مطابقة الرصيد')));
+assert(query('استلام').some(x=>x.includes('سند القبض')));
+assert.equal(query('xyz-no-match').length,0);
+query('سند القبض');
+const item=root.querySelector('.rg-item');
+item.open=true;
+item.querySelector('button').click();
+Promise.resolve().then(()=>{assert(closed&&routed);dom.window.close();console.log('Smart user guide checks passed.');}).catch(e=>{console.error(e);process.exitCode=1;});

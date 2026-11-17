@@ -117,3 +117,12 @@
  }
 }
 @media print {#ratibReportMenu{display:none!important}}
+
+/* 3.6.213: reports and the six home shortcuts share the same dimensions. */
+@media screen{
+ #pageReports #ratibReportMenu.ratib-report-menu{grid-template-columns:repeat(3,minmax(0,1fr))!important;grid-auto-rows:72px!important;gap:8px!important}
+ #pageReports #ratibReportMenu > .ratib-report-tile{width:calc(100% - 10px)!important;height:72px!important;min-height:72px!important;max-height:72px!important;margin:0 auto!important;padding:5px 3px!important;gap:3px!important;border-radius:12px!important;font-size:.72rem!important;line-height:1.4!important}
+ #pageReports #ratibReportMenu > .ratib-report-tile .ratib-report-icon{flex:0 0 32px!important;width:32px!important;height:32px!important;min-width:32px!important;min-height:32px!important;max-width:32px!important;max-height:32px!important}
+ #pageReports #ratibReportMenu > .ratib-report-tile .ratib-report-icon svg{width:20px!important;height:20px!important;max-width:20px!important;max-height:20px!important}
+ #pageReports #ratibReportMenu > .ratib-report-tile .ratib-report-label{font:700 .78rem/1.4 Tajawal,sans-serif!important}
+}

@@ -52,7 +52,7 @@ function fixture({compressed=false}={}) {
   const context = {
     crypto: webcrypto, TextEncoder, Blob, URL, AbortController, setTimeout, clearTimeout, encodeURIComponent,
     location: { protocol: 'https:', hostname: 'ratibtrial.pages.dev' },
-    navigator: { onLine: true }, window: { google: null },
+    navigator: { onLine: true }, window: { google: null, __ratibProceedInitialized: true },
     document: { getElementById: id => documents[id] || null, activeElement: null },
     store, _appExited: false, fetch,
     _pad2: x => String(x).padStart(2, '0'),

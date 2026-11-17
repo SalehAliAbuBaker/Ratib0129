@@ -70,15 +70,16 @@ async function open(accountName='الصندوق') {
  assert.equal(app.w.RatibStatementMarks.count(),3,'previous marks must remain');
  app.dom.window.close();
 
- const start=html.indexOf('async function cloudBackupSuccess(item) {');
+ const start=html.indexOf('async function cloudBackupSuccess(item, token) {');
  const end=html.indexOf('// Resolve a lost upload response',start);
  assert(start>0 && end>start, 'The cloud confirmation handler must be present');
- assert(html.includes('await cloudBackupSuccess(item);'));
- assert(html.includes('const statusPersisted = await cloudBackupSuccess(pending);'));
+ assert(html.includes('await cloudBackupSuccess(item, token);'));
+ assert(html.includes('const statusPersisted = await cloudBackupSuccess(pending, token);'));
  const events=[];
  const handler=vm.runInNewContext(html.slice(start,end)+'\ncloudBackupSuccess;',{
   saveCloudCfg:(patch)=>events.push(['status',patch]),
   flushStorage:async()=>events.push(['flush']),
+  pruneCloudBackups:async()=>events.push(['prune']),
   showToast:()=>{},
   console:{warn:()=>{}},
   _todayStr:()=> '2026-10-25',
@@ -89,6 +90,7 @@ async function open(accountName='الصندوق') {
  assert.equal(events[0][0],'status');
  assert.equal(events[0][1].lastStatus,'verified');
  assert.equal(events[1][0],'flush','verified status must be durably saved');
+ assert.equal(events[2][0],'prune','cleanup starts after verification has been durably saved');
  const warnings=[];
  const handlerOnFlushError=vm.runInNewContext(html.slice(start,end)+'\ncloudBackupSuccess;',{
   saveCloudCfg:()=>{},

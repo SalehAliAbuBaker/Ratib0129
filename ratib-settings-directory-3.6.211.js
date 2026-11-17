@@ -5,7 +5,7 @@ const $=id=>document.getElementById(id),groups=[
  ['finance','الحسابات والسندات','الحسابات والعملات والخيارات الافتراضية','▤'],
  ['identity','الهوية والطباعة','الاسم والشعار ومخرجات التقارير','▧'],
  ['safety','النسخ الاحتياطي والأمان','حماية البيانات والنسخ المحلي والسحابي','◇'],
- ['management','المساعدة وإدارة التطبيق','الدليل والتفعيل ومعلومات الإصدار','ⓘ']
+ ['management','المساعدة','الدليل والتفعيل ومعلومات الإصدار','ⓘ']
 ];
 const clean=value=>String(value||'').normalize('NFKC').replace(/[\u064b-\u065f\u0670\u0640]/g,'').replace(/[أإآٱ]/g,'ا').replace(/ى/g,'ي').replace(/ة/g,'ه').toLowerCase().trim();
 let root,page,search,empty,items=[],signature=[],queued=false;
@@ -55,7 +55,7 @@ function organizeSidebar(){
 }
 function entry(title,description,action,keywords=''){
  const b=node('button','ratib-setting-link');b.type='button';
- const label=node('span','ratib-setting-label');label.append(node('strong','',title),node('small','',description));
+ const label=node('span','ratib-setting-label');label.append(node('strong','',title));
  const arrow=node('span','ratib-setting-arrow','‹');arrow.setAttribute('aria-hidden','true');b.append(label,arrow);b.addEventListener('click',action);
  items.push({button:b,text:clean(title+' '+description+' '+keywords)});return b;
 }
@@ -73,7 +73,7 @@ function refresh(){
  for(const [key,title,subtitle,glyph] of groups){
   const section=node('section','ratib-setting-group');section.dataset.settingsGroup=key;
   const head=node('div','ratib-setting-group-head'),badge=node('span','ratib-setting-badge',glyph);badge.setAttribute('aria-hidden','true');
-  const text=node('div');text.append(node('h3','',title),node('p','',subtitle));head.append(badge,text);
+  const text=node('div');text.append(node('h3','',title));head.append(badge,text);
   section.append(head);content.append(section);sections.set(key,section);
  }
  for(const card of cards){const [key,title,description]=describe(card);sections.get(key).append(entry(title,description,()=>openCard(card)));}
@@ -82,8 +82,7 @@ function refresh(){
   entry('دليل الاستخدام الذكي','شرح الخطوات والبحث في موضوعات التطبيق',()=>about(true),'تعليمات مساعدة شرح'),
   entry('حول التطبيق','معلومات راتب والإصدار الحالي',()=>about(),String(window.ratibCurrentTrialVersion?.()||'')),
   entry('الترخيص والتفعيل','إدخال كود التفعيل أو مراجعة الترخيص',()=>window.RatibLicense?.showActivation?.({manual:true})),
-  entry('المساعدة والتواصل','إرسال مشكلة أو مقترح للدعم',()=>{if(window.RatibSupportOpen)window.RatibSupportOpen();else $('ratibWhatsappHelpBtn')?.click();}),
-  entry('إدارة التطبيق والخيارات الأخرى','النسخ المحلي والسحابي وأدوات التطبيق',()=>window.openRatibSidebar?.(),'drive استيراد نسخه استعادة')
+  entry('المساعدة والتواصل','إرسال مشكلة أو مقترح للدعم',()=>{if(window.RatibSupportOpen)window.RatibSupportOpen();else $('ratibWhatsappHelpBtn')?.click();})
  );
  const old=root.querySelector('.ratib-settings-groups');if(old)old.replaceWith(content);else root.insertBefore(content,empty);
  filter();
@@ -92,11 +91,9 @@ function schedule(){if(queued)return;queued=true;requestAnimationFrame(()=>{queu
 function install(){
  page=$('pageSettings');if(!page||$('ratibSettingsDirectory211'))return;
  root=node('section','ratib-settings-directory no-print');root.id='ratibSettingsDirectory211';
- const head=node('div','ratib-settings-intro');head.append(node('h2','','الإعدادات'),node('p','','كل خيارات راتب في مكان واحد'));
- const label=node('label','ratib-settings-search-label','ابحث عن إعداد');label.htmlFor='ratibSettingsSearch211';
- search=node('input','ratib-settings-search');search.id=label.htmlFor;search.type='search';search.placeholder='مثل: الخط، النسخ، التفعيل، الطباعة';search.autocomplete='off';search.addEventListener('input',filter);
+ search=node('input','ratib-settings-search');search.id='ratibSettingsSearch211';search.type='search';search.placeholder='كل خيارات راتب في مكان واحد';search.setAttribute('aria-label','البحث في الإعدادات');search.autocomplete='off';search.addEventListener('input',filter);
  empty=node('p','ratib-settings-empty','لم نجد إعدادًا مطابقًا. جرّب اسمًا آخر.');empty.setAttribute('role','status');empty.hidden=true;
- root.append(head,label,search,empty);page.prepend(root);page.classList.add('ratib-settings-directory-ready');refresh();
+ root.append(search,empty);page.prepend(root);page.classList.add('ratib-settings-directory-ready');refresh();
  // Observe only direct additions: typing and changing values never rebuild the directory.
  new MutationObserver(records=>{if(records.some(r=>[...r.addedNodes,...r.removedNodes].some(n=>n.nodeType===1&&(n.classList?.contains('settings-accordion-card')||n.matches?.('details')))))schedule();}).observe(page,{childList:true});
  window.RatibSettingsDirectory=Object.freeze({refresh:schedule});

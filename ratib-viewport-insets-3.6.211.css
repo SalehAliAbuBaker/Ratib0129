@@ -2,6 +2,11 @@
  :root{--ratib-bottom-obstruction:80px}
  html{scroll-padding-bottom:calc(var(--ratib-bottom-obstruction) + 20px)}
  #mainWrap{padding-bottom:calc(var(--ratib-bottom-obstruction) + 20px)!important}
+ #mainWrap #pageAccountOperations{padding-bottom:0!important}
+ /* The statement toolbar is above ordinary dialogs in the legacy stacking order.
+    Navigation is inert while a dialog is open, so remove both bars until it closes. */
+ body:has(.modal-overlay.show,dialog[open]) :is(#ratibHomeBottomNav,#ratibStmtNav189){display:none!important}
+ #ratibStmtSheet189{bottom:calc(var(--ratib-bottom-obstruction) + 8px)!important}
  #mainWrap :is(input,textarea,select,button,[contenteditable="true"]){scroll-margin-bottom:calc(var(--ratib-bottom-obstruction) + 20px)}
  /* Fixed editors do not inherit page padding. Give their scrollable surface its own room. */
  .modal-overlay.show{box-sizing:border-box;padding-bottom:calc(var(--ratib-bottom-obstruction) + 12px)!important}

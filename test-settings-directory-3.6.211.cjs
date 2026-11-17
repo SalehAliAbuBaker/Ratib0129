@@ -13,7 +13,10 @@ w.eval(fs.readFileSync('ratib-sidebar-3.6.124.js','utf8'));w.eval(fs.readFileSyn
 const pause=ms=>new Promise(r=>w.setTimeout(r,ms));
 (async()=>{
  const root=d.getElementById('ratibSettingsDirectory211');assert(root);assert.equal(root.querySelectorAll('.ratib-setting-group').length,5);
- assert.equal(root.querySelectorAll('.ratib-setting-link').length,13,'all original cards, editor and five management actions');
+ assert.equal(root.querySelectorAll('.ratib-setting-link').length,12,'all original cards, editor and four management actions');
+ assert.equal(root.querySelectorAll('.ratib-settings-intro,.ratib-settings-search-label,.ratib-setting-label small').length,0,'no duplicate title or explanatory rows');
+ assert.equal(d.getElementById('ratibSettingsSearch211').placeholder,'كل خيارات راتب في مكان واحد');
+ assert(![...root.querySelectorAll('.ratib-setting-link')].some(b=>b.textContent.includes('الخيارات الأخرى')),'backup is not repeated under management');
  const search=d.getElementById('ratibSettingsSearch211');search.value='اِدخال صوتي';search.dispatchEvent(new w.Event('input'));assert.equal([...root.querySelectorAll('.ratib-setting-link')].filter(b=>!b.hidden).length,1,'Arabic search ignores marks and alef variants');
  search.value='لا يوجد';search.dispatchEvent(new w.Event('input'));assert(!root.querySelector('.ratib-settings-empty').hidden);
  search.value='';search.dispatchEvent(new w.Event('input'));

@@ -6,7 +6,7 @@ const html=fs.readFileSync('index.html','utf8');
 const home=fs.readFileSync('ratib-home-3.6.167.js','utf8');
 const direct=fs.readFileSync('ratib-home-3.6.171.js','utf8');
 const pkg=require('./package.json'),sw=fs.readFileSync('sw.js','utf8');
-assert.equal(pkg.version,'3.6.213');
+assert.equal(pkg.version,'3.6.214');
 assert.match(sw,/account-font-plus2-search-back-context-3\.6\.197/);
 assert.match(html,/الإصدار 3\.6\.213/);
 assert.match(home,/window\.RatibHomeSmartSearchReset=resetSearchSession/);

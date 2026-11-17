@@ -16,7 +16,10 @@ function install(host){
   frame=0;const width=viewport.clientWidth;if(width>0)baseWidth=width;if(!baseWidth)return;
   const w=baseWidth+'px';if(host.style.width!==w)host.style.width=w;
   host.style.transform='scale('+scale+')';
-  extent.style.width=Math.ceil(Math.max(baseWidth,host.scrollWidth)*scale)+'px';extent.style.height=Math.ceil(Math.max(host.scrollHeight,host.offsetHeight,1)*scale)+'px';
+  const contentWidth=Math.max(baseWidth,host.scrollWidth);
+  // RTL tables overflow toward the left. Keep that entire area inside the scroll extent.
+  host.style.left=Math.max(0,contentWidth-baseWidth)*scale+'px';
+  extent.style.width=Math.ceil(contentWidth*scale)+'px';extent.style.height=Math.ceil(Math.max(host.scrollHeight,host.offsetHeight,1)*scale)+'px';
   output.textContent=Math.round(scale*100)+'%';minus.disabled=scale<=.25;plus.disabled=scale>=4;
  }
  function schedule(){if(!frame)frame=requestAnimationFrame(render);}

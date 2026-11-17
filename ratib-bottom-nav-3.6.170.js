@@ -79,6 +79,7 @@ function openSettings(){
  navigate('pageSettings');
  requestAnimationFrame(()=>{
   const details=by('ratibBottomNavSettings170');if(!details)return;
+  window.RatibSettingsOpenCard?.(details);
   details.open=true;details.scrollIntoView({behavior:'smooth',block:'center'});details.querySelector('summary')?.focus({preventScroll:true});
  });
 }

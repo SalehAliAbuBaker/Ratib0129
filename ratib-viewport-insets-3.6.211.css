@@ -1,0 +1,13 @@
+@media screen{
+ :root{--ratib-bottom-obstruction:80px}
+ html{scroll-padding-bottom:calc(var(--ratib-bottom-obstruction) + 20px)}
+ #mainWrap{padding-bottom:calc(var(--ratib-bottom-obstruction) + 20px)!important}
+ #mainWrap :is(input,textarea,select,button,[contenteditable="true"]){scroll-margin-bottom:calc(var(--ratib-bottom-obstruction) + 20px)}
+ /* Fixed editors do not inherit page padding. Give their scrollable surface its own room. */
+ .modal-overlay.show{box-sizing:border-box;padding-bottom:calc(var(--ratib-bottom-obstruction) + 12px)!important}
+ .modal-overlay.show>.modal-content{
+  max-height:calc(100vh - var(--ratib-bottom-obstruction) - 32px)!important;
+  max-height:calc(100dvh - var(--ratib-bottom-obstruction) - 32px)!important;
+  overflow-y:auto;scroll-padding-block:16px;overscroll-behavior-y:contain;
+ }
+}

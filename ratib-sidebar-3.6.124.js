@@ -102,6 +102,7 @@ function css(){if($('ratibApprovedSidebarStyle'))return;const e=document.createE
 function header(c){return c?.querySelector(':scope > .settings-accordion-header');}
 function title(c){return header(c)?.querySelector('span')?.textContent?.trim()||'';}
 function keyFor(c){
+ if(c.querySelector('#settingOrgName'))return 'identity';
  if(c.dataset.ratibCreated==='palette'||title(c).includes('ألوان واجهة راتب'))return 'palette';
  const t=title(c);if(c.dataset.ratibCreated==='buttonsize'||t.includes('حجم الأزرار')||t.includes('الخطوط والأزرار'))return 'buttonsize';if(c.id==='notificationSoundCard'||t.includes('صوت إشعارات التذكيرات'))return 'sound';
  if(c.id==='ratibCurrencyManager'||t.includes('إدارة العملات'))return 'currencies';
@@ -125,9 +126,12 @@ function setTitle(c,key){
 }
 function createCard(key,content){const c=document.createElement('div');c.className='card settings-accordion-card';c.innerHTML='<div class="settings-accordion-header" role="button" tabindex="0" aria-expanded="false"><span></span><span class="accordion-arrow">▼</span></div><div class="settings-accordion-body"></div>';c.dataset.ratibCreated=key;c.querySelector('.settings-accordion-body').append(content);setTitle(c,key);header(c).addEventListener('click',()=>{const body=c.querySelector('.settings-accordion-body');body.classList.toggle('open');header(c).setAttribute('aria-expanded',String(body.classList.contains('open')));});header(c).addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();header(c).click();}});return c;}
 function getCard(key){return [...($('pageSettings')?.querySelectorAll(':scope > .settings-accordion-card')||[])].find(c=>keyFor(c)===key)||null;}
+let settingsOrderSnapshot=[],settingsOrderTail=null,settingsOrderReady=false;
 function reorder(){
  const page=$('pageSettings');if(!page)return;page.classList.add('ratib-settings-reordered');
  const cards=[...page.querySelectorAll(':scope > .settings-accordion-card')];
+ const tail=$('ratibBottomNavSettings170')||$('ratibSettingsHelp168');
+ if(settingsOrderReady&&cards.length===settingsOrderSnapshot.length&&cards.every((c,i)=>c===settingsOrderSnapshot[i])&&tail===settingsOrderTail)return;
  const map=new Map(cards.map(c=>[keyFor(c),c]).filter(([key])=>key));
  // The security card remains independent of the identity card.
  if(!map.has('buttonsize')){
@@ -189,9 +193,11 @@ function reorder(){
   if(before&&backupCard.nextElementSibling!==before)page.insertBefore(backupCard,before);
   else if(!before&&backupCard!==page.lastElementChild)page.append(backupCard);
  }
+ settingsOrderSnapshot=[...page.querySelectorAll(':scope > .settings-accordion-card')];settingsOrderTail=tail;settingsOrderReady=true;
 }
 function setCardOpen(c,open){
  if(!c)return;
+ if(c.matches('details')){c.open=open;return;}
  const body=c.querySelector(':scope > .settings-accordion-body'),h=header(c);if(!body)return;
  if(body.classList.contains('open')!==open){
   if(!c.dataset.ratibCreated&&typeof window.toggleSettingsCard==='function')window.toggleSettingsCard(c);
@@ -208,23 +214,31 @@ function resetSettingsDetail(){
  for(const c of page.querySelectorAll('.settings-accordion-card')){
   c.classList.remove('ratib-settings-current');c.removeAttribute('aria-hidden');setCardOpen(c,false);
  }
+ for(const c of page.querySelectorAll(':scope > details.ratib-settings-current')){c.open=false;c.classList.remove('ratib-settings-current');}
  try{window.scrollTo?.({top:0,behavior:'auto'});}catch(_){}
 }
 function focusSetting(key,makeHistory){
  const page=$('pageSettings');if(!page)return;
  reorder();
  const main=getCard(key);if(!main)return;
+ focusSettingsCard(main,key,makeHistory);
+}
+function focusSettingsCard(main,key,makeHistory){
+ const page=$('pageSettings');if(!page||main?.parentElement!==page)return;
  if(makeHistory&&!isSettingsDetail()&&typeof window.rememberAppView==='function')window.rememberAppView();
+ for(const c of page.querySelectorAll(':scope > details.ratib-settings-current')){c.open=false;c.classList.remove('ratib-settings-current');}
  for(const c of page.querySelectorAll('.settings-accordion-card')){setCardOpen(c,false);c.classList.remove('ratib-settings-current');c.removeAttribute('aria-hidden');}
  for(const c of page.querySelectorAll(':scope > .settings-accordion-card')){
   if(c===main)c.classList.add('ratib-settings-current');else c.setAttribute('aria-hidden','true');
  }
+ main.classList.add('ratib-settings-current');
  page.classList.add('ratib-settings-detail');page.classList.toggle('ratib-security-detail',key==='security');
  openCard(main);
  $('backToMenuBtn')?.setAttribute('aria-label','رجوع إلى الإعدادات');
  // The independent security card opens directly.
  requestAnimationFrame(()=>{main.scrollIntoView({behavior:'auto',block:'start'});});
 }
+window.RatibSettingsOpenCard=card=>focusSettingsCard(card,keyFor(card)||card.id,true);
 window.ratibResetSettingsDetail=resetSettingsDetail;
 function installSettingsNavigation(){
  const page=$('pageSettings'),back=$('backToMenuBtn');if(!page||page.dataset.ratibSinglePanel==='1')return;

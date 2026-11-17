@@ -1,0 +1,36 @@
+@media screen{
+ #pageSettings.ratib-settings-directory-ready:not(.ratib-settings-detail)>.settings-accordion-card,
+ #pageSettings.ratib-settings-directory-ready:not(.ratib-settings-detail)>details,
+ #pageSettings.ratib-settings-directory-ready:not(.ratib-settings-detail)>#ratibSettingsHelp168{display:none!important}
+ #pageSettings .ratib-settings-directory{max-width:940px;margin:0 auto 24px;direction:rtl}
+ .ratib-settings-intro{margin:4px 0 18px}
+ .ratib-settings-intro h2{font-size:1.35rem;margin:0 0 4px;color:var(--accent)}
+ .ratib-settings-intro p{font-size:.94rem;color:var(--muted);margin:0}
+ .ratib-settings-search-label{display:block;font-size:.88rem;margin-bottom:6px;font-weight:700}
+ #ratibSettingsSearch211{width:100%;min-height:46px;border:1px solid var(--border);border-radius:12px;background:var(--card);color:var(--text);font:inherit;padding:10px 14px;box-sizing:border-box;margin:0 0 20px}
+ .ratib-settings-groups{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px;align-items:start}
+ .ratib-setting-group{border:1px solid var(--border);border-radius:14px;background:var(--card);overflow:hidden}
+ .ratib-setting-group-head{display:flex;align-items:center;gap:10px;padding:14px;background:var(--bg);border-bottom:1px solid var(--border)}
+ .ratib-setting-badge{display:grid;place-items:center;width:34px;height:34px;border-radius:10px;background:color-mix(in srgb,var(--accent) 10%,var(--card));color:var(--accent);font-size:21px;flex:none}
+ .ratib-setting-group-head h3{font-size:1rem;margin:0;color:var(--text)}
+ .ratib-setting-group-head p{font-size:.8rem;color:var(--muted);line-height:1.5;margin:3px 0 0}
+ #pageSettings .ratib-setting-link{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:64px;width:100%;margin:0;padding:12px 14px;border:0;border-bottom:1px solid var(--border);border-radius:0;background:var(--card);color:var(--text);font:inherit;text-align:start;box-shadow:none;cursor:pointer}
+ #pageSettings .ratib-setting-link:last-child{border-bottom:0}
+ .ratib-setting-label{min-width:0;display:grid;gap:4px}
+ .ratib-setting-label strong{font-size:.94rem;font-weight:700;line-height:1.5;overflow-wrap:anywhere}
+ .ratib-setting-label small{color:var(--muted);font-size:.8rem;line-height:1.5}
+ .ratib-setting-arrow{font-size:25px;color:var(--accent);flex:none}
+ #pageSettings .ratib-setting-link:hover{background:var(--bg)}
+ #pageSettings .ratib-setting-link:focus-visible,#ratibSettingsSearch211:focus-visible{outline:2px solid var(--accent);outline-offset:-3px}
+ .ratib-settings-directory [hidden]{display:none!important}
+ .ratib-settings-empty{padding:20px;text-align:center;color:var(--muted)}
+ .sidebar-nav .ratib-sidebar-settings-category{font-size:.78rem;color:var(--accent);margin:14px 10px 5px;font-weight:700;line-height:1.5}
+ #ratibAboutModal .ratib-about-organized{max-width:700px;text-align:center;padding:22px}
+ .ratib-about-organized>img{width:56px;height:56px;object-fit:contain}
+ .ratib-about-organized>h2{margin:8px 0 3px;font-size:1.5rem}
+ .ratib-about-organized>.ratib-about-version{display:inline-block;padding:5px 12px;margin:6px 0;border-radius:20px;background:var(--bg);color:var(--accent);font-size:.88rem}
+ .ratib-about-organized>#ratibAboutDescription{line-height:1.8;color:var(--muted);margin:10px auto 16px;max-width:54ch}
+ .ratib-about-organized>#ratibSmartUserGuide{text-align:start;margin:12px 0 18px}
+ .ratib-about-organized>#closeRatibAboutBtn{min-width:110px}
+ @media(max-width:640px){.ratib-settings-groups{grid-template-columns:minmax(0,1fr);gap:14px}}
+}

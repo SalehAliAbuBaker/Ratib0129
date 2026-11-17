@@ -23,12 +23,14 @@
   const b=get();if(!globalThis.document?.documentElement)return b;const name=b.custom?b.name:'راتب';
   document.documentElement.dataset.ratibCustomBrand=b.custom?'1':'0';
   const main=document.querySelector('header .logo'),image=main?.querySelector('img'),label=main?.querySelector('.ratib-brand-name'),sub=main?.querySelector('.ratib-brand-sub');
-  if(image&&image.getAttribute('src')!==b.logo)image.setAttribute('src',b.logo);
+  if(image&&image.getAttribute('src')!==LOGO)image.setAttribute('src',LOGO);
+  if(image)image.alt='شعار راتب';
   if(label&&label.textContent!==name)label.textContent=name;
   if(sub){sub.hidden=b.custom;if(!b.custom&&sub.textContent!=='للتنظيم والتدبير المالي')sub.textContent='للتنظيم والتدبير المالي';}
   for(const root of document.querySelectorAll('.ratib-login-top')){
    const img=root.querySelector('img'),span=root.querySelector('span');
-   if(img&&img.getAttribute('src')!==b.logo)img.setAttribute('src',b.logo);
+   if(img&&img.getAttribute('src')!==LOGO)img.setAttribute('src',LOGO);
+   if(img)img.alt='شعار راتب';
    if(span&&span.textContent!==b.name)span.textContent=b.name;
   }
   for(const root of document.querySelectorAll('.ratib-identity-header')){

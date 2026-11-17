@@ -1,0 +1,13 @@
+{
+  "baseline": {
+    "version": "3.6.214 Android",
+    "versionCode": 67
+  },
+  "javaFilesUnchanged": {
+    "app/src/main/java/dev/ratib/android/BiometricVault.java": "033a341eb91e48da9400237b319a7af49ba8e7038578554b8e76baa4c7ede837",
+    "app/src/main/java/dev/ratib/android/LocalAssets.java": "70c8dec8c56c27d63df23d02a2c62e7b0ee52bb48f72af14ef8f9497914492ab",
+    "app/src/main/java/dev/ratib/android/MainActivity.java": "5f83db1c9835959847b3718778553c399b12c2c3533dc4953a5b72fc4503d0fc",
+    "app/src/main/java/dev/ratib/android/NativeHttp.java": "599c33a0cbe779b17f8b40a1a6694b5c22844577d378b0a2eeb8920d3b4441c7",
+    "app/src/main/java/dev/ratib/android/ShareProvider.java": "f0a9330558ab5be272882df3d48e9a5c312ed4b186ce777670626f5347825a1f"
+  }
+}

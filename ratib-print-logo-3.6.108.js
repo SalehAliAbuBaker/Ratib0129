@@ -110,9 +110,9 @@ function addOptions(){
  const title=card.querySelector('.settings-accordion-header span:first-child');
  if(title)title.textContent='🖨️ خيارات عرض وطباعة التقارير والمستندات';
  const box=document.createElement('section');box.id='ratibPrintLogoOptions';box.className='ratib-print-logo-settings';
- box.innerHTML='<strong>شعار المستخدم في التقارير والمستندات</strong><p class="ratib-logo-help">اختر الشعار من الجهاز مرة واحدة. يصغّره التطبيق تلقائيًا ويحفظه محليًا ليظهر في الطباعة وPDF دون إنترنت. بعد تفعيل النسخة يظهر اسم الترويسة وشعارك في الواجهة والتقارير والمطبوعات. قبل التفعيل تظهر هوية راتب.</p>'+
+ box.innerHTML='<strong>شعار المستخدم في التقارير والمستندات</strong><p class="ratib-logo-help">اختر الشعار من الجهاز مرة واحدة. يصغّره التطبيق تلقائيًا ويحفظه محليًا ليظهر في الطباعة وPDF دون إنترنت. بعد تفعيل النسخة يظهر اسم الترويسة وشعارك في التقارير والمطبوعات. يبقى شعار راتب في الواجهة الرئيسية وشاشة الدخول.</p>'+
   '<div class="ratib-logo-controls"><label class="btn btn-ghost ratib-logo-pick">＋ اختيار صورة شعار<input id="ratibPrintLogoFile" type="file" accept="image/png,image/jpeg,image/webp" hidden></label><button id="ratibPrintLogoRemove" class="btn btn-ghost" type="button">حذف الشعار</button></div>'+
-  '<label class="ratib-logo-visibility"><input type="checkbox" id="ratibPrintLogoEnabled"> استخدام الشعار المخصص في الواجهة والتقارير</label>'+
+  '<label class="ratib-logo-visibility"><input type="checkbox" id="ratibPrintLogoEnabled"> استخدام الشعار المخصص في التقارير والمطبوعات</label>'+
   '<div class="ratib-logo-view"><img id="ratibPrintLogoPreview" alt="معاينة شعار المستخدم" hidden><small id="ratibPrintLogoInfo" aria-live="polite"></small></div>';
  const btn=$('saveHeaderSettingsBtn');
  if(btn)btn.before(box);else field.append(box);
@@ -130,7 +130,7 @@ function addOptions(){
   try{
    const output=await optimize(selected);
    await persist({...output,enabled:true,updatedAt:new Date().toISOString()});
-   repaint();if(typeof showToast==='function')showToast(window.RatibLicense?.isLocallyLicensed?.()?'تم تحديث الشعار في الواجهة والتقارير':'تم حفظ الشعار؛ سيظهر بعد تفعيل النسخة','success');
+   repaint();if(typeof showToast==='function')showToast(window.RatibLicense?.isLocallyLicensed?.()?'تم تحديث الشعار في التقارير والمطبوعات':'تم حفظ الشعار؛ سيظهر بعد تفعيل النسخة','success');
   }catch(e){repaint();if(typeof showToast==='function')showToast(e.message,'warn');else alert(e.message);}
   finally{file.value='';if(label)label.classList.remove('ratib-logo-busy');}
  });

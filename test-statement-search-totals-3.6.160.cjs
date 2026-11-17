@@ -58,7 +58,7 @@ w.accountExportRows=()=>{
 };
 w.eval(source);
 const panel=doc.querySelector('.account-currency-page');
-const sel=s=>panel.querySelector(s).textContent;
+const sel=s=>require('./test-helpers/display-digits.cjs')(panel.querySelector(s).textContent);
 w.accountOpsState.movementSearch='ايجار';
 w.ratibApplyAccountMovementSearch();
 assert.equal(sel('.debit'),'125');

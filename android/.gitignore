@@ -1,0 +1,10 @@
+build/
+.gradle/
+.gradle-user/
+app/build/
+local.properties
+*.jks
+*.keystore
+*.p12
+password*.txt
+app/src/main/assets/www/

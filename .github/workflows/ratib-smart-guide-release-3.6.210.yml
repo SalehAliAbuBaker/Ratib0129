@@ -1,0 +1,36 @@
+name: Prepare and publish Ratib 3.6.210 smart guide
+on:
+  push:
+    branches:
+      - feature/smart-user-guide
+    paths:
+      - tools/publish-smart-guide-release-20261117.py
+      - .github/workflows/ratib-smart-guide-release-3.6.210.yml
+permissions:
+  contents: write
+  pull-requests: write
+jobs:
+  prepare:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Prepare release version, notes and offline cache
+        run: python3 tools/publish-smart-guide-release-20261117.py
+      - name: Install test dependencies
+        run: npm install --ignore-scripts --no-audit --no-fund
+      - name: Verify guide and full accounting and interface regressions
+        run: npm test
+      - name: Verify statement balances
+        run: node test-statement-3.6.60.cjs && node test-statement-3.6.79.cjs
+      - name: Commit verified release
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html sw.js package.json test-*.cjs
+          git diff --cached --quiet || git commit -m "Ratib 3.6.210: smart user guide and release metadata"
+          git push origin HEAD:feature/smart-user-guide

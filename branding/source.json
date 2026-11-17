@@ -1,12 +1,7 @@
 {
-  "approvedSource": "ratib-approved-original.png",
-  "width": 1254,
-  "height": 1254,
+  "version": "3.6.216",
+  "approved": "User selected white background, gold wallet and dark green lettering/arrow/coin, one dot below ب",
+  "source": "ratib-approved-original.png",
   "cutout": "../Icons/icon.png",
-  "restoredOpaquePixels": 1468817,
-  "method": "ImageGen exterior background extraction; original RGB restored and near-opaque interior alpha normalized. No lettering or artwork redrawn.",
-  "approvedSourceSha256": "c3bebed54b25746c0b0812dedf11199812dcd11fa0707dfb5482933e7ec5edb9",
-  "cutoutSha256": "d167d0e49093765c7169b7a425b94cbecb89c78fdb789bfcd5db90f4a77458a3",
-  "tool": "built-in image_gen",
-  "prompt": "Use case: background-extraction. Edit target: the provided approved Ratib app icon. Remove ONLY the white outside backdrop in the four corners outside the existing dark green rounded-square tile. Make those white exterior corners fully transparent with a clean antialiased boundary. Preserve the entire original tile's exact shape, pixels, dark green textured interior, gold wallet/coin/arrow and Arabic lettering راتب, with one dot below ب and two dots above ت. Do not redraw, regenerate, retouch, reinterpret or modify any part inside the dark green tile. Keep original framing and dimensions. This is a precise approved brand asset cutout, not a new design."
+  "method": "User-approved edited image; original rounded-square exterior alpha preserved; foreground RGB unchanged"
 }

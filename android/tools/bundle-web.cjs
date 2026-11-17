@@ -13,7 +13,7 @@ let html=fs.readFileSync(path.join(root,'index.html'),'utf8').replace(/\r\n/g,'\
 html=html.replace('<script src="./ratib-biometric.js" defer></script>','');
 html=html.replaceAll('.toLocaleString()',".toLocaleString('en-US')").replaceAll(".toLocaleString('ar-EG')",".toLocaleString('ar-EG-u-nu-latn')").replaceAll(".toLocaleTimeString('ar'",".toLocaleTimeString('ar-u-nu-latn'");
 function patch(from,to){const hits=typeof from==='string'?html.split(from).length-1:[...html.matchAll(new RegExp(from.source,from.flags.includes('g')?from.flags:from.flags+'g'))].length;if(hits===0&&typeof to==='string'&&html.includes(to)){console.log('Upstream already includes Android hook');return;}if(hits!==1)throw Error('Android compatibility hook changed upstream: '+String(from).slice(0,100)+' (matches '+hits+')');html=html.replace(from,to);}
-patch('window.ratibCurrentTrialVersionLabel=()=>`الإصدار ${RATIB_RELEASE.version}`;',"window.ratibCurrentTrialVersionLabel=()=>\"الإصدار 3.6.215 Android\";");
+patch('window.ratibCurrentTrialVersionLabel=()=>`الإصدار ${RATIB_RELEASE.version}`;',"window.ratibCurrentTrialVersionLabel=()=>\"الإصدار 3.6.216 Android\";");
 patch('let _storageTimer=null,', 'let androidStorageRead=null;\nlet _storageTimer=null,');
 patch('selfHealStorageFromIdb().then(boot)', 'androidStorageRead=selfHealStorageFromIdb();\nandroidStorageRead.then(boot)');
 patch('async function _persistPending(){', 'async function _persistPending(){\n  if(androidStorageRead)await androidStorageRead;');
@@ -63,7 +63,7 @@ const licensePath=path.join(dest,'ratib-license-draft.js');
 fs.writeFileSync(licensePath,fs.readFileSync(licensePath,'utf8').replace("if (!response.ok) throw new Error('تعذر التحقق من الترخيص');","if (!response.ok) { const rejected=await response.json().catch(()=>({})); throw new Error(/[\\u0600-\\u06ff]/.test(rejected.error||'')?rejected.error:'تعذر التحقق من الترخيص (رمز '+response.status+'). أعد المحاولة أو تواصل مع الدعم.'); }"));
 fs.mkdirSync(path.join(root,'android/app/src/main/res/drawable'),{recursive:true});
 fs.copyFileSync(path.join(root,'Icons/icon-512.png'),path.join(root,'android/app/src/main/res/drawable/ratib_icon.png'));
-const manifest={source:'SalehAliAbuBaker/Ratib0129',baseCommit:process.env.RATIB_SOURCE_COMMIT||'e50da9f78d14645022a77ef1ed1e6def83713be0',version:require(path.join(root,'package.json')).version,androidVersionCode:Number(fs.readFileSync(path.join(root,'android/app/build.gradle'),'utf8').match(/versionCode\s+(\d+)/)[1]),files:{}};
+const manifest={source:'SalehAliAbuBaker/Ratib0129',baseCommit:process.env.RATIB_SOURCE_COMMIT||'b72222ff2f23de52720767fca6abe322194da541',version:require(path.join(root,'package.json')).version,androidVersionCode:Number(fs.readFileSync(path.join(root,'android/app/build.gradle'),'utf8').match(/versionCode\s+(\d+)/)[1]),files:{}};
 for(const name of files)manifest.files[name]=crypto.createHash('sha256').update(fs.readFileSync(path.join(root,name))).digest('hex');
 fs.writeFileSync(path.join(dest,'source-manifest.json'),JSON.stringify(manifest,null,2));
 console.log('Bundled Ratib web assets',files.length);
@@ -102,7 +102,7 @@ console.log('Bundled Ratib web assets',files.length);
 
 // User-requested Android display name, independent of the source release/build code.
 for(const [name,from,to] of [
- ['ratib-sidebar-3.6.124.js',"const label='الإصدار '+v;","const label='الإصدار 3.6.215 Android';"],
+ ['ratib-sidebar-3.6.124.js',"const label='الإصدار '+v;","const label='الإصدار 3.6.216 Android';"],
 ]){const file=path.join(dest,name),text=fs.readFileSync(file,'utf8');if(text.split(from).length!==2)throw Error('Display hook changed: '+name);fs.writeFileSync(file,text.replace(from,to));}
 
 

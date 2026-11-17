@@ -1,0 +1,27 @@
+plugins { id 'com.android.application' }
+android {
+    namespace 'dev.ratib.android'
+    compileSdk 36
+    buildToolsVersion '36.0.0'
+    buildFeatures { buildConfig true }
+    defaultConfig {
+        applicationId 'dev.ratib.android'
+        minSdk 28
+        targetSdk 35
+        versionCode 68
+        versionName '3.6.215 Android'
+    }
+    compileOptions { sourceCompatibility JavaVersion.VERSION_1_8; targetCompatibility JavaVersion.VERSION_1_8 }
+    buildTypes { release { minifyEnabled false } }
+}
+dependencies {
+    implementation 'androidx.webkit:webkit:1.12.1'
+    implementation 'com.google.android.gms:play-services-auth:22.0.0'
+}
+// Normalize Windows ZIP entry separators before signing (never afterwards).
+// The final release is signed externally with the original private keystore.
+tasks.register('bundleRatibWeb', Exec) {
+    workingDir rootProject.projectDir.parentFile
+    commandLine 'node', 'android/tools/bundle-web.cjs'
+}
+tasks.named('preBuild').configure { dependsOn 'bundleRatibWeb' }

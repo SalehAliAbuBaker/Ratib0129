@@ -64,8 +64,8 @@ async function run(){
   });
   const change=(row,field,value)=>{const el=d.querySelector(`#importedOpeningRows [data-row="${row}"][data-field="${field}"]`);assert(el,field);el.value=value;el.dispatchEvent(new w.Event('input',{bubbles:true}));};
   await test(variant+': unbalanced editing, unknown accounts and duplicate account/currency are rejected atomically',async()=>{
-   const before=code(w,'JSON.stringify(legacyCurrentData())');change(0,'debit','9.123456');change(0,'baseDebit','18.246912');assert.equal(await code(w,'saveImportedOpeningVoucher()'),false);assert.equal(code(w,'JSON.stringify(legacyCurrentData())'),before);
-   change(0,'account','حساب غير موجود');assert.equal(await code(w,'saveImportedOpeningVoucher()'),false);assert.equal(code(w,'JSON.stringify(legacyCurrentData())'),before);change(0,'account',accounts[0].name);
+   const before=code(w,'JSON.stringify(legacyCurrentData())');change(0,'debit','9.123456');change(0,'baseDebit','18.246912');assert.equal(await code(w,'saveImportedOpeningVoucher()'),false);assert.deepEqual(JSON.parse(code(w,'JSON.stringify(legacyCurrentData())')),JSON.parse(before));
+   change(0,'account','حساب غير موجود');assert.equal(await code(w,'saveImportedOpeningVoucher()'),false);assert.deepEqual(JSON.parse(code(w,'JSON.stringify(legacyCurrentData())')),JSON.parse(before));change(0,'account',accounts[0].name);
    change(0,'currency','SAR');assert.equal(await code(w,'saveImportedOpeningVoucher()'),false);change(0,'currency','YER');
   });
   await test(variant+': edit both sides, add a balanced foreign pair, preserve old identifiers and unrelated history',async()=>{
@@ -83,11 +83,11 @@ async function run(){
   await test(variant+': preview, print and PDF include all balances once without storing edits',async()=>{
    const before=code(w,'JSON.stringify(legacyCurrentData())');code(w,'preparePrintVoucherTemplate(getAllTransactions()[0])');assert.equal(d.getElementById('pvTableBox').querySelectorAll('tbody tr').length,11);assert(d.getElementById('pvVoucherTitle').textContent.includes('قيد مركب'));
    let prints=0;w.print=()=>prints++;code(w,'openTxModal(getAllTransactions()[0]);outputImportedOpeningEditor("print")');assert.equal(prints,1);w.dispatchEvent(new w.Event('afterprint'));
-   f.canvasText.length=0;const pdf=code(w,'buildSingleVoucherPdf(getAllTransactions()[0])');assert((await pdf.text()).startsWith('%PDF'));for(const currency of ['YER','SAR','USD','AED'])assert(f.canvasText.some(t=>t===currency));assert.equal(code(w,'JSON.stringify(legacyCurrentData())'),before);code(w,'closeImportedOpeningVoucher()');
+   f.canvasText.length=0;const pdf=code(w,'buildSingleVoucherPdf(getAllTransactions()[0])');assert((await pdf.text()).startsWith('%PDF'));for(const currency of ['YER','SAR','USD','AED'])assert(f.canvasText.some(t=>t===currency));assert.deepEqual(JSON.parse(code(w,'JSON.stringify(legacyCurrentData())')),JSON.parse(before));code(w,'closeImportedOpeningVoucher()');
   });
   await test(variant+': concurrent edit and failed persistent write never overwrite stored accounting data',async()=>{
-   code(w,'openTxModal(getAllTransactions()[0])');const plan=code(w,'getMasterPlan()');plan.transactions[0].openingBalance.note='changed externally';setStore(f,'plan',plan);const before=code(w,'JSON.stringify(legacyCurrentData())');assert.equal(await code(w,'saveImportedOpeningVoucher()'),false);assert.equal(code(w,'JSON.stringify(legacyCurrentData())'),before);code(w,'closeImportedOpeningVoucher();openTxModal(getAllTransactions()[0]);window.savedWriter=_replacePersistentData;_replacePersistentData=async()=>{throw Error("simulated failure")}');
-   assert.equal(await code(w,'saveImportedOpeningVoucher()'),false);assert.equal(code(w,'JSON.stringify(legacyCurrentData())'),before);code(w,'_replacePersistentData=window.savedWriter;closeImportedOpeningVoucher()');
+   code(w,'openTxModal(getAllTransactions()[0])');const plan=code(w,'getMasterPlan()');plan.transactions[0].openingBalance.note='changed externally';setStore(f,'plan',plan);const before=code(w,'JSON.stringify(legacyCurrentData())');assert.equal(await code(w,'saveImportedOpeningVoucher()'),false);assert.deepEqual(JSON.parse(code(w,'JSON.stringify(legacyCurrentData())')),JSON.parse(before));code(w,'closeImportedOpeningVoucher();openTxModal(getAllTransactions()[0]);window.savedWriter=_replacePersistentData;_replacePersistentData=async()=>{throw Error("simulated failure")}');
+   assert.equal(await code(w,'saveImportedOpeningVoucher()'),false);assert.deepEqual(JSON.parse(code(w,'JSON.stringify(legacyCurrentData())')),JSON.parse(before));code(w,'_replacePersistentData=window.savedWriter;closeImportedOpeningVoucher()');
   });
   await test(variant+': a voucher spanning plan and history saves in place and a closed fiscal year rejects edits',async()=>{
    code(w,"const p=getMasterPlan(),h=store.get('history');h.push({month:'2026-09',transactions:p.transactions.splice(0,2)});store.set('plan',p);store.set('history',h);openTxModal(getAllTransactions()[0])");

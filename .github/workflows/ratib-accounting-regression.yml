@@ -34,3 +34,16 @@ jobs:
         run: npm install --ignore-scripts --no-audit --no-fund
       - name: Verify statement balances, print, and PDF
         run: node test-statement-3.6.60.cjs && node test-statement-3.6.79.cjs
+  android-identity-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Install pinned dependencies
+        run: npm ci --ignore-scripts --no-audit --no-fund
+      - name: Verify approved artwork and package the native interface
+        run: node test-brand-assets-3.6.215.cjs && node android/tools/bundle-web.cjs
+      - name: Verify packaged startup and native services
+        run: node android/tests/startup215.cjs && node android/tests/native-bridge.cjs

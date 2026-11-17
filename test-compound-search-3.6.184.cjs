@@ -6,9 +6,9 @@ const index=fs.readFileSync('index.html','utf8'),
  home=fs.readFileSync('ratib-home-3.6.167.js','utf8'),
  worker=fs.readFileSync('sw.js','utf8');
 const pkg=require('./package.json');
-assert.equal(pkg.version,'3.6.214');
-assert(index.includes('const RATIB_RELEASE={"version":"3.6.214"'));
-assert(worker.includes('const APP_RELEASE={"version":"3.6.214"'));
+assert.equal(pkg.version,'3.6.215');
+assert(index.includes('const RATIB_RELEASE={"version":"3.6.215"'));
+assert(worker.includes('const APP_RELEASE={"version":"3.6.215"'));
 assert(worker.includes('compound-edit-search-home-3.6.184'));
 assert(!index.includes("note:'سطر متمم تلقائي'"),'No forced auto-balancing leg in compound vouchers');
 assert(compound.includes("makeButton('＋ إضافة طرف'"));
@@ -53,7 +53,7 @@ assert.equal(lines.length,2,'The system never creates its own third account/leg'
 assert.equal(summary.balanced,false);
 assert.equal(summary.debitTotal,100000);
 assert.equal(summary.creditTotal,60000);
-assert(d.getElementById('multiVoucherBalance').textContent.includes('40,000'),'Show remainder as a suggestion, without writing it');
+assert(require('./test-helpers/display-digits.cjs')(d.getElementById('multiVoucherBalance').textContent).includes('40,000'),'Show remainder as a suggestion, without writing it');
 assert.equal(realm.validate().includes('لا يمكن اعتماد'),true,'An imbalanced compound voucher cannot be approved');
 assert.equal(lines[1].amount,'60000','Suggestion does not overwrite any manual amount');
 lines.push({side:'credit',account:'مورد آخر',budgetId:'general',amount:'40000',currency:'YER',rate:'1',base:0});
@@ -68,7 +68,7 @@ assert.equal(summary.balanced,true,'FX equivalent is balanced at the approved ra
 assert.equal(realm.validate(),'');
 lines[1].amount='50000';realm.balance();summary=realm.summary();
 assert.equal(summary.balanced,false);
-assert(d.getElementById('multiVoucherBalance').textContent.includes('10,000'),'Display accounting difference');
+assert(require('./test-helpers/display-digits.cjs')(d.getElementById('multiVoucherBalance').textContent).includes('10,000'),'Display accounting difference');
 lines[1].amount='60000';lines.splice(2,1);
 lines[1].account='';lines[1].amount='';
 assert.equal(realm.validate().includes('طرفين فعليين'),true,'At least one valid debit and one valid credit');

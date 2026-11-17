@@ -17,11 +17,13 @@ const state={code:'test-license',verifiedAt:Date.now(),checkedAt:Date.now(),expi
  set({code:'unverified'});assert.equal(w.RatibBranding.get().custom,false);
  set(state);assert.equal(await w.RatibLicense.licensed(),true,'Verified unexpired entitlement remains active offline');
  b=w.RatibBranding.get();assert.equal(b.name,records.header_config.name);assert.equal(b.logo,png);
+ assert.equal(w.document.querySelector('header .logo img').getAttribute('src'),'Icons/icon-192.png','Home always shows the approved Ratib logo');
+ assert.equal(w.document.querySelector('.ratib-login-top img').getAttribute('src'),'Icons/icon-192.png','Login retains the app identity');
  assert.equal(w.document.querySelector('.ratib-brand-name').textContent,b.name);assert.equal(w.document.querySelector('.ratib-login-top span').textContent,b.name);
  assert.equal(w.document.querySelector('.pv-header img').getAttribute('src'),png);
  let rendered=0;await w.RatibPrintLogo.whenReady();w.RatibPrintLogo.drawCanvas({width:1000,height:1400,getContext:()=>({save(){},restore(){},drawImage(){rendered++}})});assert.equal(rendered,1,'Canvas PDF draws resolved logo');
  assert(w.RatibBranding.html().includes(records.header_config.name));assert(!w.RatibBranding.html().includes('راتب للتنظيم'));
- records.header_config.name='اسم محدث';w.RatibBranding.refresh();assert.equal(w.document.querySelector('.ratib-brand-name').textContent,'اسم محدث');records.header_config.name='مؤسسة السراج للتجارة';
+ records.header_config.name='اسم محدث';w.RatibBranding.refresh();assert.equal(w.document.querySelector('.ratib-brand-name').textContent,'اسم محدث');assert.equal(w.document.querySelector('header .logo img').getAttribute('src'),'Icons/icon-192.png');records.header_config.name='مؤسسة السراج للتجارة';
  set({...state,expiryDate:'2000-01-01T00:00:00Z'});assert.equal(w.RatibBranding.get().custom,false);assert.equal(w.document.querySelector('.pv-header img').getAttribute('src'),'Icons/icon-192.png');
  set(state);w.fetch=async()=>({ok:false,status:403,json:async()=>({valid:false,error:'revoked'})});Object.defineProperty(w.navigator,'onLine',{value:true,configurable:true});set({...state,checkedAt:0});assert.equal(await w.RatibLicense.licensed(),false);await Promise.resolve();assert.equal(w.RatibBranding.get().custom,false,'Definitive rejection restores default identity');
  set(state);w.fetch=async()=>{throw new w.TypeError('offline')};set({...state,checkedAt:0});assert.equal(await w.RatibLicense.licensed(),true);assert.equal(w.RatibBranding.get().custom,true,'Temporary outage preserves verified identity');

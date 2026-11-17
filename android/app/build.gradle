@@ -8,8 +8,8 @@ android {
         applicationId 'dev.ratib.android'
         minSdk 28
         targetSdk 35
-        versionCode 68
-        versionName '3.6.215 Android'
+        versionCode 69
+        versionName '3.6.216 Android'
     }
     compileOptions { sourceCompatibility JavaVersion.VERSION_1_8; targetCompatibility JavaVersion.VERSION_1_8 }
     buildTypes { release { minifyEnabled false } }

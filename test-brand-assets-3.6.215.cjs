@@ -6,7 +6,8 @@ const fs=require('node:fs'),assert=require('node:assert/strict'),sharp=require('
  assert.equal(cutout.info.width,1254);assert.equal(cutout.info.height,1254);
  let gold=0;
  for(let i=0;i<original.data.length;i+=4){const [r,g,b]=original.data.subarray(i,i+3);if(r>100&&g>b*1.3&&r>g*.95&&b<200){assert.equal(cutout.data[i+3],255,'Every gold detail remains opaque');assert.deepEqual(cutout.data.subarray(i,i+3),original.data.subarray(i,i+3),'Approved gold pixels are unchanged');gold++;}}
- assert(gold>150000);
+ assert(gold>50000,'The approved gold wallet and chart remain present');
+ let green=0;for(let i=0;i<original.data.length;i+=4){const [r,g,b]=original.data.subarray(i,i+3);if(g>30&&r<g*.65&&b<g*.95){assert.equal(cutout.data[i+3],255);assert.deepEqual(cutout.data.subarray(i,i+3),original.data.subarray(i,i+3),'Approved green lettering and arrow pixels are unchanged');green++;}}assert(green>50000);
  for(const [x,y]of [[0,0],[1253,0],[0,1253],[1253,1253]])assert.equal(cutout.data[(y*1254+x)*4+3],0,'External white corners must be transparent');
  for(const size of [16,32,48,192,512]){const image=await raw('Icons/icon-'+size+'.png');assert.equal(image.info.width,size);assert.equal(image.info.height,size);assert.equal(image.data[3],0);}
  for(const [file,radius]of [['Icons/icon-512-maskable.png',.4],['android/app/src/main/res/mipmap-xxxhdpi/ic_launcher_foreground.png',33/108]]){

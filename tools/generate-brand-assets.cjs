@@ -1,6 +1,6 @@
 'use strict';
 const fs=require('node:fs'),path=require('node:path'),sharp=require('sharp');
-const root=path.resolve(__dirname,'..'),source=path.join(root,'Icons/icon.png'),green='#003c2a';
+const root=path.resolve(__dirname,'..'),source=path.join(root,'Icons/icon.png'),green='#ffffff';
 const write=async(file,buffer)=>{const p=path.join(root,file);fs.mkdirSync(path.dirname(p),{recursive:true});fs.writeFileSync(p,buffer);};
 async function resize(size){return sharp(source).resize(size,size,{kernel:'lanczos3'}).png().toBuffer();}
 async function padded(size,ratio,opaque){const side=Math.round(size*ratio),offset=Math.floor((size-side)/2);return sharp({create:{width:size,height:size,channels:4,background:opaque?green:{r:0,g:0,b:0,alpha:0}}}).composite([{input:await resize(side),left:offset,top:offset}]).png().toBuffer();}

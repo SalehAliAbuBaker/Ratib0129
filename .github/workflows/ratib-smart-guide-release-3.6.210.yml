@@ -20,7 +20,11 @@ jobs:
         with:
           node-version: '24'
       - name: Prepare release version, notes and offline cache
-        run: python3 tools/publish-smart-guide-release-20261117.py
+        run: |
+          if [ "$(node -p 'require("./package.json").version')" = "3.6.209" ]; then
+            python3 tools/publish-smart-guide-release-20261117.py
+          fi
+          node -e 'const p=require("./package.json"); if(p.version!=="3.6.210" || !p.scripts.test.includes("test-smart-user-guide.cjs")) process.exit(1)'
       - name: Install test dependencies
         run: npm install --ignore-scripts --no-audit --no-fund
       - name: Verify guide and full accounting and interface regressions
@@ -34,3 +38,16 @@ jobs:
           git add index.html sw.js package.json test-*.cjs
           git diff --cached --quiet || git commit -m "Ratib 3.6.210: smart user guide and release metadata"
           git push origin HEAD:feature/smart-user-guide
+      - name: Publish verified release to the official main branch
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          verified=$(git rev-parse HEAD)
+          test "$(gh api repos/$GITHUB_REPOSITORY/git/ref/heads/main --jq .object.sha)" = "aab3a6da39f606aac7b71ff8bd70ac2f210223b3"
+          test "$(gh pr view 186 --repo "$GITHUB_REPOSITORY" --json headRefOid --jq .headRefOid)" = "$verified"
+          test "$(gh pr view 186 --repo "$GITHUB_REPOSITORY" --json baseRefName,headRefName,state --jq '[.baseRefName,.headRefName,.state]|join(" ")')" = "main feature/smart-user-guide OPEN"
+          if [ "$(gh pr view 186 --repo "$GITHUB_REPOSITORY" --json isDraft --jq .isDraft)" = true ]; then
+            gh pr ready 186 --repo "$GITHUB_REPOSITORY"
+          fi
+          gh pr merge 186 --repo "$GITHUB_REPOSITORY" --merge --match-head-commit "$verified"

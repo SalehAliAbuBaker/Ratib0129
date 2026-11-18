@@ -13,7 +13,7 @@ let html=fs.readFileSync(path.join(root,'index.html'),'utf8').replace(/\r\n/g,'\
 html=html.replace('<script src="./ratib-biometric.js" defer></script>','');
 html=html.replaceAll('.toLocaleString()',".toLocaleString('en-US')").replaceAll(".toLocaleString('ar-EG')",".toLocaleString('ar-EG-u-nu-latn')").replaceAll(".toLocaleTimeString('ar'",".toLocaleTimeString('ar-u-nu-latn'");
 function patch(from,to){const hits=typeof from==='string'?html.split(from).length-1:[...html.matchAll(new RegExp(from.source,from.flags.includes('g')?from.flags:from.flags+'g'))].length;if(hits===0&&typeof to==='string'&&html.includes(to)){console.log('Upstream already includes Android hook');return;}if(hits!==1)throw Error('Android compatibility hook changed upstream: '+String(from).slice(0,100)+' (matches '+hits+')');html=html.replace(from,to);}
-patch('window.ratibCurrentTrialVersionLabel=()=>`الإصدار ${RATIB_RELEASE.version}`;',"window.ratibCurrentTrialVersionLabel=()=>\"الإصدار 3.6.216 Android\";");
+patch('window.ratibCurrentTrialVersionLabel=()=>`الإصدار ${RATIB_RELEASE.version}`;',"window.ratibCurrentTrialVersionLabel=()=>\"الإصدار 3.6.217 Android\";");
 patch('let _storageTimer=null,', 'let androidStorageRead=null;\nlet _storageTimer=null,');
 patch('selfHealStorageFromIdb().then(boot)', 'androidStorageRead=selfHealStorageFromIdb();\nandroidStorageRead.then(boot)');
 patch('async function _persistPending(){', 'async function _persistPending(){\n  if(androidStorageRead)await androidStorageRead;');
@@ -102,7 +102,7 @@ console.log('Bundled Ratib web assets',files.length);
 
 // User-requested Android display name, independent of the source release/build code.
 for(const [name,from,to] of [
- ['ratib-sidebar-3.6.124.js',"const label='الإصدار '+v;","const label='الإصدار 3.6.216 Android';"],
+ ['ratib-sidebar-3.6.124.js',"const label='الإصدار '+v;","const label='الإصدار 3.6.217 Android';"],
 ]){const file=path.join(dest,name),text=fs.readFileSync(file,'utf8');if(text.split(from).length!==2)throw Error('Display hook changed: '+name);fs.writeFileSync(file,text.replace(from,to));}
 
 

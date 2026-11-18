@@ -1,7 +1,7 @@
 {
-  "version": "3.6.216",
-  "approved": "User selected white background, gold wallet and dark green lettering/arrow/coin, one dot below ب",
+  "version": "3.6.217",
+  "approved": "User-approved green/teal Ratib design without gold frame",
   "source": "ratib-approved-original.png",
   "cutout": "../Icons/icon.png",
-  "method": "User-approved edited image; original rounded-square exterior alpha preserved; foreground RGB unchanged"
+  "method": "Approved final brand package; original foreground pixels preserved"
 }

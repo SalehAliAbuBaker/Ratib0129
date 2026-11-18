@@ -16,7 +16,7 @@ async function generate(){
  await write('android/app/src/main/res/drawable/ratib_splash_icon.png',await padded(288,.64,false));
  for(const [density,size,foreground]of [['mdpi',48,108],['hdpi',72,162],['xhdpi',96,216],['xxhdpi',144,324],['xxxhdpi',192,432]]){
   for(const name of ['ic_launcher','ic_launcher_round'])await write('android/app/src/main/res/mipmap-'+density+'/'+name+'.png',await resize(size));
-  await write('android/app/src/main/res/mipmap-'+density+'/ic_launcher_foreground.png',await padded(foreground,.64,false));
+  await write('android/app/src/main/res/mipmap-'+density+'/ic_launcher_foreground.png',await padded(foreground,.56,false));
  }
  // Existing licensing administration embeds its app icon for offline routing.
  const worker=path.join(root,'cloudflare/ratib-worker-license.js');

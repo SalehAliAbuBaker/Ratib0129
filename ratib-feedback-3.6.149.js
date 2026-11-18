@@ -37,7 +37,7 @@ function unlock(){
  if(ctx?.state==='suspended')ctx.resume().catch(()=>{});
 }
 const PATTERNS={
- tap:[[0,920,.034]],
+ tap:[[0,920,.065]],
  save:[[0,523,.13],[.125,784,.21]],
  reminder:[[0,587,.17],[.21,740,.18],[.44,988,.31]],
  urgent:[[0,659,.13],[.18,659,.13],[.38,988,.26]],
@@ -67,12 +67,15 @@ function play(kind='reminder',priority='',test=false){
  lastPlayed.set(id,now);
  if(kind==='save'&&cfg.saveCue==='vibration')return vibration;
  if(kind==='tap'&&cfg.tapCue==='vibration')return vibration;
+ if(kind==='tap'&&window.RatibNative?.playTapSound){
+  try{if(window.RatibNative.playTapSound(Math.round(LEVELS[cfg.volume]*100)))return true;}catch(_){}
+ }
  const ctx=availableAudio();if(!ctx)return vibration;
  const steps=PATTERNS[kind]||PATTERNS.reminder;
  const makeSound=()=>{
   if(ctx.state!=='running')return;
   const base=ctx.currentTime+(kind==='tap'?.004:.025);
-  const gainScale=(kind==='tap'?.052:kind==='save'?.25:cfg.style==='soft'?.12:cfg.style==='clear'?.21:.16)*LEVELS[cfg.volume];
+  const gainScale=(kind==='tap'?.18:kind==='save'?.25:cfg.style==='soft'?.12:cfg.style==='clear'?.21:.16)*LEVELS[cfg.volume];
   try{
    steps.forEach(([offset,frequency,duration],i)=>{
     const osc=ctx.createOscillator(),env=ctx.createGain();

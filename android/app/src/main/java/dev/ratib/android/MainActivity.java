@@ -74,8 +74,24 @@ public final class MainActivity extends Activity {
     private static final long MAX_FILE=128L*1024*1024;
     private WebView web;
     private android.os.Vibrator dhikrVibrator;
+    private android.media.SoundPool tapSounds;
+    private volatile int tapSample;
+    private volatile boolean tapSoundReady;
     private void stopDhikrHaptics(){
         if(dhikrVibrator!=null){dhikrVibrator.cancel();dhikrVibrator=null;}
+    }
+    private void startDhikrHaptics(int requestedLevel,boolean preview){
+        stopDhikrHaptics();
+        int level=Math.max(0,Math.min(3,requestedLevel));
+        if(level==0||isFinishing()||!hasWindowFocus())return;
+        android.os.Vibrator vibrator=(android.os.Vibrator)getSystemService(VIBRATOR_SERVICE);
+        if(vibrator==null||!vibrator.hasVibrator())return;
+        int pulse=new int[]{0,22,35,55}[level];
+        int amplitude=vibrator.hasAmplitudeControl()?new int[]{0,55,130,220}[level]:android.os.VibrationEffect.DEFAULT_AMPLITUDE;
+        int count=preview?2:17;
+        long[] timings=new long[count*2+1];int[] amplitudes=new int[timings.length];
+        for(int i=1;i<timings.length;i++){timings[i]=(i%2==1)?pulse:420-pulse;amplitudes[i]=(i%2==1)?amplitude:0;}
+        try{vibrator.vibrate(android.os.VibrationEffect.createWaveform(timings,amplitudes,-1));dhikrVibrator=vibrator;}catch(RuntimeException ignored){}
     }
     private FrameLayout root;
     private SharedPreferences prefs;
@@ -107,6 +123,9 @@ public final class MainActivity extends Activity {
     @Override public void onCreate(Bundle state) {
         super.onCreate(state);
         prefs=getSharedPreferences("ratib-native",MODE_PRIVATE);
+        tapSounds=new android.media.SoundPool.Builder().setMaxStreams(2).setAudioAttributes(new android.media.AudioAttributes.Builder().setUsage(android.media.AudioAttributes.USAGE_GAME).setContentType(android.media.AudioAttributes.CONTENT_TYPE_SONIFICATION).build()).build();
+        tapSounds.setOnLoadCompleteListener((pool,sample,status)->{if(status==0&&sample==tapSample)tapSoundReady=true;});
+        tapSample=tapSounds.load(this,R.raw.ratib_tap,1);
         localAssets=new LocalAssets(this);
         root=new FrameLayout(this);
         setContentView(root);
@@ -264,16 +283,15 @@ public final class MainActivity extends Activity {
 
     private final class Bridge {
         @JavascriptInterface public void dhikrHaptics(boolean active){
-            runOnUiThread(()->{
-                stopDhikrHaptics();
-                if(!active||isFinishing()||!hasWindowFocus())return;
-                android.os.Vibrator vibrator=(android.os.Vibrator)getSystemService(VIBRATOR_SERVICE);
-                if(vibrator==null||!vibrator.hasVibrator())return;
-                // Finite seven-second effect: soft 18ms pulses, 402ms apart.
-                long[] timings=new long[35];int[] amplitudes=new int[35];
-                for(int i=1;i<35;i++){timings[i]=(i%2==1)?18:402;amplitudes[i]=(i%2==1)?35:0;}
-                try{vibrator.vibrate(android.os.VibrationEffect.createWaveform(timings,amplitudes,-1));dhikrVibrator=vibrator;}catch(RuntimeException ignored){}
-            });
+            runOnUiThread(()->startDhikrHaptics(active?2:0,false));
+        }
+        @JavascriptInterface public void dhikrHapticsLevel(int level){runOnUiThread(()->startDhikrHaptics(level,false));}
+        @JavascriptInterface public void previewDhikrHaptics(int level){runOnUiThread(()->startDhikrHaptics(level,true));}
+        @JavascriptInterface public boolean playTapSound(int percent){
+            android.media.SoundPool pool=tapSounds;
+            if(pool==null||!tapSoundReady||isFinishing())return false;
+            float gain=Math.max(0,Math.min(100,percent))/100f;
+            try{return pool.play(tapSample,gain,gain,1,0,1f)!=0;}catch(RuntimeException ignored){return false;}
         }
         @JavascriptInterface public String capabilities(){
             try{return new JSONObject().put("biometric",hasBiometrics()).put("notifications",notificationsAllowed()).put("androidVersion",BuildConfig.VERSION_CODE).toString();}
@@ -765,6 +783,7 @@ if(request==NOTIFY_PERMISSION&&notificationRequest!=null){String id=notification
     @Override public void onBackPressed(){web.evaluateJavascript("(()=>{if(typeof window.ratibNativeBack==='function'){window.ratibNativeBack();return true;}if(typeof goBackInApp==='function'){goBackInApp();return true;}return false;})()",value->{if(!"true".equals(value))new AlertDialog.Builder(this).setMessage("إغلاق راتب؟").setPositiveButton("إغلاق",(d,w)->finish()).setNegativeButton("إلغاء",null).show();});}
     @Override protected void onPause(){stopDhikrHaptics();if(voiceRecognizer!=null)cancelVoice();if(web!=null)web.evaluateJavascript("typeof flushStorage==='function'&&flushStorage().catch(console.warn)",null);super.onPause();}
     @Override protected void onDestroy(){
+        stopDhikrHaptics();tapSoundReady=false;if(tapSounds!=null){tapSounds.release();tapSounds=null;}
         cancelVoice();biometricVault.cancel();if(biometricSignal!=null)biometricSignal.cancel();
         for(Transfer t:transfers.values()){try{t.out.close();}catch(Exception ignored){}t.file.delete();}
         if(fileCallback!=null)fileCallback.onReceiveValue(null);

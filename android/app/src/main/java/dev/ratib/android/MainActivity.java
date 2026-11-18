@@ -73,6 +73,10 @@ public final class MainActivity extends Activity {
     private static final int PICK_FILE=100, SAVE_FILE=101, PICK_TREE=102, NOTIFY_PERMISSION=103, PICK_BACKUP=104, GOOGLE_AUTH=105;
     private static final long MAX_FILE=128L*1024*1024;
     private WebView web;
+    private android.os.Vibrator dhikrVibrator;
+    private void stopDhikrHaptics(){
+        if(dhikrVibrator!=null){dhikrVibrator.cancel();dhikrVibrator=null;}
+    }
     private FrameLayout root;
     private SharedPreferences prefs;
     private final ExecutorService io=Executors.newSingleThreadExecutor();
@@ -259,6 +263,18 @@ public final class MainActivity extends Activity {
     private void showError(String message){if(!isFinishing())new AlertDialog.Builder(this).setMessage(message).setPositiveButton("حسناً",null).show();}
 
     private final class Bridge {
+        @JavascriptInterface public void dhikrHaptics(boolean active){
+            runOnUiThread(()->{
+                stopDhikrHaptics();
+                if(!active||isFinishing()||!hasWindowFocus())return;
+                android.os.Vibrator vibrator=(android.os.Vibrator)getSystemService(VIBRATOR_SERVICE);
+                if(vibrator==null||!vibrator.hasVibrator())return;
+                // Finite seven-second effect: soft 18ms pulses, 402ms apart.
+                long[] timings=new long[35];int[] amplitudes=new int[35];
+                for(int i=1;i<35;i++){timings[i]=(i%2==1)?18:402;amplitudes[i]=(i%2==1)?35:0;}
+                try{vibrator.vibrate(android.os.VibrationEffect.createWaveform(timings,amplitudes,-1));dhikrVibrator=vibrator;}catch(RuntimeException ignored){}
+            });
+        }
         @JavascriptInterface public String capabilities(){
             try{return new JSONObject().put("biometric",hasBiometrics()).put("notifications",notificationsAllowed()).put("androidVersion",BuildConfig.VERSION_CODE).toString();}
             catch(Exception ex){return "{}";}
@@ -747,7 +763,7 @@ if(request==NOTIFY_PERMISSION&&notificationRequest!=null){String id=notification
     }
     private void cleanOldExports(){File dir=new File(getCacheDir(),"exports");File[] files=dir.listFiles();if(files!=null)for(File file:files)if(System.currentTimeMillis()-file.lastModified()>24*60*60*1000L)file.delete();}
     @Override public void onBackPressed(){web.evaluateJavascript("(()=>{if(typeof window.ratibNativeBack==='function'){window.ratibNativeBack();return true;}if(typeof goBackInApp==='function'){goBackInApp();return true;}return false;})()",value->{if(!"true".equals(value))new AlertDialog.Builder(this).setMessage("إغلاق راتب؟").setPositiveButton("إغلاق",(d,w)->finish()).setNegativeButton("إلغاء",null).show();});}
-    @Override protected void onPause(){if(voiceRecognizer!=null)cancelVoice();if(web!=null)web.evaluateJavascript("typeof flushStorage==='function'&&flushStorage().catch(console.warn)",null);super.onPause();}
+    @Override protected void onPause(){stopDhikrHaptics();if(voiceRecognizer!=null)cancelVoice();if(web!=null)web.evaluateJavascript("typeof flushStorage==='function'&&flushStorage().catch(console.warn)",null);super.onPause();}
     @Override protected void onDestroy(){
         cancelVoice();biometricVault.cancel();if(biometricSignal!=null)biometricSignal.cancel();
         for(Transfer t:transfers.values()){try{t.out.close();}catch(Exception ignored){}t.file.delete();}

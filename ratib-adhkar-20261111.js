@@ -76,11 +76,38 @@
    write(el);
    if(!chosen)return;
    let finished=false;
+   let hapticStarted=false;
+   const line=el.querySelector('.ratib-dhikr-text');
+   const page=byId('pageDashboard');
+   const stopHaptics=()=>{
+     if(!hapticStarted)return;hapticStarted=false;
+     try{if(window.RatibNative?.dhikrHaptics)window.RatibNative.dhikrHaptics(false);else navigator.vibrate?.(0);}catch(_){}
+   };
+   const visible=()=>!document.hidden&&!el.hidden&&getComputedStyle(el).display!=='none'&&(!page||getComputedStyle(page).display!=='none');
+   const beginHaptics=()=>{
+     if(finished||hapticStarted||!visible()||window.matchMedia?.('(prefers-reduced-motion: reduce)').matches)return;
+     hapticStarted=true;
+     try{
+       if(window.RatibNative?.dhikrHaptics)window.RatibNative.dhikrHaptics(true);
+       else navigator.vibrate?.(Array.from({length:33},(_,i)=>i%2?402:18));
+     }catch(_){}
+   };
+   const checkVisibility=()=>{if(!visible())hide();};
+   const observer=new MutationObserver(checkVisibility);
+   observer.observe(el,{attributes:true,attributeFilter:['class','hidden','style']});
+   if(page)observer.observe(page,{attributes:true,attributeFilter:['class','hidden','style']});
    const hide=()=>{
      if(finished)return;finished=true;
+     stopHaptics();observer.disconnect();
+     document.removeEventListener('visibilitychange',checkVisibility);
+     window.removeEventListener('pagehide',hide);
      el.classList.remove('ratib-dhikr-visible');el.hidden=true;
    };
-   el.querySelector('.ratib-dhikr-text')?.addEventListener('animationend',hide,{once:true});
+   line?.addEventListener('animationstart',beginHaptics,{once:true});
+   line?.addEventListener('animationend',hide,{once:true});
+   line?.addEventListener('animationcancel',hide,{once:true});
+   document.addEventListener('visibilitychange',checkVisibility);
+   window.addEventListener('pagehide',hide,{once:true});
    setTimeout(hide,7000);
  }
  function refreshSettings(){

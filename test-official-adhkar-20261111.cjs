@@ -19,7 +19,8 @@ function create(previous={},stored=null){
  const d=new JSDOM(template,{url:'https://ratib.test/',pretendToBeVisual:true,runScripts:'outside-only'});
  const w=d.window;
  for(const [k,v] of Object.entries(previous))w.localStorage.setItem(k,v);
- const data={messages:stored,writes:[],financial:{archiveRows:22100,documents:10421}};
+ const data={messages:stored,writes:[],haptics:[],financial:{archiveRows:22100,documents:10421}};
+ w.RatibNative={dhikrHaptics:active=>data.haptics.push(active)};
  w.__ratibProceedInitialized=true;
  w.store={get(k,f){assert.equal(k,'adhkar_messages_v1');return data.messages||f;},
    set(k,v){assert.equal(k,'adhkar_messages_v1');data.messages=v;data.writes.push(v);}};
@@ -38,6 +39,14 @@ async function flush(){await new Promise(resolve=>setTimeout(resolve,35));}
  assert(a.includes('لا تنس ذكر الله'));
  assert.equal(initial.w.document.getElementById('ratibHomeDhikr').querySelector('span').textContent,a);
  assert.equal(initial.w.document.getElementById('ratibLoginDhikr').querySelector('span').textContent,a);
+ const homeLine=initial.w.document.querySelector('#ratibHomeDhikr span');
+ initial.w.document.querySelector('#ratibLoginDhikr span').dispatchEvent(new initial.w.Event('animationstart'));
+ assert.deepEqual(initial.data.haptics,[],'Login banner must not vibrate');
+ homeLine.dispatchEvent(new initial.w.Event('animationstart'));
+ assert.deepEqual(initial.data.haptics,[true],'Home animation starts native pulses without a tap');
+ homeLine.dispatchEvent(new initial.w.Event('animationend'));
+ assert.deepEqual(initial.data.haptics,[true,false],'Animation end cancels pulses');
+ assert(initial.w.document.getElementById('ratibHomeDhikr').hidden);
  const chosen=initial.w.RatibAdhkar.getSelected();
  initial.w.dispatchEvent(new initial.w.Event('ratib:app-ready'));
  assert.equal(initial.w.RatibAdhkar.getSelected(),chosen,'Returning to home must not advance rotation');
@@ -46,11 +55,18 @@ async function flush(){await new Promise(resolve=>setTimeout(resolve,35));}
  const second=create(previous);
  await flush();
  const b=second.w.RatibAdhkar.getSelected();
+ second.w.document.querySelector('#ratibHomeDhikr span').dispatchEvent(new second.w.Event('animationstart'));
+ Object.defineProperty(second.w.document,'hidden',{configurable:true,value:true});
+ second.w.document.dispatchEvent(new second.w.Event('visibilitychange'));
+ assert.deepEqual(second.data.haptics,[true,false],'Backgrounding stops haptics immediately');
  assert.notEqual(b,a,'Next app load should show only the second remembrance');
  const previous2=Object.fromEntries([publicKey,rotationKey].map(k=>[k,second.w.localStorage.getItem(k)]));second.close();
  const third=create(previous2);
  await flush();
  const c=third.w.RatibAdhkar.getSelected();
+ third.w.matchMedia=()=>({matches:true});
+ third.w.document.querySelector('#ratibHomeDhikr span').dispatchEvent(new third.w.Event('animationstart'));
+ assert.deepEqual(third.data.haptics,[],'Reduced motion must not vibrate');
  assert.notEqual(c,b);assert.notEqual(c,a,'Third app load should show third remembrance');
  // Only the first field is filled: user must see the same phrase on every launch.
  third.w.document.getElementById('ratibAdhkarText1').value='الحمد لله وحده';

@@ -8,7 +8,7 @@ android {
         applicationId 'dev.ratib.android'
         minSdk 28
         targetSdk 35
-        versionCode 70
+        versionCode 71
         versionName '3.6.217 Android'
     }
     compileOptions { sourceCompatibility JavaVersion.VERSION_1_8; targetCompatibility JavaVersion.VERSION_1_8 }

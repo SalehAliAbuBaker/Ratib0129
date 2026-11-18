@@ -46,7 +46,7 @@ const PATTERNS={
  error:[[0,370,.15],[.17,294,.24]]
 };
 // Use the application's original short click, not Android's inaccessible system sound.
-function play(kind='reminder',priority='',test=false){
+function play(kind='reminder',priority='',test=false,suppressVibration=false){
  const cfg=read();
  if(!cfg.master||LEVELS[cfg.volume]<=0)return false;
  const category=kind==='critical'||kind==='urgent'?'reminder':kind;
@@ -60,7 +60,7 @@ function play(kind='reminder',priority='',test=false){
   try{vibration=typeof navigator.vibrate==='function'&&navigator.vibrate([65,40,65])===true;}
   catch(_){vibration=false;}
  }
- if(kind==='tap'&&['both','vibration'].includes(cfg.tapCue)){
+ if(kind==='tap'&&!suppressVibration&&['both','vibration'].includes(cfg.tapCue)){
   try{vibration=typeof navigator.vibrate==='function'&&navigator.vibrate(10)===true;}
   catch(_){vibration=false;}
  }
@@ -246,13 +246,14 @@ function pressEnd(event){
  if(tap.cancelled||Math.hypot(coordinate(event,'clientX')-tap.x,coordinate(event,'clientY')-tap.y)>TAP_MOVE_LIMIT)return;
  const control=targetForTap(event.target);
  if(!control||(control!==tap.control&&!tap.control.contains(control)))return;
- play('tap');
+ play('tap','',false,control.id==='ratibAdhkarHapticTest');
 }
 function pressCancel(event){if(pendingTap&&pendingTap.id===pointerId(event))pendingTap=null;}
 function keyPressKeyboard(event){
  if(event.isComposing||event.repeat||event.ctrlKey||event.altKey||event.metaKey)return;
  const key=event.key||'';
- if((key==='Enter'||key===' ')&&targetForTap(event.target))play('tap');
+ const control=targetForTap(event.target);
+ if((key==='Enter'||key===' ')&&control)play('tap','',false,control.id==='ratibAdhkarHapticTest');
 }
 window.RatibFeedback={toast,play,reminder,read,write,syncUI,install};
 document.addEventListener('pointerdown',pressStart,{passive:true,capture:true});

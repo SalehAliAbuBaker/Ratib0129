@@ -4,6 +4,21 @@
  const CONFIG_KEY='ratib_public_adhkar_v1';
  const ROTATION_KEY='ratib_adhkar_next_v1';
  const STORAGE_KEY='adhkar_messages_v1';
+ const HAPTIC_KEY='ratib_adhkar_haptic_level_v1';
+ const HAPTIC_LEVELS={off:0,light:1,medium:2,strong:3};
+ const cleanLevel=value=>Object.hasOwn(HAPTIC_LEVELS,value)?value:'medium';
+ let hapticLevel='medium';
+ try{hapticLevel=cleanLevel(localStorage.getItem(HAPTIC_KEY));}catch(_){}
+ function haptics(level,preview=false){
+   const value=HAPTIC_LEVELS[cleanLevel(level)];
+   try{
+     if(preview&&window.RatibNative?.previewDhikrHaptics)window.RatibNative.previewDhikrHaptics(value);
+     else if(window.RatibNative?.dhikrHapticsLevel)window.RatibNative.dhikrHapticsLevel(value);
+     else if(window.RatibNative?.dhikrHaptics)window.RatibNative.dhikrHaptics(value>0);
+     else if(!value)navigator.vibrate?.(0);
+     else{const pulse=[0,22,35,55][value];navigator.vibrate?.(Array.from({length:preview?3:33},(_,i)=>i%2?420-pulse:pulse));}
+   }catch(_){}
+ }
  const DEFAULTS=[
    'لا تنس ذكر الله والصلاة والسلام على رسول الله صلى الله عليه وآله وصحبه',
    'سبحان الله وبحمده، سبحان الله العظيم',
@@ -76,14 +91,40 @@
    write(el);
    if(!chosen)return;
    let finished=false;
+   let hapticStarted=false;
+   const line=el.querySelector('.ratib-dhikr-text');
+   const page=byId('pageDashboard');
+   const stopHaptics=()=>{
+     if(!hapticStarted)return;hapticStarted=false;
+     haptics('off');
+   };
+   const visible=()=>!document.hidden&&!el.hidden&&getComputedStyle(el).display!=='none'&&(!page||getComputedStyle(page).display!=='none');
+   const beginHaptics=()=>{
+     if(finished||hapticStarted||hapticLevel==='off'||!visible()||window.matchMedia?.('(prefers-reduced-motion: reduce)').matches)return;
+     hapticStarted=true;
+     haptics(hapticLevel);
+   };
+   const checkVisibility=()=>{if(!visible())hide();};
+   const observer=new MutationObserver(checkVisibility);
+   observer.observe(el,{attributes:true,attributeFilter:['class','hidden','style']});
+   if(page)observer.observe(page,{attributes:true,attributeFilter:['class','hidden','style']});
    const hide=()=>{
      if(finished)return;finished=true;
+     stopHaptics();observer.disconnect();
+     document.removeEventListener('visibilitychange',checkVisibility);
+     window.removeEventListener('pagehide',hide);
      el.classList.remove('ratib-dhikr-visible');el.hidden=true;
    };
-   el.querySelector('.ratib-dhikr-text')?.addEventListener('animationend',hide,{once:true});
+   line?.addEventListener('animationstart',beginHaptics,{once:true});
+   line?.addEventListener('animationend',hide,{once:true});
+   line?.addEventListener('animationcancel',hide,{once:true});
+   document.addEventListener('visibilitychange',checkVisibility);
+   window.addEventListener('pagehide',hide,{once:true});
    setTimeout(hide,7000);
  }
  function refreshSettings(){
+   try{if(typeof store!=='undefined'&&window.__ratibProceedInitialized)hapticLevel=cleanLevel(store.get(HAPTIC_KEY,hapticLevel));}catch(_){}
+   const levelInput=byId('ratibAdhkarHapticLevel');if(levelInput)levelInput.value=hapticLevel;
    const saved=savedRead(),next=saved||publicRead()||messages;
    if(saved){
      messages=clean(saved);
@@ -100,16 +141,20 @@
    const inputs=[1,2,3].map(i=>byId('ratibAdhkarText'+i));
    if(inputs.some(x=>!x))return;
    const proposed=clean(inputs.map(x=>x.value));
+   const proposedLevel=cleanLevel(byId('ratibAdhkarHapticLevel')?.value||hapticLevel);
    const status=byId('ratibAdhkarSaveStatus'),button=byId('ratibAdhkarSaveBtn');
    if(button)button.disabled=true;
    try{
      if(typeof store==='undefined'||!window.__ratibProceedInitialized)throw Error('التطبيق لم يفتح بياناته بعد');
      store.set(STORAGE_KEY,proposed);
+     store.set(HAPTIC_KEY,proposedLevel);
      await flushStorage(); // Mirror to public login config ONLY after protected save succeeds.
      messages=proposed;
+     hapticLevel=proposedLevel;
+     try{localStorage.setItem(HAPTIC_KEY,hapticLevel);}catch(_){}
      try{localStorage.setItem(CONFIG_KEY,JSON.stringify(messages));}catch(_){}
      if(!active(messages).includes(chosen))chosen=active(messages)[0]||'';
-     if(status)status.textContent='تم حفظ الأذكار. سيُعرض ذكر واحد عند كل فتح أو تحديث للتطبيق.';
+     if(status)status.textContent='تم حفظ الأذكار ودرجة الاهتزاز. تُطبّق عند فتح التطبيق القادم.';
      if(typeof showToast==='function')showToast('حُفظت خيارات الأذكار','success');
    }catch(e){
      if(status)status.textContent='تعذّر حفظ الأذكار. أعد المحاولة.';
@@ -120,6 +165,7 @@
    loginBanner();
    refreshSettings();
    byId('ratibAdhkarSaveBtn')?.addEventListener('click',save);
+   byId('ratibAdhkarHapticTest')?.addEventListener('click',()=>haptics(cleanLevel(byId('ratibAdhkarHapticLevel')?.value),true));
    window.addEventListener('ratib:app-ready',()=>{refreshSettings();requestAnimationFrame(homeBanner);});
    const lock=byId('lockScreen');
    if(lock)new MutationObserver(()=>requestAnimationFrame(homeBanner)).observe(lock,{attributes:true,attributeFilter:['style','class','hidden']});

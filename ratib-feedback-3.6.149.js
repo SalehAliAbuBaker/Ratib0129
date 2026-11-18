@@ -37,7 +37,7 @@ function unlock(){
  if(ctx?.state==='suspended')ctx.resume().catch(()=>{});
 }
 const PATTERNS={
- tap:[[0,920,.034]],
+ tap:[[0,920,.065]],
  save:[[0,523,.13],[.125,784,.21]],
  reminder:[[0,587,.17],[.21,740,.18],[.44,988,.31]],
  urgent:[[0,659,.13],[.18,659,.13],[.38,988,.26]],
@@ -46,7 +46,7 @@ const PATTERNS={
  error:[[0,370,.15],[.17,294,.24]]
 };
 // Use the application's original short click, not Android's inaccessible system sound.
-function play(kind='reminder',priority='',test=false){
+function play(kind='reminder',priority='',test=false,suppressVibration=false){
  const cfg=read();
  if(!cfg.master||LEVELS[cfg.volume]<=0)return false;
  const category=kind==='critical'||kind==='urgent'?'reminder':kind;
@@ -60,19 +60,22 @@ function play(kind='reminder',priority='',test=false){
   try{vibration=typeof navigator.vibrate==='function'&&navigator.vibrate([65,40,65])===true;}
   catch(_){vibration=false;}
  }
- if(kind==='tap'&&['both','vibration'].includes(cfg.tapCue)){
+ if(kind==='tap'&&!suppressVibration&&['both','vibration'].includes(cfg.tapCue)){
   try{vibration=typeof navigator.vibrate==='function'&&navigator.vibrate(10)===true;}
   catch(_){vibration=false;}
  }
  lastPlayed.set(id,now);
  if(kind==='save'&&cfg.saveCue==='vibration')return vibration;
  if(kind==='tap'&&cfg.tapCue==='vibration')return vibration;
+ if(kind==='tap'&&window.RatibNative?.playTapSound){
+  try{if(window.RatibNative.playTapSound(Math.round(LEVELS[cfg.volume]*100)))return true;}catch(_){}
+ }
  const ctx=availableAudio();if(!ctx)return vibration;
  const steps=PATTERNS[kind]||PATTERNS.reminder;
  const makeSound=()=>{
   if(ctx.state!=='running')return;
   const base=ctx.currentTime+(kind==='tap'?.004:.025);
-  const gainScale=(kind==='tap'?.052:kind==='save'?.25:cfg.style==='soft'?.12:cfg.style==='clear'?.21:.16)*LEVELS[cfg.volume];
+  const gainScale=(kind==='tap'?.18:kind==='save'?.25:cfg.style==='soft'?.12:cfg.style==='clear'?.21:.16)*LEVELS[cfg.volume];
   try{
    steps.forEach(([offset,frequency,duration],i)=>{
     const osc=ctx.createOscillator(),env=ctx.createGain();
@@ -243,13 +246,14 @@ function pressEnd(event){
  if(tap.cancelled||Math.hypot(coordinate(event,'clientX')-tap.x,coordinate(event,'clientY')-tap.y)>TAP_MOVE_LIMIT)return;
  const control=targetForTap(event.target);
  if(!control||(control!==tap.control&&!tap.control.contains(control)))return;
- play('tap');
+ play('tap','',false,control.id==='ratibAdhkarHapticTest');
 }
 function pressCancel(event){if(pendingTap&&pendingTap.id===pointerId(event))pendingTap=null;}
 function keyPressKeyboard(event){
  if(event.isComposing||event.repeat||event.ctrlKey||event.altKey||event.metaKey)return;
  const key=event.key||'';
- if((key==='Enter'||key===' ')&&targetForTap(event.target))play('tap');
+ const control=targetForTap(event.target);
+ if((key==='Enter'||key===' ')&&control)play('tap','',false,control.id==='ratibAdhkarHapticTest');
 }
 window.RatibFeedback={toast,play,reminder,read,write,syncUI,install};
 document.addEventListener('pointerdown',pressStart,{passive:true,capture:true});

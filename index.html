@@ -10897,7 +10897,7 @@ function performRealExit(){
   hideExitModal();const progress=document.getElementById('exitProgressModal');progress?.classList.add('show');progress?.focus({preventScroll:true});
   _exitPromise=(async()=>{
     try{
-      if(_pendingFinancialCompletion){await flushStorage();const after=_pendingFinancialCompletion;_pendingFinancialCompletion=null;after?.();}
+      if(_pendingFinancialCompletion){await flushStorage();const after=_pendingFinancialCompletion;_pendingFinancialCompletion=null;hasUnsavedChanges=false;after?.();}
       clearTimeout(_draftTimer);_draftTimer=null;
       if(currentActiveTab==='pageExpenses'&&hasUnsavedChanges){
         if(!document.getElementById('multiVoucherCard')?.classList.contains('hidden')&&multiVoucherLines.some(line=>!line.autoBalance&&(line.account||line.amount||line.note))){

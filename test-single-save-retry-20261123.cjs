@@ -30,7 +30,7 @@ async function exitFixture(dirty,pending=false,fail=false){
   _appBackStack:[],_appSavedViews:new Map(),_appHistoryInitialized:false,
   sessionStorage:{removeItem(){}},getSecurityConfig:()=>({enabled:false}),showExitedScreen(){},
   navigator:{app:{exitApp(){}}},window:{},showToast(){},flushStorage:async()=>{if(fail)throw Error('Synthetic exit persistence failure');}};
- if(pending)context._pendingFinancialCompletion=()=>{context.hasUnsavedChanges=false;};
+ if(pending)context._pendingFinancialCompletion=()=>{};
  vm.createContext(context);
  const a=html.indexOf('function performRealExit(){'),b=html.indexOf('// Unified safe exit',a);
  vm.runInContext(html.slice(a,b),context);const exited=await context.performRealExit();return {writes,context,exited};

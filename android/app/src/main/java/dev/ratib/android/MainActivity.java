@@ -364,17 +364,8 @@ public final class MainActivity extends Activity {
                     case "print":runOnUiThread(()->printHtml(id,args));break;
                     case "chooseTree":runOnUiThread(()->chooseTree(id));break;
                     case "interfaceFont": {
-                        String size=args.getString("size");
-                        int zoom;
-                        switch(size){
-                            case "xxsmall": zoom=76;break;
-                            case "xsmall": zoom=82;break;
-                            case "small": zoom=90;break;
-                            case "large": zoom=110;break;
-                            case "xlarge": zoom=120;break;
-                            case "xxlarge": zoom=130;break;
-                            default: zoom=100;
-                        }
+                        // CSS owns the seven-step screen scale; avoid applying it twice.
+                        final int zoom=100;
                         runOnUiThread(()->{
                             if(web!=null && web.getSettings().getTextZoom()!=zoom)web.getSettings().setTextZoom(zoom);
                             result(id,true,true);

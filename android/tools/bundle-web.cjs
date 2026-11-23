@@ -129,8 +129,8 @@ adaptAsset('ratib-global-button-size-3.6.146.js','document.documentElement.datas
 adaptAsset('ratib-global-button-size-3.6.146.js',"if(typeof store!=='undefined'&&typeof store.set==='function')store.set(LEGACY,setting);","if(typeof store!=='undefined'&&typeof store.set==='function'&&store.get(LEGACY,null)!==setting)store.set(LEGACY,setting);");
 fs.appendFileSync(path.join(dest,'ratib-interface-font-3.6.148.css'),`
 @media screen {
- html[data-ratib-font-size="xsmall"] {font-size:13px!important;-webkit-text-size-adjust:100%;text-size-adjust:100%;}
- html[data-ratib-font-size="small"] {font-size:15px!important;}
+ 
+ 
  html[data-ratib-button-size="xsmall"] {--rb-action-height:32px;--rb-menu-height:36px;--rb-tile-height:56px;--rb-tile-icon:17px;}
  html[data-ratib-button-size="xsmall"] #dashboardHomeContent .main-menu-grid .main-menu-btn,
  html[data-ratib-button-size="xsmall"] #dashboardHomeContent .ratib-home-voucher-shortcuts .main-menu-btn,
@@ -146,9 +146,6 @@ adaptAsset('ratib-cash-pulse.js',"const legs=typeof trialTransactionLegs==='func
   const legs=typeof trialTransactionLegs==='function'?trialTransactionLegs(t):[];`);
 fs.appendFileSync(path.join(dest,'ratib-interface-font-3.6.148.css'),`
 @media screen {
- :root[data-ratib-font-size="medium"], :root[data-ratib-font-size="large"] {font-size:13px!important;--ratib-font-scale:.82;}
- :root[data-ratib-font-size="small"] {font-size:12px!important;--ratib-font-scale:.81;}
- :root[data-ratib-font-size="xsmall"] {font-size:11px!important;--ratib-font-scale:.8;}
  :root[data-ratib-button-size="medium"] {--rb-action-height:38px;--rb-action-font:.75rem;--rb-action-icon:17px;--rb-menu-height:40px;--rb-tile-height:72px;--rb-tile-icon:20px;--rb-com-gap:4px;}
  :root[data-ratib-button-size="small"] {--rb-action-height:35px;--rb-action-font:.73rem;--rb-action-icon:16px;--rb-menu-height:38px;--rb-tile-height:63px;--rb-tile-icon:18px;--rb-com-gap:4px;}
  html:is([data-ratib-button-size="small"],[data-ratib-button-size="medium"]) #dashboardHomeContent :is(.main-menu-grid,.ratib-home-voucher-shortcuts) .main-menu-btn,
@@ -188,10 +185,10 @@ fs.appendFileSync(path.join(dest,'ratib-interface-font-3.6.148.css'),`
  #pageAccountOperations #ratibAccountMovementSearchClear:disabled{display:none!important;}
  #pageAccountOperations #ratibAccountMovementSearchInput{height:37px!important;min-height:37px!important;}
  #pageAccountOperations .ratib-statement-page-tools{display:grid!important;grid-template-columns:minmax(0,1fr) minmax(0,1fr);padding:6px!important;gap:5px 8px!important;margin:6px 0!important;}
- #pageAccountOperations .ratib-statement-page-tools>label{display:grid!important;grid-template-columns:1fr!important;gap:2px!important;font-size:.88rem!important;line-height:1.3!important;}
+ #pageAccountOperations .ratib-statement-page-tools>label{display:grid!important;grid-template-columns:1fr!important;gap:2px!important;font-size:calc(13px * var(--ratib-font-scale))!important;line-height:1.45!important;}
  #pageAccountOperations .ratib-statement-page-tools select {width:100%!important;min-height:32px!important;height:32px!important;padding:2px 5px!important;}
  #pageAccountOperations .ratib-statement-page-actions{grid-column:1/-1;display:grid!important;grid-template-columns:auto 1fr auto;align-items:center;gap:4px!important;}
- #pageAccountOperations .ratib-statement-page-actions>span{text-align:center;font-size:.86rem!important;}
+ #pageAccountOperations .ratib-statement-page-actions>span{text-align:center;font-size:calc(12px * var(--ratib-font-scale))!important;}
  #pageAccountOperations .ratib-statement-page-actions button{min-height:32px!important;height:auto!important;padding:4px 8px!important;}
 }
 `);fs.appendFileSync(path.join(dest,'ratib-interface-font-3.6.148.css'),`
@@ -199,14 +196,14 @@ fs.appendFileSync(path.join(dest,'ratib-interface-font-3.6.148.css'),`
  #mainWrap #pageAccountOperations .account-operations-head-actions>#accountAddOperationBtn {grid-column:1!important;}
  #mainWrap #pageAccountOperations .account-operations-head-actions>.account-screen-menu-wrap {grid-column:2!important;}
  #mainWrap #pageAccountOperations .account-operations-head-actions #accountAddOperationBtn,
- #mainWrap #pageAccountOperations .account-operations-head-actions #accountScreenMenuToggle {height:38px!important;min-height:38px!important;max-height:38px!important;width:100%!important;box-sizing:border-box!important;line-height:1.2!important;}
+ #mainWrap #pageAccountOperations .account-operations-head-actions #accountScreenMenuToggle {height:auto!important;min-height:38px!important;max-height:none!important;width:100%!important;box-sizing:border-box!important;line-height:1.2!important;}
 }
 `);
 
 fs.appendFileSync(path.join(dest,'ratib-interface-font-3.6.148.css'),`
 @media screen {
  html:is([data-ratib-font-size="xxsmall"],[data-ratib-font-size="xxlarge"],[data-ratib-font-size="xsmall"],[data-ratib-font-size="small"],[data-ratib-font-size="medium"],[data-ratib-font-size="large"],[data-ratib-font-size="xlarge"]) {
-   font-size:13px!important;--ratib-font-scale:.82!important;-webkit-text-size-adjust:100%;text-size-adjust:100%;
+   font-size:13px!important;-webkit-text-size-adjust:100%;text-size-adjust:100%;
  }
 }
 `);

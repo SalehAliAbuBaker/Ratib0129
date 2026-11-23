@@ -27,7 +27,7 @@
 }
 #mainWrap :is(.btn,.back-to-menu-btn):not(.icon-btn),
 #pageCommerce :is(.btn,.rc-tabs > button,.rc-new-menu button,.rc-catalog-toggle,.rc-doc-action){
- font-size:calc(var(--rb-action-font,.92rem) * var(--ratib-font-scale))!important;
+ font-size:clamp(12px,calc(14px * var(--ratib-font-scale)),18px)!important;
  line-height:1.4!important;
 }
 #pageSettings .ratib-global-size-card>select{font-size:var(--ratib-input-font-size)!important;font-weight:400!important}
@@ -88,4 +88,50 @@
  #cloudBackupDueModal #cloudBackupDueMessage{
   font-size:calc(15px * var(--ratib-font-scale,1));line-height:1.55;
  }
+}
+
+/* One screen scale for Arabic labels, names and amounts on web and Android. */
+@media screen {
+ :root {
+  --ratib-text:clamp(13px,calc(15px * var(--ratib-font-scale)),20px);
+  --ratib-label:clamp(12px,calc(14px * var(--ratib-font-scale)),19px);
+  --ratib-meta:clamp(11px,calc(12px * var(--ratib-font-scale)),16px);
+  --ratib-money:clamp(14px,calc(18px * var(--ratib-font-scale)),24px);
+ }
+ #mainWrap {font-size:var(--ratib-text);line-height:1.55;}
+ #mainWrap :is(.form-group>label,.card>p,.rc-note,.rc-summary,.account-balance-note),
+ #appSidebar .sidebar-nav button,
+ #mainWrap #ratibAccountFavorites :is(.ratib-account-fav-link,.ratib-account-fav-heading),
+ #ratibDashboardFinance144 .ratib-finance-card>span,
+ .ratib-finance-dialog :is(table,.ratib-finance-more) {
+  font-size:var(--ratib-label)!important;line-height:1.55!important;
+ }
+ #mainWrap #ratibAccountFavorites :is(.ratib-account-fav-count,.ratib-account-fav-status,.ratib-account-fav-remove,.ratib-account-fav-add),
+ #ratibDashboardFinance144 :is(.ratib-finance-card>small,.ratib-finance-note),
+ .ratib-finance-dialog .ratib-finance-detail-status {
+  font-size:var(--ratib-meta)!important;line-height:1.5!important;
+ }
+ #ratibDashboardFinance144 .ratib-finance-card>strong,
+ .ratib-finance-dialog .ratib-finance-detail-total {
+  font-size:var(--ratib-money)!important;font-weight:700;line-height:1.5;
+  font-variant-numeric:tabular-nums;overflow-wrap:anywhere;
+ }
+ #ratibDashboardFinance144 .ratib-finance-main>strong {
+  font-size:clamp(17px,calc(22px * var(--ratib-font-scale)),29px)!important;
+ }
+ #ratibDashboardFinance144 .ratib-finance-tabs button,
+ #dashboardHomeContent .main-menu-btn>span:not(.main-menu-icon),
+ #dashboardHomeContent .ratib-commerce-shortcut {
+  font-size:var(--ratib-label)!important;line-height:1.5!important;
+ }
+ #mainWrap :is(.btn,.back-to-menu-btn):not(.icon-btn),
+ #dashboardHomeContent :is(.main-menu-btn,.ratib-commerce-shortcut),
+ #ratibDashboardFinance144 .ratib-finance-tabs button {
+  height:auto!important;max-height:none!important;white-space:normal;overflow-wrap:anywhere;
+ }
+ #mainWrap :is(.form-group>label,.ratib-account-fav-heading,.ratib-account-fav-link),
+ #ratibDashboardFinance144 .ratib-finance-card>span {
+  min-width:0;white-space:normal;overflow-wrap:anywhere;
+ }
+ #pageSettings .ratib-font-preview {font-size:var(--ratib-text)!important;line-height:1.6;overflow-wrap:anywhere;}
 }

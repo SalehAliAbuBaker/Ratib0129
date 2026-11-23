@@ -204,6 +204,19 @@ public final class MainActivity extends Activity {
             @Override public void onReceivedHttpError(WebView v,WebResourceRequest request,WebResourceResponse response){
                 if(main&&request.isForMainFrame())showLoadFailure("رمز الملف المحلي: "+response.getStatusCode());
             }
+            @Override public boolean onRenderProcessGone(WebView view,android.webkit.RenderProcessGoneDetail detail){
+                android.util.Log.e("RatibLocalAssets","Renderer stopped; recovery available");
+                if(view==web){
+                    ++loadGeneration;stopDhikrHaptics();
+                    root.removeView(view);web=null;view.destroy();
+                    if(loadFailure!=null){root.removeView(loadFailure);loadFailure=null;}
+                    LinearLayout panel=new LinearLayout(MainActivity.this);panel.setOrientation(LinearLayout.VERTICAL);panel.setPadding(32,48,32,32);panel.setBackgroundColor(0xfff8fafc);
+                    TextView message=new TextView(MainActivity.this);message.setTextSize(18);message.setText("توقفت واجهة العرض. أعد فتح راتب، ثم تحقق من آخر عملية قبل تكرارها.");panel.addView(message);
+                    Button retry=new Button(MainActivity.this);retry.setText("إعادة فتح راتب");retry.setOnClickListener(button->recreate());panel.addView(retry);
+                    loadFailure=panel;root.addView(panel,new FrameLayout.LayoutParams(-1,-1));
+                }else view.destroy();
+                return true;
+            }
         });
         if(BuildConfig.DEBUG)WebView.setWebContentsDebuggingEnabled(true);
     }
@@ -780,7 +793,7 @@ if(request==NOTIFY_PERMISSION&&notificationRequest!=null){String id=notification
         ((NotificationManager)getSystemService(NOTIFICATION_SERVICE)).notify(args.optString("tag").hashCode(),notification);
     }
     private void cleanOldExports(){File dir=new File(getCacheDir(),"exports");File[] files=dir.listFiles();if(files!=null)for(File file:files)if(System.currentTimeMillis()-file.lastModified()>24*60*60*1000L)file.delete();}
-    @Override public void onBackPressed(){web.evaluateJavascript("(()=>{if(typeof window.ratibNativeBack==='function'){window.ratibNativeBack();return true;}if(typeof goBackInApp==='function'){goBackInApp();return true;}return false;})()",value->{if(!"true".equals(value))new AlertDialog.Builder(this).setMessage("إغلاق راتب؟").setPositiveButton("إغلاق",(d,w)->finish()).setNegativeButton("إلغاء",null).show();});}
+    @Override public void onBackPressed(){if(web==null){finish();return;}web.evaluateJavascript("(()=>{if(typeof window.ratibNativeBack==='function'){window.ratibNativeBack();return true;}if(typeof goBackInApp==='function'){goBackInApp();return true;}return false;})()",value->{if(!"true".equals(value))new AlertDialog.Builder(this).setMessage("إغلاق راتب؟").setPositiveButton("إغلاق",(d,w)->finish()).setNegativeButton("إلغاء",null).show();});}
     @Override protected void onPause(){stopDhikrHaptics();if(voiceRecognizer!=null)cancelVoice();if(web!=null)web.evaluateJavascript("typeof flushStorage==='function'&&flushStorage().catch(console.warn)",null);super.onPause();}
     @Override protected void onDestroy(){
         stopDhikrHaptics();tapSoundReady=false;if(tapSounds!=null){tapSounds.release();tapSounds=null;}

@@ -173,6 +173,7 @@ public final class MainActivity extends Activity {
 
     private void configure(WebView view,boolean main) {
         WebSettings settings=view.getSettings();
+        if(main)settings.setTextZoom(100);
         settings.setJavaScriptEnabled(true);
         settings.setDomStorageEnabled(main);
         settings.setAllowFileAccess(false);

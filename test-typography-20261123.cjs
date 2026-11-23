@@ -28,4 +28,7 @@ assert(addition.includes('@media screen'));assert(!addition.includes('@media pri
 assert(css.includes(':root{--ratib-font-scale:1!important}'));
 assert(addition.includes('font-variant-numeric:tabular-nums'));
 assert(addition.includes('overflow-wrap:anywhere'));
+assert(java.includes('if(main)settings.setTextZoom(100);'));
+const html=fs.readFileSync('index.html','utf8');
+assert(html.indexOf('href="./ratib-interface-font')>html.indexOf('href="./ratib-home-uniform'));
 console.log('PASS typography: seven live settings, retained preferences, independent button sizing, single Android scale and isolated print');

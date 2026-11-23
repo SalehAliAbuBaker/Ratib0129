@@ -7428,7 +7428,9 @@ function buildSimpleVoucherData(status='draft'){
 document.getElementById('commitVoucherBtn').addEventListener('click',async()=>{
   const button=document.getElementById('commitVoucherBtn');if(button.disabled)return;button.disabled=true;
   const addAnother=_saveAndAddAnother;_saveAndAddAnother=false;
+  let savedDurably=false;
   try{
+  if(_pendingFinancialCompletion){await retryPersistentSave();return;}
   let tx;try{tx=buildSimpleVoucherData('posted');}catch(e){alert(e.message);return;}
   if (!window.RatibLicense || !(await window.RatibLicense.beforeCreate(getAllTransactions()))) return;
   
@@ -7440,7 +7442,7 @@ document.getElementById('commitVoucherBtn').addEventListener('click',async()=>{
   audit('CREATE_TRANSACTION', tx.id, null, tx); 
 
     clearTimeout(_draftTimer);_draftTimer=null;store.remove('single_voucher_draft_v1');
-    await completeFinancialSave(()=>{  window.RatibLicense.recordCreated(); showToast('تم حفظ السند بنجاح', 'success');
+    await completeFinancialSave(()=>{savedDurably=true;window.RatibLicense.recordCreated(); showToast('تم حفظ السند بنجاح', 'success');
   
   lastPrintedTx = tx; 
   preparePrintVoucherTemplate(tx);
@@ -7453,8 +7455,8 @@ document.getElementById('commitVoucherBtn').addEventListener('click',async()=>{
   else if(!restoreQuickVoucherOriginAfterSave()){document.getElementById('printPromptModal').classList.add('show');pushAppHistoryState();}
 
 });
-  }catch(e){showToast('لم يكتمل حفظ السند. استخدم إعادة محاولة الحفظ قبل إدخال سند آخر.','error',7000);}
-  finally{button.disabled=false;if(_pendingFinancialCompletion){button.dataset.originalLabel=button.textContent;button.textContent='إعادة محاولة الحفظ';}}
+  }catch(e){if(savedDurably)showToast('تم حفظ السند، لكن تعذّر تحديث العرض. راجعه في سجل العمليات قبل إعادة الحفظ.','warn',7000);else showToast('لم يكتمل حفظ السند. استخدم إعادة محاولة الحفظ قبل إدخال سند آخر.','error',7000);}
+  finally{button.disabled=false;if(_pendingFinancialCompletion){if(!button.dataset.originalLabel)button.dataset.originalLabel=button.textContent;button.textContent='إعادة محاولة الحفظ';}}
 });
 
 document.getElementById('confirmPdfDocBtn')?.addEventListener('click', () => {
@@ -10895,9 +10897,9 @@ function performRealExit(){
   hideExitModal();const progress=document.getElementById('exitProgressModal');progress?.classList.add('show');progress?.focus({preventScroll:true});
   _exitPromise=(async()=>{
     try{
-      if(_pendingFinancialCompletion){await flushStorage();const after=_pendingFinancialCompletion;_pendingFinancialCompletion=null;after?.();}
+      if(_pendingFinancialCompletion){await flushStorage();const after=_pendingFinancialCompletion;_pendingFinancialCompletion=null;hasUnsavedChanges=false;after?.();}
       clearTimeout(_draftTimer);_draftTimer=null;
-      if(currentActiveTab==='pageExpenses'){
+      if(currentActiveTab==='pageExpenses'&&hasUnsavedChanges){
         if(!document.getElementById('multiVoucherCard')?.classList.contains('hidden')&&multiVoucherLines.some(line=>!line.autoBalance&&(line.account||line.amount||line.note))){
           const draft=buildMultiVoucherData('draft');store.set('multi_voucher_drafts',[...store.get('multi_voucher_drafts',[]).filter(item=>item.id!==draft.id),draft]);
         }else if(!document.getElementById('cashFlowCard')?.classList.contains('hidden')){const draft=captureSingleDraft();if(draft.amount||draft.note||draft.recipient)store.set('single_voucher_draft_v1',draft);}
@@ -11150,8 +11152,10 @@ async function completeFinancialSave(after){
 }
 
 async function retryPersistentSave(){
-  try{await flushStorage();const after=_pendingFinancialCompletion;_pendingFinancialCompletion=null;if(after){hasUnsavedChanges=false;after();}for(const id of ['commitVoucherBtn','commitMultiVoucherBtn','saveTxExecutionBtn']){const b=document.getElementById(id);if(b){b.disabled=false;if(b.dataset.originalLabel){b.textContent=b.dataset.originalLabel;delete b.dataset.originalLabel;}}}showToast('اكتمل حفظ البيانات','success');}
-  catch(_){showToast('التخزين غير متاح. احتفظ بالصفحة مفتوحة وصدّر نسخة احتياطية.','error',7000);}
+  let savedDurably=false;
+  try{await flushStorage();savedDurably=true;const after=_pendingFinancialCompletion;_pendingFinancialCompletion=null;if(after){hasUnsavedChanges=false;after();}showToast('اكتمل حفظ البيانات','success');}
+  catch(_){if(savedDurably)showToast('تم حفظ البيانات، لكن تعذّر تحديث العرض. راجع سجل العمليات قبل إعادة الحفظ.','warn',7000);else showToast('التخزين غير متاح. احتفظ بالصفحة مفتوحة وصدّر نسخة احتياطية.','error',7000);}
+  finally{if(savedDurably)for(const id of ['commitVoucherBtn','commitMultiVoucherBtn','saveTxExecutionBtn']){const b=document.getElementById(id);if(b){b.disabled=false;if(b.dataset.originalLabel){b.textContent=b.dataset.originalLabel;delete b.dataset.originalLabel;}}}}
 }
 
 function captureSingleDraft(){

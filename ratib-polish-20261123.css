@@ -1,0 +1,20 @@
+/* Retain existing palettes, layout and control sizes. */
+@media screen {
+ #dashboardHomeContent .ratib-home-main-grid .main-menu-btn {
+  box-shadow:0 2px 6px #00000008!important;
+  transition:background-color 120ms ease,border-color 120ms ease!important;
+ }
+ #dashboardHomeContent .ratib-home-main-grid .main-menu-btn:active {
+  border-color:var(--accent)!important;
+  background:color-mix(in srgb,var(--accent) 7%,var(--card));
+ }
+ :where(button,a,input,select,textarea,[role="button"]):focus-visible {
+  outline:2px solid var(--accent,#145e40)!important;outline-offset:3px;
+ }
+ #dashboardHomeContent .ratib-home-main-grid .main-menu-btn {
+  -webkit-tap-highlight-color:transparent;
+ }
+}
+@media(prefers-reduced-motion:reduce) {
+ #dashboardHomeContent .ratib-home-main-grid .main-menu-btn {transition:none!important;}
+}

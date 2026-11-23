@@ -9,7 +9,7 @@ const end=html.indexOf('\nfunction openAccountFromPager(',start);
 assert(start>=0&&end>start,'Page helpers and statement renderer must be present');
 const js=html.slice(start,end);
 assert(html.includes("const rows=view.rows.map(t=>"),'Rows must render only one 50/100-item screen page');
-assert(html.includes('const runningBalances=getAccountRunningBalances(txs,scope,opening)'),'Running balance must use ALL chronological account movements');
+assert(html.includes('getAccountRunningBalances(data.rows,scope,data.opening)'),'Running balance must use ALL chronological account movements');
 assert(html.includes('const inclusive=ratibStatementInclusiveTotals(data)'),'Totals must use full account data, not displayed page');
 assert(html.includes('ratibAccountMovementSearchCorpus(t,getAccountEntry(t,scope)'),'Search must be applied to whole account before paging');
 assert(html.includes("if(panel.dataset.ratibPaginated==='1')"),'Search counter must work with paginated screens');
@@ -30,7 +30,7 @@ const all=[...account,...outsiders],before=JSON.stringify(all);
 let reportReads=0,fullSearch=0;
 const state={accountName:'صندوق المؤسسة',scopeNames:['صندوق المؤسسة'],currency:'ALL',activeCurrency:'YER',from:'',to:'',aggregate:false,viewOrder:'newest',viewPageSize:50,viewPages:{},movementSearch:''};
 const ctx={
- document:doc,window:dom.window,accountOpsState:state,
+ document:doc,window:dom.window,accountOpsState:state,store:{_ratibTxRevision:0},
  accountOpsUi:{panelId:'accountOperationsStandalonePanel',tabsId:'accountCurrencyTabs'},
  ACCOUNT_OPS_UI_DEFAULT:{panelId:'accountOperationsStandalonePanel',tabsId:'accountCurrencyTabs'},
  requestAnimationFrame:cb=>cb(),
@@ -53,7 +53,8 @@ const ctx={
  openDocumentDetailsModal:()=>{},
 };
 ctx.window.ratibStatementEffectiveFrom=()=> '';
-vm.runInNewContext(js+'\nthis.renderTestStatement=renderAccountOperations;this.pageTest=ratibStatementDisplayPage;this.formatTest=ratibStatementDisplayAmount;',ctx,{timeout:10000});
+const cacheJs=html.slice(html.indexOf('let _ratibStatementViewCache=null;'),html.indexOf('let _ratibStatementRestoreSerial=0;'));
+vm.runInNewContext(cacheJs+js+'\nthis.renderTestStatement=renderAccountOperations;this.pageTest=ratibStatementDisplayPage;this.formatTest=ratibStatementDisplayAmount;',ctx,{timeout:10000});
 const panel=doc.getElementById('accountOperationsStandalonePanel');
 function ids(){return [...panel.querySelectorAll('.account-statement-row[data-tx-id]')].map(e=>e.dataset.txId);}
 ctx.renderTestStatement('صندوق المؤسسة',['صندوق المؤسسة']);
@@ -80,6 +81,7 @@ assert.equal(panel.querySelector('.account-currency-page').dataset.ratibMatched,
 assert.equal(panel.querySelector('.account-currency-page').dataset.ratibAll,'3925');
 assert.equal(panel.querySelector('.statement-grand-total .credit').textContent,'3,925','Filtering screen must not alter overall period totals');
 assert.equal(JSON.stringify(all),before,'No stored transaction should ever be edited by paging/search');
-assert(reportReads>=5&&fullSearch>=3925,'Search must cover all movements even when screen has only 50/100 cards');
+assert.equal(reportReads,1,'Paging/order/search reuse a single full-account calculation');
+assert(fullSearch>=3925,'Search must cover all movements even when screen has only 50/100 cards');
 dom.window.close();
 console.log('PASS: latest/oldest ordering, 50/100 paging, 3925-row total, 22100 synthetic ledger, all-pages search, chronological running balances, unchanged print model and original ledger');

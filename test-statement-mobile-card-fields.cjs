@@ -15,7 +15,7 @@ for(const [field,label] of [['debit','مدين'],['credit','دائن'],['balance
 for(const n of [4,5,6])assert(!css.includes(selector+':nth-child('+n+'):before'),'Positional label '+n+' must be removed');
 assert(css.includes(selector+'.debit:empty::after'));
 assert(css.includes(selector+'.credit:empty::after'));
-assert(html.includes('const runningBalances=getAccountRunningBalances(txs,scope,opening)'));
+assert(html.includes('getAccountRunningBalances(data.rows,scope,data.opening)'));
 assert(html.includes('balance=runningBalances.get(t)'));
 assert(sw.includes('-'+version));
 for(const source of [...html.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script>/gi)].map(m=>m[1]).filter(Boolean))new Function(source);

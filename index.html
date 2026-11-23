@@ -1698,7 +1698,7 @@ body.ratib-sidebar-open,body.ratib-about-open{overflow:hidden}
 <link rel="stylesheet" href="./ratib-settings-directory-3.6.211.css?v=3.6.217">
 <link rel="stylesheet" href="./ratib-viewport-insets-3.6.211.css?v=3.6.217">
 <link rel="stylesheet" href="./ratib-preview-zoom-3.6.213.css?v=3.6.217">
-<link rel="stylesheet" href="./ratib-polish-20261123.css?v=1">
+<link rel="stylesheet" href="./ratib-polish-20261123.css?v=2">
 </head>
 <body>
 
@@ -8079,7 +8079,7 @@ window.RatibResetSearchAfterTargetOpen=ratibClearTextSearchAfterTargetOpen;
 
 function openDocumentDetailsModal(item) {
   item=ratibCurrentVoucherDocument(item);if(!item)return;
-  ratibClearTextSearchAfterTargetOpen();
+  if(currentActiveTab!=='pageAccountOperations')ratibClearTextSearchAfterTargetOpen();
   if(item?.commerceId){
     try{window.RatibCommerce?.openDocument?.(item.commerceId);}catch(error){showToast(error.message,'error');}
     return;
@@ -9217,7 +9217,7 @@ function rememberQuickVoucherOrigin(tab=currentActiveTab){
   }:null;
   quickVoucherOrigin={tab,accountName:accountOpsState.accountName,
     accountState:{...accountOpsState,scopeNames:[...(accountOpsState.scopeNames||[])]},
-    report,scrollY:window.scrollY};
+    report,scrollY:window.scrollY,statementAnchor:captureStatementReadingPosition()};
 }
 function restoreQuickVoucherOriginAfterSave(){
   const origin=quickVoucherOrigin;
@@ -9255,6 +9255,7 @@ function restoreQuickVoucherOriginAfterSave(){
     document.getElementById('clearReportAccountBtn')?.classList.remove('hidden');
   }
   requestAnimationFrame(()=>window.scrollTo({top:origin.scrollY||0,behavior:'instant'}));
+  if(origin.statementAnchor)restoreStatementReadingPosition(origin.statementAnchor);
   return true;
 }
 
@@ -9508,6 +9509,51 @@ function ratibBindCurrencyPullToRefresh(){
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',ratibBindCurrencyPullToRefresh,{once:true});
 else ratibBindCurrencyPullToRefresh();
 
+// Screen-only derived models; original report/print accounting functions remain unchanged.
+let _ratibStatementViewCache=null;
+function ratibStatementReadView(currency,scope){
+  const source=getAllTransactions(),revision=Number(store._ratibTxRevision||0);
+  const key=JSON.stringify([accountOpsState.accountName,scope,scope===accountOpsState.scopeNames,
+    accountOpsState.from||'',accountOpsState.to||'',accountOpsState.search||'',!!accountOpsState.aggregate,
+    window.ratibStatementEffectiveFrom?.(accountOpsState.from||'')??(accountOpsState.from||'')]);
+  let cache=_ratibStatementViewCache;
+  if(!cache||cache.source!==source||cache.revision!==revision||cache.key!==key)
+    _ratibStatementViewCache=cache={source,revision,key,models:new Map()};
+  if(cache.models.has(currency))return cache.models.get(currency);
+  const data=getAccountCurrencyReportData(currency);
+  const model={data,runningBalances:getAccountRunningBalances(data.rows,scope,data.opening)};
+  if(cache.models.size>=8)cache.models.delete(cache.models.keys().next().value);
+  cache.models.set(currency,model);return model;
+}
+let _ratibStatementRestoreSerial=0;
+function captureStatementReadingPosition(){
+  if(currentActiveTab!=='pageAccountOperations'||!accountOpsState.accountName)return null;
+  const panel=document.getElementById('accountOperationsStandalonePanel');
+  const page=[...panel?.querySelectorAll('.account-currency-page')||[]].find(el=>el.dataset.currency===accountOpsState.activeCurrency);
+  const rows=[...page?.querySelectorAll('[data-tx-id]')||[]];
+  const row=rows.find(el=>{const rect=el.getBoundingClientRect();return rect.height>0&&rect.bottom>80&&rect.top<window.innerHeight;});
+  if(!row)return null;
+  return {accountName:accountOpsState.accountName,currency:accountOpsState.activeCurrency,
+    txId:String(row.dataset.txId),top:row.getBoundingClientRect().top};
+}
+function restoreStatementReadingPosition(anchor){
+  const serial=++_ratibStatementRestoreSerial;
+  if(!anchor||!Number.isFinite(anchor.top))return;
+  requestAnimationFrame(()=>requestAnimationFrame(()=>{
+    if(serial!==_ratibStatementRestoreSerial||currentActiveTab!=='pageAccountOperations'||
+      accountOpsState.accountName!==anchor.accountName||accountOpsState.activeCurrency!==anchor.currency)return;
+    const panel=document.getElementById('accountOperationsStandalonePanel');
+    const page=[...panel?.querySelectorAll('.account-currency-page')||[]].find(el=>el.dataset.currency===anchor.currency);
+    const row=[...page?.querySelectorAll('[data-tx-id]')||[]].find(el=>String(el.dataset.txId)===anchor.txId);
+    if(!row)return;
+    const margin=row.style.scrollMarginTop;
+    row.style.scrollMarginTop=anchor.top+'px';
+    row.scrollIntoView({block:'start',inline:'nearest',behavior:'instant'});
+    row.style.scrollMarginTop=margin;
+  }));
+}
+for(const event of ['pointerdown','wheel'])document.addEventListener(event,()=>{_ratibStatementRestoreSerial++;},{passive:true,capture:true});
+
 // Screen-only pager. Account totals/balances and printed data remain chronological.
 function ratibStatementDisplayPage(rows,order='newest',requestedPage=1,requestedSize=50){
   const size=requestedSize===100?100:50,total=rows.length,pages=Math.max(1,Math.ceil(total/size));
@@ -9542,7 +9588,7 @@ function renderAccountOperations(accountName,scopeNames=null,ui=null){
   if(tabs){tabs.innerHTML=currencies.length>1?currencies.map((currency,index)=>`<button type="button" role="tab" data-currency="${esc(currency)}" aria-selected="${currency===accountOpsState.activeCurrency}" aria-label="عرض حساب ${esc(accountName)} بعملة ${esc(currency)}">${index+1}. ${currency==='YER'?'ريال يمني':currency==='SAR'?'ريال سعودي':currency==='USD'?'دولار أمريكي':esc(currency)}</button>`).join(''):'';tabs.querySelectorAll('button').forEach(btn=>btn.addEventListener('click',()=>setAccountCurrencyPage(btn.dataset.currency)));}
   panel.innerHTML=`<div class="account-currency-track">${currencies.map(currency=>{
     const effectiveStart=window.ratibStatementEffectiveFrom?.(accountOpsState.from||'')??(accountOpsState.from||'');
-    const data=getAccountCurrencyReportData(currency),{rows:txs,opening,totalDebit,totalCredit,closing:closingBal}=data;
+    const {data,runningBalances}=ratibStatementReadView(currency,scope),{rows:txs,opening,totalDebit,totalCredit,closing:closingBal}=data;
     const filteredTxs=searchTerms.length?txs.filter(t=>{
       const corpus=ratibAccountMovementSearchCorpus(t,getAccountEntry(t,scope),'');
       return searchTerms.every(term=>corpus.includes(term));
@@ -9552,7 +9598,6 @@ function renderAccountOperations(accountName,scopeNames=null,ui=null){
     const head=`<div class="account-operations-head"><span>${esc(currency)}</span><small>${searchTerms.length?filteredTxs.length+' من '+txs.length:txs.length} عملية</small></div>`;
     const controls=`<div class="ratib-statement-page-tools no-print" data-ratib-currency="${esc(currency)}"><label>ترتيب العرض <select data-ratib-statement-order aria-label="ترتيب عرض كشف الحساب"><option value="newest" ${viewOrder==='newest'?'selected':''}>الأحدث أولًا</option><option value="oldest" ${viewOrder==='oldest'?'selected':''}>الأقدم أولًا</option></select></label><label>عدد البطاقات <select data-ratib-statement-size aria-label="عدد بطاقات كشف الحساب"><option value="50" ${viewSize===50?'selected':''}>50</option><option value="100" ${viewSize===100?'selected':''}>100</option></select></label><div class="ratib-statement-page-actions"><button type="button" data-ratib-page-step="-1" ${view.page<=1?'disabled':''}>السابق</button><span aria-live="polite">صفحة ${view.page} من ${view.pages} · ${view.from}–${view.to} من ${view.total}</span><button type="button" data-ratib-page-step="1" ${view.page>=view.pages?'disabled':''}>التالي</button></div></div>`;
     const openingRow=effectiveStart&&opening!==0&&(viewOrder==='oldest'?view.page===1:view.page===view.pages)?`<div class="account-statement-row opening"><span class="ratib-account-row-date">${ratibStatementDateHtml(effectiveStart)}</span><span>—</span><span>الرصيد السابق قبل بداية الفترة</span><span class="debit">${opening<0?ratibStatementDisplayAmount(Math.abs(opening)):''}</span><span class="credit">${opening>0?ratibStatementDisplayAmount(opening):''}</span><span class="balance">${ratibStatementDisplayAmount(Math.abs(opening))} ${esc(currency)} ${opening>0?'دائن':'مدين'}</span></div>`:'';
-    const runningBalances=getAccountRunningBalances(txs,scope,opening);
     const totalsTitle=ratibStatementTotalsTitle(effectiveStart,accountOpsState.to,opening!==0);
     const closingType=closingBal===0?'صفر':closingBal>0?'دائن':'مدين';
     const inclusive=ratibStatementInclusiveTotals(data);
@@ -11420,7 +11465,7 @@ function entrycaptureAppView(){
   if(tab==='pageReports')view.reportAdvancedOpen=!document.getElementById('reportAdvPanel')?.classList.contains('hidden');
   page?.querySelectorAll('input[id]:not([type="password"]),select[id],textarea[id]').forEach(el=>{view.fields.push({id:el.id,value:el.value,checked:el.checked});});
   for(const selector of [selDebitAcc,selCreditAcc,selReportAccount,multiSourceAcc])if(selector&&page?.contains(selector.wrap))view.selections.push({id:selector.input.id,value:selector.getValue(),text:selector.input.value});
-  if(tab==='pageAccountOperations'){view.account=cloneData(accountOpsState);view.accountReturnTab=accountOperationsReturnTab;}
+  if(tab==='pageAccountOperations'){view.account=cloneData(accountOpsState);view.accountReturnTab=accountOperationsReturnTab;view.statementAnchor=captureStatementReadingPosition();}
   if(tab==='pageLedger')view.ledger={anchor:ledgerReturnAnchor,types:[...currentLedgerVoucherTypes],search:currentLedgerSearchQuery,status:currentLedgerStatusFilter,quick:currentLedgerQuickFilter,limit:ledgerVisibleLimit};
   if(tab==='pageReports'){view.reportAdv=cloneData(reportAdv);view.statementSearch=currentStatementSearchQuery;}
   if(tab==='pageReports'){view.reportMode=activeReportTab;view.reportSection=document.getElementById('reportsGroupTrialBody')?.classList.contains('open')?'trial':document.getElementById('reportsGroupBudgetBody')?.classList.contains('open')?'budget':document.getElementById('reportsGroupStatementBody')?.classList.contains('open')?'statement':null;}
@@ -11475,6 +11520,7 @@ function entryrestoreAppView(view){
     window.scrollTo({top:view.scrollY||0,behavior:'instant'});
     if(Number.isFinite(view.bodyScrollTop))document.body.scrollTop=view.bodyScrollTop;
     if(view.ledger)restoreLedgerAnchor(view.ledger.anchor);
+    if(view.statementAnchor)restoreStatementReadingPosition(view.statementAnchor);
     recordAppHistory({page:'tab',tab:view.tab});
   }finally{_restoringAppView=false;}
 }

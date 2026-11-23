@@ -1,5 +1,17 @@
 /* Retain existing palettes, layout and control sizes. */
 @media screen {
+ :is(input:not([type="checkbox"]):not([type="radio"]):not([type="button"]):not([type="submit"]):not([type="file"]):not([type="hidden"]),textarea,select):focus,
+ .financial-number-field:focus-within {
+  border-color:var(--accent,#145e40)!important;
+  outline:2px solid var(--accent,#145e40)!important;
+  outline-offset:2px;
+  box-shadow:0 0 0 5px color-mix(in srgb,var(--accent,#145e40) 18%,transparent)!important;
+  background-color:color-mix(in srgb,var(--accent,#145e40) 4%,var(--card,#fff))!important;
+ }
+ .financial-number-field:focus-within {border-radius:10px;}
+ .financial-number-field>input:focus {
+  outline:none!important;box-shadow:none!important;
+ }
  #dashboardHomeContent .ratib-home-main-grid .main-menu-btn {
   box-shadow:0 2px 6px #00000008!important;
   transition:background-color 120ms ease,border-color 120ms ease!important;

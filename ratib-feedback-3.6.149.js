@@ -32,6 +32,7 @@ function write(patch){
 function muteReminders(){try{return typeof store!=='undefined'&&typeof store.get==='function'&&store.get('notification_sound_enabled',true)===false}catch(_){return false}}
 function availableAudio(){const AC=window.AudioContext||window.webkitAudioContext;if(!AC)return null;try{audio=audio||new AC();return audio}catch(error){console.warn('Ratib WebAudio unavailable',error);return null}}
 function unlock(){
+ if(window.RatibNative?.playSystemSound)return;
  if(!read().master||muteReminders()&&read().save===false)return;
  const ctx=availableAudio();
  if(ctx?.state==='suspended')ctx.resume().catch(()=>{});
@@ -45,7 +46,7 @@ const PATTERNS={
  warning:[[0,494,.14],[.22,392,.24]],
  error:[[0,370,.15],[.17,294,.24]]
 };
-// Use the application's original short click, not Android's inaccessible system sound.
+// Android delegates tones and volume to the phone; web keeps its own audio fallback.
 function play(kind='reminder',priority='',test=false,suppressVibration=false){
  const cfg=read();
  if(!cfg.master||LEVELS[cfg.volume]<=0)return false;
@@ -67,6 +68,10 @@ function play(kind='reminder',priority='',test=false,suppressVibration=false){
  lastPlayed.set(id,now);
  if(kind==='save'&&cfg.saveCue==='vibration')return vibration;
  if(kind==='tap'&&cfg.tapCue==='vibration')return vibration;
+ if(window.RatibNative?.playSystemSound){
+  try{window.RatibNative.playSystemSound(kind);}catch(error){console.warn('Ratib system feedback unavailable',error);}
+  return true;
+ }
  if(kind==='tap'&&window.RatibNative?.playTapSound){
   try{if(window.RatibNative.playTapSound(Math.round(LEVELS[cfg.volume]*100)))return true;}catch(_){}
  }
@@ -170,7 +175,8 @@ function reminder(reminder,findReminder,saveReminders,openReminderModal,renderRe
  };
  const open=()=>{const i=active();if(i<0){toast('لم يعد التذكير موجودًا.','info');return;}openReminderModal(i);};
  toast('⏰ تذكير مستحق: '+safeText(r.title),'warn',12000,{kind:'reminder',silent:true,actions:[{label:'فتح التذكير',run:open},{label:'تأجيل 10 دقائق',run:snooze}]});
- play(severity,r.priority||'');
+ // A permitted native notification owns its sound; avoid playing the same reminder twice.
+ if(!(window.RatibNative?.playSystemSound&&window.Notification?.permission==='granted'))play(severity,r.priority||'');
 }
 function syncUI(){
  const card=$('ratibFeedbackSettings');if(!card)return;
@@ -208,6 +214,12 @@ function install(){
   if(!play(key,'',true))toast('الصوت مكتوم أو لم يمنح المتصفح إذن تشغيله. تأكد من التفعيل.', 'info',4500,{silent:true});
  });
  $('ratibFeedbackDefaults')?.addEventListener('click',()=>{write(DEFAULTS);toast('عادت إعدادات الأصوات الافتراضية.','info',3000,{silent:true});});
+ if(window.RatibNative?.playSystemSound){
+  for(const key of ['volume','style'])box.querySelector('[data-feedback-select="'+key+'"]')?.closest('.ratib-feedback-select-row')?.setAttribute('hidden','');
+  box.querySelector('h3+p').textContent='صوت الضغط والحفظ والتنبيه هو صوت النقر الافتراضي للجوال. التذكيرات تستخدم نغمة الإشعارات الافتراضية. مستوى الصوت والكتم يتبعان إعدادات النظام.';
+  box.querySelector('.ratib-feedback-guidance').textContent='لتغيير النغمة أو مستوى الصوت، استخدم إعدادات الأصوات في الجوال. لا يصدر صوت أثناء السحب أو التمرير أو لمس الحقول النصية.';
+  for(const option of box.querySelectorAll('#ratibTapCue option,#ratibSaveCue option'))option.textContent=option.textContent.replace('نغمة التطبيق السابقة','صوت النظام').replace('نغمة التطبيق','صوت النظام').replace('نغمة واضحة','صوت النظام').replace('نغمة فقط','صوت النظام فقط');
+ }
  syncUI();
 }
 function targetForTap(node){
@@ -255,7 +267,7 @@ function keyPressKeyboard(event){
  const control=targetForTap(event.target);
  if((key==='Enter'||key===' ')&&control)play('tap','',false,control.id==='ratibAdhkarHapticTest');
 }
-window.RatibFeedback={toast,play,reminder,read,write,syncUI,install};
+window.RatibFeedback={toast,play,reminder,read,write,syncUI,install,allowReminderSound:()=>read().master&&read().reminder&&!muteReminders()};
 document.addEventListener('pointerdown',pressStart,{passive:true,capture:true});
 document.addEventListener('pointermove',pressMoved,{passive:true,capture:true});
 document.addEventListener('pointerup',pressEnd,{passive:true,capture:true});

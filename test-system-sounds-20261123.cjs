@@ -18,7 +18,7 @@ w.RatibNative.playSystemSound=kind=>{calls.push(kind);return true;};
 w.Notification={permission:'granted'};const before=calls.length;
 f.reminder({title:'fixture'},()=>-1,()=>{},()=>{},()=>{},()=>{},()=>[]);assert.equal(calls.length,before,'System notification owns actual reminder audio once');
 w.Date.now=()=>Date.now()+3000;w.Notification.permission='denied';f.reminder({title:'fixture'},()=>-1,()=>{},()=>{},()=>{},()=>{},()=>[]);assert.equal(calls.at(-1),'reminder','Denied permission retains foreground default notification sound');
-for(const key of ['volume','style'])assert(w.document.querySelector('[data-feedback-select="'+key+'"]').closest('.ratib-feedback-select-row').hidden);
+for(const key of ['volume','style'])assert.equal(w.document.querySelector('[data-feedback-select="'+key+'"]'),null);
 const java=fs.readFileSync('android/app/src/main/java/dev/ratib/android/MainActivity.java','utf8');
 assert(java.includes('manager.playSoundEffect(android.media.AudioManager.FX_KEY_CLICK);'));
 assert(!java.includes('SoundPool'));assert(!java.includes('setStreamVolume('));assert(!java.includes('setRingerMode('));

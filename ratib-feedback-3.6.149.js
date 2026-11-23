@@ -215,7 +215,7 @@ function install(){
  });
  $('ratibFeedbackDefaults')?.addEventListener('click',()=>{write(DEFAULTS);toast('عادت إعدادات الأصوات الافتراضية.','info',3000,{silent:true});});
  if(window.RatibNative?.playSystemSound){
-  for(const key of ['volume','style'])box.querySelector('[data-feedback-select="'+key+'"]')?.closest('.ratib-feedback-select-row')?.setAttribute('hidden','');
+  for(const key of ['volume','style'])box.querySelector('[data-feedback-select="'+key+'"]')?.closest('.ratib-feedback-select-row')?.remove();
   box.querySelector('h3+p').textContent='صوت الضغط والحفظ والتنبيه هو صوت النقر الافتراضي للجوال. التذكيرات تستخدم نغمة الإشعارات الافتراضية. مستوى الصوت والكتم يتبعان إعدادات النظام.';
   box.querySelector('.ratib-feedback-guidance').textContent='لتغيير النغمة أو مستوى الصوت، استخدم إعدادات الأصوات في الجوال. لا يصدر صوت أثناء السحب أو التمرير أو لمس الحقول النصية.';
   for(const option of box.querySelectorAll('#ratibTapCue option,#ratibSaveCue option'))option.textContent=option.textContent.replace('نغمة التطبيق السابقة','صوت النظام').replace('نغمة التطبيق','صوت النظام').replace('نغمة واضحة','صوت النظام').replace('نغمة فقط','صوت النظام فقط');

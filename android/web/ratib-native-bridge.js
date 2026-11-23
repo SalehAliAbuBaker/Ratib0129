@@ -86,7 +86,7 @@ window.print=()=>{
 // Native biometric prompt verifies the enrolled Android user; PIN remains needed
 // to obtain the vault key at the beginning of each app session.
 if(capabilities().biometric)window.PublicKeyCredential=window.PublicKeyCredential||function(){};
-class NativeNotification{constructor(title,opts={}){request('notify',{title,body:opts.body||'',tag:opts.tag||title}).catch(error);}close(){}static get permission(){return capabilities().notifications?'granted':'default';}static async requestPermission(){return request('notificationPermission');}}
+class NativeNotification{constructor(title,opts={}){request('notify',{title,body:opts.body||'',tag:opts.tag||title,silent:opts.silent===true||window.RatibFeedback?.allowReminderSound?.()===false}).catch(error);}close(){}static get permission(){return capabilities().notifications?'granted':'default';}static async requestPermission(){return request('notificationPermission');}}
 window.Notification=NativeNotification;
 Object.defineProperty(navigator,'app',{value:{exitApp(){request('exit');}}});
 window.close=()=>request('exit');

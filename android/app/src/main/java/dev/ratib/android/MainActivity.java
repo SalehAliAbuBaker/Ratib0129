@@ -74,9 +74,7 @@ public final class MainActivity extends Activity {
     private static final long MAX_FILE=128L*1024*1024;
     private WebView web;
     private android.os.Vibrator dhikrVibrator;
-    private android.media.SoundPool tapSounds;
-    private volatile int tapSample;
-    private volatile boolean tapSoundReady;
+    private android.media.Ringtone feedbackTone;
     private void stopDhikrHaptics(){
         if(dhikrVibrator!=null){dhikrVibrator.cancel();dhikrVibrator=null;}
     }
@@ -123,9 +121,6 @@ public final class MainActivity extends Activity {
     @Override public void onCreate(Bundle state) {
         super.onCreate(state);
         prefs=getSharedPreferences("ratib-native",MODE_PRIVATE);
-        tapSounds=new android.media.SoundPool.Builder().setMaxStreams(2).setAudioAttributes(new android.media.AudioAttributes.Builder().setUsage(android.media.AudioAttributes.USAGE_GAME).setContentType(android.media.AudioAttributes.CONTENT_TYPE_SONIFICATION).build()).build();
-        tapSounds.setOnLoadCompleteListener((pool,sample,status)->{if(status==0&&sample==tapSample)tapSoundReady=true;});
-        tapSample=tapSounds.load(this,R.raw.ratib_tap,1);
         localAssets=new LocalAssets(this);
         root=new FrameLayout(this);
         setContentView(root);
@@ -301,11 +296,12 @@ public final class MainActivity extends Activity {
         }
         @JavascriptInterface public void dhikrHapticsLevel(int level){runOnUiThread(()->startDhikrHaptics(level,false));}
         @JavascriptInterface public void previewDhikrHaptics(int level){runOnUiThread(()->startDhikrHaptics(level,true));}
-        @JavascriptInterface public boolean playTapSound(int percent){
-            android.media.SoundPool pool=tapSounds;
-            if(pool==null||!tapSoundReady||isFinishing())return false;
-            float gain=Math.max(0,Math.min(100,percent))/100f;
-            try{return pool.play(tapSample,gain,gain,1,0,1f)!=0;}catch(RuntimeException ignored){return false;}
+        @JavascriptInterface public boolean playTapSound(int ignoredPercent){return playSystemSound("tap");}
+        @JavascriptInterface public boolean playSystemSound(String kind){
+            if(!java.util.Arrays.asList("tap","save","warning","error","reminder","urgent","critical").contains(kind))return true;
+            runOnUiThread(()->playDefaultFeedback(kind));
+            // Handled also means intentionally silent: never fall back to media audio.
+            return true;
         }
         @JavascriptInterface public String capabilities(){
             try{return new JSONObject().put("biometric",hasBiometrics()).put("notifications",notificationsAllowed()).put("androidVersion",BuildConfig.VERSION_CODE).toString();}
@@ -762,8 +758,38 @@ public final class MainActivity extends Activity {
                 @Override public void onAuthenticationError(int code,CharSequence message){biometricSignal=null;result(id,false,message.toString());}
             });
     }
+    private void playDefaultFeedback(String kind){
+        if(isFinishing()||isDestroyed())return;
+        android.media.AudioManager manager=(android.media.AudioManager)getSystemService(AUDIO_SERVICE);
+        if(manager==null)return;
+        try{
+            if(!("reminder".equals(kind)||"urgent".equals(kind)||"critical".equals(kind))){
+                manager.playSoundEffect(android.media.AudioManager.FX_KEY_CLICK);
+                return;
+            }
+            NotificationManager notifications=(NotificationManager)getSystemService(NOTIFICATION_SERVICE);
+            if(manager.getRingerMode()!=android.media.AudioManager.RINGER_MODE_NORMAL
+                ||manager.getStreamVolume(android.media.AudioManager.STREAM_NOTIFICATION)==0
+                ||notifications.getCurrentInterruptionFilter()!=NotificationManager.INTERRUPTION_FILTER_ALL)return;
+            if(android.media.RingtoneManager.getActualDefaultRingtoneUri(this,android.media.RingtoneManager.TYPE_NOTIFICATION)==null)return;
+            if(feedbackTone!=null)feedbackTone.stop();
+            feedbackTone=android.media.RingtoneManager.getRingtone(this,
+                android.media.RingtoneManager.getDefaultUri(android.media.RingtoneManager.TYPE_NOTIFICATION));
+            if(feedbackTone!=null){
+                feedbackTone.setAudioAttributes(new android.media.AudioAttributes.Builder()
+                    .setUsage(android.media.AudioAttributes.USAGE_NOTIFICATION)
+                    .setContentType(android.media.AudioAttributes.CONTENT_TYPE_SONIFICATION).build());
+                feedbackTone.setLooping(false);feedbackTone.play();
+            }
+        }catch(RuntimeException ex){android.util.Log.w("RatibFeedback","System feedback unavailable",ex);}
+    }
     private boolean notificationsAllowed(){return Build.VERSION.SDK_INT<33||checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS)==PackageManager.PERMISSION_GRANTED;}
-    private void createNotificationChannel(){((NotificationManager)getSystemService(NOTIFICATION_SERVICE)).createNotificationChannel(new NotificationChannel("ratib-reminders","تذكيرات راتب",NotificationManager.IMPORTANCE_DEFAULT));}
+    private void createNotificationChannel(){
+        NotificationChannel channel=new NotificationChannel("ratib-reminders","تذكيرات راتب",NotificationManager.IMPORTANCE_DEFAULT);
+        channel.setSound(android.provider.Settings.System.DEFAULT_NOTIFICATION_URI,new android.media.AudioAttributes.Builder()
+            .setUsage(android.media.AudioAttributes.USAGE_NOTIFICATION).build());
+        ((NotificationManager)getSystemService(NOTIFICATION_SERVICE)).createNotificationChannel(channel);
+    }
     private void notificationPermission(String id){
         if(notificationsAllowed()){result(id,true,"granted");return;}
         if(notificationRequest!=null){result(id,false,"طلب الإشعارات قيد التنفيذ");return;}
@@ -781,14 +807,14 @@ if(request==NOTIFY_PERMISSION&&notificationRequest!=null){String id=notification
     private void notifyUser(JSONObject args){
         if(!notificationsAllowed())return;
         PendingIntent intent=PendingIntent.getActivity(this,0,new Intent(this,MainActivity.class),PendingIntent.FLAG_IMMUTABLE|PendingIntent.FLAG_UPDATE_CURRENT);
-        Notification notification=new Notification.Builder(this,"ratib-reminders").setSmallIcon(android.R.drawable.ic_popup_reminder).setContentTitle(args.optString("title")).setContentText(args.optString("body")).setContentIntent(intent).setAutoCancel(true).build();
+        Notification notification=new androidx.core.app.NotificationCompat.Builder(this,"ratib-reminders").setSmallIcon(android.R.drawable.ic_popup_reminder).setContentTitle(args.optString("title")).setContentText(args.optString("body")).setContentIntent(intent).setSilent(args.optBoolean("silent",false)).setAutoCancel(true).build();
         ((NotificationManager)getSystemService(NOTIFICATION_SERVICE)).notify(args.optString("tag").hashCode(),notification);
     }
     private void cleanOldExports(){File dir=new File(getCacheDir(),"exports");File[] files=dir.listFiles();if(files!=null)for(File file:files)if(System.currentTimeMillis()-file.lastModified()>24*60*60*1000L)file.delete();}
     @Override public void onBackPressed(){if(web==null){finish();return;}web.evaluateJavascript("(()=>{if(typeof window.ratibNativeBack==='function'){window.ratibNativeBack();return true;}if(typeof goBackInApp==='function'){goBackInApp();return true;}return false;})()",value->{if(!"true".equals(value))new AlertDialog.Builder(this).setMessage("إغلاق راتب؟").setPositiveButton("إغلاق",(d,w)->finish()).setNegativeButton("إلغاء",null).show();});}
     @Override protected void onPause(){stopDhikrHaptics();if(voiceRecognizer!=null)cancelVoice();if(web!=null)web.evaluateJavascript("typeof flushStorage==='function'&&flushStorage().catch(console.warn)",null);super.onPause();}
     @Override protected void onDestroy(){
-        stopDhikrHaptics();tapSoundReady=false;if(tapSounds!=null){tapSounds.release();tapSounds=null;}
+        stopDhikrHaptics();if(feedbackTone!=null){feedbackTone.stop();feedbackTone=null;}
         cancelVoice();biometricVault.cancel();if(biometricSignal!=null)biometricSignal.cancel();
         for(Transfer t:transfers.values()){try{t.out.close();}catch(Exception ignored){}t.file.delete();}
         if(fileCallback!=null)fileCallback.onReceiveValue(null);
